@@ -12,6 +12,7 @@ import asyncio
 import hmac
 import os
 import re
+import time
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request
@@ -20,6 +21,7 @@ from openai import OpenAI
 from supabase import create_client
 
 from . import rag_env  # noqa: F401 — 触发 REPO_ROOT .env 加载
+from .database_manager import SupabaseManager
 from .ingest_pipeline import (
     create_sync_job,
     get_job,
@@ -300,6 +302,54 @@ def build_system_prompt(context: str) -> str:
     return f"{rules}\n【检索到的文档片段】\n{body}"
 
 
+def _history_to_rewrite_block(history: list[dict[str, Any]]) -> str:
+    lines: list[str] = []
+    for h in history:
+        q = h.get("query") if isinstance(h.get("query"), str) else ""
+        a = h.get("response") if isinstance(h.get("response"), str) else ""
+        if not q:
+            continue
+        if a:
+            lines.append(f"Q: {q}\nA: {a}")
+        else:
+            lines.append(f"Q: {q}")
+    return "\n\n".join(lines).strip()
+
+
+async def rewrite_query_with_history(oai: OpenAI, query: str, history: list[dict[str, Any]]) -> str:
+    """将用户问题改写为可独立检索的查询（注入 session 历史）。"""
+    history_block = _history_to_rewrite_block(history)
+    if not history_block:
+        return query
+
+    def _sync_rewrite() -> str:
+        prompt = (
+            "你是检索查询改写器。给定一段对话历史和用户最新问题，"
+            "请将“最新问题”改写为一条自包含、适合向量检索的中文查询。\n"
+            "要求：\n"
+            "- 只输出改写后的查询本身，不要解释；\n"
+            "- 保留用户提到的关键实体、时间/日期、约束条件；\n"
+            "- 不要凭空添加事实。\n"
+        )
+        user = f"【对话历史】\n{history_block}\n\n【最新问题】\n{query}".strip()
+        res = oai.chat.completions.create(
+            model=SILICONFLOW_CHAT_MODEL,
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": user},
+            ],
+            temperature=0.0,
+            stream=False,
+        )
+        try:
+            content = (res.choices[0].message.content or "").strip()
+        except Exception:  # noqa: BLE001
+            content = ""
+        return content or query
+
+    return await asyncio.to_thread(_sync_rewrite)
+
+
 @app.get("/api/py/health")
 def health() -> dict[str, str]:
     return {"ok": "true", "service": "ai-ink-brain-rag"}
@@ -308,6 +358,7 @@ def health() -> dict[str, str]:
 @app.post("/api/py/chat")
 async def chat(
     request: Request,
+    background_tasks: BackgroundTasks,
     authorization: str | None = Header(default=None),
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
@@ -328,6 +379,11 @@ async def chat(
     if not query:
         raise HTTPException(status_code=400, detail="Missing user message")
 
+    session_id_raw = body.get("session_id")
+    if not isinstance(session_id_raw, str) or not session_id_raw.strip():
+        raise HTTPException(status_code=400, detail="Missing session_id")
+    session_id = session_id_raw.strip()
+
     api_key = os.getenv("SILICONFLOW_API_KEY", "").strip()
     if not api_key:
         raise HTTPException(status_code=500, detail="Missing SILICONFLOW_API_KEY")
@@ -343,8 +399,28 @@ async def chat(
             ),
         )
 
+    sbm = SupabaseManager(url=supabase_url, service_key=supabase_key)
+
+    t0 = time.perf_counter()
+    try:
+        history = await sbm.get_chat_history(session_id=session_id, limit=5)
+    except Exception as exc:  # noqa: BLE001
+        _rag_log(f"get_chat_history failed: {exc!s}")
+        history = []
+    t_history_ms = int((time.perf_counter() - t0) * 1000)
+
     date_hints = _collect_date_hints(query)
-    embed_input = augment_query_for_embedding(query)
+    oai = OpenAI(api_key=api_key, base_url=SILICONFLOW_BASE)
+
+    t1 = time.perf_counter()
+    try:
+        rewritten_query = await rewrite_query_with_history(oai, query, history)
+    except Exception as exc:  # noqa: BLE001
+        _rag_log(f"rewrite_query failed: {exc!s}")
+        rewritten_query = query
+    t_rewrite_ms = int((time.perf_counter() - t1) * 1000)
+
+    embed_input = augment_query_for_embedding(rewritten_query)
     match_threshold = _parse_match_threshold()
 
     _rag_log(
@@ -352,7 +428,7 @@ async def chat(
         f"| date_hints={date_hints} | DEFAULT_YEAR={DEFAULT_YEAR}"
     )
 
-    oai = OpenAI(api_key=api_key, base_url=SILICONFLOW_BASE)
+    t2 = time.perf_counter()
     try:
         emb_kw: dict[str, Any] = {
             "model": SILICONFLOW_EMBEDDING_MODEL,
@@ -364,10 +440,12 @@ async def chat(
         vec = list(emb_res.data[0].embedding)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"Embedding failed: {exc!s}") from exc
+    t_embedding_ms = int((time.perf_counter() - t2) * 1000)
 
     hits: list[dict[str, Any]] = []
     date_anchor_count = 0
 
+    t3 = time.perf_counter()
     try:
         sb = create_client(supabase_url, supabase_key)
         rpc = sb.rpc(
@@ -412,6 +490,7 @@ async def chat(
     except Exception as exc:  # noqa: BLE001
         print(f"[rag] match_documents error: {exc!s}", flush=True)
         hits = []
+    t_retrieve_ms = int((time.perf_counter() - t3) * 1000)
 
     context_parts: list[str] = []
     for i, h in enumerate(hits):
@@ -450,7 +529,12 @@ async def chat(
             continue
         chat_messages.append({"role": str(role), "content": text})
 
+    response_chunks: list[str] = []
+    gen_started_at = time.perf_counter()
+    gen_finished_ms: int | None = None
+
     def token_stream():
+        nonlocal gen_finished_ms
         try:
             stream = oai.chat.completions.create(
                 model=SILICONFLOW_CHAT_MODEL,
@@ -462,11 +546,68 @@ async def chat(
                 choice = chunk.choices[0] if chunk.choices else None
                 if not choice or not choice.delta or not choice.delta.content:
                     continue
-                yield choice.delta.content.encode("utf-8")
+                piece = choice.delta.content
+                response_chunks.append(piece)
+                yield piece.encode("utf-8")
         except Exception as exc:  # noqa: BLE001
             yield f"\n[错误] 对话生成失败: {exc!s}".encode("utf-8")
+        finally:
+            gen_finished_ms = int((time.perf_counter() - gen_started_at) * 1000)
 
-    return StreamingResponse(token_stream(), media_type="text/plain; charset=utf-8")
+    def _build_retrieved_context_for_log(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        packed: list[dict[str, Any]] = []
+        for r in rows[:22]:
+            meta = r.get("metadata") if isinstance(r.get("metadata"), dict) else {}
+            content = r.get("content") if isinstance(r.get("content"), str) else ""
+            packed.append(
+                {
+                    "id": r.get("id"),
+                    "similarity": r.get("similarity"),
+                    "metadata": meta,
+                    "content": content[:2000],
+                }
+            )
+        return packed
+
+    async def save_log_after_stream() -> None:
+        response_text = "".join(response_chunks).strip()
+        meta: dict[str, Any] = {
+            "latency_ms": {
+                "history": t_history_ms,
+                "rewrite": t_rewrite_ms,
+                "embedding": t_embedding_ms,
+                "retrieve": t_retrieve_ms,
+                "generate": gen_finished_ms,
+            },
+            "models": {
+                "embedding": SILICONFLOW_EMBEDDING_MODEL,
+                "chat": SILICONFLOW_CHAT_MODEL,
+            },
+            "match": {
+                "count": MATCH_COUNT,
+                "threshold": match_threshold,
+                "date_anchor_count": date_anchor_count,
+            },
+        }
+        payload: dict[str, Any] = {
+            "session_id": session_id,
+            "query": query,
+            "rewritten_query": rewritten_query,
+            "retrieved_context": _build_retrieved_context_for_log(hits),
+            "response": response_text,
+            "metadata": meta,
+        }
+        try:
+            await sbm.save_debug_log(payload)
+        except Exception as exc:  # noqa: BLE001
+            _rag_log(f"save_debug_log failed: {exc!s}")
+
+    background_tasks.add_task(save_log_after_stream)
+    return StreamingResponse(
+        token_stream(),
+        media_type="text/plain; charset=utf-8",
+        background=background_tasks,
+    )
 
 
 @app.post("/api/py/admin/sync")
