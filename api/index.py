@@ -355,6 +355,64 @@ def health() -> dict[str, str]:
     return {"ok": "true", "service": "ai-ink-brain-rag"}
 
 
+@app.get("/api/py/chat/history")
+async def chat_history(
+    session_id: str = Query(..., description="与 POST /api/py/chat 相同的 session_id"),
+    limit: int = Query(100, ge=1, le=200, description="最多返回最近多少轮完整问答"),
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> dict[str, Any]:
+    """按 session 从 rag_conversation_logs 拉取历史，供前端刷新后还原对话。"""
+    _require_auth(authorization, x_blog_admin_token, x_admin_token)
+
+    sid = session_id.strip()
+    if not sid:
+        raise HTTPException(status_code=400, detail="Missing session_id")
+
+    supabase_url = pick_supabase_url()
+    supabase_key = pick_supabase_service_key()
+    if not supabase_url or not supabase_key:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "缺少 Supabase 配置：请设置 NEXT_PUBLIC_SUPABASE_URL 或 SUPABASE_URL，以及 "
+                "SUPABASE_SERVICE_ROLE_KEY 或 SUPABASE_SERVICE_KEY。"
+            ),
+        )
+
+    sbm = SupabaseManager(url=supabase_url, service_key=supabase_key)
+    try:
+        turns = await sbm.list_session_turns(sid, limit=limit)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=500,
+            detail={"error_type": "DATABASE_DISCONNECT", "message": str(exc)},
+        ) from exc
+
+    messages: list[dict[str, Any]] = []
+    for row in turns:
+        q = row.get("query") if isinstance(row.get("query"), str) else ""
+        a = row.get("response") if isinstance(row.get("response"), str) else ""
+        created_at = row.get("created_at")
+        if q.strip():
+            m: dict[str, Any] = {"role": "user", "content": q.strip()}
+            if created_at is not None:
+                m["created_at"] = created_at
+            messages.append(m)
+        if a.strip():
+            m2: dict[str, Any] = {"role": "assistant", "content": a.strip()}
+            if created_at is not None:
+                m2["created_at"] = created_at
+            messages.append(m2)
+
+    return {
+        "ok": True,
+        "session_id": sid,
+        "messages": messages,
+    }
+
+
 @app.post("/api/py/chat")
 async def chat(
     request: Request,

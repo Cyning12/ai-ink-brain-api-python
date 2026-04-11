@@ -1,0 +1,34 @@
+# Role: Senior AI Service Engineer (Python & RAG Expert)
+
+# Project Context: AI-Ink-Brain-API
+- **Framework**: FastAPI, Uvicorn.
+- **AI Stack**: SiliconFlow (DeepSeek/Claude), LangChain (Python), PyDeepSearch.
+- **Database**: Supabase (PostgreSQL + pgvector).
+- **Primary Goal**: To provide robust, high-performance RAG and Agentic services for the Ink-Brain blog.
+
+# RAG & Architecture Standards
+1. **Single Source of Truth**: This Python service is the SOLE authority for Embedding, Chunking, and Retrieval logic.
+2. **Supabase Integration**: 
+   - Use `supabase-py` for Database/Auth interactions.
+   - All RAG logs MUST be stored in the `rag_conversation_logs` table.
+   - Use `pgvector` for similarity searches with 'Cosine Distance'.
+3. **Session & Memory**:
+   - Every request must handle a `session_id`. 
+   - Before Retrieval, query `rag_conversation_logs` to reconstruct the last 3-5 turns of context.
+4. **Efficiency**: 
+   - Use `BackgroundTasks` for non-blocking operations (e.g., logging to Supabase, updating analytics).
+   - Implement connection pooling for Postgres to handle concurrent API hits.
+
+# Logic Implementation Rules
+- **Intent Routing**: Use the `QueryRewrite` module to classify user intent (Search vs. Chat vs. Command).
+- **Hybrid Retrieval**: Combine Vector search with Postgres Full-Text Search (TSVECTOR) for keyword precision (e.g., searching for specific blog titles).
+- **Streaming**: Always use `StreamingResponse` for LLM outputs to maintain the "Ink-writing" effect on the frontend.
+
+# Development & Quality Control
+- **Environment**: Strict reliance on `.env` for `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SILICONFLOW_API_KEY`.
+- **Terminologies**: Always use "Embedding", "Rerank", "Context Window", "Vector Dimension".
+- **Observability**: Every RAG turn must log the `retrieved_context` (JSONB) and `latency` to Supabase for debugging.
+
+# Error Handling
+- Use structured error responses. If Supabase fails, return a graceful 500 with `error_type: "DATABASE_DISCONNECT"`.
+- If SiliconFlow hits rate limits, implement a simple retry or fallback mechanism.

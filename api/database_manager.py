@@ -63,3 +63,30 @@ class SupabaseManager:
         rows_desc = await asyncio.to_thread(_sync_fetch)
         return list(reversed(rows_desc))
 
+    async def list_session_turns(self, session_id: str, *, limit: int = 100) -> list[dict[str, Any]]:
+        """按时间正序返回该 session 的问答轮次（用于前端还原聊天记录）。
+
+        取「最近 limit 条」日志后按 created_at 从早到晚排列。
+        """
+
+        sid = session_id.strip()
+        if not sid:
+            return []
+        cap = max(1, min(int(limit), 200))
+
+        def _sync_fetch() -> list[dict[str, Any]]:
+            sb = self._client()
+            res = (
+                sb.table("rag_conversation_logs")
+                .select("query, response, created_at")
+                .eq("session_id", sid)
+                .order("created_at", desc=True)
+                .limit(cap)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            return [r for r in rows if isinstance(r, dict)]
+
+        rows_desc = await asyncio.to_thread(_sync_fetch)
+        return list(reversed(rows_desc))
+
