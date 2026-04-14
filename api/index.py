@@ -624,6 +624,9 @@ async def chat(
         f"| date_hints={date_hints} | DEFAULT_YEAR={DEFAULT_YEAR}"
     )
 
+    # Embedding 优雅降级：向量服务异常时，退化为 keyword-only（FTS）检索，保持服务“半离线可用”
+    vec: list[float] | None = None
+    embedding_error: str | None = None
     t2 = time.perf_counter()
     try:
         emb_kw: dict[str, Any] = {
@@ -635,7 +638,9 @@ async def chat(
         emb_res = oai.embeddings.create(**emb_kw)
         vec = list(emb_res.data[0].embedding)
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=502, detail=f"Embedding failed: {exc!s}") from exc
+        embedding_error = str(exc)
+        _rag_log(f"embedding failed, fallback to keyword-only: {embedding_error}")
+        vec = None
     t_embedding_ms = int((time.perf_counter() - t2) * 1000)
 
     hits: list[dict[str, Any]] = []
@@ -646,19 +651,27 @@ async def chat(
     t3 = time.perf_counter()
     try:
         sb = create_client(supabase_url, supabase_key)
-        rpc = sb.rpc(
-            "match_documents",
-            {
-                "query_embedding": vec,
-                "match_count": MATCH_COUNT,
-                "match_threshold": match_threshold,
-            },
-        )
-        raw = rpc.execute().data
-        if isinstance(raw, list):
-            vector_hits = [h for h in raw if isinstance(h, dict)]
 
+        # 路 A：Vector（若 embedding 可用）
+        if vec is not None:
+            rpc = sb.rpc(
+                "match_documents",
+                {
+                    "query_embedding": vec,
+                    "match_count": MATCH_COUNT,
+                    "match_threshold": match_threshold,
+                },
+            )
+            raw = rpc.execute().data
+            if isinstance(raw, list):
+                vector_hits = [h for h in raw if isinstance(h, dict)]
+        else:
+            vector_hits = []
+
+        # 路 B：Keyword（FTS）
         keyword_hits = fetch_keyword_hits(sb, rewritten_query, match_count=12)
+
+        # 融合：embedding 不可用时退化为 keyword 排序（RRF 逻辑自动适配）
         fused_hits = fuse_hits_rrf(vector_hits, keyword_hits, max_total=22)
         hits = fused_hits
 
@@ -818,6 +831,8 @@ async def chat(
                     "rrf_k": RRF_K,
                     "vector_hits": len(vector_hits),
                     "keyword_hits": len(keyword_hits),
+                    "mode": "hybrid" if vec is not None else "keyword_only",
+                    "embedding_error": embedding_error,
                 },
             },
         }

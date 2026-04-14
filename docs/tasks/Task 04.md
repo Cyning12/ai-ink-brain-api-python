@@ -15,27 +15,32 @@
 ## 1) 后端输出标准化（`api/index.py`）
 
 ### 1.1 元数据清洗（必须）
-在 RRF 融合与（可选）日期锚点注入完成后，取 Top-k（建议 8~12）生成 `sources[]`：
+在 RRF 融合与（可选）日期锚点注入完成后，取 Top-k（本任务要求 **3~5**）生成 `sources[]`：
 - `id`：documents.id
-- `relativePath`：`metadata.relativePath`（优先）
+- `content`：文本片段摘要（对 `content` 去掉 `[Document Context] / Title / Date / Category / Content:` 前缀噪声后截断）
 - `filename`：`metadata.filename`
-- `slug`：`metadata.slug`
-- `original_link`：`metadata.original_link`（若存在）
-- `category`：`metadata.category`
-- `chunk_index`：`metadata.chunk_index`
-- `snippet`：从 `content` 截取 200~400 字符的摘要（去掉前缀元信息行，如 `[Document Context]`、`Title:` 等）
-- `score`：`fused_score`（或向量 similarity / keyword score 的组合信息，至少保留 fused_score）
+- `score`：RRF 融合后的最终得分（后端字段为 `fused_score`）
+- `path`：`metadata.relativePath`
+- `url`：`metadata.original_link`（若存在）
+
+兼容字段（已存在于系统中，前端可继续使用）：
+- `relativePath / original_link / snippet / fused_score / slug / category / chunk_index`
 
 > 注意：sources 中不要塞完整 content，避免 payload 过大；保留 snippet 够 UI 预览即可。
 
 ### 1.2 响应结构（流式兼容）
-采用 **“流末尾分隔符 + JSON”** 的方式（推荐），避免依赖自定义 header（header 不适合承载大 JSON）：
+采用 **Header + 流末尾分隔符兜底** 的方式（已实现）：
+- **优先**：通过 `x-sources` Header 发送 sources JSON（为兼容 Header ASCII 限制，后端对 JSON 做了 percent-encoding）
+- **兜底/兼容**：在流末尾追加分隔符 + JSON（用于旧客户端或代理丢弃自定义 header 的场景）
+
+流末尾兜底格式：
 - 文本流正常输出 assistant 内容
 - 在流结束前追加一个分隔符行与 JSON：
   - 分隔符：`\n\n---RAG_SOURCES_JSON---\n`
   - JSON：`{"sources":[...], "retrieval":{...}}`
 
 前端解析策略：
+- 优先读 `x-sources`（`decodeURIComponent` 后 `JSON.parse`）
 - 若响应中存在分隔符，则将其后的 JSON 解析为 sources；分隔符之前仍视为正常回答文本。
 - 若不存在分隔符（兼容旧版本），UI 不展示 sources 卡片。
 
@@ -52,7 +57,7 @@
 
 ## 2) 前端 UI 实装（`ai-ink-brain`）
 
-### 2.1 新增组件：`<SourceCitation />`
+### 2.1 新增组件：`<SourceCitations />`
 展示位置：AI 单轮回答下方。
 
 ### 2.2 视觉规范（水墨风）
@@ -65,6 +70,8 @@
 - 点击来源卡片：
   - 若有 `original_link`：新开或弹层预览（由前端决定）
   - 否则用 `relativePath` 定位到站内文章（或弹层预览 snippet）
+
+- 悬浮预览（推荐）：hover 卡片显示该 chunk 的 `content/snippet`（不打断点击行为）
 
 ### 2.4 验收（前端）
 - 聊天仍可流式显示
