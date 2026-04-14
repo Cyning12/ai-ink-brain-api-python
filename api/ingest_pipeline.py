@@ -2,7 +2,9 @@
 content/ → 分块 → SiliconFlow 向量 → Supabase documents。
 
 注意：该 repo 不包含 content/，用于远端部署时通常只跑 chat；
-若要在此项目里跑 ingest/sync，请自行提供 content/ 目录或实现远端数据源。
+若要在此项目里跑 ingest/sync：
+- 本地开发推荐设置环境变量 CONTENT_ROOT 指向前端仓库的 content/ 目录；
+- 线上推荐用 CI 从前端仓库跑入库（避免 serverless 运行时扫文件）。
 """
 
 from __future__ import annotations
@@ -98,8 +100,20 @@ def _walk_markdown(content_root: Path) -> list[tuple[Path, str]]:
 
 
 def get_all_markdown_chunks() -> list[IngestChunk]:
-    content_root = REPO_ROOT / "content"
-    content_root.mkdir(parents=True, exist_ok=True)
+    # content 源目录：
+    # - 默认：后端仓库内的 REPO_ROOT/content
+    # - 本地开发：可通过 CONTENT_ROOT 指向前端仓库的 content（保持博客展示与入库同源）
+    raw_root = os.getenv("CONTENT_ROOT", "").strip()
+    if raw_root:
+        content_root = Path(raw_root).expanduser().resolve()
+    else:
+        content_root = (REPO_ROOT / "content").resolve()
+        content_root.mkdir(parents=True, exist_ok=True)
+
+    if raw_root and not content_root.is_dir():
+        if DEBUG_INGEST:
+            print(f"[ingest] CONTENT_ROOT={raw_root!r} 不是目录，跳过扫描")
+        return []
     results: list[IngestChunk] = []
     for abs_p, rel in _walk_markdown(content_root):
         stat = abs_p.stat()
@@ -259,6 +273,16 @@ def process_markdown_files() -> dict[str, Any]:
         sb.table("documents").insert(slice_).execute()
         inserted += len(slice_)
 
+    # Hybrid Search: 兜底刷新 fts_tokens（若已安装触发器则通常不需要，但可避免历史库未迁移导致的空值）
+    try:
+        sb.rpc(
+            "refresh_documents_fts_tokens_for_paths",
+            {"relative_paths": unique_paths},
+        ).execute()
+    except Exception as exc:  # noqa: BLE001
+        if DEBUG_INGEST:
+            print(f"[ingest] refresh fts_tokens skipped: {exc!s}")
+
     return {
         "filesScanned": files_scanned,
         "chunksTotal": len(chunks),
@@ -315,6 +339,16 @@ def sync_content_to_vector() -> dict[str, Any]:
         slice_ = rows[i : i + INSERT_BATCH_SIZE]
         sb.table("documents").insert(slice_).execute()
         inserted += len(slice_)
+
+    # Hybrid Search: 同步刷新 fts_tokens
+    try:
+        sb.rpc(
+            "refresh_documents_fts_tokens_for_paths",
+            {"relative_paths": unique_paths},
+        ).execute()
+    except Exception as exc:  # noqa: BLE001
+        if DEBUG_INGEST:
+            print(f"[ingest] refresh fts_tokens skipped: {exc!s}")
 
     return {
         "filesScanned": files_scanned,

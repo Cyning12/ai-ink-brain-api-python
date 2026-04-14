@@ -43,6 +43,82 @@ SILICONFLOW_CHAT_MODEL = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSe
 MATCH_COUNT = 10
 CONTEXT_MAX_CHARS = 6000
 
+# RRF 融合的常用常数（论文/业界常见取值 60）
+RRF_K = 60
+
+
+def _rrf_score(rank: int, *, k: int = RRF_K) -> float:
+    """Reciprocal Rank Fusion: 1 / (k + rank)，rank 从 1 开始。"""
+    r = max(1, int(rank))
+    return 1.0 / float(k + r)
+
+
+def fuse_hits_rrf(
+    vector_hits: list[dict[str, Any]],
+    keyword_hits: list[dict[str, Any]],
+    *,
+    max_total: int = 22,
+) -> list[dict[str, Any]]:
+    """将两路召回按排名做 RRF 融合，输出按 fused_score 降序的去重结果。"""
+    by_id: dict[Any, dict[str, Any]] = {}
+
+    for idx, h in enumerate(vector_hits):
+        hid = h.get("id")
+        if hid is None:
+            continue
+        row = by_id.get(hid) or dict(h)
+        row["rrf"] = row.get("rrf") or {}
+        if isinstance(row["rrf"], dict):
+            row["rrf"]["vector_rank"] = idx + 1
+            row["rrf"]["vector_score"] = _rrf_score(idx + 1)
+        by_id[hid] = row
+
+    for idx, h in enumerate(keyword_hits):
+        hid = h.get("id")
+        if hid is None:
+            continue
+        row = by_id.get(hid) or dict(h)
+        row["rrf"] = row.get("rrf") or {}
+        if isinstance(row["rrf"], dict):
+            row["rrf"]["keyword_rank"] = idx + 1
+            row["rrf"]["keyword_score"] = _rrf_score(idx + 1)
+        by_id[hid] = row
+
+    fused: list[dict[str, Any]] = []
+    for hid, row in by_id.items():
+        rrf = row.get("rrf") if isinstance(row.get("rrf"), dict) else {}
+        vs = float(rrf.get("vector_score") or 0.0)
+        ks = float(rrf.get("keyword_score") or 0.0)
+        row["fused_score"] = vs + ks
+        fused.append(row)
+
+    fused.sort(key=lambda r: float(r.get("fused_score") or 0.0), reverse=True)
+    return fused[: max(1, int(max_total))]
+
+
+def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> list[dict[str, Any]]:
+    """Keyword 路：调用 Supabase RPC keyword_documents（FTS）。"""
+    qt = (query_text or "").strip()
+    if not qt:
+        return []
+    try:
+        res = (
+            sb.rpc(
+                "keyword_documents",
+                {
+                    "query_text": qt,
+                    "match_count": int(match_count),
+                },
+            )
+            .execute()
+            .data
+        )
+        if isinstance(res, list):
+            return [r for r in res if isinstance(r, dict)]
+    except Exception as exc:  # noqa: BLE001
+        _rag_log(f"keyword_documents error: {exc!s}")
+    return []
+
 
 def _parse_match_threshold() -> float | None:
     """match_documents 的 threshold 为余弦相似度，须在 (0,1]；>1 无效（易与 top-k=10 混淆）。"""
@@ -501,6 +577,8 @@ async def chat(
     t_embedding_ms = int((time.perf_counter() - t2) * 1000)
 
     hits: list[dict[str, Any]] = []
+    vector_hits: list[dict[str, Any]] = []
+    keyword_hits: list[dict[str, Any]] = []
     date_anchor_count = 0
 
     t3 = time.perf_counter()
@@ -516,7 +594,11 @@ async def chat(
         )
         raw = rpc.execute().data
         if isinstance(raw, list):
-            hits = [h for h in raw if isinstance(h, dict)]
+            vector_hits = [h for h in raw if isinstance(h, dict)]
+
+        keyword_hits = fetch_keyword_hits(sb, rewritten_query, match_count=12)
+        fused_hits = fuse_hits_rrf(vector_hits, keyword_hits, max_total=22)
+        hits = fused_hits
 
         if date_hints:
             ah = fetch_date_anchor_hits(sb, date_hints)
@@ -524,14 +606,15 @@ async def chat(
                 date_anchor_count = len(ah)
                 print(
                     f"[rag] date_anchor_injected={date_anchor_count} "
-                    f"vector_only={len(hits)} → merged",
+                    f"vector_only={len(vector_hits)} keyword_only={len(keyword_hits)} → merged",
                     flush=True,
                 )
                 hits = merge_hits_anchors_first(ah, hits, max_total=22)
 
-        scores = [round(float(h.get("similarity", 0)), 4) for h in hits]
+        scores = [round(float(h.get("fused_score", 0)), 6) for h in hits]
         print(
-            f"[rag] match_count={MATCH_COUNT} threshold={match_threshold!s} scores={scores}",
+            f"[rag] hybrid vector_count={len(vector_hits)} keyword_count={len(keyword_hits)} "
+            f"match_count={MATCH_COUNT} threshold={match_threshold!s} fused_scores={scores}",
             flush=True,
         )
 
@@ -548,6 +631,8 @@ async def chat(
     except Exception as exc:  # noqa: BLE001
         print(f"[rag] match_documents error: {exc!s}", flush=True)
         hits = []
+        vector_hits = []
+        keyword_hits = []
     t_retrieve_ms = int((time.perf_counter() - t3) * 1000)
 
     context_parts: list[str] = []
@@ -621,6 +706,9 @@ async def chat(
                 {
                     "id": r.get("id"),
                     "similarity": r.get("similarity"),
+                    "keyword_score": r.get("score"),
+                    "fused_score": r.get("fused_score"),
+                    "rrf": r.get("rrf"),
                     "metadata": meta,
                     "content": content[:2000],
                 }
@@ -645,6 +733,11 @@ async def chat(
                 "count": MATCH_COUNT,
                 "threshold": match_threshold,
                 "date_anchor_count": date_anchor_count,
+                "hybrid": {
+                    "rrf_k": RRF_K,
+                    "vector_hits": len(vector_hits),
+                    "keyword_hits": len(keyword_hits),
+                },
             },
         }
         payload: dict[str, Any] = {

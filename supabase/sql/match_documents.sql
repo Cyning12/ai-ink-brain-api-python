@@ -1,0 +1,2 @@
+-- 已合并至同目录 init.sql（建表 + 扩展 + 索引 + match_documents + 权限）。
+-- 请仅维护 supabase/sql/init.sql，避免两处定义漂移。
