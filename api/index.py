@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
 import os
 import re
 import time
+from urllib.parse import quote
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request
@@ -42,6 +44,9 @@ SILICONFLOW_CHAT_MODEL = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSe
 
 MATCH_COUNT = 10
 CONTEXT_MAX_CHARS = 6000
+
+# 流式响应末尾携带引用来源（JSON）的分隔符
+SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
 
 # RRF 融合的常用常数（论文/业界常见取值 60）
 RRF_K = 60
@@ -167,6 +172,63 @@ def _short(text: str, max_len: int) -> str:
 def _extract_title_from_context(content: str) -> str | None:
     m = re.search(r"Title:\s*(\S+)", content)
     return m.group(1).strip() if m else None
+
+
+def _strip_doc_context_prefix(text: str) -> str:
+    """去掉 ingest 写入的文档前缀信息，避免 snippet 噪声。"""
+    t = (text or "").strip()
+    if not t:
+        return ""
+    # 尝试从 Content: 行开始截取
+    m = re.search(r"(?m)^Content:\s*", t)
+    if m:
+        return t[m.end() :].strip()
+    # 否则移除常见头部行
+    t = re.sub(r"(?m)^\[Document Context\]\s*$", "", t).strip()
+    t = re.sub(r"(?m)^Title:\s*.*$", "", t).strip()
+    t = re.sub(r"(?m)^Date:\s*.*$", "", t).strip()
+    t = re.sub(r"(?m)^Category:\s*.*$", "", t).strip()
+    t = re.sub(r"(?m)^---\s*$", "", t).strip()
+    return t
+
+
+def build_sources_payload(hits: list[dict[str, Any]], *, top_k: int = 10) -> dict[str, Any]:
+    """从融合后的命中结果里提取 sources（供前端引用卡片展示）。"""
+    packed: list[dict[str, Any]] = []
+    for h in hits[: max(1, int(top_k))]:
+        meta = h.get("metadata") if isinstance(h.get("metadata"), dict) else {}
+        content = h.get("content") if isinstance(h.get("content"), str) else ""
+        snippet = _strip_doc_context_prefix(content).replace("\r\n", "\n").strip()
+        snippet = snippet[:400] if len(snippet) > 400 else snippet
+
+        filename = meta.get("filename")
+        relative_path = meta.get("relativePath")
+        original_link = meta.get("original_link")
+        fused_score = h.get("fused_score")
+
+        packed.append(
+            {
+                "id": h.get("id"),
+                # --- Task04 规范字段（前端用于“证据链”展示）---
+                "content": snippet,
+                "filename": filename,
+                "score": fused_score,
+                "path": relative_path,
+                "url": original_link,
+                # --- 兼容历史字段（不破坏已有 SourceCitation 组件）---
+                "relativePath": relative_path,
+                "slug": meta.get("slug"),
+                "original_link": original_link,
+                "category": meta.get("category"),
+                "chunk_index": meta.get("chunk_index"),
+                "snippet": snippet,
+                "fused_score": fused_score,
+            }
+        )
+    return {
+        "sources": packed,
+        "retrieval": {"top_k": int(top_k), "rrf_k": RRF_K},
+    }
 
 
 def _require_auth(
@@ -675,6 +737,18 @@ async def chat(
     response_chunks: list[str] = []
     gen_started_at = time.perf_counter()
     gen_finished_ms: int | None = None
+    # Task04：证据链建议 3~5 条
+    sources_payload = build_sources_payload(hits, top_k=5)
+    sources_header: str | None = None
+    try:
+        # Header 只能携带 ASCII：对 JSON 做 percent-encoding
+        sources_header = quote(
+            json.dumps(sources_payload, ensure_ascii=False, separators=(",", ":")),
+            safe="",
+        )
+    except Exception as exc:  # noqa: BLE001
+        _rag_log(f"build x-sources header failed: {exc!s}")
+        sources_header = None
 
     def token_stream():
         nonlocal gen_finished_ms
@@ -696,6 +770,13 @@ async def chat(
             yield f"\n[错误] 对话生成失败: {exc!s}".encode("utf-8")
         finally:
             gen_finished_ms = int((time.perf_counter() - gen_started_at) * 1000)
+            # 在流末尾追加 sources JSON，前端可解析为引用卡片
+            try:
+                blob = json.dumps(sources_payload, ensure_ascii=False, separators=(",", ":"))
+                tail = f"\n\n{SOURCES_JSON_SEPARATOR}\n{blob}\n"
+                yield tail.encode("utf-8")
+            except Exception as exc:  # noqa: BLE001
+                _rag_log(f"build sources json failed: {exc!s}")
 
     def _build_retrieved_context_for_log(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         packed: list[dict[str, Any]] = []
@@ -754,10 +835,14 @@ async def chat(
             _rag_log(f"save_debug_log failed: {exc!s}")
 
     background_tasks.add_task(save_log_after_stream)
+    headers: dict[str, str] = {}
+    if sources_header:
+        headers["x-sources"] = sources_header
     return StreamingResponse(
         token_stream(),
         media_type="text/plain; charset=utf-8",
         background=background_tasks,
+        headers=headers,
     )
 
 
