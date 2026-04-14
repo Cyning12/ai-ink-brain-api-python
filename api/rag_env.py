@@ -48,9 +48,9 @@ def siliconflow_base() -> str:
 
 
 def siliconflow_embedding_model() -> str:
-    return os.getenv(
-        "SILICONFLOW_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-0.6B"
-    ).strip()
+    # 注意：CI/环境变量若显式设置为空字符串，os.getenv 会返回 ""，此时也应回退默认模型
+    raw = os.getenv("SILICONFLOW_EMBEDDING_MODEL", "").strip()
+    return raw or "Qwen/Qwen3-Embedding-0.6B"
 
 
 def siliconflow_embedding_dimensions() -> int:

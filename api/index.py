@@ -34,9 +34,9 @@ app = FastAPI(title="AI-Ink-Brain RAG API")
 
 DEFAULT_YEAR = int(os.getenv("CONTENT_DEFAULT_YEAR", "2026"))
 SILICONFLOW_BASE = os.getenv("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1").rstrip("/")
-SILICONFLOW_EMBEDDING_MODEL = os.getenv(
-    "SILICONFLOW_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-0.6B"
-).strip()
+SILICONFLOW_EMBEDDING_MODEL = (
+    os.getenv("SILICONFLOW_EMBEDDING_MODEL", "").strip() or "Qwen/Qwen3-Embedding-0.6B"
+)
 SILICONFLOW_EMBEDDING_DIMENSIONS = int(os.getenv("SILICONFLOW_EMBEDDING_DIMENSIONS", "1024"))
 SILICONFLOW_CHAT_MODEL = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
 
