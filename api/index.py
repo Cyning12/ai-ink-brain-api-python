@@ -13,6 +13,7 @@ import hmac
 import json
 import os
 import re
+import sys
 import time
 from urllib.parse import quote
 from typing import Any
@@ -47,6 +48,9 @@ CONTEXT_MAX_CHARS = 6000
 
 # 流式响应末尾携带引用来源（JSON）的分隔符
 SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
+
+# x-sources Header 的安全上限（percent-encoding 后容易膨胀；超限会触发 Node/undici 的 headers overflow）
+MAX_X_SOURCES_HEADER_CHARS = int(os.getenv("MAX_X_SOURCES_HEADER_CHARS", "6000"))
 
 # RRF 融合的常用常数（论文/业界常见取值 60）
 RRF_K = 60
@@ -759,6 +763,14 @@ async def chat(
             json.dumps(sources_payload, ensure_ascii=False, separators=(",", ":")),
             safe="",
         )
+        # 保护：Header 过大将导致 Next/Node fetch 直接失败（UND_ERR_HEADERS_OVERFLOW）
+        if sources_header and len(sources_header) > MAX_X_SOURCES_HEADER_CHARS:
+            _rag_log(
+                "x-sources header too large: "
+                f"{len(sources_header)}>{MAX_X_SOURCES_HEADER_CHARS}; "
+                "will omit header and rely on stream tail JSON"
+            )
+            sources_header = None
     except Exception as exc:  # noqa: BLE001
         _rag_log(f"build x-sources header failed: {exc!s}")
         sources_header = None
@@ -782,6 +794,10 @@ async def chat(
         except Exception as exc:  # noqa: BLE001
             yield f"\n[错误] 对话生成失败: {exc!s}".encode("utf-8")
         finally:
+            # 客户端断开时，生成器会收到 GeneratorExit；此时不能再 yield，否则会触发
+            # RuntimeError: generator ignored GeneratorExit
+            if sys.exc_info()[0] is GeneratorExit:
+                return
             gen_finished_ms = int((time.perf_counter() - gen_started_at) * 1000)
             # 在流末尾追加 sources JSON，前端可解析为引用卡片
             try:
