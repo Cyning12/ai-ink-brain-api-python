@@ -105,3 +105,6 @@ htmlcov/
 # type check / language servers
 pyrightconfig.json
 .pyre/
+
+# --- Local docs (do not commit/push) ---
+docs/
