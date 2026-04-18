@@ -31,6 +31,14 @@ from .ingest_pipeline import (
     process_markdown_files,
     run_sync_job_sync,
 )
+from .keyword_fallback import (
+    KeywordFallbackConfig,
+    KeywordFallbackResult,
+    compare_anchor_tokens,
+    run_keyword_fallback,
+)
+from .query_rewrite import rewrite_query_with_history
+from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
 from .rag_env import admin_secret, pick_supabase_service_key, pick_supabase_url
 
 app = FastAPI(title="AI-Ink-Brain RAG API")
@@ -127,6 +135,11 @@ def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> li
     except Exception as exc:  # noqa: BLE001
         _rag_log(f"keyword_documents error: {exc!s}")
     return []
+
+
+def _fetch_keyword_hits_for_fallback(sb: Any, query_text: str, match_count: int) -> list[dict[str, Any]]:
+    # 适配 keyword_fallback 模块的 Callable 签名，避免在模块间传递关键字参数。
+    return fetch_keyword_hits(sb, query_text, match_count=match_count)
 
 
 def _parse_match_threshold() -> float | None:
@@ -444,54 +457,6 @@ def build_system_prompt(context: str) -> str:
     return f"{rules}\n【检索到的文档片段】\n{body}"
 
 
-def _history_to_rewrite_block(history: list[dict[str, Any]]) -> str:
-    lines: list[str] = []
-    for h in history:
-        q = h.get("query") if isinstance(h.get("query"), str) else ""
-        a = h.get("response") if isinstance(h.get("response"), str) else ""
-        if not q:
-            continue
-        if a:
-            lines.append(f"Q: {q}\nA: {a}")
-        else:
-            lines.append(f"Q: {q}")
-    return "\n\n".join(lines).strip()
-
-
-async def rewrite_query_with_history(oai: OpenAI, query: str, history: list[dict[str, Any]]) -> str:
-    """将用户问题改写为可独立检索的查询（注入 session 历史）。"""
-    history_block = _history_to_rewrite_block(history)
-    if not history_block:
-        return query
-
-    def _sync_rewrite() -> str:
-        prompt = (
-            "你是检索查询改写器。给定一段对话历史和用户最新问题，"
-            "请将“最新问题”改写为一条自包含、适合向量检索的中文查询。\n"
-            "要求：\n"
-            "- 只输出改写后的查询本身，不要解释；\n"
-            "- 保留用户提到的关键实体、时间/日期、约束条件；\n"
-            "- 不要凭空添加事实。\n"
-        )
-        user = f"【对话历史】\n{history_block}\n\n【最新问题】\n{query}".strip()
-        res = oai.chat.completions.create(
-            model=SILICONFLOW_CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": user},
-            ],
-            temperature=0.0,
-            stream=False,
-        )
-        try:
-            content = (res.choices[0].message.content or "").strip()
-        except Exception:  # noqa: BLE001
-            content = ""
-        return content or query
-
-    return await asyncio.to_thread(_sync_rewrite)
-
-
 @app.get("/api/py/health")
 def health() -> dict[str, str]:
     return {"ok": "true", "service": "ai-ink-brain-rag"}
@@ -526,6 +491,10 @@ async def chat_history(
     sbm = SupabaseManager(url=supabase_url, service_key=supabase_key)
     try:
         turns = await sbm.list_session_turns(sid, limit=limit)
+    except asyncio.CancelledError:
+        # Python 3.11+: CancelledError 继承自 BaseException，不会被 except Exception 捕获。
+        # 常见于客户端切页/刷新/断开连接导致请求取消；不应记录为 500。
+        raise HTTPException(status_code=499, detail="Client Closed Request")
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(
             status_code=500,
@@ -614,7 +583,12 @@ async def chat(
 
     t1 = time.perf_counter()
     try:
-        rewritten_query = await rewrite_query_with_history(oai, query, history)
+        rewritten_query = await rewrite_query_with_history(
+            oai=oai,
+            query=query,
+            history=history,
+            chat_model=SILICONFLOW_CHAT_MODEL,
+        )
     except Exception as exc:  # noqa: BLE001
         _rag_log(f"rewrite_query failed: {exc!s}")
         rewritten_query = query
@@ -650,6 +624,10 @@ async def chat(
     hits: list[dict[str, Any]] = []
     vector_hits: list[dict[str, Any]] = []
     keyword_hits: list[dict[str, Any]] = []
+    keyword_hits_raw_for_metrics: list[dict[str, Any]] = []
+    keyword_hits_rw_for_metrics: list[dict[str, Any]] = []
+    query_compare_meta: dict[str, Any] | None = None
+    keyword_fallback: KeywordFallbackResult | None = None
     date_anchor_count = 0
 
     t3 = time.perf_counter()
@@ -673,11 +651,78 @@ async def chat(
             vector_hits = []
 
         # 路 B：Keyword（FTS）
-        keyword_hits = fetch_keyword_hits(sb, rewritten_query, match_count=12)
+        # 用于“可观测性”的 raw vs rewrite 对比（不改变最终召回策略）
+        keyword_hits_raw_for_metrics = fetch_keyword_hits(sb, query, match_count=12)
+        keyword_hits_rw_for_metrics = fetch_keyword_hits(sb, rewritten_query, match_count=12)
+
+        def _top1_keyword_score(rows: list[dict[str, Any]]) -> float | None:
+            if not rows:
+                return None
+            v = rows[0].get("score")
+            try:
+                return float(v) if v is not None else None
+            except Exception:  # noqa: BLE001
+                return None
+
+        entity_cmp = compare_anchor_tokens(query, rewritten_query)
+        query_compare_meta = {
+            "query_raw": query,
+            "query_rewrite": rewritten_query,
+            "recall_raw_count": len(keyword_hits_raw_for_metrics),
+            "recall_rw_count": len(keyword_hits_rw_for_metrics),
+            "recall_raw_top1_score": _top1_keyword_score(keyword_hits_raw_for_metrics),
+            "recall_rw_top1_score": _top1_keyword_score(keyword_hits_rw_for_metrics),
+            "is_key_entity_lost": bool(entity_cmp.get("is_key_entity_lost")),
+            "key_entities": entity_cmp,
+            "score_type": "fts_score",
+        }
+
+        # 最终 keyword_hits：仍以 rewrite 为主（与当前策略保持一致），回退逻辑在下方处理
+        keyword_hits = keyword_hits_rw_for_metrics
+        # 方案四：运行时回退（当 rewrite 导致 keyword 命中为 0/不足时，用原 query 的锚点 token 再检索一次）
+        cfg_kw_fb = KeywordFallbackConfig.from_env()
+        keyword_hits, keyword_fallback = run_keyword_fallback(
+            sb=sb,
+            raw_query=query,
+            cfg=cfg_kw_fb,
+            fetch_keyword_hits=_fetch_keyword_hits_for_fallback,
+            initial_hits=keyword_hits,
+        )
 
         # 融合：embedding 不可用时退化为 keyword 排序（RRF 逻辑自动适配）
         fused_hits = fuse_hits_rrf(vector_hits, keyword_hits, max_total=22)
         hits = fused_hits
+
+        if _rag_debug_enabled():
+            fb = keyword_fallback
+            _rag_log(
+                "retrieve_summary "
+                f"raw_query={_short(query, 200)!r} "
+                f"rewritten_query={_short(rewritten_query, 260)!r} "
+                f"vec={'ok' if vec is not None else 'none'} "
+                f"vector_hits={len(vector_hits)} "
+                f"keyword_hits={len(keyword_hits)} "
+                f"fallback={'none' if not fb else (fb.query_used or 'unknown')}"
+            )
+            if query_compare_meta:
+                _rag_log(
+                    "query_compare "
+                    f"raw_count={query_compare_meta.get('recall_raw_count')} "
+                    f"rw_count={query_compare_meta.get('recall_rw_count')} "
+                    f"raw_top1={query_compare_meta.get('recall_raw_top1_score')!r} "
+                    f"rw_top1={query_compare_meta.get('recall_rw_top1_score')!r} "
+                    f"is_key_entity_lost={query_compare_meta.get('is_key_entity_lost')} "
+                    f"missing={(query_compare_meta.get('key_entities') or {}).get('missing')!r}"
+                )
+            if fb and fb.triggered:
+                _rag_log(
+                    "keyword_fallback_detail "
+                    f"reason={fb.reason!r} query_used={fb.query_used!r} "
+                    f"query_text={_short(fb.query_text or '', 220)!r} "
+                    f"anchor_tokens={fb.anchor_tokens!r} "
+                    f"{fb.initial_hits}->{fb.final_hits} latency_ms={fb.latency_ms}"
+                )
+            _rag_log(f"top_hits={summarize_hits_brief(hits, top_n=5)!r}")
 
         if date_hints:
             ah = fetch_date_anchor_hits(sb, date_hints)
@@ -807,24 +852,6 @@ async def chat(
             except Exception as exc:  # noqa: BLE001
                 _rag_log(f"build sources json failed: {exc!s}")
 
-    def _build_retrieved_context_for_log(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        packed: list[dict[str, Any]] = []
-        for r in rows[:22]:
-            meta = r.get("metadata") if isinstance(r.get("metadata"), dict) else {}
-            content = r.get("content") if isinstance(r.get("content"), str) else ""
-            packed.append(
-                {
-                    "id": r.get("id"),
-                    "similarity": r.get("similarity"),
-                    "keyword_score": r.get("score"),
-                    "fused_score": r.get("fused_score"),
-                    "rrf": r.get("rrf"),
-                    "metadata": meta,
-                    "content": content[:2000],
-                }
-            )
-        return packed
-
     async def save_log_after_stream() -> None:
         response_text = "".join(response_chunks).strip()
         meta: dict[str, Any] = {
@@ -839,24 +866,24 @@ async def chat(
                 "embedding": SILICONFLOW_EMBEDDING_MODEL,
                 "chat": SILICONFLOW_CHAT_MODEL,
             },
-            "match": {
-                "count": MATCH_COUNT,
-                "threshold": match_threshold,
-                "date_anchor_count": date_anchor_count,
-                "hybrid": {
-                    "rrf_k": RRF_K,
-                    "vector_hits": len(vector_hits),
-                    "keyword_hits": len(keyword_hits),
-                    "mode": "hybrid" if vec is not None else "keyword_only",
-                    "embedding_error": embedding_error,
-                },
-            },
+            "match": build_rag_match_meta(
+                match_count=MATCH_COUNT,
+                match_threshold=match_threshold,
+                date_anchor_count=date_anchor_count,
+                rrf_k=RRF_K,
+                vector_hits_count=len(vector_hits),
+                keyword_hits_count=len(keyword_hits),
+                embedding_error=embedding_error,
+                keyword_fallback=keyword_fallback,
+                vec_available=vec is not None,
+                query_compare=query_compare_meta,
+            ),
         }
         payload: dict[str, Any] = {
             "session_id": session_id,
             "query": query,
             "rewritten_query": rewritten_query,
-            "retrieved_context": _build_retrieved_context_for_log(hits),
+            "retrieved_context": build_retrieved_context_for_log(hits, limit=22),
             "response": response_text,
             "metadata": meta,
         }
