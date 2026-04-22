@@ -572,6 +572,21 @@ async def unified_chat_route(
     )
 
 
+@app.post("/api/py/unified/chat/stream")
+async def unified_chat_stream_route(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+):
+    return await unified_chat.handle_unified_chat_stream(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
+
+
 @app.post("/api/py/chat")
 async def chat(
     request: Request,

@@ -5,10 +5,11 @@ import os
 import re
 import time
 import uuid
+import json
 from typing import Any, Literal
 
 from fastapi import HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
 
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
@@ -563,4 +564,239 @@ async def handle_unified_chat(
         )
     )
     return finish(ok=gen_err is None, mode=mode)
+
+
+def _sse(event: str, data: dict[str, Any]) -> str:
+    # SSE 要求每条消息以空行结束
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    return f"event: {event}\ndata: {payload}\n\n"
+
+
+async def handle_unified_chat_stream(
+    request: Request,
+    *,
+    authorization: str | None,
+    x_blog_admin_token: str | None,
+    x_admin_token: str | None,
+) -> StreamingResponse:
+    """SSE：实时输出 chain 事件，最终输出 done。v1 不强制 token 级文本流。"""
+    _require_unified_auth(authorization, x_blog_admin_token, x_admin_token)
+
+    try:
+        body = await request.json()
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail="Invalid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    query = body.get("query")
+    if not isinstance(query, str) or not query.strip():
+        raise HTTPException(status_code=400, detail="Missing required field: query")
+    session_id = body.get("session_id") if isinstance(body.get("session_id"), str) else None
+    prefer = _parse_prefer(body.get("prefer"))
+
+    started_at = time.perf_counter()
+    run_id = str(uuid.uuid4())
+
+    # mode decide
+    mode: Literal["rag", "text2sql"]
+    if prefer == "rag":
+        mode = "rag"
+    elif prefer == "text2sql":
+        mode = "text2sql"
+    else:
+        mode = "text2sql" if is_text2sql_intent(query) else "rag"
+
+    async def event_stream():
+        ok = True
+        try:
+            # 首包：让前端先拿到 run_id/mode
+            yield _sse("chain", {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}})
+
+            if mode == "text2sql":
+                # retrieve
+                yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_retrieve", payload={"tool": "text2sql.retrieve", "input": {"query": query}}))
+                t0 = time.perf_counter()
+                retrieve_err: str | None = None
+                retrieved: list[dict[str, Any]] = []
+                try:
+                    store = get_text2sql_store()
+                    topk = int(os.getenv("TEXT2SQL_RETRIEVE_TOPK", "6"))
+                    retrieved = store.search(query, top_k=topk)
+                except Exception as exc:  # noqa: BLE001
+                    retrieve_err = str(exc)
+                t_retrieve_ms = int((time.perf_counter() - t0) * 1000)
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="tool.call.end",
+                        started_at=started_at,
+                        step_id="t_retrieve",
+                        payload={"output": {"retrieved_count": len(retrieved), "retrieved": retrieved[:6]}, "error": retrieve_err, "latency_ms": t_retrieve_ms},
+                    ),
+                )
+                if retrieve_err:
+                    ok = False
+                    yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_retrieve", payload={"stage": "text2sql.retrieve", "message": retrieve_err}))
+                    return
+
+                oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
+                chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+
+                # generate sql
+                sql_prompt = build_sql_prompt(query, retrieved)
+                yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_generate_sql", payload={"tool": "text2sql.generate_sql", "input": {"query": query}}))
+                t1 = time.perf_counter()
+                sql_raw = ""
+                sql = ""
+                gen_err: str | None = None
+                try:
+                    sql_raw = llm_generate_sql(oai=oai, model=chat_model, prompt=sql_prompt)
+                    sql = validate_sql_readonly(sql_raw)
+                except Exception as exc:  # noqa: BLE001
+                    gen_err = str(exc)
+                t_gen_ms = int((time.perf_counter() - t1) * 1000)
+                yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_generate_sql", payload={"output": {"sql": sql or sql_raw}, "error": gen_err, "latency_ms": t_gen_ms}))
+                if gen_err or not (sql or sql_raw):
+                    ok = False
+                    yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate_sql", payload={"stage": "text2sql.generate_sql", "message": gen_err or "empty sql"}))
+                    return
+
+                # execute sql
+                yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_execute_sql", payload={"tool": "text2sql.execute_sql", "input": {"sql": sql}}))
+                t2 = time.perf_counter()
+                columns: list[str] = []
+                rows: list[dict[str, Any]] = []
+                exec_err: str | None = None
+                try:
+                    columns, rows = execute_select_sql(sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200")))
+                except Exception as exc:  # noqa: BLE001
+                    exec_err = str(exc)
+                t_exec_ms = int((time.perf_counter() - t2) * 1000)
+                yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_execute_sql", payload={"output": {"columns": columns, "rows_len": len(rows)}, "error": exec_err, "latency_ms": t_exec_ms}))
+                if exec_err:
+                    ok = False
+                    yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_execute_sql", payload={"stage": "text2sql.execute_sql", "message": exec_err}))
+                yield _sse("chain", _event(typ="sql.result", started_at=started_at, step_id="q1", payload={"sql": sql, "columns": columns, "rows": rows[:20], "truncated": len(rows) > 20}))
+
+                # summarize
+                yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_summarize", payload={"tool": "text2sql.summarize", "input": {"query": query}}))
+                t3 = time.perf_counter()
+                answer = ""
+                sum_err: str | None = None
+                try:
+                    if rows:
+                        sum_prompt = build_summary_prompt(query, sql, columns, rows)
+                        answer = llm_summarize(oai=oai, model=chat_model, prompt=sum_prompt)
+                    else:
+                        answer = "未查到数据。"
+                except Exception as exc:  # noqa: BLE001
+                    sum_err = str(exc)
+                    answer = "未查到数据。" if not rows else f"查询返回 {len(rows)} 行结果。"
+                    ok = False
+                t_sum_ms = int((time.perf_counter() - t3) * 1000)
+                yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_summarize", payload={"output": {"answer": answer}, "error": sum_err, "latency_ms": t_sum_ms}))
+                yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": answer}))
+                yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"retrieve": t_retrieve_ms, "generate_sql": t_gen_ms, "execute_sql": t_exec_ms, "summarize": t_sum_ms}}))
+                return
+
+            # ---- RAG branch (non-streaming answer v1) ----
+            oai = openai_siliconflow_client()
+            chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+
+            # rewrite
+            yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_rewrite", payload={"tool": "rag.rewrite", "input": {"query": query}}))
+            t_rw0 = time.perf_counter()
+            rewritten = query
+            rw_err: str | None = None
+            try:
+                rewritten = await rewrite_query_with_history(oai=oai, query=query, history=[], chat_model=chat_model)
+            except Exception as exc:  # noqa: BLE001
+                rw_err = str(exc)
+                rewritten = query
+                ok = False
+            t_rw_ms = int((time.perf_counter() - t_rw0) * 1000)
+            yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_rewrite", payload={"output": {"rewritten_query": rewritten}, "error": rw_err, "latency_ms": t_rw_ms}))
+
+            # embed
+            yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_embed", payload={"tool": "rag.embed", "input": {"query": rewritten}}))
+            t_emb0 = time.perf_counter()
+            vec: list[float] | None = None
+            emb_err: str | None = None
+            try:
+                emb_res = oai.embeddings.create(**embedding_kwargs_for_inputs([rewritten]))
+                vec = list(emb_res.data[0].embedding)
+            except Exception as exc:  # noqa: BLE001
+                emb_err = str(exc)
+                vec = None
+                ok = False
+            t_emb_ms = int((time.perf_counter() - t_emb0) * 1000)
+            yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_embed", payload={"output": {"vec_available": vec is not None}, "error": emb_err, "latency_ms": t_emb_ms}))
+
+            # retrieve
+            yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_retrieve", payload={"tool": "rag.retrieve", "input": {"query": rewritten}}))
+            t_ret0 = time.perf_counter()
+            vector_hits: list[dict[str, Any]] = []
+            keyword_hits: list[dict[str, Any]] = []
+            hits: list[dict[str, Any]] = []
+            ret_err: str | None = None
+            try:
+                sb = supabase_client()
+                match_threshold = _parse_match_threshold()
+                match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
+                if vec is not None:
+                    raw = (
+                        sb.rpc("match_documents", {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold})
+                        .execute()
+                        .data
+                    )
+                    if isinstance(raw, list):
+                        vector_hits = [h for h in raw if isinstance(h, dict)]
+                raw_kw = sb.rpc("keyword_documents", {"query_text": rewritten, "match_count": 12}).execute().data
+                if isinstance(raw_kw, list):
+                    keyword_hits = [h for h in raw_kw if isinstance(h, dict)]
+                hits = fuse_hits_rrf(vector_hits, keyword_hits, max_total=22)
+            except Exception as exc:  # noqa: BLE001
+                ret_err = str(exc)
+                hits = []
+                ok = False
+            t_ret_ms = int((time.perf_counter() - t_ret0) * 1000)
+            yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_retrieve", payload={"output": {"vector_hits": len(vector_hits), "keyword_hits": len(keyword_hits), "hits": len(hits)}, "error": ret_err, "latency_ms": t_ret_ms}))
+
+            # sources
+            yield _sse("chain", _event(typ="rag.sources", started_at=started_at, step_id="s_sources", payload=_build_rag_sources_event(hits, top_k=10)))
+
+            # generate
+            yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_generate", payload={"tool": "rag.generate", "input": {"query": query}}))
+            t_gen0 = time.perf_counter()
+            ans = ""
+            gen_err: str | None = None
+            try:
+                ans = _rag_generate_answer(oai=oai, chat_model=chat_model, query=query, hits=hits)
+                if not ans:
+                    ans = "我暂时无法根据现有资料给出确定回答。"
+            except Exception as exc:  # noqa: BLE001
+                gen_err = str(exc)
+                ans = "对话生成失败。"
+                ok = False
+            t_gen_ms = int((time.perf_counter() - t_gen0) * 1000)
+            yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_generate", payload={"output": {"answer": ans}, "error": gen_err, "latency_ms": t_gen_ms}))
+            if gen_err:
+                yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "rag.generate", "message": gen_err}))
+            yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
+            yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}}))
+        except GeneratorExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "unhandled", "message": str(exc)}))
+        finally:
+            # done must be the last message if client still connected
+            try:
+                yield _sse("done", {"ok": ok, "mode": mode, "run_id": run_id, "session_id": session_id})
+            except Exception:
+                return
+
+    headers = {"Cache-Control": "no-cache"}
+    return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
 
