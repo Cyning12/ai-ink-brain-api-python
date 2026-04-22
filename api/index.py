@@ -26,6 +26,8 @@ from supabase import create_client
 
 from . import rag_env  # noqa: F401 — 触发 REPO_ROOT .env 加载
 from . import code_retrieval
+from . import text2sql_api
+from . import chain_chat
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
 from .ingest_pipeline import (
@@ -517,6 +519,36 @@ async def code_search(
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> JSONResponse:
     return await code_retrieval.handle_code_search(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
+
+
+@app.post("/api/py/text2sql/chat")
+async def text2sql_chat(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> JSONResponse:
+    return await text2sql_api.handle_text2sql_chat(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
+
+
+@app.post("/api/py/chain/chat")
+async def chain_chat_route(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> JSONResponse:
+    return await chain_chat.handle_chain_chat(
         request,
         authorization=authorization,
         x_blog_admin_token=x_blog_admin_token,

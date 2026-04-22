@@ -5,3 +5,6 @@ supabase
 python-dotenv
 pytest
 requests
+faiss-cpu
+numpy
+psycopg[binary]

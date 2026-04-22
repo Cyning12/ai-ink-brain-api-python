@@ -1,0 +1,62 @@
+# Task：Chain Events（后端）— 统一事件模型输出（v1）
+
+状态：pending  
+范围：仅后端 `ai-ink-brain-api-python`  
+关联：`docs/UI/v1/UI-01-chain-chat-upgrade.md`
+
+## 背景与目标
+
+前端需要在一次对话中展示完整 chain（工具调用、SQL、图表等）。当前后端接口输出形态不统一（流式文本 vs JSON），缺少“事件级”结构化信息。
+
+目标：
+
+- 设计并实现最小可用的 `events[]` 事件模型
+- 为 Text2SQL v1 与后续 Ticket Bot/Chat 统一铺路
+
+## 范围 / 非范围
+
+### 范围
+
+- 新增一个独立接口（建议）：
+  - `POST /api/py/chain/chat`（返回 JSON，包含 `events[]`）
+  - 或为现有接口新增 debug 模式：`?debug=events` 返回 JSON
+- 事件模型（v1）至少覆盖：
+  - `assistant.message`
+  - `tool.call.start/end`
+  - `sql.result`
+  - `error`
+  - `latency`
+
+### 非范围
+
+- 不要求链路图（Graph）结构（v1 用时间线即可）
+- 不做企业级权限/审计（后续）
+
+## 事件模型（建议 schema）
+
+```json
+{
+  "ok": true,
+  "run_id": "uuid",
+  "events": [
+    { "type": "assistant.message", "ts": 0, "step_id": "s1", "payload": { "role": "assistant", "content": "..." } },
+    { "type": "tool.call.start", "ts": 1, "step_id": "t1", "payload": { "tool": "text2sql.generate_sql", "input": { "query": "..." } } },
+    { "type": "tool.call.end", "ts": 2, "step_id": "t1", "payload": { "output": { "sql": "select ..." }, "error": null } },
+    { "type": "sql.result", "ts": 3, "step_id": "q1", "payload": { "sql": "select ...", "columns": ["..."], "rows": [{ }], "truncated": true } }
+  ]
+}
+```
+
+## 验收标准
+
+- [ ] 端到端返回 `events[]`，前端可直接按时间线渲染
+- [ ] `events[]` 中包含 `sql.result`（rows/columns 截断）
+- [ ] 错误路径也能返回 `events[]`（以 `error` 事件表达）
+- [ ] 不影响现有 `/api/py/chat` 与 `/api/py/text2sql/chat`（可并存）
+
+## 实现备忘
+
+- v1 可先把 Text2SQL 的三个阶段“虚拟成 tool events”：
+  - generate_sql / execute_sql / summarize
+- 图表建议先输出 `chart.image`（url/base64）或 `chart.spec`（后续）
+
