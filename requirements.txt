@@ -3,3 +3,5 @@ uvicorn
 openai
 supabase
 python-dotenv
+pytest
+requests

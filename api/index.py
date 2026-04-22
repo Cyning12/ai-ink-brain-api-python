@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import time
+from pathlib import Path
 from urllib.parse import quote
 from typing import Any
 
@@ -24,6 +25,8 @@ from openai import OpenAI
 from supabase import create_client
 
 from . import rag_env  # noqa: F401 — 触发 REPO_ROOT .env 加载
+from . import code_retrieval
+from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
 from .ingest_pipeline import (
     create_sync_job,
@@ -31,6 +34,7 @@ from .ingest_pipeline import (
     process_markdown_files,
     run_sync_job_sync,
 )
+from .code_ingest import process_code_files
 from .keyword_fallback import (
     KeywordFallbackConfig,
     KeywordFallbackResult,
@@ -59,59 +63,6 @@ SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
 
 # x-sources Header 的安全上限（percent-encoding 后容易膨胀；超限会触发 Node/undici 的 headers overflow）
 MAX_X_SOURCES_HEADER_CHARS = int(os.getenv("MAX_X_SOURCES_HEADER_CHARS", "6000"))
-
-# RRF 融合的常用常数（论文/业界常见取值 60）
-RRF_K = 60
-
-
-def _rrf_score(rank: int, *, k: int = RRF_K) -> float:
-    """Reciprocal Rank Fusion: 1 / (k + rank)，rank 从 1 开始。"""
-    r = max(1, int(rank))
-    return 1.0 / float(k + r)
-
-
-def fuse_hits_rrf(
-    vector_hits: list[dict[str, Any]],
-    keyword_hits: list[dict[str, Any]],
-    *,
-    max_total: int = 22,
-) -> list[dict[str, Any]]:
-    """将两路召回按排名做 RRF 融合，输出按 fused_score 降序的去重结果。"""
-    by_id: dict[Any, dict[str, Any]] = {}
-
-    for idx, h in enumerate(vector_hits):
-        hid = h.get("id")
-        if hid is None:
-            continue
-        row = by_id.get(hid) or dict(h)
-        row["rrf"] = row.get("rrf") or {}
-        if isinstance(row["rrf"], dict):
-            row["rrf"]["vector_rank"] = idx + 1
-            row["rrf"]["vector_score"] = _rrf_score(idx + 1)
-        by_id[hid] = row
-
-    for idx, h in enumerate(keyword_hits):
-        hid = h.get("id")
-        if hid is None:
-            continue
-        row = by_id.get(hid) or dict(h)
-        row["rrf"] = row.get("rrf") or {}
-        if isinstance(row["rrf"], dict):
-            row["rrf"]["keyword_rank"] = idx + 1
-            row["rrf"]["keyword_score"] = _rrf_score(idx + 1)
-        by_id[hid] = row
-
-    fused: list[dict[str, Any]] = []
-    for hid, row in by_id.items():
-        rrf = row.get("rrf") if isinstance(row.get("rrf"), dict) else {}
-        vs = float(rrf.get("vector_score") or 0.0)
-        ks = float(rrf.get("keyword_score") or 0.0)
-        row["fused_score"] = vs + ks
-        fused.append(row)
-
-    fused.sort(key=lambda r: float(r.get("fused_score") or 0.0), reverse=True)
-    return fused[: max(1, int(max_total))]
-
 
 def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> list[dict[str, Any]]:
     """Keyword 路：调用 Supabase RPC keyword_documents（FTS）。"""
@@ -253,9 +204,10 @@ def _require_auth(
     x_blog_admin_token: str | None,
     x_admin_token: str | None = None,
 ) -> None:
-    expected = admin_secret()
-    if not expected:
-        raise HTTPException(status_code=500, detail="未配置 NEXT_PUBLIC_ADMIN_SECRET 或 CHAT_API_SECRET")
+    expected_admin = admin_secret()
+    expected_api = (os.getenv("API_KEY") or "").strip() or None
+    if not expected_admin and not expected_api:
+        raise HTTPException(status_code=500, detail="未配置 NEXT_PUBLIC_ADMIN_SECRET / CHAT_API_SECRET 或 API_KEY")
     token = ""
     if authorization and authorization.lower().startswith("bearer "):
         token = authorization[7:].strip()
@@ -263,10 +215,28 @@ def _require_auth(
         token = x_blog_admin_token.strip()
     elif x_admin_token:
         token = x_admin_token.strip()
-    if len(token) != len(expected) or not hmac.compare_digest(
-        token.encode("utf-8"), expected.encode("utf-8")
-    ):
+
+    def _match(expected: str | None) -> bool:
+        if not expected:
+            return False
+        if len(token) != len(expected):
+            return False
+        return hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8"))
+
+    if not (_match(expected_admin) or _match(expected_api)):
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+code_retrieval.bind_index_symbols(
+    build_sources_payload_=build_sources_payload,
+    parse_match_threshold_=_parse_match_threshold,
+    siliconflow_base_=SILICONFLOW_BASE,
+    siliconflow_embedding_model_=SILICONFLOW_EMBEDDING_MODEL,
+    siliconflow_embedding_dimensions_=SILICONFLOW_EMBEDDING_DIMENSIONS,
+    siliconflow_chat_model_=SILICONFLOW_CHAT_MODEL,
+    match_count_=MATCH_COUNT,
+    rag_log_=_rag_log,
+)
 
 
 def _filename_title_hints(year: int, month: int, day: int) -> list[str]:
@@ -522,6 +492,36 @@ async def chat_history(
         "session_id": sid,
         "messages": messages,
     }
+
+
+@app.post("/api/py/code/query")
+async def code_query(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> JSONResponse:
+    return await code_retrieval.handle_code_query(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
+
+
+@app.post("/api/py/code/search")
+async def code_search(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> JSONResponse:
+    return await code_retrieval.handle_code_search(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
 
 
 @app.post("/api/py/chat")
@@ -949,13 +949,24 @@ async def py_admin_sync_get(
 
 @app.post("/api/py/admin/ingest")
 async def py_admin_ingest(
+    type: str = Query("markdown", description="ingest 类型: markdown | code"),
+    repo_path: str | None = Query(None, description="代码项目路径（仅 type=code 有效）"),
     authorization: str | None = Header(default=None),
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> JSONResponse:
     _require_auth(authorization, x_blog_admin_token, x_admin_token)
     try:
-        result = await asyncio.to_thread(process_markdown_files)
+        t = (type or "markdown").strip().lower()
+        if t == "markdown":
+            result = await asyncio.to_thread(process_markdown_files)
+        elif t == "code":
+            root: Path | None = None
+            if repo_path and repo_path.strip():
+                root = Path(repo_path.strip()).expanduser().resolve()
+            result = await asyncio.to_thread(process_code_files, root)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid ingest type")
         return JSONResponse(content={"ok": True, **result})
     except Exception as exc:  # noqa: BLE001
         msg = str(exc)
