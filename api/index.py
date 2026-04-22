@@ -28,6 +28,7 @@ from . import rag_env  # noqa: F401 — 触发 REPO_ROOT .env 加载
 from . import code_retrieval
 from . import text2sql_api
 from . import chain_chat
+from . import unified_chat
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
 from .ingest_pipeline import (
@@ -549,6 +550,21 @@ async def chain_chat_route(
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> JSONResponse:
     return await chain_chat.handle_chain_chat(
+        request,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
+
+
+@app.post("/api/py/unified/chat")
+async def unified_chat_route(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
+    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+) -> JSONResponse:
+    return await unified_chat.handle_unified_chat(
         request,
         authorization=authorization,
         x_blog_admin_token=x_blog_admin_token,
