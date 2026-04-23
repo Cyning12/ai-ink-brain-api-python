@@ -21,8 +21,12 @@ alter table public.documents
 create index if not exists documents_fts_tokens_gin
   on public.documents using gin (fts_tokens);
 
--- 2.1) B2 v1：生成日期别名文本（仅用于 FTS，不改 content/embedding）
--- 目的：让 '2026-4-14' 与 '2026-04-14' 等不同写法都能 @@ 命中
+-- 2.1) B2 v2：生成 alias 文本（仅用于 FTS，不改 content/embedding）
+-- 目标：
+-- - 日期：'2026-4-14' 与 '2026-04-14' 等不同写法都能 @@ 命中
+-- - 版本号：v0.1.0 / 0.1.0 / 0-1-0 / 0_1_0
+-- - 分隔符：_ - . / \ 归一
+-- - 标识符：CamelCase / snake_case 拆分（轻量、受限）
 create or replace function public.rag_fts_alias_text(input_text text)
 returns text
 language plpgsql
@@ -30,6 +34,7 @@ immutable
 as $$
 declare
   s text := coalesce(input_text, '');
+  token text;
   m text[];
   y int;
   mo int;
@@ -39,7 +44,14 @@ declare
   mo1 text;
   d1 text;
   out text := '';
+  added int := 0;
+  max_added int := 60;
 begin
+  -- 安全阈值：避免超长文本导致 alias 膨胀
+  if length(s) > 200000 then
+    s := left(s, 200000);
+  end if;
+
   -- 提取所有日期：YYYY[-/.]M[-/.]D
   for m in
     select regexp_matches(s, '(\d{4})[./-](\d{1,2})[./-](\d{1,2})', 'g')
@@ -62,6 +74,56 @@ begin
       || ' ' || y::text || '.' || mo1 || '.' || d1
       || ' ' || y::text || ' ' || mo2 || ' ' || d2
       || ' ' || y::text || ' ' || mo1 || ' ' || d1;
+    added := added + 8;
+    if added >= max_added then
+      return btrim(out);
+    end if;
+  end loop;
+
+  -- 版本号 alias：v0.1.0 / 0.1.0 / 0-1-0 / 0_1_0
+  for m in
+    select regexp_matches(s, '\bv?(\d+)\.(\d+)(?:\.(\d+))?\b', 'g')
+  loop
+    out := out
+      || ' ' || 'v' || m[1] || '.' || m[2] || '.' || coalesce(m[3], '0')
+      || ' ' || m[1] || '.' || m[2] || '.' || coalesce(m[3], '0')
+      || ' ' || m[1] || '-' || m[2] || '-' || coalesce(m[3], '0')
+      || ' ' || m[1] || '_' || m[2] || '_' || coalesce(m[3], '0');
+    added := added + 4;
+    if added >= max_added then
+      return btrim(out);
+    end if;
+  end loop;
+
+  -- 分隔符归一：只抽取“看起来像标识符/路径”的 token，避免把整句膨胀
+  for token in
+    select distinct t from regexp_split_to_table(s, '\s+') as t
+    where length(t) between 3 and 64
+      and t ~ '[_./\\-]'
+      and t ~ '[A-Za-z0-9]'
+    limit 40
+  loop
+    out := out || ' ' || regexp_replace(token, '[_./\\-]+', ' ', 'g');
+    added := added + 1;
+    if added >= max_added then
+      return btrim(out);
+    end if;
+  end loop;
+
+  -- CamelCase 拆分（轻量）：RunnableWithMessageHistory -> Runnable With Message History
+  for token in
+    select distinct t from regexp_split_to_table(s, '\s+') as t
+    where length(t) between 6 and 64
+      and t ~ '^[A-Za-z][A-Za-z0-9]+$'
+      and t ~ '[a-z]'
+      and t ~ '[A-Z]'
+    limit 40
+  loop
+    out := out || ' ' || regexp_replace(token, '([a-z0-9])([A-Z])', '\1 \2', 'g');
+    added := added + 1;
+    if added >= max_added then
+      return btrim(out);
+    end if;
   end loop;
 
   return btrim(out);
