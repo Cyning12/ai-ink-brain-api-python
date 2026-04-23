@@ -126,9 +126,40 @@ def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
                 r.data = []
             return r
 
+    class _TableQuery:
+        def __init__(self):
+            self._k = ""
+            self._v = ""
+
+        def select(self, *_args: Any, **_kwargs: Any):  # noqa: ANN401
+            return self
+
+        def eq(self, k: str, v: str):  # noqa: ANN001
+            self._k = k
+            self._v = v
+            return self
+
+        def limit(self, _n: int):  # noqa: ANN001
+            return self
+
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            # 结构化召回：当命中 diary/2026-4-14.md 时返回一条
+            if self._k == "metadata->>relativePath" and self._v == "diary/2026-4-14.md":
+                r.data = [{"id": 4414, "content": "Content: diary", "metadata": {"relativePath": "diary/2026-4-14.md"}}]
+            else:
+                r.data = []
+            return r
+
     class _Sb:
         def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
             return _Rpc(name)
+
+        def table(self, _name: str):  # noqa: ANN001
+            return _TableQuery()
 
     monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
 
@@ -144,4 +175,119 @@ def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
     types = [e.get("type") for e in data["events"]]
     assert "rag.sources" in types
     assert "assistant.message" in types
+
+
+def test_unified_rag_structured_recall_cn_date(monkeypatch: pytest.MonkeyPatch):
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+
+    class _EmbObj:
+        def __init__(self, embedding: list[float]):
+            self.embedding = embedding
+
+    class _EmbResp:
+        def __init__(self, embedding: list[float]):
+            self.data = [_EmbObj(embedding)]
+
+    class _ChatMsg:
+        def __init__(self, content: str):
+            self.content = content
+
+    class _Choice:
+        def __init__(self, content: str):
+            self.message = _ChatMsg(content)
+
+    class _ChatResp:
+        def __init__(self, content: str):
+            self.choices = [_Choice(content)]
+
+    class _DummyOpenAI:
+        def __init__(self):
+            self.embeddings = self
+            self.chat = self
+            self.completions = self
+
+        def create(self, **kwargs: Any):  # noqa: ANN401
+            if "input" in kwargs and isinstance(kwargs["input"], list):
+                return _EmbResp([0.0] * 8)
+            return _ChatResp("rag answer")
+
+    monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+
+    async def fake_rewrite(*, oai, query, history, chat_model):  # noqa: ANN001
+        return query
+
+    monkeypatch.setattr(unified_chat, "rewrite_query_with_history", fake_rewrite)
+
+    class _Rpc:
+        def __init__(self, name: str):
+            self.name = name
+
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _TableQuery:
+        def __init__(self):
+            self._k = ""
+            self._v = ""
+
+        def select(self, *_args: Any, **_kwargs: Any):  # noqa: ANN401
+            return self
+
+        def eq(self, k: str, v: str):  # noqa: ANN001
+            self._k = k
+            self._v = v
+            return self
+
+        def limit(self, _n: int):  # noqa: ANN001
+            return self
+
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            if self._k == "metadata->>date_norm" and self._v == "2026-04-14":
+                r.data = [{"id": 4414, "content": "Content: diary", "metadata": {"date_norm": "2026-04-14", "relativePath": "diary/2026-4-14.md"}}]
+            elif self._k == "metadata->>relativePath" and self._v in ("diary/2026-4-14.md", "diary/2026-04-14.md"):
+                r.data = [{"id": 4414, "content": "Content: diary", "metadata": {"relativePath": self._v}}]
+            else:
+                r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc(name)
+
+        def table(self, _name: str):  # noqa: ANN001
+            return _TableQuery()
+
+    monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "rag", "query": "二零二六年四月十四号那天写了什么"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["mode"] == "rag"
+    # 找到 rag.retrieve end 事件，确保 structured_hits 计数生效
+    retrieve_end = [e for e in data["events"] if e.get("type") == "tool.call.end" and e.get("step_id") == "t_retrieve"]
+    assert retrieve_end
+    out = retrieve_end[-1]["payload"]["output"]
+    assert out.get("structured_hits", 0) >= 1
+
+
+def test_date_norm_candidates_cn_numerals():
+    from api.rag_recall_tools import date_norm_candidates_for_structured
+
+    cands = date_norm_candidates_for_structured("二零二六年四月十四号那天写了什么")
+    assert "2026-04-14" in cands
 

@@ -147,16 +147,40 @@ def _filename_from_rel(rel: str) -> str:
     return Path(rel).name
 
 
+_DATE_SLUG_RE = re.compile(r"^\s*(\d{4})[./-](\d{1,2})[./-](\d{1,2})\s*$")
+
+
+def _date_norm_from_slug_like(s: str) -> str | None:
+    """从 filename/slug 中抽取日期并归一化为 YYYY-MM-DD。"""
+    raw = (s or "").strip()
+    if not raw:
+        return None
+    raw = re.sub(r"\.(md|mdx)$", "", raw, flags=re.IGNORECASE).strip()
+    m = _DATE_SLUG_RE.match(raw)
+    if not m:
+        return None
+    y, mo_s, d_s = m.group(1), m.group(2), m.group(3)
+    mo_i = max(1, min(12, int(mo_s)))
+    d_i = max(1, min(31, int(d_s)))
+    return f"{int(y):04d}-{mo_i:02d}-{d_i:02d}"
+
+
 def to_db_metadata(chunk: IngestChunk) -> dict[str, Any]:
     m = chunk.metadata
+    fn = _filename_from_rel(m.relative_path)
+    date_norm = None
+    # diary 以 filename/slug 为主；其他分类也允许抽取（例如未来 learning/2026-04-12/...）
+    date_norm = _date_norm_from_slug_like(m.slug) or _date_norm_from_slug_like(fn)
     return {
         "category": m.category,
         "slug": m.slug,
+        "slug_norm": _date_norm_from_slug_like(m.slug),
+        "date_norm": date_norm,
         "mtime": m.last_modified,
         "lastModified": m.last_modified,
         "relativePath": m.relative_path,
         "chunk_index": m.chunk_index,
-        "filename": _filename_from_rel(m.relative_path),
+        "filename": fn,
         "original_link": None,
         "page_number": None,
         "section_header": None,

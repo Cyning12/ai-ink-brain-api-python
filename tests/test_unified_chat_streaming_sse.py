@@ -89,9 +89,36 @@ def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
                 r.data = []
             return r
 
+    class _TableQuery:
+        def __init__(self):
+            self._k = ""
+            self._v = ""
+
+        def select(self, *_args: Any, **_kwargs: Any):  # noqa: ANN401
+            return self
+
+        def eq(self, k: str, v: str):  # noqa: ANN001
+            self._k = k
+            self._v = v
+            return self
+
+        def limit(self, _n: int):  # noqa: ANN001
+            return self
+
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
     class _Sb:
         def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
             return _Rpc(name)
+
+        def table(self, _name: str):  # noqa: ANN001
+            return _TableQuery()
 
     monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
 

@@ -14,6 +14,7 @@ from openai import OpenAI
 
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .query_rewrite import rewrite_query_with_history
+from .rag_recall_tools import keyword_query_text, rpc_execute_with_retry, structured_recall_by_date
 from .rag_env import (
     admin_secret,
     embedding_kwargs_for_inputs,
@@ -21,15 +22,7 @@ from .rag_env import (
     siliconflow_base,
     supabase_client,
 )
-from .text2sql_core import (
-    build_sql_prompt,
-    build_summary_prompt,
-    execute_select_sql,
-    is_text2sql_intent,
-    llm_generate_sql,
-    llm_summarize,
-    validate_sql_readonly,
-)
+from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
 from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
 
@@ -68,90 +61,6 @@ def _now_ms(started_at: float) -> int:
 
 def _event(*, typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     return {"type": typ, "ts": _now_ms(started_at), "step_id": step_id, "payload": payload}
-
-
-def _should_retry_error(msg: str) -> bool:
-    m = (msg or "").lower()
-    return any(
-        k in m
-        for k in (
-            "connection reset",
-            "econnreset",
-            "connection aborted",
-            "broken pipe",
-            "timed out",
-            "timeout",
-            "server disconnected",
-            "remote protocol error",
-        )
-    )
-
-
-def _rpc_execute_with_retry(sb: Any, fn: str, params: dict[str, Any], *, retries: int = 2) -> tuple[list[dict[str, Any]], int, str | None]:
-    """对 Supabase RPC 做有限重试，返回 (rows, retry_count, last_error)。"""
-    last_err: str | None = None
-    attempt = 0
-    while True:
-        try:
-            data = sb.rpc(fn, params).execute().data
-            rows = data if isinstance(data, list) else []
-            return ([r for r in rows if isinstance(r, dict)], attempt, None)
-        except Exception as exc:  # noqa: BLE001
-            last_err = str(exc)
-            if attempt >= retries or not _should_retry_error(last_err):
-                return ([], attempt, last_err)
-            # 轻量退避
-            time.sleep(0.15 * (2**attempt))
-            attempt += 1
-
-
-_DATE_RE = re.compile(r"\b(\d{4})[./-](\d{1,2})[./-](\d{1,2})\b")
-
-
-def _date_candidates_for_keyword(query: str) -> list[str]:
-    """
-    从 query 中抽取日期并生成多形态候选，用于 keyword（FTS）召回。
-    说明：
-    - 仅用于 keyword query_text，不改变原始 query 的展示/生成。
-    - 针对 FTS 对 '04' vs '4' 敏感的问题，必须同时覆盖补零与不补零。
-    """
-    s = (query or "").strip()
-    if not s:
-        return []
-    m = _DATE_RE.search(s)
-    if not m:
-        return []
-    y, mo_s, d_s = m.group(1), m.group(2), m.group(3)
-    mo_i = max(1, min(12, int(mo_s)))
-    d_i = max(1, min(31, int(d_s)))
-    mo2 = f"{mo_i:02d}"
-    d2 = f"{d_i:02d}"
-    # 保留原始形态 + 规范化形态
-    base = {f"{y}-{mo_s}-{d_s}", f"{y}-{mo2}-{d2}"}
-    out: set[str] = set()
-    for dt in base:
-        out.add(dt)
-        out.add(dt.replace("-", "/"))
-        out.add(dt.replace("-", "."))
-        out.add(dt.replace("-", " "))
-    return [x for x in out if x]
-
-
-def _keyword_query_text(query: str) -> str:
-    """
-    构造适配 websearch_to_tsquery 的 query_text。
-    - 若包含日期：生成 `"a" OR "b" OR "c"` 形式，提升日期类召回稳定性。
-    - 否则：原样返回。
-    """
-    q = (query or "").strip()
-    if not q:
-        return q
-    cands = _date_candidates_for_keyword(q)
-    if not cands:
-        return q
-    # websearch_to_tsquery 支持 OR；用双引号避免日期被拆得过散
-    parts = [f"\"{c}\"" for c in sorted(set(cands))]
-    return " OR ".join(parts)
 
 
 def _parse_prefer(raw: object) -> PreferMode:
@@ -606,6 +515,7 @@ async def handle_unified_chat(
     )
     t_ret0 = time.perf_counter()
     vector_hits: list[dict[str, Any]] = []
+    structured_hits: list[dict[str, Any]] = []
     keyword_hits_raw: list[dict[str, Any]] = []
     keyword_hits_rewrite: list[dict[str, Any]] = []
     hits: list[dict[str, Any]] = []
@@ -613,10 +523,12 @@ async def handle_unified_chat(
     retry_count = 0
     try:
         sb = supabase_client()
+        # structured recall（日期类确定性召回）
+        structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
         match_threshold = _parse_match_threshold()
         match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
         if vec is not None:
-            vector_hits, rc_vec, err_vec = _rpc_execute_with_retry(
+            vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
                 sb,
                 "match_documents",
                 {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
@@ -626,20 +538,20 @@ async def handle_unified_chat(
             if err_vec:
                 ret_err = err_vec
 
-        keyword_hits_raw, rc_raw, err_raw = _rpc_execute_with_retry(
+        keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
             sb,
             "keyword_documents",
-            {"query_text": _keyword_query_text(query), "match_count": 12},
+            {"query_text": keyword_query_text(query), "match_count": 12},
             retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
         )
         retry_count += rc_raw
         if err_raw:
             ret_err = err_raw
 
-        keyword_hits_rewrite, rc_rw, err_rw = _rpc_execute_with_retry(
+        keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
             sb,
             "keyword_documents",
-            {"query_text": _keyword_query_text(rewritten), "match_count": 12},
+            {"query_text": keyword_query_text(rewritten), "match_count": 12},
             retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
         )
         retry_count += rc_rw
@@ -647,7 +559,8 @@ async def handle_unified_chat(
             ret_err = err_rw
 
         merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
-        hits = fuse_hits_rrf(vector_hits, merged_keyword, max_total=22)
+        merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
+        hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
     except Exception as exc:  # noqa: BLE001
         ret_err = str(exc)
         hits = []
@@ -660,6 +573,7 @@ async def handle_unified_chat(
             payload={
                 "output": {
                     "vector_hits": len(vector_hits),
+                    "structured_hits": len(structured_hits),
                     "keyword_hits_raw": len(keyword_hits_raw),
                     "keyword_hits_rewrite": len(keyword_hits_rewrite),
                     "hits": len(hits),
@@ -980,6 +894,7 @@ async def handle_unified_chat_stream(
             yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_retrieve", payload={"tool": "rag.retrieve", "input": {"query": rewritten}}))
             t_ret0 = time.perf_counter()
             vector_hits: list[dict[str, Any]] = []
+            structured_hits: list[dict[str, Any]] = []
             keyword_hits_raw: list[dict[str, Any]] = []
             keyword_hits_rewrite: list[dict[str, Any]] = []
             hits: list[dict[str, Any]] = []
@@ -987,10 +902,11 @@ async def handle_unified_chat_stream(
             retry_count = 0
             try:
                 sb = supabase_client()
+                structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
                 match_threshold = _parse_match_threshold()
                 match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
                 if vec is not None:
-                    vector_hits, rc_vec, err_vec = _rpc_execute_with_retry(
+                    vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
                         sb,
                         "match_documents",
                         {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
@@ -1000,20 +916,20 @@ async def handle_unified_chat_stream(
                     if err_vec:
                         ret_err = err_vec
 
-                keyword_hits_raw, rc_raw, err_raw = _rpc_execute_with_retry(
+                keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
                     sb,
                     "keyword_documents",
-                    {"query_text": _keyword_query_text(query), "match_count": 12},
+                    {"query_text": keyword_query_text(query), "match_count": 12},
                     retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
                 )
                 retry_count += rc_raw
                 if err_raw:
                     ret_err = err_raw
 
-                keyword_hits_rewrite, rc_rw, err_rw = _rpc_execute_with_retry(
+                keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
                     sb,
                     "keyword_documents",
-                    {"query_text": _keyword_query_text(rewritten), "match_count": 12},
+                    {"query_text": keyword_query_text(rewritten), "match_count": 12},
                     retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
                 )
                 retry_count += rc_rw
@@ -1021,7 +937,8 @@ async def handle_unified_chat_stream(
                     ret_err = err_rw
 
                 merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
-                hits = fuse_hits_rrf(vector_hits, merged_keyword, max_total=22)
+                merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
+                hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
             except Exception as exc:  # noqa: BLE001
                 ret_err = str(exc)
                 hits = []
@@ -1036,6 +953,7 @@ async def handle_unified_chat_stream(
                     payload={
                         "output": {
                             "vector_hits": len(vector_hits),
+                            "structured_hits": len(structured_hits),
                             "keyword_hits_raw": len(keyword_hits_raw),
                             "keyword_hits_rewrite": len(keyword_hits_rewrite),
                             "hits": len(hits),
