@@ -291,3 +291,10 @@ def test_date_norm_candidates_cn_numerals():
     cands = date_norm_candidates_for_structured("二零二六年四月十四号那天写了什么")
     assert "2026-04-14" in cands
 
+
+def test_date_norm_candidates_cn_uppercase_numerals():
+    from api.rag_recall_tools import date_norm_candidates_for_structured
+
+    cands = date_norm_candidates_for_structured("贰零贰陆年肆月拾肆号那天写了什么")
+    assert "2026-04-14" in cands
+

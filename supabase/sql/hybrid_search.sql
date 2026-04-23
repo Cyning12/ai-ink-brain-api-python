@@ -21,13 +21,63 @@ alter table public.documents
 create index if not exists documents_fts_tokens_gin
   on public.documents using gin (fts_tokens);
 
+-- 2.1) B2 v1：生成日期别名文本（仅用于 FTS，不改 content/embedding）
+-- 目的：让 '2026-4-14' 与 '2026-04-14' 等不同写法都能 @@ 命中
+create or replace function public.rag_fts_alias_text(input_text text)
+returns text
+language plpgsql
+immutable
+as $$
+declare
+  s text := coalesce(input_text, '');
+  m text[];
+  y int;
+  mo int;
+  d int;
+  mo2 text;
+  d2 text;
+  mo1 text;
+  d1 text;
+  out text := '';
+begin
+  -- 提取所有日期：YYYY[-/.]M[-/.]D
+  for m in
+    select regexp_matches(s, '(\d{4})[./-](\d{1,2})[./-](\d{1,2})', 'g')
+  loop
+    y := m[1]::int;
+    mo := greatest(1, least(12, m[2]::int));
+    d := greatest(1, least(31, m[3]::int));
+    mo2 := lpad(mo::text, 2, '0');
+    d2 := lpad(d::text, 2, '0');
+    mo1 := mo::text;
+    d1 := d::text;
+
+    -- 同时写入补零/不补零 + 分隔符变体 + 空格变体
+    out := out
+      || ' ' || y::text || '-' || mo2 || '-' || d2
+      || ' ' || y::text || '-' || mo1 || '-' || d1
+      || ' ' || y::text || '/' || mo2 || '/' || d2
+      || ' ' || y::text || '/' || mo1 || '/' || d1
+      || ' ' || y::text || '.' || mo2 || '.' || d2
+      || ' ' || y::text || '.' || mo1 || '.' || d1
+      || ' ' || y::text || ' ' || mo2 || ' ' || d2
+      || ' ' || y::text || ' ' || mo1 || ' ' || d1;
+  end loop;
+
+  return btrim(out);
+end;
+$$;
+
 -- 3) 触发器：自动维护 fts_tokens
 create or replace function public.documents_fts_tokens_update()
 returns trigger
 language plpgsql
 as $$
 begin
-  new.fts_tokens := to_tsvector('simple', coalesce(new.content, ''));
+  new.fts_tokens := to_tsvector(
+    'simple',
+    coalesce(new.content, '') || ' ' || coalesce(public.rag_fts_alias_text(new.content), '')
+  );
   return new;
 end;
 $$;
@@ -39,10 +89,15 @@ on public.documents
 for each row
 execute function public.documents_fts_tokens_update();
 
--- 4) 回填历史数据（只更新空值，避免无意义全表写）
+-- 4) 回填历史数据
+-- 4.1 仅更新空值（避免无意义全表写）
 update public.documents
-set fts_tokens = to_tsvector('simple', coalesce(content, ''))
+set fts_tokens = to_tsvector('simple', coalesce(content, '') || ' ' || coalesce(public.rag_fts_alias_text(content), ''))
 where fts_tokens is null;
+
+-- 4.2 （可选）全量回填：使旧数据立刻享受 alias token（大表建议离峰/分批）
+-- update public.documents
+-- set fts_tokens = to_tsvector('simple', coalesce(content, '') || ' ' || coalesce(public.rag_fts_alias_text(content), ''));
 
 -- 5) RPC：Keyword 路（全文检索）
 -- - query_text 为空时返回空集合
@@ -92,7 +147,10 @@ begin
   end if;
 
   update public.documents d
-  set fts_tokens = to_tsvector('simple', coalesce(d.content, ''))
+  set fts_tokens = to_tsvector(
+    'simple',
+    coalesce(d.content, '') || ' ' || coalesce(public.rag_fts_alias_text(d.content), '')
+  )
   where (d.metadata ->> 'relativePath') = any(relative_paths);
 
   get diagnostics updated_count = row_count;
