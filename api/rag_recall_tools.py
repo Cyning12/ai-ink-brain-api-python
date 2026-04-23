@@ -82,6 +82,8 @@ _CN_YEAR_RE = re.compile(
 )
 _CN_MD_RE = re.compile(r"(?:^|)([〇零一二三四五六七八九壹贰叁肆伍陆柒捌玖两兩十拾]{1,3})\s*月\s*([〇零一二三四五六七八九壹贰叁肆伍陆柒捌玖两兩十拾]{1,3})\s*(?:日|号)")
 
+_VER3_RE = re.compile(r"\bv?(\d{1,3})[._-](\d{1,3})[._-](\d{1,3})\b", re.IGNORECASE)
+
 
 def date_candidates_for_keyword(query: str) -> list[str]:
     """
@@ -119,10 +121,24 @@ def keyword_query_text(query: str) -> str:
     q = (query or "").strip()
     if not q:
         return q
-    cands = date_candidates_for_keyword(q)
-    if not cands:
+
+    out: set[str] = set()
+
+    # 日期候选（用于 FTS 日期形态差异）
+    out.update(date_candidates_for_keyword(q))
+
+    # 版本号候选（用于 0-1-0 这类 FTS 不友好形态的 query-side 归一化）
+    # 注意：这里用 OR 扩展 query_text，不要求文档侧一定产生同形态 token。
+    for m in _VER3_RE.finditer(q):
+        a, b, c = m.group(1), m.group(2), m.group(3)
+        out.add(f"{a}.{b}.{c}")
+        out.add(f"v{a}.{b}.{c}")
+        out.add(f"{a}_{b}_{c}")
+        out.add(f"{a}-{b}-{c}")
+
+    if not out:
         return q
-    parts = [f"\"{c}\"" for c in sorted(set(cands))]
+    parts = [f"\"{c}\"" for c in sorted(out)]
     return " OR ".join(parts)
 
 

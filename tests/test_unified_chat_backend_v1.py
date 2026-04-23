@@ -298,3 +298,13 @@ def test_date_norm_candidates_cn_uppercase_numerals():
     cands = date_norm_candidates_for_structured("贰零贰陆年肆月拾肆号那天写了什么")
     assert "2026-04-14" in cands
 
+
+def test_keyword_query_text_expands_version_hyphen():
+    from api.rag_recall_tools import keyword_query_text
+
+    qt = keyword_query_text("langchain 0-1-0 正式版什么时候发布")
+    assert "\"0-1-0\"" in qt
+    assert "\"0_1_0\"" in qt
+    assert "\"0.1.0\"" in qt
+    assert "\"v0.1.0\"" in qt
+
