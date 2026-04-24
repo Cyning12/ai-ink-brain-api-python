@@ -1,8 +1,9 @@
 # Task：Unified Chat（后端 v1）— 融合 RAG + Text2SQL + events[]
 
-状态：pending  
-范围：仅后端 `ai-ink-brain-api-python`  
-设计：`docs/UI/v1/UI-02-unified-chat-plan.md`
+> **状态**：pending  
+> **范围**：仅后端 `ai-ink-brain-api-python`  
+> **设计**：`docs/UI/v1/UI-02-unified-chat-plan.md`  
+> **前端依赖**：`task_frontend_unified_chat_ui_v1.md`（events[] 渲染 + Timeline UI）
 
 ## 目标
 
