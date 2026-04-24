@@ -56,10 +56,17 @@ def validate_mermaid(text: str, filename: str) -> tuple[list[str], list[str]]:
         if "-->" in stripped and not ('--"' in stripped or "-.->" in stripped):
             errors.append(f"  行{i}: 裸边（无引号标记）-> {stripped[:60]}")
 
-        # 检查锚点格式
+        # 检查锚点格式（支持前后端常见扩展名）
         if "// →" in stripped:
-            if not re.match(r"\s*// → [\w/]+\.(py|sql|md)(#[L\d]+|::[\w_]+)?", stripped):
-                warnings.append(f"  行{i}: 锚点格式非标准 -> {stripped[:60]}")
+            if not re.match(
+                r"\s*// → [\w/\-\[\]]+\.(py|sql|md|ts|tsx|js|jsx|css|json|yaml|yml)(#[L\d]+|::[\w_]+)?",
+                stripped,
+            ):
+                # 也允许纯路径（如 PY_API_URL）或 URL
+                if not re.match(r"\s*// → [\w_]+$", stripped) and not re.match(
+                    r"\s*// → https?://", stripped
+                ):
+                    warnings.append(f"  行{i}: 锚点格式非标准 -> {stripped[:60]}")
 
     # 检查是否有锚点
     has_anchor = any("// →" in l for l in lines)
