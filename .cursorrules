@@ -18,7 +18,7 @@
 6. 流程采用 顶层总图 + 子流程按需加载，不爆上下文
 7. 图谱是唯一真实来源（Single Source of Truth）
 
-# 后端固定结构
+# 本仓 _tech_graph 固定结构
 _tech_graph/
 ├─ 00_main.md              # 顶层流程总图
 ├─ 01_struct.md            # 数据库 Struct 模型
@@ -26,17 +26,11 @@ _tech_graph/
 ├─ 10_flow_rag.md          # RAG 检索流程
 ├─ 11_flow_text2sql.md     # Text2SQL 流程
 ├─ 12_flow_fts.md          # 全文检索流程
+├─ 13_flow_supabase_rpc.md # Supabase RPC 流程
 └─ 99_spec.md              # 实现规约
 
-# 前端固定结构（Next.js + TS，独立目录）
-_tech_graph/
-├─ 00_main.md              # 路由 & 渲染流程
-├─ 01_struct.md            # TS 类型 Struct
-├─ 02_version.md           # 前端版本迭代
-├─ 10_flow_route.md        # 页面路由流程
-├─ 11_flow_api.md          # API 请求流程
-├─ 12_flow_auth.md         # 登录权限流程
-└─ 99_spec.md              # 前端实现规约
+# 注：前端 _tech_graph 结构见 ai-ink-brain/.cursorrules
+# 全局统一规范见工作区根 AGENTS.md §7
 
 # ==============================================
 # 【二、图谱自动增量更新规则（核心！）】
