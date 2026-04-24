@@ -2,7 +2,8 @@
 
 > **状态**：draft / pending / in_progress / done  
 > **关联图谱**：`docs/_tech_graph/xx_flow_xxx.md`  
-> **关联 Issue/PR**：#xxx
+> **关联 Issue/PR**：#xxx  
+> **前端依赖**：`<前端任务文件名>`（如 API 变更需前端配合，否则填 "无"）
 
 ---
 
