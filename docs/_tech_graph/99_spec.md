@@ -23,6 +23,7 @@ flowchart TD
     C3[要求: Struct 表达 DB 结构]
     C4[要求: 流程必须用连线对接<br/>不依赖上下文文字]
     C5[要求: 子流程按需加载<br/>00_main 只保留入口/分支]
+    C6[要求: 所有 Mermaid 图遵循<br/>99_mermaid_protocol.md 拓扑协议]
   end
 
   TS1 --> ROOT

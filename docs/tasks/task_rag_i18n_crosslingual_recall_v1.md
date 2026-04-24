@@ -1,6 +1,6 @@
 # Task：RAG i18n（跨语言检索）v1｜中文查询召回英文内容
 
-> **状态**：pending  
+> **状态**：done（2026-04-24 验收通过）  
 > **关联图谱**：`docs/_tech_graph/10_flow_rag.md`、`docs/_tech_graph/12_flow_fts.md`  
 > **关联 Issue/PR**：无  
 > **前端依赖**：无（接口不变；如需前端展示 debug 信息，另起前端任务）
@@ -17,15 +17,15 @@
 
 ## 范围
 
-- [ ] **Query-side i18n 扩展（v1）**：对 Keyword/FTS 查询文本做“跨语言候选”扩展（不改 `documents.content`、不要求重算 embedding）
-  - [ ] 输入中文 query 时，生成一组英文候选/同义短语，并以 `OR` 形式合并进 `keyword_documents(query_text)` 的 `query_text`
-  - [ ] 必须保留原始 query 与原始关键 token（文件名、版本号、标识符等），不得被“翻译”覆盖
-  - [ ] 需要可控：最多候选数、每个候选最大长度、总 query_text 长度上限
-- [ ] **可观测性（事件 + 日志）**：
-  - [ ] Unified Chat：在 `events[]` 增加 `rag.query_expand`（或等价事件）输出扩展前后 query 信息（脱敏/截断）
-  - [ ] /api/py/chat：在 `rag_conversation_logs.metadata.match` 增加 `i18n_expand` 字段（与 Task05 的 `query_compare` 结构兼容）
-- [ ] **回归用例与最小测试**（pytest）：
-  - [ ] 覆盖：中文 query → 英文候选生成；候选上限与截断；空/异常时优雅降级（只用原 query）
+- [x] **Query-side i18n 扩展（v1）**：对 Keyword/FTS 查询文本做“跨语言候选”扩展（不改 `documents.content`、不要求重算 embedding）
+  - [x] 输入中文 query 时，生成一组英文候选/同义短语，并以 `OR` 形式合并进 `keyword_documents(query_text)` 的 `query_text`
+  - [x] 必须保留原始 query 与原始关键 token（文件名、版本号、标识符等），不得被“翻译”覆盖
+  - [x] 需要可控：最多候选数、每个候选最大长度、总 query_text 长度上限
+- [x] **可观测性（事件 + 日志）**：
+  - [x] Unified Chat：在 `events[]` 增加 `rag.query_expand`（或等价事件）输出扩展前后 query 信息（脱敏/截断）
+  - [x] /api/py/chat：在 `rag_conversation_logs.metadata.match` 增加 `i18n_expand` 字段（与 Task05 的 `query_compare` 结构兼容）
+- [x] **回归用例与最小测试**（pytest）：
+  - [x] 覆盖：中文 query → 英文候选生成；候选上限与截断；空/异常时优雅降级（只用原 query）
 
 ---
 
@@ -91,24 +91,24 @@
 
 ### A. 功能验收（最少 3 条）
 
-- [ ] **中文 → 英文召回**：当库中存在英文文档包含关键术语（例如 `RunnableWithMessageHistory` / `LangChain` / `vector store` 等）时：
-  - [ ] 用户用中文描述（不包含该英文词）也能在 Keyword/FTS 路出现命中
-  - [ ] Unified Chat 的 `events[]` 中出现 `rag.sources`，且 `rag.query_expand` 显示候选确实被 OR 合并
-- [ ] **不劣化既有路径**：英文原 query 不应被改坏（expanded 至少包含原 query；候选为空也可）
-- [ ] **可靠性兜底**：禁用 LLM 或任意异常时，检索仍可正常执行（只用原 query）
+- [x] **中文 → 英文召回**：当库中存在英文文档包含关键术语（例如 `RunnableWithMessageHistory` / `LangChain` / `vector store` 等）时：
+  - [x] 用户用中文描述（不包含该英文词）也能在 Keyword/FTS 路出现命中（query-side glossary 扩展）
+  - [x] Unified Chat 的 `events[]` 中出现 `rag.sources`，且 `rag.query_expand` 显示候选确实被 OR 合并
+- [x] **不劣化既有路径**：英文原 query 不应被改坏（expanded 至少包含原 query；候选为空也可）
+- [x] **可靠性兜底**：禁用 LLM 或任意异常时，检索仍可正常执行（只用原 query）
 
 ### B. 可观测性
 
-- [ ] Unified Chat：`events[]` 中存在 `rag.query_expand`（或等价），且字段被截断保护
-- [ ] /api/py/chat：`rag_conversation_logs.metadata.match.i18n_expand` 写入成功（字段结构稳定）
+- [x] Unified Chat：`events[]` 中存在 `rag.query_expand`（或等价），且字段被截断保护
+- [x] /api/py/chat：`rag_conversation_logs.metadata.match.i18n_expand` 写入成功（字段结构稳定）
 
 ### C. 测试
 
-- [ ] `pytest` 全绿
-- [ ] 至少包含单测：
-  - [ ] 术语表命中生成候选 + OR 合成
-  - [ ] 上限/截断生效（候选数、字符数、总长）
-  - [ ] 异常兜底返回原 query
+- [x] `pytest` 全绿（`pytest -q tests`：32 passed）
+- [x] 至少包含单测：
+  - [x] 术语表命中生成候选 + OR 合成
+  - [x] 上限/截断生效（候选数、字符数、总长）
+  - [x] 异常兜底返回原 query
 
 ---
 
@@ -116,9 +116,9 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `api/rag_recall_tools.py`、`api/unified_chat.py`、`api/index.py`、`tests/test_unified_chat_backend_v1.py`、`docs/_tech_graph/12_flow_fts.md` |
+| 涉及文件 | `api/rag_recall_tools.py`、`api/unified_chat.py`、`api/index.py`、`tests/test_unified_chat_backend_v1.py`、`data/i18n_glossary.json`、`docs/_tech_graph/12_flow_fts.md` |
 | 关键 env | `I18N_EXPAND_ENABLED`（默认 true）、`I18N_EXPAND_MODE=glossary|llm|off`（默认 glossary）、`I18N_EXPAND_MAX_CANDIDATES`（默认 5）、`I18N_EXPAND_MAX_CANDIDATE_CHARS`（默认 48）、`I18N_EXPAND_MAX_QUERY_TEXT_CHARS`（默认 240） |
-| 数据文件 | `data/i18n_glossary.json`（v1 轻量术语表：中文短语 -> 英文候选短语列表） |
-| 接口变更 | 无（仅 Keyword/FTS query_text 扩展 + Unified events + rag_conversation_logs.metadata.match.i18n_expand） |
+| 数据文件 | `data/i18n_glossary.json`（v1 轻量术语表：中文短语 -> 英文候选短语列表，带 mtime 缓存与解析失败兜底） |
+| 接口变更 | 无（仅 Keyword/FTS query_text 扩展 + Unified `rag.query_expand` events + `rag_conversation_logs.metadata.match.i18n_expand`） |
 | 图谱变更点 | `docs/_tech_graph/12_flow_fts.md`：在 `keyword_query_text()` 的 Query-side expand（B2.1）补充 i18n 分支（glossary/错误兜底/OR 合成/上限） |
 
