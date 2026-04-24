@@ -16,5 +16,6 @@ timeline
   2026-04-23 : e3f9037 B2 v2 version/identifier alias (fts_tokens)
   2026-04-23 : cd6ed43 B2 v2.1 query-side version expansion
   2026-04-23 : 19b7f96 docs: add rag-chat flow and text2sql v1 spec/task
+  2026-04-24 : 205ece6 auto: api/query_rewrite.py
 ```
 

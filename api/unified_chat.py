@@ -27,7 +27,7 @@ from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
 
 
-PreferMode = Literal["auto", "rag", "text2sql"]
+PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
 
 
 def _require_unified_auth(authorization: str | None, x_blog_admin_token: str | None, x_admin_token: str | None) -> None:
@@ -67,7 +67,11 @@ def _parse_prefer(raw: object) -> PreferMode:
     if not isinstance(raw, str):
         return "auto"
     v = raw.strip().lower()
-    if v in ("rag", "text2sql", "auto"):
+    # 允许 no_data：跳过检索/查库，直接生成（用于 i18n/无证据场景兜底）。
+    if v in ("rag", "text2sql", "no_data", "auto"):
+        return v  # type: ignore[return-value]
+    # 允许 tool:* 透传给 intent_router（v1 预留，未实现时会返回 error 事件）。
+    if v.startswith("tool:"):
         return v  # type: ignore[return-value]
     return "auto"
 
