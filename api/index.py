@@ -45,6 +45,7 @@ from .keyword_fallback import (
     run_keyword_fallback,
 )
 from .query_rewrite import rewrite_query_with_history
+from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
 from .rag_env import admin_secret, pick_supabase_service_key, pick_supabase_url
 
@@ -715,8 +716,10 @@ async def chat(
 
         # 路 B：Keyword（FTS）
         # 用于“可观测性”的 raw vs rewrite 对比（不改变最终召回策略）
-        keyword_hits_raw_for_metrics = fetch_keyword_hits(sb, query, match_count=12)
-        keyword_hits_rw_for_metrics = fetch_keyword_hits(sb, rewritten_query, match_count=12)
+        kw_qt_raw, i18n_expand_raw = keyword_query_text_with_i18n_meta(query)
+        kw_qt_rw, i18n_expand_rw = keyword_query_text_with_i18n_meta(rewritten_query)
+        keyword_hits_raw_for_metrics = fetch_keyword_hits(sb, kw_qt_raw, match_count=12)
+        keyword_hits_rw_for_metrics = fetch_keyword_hits(sb, kw_qt_rw, match_count=12)
 
         def _top1_keyword_score(rows: list[dict[str, Any]]) -> float | None:
             if not rows:
@@ -731,6 +734,8 @@ async def chat(
         query_compare_meta = {
             "query_raw": query,
             "query_rewrite": rewritten_query,
+            "keyword_query_text_raw": kw_qt_raw,
+            "keyword_query_text_rewrite": kw_qt_rw,
             "recall_raw_count": len(keyword_hits_raw_for_metrics),
             "recall_rw_count": len(keyword_hits_rw_for_metrics),
             "recall_raw_top1_score": _top1_keyword_score(keyword_hits_raw_for_metrics),
@@ -917,6 +922,7 @@ async def chat(
 
     async def save_log_after_stream() -> None:
         response_text = "".join(response_chunks).strip()
+        kw_qt_used, _i18n_meta_used = keyword_query_text_with_i18n_meta(rewritten_query)
         meta: dict[str, Any] = {
             "latency_ms": {
                 "history": t_history_ms,
@@ -942,6 +948,13 @@ async def chat(
                 query_compare=query_compare_meta,
             ),
         }
+        if isinstance(meta.get("match"), dict):
+            meta["match"]["i18n_expand"] = {
+                "raw": i18n_expand_raw,
+                "rewrite": i18n_expand_rw,
+                "used": "rewrite",
+                "used_query_text": kw_qt_used,
+            }
         payload: dict[str, Any] = {
             "session_id": session_id,
             "query": query,

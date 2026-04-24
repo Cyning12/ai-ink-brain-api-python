@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
+import os
 import re
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 
 
 def should_retry_error(msg: str) -> bool:
@@ -118,28 +121,262 @@ def keyword_query_text(query: str) -> str:
     - 若包含日期：生成 `"a" OR "b" OR "c"`，提升日期类召回稳定性。
     - 否则：原样返回。
     """
-    q = (query or "").strip()
-    if not q:
-        return q
+    qt, _meta = keyword_query_text_with_i18n_meta(query)
+    return qt
 
-    out: set[str] = set()
 
-    # 日期候选（用于 FTS 日期形态差异）
-    out.update(date_candidates_for_keyword(q))
+I18nExpandMode = Literal["glossary", "llm", "off"]
 
-    # 版本号候选（用于 0-1-0 这类 FTS 不友好形态的 query-side 归一化）
-    # 注意：这里用 OR 扩展 query_text，不要求文档侧一定产生同形态 token。
-    for m in _VER3_RE.finditer(q):
-        a, b, c = m.group(1), m.group(2), m.group(3)
-        out.add(f"{a}.{b}.{c}")
-        out.add(f"v{a}.{b}.{c}")
-        out.add(f"{a}_{b}_{c}")
-        out.add(f"{a}-{b}-{c}")
 
-    if not out:
-        return q
-    parts = [f"\"{c}\"" for c in sorted(out)]
-    return " OR ".join(parts)
+@dataclass(frozen=True)
+class I18nExpandResult:
+    raw: str
+    expanded: str
+    candidates: list[str]
+    source: Literal["glossary", "llm", "none", "error"]
+    truncated: bool
+    enabled: bool
+    mode: I18nExpandMode
+
+
+_I18N_ALLOWED_RE = re.compile(r"[^A-Za-z0-9\s._/\-]+")
+_I18N_HAS_ZH_RE = re.compile(r"[\u4e00-\u9fff]")
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = (os.getenv(name, "").strip() or ("1" if default else "0")).lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def _env_int(name: str, default: int, *, min_v: int, max_v: int) -> int:
+    raw = (os.getenv(name, "").strip() or str(default)).strip()
+    try:
+        v = int(raw)
+    except Exception:  # noqa: BLE001
+        return default
+    return max(min_v, min(max_v, v))
+
+
+def _i18n_mode() -> I18nExpandMode:
+    v = (os.getenv("I18N_EXPAND_MODE", "glossary") or "glossary").strip().lower()
+    if v in ("glossary", "llm", "off"):
+        return v  # type: ignore[return-value]
+    return "glossary"
+
+
+def _i18n_glossary_path() -> Path:
+    # api/rag_recall_tools.py -> repo_root/data/i18n_glossary.json
+    return (Path(__file__).resolve().parents[1] / "data" / "i18n_glossary.json").resolve()
+
+
+_I18N_GLOSSARY_CACHE: tuple[float, dict[str, list[str]]] | None = None
+
+
+def _load_i18n_glossary() -> dict[str, list[str]]:
+    """
+    轻量术语表：中文短语 -> 英文候选短语列表。
+    - 文件不存在/解析失败：返回空表（必须优雅降级）
+    - 做简单缓存：按 mtime 失效
+    """
+    global _I18N_GLOSSARY_CACHE  # noqa: PLW0603
+    p = _i18n_glossary_path()
+    try:
+        st = p.stat()
+    except Exception:  # noqa: BLE001
+        _I18N_GLOSSARY_CACHE = (0.0, {})
+        return {}
+
+    if _I18N_GLOSSARY_CACHE is not None and _I18N_GLOSSARY_CACHE[0] == float(st.st_mtime):
+        return _I18N_GLOSSARY_CACHE[1]
+
+    try:
+        raw = p.read_text(encoding="utf-8")
+        obj = json.loads(raw)
+        out: dict[str, list[str]] = {}
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if not isinstance(k, str) or not k.strip():
+                    continue
+                if isinstance(v, str) and v.strip():
+                    out[k.strip()] = [v.strip()]
+                elif isinstance(v, list):
+                    vals = [x.strip() for x in v if isinstance(x, str) and x.strip()]
+                    if vals:
+                        out[k.strip()] = vals
+        _I18N_GLOSSARY_CACHE = (float(st.st_mtime), out)
+        return out
+    except Exception:  # noqa: BLE001
+        _I18N_GLOSSARY_CACHE = (float(st.st_mtime), {})
+        return {}
+
+
+def _clean_i18n_candidate(s: str, *, max_chars: int) -> str:
+    t = (s or "").strip()
+    if not t:
+        return ""
+    # 去掉引号与控制字符，避免破坏 websearch_to_tsquery 语法
+    t = t.replace("\u0000", "").replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    t = t.replace('"', "").replace("'", "")
+    t = _I18N_ALLOWED_RE.sub(" ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    if not t:
+        return ""
+    if len(t) > max_chars:
+        t = t[:max_chars].strip()
+    return t
+
+
+def _clean_raw_query_phrase(s: str, *, max_chars: int) -> str:
+    """
+    原 query 必须保留（含中文/标识符），只做最小清洗避免语法破坏：
+    - 去掉控制字符与引号
+    - 折叠空白
+    - 截断上限
+    """
+    t = (s or "").strip()
+    if not t:
+        return ""
+    t = t.replace("\u0000", "").replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    t = t.replace('"', "").replace("'", "")
+    t = re.sub(r"\s+", " ", t).strip()
+    if len(t) > max_chars:
+        t = t[:max_chars].strip()
+    return t
+
+
+def _i18n_candidates_from_glossary(query: str, *, max_candidates: int, max_candidate_chars: int) -> list[str]:
+    if not query.strip():
+        return []
+    if not _I18N_HAS_ZH_RE.search(query):
+        return []
+    glossary = _load_i18n_glossary()
+    if not glossary:
+        return []
+    found: list[str] = []
+    # v1：仅做子串命中（不引入中文分词）
+    for zh, ens in glossary.items():
+        if zh and zh in query:
+            for en in ens:
+                c = _clean_i18n_candidate(en, max_chars=max_candidate_chars)
+                if c:
+                    found.append(c)
+        if len(found) >= max_candidates * 2:
+            break
+    # 去重 + 稳定输出
+    out: list[str] = []
+    seen: set[str] = set()
+    for c in found:
+        key = c.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(c)
+        if len(out) >= max_candidates:
+            break
+    return out
+
+
+def keyword_query_text_with_i18n_meta(query: str) -> tuple[str, dict[str, Any] | None]:
+    """
+    构造 keyword/FTS 的 query_text，并返回 i18n expand 元信息（用于 events/log）。
+    约束：任何异常必须优雅降级为仅原 query。
+    """
+    q_raw = (query or "").strip()
+    if not q_raw:
+        return ("", None)
+
+    enabled = _env_bool("I18N_EXPAND_ENABLED", True)
+    mode = _i18n_mode()
+    max_candidates = _env_int("I18N_EXPAND_MAX_CANDIDATES", 5, min_v=0, max_v=50)
+    max_candidate_chars = _env_int("I18N_EXPAND_MAX_CANDIDATE_CHARS", 48, min_v=8, max_v=256)
+    max_query_chars = _env_int("I18N_EXPAND_MAX_QUERY_TEXT_CHARS", 240, min_v=64, max_v=2048)
+
+    # 1) 先保留原 query（强制）
+    parts: list[str] = []
+    seen: set[str] = set()
+
+    def _push_phrase(phrase: str) -> None:
+        if phrase == q_raw:
+            p = _clean_raw_query_phrase(phrase, max_chars=max_query_chars)
+        else:
+            p = _clean_i18n_candidate(phrase, max_chars=max_candidate_chars)
+        if not p:
+            return
+        key = p.lower()
+        if key in seen:
+            return
+        seen.add(key)
+        parts.append(f"\"{p}\"")
+
+    _push_phrase(q_raw)
+
+    # 2) 既有日期/版本扩展（保持逻辑，但不再丢掉原 query）
+    try:
+        for c in date_candidates_for_keyword(q_raw):
+            _push_phrase(c)
+        for m in _VER3_RE.finditer(q_raw):
+            a, b, c = m.group(1), m.group(2), m.group(3)
+            _push_phrase(f"{a}.{b}.{c}")
+            _push_phrase(f"v{a}.{b}.{c}")
+            _push_phrase(f"{a}_{b}_{c}")
+            _push_phrase(f"{a}-{b}-{c}")
+    except Exception:  # noqa: BLE001
+        # v1：不让扩展影响可靠性
+        return (q_raw, None)
+
+    # 3) i18n expand（glossary 优先，LLM 默认关闭）
+    candidates: list[str] = []
+    source: Literal["glossary", "llm", "none", "error"] = "none"
+    truncated = False
+    if enabled and max_candidates > 0 and mode != "off":
+        try:
+            if mode == "glossary":
+                candidates = _i18n_candidates_from_glossary(
+                    q_raw,
+                    max_candidates=max_candidates,
+                    max_candidate_chars=max_candidate_chars,
+                )
+                source = "glossary" if candidates else "none"
+            elif mode == "llm":
+                # v1：预留开关，默认关闭；实现必须保证失败回退
+                candidates = []
+                source = "none"
+        except Exception:  # noqa: BLE001
+            candidates = []
+            source = "error"
+
+    for c in candidates:
+        _push_phrase(c)
+
+    # 4) 总长度保护（按字符，尽量保留前面更重要的 phrase）
+    joined = " OR ".join(parts)
+    if len(joined) > max_query_chars:
+        trimmed: list[str] = []
+        cur = 0
+        for p in parts:
+            add = len(p) if not trimmed else (4 + len(p))  # " OR "
+            if cur + add > max_query_chars:
+                truncated = True
+                break
+            trimmed.append(p)
+            cur += add
+        joined = " OR ".join(trimmed) if trimmed else f"\"{_clean_i18n_candidate(q_raw, max_chars=max_query_chars)}\""
+
+    meta: dict[str, Any] = {
+        "raw": q_raw,
+        "expanded": joined,
+        "candidates": candidates,
+        "source": source,
+        "truncated": bool(truncated),
+        "enabled": bool(enabled),
+        "mode": mode,
+        "limits": {
+            "max_candidates": max_candidates,
+            "max_candidate_chars": max_candidate_chars,
+            "max_query_text_chars": max_query_chars,
+        },
+    }
+    return (joined, meta)
 
 
 def date_norm_candidates_for_structured(query: str) -> list[str]:

@@ -21,5 +21,13 @@ flowchart TD
   subgraph B2_QuerySide["B2.1 (Query-side expand)"]
     QS
   end
+
+  %% v1: i18n cross-lingual recall (query-side)
+  QS --> I18N{I18N_EXPAND_ENABLED?}
+  I18N -- "on & mode=glossary" --> GLOSS[data/i18n_glossary.json<br/>ZH -> EN candidates]
+  I18N -- "off / error" --> NOX[graceful fallback<br/>use raw query only]
+  GLOSS --> CLEAN[candidate clean & limits<br/>max candidates/chars/total]
+  CLEAN --> ORQ[OR compose<br/>"raw" OR "en1" OR ...]
+  ORQ --> RPC
 ```
 

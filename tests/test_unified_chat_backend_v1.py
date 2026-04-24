@@ -303,8 +303,55 @@ def test_keyword_query_text_expands_version_hyphen():
     from api.rag_recall_tools import keyword_query_text
 
     qt = keyword_query_text("langchain 0-1-0 正式版什么时候发布")
+    # 保留原 query + 版本候选 OR 扩展
+    assert "\"langchain 0-1-0 正式版什么时候发布\"" in qt
     assert "\"0-1-0\"" in qt
     assert "\"0_1_0\"" in qt
     assert "\"0.1.0\"" in qt
     assert "\"v0.1.0\"" in qt
+
+
+def test_i18n_expand_glossary_or_compose():
+    from api.rag_recall_tools import keyword_query_text_with_i18n_meta
+
+    qt, meta = keyword_query_text_with_i18n_meta("如何实现消息历史的可运行链？")
+    assert "\"如何实现消息历史的可运行链？\"" in qt
+    # glossary 命中：消息历史 -> message history
+    assert "\"message history\"" in qt
+    assert isinstance(meta, dict)
+    assert meta.get("source") in ("glossary", "none")
+
+
+def test_i18n_expand_limits_and_truncation(monkeypatch: pytest.MonkeyPatch):
+    from api.rag_recall_tools import keyword_query_text_with_i18n_meta
+
+    monkeypatch.setenv("I18N_EXPAND_ENABLED", "1")
+    monkeypatch.setenv("I18N_EXPAND_MODE", "glossary")
+    monkeypatch.setenv("I18N_EXPAND_MAX_CANDIDATES", "1")
+    monkeypatch.setenv("I18N_EXPAND_MAX_CANDIDATE_CHARS", "8")
+    monkeypatch.setenv("I18N_EXPAND_MAX_QUERY_TEXT_CHARS", "64")
+
+    qt, meta = keyword_query_text_with_i18n_meta("对话历史和向量数据库怎么选？")
+    assert isinstance(meta, dict)
+    cands = meta.get("candidates")
+    assert isinstance(cands, list)
+    assert len(cands) <= 1
+    assert len(qt) <= 64
+    assert meta.get("truncated") in (True, False)
+
+
+def test_i18n_expand_graceful_fallback_on_error(monkeypatch: pytest.MonkeyPatch):
+    import api.rag_recall_tools as tools
+
+    monkeypatch.setenv("I18N_EXPAND_ENABLED", "1")
+    monkeypatch.setenv("I18N_EXPAND_MODE", "glossary")
+
+    def _boom():  # noqa: ANN001
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(tools, "_load_i18n_glossary", _boom)
+    qt, meta = tools.keyword_query_text_with_i18n_meta("向量库怎么做")
+    # 任何异常必须优雅降级：至少保留原 query（不抛错）
+    assert "\"向量库怎么做\"" in qt
+    assert isinstance(meta, dict)
 

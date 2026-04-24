@@ -14,7 +14,7 @@ from openai import OpenAI
 
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .query_rewrite import rewrite_query_with_history
-from .rag_recall_tools import keyword_query_text, rpc_execute_with_retry, structured_recall_by_date
+from .rag_recall_tools import keyword_query_text_with_i18n_meta, rpc_execute_with_retry, structured_recall_by_date
 from .rag_env import (
     admin_secret,
     embedding_kwargs_for_inputs,
@@ -61,6 +61,38 @@ def _now_ms(started_at: float) -> int:
 
 def _event(*, typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     return {"type": typ, "ts": _now_ms(started_at), "step_id": step_id, "payload": payload}
+
+_MASK_SECRET_RE = re.compile(r"(?i)\b(sk-[A-Za-z0-9]{10,}|sf-[A-Za-z0-9]{10,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})\b")
+
+
+def _safe_text_for_event(text: str, *, max_len: int) -> str:
+    t = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    t = _MASK_SECRET_RE.sub("***", t)
+    t = t.replace("\n", "\\n")
+    if len(t) <= max_len:
+        return t
+    return t[: max_len - 3] + "..."
+
+
+def _build_query_expand_event_payload(meta: dict[str, Any] | None, *, max_raw: int, max_expanded: int) -> dict[str, Any]:
+    if not meta:
+        return {"raw": "", "expanded": "", "candidates": [], "source": "none", "truncated": False, "enabled": False, "mode": "off"}
+    raw = meta.get("raw") if isinstance(meta.get("raw"), str) else ""
+    expanded = meta.get("expanded") if isinstance(meta.get("expanded"), str) else ""
+    cands = meta.get("candidates") if isinstance(meta.get("candidates"), list) else []
+    safe_cands: list[str] = []
+    for c in cands[:8]:
+        if isinstance(c, str) and c.strip():
+            safe_cands.append(_safe_text_for_event(c.strip(), max_len=48))
+    return {
+        "raw": _safe_text_for_event(raw, max_len=max_raw),
+        "expanded": _safe_text_for_event(expanded, max_len=max_expanded),
+        "candidates": safe_cands,
+        "source": meta.get("source"),
+        "truncated": bool(meta.get("truncated")),
+        "enabled": bool(meta.get("enabled")),
+        "mode": meta.get("mode"),
+    }
 
 
 def _parse_prefer(raw: object) -> PreferMode:
@@ -542,10 +574,24 @@ async def handle_unified_chat(
             if err_vec:
                 ret_err = err_vec
 
+        kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
+        kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
+        events.append(
+            _event(
+                typ="rag.query_expand",
+                started_at=started_at,
+                step_id="q_expand",
+                payload={
+                    "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
+                    "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
+                },
+            )
+        )
+
         keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
             sb,
             "keyword_documents",
-            {"query_text": keyword_query_text(query), "match_count": 12},
+            {"query_text": kw_qt_raw, "match_count": 12},
             retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
         )
         retry_count += rc_raw
@@ -555,7 +601,7 @@ async def handle_unified_chat(
         keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
             sb,
             "keyword_documents",
-            {"query_text": keyword_query_text(rewritten), "match_count": 12},
+            {"query_text": kw_qt_rw, "match_count": 12},
             retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
         )
         retry_count += rc_rw
@@ -920,10 +966,25 @@ async def handle_unified_chat_stream(
                     if err_vec:
                         ret_err = err_vec
 
+                kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
+                kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="rag.query_expand",
+                        started_at=started_at,
+                        step_id="q_expand",
+                        payload={
+                            "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
+                            "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
+                        },
+                    ),
+                )
+
                 keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
                     sb,
                     "keyword_documents",
-                    {"query_text": keyword_query_text(query), "match_count": 12},
+                    {"query_text": kw_qt_raw, "match_count": 12},
                     retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
                 )
                 retry_count += rc_raw
@@ -933,7 +994,7 @@ async def handle_unified_chat_stream(
                 keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
                     sb,
                     "keyword_documents",
-                    {"query_text": keyword_query_text(rewritten), "match_count": 12},
+                    {"query_text": kw_qt_rw, "match_count": 12},
                     retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
                 )
                 retry_count += rc_rw

@@ -116,9 +116,9 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `api/rag_recall_tools.py`、`api/unified_chat.py`、`api/index.py`（如需）、`docs/_tech_graph/12_flow_fts.md`（如需） |
-| 关键 env | `I18N_EXPAND_ENABLED`、`I18N_EXPAND_MODE=glossary|llm|off`、`I18N_EXPAND_MAX_*`（若新增） |
-| 数据文件 | `data/i18n_glossary.json`（若采用术语表方案） |
-| 接口变更 | 无（仅内部检索 query_text 扩展 + events/log） |
-| 图谱变更点 | `docs/_tech_graph/12_flow_fts.md` 的 Query-side expand 节点补充 i18n 分支说明 |
+| 涉及文件 | `api/rag_recall_tools.py`、`api/unified_chat.py`、`api/index.py`、`tests/test_unified_chat_backend_v1.py`、`docs/_tech_graph/12_flow_fts.md` |
+| 关键 env | `I18N_EXPAND_ENABLED`（默认 true）、`I18N_EXPAND_MODE=glossary|llm|off`（默认 glossary）、`I18N_EXPAND_MAX_CANDIDATES`（默认 5）、`I18N_EXPAND_MAX_CANDIDATE_CHARS`（默认 48）、`I18N_EXPAND_MAX_QUERY_TEXT_CHARS`（默认 240） |
+| 数据文件 | `data/i18n_glossary.json`（v1 轻量术语表：中文短语 -> 英文候选短语列表） |
+| 接口变更 | 无（仅 Keyword/FTS query_text 扩展 + Unified events + rag_conversation_logs.metadata.match.i18n_expand） |
+| 图谱变更点 | `docs/_tech_graph/12_flow_fts.md`：在 `keyword_query_text()` 的 Query-side expand（B2.1）补充 i18n 分支（glossary/错误兜底/OR 合成/上限） |
 
