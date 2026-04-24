@@ -1,29 +1,40 @@
 ```mermaid
 flowchart LR
-  %% Supabase RPC + Tables (service_role)
+    %% Supabase RPC + Tables (service_role)
 
-  SB[Supabase Client<br/>service_role] --> D[table: public.documents]
-  SB --> C[table: public.code_chunks]
-  SB --> L[table: public.rag_conversation_logs]
+    %% 连接层
+    SB[Supabase Client<br/>service_role] --> D[(documents)]
+    SB --> C[(code_chunks)]
+    SB --> L[(rag_conversation_logs)]
 
-  %% documents rpc
-  SB --> MD[rpc: match_documents(query_embedding, match_count, match_threshold)]
-  SB --> KD[rpc: keyword_documents(query_text, match_count)]
-  SB --> RD[rpc: refresh_documents_fts_tokens_for_paths(relative_paths)]
+    %% Documents RPC
+    SB --> MD[match_documents<br/>向量检索]
+    SB --> KD[keyword_documents<br/>关键词检索]
+    SB --> RD[refresh_documents_fts_tokens<br/>刷新 FTS]
 
-  %% code_chunks rpc
-  SB --> MC[rpc: match_code_chunks(query_embedding, match_count, match_threshold)]
-  SB --> KC[rpc: keyword_code_chunks(query_text, match_count)]
-  SB --> RC[rpc: refresh_code_chunks_fts_tokens_for_paths(relative_paths)]
+    %% CodeChunks RPC
+    SB --> MC[match_code_chunks<br/>代码向量检索]
+    SB --> KC[keyword_code_chunks<br/>代码关键词检索]
+    SB --> RC[refresh_code_chunks_fts_tokens<br/>刷新代码 FTS]
 
-  %% ingestion writes
-  ING[Ingest Pipeline] -->|insert| D
-  ING -->|insert| C
-  ING -->|refresh fts| RD
-  ING -->|refresh fts| RC
+    %% 写入流
+    ING[Ingest Pipeline] -->|insert| D
+    ING -->|insert| C
+    ING -->|refresh| RD
+    ING -->|refresh| RC
 
-  %% debug logs
-  CHAT[RAG/Unified Chat] -->|insert| L
-  CHAT -->|select history| L
+    %% 日志流
+    CHAT[RAG / Unified Chat] -->|insert| L
+    CHAT -->|select| L
+
+    %% 样式
+    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef table fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef rpc fill:#f3e5f5,stroke:#4a148c,stroke-width:1px
+    classDef pipeline fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
+
+    class SB client
+    class D,C,L table
+    class MD,KD,RD,MC,KC,RC rpc
+    class ING,CHAT pipeline
 ```
-

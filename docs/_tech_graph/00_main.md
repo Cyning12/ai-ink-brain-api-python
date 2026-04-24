@@ -1,40 +1,47 @@
 ```mermaid
 flowchart TD
-  %% version: 2026-04-23 (main)
+    %% version: 2026-04-24 (main)
 
-  Q[用户请求<br/>HTTP API] --> E{入口路由<br/>api/index.py}
+    %% 入口
+    Q[用户请求<br/>HTTP API] --> E{入口路由<br/>api/index.py}
 
-  %% unified
-  E -->|POST /api/py/unified/chat| U1[Unified JSON<br/>api/unified_chat.py]
-  E -->|POST /api/py/unified/chat/stream| U2[Unified SSE<br/>api/unified_chat.py]
-  U1 --> RAG[加载子流程: 10_flow_rag.md]
-  U2 --> RAG
-  U1 --> T2S[加载子流程: 11_flow_text2sql.md]
-  U2 --> T2S
+    %% 主业务分支
+    E -->|Unified Chat| U1[JSON 响应<br/>/api/py/unified/chat]
+    E -->|Unified Stream| U2[SSE 流式<br/>/api/py/unified/chat/stream]
+    E -->|遗留 Chat| C1[RAG Chat<br/>/api/py/chat]
 
-  %% legacy chat
-  E -->|POST /api/py/chat| C1[RAG Chat<br/>api/index.py]
-  C1 --> RAG
+    %% 数据与代码分支
+    E -->|Code Query| CR1[代码检索<br/>/api/py/code/query]
+    E -->|Code Search| CR2[代码搜索<br/>/api/py/code/search]
+    E -->|数据同步| A1[Sync Ingest<br/>/api/py/admin/sync]
+    E -->|数据写入| A2[Ingest<br/>/api/py/admin/ingest]
 
-  %% code rag
-  E -->|POST /api/py/code/query| CR1[Code Query<br/>api/code_retrieval.py]
-  E -->|POST /api/py/code/search| CR2[Code Search<br/>api/code_retrieval.py]
-  CR1 --> RPC[加载子流程: 13_flow_supabase_rpc.md]
-  CR2 --> RPC
+    %% 核心子流程
+    U1 --> RAG[RAG 检索流程]
+    U2 --> RAG
+    C1 --> RAG
 
-  %% admin ingest
-  E -->|POST /api/py/admin/sync| A1[Sync ingest<br/>api/ingest_pipeline.py]
-  E -->|POST /api/py/admin/ingest| A2[Ingest<br/>api/ingest_pipeline.py]
-  A1 --> RPC
-  A2 --> RPC
+    U1 --> T2S[Text2SQL 流程]
+    U2 --> T2S
 
-  %% shared infra
-  RAG --> FTS[加载子流程: 12_flow_fts.md]
-  T2S --> RPC
-  FTS --> RPC
+    CR1 --> RPC[Supabase RPC 调用]
+    CR2 --> RPC
+    A1 --> RPC
+    A2 --> RPC
 
-  %% docs links (human clickable)
-  classDef link fill:#fff,stroke:#bbb,stroke-width:1px;
+    %% 共享依赖
+    RAG --> FTS[FTS 全文检索]
+    FTS --> RPC
+    T2S --> RPC
+
+    %% 样式
+    classDef start fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef main fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef infra fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
+
+    class Q,E start
+    class U1,U2,C1,CR1,CR2,A1,A2 main
+    class RAG,T2S,RPC,FTS infra
 ```
 
 - `Struct`：[`01_struct.md`](01_struct.md)
@@ -45,4 +52,3 @@ flowchart TD
 - `Supabase RPC`：[`13_flow_supabase_rpc.md`](13_flow_supabase_rpc.md)（[AI 协议版](13_flow_supabase_rpc.ai.md)）
 - `Spec`：[`99_spec.md`](99_spec.md)
 - `Mermaid Protocol`：[`99_mermaid_protocol.md`](99_mermaid_protocol.md) — 拓扑图绘制规范（Python/FastAPI 适配版）
-
