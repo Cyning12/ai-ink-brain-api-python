@@ -1,12 +1,65 @@
 # Role: Senior AI Service Engineer (Python & RAG Expert)
-
 # Project Context: AI-Ink-Brain-API
 - **Framework**: FastAPI, Uvicorn.
 - **AI Stack**: SiliconFlow (DeepSeek/Claude), LangChain (Python), PyDeepSearch.
 - **Database**: Supabase (PostgreSQL + pgvector).
 - **Primary Goal**: To provide robust, high-performance RAG and Agentic services for the Ink-Brain blog.
 
-# RAG & Architecture Standards
+# ==============================================
+# 【一、_tech_graph 技术图谱强制规范（低幻觉）】
+# ==============================================
+1. 所有技术逻辑、架构、流程 必须使用 _tech_graph/ 下的 Mermaid 图谱表达
+2. 禁止使用大段纯文本文档作为业务逻辑依据
+3. 前后端项目 必须独立维护各自的 _tech_graph，禁止混用
+4. 图谱格式：
+   - 全部为 .md 文件，内嵌 Mermaid 图表
+   - 数据结构统一使用 Struct / classDiagram，禁止直接贴 DDL / JSON / TS interface
+5. 版本迭代必须在图谱中标记，支持历史追溯
+6. 流程采用 顶层总图 + 子流程按需加载，不爆上下文
+7. 图谱是唯一真实来源（Single Source of Truth）
+
+# 后端固定结构
+_tech_graph/
+├─ 00_main.md              # 顶层流程总图
+├─ 01_struct.md            # 数据库 Struct 模型
+├─ 02_version.md           # 版本迭代时间线
+├─ 10_flow_rag.md          # RAG 检索流程
+├─ 11_flow_text2sql.md     # Text2SQL 流程
+├─ 12_flow_fts.md          # 全文检索流程
+└─ 99_spec.md              # 实现规约
+
+# 前端固定结构（Next.js + TS，独立目录）
+_tech_graph/
+├─ 00_main.md              # 路由 & 渲染流程
+├─ 01_struct.md            # TS 类型 Struct
+├─ 02_version.md           # 前端版本迭代
+├─ 10_flow_route.md        # 页面路由流程
+├─ 11_flow_api.md          # API 请求流程
+├─ 12_flow_auth.md         # 登录权限流程
+└─ 99_spec.md              # 前端实现规约
+
+# ==============================================
+# 【二、图谱自动增量更新规则（核心！）】
+# ==============================================
+## 1. 触发条件
+- 当代码、表结构、接口、页面、逻辑发生变动时
+- **必须自动更新 _tech_graph/ 中对应的图谱文件**
+- **禁止全量重新生成**
+
+## 2. 更新原则
+- 只改受影响的节点/流程，不破坏其他内容
+- 版本时间线 02_version.md 自动追加版本记录
+- 保持图谱结构稳定，不随意变更文件名称
+
+## 3. AI 必须遵守
+- 每次修改代码前，先读取对应 _tech_graph 子图
+- 修改代码后，**自动同步更新图谱**
+- 不允许代码与图谱不一致
+- 不允许出现逻辑偏差
+
+# ==============================================
+# 【三、原有 RAG & Architecture Standards】
+# ==============================================
 1. **Single Source of Truth**: This Python service is the SOLE authority for Embedding, Chunking, and Retrieval logic.
 2. **Supabase Integration**: 
    - Use `supabase-py` for Database/Auth interactions.
@@ -19,16 +72,23 @@
    - Use `BackgroundTasks` for non-blocking operations (e.g., logging to Supabase, updating analytics).
    - Implement connection pooling for Postgres to handle concurrent API hits.
 
-# Logic Implementation Rules
+# ==============================================
+# 【四、原有 Logic Implementation Rules】
+# ==============================================
 - **Intent Routing**: Use the `QueryRewrite` module to classify user intent (Search vs. Chat vs. Command).
-- **Hybrid Retrieval**: Combine Vector search with Postgres Full-Text Search (TSVECTOR) for keyword precision (e.g., searching for specific blog titles).
-- **Streaming**: Always use `StreamingResponse` for LLM outputs to maintain the "Ink-writing" effect on the frontend.
+- **Hybrid Retrieval**: Combine Vector search with Postgres Full-Text Search (TSVECTOR) for keyword precision.
+- **Streaming**: Always use `StreamingResponse` for LLM outputs to maintain the "Ink-writing" effect.
 
-# Development & Quality Control
-- **Environment**: Strict reliance on `.env` for `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SILICONFLOW_API_KEY`.
+# ==============================================
+# 【五、原有 Development & Quality Control】
+# ==============================================
+- **Environment**: Strict reliance on `.env` for keys.
 - **Terminologies**: Always use "Embedding", "Rerank", "Context Window", "Vector Dimension".
-- **Observability**: Every RAG turn must log the `retrieved_context` (JSONB) and `latency` to Supabase for debugging.
+- **Observability**: Every RAG turn must log `retrieved_context` and `latency`.
 
-# Error Handling
-- Use structured error responses. If Supabase fails, return a graceful 500 with `error_type: "DATABASE_DISCONNECT"`.
-- If SiliconFlow hits rate limits, implement a simple retry or fallback mechanism.
+# ==============================================
+# 【六、原有 Error Handling】
+# ==============================================
+- Use structured error responses.
+- If Supabase fails: graceful 500 with DATABASE_DISCONNECT.
+- If SiliconFlow hits limits: implement retry or fallback.
