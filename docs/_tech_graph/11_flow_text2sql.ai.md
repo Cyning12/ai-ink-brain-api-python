@@ -5,7 +5,8 @@ flowchart TD
 
   %% === Query 阶段 ===
   IN[[入口 Query]] --"->"--> AUTH[[鉴权]]
-  // → api/index.py
+  // → api/index.py::_require_auth
+  // → api/unified_chat.py::_require_unified_auth
 
   AUTH --"[ok]"--> INT[[Intent Check]]
   AUTH --"[err]"--> ERR_AUTH[>Auth Failed]
@@ -25,14 +26,24 @@ flowchart TD
   // → api/text2sql_core.py
 
   GEN --"~>"--> VAL[[validate_sql_readonly()]]
-  // → api/text2sql_core.py
+  // → api/text2sql_core.py::validate_sql_readonly
 
   %% === 执行分支 ===
   VAL --"[ok]"--> EXEC[[execute_select_sql()]]
-  VAL --"[fail]"--> OUT1[[errors.generate_sql]]
-  // → api/text2sql_core.py
+  VAL --"[err]"--> ERR_VALIDATE[>validate_sql_readonly err]
+  // → api/text2sql_core.py::validate_sql_readonly
+  ERR_VALIDATE --"->"--> OUT1[[errors.generate_sql]]
 
   EXEC --"~>"--> DB[(DB: TEXT2SQL_DATABASE_URL)]
+  // → api/text2sql_core.py::execute_select_sql
+
+  EXEC --"[err]"--> ERR_EXEC[>execute_select_sql err]
+  // → api/text2sql_core.py::execute_select_sql
+  ERR_EXEC --"->"--> OUT1
+
+  DB --"TEXT2SQL_DATABASE_URL missing"--> ERR_DSN[>Missing env]
+  // → api/text2sql_core.py#L88
+  ERR_DSN --"->"--> OUT1
 
   DB --"rows==1&1 numeric"--> DET[[_try_summarize_aggregate()]]
   DB --"rows>0"--> SUM[[async def llm_summarize]]
@@ -44,7 +55,8 @@ flowchart TD
   OUT1 --"->"--> OUT
   OUT2 --"->"--> OUT
 
-  OUT --"::archives"--> LOG[(DB: text2sql_logs)]
+  OUT --"::archives"--> LOG[(DB: rag_conversation_logs)]
+  // → api/database_manager.py::save_debug_log
 
   %% === 依赖锚点 ===
   RET --"依赖语料"--> SPEC[>docs/text2sql/v1/sql/supabase_init.sql]
@@ -56,8 +68,8 @@ flowchart TD
   classDef milestone fill:#fff8e1,stroke:#e65100,stroke-width:2px;
   classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 
-  class IN,Auth,INT,RET,PROMPT,GEN,VAL,EXEC,DET,SUM,OUT,OUT0,OUT1,OUT2 phase
+  class IN,AUTH,INT,RET,PROMPT,GEN,VAL,EXEC,DET,SUM,OUT,OUT0,OUT1,OUT2 phase
   class DB,LOG data
   class SPEC milestone
-  class ERR_AUTH,OUT1 err
+  class ERR_AUTH,OUT1,ERR_VALIDATE,ERR_EXEC,ERR_DSN err
 ```

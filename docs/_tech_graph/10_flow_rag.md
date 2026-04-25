@@ -10,6 +10,7 @@ flowchart TD
     %% 召回分支
     RW --> KQ[Keyword 查询<br/>rag_recall_tools.py]
     RW --> EMB[Embedding<br/>SiliconFlow / OpenAI]
+    EMB -->|fail| FBO[降级<br/>keyword-only]
 
     IN -->|date-like| B1[结构化召回<br/>metadata.date_norm]
 
@@ -19,6 +20,9 @@ flowchart TD
     %% 可靠性
     VEC -. rpc retry .-> VEC
     FTS -. rpc retry .-> FTS
+    VEC -->|0 hits| NH[0 hits]
+    FTS -->|0 hits| NH
+    NH --> OUT[返回 JSON / SSE]
 
     %% Fusion
     B1 --> FUSE[RRF 融合<br/>hybrid_fusion.py]

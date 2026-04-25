@@ -53,5 +53,6 @@ flowchart TD
 - `Text2SQL Flow`：[`11_flow_text2sql.md`](11_flow_text2sql.md)（[AI 协议版](11_flow_text2sql.ai.md)）
 - `FTS Flow`：[`12_flow_fts.md`](12_flow_fts.md)（[AI 协议版](12_flow_fts.ai.md)）
 - `Supabase RPC`：[`13_flow_supabase_rpc.md`](13_flow_supabase_rpc.md)（[AI 协议版](13_flow_supabase_rpc.ai.md)）
+- `Runtime/Observability`：[`14_runtime_observability.md`](14_runtime_observability.md)（[AI 协议版](14_runtime_observability.ai.md)）
 - `Spec`：[`99_spec.md`](99_spec.md)
 - `Mermaid Protocol`：[`99_mermaid_protocol.md`](99_mermaid_protocol.md) — 拓扑图绘制规范（Python/FastAPI 适配版）

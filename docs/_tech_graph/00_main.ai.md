@@ -45,6 +45,9 @@ flowchart TD
   CR2 --"->"--> RPC
   RPC --"加载"--> RPC_DOC[>13_flow_supabase_rpc.md]
 
+  %% === Runtime / Observability（按需加载）===
+  E --"加载"--> OBS_DOC[>14_runtime_observability.md]
+
   %% === Admin Ingest 分支 ===
   E --"POST /api/py/admin/sync"--> A1[[Sync Ingest]]
   // → api/index.py#L983 admin_sync → api/ingest_pipeline.py::run_sync_job_sync
@@ -68,7 +71,7 @@ flowchart TD
   class Q,E phase
   class RAG,T2S,RPC,FTS phase
   class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC doc
-  class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC milestone
+  class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC,OBS_DOC milestone
 ```
 
 - `Struct`：[`01_struct.md`](01_struct.md)

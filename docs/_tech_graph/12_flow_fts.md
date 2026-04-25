@@ -13,6 +13,8 @@ flowchart TD
     QS --> RPC[RPC 调用<br/>keyword_documents()]
     RPC --> TSQ[websearch_to_tsquery]
     TSQ --> MATCH[fts_tokens @@ tsquery]
+    MATCH -->|fts_tokens null| REF[refresh_documents_fts_tokens_for_paths]
+    REF --> RPC
     MATCH --> RANK[ts_rank_cd 评分]
     RANK --> OUT[TopK 结果]
 

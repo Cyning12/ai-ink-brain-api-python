@@ -8,29 +8,43 @@ flowchart LR
   // → api/rag_env.py::supabase_client
 
   AUTH --"[ok]"--> POOL[(连接池)]
-  AUTH --"[err]"--> ERR_CONN[>Connection Failed]
+  AUTH --"[err]"--> ERR_AUTH[>Unauthorized/401]
+  // → api/index.py::_require_auth
+  // → api/unified_chat.py::_require_unified_auth
+  // → api/code_retrieval.py::_require_code_api_auth
+
+  POOL --"[err]"--> ERR_NET[>Network/Timeout]
+  // → api/rag_recall_tools.py::rpc_execute_with_retry
 
   %% === documents 表与 RPC ===
   POOL --"->"--> D[(DB: public.documents)]
   POOL --"~>"--> MD[[rpc match_documents()]]
-  // → supabase/sql/match_documents.sql
+  // → supabase/sql/init.sql::match_documents
   POOL --"~>"--> KD[[rpc keyword_documents()]]
-  // → supabase/sql/keyword_documents.sql
+  // → supabase/sql/hybrid_search.sql::keyword_documents
   POOL --"~>"--> RD[[rpc refresh_documents_fts_tokens_for_paths()]]
-  // → supabase/sql/init_fts.sql
+  // → supabase/sql/hybrid_search.sql::refresh_documents_fts_tokens_for_paths
+
+  MD --"[err]"--> ERR_RPC_MISSING[>RPC 不存在/函数名错误]
+  KD --"[err]"--> ERR_RPC_MISSING
+  RD --"[err]"--> ERR_RPC_MISSING
 
   %% === code_chunks 表与 RPC ===
   POOL --"->"--> C[(DB: public.code_chunks)]
   POOL --"~>"--> MC[[rpc match_code_chunks()]]
-  // → supabase/sql/match_code_chunks.sql
+  // → supabase/sql/code_chunks.sql::match_code_chunks
   POOL --"~>"--> KC[[rpc keyword_code_chunks()]]
-  // → supabase/sql/keyword_code_chunks.sql
+  // → supabase/sql/code_chunks.sql::keyword_code_chunks
   POOL --"~>"--> RC[[rpc refresh_code_chunks_fts_tokens_for_paths()]]
-  // → supabase/sql/init_code_fts.sql
+  // → supabase/sql/code_chunks.sql::refresh_code_chunks_fts_tokens_for_paths
+
+  MC --"[err]"--> ERR_RPC_MISSING
+  KC --"[err]"--> ERR_RPC_MISSING
+  RC --"[err]"--> ERR_RPC_MISSING
 
   %% === logs 表 ===
   POOL --"->"--> L[(DB: public.rag_conversation_logs)]
-  // → supabase/sql/init_logs.sql
+  // → supabase/sql/create_rag_conversation_logs.sql
 
   %% === Ingest 写入流 ===
   ING[[Ingest Pipeline]] --"::triggers"--> D
@@ -55,5 +69,5 @@ flowchart LR
   class MD,KD,RD,MC,KC,RC rpc
   class D,C,L table
   class ING,CHAT pipeline
-  class ERR_CONN err
+  class ERR_AUTH,ERR_NET,ERR_RPC_MISSING err
 ```

@@ -5,24 +5,26 @@ flowchart TD
 
   %% === 写入/更新流 ===
   W[[Write/Update content]] --"::triggers"--> TRG[[trigger: documents_fts_tokens_update]]
-  // → supabase/sql/init_fts.sql
+  // → supabase/sql/hybrid_search.sql::documents_fts_tokens_update
 
   TRG --"->"--> ALIAS[[rag_fts_alias_text()]]
-  // → api/rag_recall_tools.py
+  // → supabase/sql/hybrid_search.sql::rag_fts_alias_text
 
   ALIAS --"->"--> TSV[[to_tsvector('simple', content + alias)]]
   TSV --"->"--> IDX[(GIN: documents_fts_tokens_gin)]
-  // → supabase/sql/init_fts.sql
+  // → supabase/sql/hybrid_search.sql#L16
 
   %% === 查询流 ===
   Q[[Query Text]] --"->"--> QS[[keyword_query_text()]]
   // → api/rag_recall_tools.py
 
   QS --"->"--> RPC[[RPC keyword_documents()]]
-  // → api/rag_recall_tools.py
+  // → api/rag_recall_tools.py::keyword_query_text_with_i18n_meta
+  // → api/index.py::fetch_keyword_hits
+  // → api/unified_chat.py::rpc_execute_with_retry
 
   RPC --"~>"--> TSQ[[websearch_to_tsquery('simple', query_text)]]
-  // → supabase/sql/keyword_documents.sql
+  // → supabase/sql/hybrid_search.sql::keyword_documents
 
   TSQ --"->"--> MATCH[[fts_tokens @@ tsquery]]
   MATCH --"->"--> RANK[[ts_rank_cd score]]
@@ -36,6 +38,13 @@ flowchart TD
   subgraph B2_QuerySide["B2.1 (Query-side expand)"]
     QS
   end
+
+  %% === 兜底：fts_tokens 为空/未迁移 ===
+  MATCH --"fts_tokens is null ?>"--> FTS_NULL{fts_tokens is null?}
+  FTS_NULL --"[yes]"--> REFRESH[[refresh_documents_fts_tokens_for_paths()]]
+  // → supabase/sql/hybrid_search.sql::refresh_documents_fts_tokens_for_paths
+  REFRESH --"->"--> RPC
+  FTS_NULL --"[no]"--> RANK
 
   %% === I18N 跨语言召回 ===
   QS --"?>"--> I18N{I18N_EXPAND_ENABLED?}

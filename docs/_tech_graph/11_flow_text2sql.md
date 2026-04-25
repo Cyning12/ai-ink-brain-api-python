@@ -13,10 +13,11 @@ flowchart TD
     RET --> PROMPT[SQL Prompt 构建<br/>DDL + Examples]
     PROMPT --> GEN[LLM 生成 SQL]
     GEN --> VAL[SQL 校验<br/>仅 SELECT / WITH]
+    VAL -->|err| OUT1[errors.generate_sql]
 
     %% 执行分支
     VAL -->|ok| EXEC[执行 SQL<br/>TEXT2SQL_DATABASE_URL]
-    VAL -->|fail| OUT1[errors.generate_sql]
+    EXEC -->|env missing / db err| OUT1
 
     EXEC -->|单值数值| DET[确定性总结<br/>_try_summarize_aggregate()]
     EXEC -->|多行| SUM[LLM 总结]

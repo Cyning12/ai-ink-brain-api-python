@@ -6,6 +6,8 @@ flowchart LR
     SB[Supabase Client<br/>service_role] --> D[(documents)]
     SB --> C[(code_chunks)]
     SB --> L[(rag_conversation_logs)]
+    SB -->|401| E1[Unauthorized]
+    SB -->|net| E2[Network/Timeout]
 
     %% Documents RPC
     SB --> MD[match_documents<br/>向量检索]
