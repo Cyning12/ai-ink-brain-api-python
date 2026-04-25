@@ -1,0 +1,196 @@
+{
+  "schema_version": "tech_graph_manifest_v1",
+  "repo": "ai-ink-brain-api-python",
+  "sources": {
+    "endpoints": "api/index.py",
+    "sql": "supabase/sql/*.sql",
+    "env": "api/*.py"
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/py/admin/sync",
+      "handler": "py_admin_sync_get",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "py_admin_sync_get"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/admin/ingest",
+      "handler": "py_admin_ingest",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "py_admin_ingest"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/admin/sync",
+      "handler": "py_admin_sync_post",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "py_admin_sync_post"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/chat",
+      "handler": "chat",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "chat"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/py/chat/history",
+      "handler": "chat_history",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "chat_history"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/chain/chat",
+      "handler": "chain_chat_route",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "chain_chat_route"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/code/query",
+      "handler": "code_query",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "code_query"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/code/search",
+      "handler": "code_search",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "code_search"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/py/health",
+      "handler": "health",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "health"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/text2sql/chat",
+      "handler": "text2sql_chat",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "text2sql_chat"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/unified/chat",
+      "handler": "unified_chat_route",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "unified_chat_route"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/unified/chat/stream",
+      "handler": "unified_chat_stream_route",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "unified_chat_stream_route"
+      }
+    }
+  ],
+  "supabase": {
+    "tables": [
+      "code_chunks",
+      "documents",
+      "rag_conversation_logs"
+    ],
+    "rpc": [
+      "code_chunks_fts_tokens_update",
+      "documents_fts_tokens_update",
+      "keyword_code_chunks",
+      "keyword_documents",
+      "match_code_chunks",
+      "match_documents",
+      "rag_fts_alias_text",
+      "refresh_code_chunks_fts_tokens_for_paths",
+      "refresh_documents_fts_tokens_for_paths"
+    ]
+  },
+  "env": [
+    "API_KEY",
+    "CHAT_API_SECRET",
+    "CONTENT_DEFAULT_YEAR",
+    "CONTENT_ROOT",
+    "DEBUG_CODE_INGEST",
+    "DEBUG_INGEST",
+    "DEBUG_RAG",
+    "EMBEDDING_DIM",
+    "MAX_X_SOURCES_HEADER_CHARS",
+    "NEXT_PUBLIC_ADMIN_SECRET",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NODE_ENV",
+    "RAG_MATCH_COUNT",
+    "RAG_DEBUG",
+    "RAG_MATCH_THRESHOLD",
+    "RAG_RPC_RETRIES",
+    "SILICONFLOW_API_KEY",
+    "SILICONFLOW_BASE_URL",
+    "SILICONFLOW_CHAT_MODEL",
+    "SILICONFLOW_EMBEDDING_DIM",
+    "SILICONFLOW_EMBEDDING_DIMENSIONS",
+    "SILICONFLOW_EMBEDDING_MODEL",
+    "SUPABASE_SERVICE_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "TEXT2SQL_DATABASE_URL",
+    "TEXT2SQL_DB_CONNECT_TIMEOUT_S",
+    "TEXT2SQL_DEBUG",
+    "TEXT2SQL_FAISS_DIM",
+    "TEXT2SQL_MAX_ROWS",
+    "TEXT2SQL_RETRIEVE_TOPK"
+  ],
+  "anchors": [
+    {
+      "path": "api/index.py",
+      "symbol": "_require_auth"
+    },
+    {
+      "path": "api/rag_env.py",
+      "symbol": "pick_supabase_url"
+    },
+    {
+      "path": "api/rag_env.py",
+      "symbol": "pick_supabase_service_key"
+    },
+    {
+      "path": "api/rag_env.py",
+      "symbol": "admin_secret"
+    },
+    {
+      "path": "api/ingest_pipeline.py",
+      "symbol": "process_markdown_files"
+    },
+    {
+      "path": "api/database_manager.py",
+      "symbol": "SupabaseManager"
+    }
+  ]
+}
