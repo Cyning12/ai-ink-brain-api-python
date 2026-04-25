@@ -4,12 +4,13 @@ flowchart TD
 
   %% === 入口阶段 ===
   Q[[用户请求]] --"->"--> E{"@router.dispatch"}
-  // → api/index.py#L1
+  // → api/index.py#L434
 
   %% === Unified Chat 分支 ===
   E --"POST /api/py/unified/chat"--> U1[[Unified JSON]]
+  // → api/index.py#L561 unified_chat_route → api/unified_chat.py::handle_unified_chat
   E --"POST /api/py/unified/chat/stream"--> U2[[Unified SSE]]
-  // → api/unified_chat.py
+  // → api/index.py#L576 unified_chat_stream_route → api/unified_chat.py::handle_unified_chat_stream
 
   U1 --"::branches"--> RAG[[RAG 子流程]]
   U2 --"::branches"--> RAG
@@ -21,13 +22,24 @@ flowchart TD
 
   %% === Legacy Chat 分支 ===
   E --"POST /api/py/chat"--> C1[[RAG Chat]]
-  // → api/index.py
+  // → api/index.py#L591 chat
   C1 --"->"--> RAG
+
+  %% === Health/History/Chain ===
+  E --"GET /api/py/health"--> HL[[Health]]
+  // → api/index.py#L434 health
+
+  E --"GET /api/py/chat/history"--> H1[[Chat History]]
+  // → api/index.py#L439 chat_history
+
+  E --"POST /api/py/chain/chat"--> CH[[Chain Timeline]]
+  // → api/index.py#L546 chain_chat_route → api/chain_chat.py::handle_chain_chat
 
   %% === Code RAG 分支 ===
   E --"POST /api/py/code/query"--> CR1[[Code Query]]
+  // → api/index.py#L501 code_query → api/code_retrieval.py::handle_code_query
   E --"POST /api/py/code/search"--> CR2[[Code Search]]
-  // → api/code_retrieval.py
+  // → api/index.py#L516 code_search → api/code_retrieval.py::handle_code_search
 
   CR1 --"->"--> RPC[[Supabase RPC 子流程]]
   CR2 --"->"--> RPC
@@ -35,8 +47,9 @@ flowchart TD
 
   %% === Admin Ingest 分支 ===
   E --"POST /api/py/admin/sync"--> A1[[Sync Ingest]]
+  // → api/index.py#L983 admin_sync → api/ingest_pipeline.py::run_sync_job_sync
   E --"POST /api/py/admin/ingest"--> A2[[Ingest]]
-  // → api/ingest_pipeline.py
+  // → api/index.py#L1026 admin_ingest → api/ingest_pipeline.py::process_markdown_files
 
   A1 --"->"--> RPC
   A2 --"->"--> RPC

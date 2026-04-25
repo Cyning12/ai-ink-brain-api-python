@@ -3,18 +3,21 @@ flowchart TD
     %% version: 2026-04-24 (main)
 
     %% 入口
-    Q[用户请求<br/>HTTP API] --> E{入口路由<br/>api/index.py}
+    Q[用户请求<br/>HTTP API] --> E{入口路由<br/>api/index.py#L434}
 
     %% 主业务分支
-    E -->|Unified Chat| U1[JSON 响应<br/>/api/py/unified/chat]
-    E -->|Unified Stream| U2[SSE 流式<br/>/api/py/unified/chat/stream]
-    E -->|遗留 Chat| C1[RAG Chat<br/>/api/py/chat]
+    E -->|Unified Chat| U1[JSON 响应<br/>/api/py/unified/chat<br/>api/index.py#L561 unified_chat_route<br/>api/unified_chat.py::handle_unified_chat]
+    E -->|Unified Stream| U2[SSE 流式<br/>/api/py/unified/chat/stream<br/>api/index.py#L576 unified_chat_stream_route<br/>api/unified_chat.py::handle_unified_chat_stream]
+    E -->|遗留 Chat| C1[RAG Chat<br/>/api/py/chat<br/>api/index.py#L591 chat]
+    E -->|History| H1[Chat History<br/>/api/py/chat/history<br/>api/index.py#L439 chat_history]
+    E -->|Health| HL[Health<br/>/api/py/health<br/>api/index.py#L434 health]
+    E -->|Chain Chat| CH[Chain Timeline<br/>/api/py/chain/chat<br/>api/index.py#L546 chain_chat_route<br/>api/chain_chat.py::handle_chain_chat]
 
     %% 数据与代码分支
-    E -->|Code Query| CR1[代码检索<br/>/api/py/code/query]
-    E -->|Code Search| CR2[代码搜索<br/>/api/py/code/search]
-    E -->|数据同步| A1[Sync Ingest<br/>/api/py/admin/sync]
-    E -->|数据写入| A2[Ingest<br/>/api/py/admin/ingest]
+    E -->|Code Query| CR1[代码检索<br/>/api/py/code/query<br/>api/index.py#L501 code_query<br/>api/code_retrieval.py::handle_code_query]
+    E -->|Code Search| CR2[代码搜索<br/>/api/py/code/search<br/>api/index.py#L516 code_search<br/>api/code_retrieval.py::handle_code_search]
+    E -->|数据同步| A1[Sync Ingest<br/>/api/py/admin/sync<br/>api/index.py#L983 admin_sync<br/>api/ingest_pipeline.py::run_sync_job_sync]
+    E -->|数据写入| A2[Ingest<br/>/api/py/admin/ingest<br/>api/index.py#L1026 admin_ingest<br/>api/ingest_pipeline.py::process_markdown_files]
 
     %% 核心子流程
     U1 --> RAG[RAG 检索流程]
