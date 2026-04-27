@@ -91,3 +91,4 @@ flowchart TD
 
 - 本图只表达“跨仓边界 + 契约锚点”，不展开前端组件树与后端业务子流程。
 - 后端端点/表/RPC 以 `docs/_tech_graph/_manifest.json` 为真值；运行事件集合以 `14_runtime_observability.ai.md` 为真值。
+- 跨仓 SSE 字段契约以 `docs/_tech_graph/_contract_manifest.json` 为真值；跨端门禁入口为 `python tools/tech_graph_contract_check.py`。

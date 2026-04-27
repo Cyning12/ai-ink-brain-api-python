@@ -1,0 +1,49 @@
+{
+  "schema_version": "tech_graph_contract_manifest_v1",
+  "repo": "ai-ink-brain-api-python",
+  "topic": "unified_chat_sse_contract",
+  "sse": {
+    "envelope_keys": ["event", "data"],
+    "allowed_events": ["chain", "done"],
+    "chain": {
+      "data_keys": ["type", "ts", "step_id", "payload"],
+      "frontend_optional_chain_data_keys": ["step"],
+      "type_values": [
+        "meta",
+        "router.decision",
+        "tool.call.start",
+        "tool.call.end",
+        "rag.query_expand",
+        "rag.sources",
+        "sql.result",
+        "assistant.message",
+        "latency",
+        "error"
+      ],
+      "payload_min_keys_by_type": {
+        "meta": ["run_id", "mode", "session_id"],
+        "router.decision": ["prefer", "candidate_mode", "final_mode", "rule_hits", "evidence", "fallback"],
+        "tool.call.start": ["tool", "input"],
+        "tool.call.end": ["output", "error", "latency_ms"],
+        "rag.query_expand": ["raw", "rewrite"],
+        "rag.sources": {
+          "payload_keys": ["sources", "retrieval"],
+          "source_item_keys": ["id", "content", "filename", "score", "path", "url"],
+          "retrieval_keys": ["top_k", "rrf_k"]
+        },
+        "sql.result": ["sql", "columns", "rows", "truncated"],
+        "assistant.message": ["role", "content"],
+        "latency": ["total_ms", "stages_ms"],
+        "error": ["stage", "message"]
+      }
+    },
+    "done": {
+      "data_keys": ["ok", "mode", "run_id", "session_id"]
+    }
+  },
+  "frontend_anchors": {
+    "sse_consumer_files": ["../ai-ink-brain/components/unified-chat/UnifiedChatPageClient.tsx"],
+    "next_bff_proxy_files": ["../ai-ink-brain/app/api/py/unified/chat/stream/route.ts"]
+  }
+}
+
