@@ -8,7 +8,7 @@
 ## 必读（按顺序）
 
 1. **`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`**：环境变量真值表、目录地图、对外契约、安全注意项
-2. **`.cursorrules`**：RAG 工程约束（日志、Hybrid、Streaming 等）
+2. **规则文件**（`.cursor/rules/*.mdc`）：RAG 工程约束（日志、Hybrid、Streaming 等）
 3. **`docs/_tech_graph/`**：技术图谱（架构唯一可信来源）
    - `00_main.md` — 顶层流程总图（[AI 协议版](docs/_tech_graph/00_main.ai.md)）
    - `01_struct.md` — 数据库 Struct 模型

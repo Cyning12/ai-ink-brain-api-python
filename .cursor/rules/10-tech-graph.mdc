@@ -1,0 +1,40 @@
+## `_tech_graph/` 技术图谱强制规范（低幻觉，唯一真实来源）
+- 所有技术逻辑、架构、流程必须使用 `_tech_graph/` 下的 Mermaid 图谱表达。
+- 禁止使用大段纯文本文档作为业务逻辑依据。
+- 前后端项目必须独立维护各自的 `_tech_graph/`，禁止混用。
+
+## 图谱格式与协议
+- 图谱文件：全部为 `.md`，内嵌 Mermaid。
+- 数据结构：统一使用 Struct / `classDiagram`，禁止直接贴 DDL / JSON / TS interface。
+- 流程图（flowchart）：必须遵循 `docs/_tech_graph/99_mermaid_protocol.md` 拓扑协议。
+  - 边标记：`->`（同步）、`~>`（异步）、`?>`（条件）、`[ok]` / `[err]`（状态）、`::xxx`（元关系）
+  - 禁止裸边（无边标记的 `-->`）
+  - 锚点用 `// → path#Ln` 独立注释行，不写在节点标签内
+
+## 本仓 `_tech_graph` 固定结构（双轨制）
+```text
+docs/_tech_graph/
+├─ 00_main.md              # 顶层流程总图（人类友好版）
+├─ 00_main.ai.md           # 顶层流程总图（AI 协议版）
+├─ 01_struct.md            # 数据库 Struct 模型
+├─ 02_version.md           # 版本迭代时间线
+├─ 10_flow_rag.md          # RAG 检索流程（人类友好版）
+├─ 10_flow_rag.ai.md       # RAG 检索流程（AI 协议版）
+├─ 11_flow_text2sql.md     # Text2SQL 流程（人类友好版）
+├─ 11_flow_text2sql.ai.md  # Text2SQL 流程（AI 协议版）
+├─ 12_flow_fts.md          # 全文检索流程（人类友好版）
+├─ 12_flow_fts.ai.md       # 全文检索流程（AI 协议版）
+├─ 13_flow_supabase_rpc.md # Supabase RPC 流程（人类友好版）
+├─ 13_flow_supabase_rpc.ai.md # Supabase RPC 流程（AI 协议版）
+├─ 99_spec.md              # 实现规约
+└─ 99_mermaid_protocol.md  # Mermaid 拓扑协议（Python/FastAPI 适配版）
+```
+
+## 双轨说明
+- `.md`：人类维护版（简洁、裸边可用、锚点写在节点内）。
+- `.ai.md`：AI 协议版（结构化标记、零裸边、锚点分离、异步/错误显式标记）。
+- 两者语义等价；流程图必须同时维护。
+
+## 重要引用
+- 前端 `_tech_graph`：见 `ai-ink-brain/` 仓内规则与图谱。
+- 全局统一规范：见工作区根 `Projects/AGENTS.md` §7。
