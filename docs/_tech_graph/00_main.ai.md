@@ -77,6 +77,32 @@ flowchart TD
   class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC,OBS_DOC,E2E_DOC milestone
 ```
 
+<!-- AUTO:ENDPOINTS_AND_ANCHORS BEGIN -->
+<!-- This block is auto-generated from docs/_tech_graph/_manifest.json. Do not edit manually. -->
+
+#### Endpoints（from manifest）
+- `POST /api/py/admin/ingest` → `py_admin_ingest`  // → `api/index.py::py_admin_ingest`
+- `GET /api/py/admin/sync` → `py_admin_sync_get`  // → `api/index.py::py_admin_sync_get`
+- `POST /api/py/admin/sync` → `py_admin_sync_post`  // → `api/index.py::py_admin_sync_post`
+- `POST /api/py/chain/chat` → `chain_chat_route`  // → `api/index.py::chain_chat_route`
+- `POST /api/py/chat` → `chat`  // → `api/index.py::chat`
+- `GET /api/py/chat/history` → `chat_history`  // → `api/index.py::chat_history`
+- `POST /api/py/code/query` → `code_query`  // → `api/index.py::code_query`
+- `POST /api/py/code/search` → `code_search`  // → `api/index.py::code_search`
+- `GET /api/py/health` → `health`  // → `api/index.py::health`
+- `POST /api/py/text2sql/chat` → `text2sql_chat`  // → `api/index.py::text2sql_chat`
+- `POST /api/py/unified/chat` → `unified_chat_route`  // → `api/index.py::unified_chat_route`
+- `POST /api/py/unified/chat/stream` → `unified_chat_stream_route`  // → `api/index.py::unified_chat_stream_route`
+
+#### Anchors（from manifest）
+- `api/database_manager.py::SupabaseManager`
+- `api/index.py::_require_auth`
+- `api/ingest_pipeline.py::process_markdown_files`
+- `api/rag_env.py::admin_secret`
+- `api/rag_env.py::pick_supabase_service_key`
+- `api/rag_env.py::pick_supabase_url`
+<!-- AUTO:ENDPOINTS_AND_ANCHORS END -->
+
 - `Struct`：[`01_struct.md`](01_struct.md)
 - `Version`：[`02_version.md`](02_version.md)
 - `RAG Flow`：[`10_flow_rag.md`](10_flow_rag.md) ← [人类友好版](10_flow_rag.md)

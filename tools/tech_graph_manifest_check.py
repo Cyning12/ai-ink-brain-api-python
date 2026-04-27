@@ -301,6 +301,15 @@ def main() -> int:
                 print()
             return 1
 
+        # 渲染提示（P5）：不强制失败，避免过度耦合，只给出建议
+        ai_main = REPO_ROOT / "docs" / "_tech_graph" / "00_main.ai.md"
+        if ai_main.exists():
+            t = _read_text(ai_main)
+            if "<!-- AUTO:ENDPOINTS_AND_ANCHORS BEGIN -->" in t and "<!-- AUTO:ENDPOINTS_AND_ANCHORS END -->" in t:
+                print("OK: manifest matches code/SQL truth (endpoints/rpc/tables/env + anchors resolvable).")
+                print("TIP: 若 `docs/_tech_graph/00_main.ai.md` 的 auto 区块未同步，可运行：python tools/tech_graph_render_ai.py")
+                return 0
+
         print("OK: manifest matches code/SQL truth (endpoints/rpc/tables/env + anchors resolvable).")
         return 0
 
