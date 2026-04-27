@@ -1,0 +1,27 @@
+## RAG & Architecture Standards（本仓实现约束）
+- **Single Source of Truth**：本 Python 服务是 Embedding / Chunking / Retrieval 逻辑的唯一权威来源。
+- **Supabase Integration**：
+  - 使用 `supabase-py` 做 DB/Auth 交互。
+  - 所有 RAG logs 必须写入 `rag_conversation_logs` 表。
+  - 相似度检索使用 `pgvector` 的 Cosine Distance。
+- **Session & Memory**：
+  - 每次请求必须处理 `session_id`。
+  - Retrieval 前需要查询 `rag_conversation_logs` 以重建最近 3-5 轮上下文。
+- **Efficiency**：
+  - 使用 `BackgroundTasks` 处理非阻塞操作（例如写 Supabase 日志、更新 analytics）。
+  - 对 Postgres 做连接池，以支撑并发 API 请求。
+
+## Logic Implementation Rules
+- **Intent Routing**：使用 `QueryRewrite` 模块做用户意图分类（Search vs. Chat vs. Command）。
+- **Hybrid Retrieval**：Vector + Postgres FTS（TSVECTOR）结合，提高关键词精度。
+- **Streaming**：LLM 输出优先使用 `StreamingResponse`，保持 “Ink-writing” 效果。
+
+## Development & Quality Control
+- **Environment**：严格依赖 `.env` 注入密钥与环境变量。
+- **Terminologies**：使用 “Embedding / Rerank / Context Window / Vector Dimension” 等术语。
+- **Observability**：每次 RAG turn 必须记录 `retrieved_context` 与 `latency`。
+
+## Error Handling
+- 使用结构化错误响应。
+- Supabase 失败：返回 graceful 500（`DATABASE_DISCONNECT`）。
+- SiliconFlow 限流/失败：实现 retry 或 fallback。
