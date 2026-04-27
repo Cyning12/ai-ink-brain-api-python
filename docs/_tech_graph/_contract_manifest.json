@@ -8,7 +8,7 @@
       "envelope_keys": ["event", "data"],
       "allowed_events": ["chain", "done"],
       "chain.data_keys": ["type", "ts", "step_id", "payload"],
-      "done.data_keys": ["ok", "mode", "run_id", "session_id"],
+      "done.data_keys": ["ok", "mode", "run_id", "session_id", "request_id"],
       "chain.payload_min_keys_by_type.must_include": ["rag.sources", "sql.result"]
     },
     "envelope_keys": ["event", "data"],
@@ -50,7 +50,7 @@
     },
     "done": {
       "_note": "done 事件：表示一次请求结束；data_keys 为最小必需键（前端依赖这些键用于收尾与状态同步）。",
-      "data_keys": ["ok", "mode", "run_id", "session_id", "request_id"]
+      "data_keys": ["ok", "mode", "run_id", "session_id"]
     }
   },
   "frontend_anchors": {
