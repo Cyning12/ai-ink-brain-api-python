@@ -32,18 +32,25 @@ classDiagram
   }
 
   class FileMeta {
-    +string category
-    +string slug
-    +string filename
-    +string relativePath
-    +int chunk_index
-    +string mtime
-    +string lastModified
-    +string original_link
-    +string section_header
-    +int page_number
-    +string date_norm %% B1 write-side
-    +string slug_norm %% B1 write-side
+    +string category (req)
+    +string slug (req)
+    +string filename (req)
+    +string relativePath (req)
+    +int chunk_index (req)
+    +string mtime (req)
+    +string lastModified (req)
+    +string date_norm (opt) %% B1 write-side（可从 slug/filename 抽取）
+    +string slug_norm (opt) %% B1 write-side（可从 slug 抽取）
+    +string original_link (opt)
+    +string section_header (opt)
+    +int page_number (opt)
+    +string file_path (opt) %% code_chunks 扩展
+    +int start_line (opt) %% code_chunks 扩展
+    +int end_line (opt) %% code_chunks 扩展
+    +string chunk_type (opt) %% code_chunks 扩展
+    +string name (opt) %% code_chunks 扩展
+    +string signature (opt) %% code_chunks 扩展
+    +string module (opt) %% code_chunks 扩展
   }
 
   documents --> FileMeta : metadata
