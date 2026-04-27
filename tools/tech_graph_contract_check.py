@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -73,7 +72,8 @@ def _slice_balanced_braces(text: str, *, start_idx: int) -> str | None:
 
 def _backend_truth_from_unified_chat(py_text: str) -> dict[str, Any]:
     # 1) SSE event names used by backend
-    backend_events = set(re.findall(r'_sse\("([A-Za-z0-9_]+)"\s*,', py_text))
+    # allow multiline formatting: _sse(\n  "done", {...})
+    backend_events = set(re.findall(r'_sse\(\s*"([A-Za-z0-9_]+)"\s*,', py_text))
 
     # 2) chain.type values from _event(typ="...") + meta first packet
     chain_types = set(re.findall(r'typ="([A-Za-z0-9_.-]+)"', py_text))
@@ -129,9 +129,9 @@ def _backend_truth_from_unified_chat(py_text: str) -> dict[str, Any]:
 
     # 5) done data keys from yield _sse("done", {...})
     done_keys: set[str] = set()
-    done_m = re.search(r'yield\s+_sse\("done"\s*,\s*\{', py_text)
+    done_m = re.search(r'yield\s+_sse\(\s*"done"\s*,', py_text)
     if done_m:
-        brace_pos = py_text.find("{", done_m.end() - 1)
+        brace_pos = py_text.find("{", done_m.end())
         block = _slice_balanced_braces(py_text, start_idx=brace_pos) if brace_pos >= 0 else None
         if block:
             done_keys = _extract_string_keys_from_dict_literal(block)
@@ -244,7 +244,7 @@ def main() -> int:
         # Contract self-validation (P6): make sure the manifest itself contains the minimal promised keys.
         must_allowed_events = {"chain", "done"}
         must_chain_data = {"type", "ts", "step_id", "payload"}
-        must_done_data = {"ok", "mode", "run_id", "session_id"}
+        must_done_data = {"ok", "mode", "run_id", "session_id", "request_id"}
         must_types = {"rag.sources", "sql.result"}
         missing_contract: list[str] = []
         if not must_allowed_events.issubset(allowed_events):
@@ -252,7 +252,7 @@ def main() -> int:
         if not must_chain_data.issubset(chain_data_keys):
             missing_contract.append("contract.sse.chain.data_keys must include: type, ts, step_id, payload")
         if not must_done_data.issubset(done_data_keys):
-            missing_contract.append("contract.sse.done.data_keys must include: ok, mode, run_id, session_id")
+            missing_contract.append("contract.sse.done.data_keys must include: ok, mode, run_id, session_id, request_id")
         if not must_types.issubset(set(pkbt.keys())):
             missing_contract.append("contract.sse.chain.payload_min_keys_by_type must include: rag.sources, sql.result")
         if missing_contract:

@@ -36,7 +36,7 @@ def main() -> int:
 
         # 1) negative: remove required done.data_keys key
         obj = json.loads(orig_contract)
-        obj["sse"]["done"]["data_keys"] = [k for k in obj["sse"]["done"]["data_keys"] if k != "session_id"]
+        obj["sse"]["done"]["data_keys"] = [k for k in obj["sse"]["done"]["data_keys"] if k != "request_id"]
         CONTRACT_PATH.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
         code1, out1 = _run_check()
