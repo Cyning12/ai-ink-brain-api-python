@@ -1,6 +1,6 @@
 # Task：P7 - Cross-Repo Contract Check 接入 CI（v1）
 
-> **状态**：draft  
+> **状态**：done（2026-04-27 验收通过）  
 > **关联图谱**：`docs/_tech_graph/15_e2e_boundary.ai.md`、`docs/_tech_graph/14_runtime_observability.ai.md`  
 > **关联 Issue/PR**：无  
 > **前端依赖**：`ai-ink-brain/content/tasks/task_frontend_unified_chat_sse_request_id_v1.md`（可并行；CI 只需要可 checkout 前端仓）
