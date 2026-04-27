@@ -122,6 +122,13 @@ P6 目标：引入一个**跨仓契约真值**（contract manifest），并提�
 - 操作：运行 `python tools/tech_graph_contract_check.py`
 - 期望：输出 `OK`
 
+### 用例 1.1：本地体验（推荐，一键演示负向→恢复）
+- 操作：运行 `python tools/tech_graph_contract_demo.py`
+- 期望：
+  - baseline 为 OK
+  - 删除必需键后失败
+  - restore 后恢复 OK
+
 ### 用例 2：负向（契约缺失 → 报缺失）
 - 操作：从 `_contract_manifest.json` 删除 `done.data.session_id`（或任一必需键），再运行脚本
 - 期望：失败，提示 `missing` 键名
