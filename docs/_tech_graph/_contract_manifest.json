@@ -8,7 +8,7 @@
       "envelope_keys": ["event", "data"],
       "allowed_events": ["chain", "done"],
       "chain.data_keys": ["type", "ts", "step_id", "payload"],
-      "done.data_keys": ["ok", "mode", "run_id", "session_id", "request_id"],
+      "done.data_keys": ["ok", "mode", "run_id", "session_id"],
       "chain.payload_min_keys_by_type.must_include": ["rag.sources", "sql.result"]
     },
     "envelope_keys": ["event", "data"],
