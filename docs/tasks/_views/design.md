@@ -5,7 +5,7 @@
 
 ## 设计中
 
-- `../active/task_tech_graph_p7_contract_ci_guardrail_v1.md`（`draft`）
+- （暂无）
 
 ## 缺少状态字段（请补齐后再归类）
 

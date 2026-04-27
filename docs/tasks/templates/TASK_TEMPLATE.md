@@ -5,6 +5,8 @@
 > **关联 Issue/PR**：#xxx  
 > **前端依赖**：`<前端任务文件名>`（如 API 变更需前端配合，否则填 "无"）
 
+> 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。
+
 ---
 
 ## 背景与目标

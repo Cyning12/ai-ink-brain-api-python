@@ -1,6 +1,6 @@
 # Task：Tech Graph P5 — 自动补全/增量渲染（从 manifest 生成 .ai.md 局部）
 
-> **状态**：pending  
+> **状态**：done（2026-04-27 验收通过）  
 > **范围**：仅后端仓 `ai-ink-brain-api-python`（不改业务代码）  
 > **关联图谱**：`docs/_tech_graph/_manifest.json`、`docs/_tech_graph/00_main.ai.md`  
 > **前端依赖**：无
