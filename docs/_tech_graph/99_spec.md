@@ -33,6 +33,8 @@ flowchart TD
   Constraints --> ROOT
 ```
 
+- CI 门禁约束（P4）：任何 **端点 / Supabase RPC / 表 / 关键 env / anchors** 的新增、改名、删除，都必须同步更新 `docs/_tech_graph/_manifest.json`，否则 CI 将因 `python tools/tech_graph_manifest_check.py` 失败而阻止合并。
+
 - 最小漂移校验（P0_3）：运行 `python tools/tech_graph_drift_check.py`，检查端点/RPC/env/表名是否在 `docs/_tech_graph/*.md` 被覆盖（用于避免文档静默过期）。
 
 ```mermaid
