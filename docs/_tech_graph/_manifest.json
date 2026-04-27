@@ -8,15 +8,6 @@
   },
   "endpoints": [
     {
-      "method": "GET",
-      "path": "/api/py/admin/sync",
-      "handler": "py_admin_sync_get",
-      "anchor": {
-        "path": "api/index.py",
-        "symbol": "py_admin_sync_get"
-      }
-    },
-    {
       "method": "POST",
       "path": "/api/py/admin/ingest",
       "handler": "py_admin_ingest",
