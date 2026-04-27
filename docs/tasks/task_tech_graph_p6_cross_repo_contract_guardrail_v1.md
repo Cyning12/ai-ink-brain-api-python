@@ -112,6 +112,11 @@ P6 目标：引入一个**跨仓契约真值**（contract manifest），并提�
   4) 改前端消费（P3 锚点 TSX/route.ts）
   5) 再跑 `python tools/tech_graph_contract_check.py`（frontend_expect ⊆ contract）
 
+> **新增骨架字段提醒**：如果你要把某个字段升级为 `done.data_keys` / `chain.data_keys` 的“硬必需”，需要同时更新：
+> 1) `_contract_manifest.json` 的对应 `*.data_keys`
+> 2) `tools/tech_graph_contract_check.py` 的 `must_done_data` / `must_chain_data`
+> 3) 后端实际产出（例如 `yield _sse("done", {...})`）
+
 ---
 
 ## 手动测试用例（必须执行）
