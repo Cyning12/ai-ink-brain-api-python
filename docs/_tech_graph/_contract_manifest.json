@@ -50,7 +50,7 @@
     },
     "done": {
       "_note": "done 事件：表示一次请求结束；data_keys 为最小必需键（前端依赖这些键用于收尾与状态同步）。",
-      "data_keys": ["ok", "mode", "run_id", "session_id"]
+      "data_keys": ["ok", "mode", "run_id", "session_id", "request_id"]
     }
   },
   "frontend_anchors": {
