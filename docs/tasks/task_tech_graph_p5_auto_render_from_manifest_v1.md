@@ -56,6 +56,8 @@
 
 ## 手动测试用例（必须执行）
 
+> ✅ 已执行：用例 1-3 全部通过（2026-04-27）。
+
 ### 用例 1：幂等（重复运行无额外 diff）
 - 操作：
   - 连续运行两次：`python tools/tech_graph_render_ai.py`
@@ -87,4 +89,14 @@
 |----|------|
 | 涉及文件 | `tools/tech_graph_render_ai.py`、`docs/_tech_graph/00_main.ai.md`、（可选）`tools/tech_graph_manifest_check.py` |
 | 设计取舍 | 为什么采用区块替换而不是全量生成 |
+
+### 已落地
+
+- `docs/_tech_graph/00_main.ai.md`：新增 auto 区块标记 `<!-- AUTO:ENDPOINTS_AND_ANCHORS BEGIN -->` / `<!-- AUTO:ENDPOINTS_AND_ANCHORS END -->`。
+- `tools/tech_graph_render_ai.py`：从 `docs/_tech_graph/_manifest.json` 渲染端点与 anchors，并 **只替换** auto 区块内容（其余手写内容不动）；多次运行幂等（无额外 diff）。
+- `tools/tech_graph_manifest_check.py`（可选项已做）：当 manifest 校验通过且检测到 auto 标记存在时，输出提示建议运行 render（不强制失败，避免过度耦合）。
+
+### 设计取舍
+
+- 采用“区块替换”而不是全量生成：把“可机械生成的真值段落”与“人工维护的业务子流程/拓扑图”解耦，减少无关 diff，避免误伤手写结构，同时保证自动段落可被一键修复。
 

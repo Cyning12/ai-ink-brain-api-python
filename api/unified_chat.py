@@ -1061,7 +1061,17 @@ async def handle_unified_chat_stream(
         finally:
             # done must be the last message if client still connected
             try:
-                yield _sse("done", {"ok": ok, "mode": mode, "run_id": run_id, "session_id": session_id})
+                # request_id：端到端链路标识（当前与 run_id 等价，便于逐步在前后端统一命名）
+                yield _sse(
+                    "done",
+                    {
+                        "ok": ok,
+                        "mode": mode,
+                        "run_id": run_id,
+                        "request_id": run_id,
+                        "session_id": session_id,
+                    },
+                )
             except Exception:
                 return
 

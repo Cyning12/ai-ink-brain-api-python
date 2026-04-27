@@ -1,0 +1,35 @@
+name: tech-graph-contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  contract_check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      # Checkout backend (this repo) into a fixed folder
+      - name: Checkout backend
+        uses: actions/checkout@v4
+        with:
+          path: ai-ink-brain-api-python
+
+      # Checkout frontend repo as sibling folder so ../ai-ink-brain/... paths resolve
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+        with:
+          repository: Cyning12/ai-ink-brain
+          path: ai-ink-brain
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cross-repo contract check
+        working-directory: ai-ink-brain-api-python
+        run: python tools/tech_graph_contract_check.py
+

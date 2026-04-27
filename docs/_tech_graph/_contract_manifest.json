@@ -1,0 +1,62 @@
+{
+  "schema_version": "tech_graph_contract_manifest_v1",
+  "repo": "ai-ink-brain-api-python",
+  "topic": "unified_chat_sse_contract",
+  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。",
+  "sse": {
+    "_required": {
+      "envelope_keys": ["event", "data"],
+      "allowed_events": ["chain", "done"],
+      "chain.data_keys": ["type", "ts", "step_id", "payload"],
+      "done.data_keys": ["ok", "mode", "run_id", "session_id", "request_id"],
+      "chain.payload_min_keys_by_type.must_include": ["rag.sources", "sql.result"]
+    },
+    "envelope_keys": ["event", "data"],
+    "allowed_events": ["chain", "done"],
+    "chain": {
+      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。",
+      "data_keys": ["type", "ts", "step_id", "payload"],
+      "frontend_optional_chain_data_keys": ["step"],
+      "type_values": [
+        "meta",
+        "router.decision",
+        "tool.call.start",
+        "tool.call.end",
+        "rag.query_expand",
+        "rag.sources",
+        "sql.result",
+        "assistant.message",
+        "latency",
+        "error"
+      ],
+      "payload_min_keys_by_type": {
+        "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
+        "meta": ["run_id", "mode", "session_id"],
+        "router.decision": ["prefer", "candidate_mode", "final_mode", "rule_hits", "evidence", "fallback"],
+        "tool.call.start": ["tool", "input"],
+        "tool.call.end": ["output", "error", "latency_ms"],
+        "rag.query_expand": ["raw", "rewrite"],
+        "rag.sources": {
+          "_note": "rag.sources 的 payload 为 sources+retrieval；source_item_keys 为 sources[] 每一项的最小键名集合。",
+          "payload_keys": ["sources", "retrieval"],
+          "source_item_keys": ["id", "content", "filename", "score", "path", "url"],
+          "retrieval_keys": ["top_k", "rrf_k"]
+        },
+        "sql.result": ["sql", "columns", "rows", "truncated"],
+        "assistant.message": ["role", "content"],
+        "latency": ["total_ms", "stages_ms"],
+        "error": ["stage", "message"]
+      }
+    },
+    "done": {
+      "_note": "done 事件：表示一次请求结束；data_keys 为最小必需键（前端依赖这些键用于收尾与状态同步）。",
+      "data_keys": ["ok", "mode", "run_id", "session_id", "request_id"]
+    }
+  },
+  "frontend_anchors": {
+    "_note": "锚点仅用于定位前端消费点与 BFF 透传点；不作为强耦合校验输入（校验主要针对键名/枚举集合）。",
+    "sse_consumer_files": ["../ai-ink-brain/components/unified-chat/UnifiedChatPageClient.tsx"],
+    "next_bff_proxy_files": ["../ai-ink-brain/app/api/py/unified/chat/stream/route.ts"]
+  }
+}
+
