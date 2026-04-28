@@ -25,6 +25,7 @@ from .rag_env import (
 from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
 from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
+from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 
 
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
@@ -108,44 +109,12 @@ def _parse_prefer(raw: object) -> PreferMode:
     return "auto"
 
 
-def _parse_match_threshold() -> float | None:
-    raw = os.getenv("RAG_MATCH_THRESHOLD", "").strip()
-    if not raw:
-        return 0.3
-    if raw.lower() in ("none", "null", "off"):
-        return None
-    try:
-        v = float(raw)
-    except ValueError:
-        return 0.3
-    if v > 1.0:
-        return None
-    if v < 0:
-        return 0.3
-    return v
-
-
-def _strip_doc_context_prefix(text: str) -> str:
-    t = (text or "").strip()
-    if not t:
-        return ""
-    m = re.search(r"(?m)^Content:\s*", t)
-    if m:
-        return t[m.end() :].strip()
-    t = re.sub(r"(?m)^\[Document Context\]\s*$", "", t).strip()
-    t = re.sub(r"(?m)^Title:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^Date:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^Category:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^---\s*$", "", t).strip()
-    return t
-
-
 def _build_rag_sources_event(hits: list[dict[str, Any]], *, top_k: int = 10) -> dict[str, Any]:
     packed: list[dict[str, Any]] = []
     for h in hits[: max(1, int(top_k))]:
         meta = h.get("metadata") if isinstance(h.get("metadata"), dict) else {}
         content = h.get("content") if isinstance(h.get("content"), str) else ""
-        snippet = _strip_doc_context_prefix(content).replace("\r\n", "\n").strip()
+        snippet = strip_doc_context_prefix(content).replace("\r\n", "\n").strip()
         snippet = snippet[:400] if len(snippet) > 400 else snippet
         packed.append(
             {
@@ -561,7 +530,7 @@ async def handle_unified_chat(
         sb = supabase_client()
         # structured recall（日期类确定性召回）
         structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
-        match_threshold = _parse_match_threshold()
+        match_threshold = parse_match_threshold()
         match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
         if vec is not None:
             vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
@@ -953,7 +922,7 @@ async def handle_unified_chat_stream(
             try:
                 sb = supabase_client()
                 structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
-                match_threshold = _parse_match_threshold()
+                match_threshold = parse_match_threshold()
                 match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
                 if vec is not None:
                     vector_hits, rc_vec, err_vec = rpc_execute_with_retry(

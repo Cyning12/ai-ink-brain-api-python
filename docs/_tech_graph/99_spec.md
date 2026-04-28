@@ -111,3 +111,25 @@ flowchart TD
   PARK --> K4[Unified Chat: tool extension reservation<br/>（Code RAG / Ticket Bot 接入预留）]
 ```
 
+### Backlog 状态快照（2026-04）
+
+> 与上图 roadmap 并存：下列状态区分「已落地机制」与「仍为规划/挂起」，避免将整图误读为未完成。
+
+| 条目 | 状态 | 证据（脚本 / workflow / PR） | 备注 |
+|------|------|------------------------------|------|
+| P0 总览 | **in_progress** | `docs/_tech_graph/00_main.md`、`01_struct.md` | 内容层 Struct/锚点持续演进 |
+| P0_1 锚点到文件+handler | **done** | `docs/_tech_graph/_manifest.json`（`anchors`）、`tools/tech_graph_manifest_check.py` | |
+| P0_2 Struct required/optional | **in_progress** | `docs/_tech_graph/01_struct.md` | metadata.* 等仍待收紧 |
+| P0_3 最小漂移校验 | **done** | `tools/tech_graph_drift_check.py`、workflow `tech-graph.yml` | 端点/RPC/env/表名覆盖 docs |
+| P1 总览 | **done** | `_manifest.json` + CI | 机器可读真值已引入 |
+| P1_1 manifest 真值 | **done** | `docs/_tech_graph/_manifest.json` | |
+| P1_2 自动校验 | **done** | `python tools/tech_graph_manifest_check.py`、`.github/workflows/tech-graph.yml` / `tech-graph-contract.yml` | |
+| P1_3 manifest 渲染 md | **deferred** | — | 先校验、后生成；未强制 |
+| HOLD | **deferred** | — | 待 P1 完成后重评；表中 P1 已闭环，可人工重开 HOLD |
+| P2 分层视角（B） | **todo** | — | 概念/实现/运行 + 失败路径 |
+| P3 端到端边界图（C） | **todo** | — | 部分见 `15_e2e_boundary.md` |
+| K1 Intent flexible match | **deferred** | `api/intent_router.py` | Parking Lot |
+| K2 RAG raw+rewrite 双路 | **deferred** | `api/unified_chat.py` | Parking Lot |
+| K3 no_data 防编造 | **deferred** | 提示词/策略 | Parking Lot |
+| K4 Unified 工具扩展预留 | **deferred** | `api/unified_chat.py` | Parking Lot |
+

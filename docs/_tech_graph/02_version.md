@@ -18,5 +18,6 @@ timeline
   2026-04-23 : 19b7f96 docs: add rag-chat flow and text2sql v1 spec/task
   2026-04-24 : 205ece6 auto: api/query_rewrite.py
   2026-04-27 : 8314154 auto: api/unified_chat.py
+  2026-04-28 : 116ab0c auto: api/index.py
 ```
 

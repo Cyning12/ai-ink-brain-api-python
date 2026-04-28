@@ -46,6 +46,7 @@ from .keyword_fallback import (
 )
 from .query_rewrite import rewrite_query_with_history
 from .rag_recall_tools import keyword_query_text_with_i18n_meta
+from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
 from .rag_env import admin_secret, pick_supabase_service_key, pick_supabase_url
 
@@ -97,31 +98,6 @@ def _fetch_keyword_hits_for_fallback(sb: Any, query_text: str, match_count: int)
     return fetch_keyword_hits(sb, query_text, match_count=match_count)
 
 
-def _parse_match_threshold() -> float | None:
-    """match_documents 的 threshold 为余弦相似度，须在 (0,1]；>1 无效（易与 top-k=10 混淆）。"""
-    raw = os.getenv("RAG_MATCH_THRESHOLD", "").strip()
-    if not raw:
-        return 0.3
-    if raw.lower() in ("none", "null", "off"):
-        return None
-    try:
-        v = float(raw)
-    except ValueError:
-        return 0.3
-    if v > 1.0:
-        print(
-            "[rag] RAG_MATCH_THRESHOLD="
-            f"{raw!r} 大于 1（相似度仅在 0~1）。"
-            "若本意是「不要阈值过滤」，请设为 none；若误把 match_count 写成 10，请删掉该变量或改为 0.3。已回退为 None。",
-            flush=True,
-        )
-        return None
-    if v < 0:
-        print(f"[rag] RAG_MATCH_THRESHOLD={raw!r} 小于 0，已回退为 0.3", flush=True)
-        return 0.3
-    return v
-
-
 def _rag_debug_enabled() -> bool:
     v = (os.getenv("DEBUG_RAG") or os.getenv("RAG_DEBUG") or "").strip().lower()
     if v in ("1", "true", "yes", "on"):
@@ -146,31 +122,13 @@ def _extract_title_from_context(content: str) -> str | None:
     return m.group(1).strip() if m else None
 
 
-def _strip_doc_context_prefix(text: str) -> str:
-    """去掉 ingest 写入的文档前缀信息，避免 snippet 噪声。"""
-    t = (text or "").strip()
-    if not t:
-        return ""
-    # 尝试从 Content: 行开始截取
-    m = re.search(r"(?m)^Content:\s*", t)
-    if m:
-        return t[m.end() :].strip()
-    # 否则移除常见头部行
-    t = re.sub(r"(?m)^\[Document Context\]\s*$", "", t).strip()
-    t = re.sub(r"(?m)^Title:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^Date:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^Category:\s*.*$", "", t).strip()
-    t = re.sub(r"(?m)^---\s*$", "", t).strip()
-    return t
-
-
 def build_sources_payload(hits: list[dict[str, Any]], *, top_k: int = 10) -> dict[str, Any]:
     """从融合后的命中结果里提取 sources（供前端引用卡片展示）。"""
     packed: list[dict[str, Any]] = []
     for h in hits[: max(1, int(top_k))]:
         meta = h.get("metadata") if isinstance(h.get("metadata"), dict) else {}
         content = h.get("content") if isinstance(h.get("content"), str) else ""
-        snippet = _strip_doc_context_prefix(content).replace("\r\n", "\n").strip()
+        snippet = strip_doc_context_prefix(content).replace("\r\n", "\n").strip()
         snippet = snippet[:400] if len(snippet) > 400 else snippet
 
         filename = meta.get("filename")
@@ -233,7 +191,7 @@ def _require_auth(
 
 code_retrieval.bind_index_symbols(
     build_sources_payload_=build_sources_payload,
-    parse_match_threshold_=_parse_match_threshold,
+    parse_match_threshold_=parse_match_threshold,
     siliconflow_base_=SILICONFLOW_BASE,
     siliconflow_embedding_model_=SILICONFLOW_EMBEDDING_MODEL,
     siliconflow_embedding_dimensions_=SILICONFLOW_EMBEDDING_DIMENSIONS,
@@ -659,7 +617,7 @@ async def chat(
     t_rewrite_ms = int((time.perf_counter() - t1) * 1000)
 
     embed_input = augment_query_for_embedding(rewritten_query)
-    match_threshold = _parse_match_threshold()
+    match_threshold = parse_match_threshold()
 
     _rag_log(
         f"last_user_query(len={len(query)})={_short(query, 500)!r} "

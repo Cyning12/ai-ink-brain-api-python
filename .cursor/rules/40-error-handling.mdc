@@ -1,0 +1,26 @@
+---
+description: 错误处理与降级策略 — 结构化响应、异常分支、备选方案
+globs: *
+---
+
+# Error Handling & Uncertainty
+
+## Structured Error Response
+- 所有异常必须返回结构化信息，禁止裸字符串抛出。
+- FastAPI 场景：使用 `HTTPException` 或自定义 `ErrorResponse` 模型，包含 `code`, `message`, `detail`。
+
+## Graceful Degradation
+- **Supabase 失败**: 返回 `500 DATABASE_DISCONNECT`，附带重试建议或缓存降级逻辑。
+- **SiliconFlow 限流/失败**: 实现指数退避重试（max 3 次）或 fallback 模型切换。
+- **依赖缺失**: 若推荐方案依赖未安装包或未配置环境，必须提供备选方案（如纯原生实现或 mock 路径）。
+
+## Fallback Strategy
+- 主方案受阻时，主动提供 Plan B（性能略低但可立即运行）。
+- 涉及外部服务（API、DB、向量库）时，默认考虑「服务不可用」场景。
+
+## Uncertainty Stop
+- 遇到以下情况必须暂停并询问，不猜测：
+  - 需求存在多种矛盾解释
+  - 缺少关键环境变量或密钥
+  - 修改可能影响未在请求中提及的模块
+  - 数据库 schema 变更无迁移脚本
