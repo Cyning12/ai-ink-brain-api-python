@@ -1,0 +1,20 @@
+---
+description: 核心行为约束 — 语言、职责边界、修改前确认、完成后报告
+globs: *
+---
+
+# Core Principles
+- **Language**: 所有解释、注释用简体中文；代码与专有名词保持英文。
+- **Single Responsibility**: 仅修改请求涉及的模块，不碰无关文件或函数。
+- **Logic Preservation**: 修改前分析现有逻辑，增量修复，不随意删除正确代码。
+- **Consistency**: 遵循项目现有代码风格（缩进、命名、结构），禁止纯格式化变更。
+
+# Before Any Modification
+1. 列出计划修改的文件清单（相对路径）。
+2. 若涉及 3+ 个文件，等待用户确认或收到明确授权「无需确认直接执行」。
+3. 自评变更风险等级（Low / Medium / High），High 需额外说明回滚方案。
+
+# After Completion
+- 提供 git diff 风格摘要（按文件：+N/-N）。
+- 新功能附最小验证示例、预期返回值或日志片段。
+- 禁止仅在大段文本中描述变更，必须实际写入文件系统。

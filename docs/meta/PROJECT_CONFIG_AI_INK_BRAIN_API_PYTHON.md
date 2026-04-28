@@ -1,5 +1,7 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
+> **最后校准**：2026-04-28（`docs/tasks/active/task_docs_truth_and_rag_unify_v1.md` · T1）
+
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
 
@@ -12,7 +14,7 @@
 | 仓库名（示例） | `ai-ink-brain-api-python` |
 | 远程默认分支 | `main`（以你本地 `git branch` / GitHub 默认分支为准） |
 | 技术栈摘要 | FastAPI + Uvicorn；OpenAI SDK（指向 SiliconFlow 兼容接口）；`supabase-py`；Supabase（Postgres + pgvector + FTS） |
-| 本仓负责的边界（Single Source of Truth） | **Embedding / Chunking / Retrieval / Hybrid Search / RAG 日志** 的权威实现应在本仓库（与 `.cursorrules` 一致） |
+| 本仓负责的边界（Single Source of Truth） | **Embedding / Chunking / Retrieval / Hybrid Search / RAG 日志** 的权威实现以本仓库代码为准；**Cursor 规则载体**以 `.cursor/rules/*.mdc` 为主，根目录 `.cursorrules` 为兼容/历史参考 |
 | 本仓不负责的边界 | **博客页面渲染、内容编辑 UX、Next.js BFF 转发** 在 `ai-ink-brain`；本仓只提供 HTTP API |
 | 部署入口（概念） | 本地：`uvicorn main:app`；Vercel：README 说明生产入口为 `api/index.py`（以 Vercel Python Runtime 配置为准） |
 
@@ -22,15 +24,15 @@
 
 | 文件 | 作用 | 是否必须存在 |
 |---|---|---|
-| `.cursorrules` | 全仓 AI 规则（RAG 标准、Supabase 日志、Hybrid、Streaming 等） | **建议必须**（当前存在） |
-| `AGENTS.md` / `CLAUDE.md` | 额外 Agent 指引 | **本仓当前未发现**（可选） |
-| `.cursor/rules/*.mdc` | 分路径规则 | **本仓当前未发现**（可选） |
+| `.cursor/rules/*.mdc` | 分路径规则（图谱、RAG、错误处理等）；**当前推荐的人类/Agent 真值入口** | **建议必须**（当前已存在多份 `.mdc`） |
+| `.cursorrules` | 历史/兼容：全仓 AI 规则摘要（若与 `.mdc` 不一致，**以 `.mdc` + 本 `PROJECT_CONFIG` 为准**） | 可选（当前仓库内仍常保留） |
+| `AGENTS.md` / `CLAUDE.md` | 额外 Agent 指引 | **本仓 `AGENTS.md` 存在**（`CLAUDE.md` 可选） |
 
-`.cursorrules` 要点（执行层摘要）：
+`.cursor/rules` + `.cursorrules` 要点（执行层摘要，以代码为准）：
 - RAG 日志必须写入 `rag_conversation_logs`
 - pgvector 相似度使用 Cosine Distance（RPC `match_documents`）
 - 每次请求必须处理 `session_id`，检索前读取最近 3-5 轮历史（当前实现为 5）
-- LLM 输出使用 `StreamingResponse`
+- **Legacy** `POST /api/py/chat` 的助手输出为 **`StreamingResponse`（text/plain）**；**Unified** 另提供 **`POST /api/py/unified/chat`**（JSON `events[]`）与 **`/stream`**（SSE），见 §F
 - Hybrid：Vector + FTS，并融合排序
 
 ---
@@ -53,7 +55,7 @@
 | `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V3` | 与向量维度无关 |
 | `NEXT_PUBLIC_ADMIN_SECRET` | Admin/Chat 鉴权 secret | **必填（二选一）** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空：鉴权接口 500 | 与项目无关 |
 | `CHAT_API_SECRET` | Admin secret 别名 | **可选（二选一）** | `api/rag_env.py:admin_secret()` | 留空则使用 `NEXT_PUBLIC_ADMIN_SECRET` | 与项目无关 |
-| `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/index.py:_parse_match_threshold()` | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值回退默认 | 与项目无关 |
+| `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/rag_shared.py:parse_match_threshold()`；由 `api/index.py`（Legacy chat）、`api/unified_chat.py`、`api/code_retrieval.py`（注入）调用 | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值或 `<0` 回退默认；`>1` 视为关闭过滤（`None`） | 与项目无关 |
 | `DEBUG_RAG` / `RAG_DEBUG` | RAG 调试日志开关 | 可选 | `api/index.py` | `1/true/yes/on` 或 `NODE_ENV=development` | 与项目无关 |
 | `NODE_ENV` | 影响 debug 判定 | 可选 | `api/index.py` | `development` 会打开部分 debug 行为 | 与项目无关 |
 | `CONTENT_DEFAULT_YEAR` | 解析 `MM-DD` 日期时的默认年份 | 可选 | `api/index.py` | 默认 `2026` | 与项目无关 |
@@ -83,13 +85,16 @@
 | 目录/文件 | 入口/职责 |
 |---|---|
 | `main.py` | 本地 `uvicorn` 入口：转发 `api.index:app` |
-| `api/index.py` | FastAPI 路由与 RAG 主链路（chat/history/admin） |
+| `api/index.py` | FastAPI 路由注册、Legacy **`POST /api/py/chat`** 流式外壳、管理端 ingest/sync、Unified 路由投递至 `unified_chat` |
+| `api/unified_chat.py` | Unified Chat：JSON / SSE 事件链、RAG + Text2SQL 路由；详见图谱 `docs/_tech_graph/00_main.md` |
+| `api/rag_shared.py` | Legacy 与 Unified 共用的无状态 RAG 小工具（如阈值解析、snippet 去前缀） |
 | `api/rag_env.py` | `.env` 加载、Supabase/SiliconFlow 选择器、Embedding 参数封装 |
 | `api/database_manager.py` | Supabase 写入/读取 `rag_conversation_logs` |
 | `api/ingest_pipeline.py` | Markdown ingest/sync、批量 embedding、写 `documents` |
 | `supabase/sql/` | 数据库初始化/迁移脚本（`init.sql`、`hybrid_search.sql` 等） |
 | `docs/tasks/` | 后端任务规格（Task03/Task04 等） |
-| `.github/workflows/` | **本仓当前未发现**（CI 可在前端仓库触发 ingest） |
+| `docs/_tech_graph/` | 技术图谱与 `_manifest.json` / `_contract_manifest.json`（CI：`tech_graph_manifest_check` / `tech_graph_drift_check`） |
+| `.github/workflows/` | **已存在**：`tech-graph.yml`（图谱/契约门禁）、`tech-graph-contract.yml`（契约相关校验）；真值以 YAML 内 jobs 为准 |
 
 ---
 
@@ -102,6 +107,8 @@
 | `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs` |
 | `POST /api/py/admin/ingest` | 同步扫描内容并写入 `documents`（重删再插策略） |
 | `POST /api/py/admin/sync` + `GET /api/py/admin/sync?jobId=` | 异步任务（内存队列，serverless 不保证持久） |
+| `POST /api/py/unified/chat` | Unified 非流式：`events[]` JSON；字段与锚点以 **`docs/_tech_graph/_contract_manifest.json`** 为准 |
+| `POST /api/py/unified/chat/stream` | Unified SSE：链式事件流；契约同上 |
 
 ### F.1 流式回答 + 证据链（Task04）
 

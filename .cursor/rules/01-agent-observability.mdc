@@ -1,0 +1,43 @@
+---
+description: Agent 模式可观测性与成本控制 — 执行报告、Loop 防护、模式选择
+globs: *
+---
+
+# Agent Observability & Cost Control
+
+## Execution Report（每次任务末尾必须报告）
+以结构化格式输出以下信息：
+
+```
+📊 Execution Report
+├── Duration:     {从接收指令到输出完成的耗时}
+├── Thinking Steps:
+│   1. {关键决策 1：为什么这样改}
+│   2. {关键决策 2}
+│   3. {关键决策 3}
+├── Files Modified:
+│   - {文件 1 相对路径}
+│   - {文件 2 相对路径}
+├── Risk Level:   {Low / Medium / High}
+└── Notes:        {阻塞点、待确认项、或「无」}
+```
+
+- **Duration**: 估算或记录实际耗时（分钟/秒）。
+- **Thinking Steps**: 3–5 步，说明核心决策路径，不是流水账。
+- **Files Modified**: 本次实际修改的文件清单（新增、修改、删除分别标注）。
+- **Risk Level**: High 时必须附带回滚方案或风险提示。
+
+## Cost Awareness
+- **Fast Request Budget**: Cursor Pro Agent 模式 Fast Requests 约 500 次/月；Agent 应优先在一次对话轮次内完成任务。
+- **Mode Preference**:
+  - 纯代码生成、格式化、简单重构 → 优先建议 Auto 模式。
+  - 跨文件重构、复杂调试、架构设计 → 使用 Agent 模式。
+- **Batch Operations**: 涉及多文件时，先输出完整计划再一次性执行，避免「改一点测一点」的循环消耗。
+
+## Loop Guard
+- 同一文件修改 **3 次**仍未通过验证（测试失败、编译错误、逻辑不符），必须停止自动重试。
+- 向用户报告当前阻塞点（错误日志、失败原因），请求人工介入或明确下一步指令。
+
+## Ambiguity Stop
+- 需求模糊、上下文缺失、或可能破坏现有功能时，**优先停止并询问用户**。
+- 禁止基于假设继续执行，尤其是涉及数据库迁移、环境变量变更、删除表/字段等操作。

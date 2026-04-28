@@ -1,5 +1,7 @@
 # SPEC-06：Unified Chat（RAG）检索可靠性修复（v1）
 
+> **关联**：T3 初批共享层（`api/rag_shared.py`）见 **`docs/tasks/done/task_docs_truth_and_rag_unify_v1.md`**；更深合并仍跟进本节验收条目。
+
 ## 背景
 
 回归测试中出现两类问题：

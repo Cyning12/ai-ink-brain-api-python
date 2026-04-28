@@ -1,5 +1,7 @@
 # Task：Unified Chat（后端 v1）— 融合 RAG + Text2SQL + events[]
 
+> **迁移 / 后续**：PROJECT_CONFIG / Backlog / RAG 初批合并已完成见 **`docs/tasks/done/task_docs_truth_and_rag_unify_v1.md`**；Legacy 更深去重见 **`docs/tasks/specs/SPEC-06-unified-rag-retrieve-reliability.md`**。若继续收缩 Legacy 内部实现，本篇「不改动 `/api/py/chat`」指 **路由与对外语义**。
+
 > **状态**：pending  
 > **范围**：仅后端 `ai-ink-brain-api-python`  
 > **设计**：`docs/UI/v1/UI-02-unified-chat-plan.md`  

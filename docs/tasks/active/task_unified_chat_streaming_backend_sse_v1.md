@@ -1,5 +1,7 @@
 # Task：Unified Chat Streaming（后端 v1 / SSE）
 
+**关联**：共享 RAG 初批（`api/rag_shared`）见 **`docs/tasks/done/task_docs_truth_and_rag_unify_v1.md`**；后续重构勿破坏 SSE 与非流式 Unified 对齐。
+
 状态：pending  
 范围：仅后端 `ai-ink-brain-api-python`  
 设计：`docs/UI/v1/UI-03-unified-chat-streaming-sse.md`
