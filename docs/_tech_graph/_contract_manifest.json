@@ -2,7 +2,7 @@
   "schema_version": "tech_graph_contract_manifest_v1",
   "repo": "ai-ink-brain-api-python",
   "topic": "unified_chat_sse_contract",
-  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。",
+  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。2026-04-28：Unified Chat SSE v1 已落地并按本契约补齐 latency.stages_ms（允许为空对象）。",
   "sse": {
     "_required": {
       "envelope_keys": ["event", "data"],

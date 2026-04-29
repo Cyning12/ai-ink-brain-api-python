@@ -217,7 +217,14 @@ async def handle_unified_chat(
                 payload={"stage": "router", "message": f"未实现的工具路由：{mode}"},
             )
         )
-        events.append(_event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)}))
+        events.append(
+            _event(
+                typ="latency",
+                started_at=started_at,
+                step_id="l1",
+                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+            )
+        )
         return finish(ok=False, mode=mode)
 
     if mode == "no_data":
@@ -306,7 +313,12 @@ async def handle_unified_chat(
                 )
             )
             events.append(
-                _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)})
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
             )
             return finish(ok=False, mode=mode)
 
@@ -351,7 +363,12 @@ async def handle_unified_chat(
                 )
             )
             events.append(
-                _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)})
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
             )
             return finish(ok=False, mode=mode)
 
@@ -740,7 +757,15 @@ async def handle_unified_chat_stream(
                         payload={"stage": "router", "message": f"未实现的工具路由：{mode}"},
                     ),
                 )
-                yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)}))
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="latency",
+                        started_at=started_at,
+                        step_id="l1",
+                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                    ),
+                )
                 return
 
             if mode == "no_data":
