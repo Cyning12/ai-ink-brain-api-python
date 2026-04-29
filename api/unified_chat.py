@@ -26,6 +26,9 @@ from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_selec
 from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
+from .agent import ChatBIAgent
+from .agent_memory import get_memory_store
+from .tools import get_tool_registry
 
 
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
@@ -188,6 +191,261 @@ async def handle_unified_chat(
         return JSONResponse(
             content={"ok": ok, "run_id": run_id, "session_id": session_id, "mode": mode, "events": events}
         )
+
+    # CHATBI v2（Agent）主路径：开关开启时，输出 agent.* 事件
+    use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+    if use_agent:
+        # prefer=tool:* 仍按 v1 路由返回 error（保持行为一致）
+        if str(prefer).startswith("tool:"):
+            events.append(
+                _event(
+                    typ="error",
+                    started_at=started_at,
+                    step_id="e_agent",
+                    payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
+                )
+            )
+            events.append(
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
+            )
+            return finish(ok=False, mode=str(prefer))
+
+        tool_registry = get_tool_registry()
+        agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
+        agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+
+        mode = agent_result.final.mode
+        max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
+
+        # router.decision：Agent 初始决策（V1 payload 结构保持一致）
+        intent_decision = agent_result.intent_decision
+        step1 = agent_result.steps[0] if agent_result.steps else None
+        step1_mode = step1.mode if step1 else mode
+        candidate_mode = intent_decision.mode if intent_decision else step1_mode
+        final_mode = step1_mode
+
+        events.append(
+            _event(
+                typ="router.decision",
+                started_at=started_at,
+                step_id="r1",
+                payload={
+                    "prefer": "auto" if prefer == "auto" else prefer,
+                    "candidate_mode": candidate_mode,
+                    "final_mode": final_mode,
+                    "rule_hits": [],
+                    "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                    "fallback": intent_decision.fallback if intent_decision else None,
+                },
+            )
+        )
+
+        # 事件流：agent.step.start → (step1) agent.intent → agent.think → tool.call.start/end → agent.step.end
+        for step in agent_result.steps:
+            step_id = f"a{step.step_number}"
+            events.append(
+                _event(
+                    typ="agent.step.start",
+                    started_at=started_at,
+                    step_id=step_id,
+                    payload={"step_number": step.step_number, "max_steps": max_steps},
+                )
+            )
+
+            if step.step_number == 1 and intent_decision is not None:
+                events.append(
+                    _event(
+                        typ="agent.intent",
+                        started_at=started_at,
+                        step_id="intent_1",
+                        payload={
+                            "tool": intent_decision.tool,
+                            "mode": intent_decision.mode,
+                            "reasoning": intent_decision.reasoning,
+                            "confidence": intent_decision.confidence,
+                            "fallback": intent_decision.fallback,
+                        },
+                    )
+                )
+
+            events.append(
+                _event(
+                    typ="agent.think",
+                    started_at=started_at,
+                    step_id=f"{step_id}_think",
+                    payload={
+                        "step_number": step.step_number,
+                        "thought": step.think_payload["thought"],
+                        "selected_tool": step.think_payload["selected_tool"],
+                        "mode": step.think_payload["mode"],
+                        "confidence": step.think_payload["confidence"],
+                    },
+                )
+            )
+
+            events.append(
+                _event(
+                    typ="tool.call.start",
+                    started_at=started_at,
+                    step_id=f"t_step{step.step_number}",
+                    payload={"tool": step.tool_used, "input": {"query": query}},
+                )
+            )
+
+            err = step.tool_result.error
+            out_answer: str | None = None
+            if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                out_answer = step.tool_result.data.get("answer")
+
+            events.append(
+                _event(
+                    typ="tool.call.end",
+                    started_at=started_at,
+                    step_id=f"t_step{step.step_number}",
+                    payload={
+                        "output": {"answer": out_answer},
+                        "error": err,
+                        "latency_ms": step.tool_result.latency_ms,
+                    },
+                )
+            )
+
+            # 可视化来源：按工具类型补齐 v1 事件
+            if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                data = step.tool_result.data
+                columns = data.get("columns") if isinstance(data.get("columns"), list) else []
+                rows_any = data.get("rows") if isinstance(data.get("rows"), list) else []
+                rows: list[dict[str, Any]] = [r for r in rows_any if isinstance(r, dict)]
+                truncated = len(rows) > 20
+                events.append(
+                    _event(
+                        typ="sql.result",
+                        started_at=started_at,
+                        step_id=f"q_step{step.step_number}",
+                        payload={
+                            "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                            "columns": [c for c in columns if isinstance(c, str)],
+                            "rows": rows[:20],
+                            "truncated": truncated,
+                        },
+                    )
+                )
+            elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                data = step.tool_result.data
+                hits_any = data.get("hits")
+                hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                rag_sources_payload = _build_rag_sources_event(hits, top_k=10)
+                events.append(
+                    _event(
+                        typ="rag.sources",
+                        started_at=started_at,
+                        step_id=f"s_step{step.step_number}",
+                        payload=rag_sources_payload,
+                    )
+                )
+
+            events.append(
+                _event(
+                    typ="agent.step.end",
+                    started_at=started_at,
+                    step_id=f"{step_id}_end",
+                    payload={
+                        "step_number": step.step_number,
+                        "tool_used": step.tool_used,
+                        "mode": step.mode,
+                        "success": step.success,
+                        "next_action": step.next_action,
+                    },
+                )
+            )
+
+        events.append(
+            _event(
+                typ="agent.final",
+                started_at=started_at,
+                step_id="a_final",
+                payload={
+                    "total_steps": agent_result.final.total_steps,
+                    "tools_used": agent_result.final.tools_used,
+                    "modes": agent_result.final.modes,
+                    "fallback_used": agent_result.final.fallback_used,
+                },
+            )
+        )
+
+        events.append(
+            _event(
+                typ="assistant.message",
+                started_at=started_at,
+                step_id="s_answer",
+                payload={"role": "assistant", "content": agent_result.final.answer},
+            )
+        )
+
+        events.append(
+            _event(
+                typ="latency",
+                started_at=started_at,
+                step_id="l1",
+                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+            )
+        )
+
+        # 记忆持久化：仅一轮结束写一次（JSONB：agent_steps/tool_results）
+        try:
+            sb = supabase_client()
+            agent_steps_json: dict[str, Any] = {
+                "total_steps": agent_result.final.total_steps,
+                "tools_used": agent_result.final.tools_used,
+                "fallback_used": agent_result.final.fallback_used,
+                "steps": [
+                    {
+                        "step_number": s.step_number,
+                        "tool_used": s.tool_used,
+                        "mode": s.mode,
+                        "success": s.success,
+                        "next_action": s.next_action,
+                        "thought": s.think_payload.get("thought"),
+                    }
+                    for s in agent_result.steps
+                ],
+            }
+            tool_results_json: dict[str, Any] = {
+                "results": [
+                    {
+                        "tool": s.tool_used,
+                        "success": s.tool_result.success,
+                        "error_code": s.tool_result.error_code,
+                        "error_stage": s.tool_result.error_stage,
+                        "latency_ms": s.tool_result.latency_ms,
+                        "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                    }
+                    for s in agent_result.steps
+                ]
+            }
+            if session_id:
+                sb.table("rag_conversation_logs").insert(
+                    {
+                        "session_id": session_id,
+                        "query": query,
+                        "rewritten_query": query,
+                        "retrieved_context": {},
+                        "response": agent_result.final.answer,
+                        "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                        "agent_steps": agent_steps_json,
+                        "tool_results": tool_results_json,
+                    }
+                ).execute()
+        except Exception:
+            # 记忆写入降级：不阻断对外回答
+            pass
+
+        return finish(ok=True, mode=mode)
 
     # mode decide (v1 router)
     decision = decide_intent(query=query, prefer=prefer)
@@ -720,6 +978,316 @@ async def handle_unified_chat_stream(
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
+
+    # CHATBI v2（Agent）SSE 主路径
+    use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+    if use_agent:
+        if str(prefer).startswith("tool:"):
+            ok = False
+            mode = str(prefer)
+
+            async def event_stream():
+                try:
+                    yield _sse(
+                        "chain",
+                        {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}},
+                    )
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="error",
+                            started_at=started_at,
+                            step_id="e_agent",
+                            payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
+                        ),
+                    )
+                except GeneratorExit:
+                    return
+                except Exception as exc:  # noqa: BLE001
+                    ok_local = False
+                    _ = exc
+                    ok = False
+                finally:
+                    yield _sse(
+                        "done",
+                        {
+                            "ok": ok,
+                            "mode": mode,
+                            "run_id": run_id,
+                            "request_id": run_id,
+                            "session_id": session_id,
+                        },
+                    )
+
+            headers = {"Cache-Control": "no-cache"}
+            return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
+
+        tool_registry = get_tool_registry()
+        agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
+        agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+        mode = agent_result.final.mode
+        max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
+
+        # 可选：一轮结束写一次 memory（失败不阻断 SSE）
+        try:
+            if session_id:
+                sb = supabase_client()
+                agent_steps_json: dict[str, Any] = {
+                    "total_steps": agent_result.final.total_steps,
+                    "tools_used": agent_result.final.tools_used,
+                    "fallback_used": agent_result.final.fallback_used,
+                    "steps": [
+                        {
+                            "step_number": s.step_number,
+                            "tool_used": s.tool_used,
+                            "mode": s.mode,
+                            "success": s.success,
+                            "next_action": s.next_action,
+                            "thought": s.think_payload.get("thought"),
+                        }
+                        for s in agent_result.steps
+                    ],
+                }
+                tool_results_json: dict[str, Any] = {
+                    "results": [
+                        {
+                            "tool": s.tool_used,
+                            "success": s.tool_result.success,
+                            "error_code": s.tool_result.error_code,
+                            "error_stage": s.tool_result.error_stage,
+                            "latency_ms": s.tool_result.latency_ms,
+                            "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                        }
+                        for s in agent_result.steps
+                    ]
+                }
+                sb.table("rag_conversation_logs").insert(
+                    {
+                        "session_id": session_id,
+                        "query": query,
+                        "rewritten_query": query,
+                        "retrieved_context": {},
+                        "response": agent_result.final.answer,
+                        "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                        "agent_steps": agent_steps_json,
+                        "tool_results": tool_results_json,
+                    }
+                ).execute()
+        except Exception:
+            pass
+
+        ok = True
+
+        async def event_stream():
+            nonlocal ok
+            try:
+                yield _sse(
+                    "chain",
+                    {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}},
+                )
+
+                intent_decision = agent_result.intent_decision
+                step1 = agent_result.steps[0] if agent_result.steps else None
+                step1_mode = step1.mode if step1 else mode
+                candidate_mode = intent_decision.mode if intent_decision else step1_mode
+                final_mode = step1_mode
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="router.decision",
+                        started_at=started_at,
+                        step_id="r1",
+                        payload={
+                            "prefer": "auto" if prefer == "auto" else prefer,
+                            "candidate_mode": candidate_mode,
+                            "final_mode": final_mode,
+                            "rule_hits": [],
+                            "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                            "fallback": intent_decision.fallback if intent_decision else None,
+                        },
+                    ),
+                )
+
+                for step in agent_result.steps:
+                    step_id = f"a{step.step_number}"
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.step.start",
+                            started_at=started_at,
+                            step_id=step_id,
+                            payload={"step_number": step.step_number, "max_steps": max_steps},
+                        ),
+                    )
+
+                    if step.step_number == 1 and intent_decision is not None:
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="agent.intent",
+                                started_at=started_at,
+                                step_id="intent_1",
+                                payload={
+                                    "tool": intent_decision.tool,
+                                    "mode": intent_decision.mode,
+                                    "reasoning": intent_decision.reasoning,
+                                    "confidence": intent_decision.confidence,
+                                    "fallback": intent_decision.fallback,
+                                },
+                            ),
+                        )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.think",
+                            started_at=started_at,
+                            step_id=f"{step_id}_think",
+                            payload={
+                                "step_number": step.step_number,
+                                "thought": step.think_payload["thought"],
+                                "selected_tool": step.think_payload["selected_tool"],
+                                "mode": step.think_payload["mode"],
+                                "confidence": step.think_payload["confidence"],
+                            },
+                        ),
+                    )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="tool.call.start",
+                            started_at=started_at,
+                            step_id=f"t_step{step.step_number}",
+                            payload={"tool": step.tool_used, "input": {"query": query}},
+                        ),
+                    )
+
+                    err = step.tool_result.error
+                    out_answer: str | None = None
+                    if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                        out_answer = step.tool_result.data.get("answer")
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="tool.call.end",
+                            started_at=started_at,
+                            step_id=f"t_step{step.step_number}",
+                            payload={
+                                "output": {"answer": out_answer},
+                                "error": err,
+                                "latency_ms": step.tool_result.latency_ms,
+                            },
+                        ),
+                    )
+
+                    if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                        data = step.tool_result.data
+                        columns_any = data.get("columns")
+                        columns = columns_any if isinstance(columns_any, list) else []
+                        rows_any = data.get("rows")
+                        rows_any2 = rows_any if isinstance(rows_any, list) else []
+                        rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
+                        truncated = len(rows) > 20
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="sql.result",
+                                started_at=started_at,
+                                step_id=f"q_step{step.step_number}",
+                                payload={
+                                    "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                                    "columns": [c for c in columns if isinstance(c, str)],
+                                    "rows": rows[:20],
+                                    "truncated": truncated,
+                                },
+                            ),
+                        )
+                    elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                        data = step.tool_result.data
+                        hits_any = data.get("hits")
+                        hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="rag.sources",
+                                started_at=started_at,
+                                step_id=f"s_step{step.step_number}",
+                                payload=_build_rag_sources_event(hits, top_k=10),
+                            ),
+                        )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.step.end",
+                            started_at=started_at,
+                            step_id=f"{step_id}_end",
+                            payload={
+                                "step_number": step.step_number,
+                                "tool_used": step.tool_used,
+                                "mode": step.mode,
+                                "success": step.success,
+                                "next_action": step.next_action,
+                            },
+                        ),
+                    )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="agent.final",
+                        started_at=started_at,
+                        step_id="a_final",
+                        payload={
+                            "total_steps": agent_result.final.total_steps,
+                            "tools_used": agent_result.final.tools_used,
+                            "modes": agent_result.final.modes,
+                            "fallback_used": agent_result.final.fallback_used,
+                        },
+                    ),
+                )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="assistant.message",
+                        started_at=started_at,
+                        step_id="s_answer",
+                        payload={"role": "assistant", "content": agent_result.final.answer},
+                    ),
+                )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="latency",
+                        started_at=started_at,
+                        step_id="l1",
+                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                    ),
+                )
+            except GeneratorExit:
+                return
+            except Exception:  # noqa: BLE001
+                ok = False
+                yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "agent", "message": "SSE V2 运行异常"}))
+            finally:
+                yield _sse(
+                    "done",
+                    {
+                        "ok": ok,
+                        "mode": mode,
+                        "run_id": run_id,
+                        "request_id": run_id,
+                        "session_id": session_id,
+                    },
+                )
+
+        headers = {"Cache-Control": "no-cache"}
+        return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
 
     decision = decide_intent(query=query, prefer=prefer)
     mode = decision.final_mode

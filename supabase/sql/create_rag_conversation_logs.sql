@@ -11,6 +11,8 @@ create table if not exists public.rag_conversation_logs (
   retrieved_context jsonb,
   response text,
   metadata jsonb,
+  agent_steps jsonb,
+  tool_results jsonb,
   created_at timestamptz not null default now()
 );
 
