@@ -38,6 +38,7 @@ def _env_float(name: str, default: float) -> float:
 
 def _has_aggregation_signals(query: str) -> bool:
     # gating C：聚合语义特征（非关键词匹配强依赖，但这里用轻量启发式）
+    # TODO(P1): 替换为轻量 LLM 语义判定，当前为启发式关键词匹配
     q = (query or "").lower()
     needles = (
         "多少",

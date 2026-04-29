@@ -27,7 +27,12 @@
         "sql.result",
         "assistant.message",
         "latency",
-        "error"
+        "error",
+        "agent.step.start",
+        "agent.think",
+        "agent.intent",
+        "agent.step.end",
+        "agent.final"
       ],
       "payload_min_keys_by_type": {
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
@@ -45,7 +50,12 @@
         "sql.result": ["sql", "columns", "rows", "truncated"],
         "assistant.message": ["role", "content"],
         "latency": ["total_ms", "stages_ms"],
-        "error": ["stage", "message"]
+        "error": ["stage", "message"],
+        "agent.step.start": ["step_number", "max_steps"],
+        "agent.think": ["step_number", "thought", "selected_tool", "mode", "confidence"],
+        "agent.intent": ["tool", "mode", "reasoning", "confidence", "fallback"],
+        "agent.step.end": ["step_number", "tool_used", "mode", "success", "next_action"],
+        "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"]
       }
     },
     "done": {

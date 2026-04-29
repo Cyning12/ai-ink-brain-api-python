@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P0 后端）— 接入 `agent.*` 事件、ReAct 循环与记忆
 
-状态：pending  
+状态：done（2026-04-29：P0 后端 Agent 全量落地并归档）  
 范围：仅后端 `ai-ink-brain-api-python`  
 关联：  
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`  
@@ -139,4 +139,10 @@
 - `api/unified_chat.py` 支持 V2 路径与 `agent.*` SSE 事件
 - Supabase SQL 表字段就绪（`rag_conversation_logs.agent_steps/tool_results`）
 - 通过 `tools/tech_graph_contract_check.py` 与 `tools/tech_graph_manifest_check.py`
+
+---
+
+## 归档记录
+
+- `docs/tasks/done/done_chatbi_v2_agent_p0_backend_full_2026-04-29.md`
 
