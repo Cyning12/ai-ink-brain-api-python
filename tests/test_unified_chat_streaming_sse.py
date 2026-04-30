@@ -14,6 +14,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
+    # 仓库 .env 可能默认开启 v2 agent；v1 SSE 测试必须显式关闭。
+    monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
     import api.unified_chat as unified_chat
     import api.index as index
@@ -32,6 +34,7 @@ def test_unified_stream_unauthorized(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE", "1")
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat
 
@@ -139,4 +142,6 @@ def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
                 break
         assert "event: chain" in text
         assert "event: done" in text
+        assert '"type":"router.evidence"' in text
+        assert '"type":"router.evidence.details"' in text
 

@@ -2,7 +2,7 @@
   "schema_version": "tech_graph_contract_manifest_v1",
   "repo": "ai-ink-brain-api-python",
   "topic": "unified_chat_sse_contract",
-  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。",
+  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。2026-04-28：Unified Chat SSE v1 已落地并按本契约补齐 latency.stages_ms（允许为空对象）。",
   "sse": {
     "_required": {
       "envelope_keys": ["event", "data"],
@@ -20,6 +20,8 @@
       "type_values": [
         "meta",
         "router.decision",
+        "router.evidence",
+        "router.evidence.details",
         "tool.call.start",
         "tool.call.end",
         "rag.query_expand",
@@ -27,12 +29,19 @@
         "sql.result",
         "assistant.message",
         "latency",
-        "error"
+        "error",
+        "agent.step.start",
+        "agent.think",
+        "agent.intent",
+        "agent.step.end",
+        "agent.final"
       ],
       "payload_min_keys_by_type": {
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
         "meta": ["run_id", "mode", "session_id"],
         "router.decision": ["prefer", "candidate_mode", "final_mode", "rule_hits", "evidence", "fallback"],
+        "router.evidence": ["candidate_mode", "final_mode", "fallback", "ddl", "fts"],
+        "router.evidence.details": ["candidate_mode", "final_mode", "fallback", "thresholds", "ddl_candidates", "fts_candidates"],
         "tool.call.start": ["tool", "input"],
         "tool.call.end": ["output", "error", "latency_ms"],
         "rag.query_expand": ["raw", "rewrite"],
@@ -45,7 +54,12 @@
         "sql.result": ["sql", "columns", "rows", "truncated"],
         "assistant.message": ["role", "content"],
         "latency": ["total_ms", "stages_ms"],
-        "error": ["stage", "message"]
+        "error": ["stage", "message"],
+        "agent.step.start": ["step_number", "max_steps"],
+        "agent.think": ["step_number", "thought", "selected_tool", "mode", "confidence"],
+        "agent.intent": ["tool", "mode", "reasoning", "confidence", "fallback"],
+        "agent.step.end": ["step_number", "tool_used", "mode", "success", "next_action"],
+        "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"]
       }
     },
     "done": {

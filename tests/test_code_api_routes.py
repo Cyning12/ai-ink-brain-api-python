@@ -14,6 +14,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
     monkeypatch.setenv("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
+    # 避免仓库 .env 默认开启 agent 影响路由初始化分支。
+    monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
     import api.code_retrieval as code_retrieval
     import api.index as index

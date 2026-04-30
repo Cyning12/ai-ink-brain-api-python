@@ -26,6 +26,9 @@ from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_selec
 from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
+from .agent import ChatBIAgent
+from .agent_memory import get_memory_store
+from .tools import get_tool_registry
 
 
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
@@ -73,6 +76,253 @@ def _safe_text_for_event(text: str, *, max_len: int) -> str:
     if len(t) <= max_len:
         return t
     return t[: max_len - 3] + "..."
+
+
+# Text2SQL 结果摘要的敏感字段过滤：当前最小化仅过滤 id_number（未来可按权限扩展）。
+_TEXT2SQL_SENSITIVE_COL_RE = re.compile(r"(?i)(^|_)id_number($|_)")
+
+
+def _build_text2sql_exec_trace(
+    *,
+    sql: str,
+    sql_raw: str,
+    columns: list[str],
+    rows: list[dict[str, Any]],
+    error: str | None,
+    latency_ms: int,
+) -> dict[str, Any]:
+    """构造可落库的 Text2SQL 执行摘要（严格限量/截断/脱敏）。"""
+    truncated = False
+
+    sql_safe = _safe_text_for_event(sql or "", max_len=2000)
+    if (sql or "") != sql_safe:
+        truncated = True
+
+    sql_raw_safe = _safe_text_for_event(sql_raw or "", max_len=2000) if (sql_raw or "").strip() else ""
+    if (sql_raw or "").strip() and sql_raw_safe != (sql_raw or ""):
+        truncated = True
+
+    err_safe: str | None = None
+    if error:
+        err_safe = _safe_text_for_event(str(error), max_len=300)
+        if err_safe != str(error):
+            truncated = True
+
+    cols_in = [c for c in columns if isinstance(c, str) and c.strip()]
+    if len(cols_in) > 30:
+        truncated = True
+    cols_raw = [c.strip() for c in cols_in[:30]]
+    cols_safe = [_safe_text_for_event(c, max_len=64) for c in cols_raw]
+    col_pairs = list(zip(cols_raw, cols_safe, strict=True))
+
+    # rows_preview：允许落预览，但需过滤敏感列（当前仅 id_number）。
+    def _is_sensitive_col(col: str) -> bool:
+        return bool(_TEXT2SQL_SENSITIVE_COL_RE.search(col))
+
+    has_sensitive_col = any(_is_sensitive_col(raw) or _is_sensitive_col(safe) for (raw, safe) in col_pairs)
+    rows_preview: list[dict[str, str]] | None = None
+    rows_preview = []
+    if len(rows) > 10:
+        truncated = True
+
+    preview_pairs_all = col_pairs[:20]
+    if len(col_pairs) > 20:
+        truncated = True
+
+    preview_pairs = [(raw, safe) for (raw, safe) in preview_pairs_all if not (_is_sensitive_col(raw) or _is_sensitive_col(safe))]
+    if has_sensitive_col:
+        truncated = True
+
+    # 若只剩敏感列，则不落 rows_preview（只保留 rows_len/columns）。
+    if not preview_pairs:
+        rows_preview = None
+    else:
+        for r in rows[:10]:
+            if not isinstance(r, dict):
+                continue
+            packed: dict[str, str] = {}
+            for raw_col, safe_col in preview_pairs:
+                v = r.get(raw_col)
+                raw = "" if v is None else str(v)
+                safe = _safe_text_for_event(raw, max_len=80)
+                if safe != raw:
+                    truncated = True
+                packed[safe_col] = safe
+            rows_preview.append(packed)
+
+    out: dict[str, Any] = {
+        "sql": sql_safe,
+        "ok": bool(error is None),
+        "error": err_safe,
+        "latency_ms": int(latency_ms),
+        "rows_len": int(len(rows)),
+        "columns": cols_safe,
+        "truncated": bool(truncated),
+    }
+    if sql_raw_safe:
+        out["sql_raw"] = sql_raw_safe
+    if rows_preview is not None and error is None:
+        out["rows_preview"] = rows_preview
+    return out
+
+
+def _agent_text2sql_exec_trace(agent_result: Any) -> dict[str, Any] | None:  # noqa: ANN401
+    """从 V2 Agent 的 steps 里提取 Text2SQL 的 sql/结果摘要（若可得）。"""
+    steps = getattr(agent_result, "steps", None)
+    if not isinstance(steps, list):
+        return None
+
+    for s in steps:
+        tool_used = getattr(s, "tool_used", None)
+        if tool_used != "text2sql_query":
+            continue
+        tool_result = getattr(s, "tool_result", None)
+        data = getattr(tool_result, "data", None) if tool_result is not None else None
+        if not isinstance(data, dict):
+            return None
+        sql = data.get("sql") if isinstance(data.get("sql"), str) else ""
+        sql_raw = data.get("sql_raw") if isinstance(data.get("sql_raw"), str) else ""
+        columns_any = data.get("columns")
+        columns = [c for c in columns_any if isinstance(c, str)] if isinstance(columns_any, list) else []
+        rows_any = data.get("rows")
+        rows = [r for r in rows_any if isinstance(r, dict)] if isinstance(rows_any, list) else []
+        err = getattr(tool_result, "error", None) if tool_result is not None else None
+        err_s = err if isinstance(err, str) and err.strip() else None
+        lat = getattr(tool_result, "latency_ms", 0) if tool_result is not None else 0
+        try:
+            latency_ms = int(lat)
+        except Exception:  # noqa: BLE001
+            latency_ms = 0
+        if not sql and not sql_raw and not columns and not rows and err_s is None:
+            return None
+        return _build_text2sql_exec_trace(
+            sql=sql,
+            sql_raw=sql_raw,
+            columns=columns,
+            rows=rows,
+            error=err_s,
+            latency_ms=latency_ms,
+        )
+    return None
+
+
+def _debug_router_evidence_enabled() -> bool:
+    return (os.getenv("DEBUG_ROUTER_EVIDENCE", "0") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _router_evidence_db_log_enabled() -> bool:
+    # 默认开启：便于事后追溯；如需关闭可设置为 0/false/off。
+    return (os.getenv("DEBUG_ROUTER_EVIDENCE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _router_trace_db_log_enabled() -> bool:
+    # 默认开启：便于事后追溯；如需关闭可设置为 0/false/off。
+    return (os.getenv("DEBUG_ROUTER_TRACE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _debug_agent_db_log_enabled() -> bool:
+    return (os.getenv("DEBUG_AGENT_DB_LOG", "0") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _compact_event_digest(events: list[dict[str, Any]], *, max_events: int = 64) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for e in events[: max(1, int(max_events))]:
+        if not isinstance(e, dict):
+            continue
+        typ = e.get("type")
+        step_id = e.get("step_id")
+        ts = e.get("ts")
+        if not isinstance(typ, str) or not isinstance(step_id, str):
+            continue
+        try:
+            ts_i = int(ts)
+        except Exception:  # noqa: BLE001
+            ts_i = 0
+        out.append({"type": typ, "step_id": step_id, "ts": ts_i})
+    return out
+
+
+def _compact_errors(events: list[dict[str, Any]], *, max_items: int = 16) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for e in events:
+        if not isinstance(e, dict) or e.get("type") != "error":
+            continue
+        payload = e.get("payload") if isinstance(e.get("payload"), dict) else {}
+        stage = payload.get("stage") if isinstance(payload.get("stage"), str) else ""
+        msg = payload.get("message") if isinstance(payload.get("message"), str) else ""
+        if stage or msg:
+            out.append({"stage": _safe_text_for_event(stage, max_len=64), "message": _safe_text_for_event(msg, max_len=300)})
+        if len(out) >= max(1, int(max_items)):
+            break
+    return out
+
+
+def _shrink_router_trace_v1(trace: dict[str, Any], *, max_bytes: int = 8192) -> dict[str, Any]:
+    """限制落库体积（best-effort）。超限时按“先丢非关键、后截断”策略缩小。"""
+    try:
+        raw = json.dumps(trace, ensure_ascii=False, separators=(",", ":"))
+        if len(raw.encode("utf-8")) <= max_bytes:
+            return trace
+    except Exception:  # noqa: BLE001
+        return trace
+
+    t = dict(trace)
+    # 1) 丢弃 events_digest
+    t.pop("events_digest", None)
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 2) 丢弃 candidates（仍保留 returned 计数与阈值）
+    for k in ("ddl_search", "fts_search"):
+        part = t.get(k)
+        if isinstance(part, dict):
+            part2 = dict(part)
+            part2.pop("candidates", None)
+            t[k] = part2
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 3) 丢弃 text2sql_exec.rows_preview（保留 sql/ok/error/rows_len/columns）
+    part = t.get("text2sql_exec")
+    if isinstance(part, dict):
+        part2 = dict(part)
+        part2.pop("rows_preview", None)
+        t["text2sql_exec"] = part2
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 4) 最后兜底：强制缩短 query_text
+    for k in ("ddl_search", "fts_search"):
+        part = t.get(k)
+        if isinstance(part, dict) and isinstance(part.get("query_text"), str):
+            part2 = dict(part)
+            part2["query_text"] = _safe_text_for_event(part2["query_text"], max_len=80)
+            t[k] = part2
+    return t
+
+
+def _async_save_rag_log(payload: dict[str, Any]) -> None:
+    """异步写入 rag_conversation_logs（best-effort，不阻塞主流程）。"""
+    try:
+        import asyncio
+
+        def _sync_insert() -> None:
+            sb = supabase_client()
+            sb.table("rag_conversation_logs").insert(payload).execute()
+
+        asyncio.create_task(asyncio.to_thread(_sync_insert))
+    except Exception:
+        # best-effort：任何异常都不影响主流程
+        return
 
 
 def _build_query_expand_event_payload(meta: dict[str, Any] | None, *, max_raw: int, max_expanded: int) -> dict[str, Any]:
@@ -136,6 +386,30 @@ def _build_rag_sources_event(hits: list[dict[str, Any]], *, top_k: int = 10) -> 
     return {"sources": packed, "retrieval": {"top_k": int(top_k), "rrf_k": RRF_K}}
 
 
+def _router_evidence_payload(*, candidate_mode: str, final_mode: str, fallback: str | None, evidence: dict[str, Any] | None) -> dict[str, Any]:
+    """构造 router.evidence 的 payload（用于 Timeline 直观展示降级前证据）。"""
+    ev = evidence if isinstance(evidence, dict) else {}
+    ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+    ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+    fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+    return {
+        "candidate_mode": candidate_mode,
+        "final_mode": final_mode,
+        "fallback": fallback,
+        "ddl": {
+            "hits": int(ev.get("ddl_hits") or 0),
+            "top_score": ev.get("ddl_top_score"),
+            "topk": ddl_topk,
+            "min_score": ddl_min_score,
+        },
+        "fts": {
+            "hits": int(ev.get("fts_hits") or 0),
+            "top1_score": ev.get("fts_top1_score"),
+            "topk": fts_topk,
+        },
+    }
+
+
 def _rag_generate_answer(*, oai: OpenAI, chat_model: str, query: str, hits: list[dict[str, Any]]) -> str:
     parts: list[str] = []
     for i, h in enumerate(hits[:12]):
@@ -183,14 +457,326 @@ async def handle_unified_chat(
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
     events: list[dict[str, Any]] = []
+    debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
+    db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
+    router_trace_v1: dict[str, Any] | None = None
+    t_router_decide_ms: int | None = None
+    t_ddl_search_ms: int | None = None
+    t_fts_search_ms: int | None = None
 
     def finish(*, ok: bool, mode: str) -> JSONResponse:
         return JSONResponse(
             content={"ok": ok, "run_id": run_id, "session_id": session_id, "mode": mode, "events": events}
         )
 
+    # CHATBI v2（Agent）主路径：开关开启时，输出 agent.* 事件
+    use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+    if use_agent:
+        # prefer=tool:* 仍按 v1 路由返回 error（保持行为一致）
+        if str(prefer).startswith("tool:"):
+            events.append(
+                _event(
+                    typ="error",
+                    started_at=started_at,
+                    step_id="e_agent",
+                    payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
+                )
+            )
+            events.append(
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
+            )
+            return finish(ok=False, mode=str(prefer))
+
+        tool_registry = get_tool_registry()
+        agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
+        agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+
+        mode = agent_result.final.mode
+        max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
+
+        # router.decision：Agent 初始决策（V1 payload 结构保持一致）
+        intent_decision = agent_result.intent_decision
+        step1 = agent_result.steps[0] if agent_result.steps else None
+        step1_mode = step1.mode if step1 else mode
+        candidate_mode = intent_decision.mode if intent_decision else step1_mode
+        final_mode = step1_mode
+
+        events.append(
+            _event(
+                typ="router.decision",
+                started_at=started_at,
+                step_id="r1",
+                payload={
+                    "prefer": "auto" if prefer == "auto" else prefer,
+                    "candidate_mode": candidate_mode,
+                    "final_mode": final_mode,
+                    "rule_hits": [],
+                    "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                    "fallback": intent_decision.fallback if intent_decision else None,
+                },
+            )
+        )
+
+        # 事件流：agent.step.start → (step1) agent.intent → agent.think → tool.call.start/end → agent.step.end
+        for step in agent_result.steps:
+            step_id = f"a{step.step_number}"
+            events.append(
+                _event(
+                    typ="agent.step.start",
+                    started_at=started_at,
+                    step_id=step_id,
+                    payload={"step_number": step.step_number, "max_steps": max_steps},
+                )
+            )
+
+            if step.step_number == 1 and intent_decision is not None:
+                events.append(
+                    _event(
+                        typ="agent.intent",
+                        started_at=started_at,
+                        step_id="intent_1",
+                        payload={
+                            "tool": intent_decision.tool,
+                            "mode": intent_decision.mode,
+                            "reasoning": intent_decision.reasoning,
+                            "confidence": intent_decision.confidence,
+                            "fallback": intent_decision.fallback,
+                        },
+                    )
+                )
+
+            events.append(
+                _event(
+                    typ="agent.think",
+                    started_at=started_at,
+                    step_id=f"{step_id}_think",
+                    payload={
+                        "step_number": step.step_number,
+                        "thought": step.think_payload["thought"],
+                        "selected_tool": step.think_payload["selected_tool"],
+                        "mode": step.think_payload["mode"],
+                        "confidence": step.think_payload["confidence"],
+                    },
+                )
+            )
+
+            events.append(
+                _event(
+                    typ="tool.call.start",
+                    started_at=started_at,
+                    step_id=f"t_step{step.step_number}",
+                    payload={"tool": step.tool_used, "input": {"query": query}},
+                )
+            )
+
+            err = step.tool_result.error
+            out_answer: str | None = None
+            if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                out_answer = step.tool_result.data.get("answer")
+
+            events.append(
+                _event(
+                    typ="tool.call.end",
+                    started_at=started_at,
+                    step_id=f"t_step{step.step_number}",
+                    payload={
+                        "output": {"answer": out_answer},
+                        "error": err,
+                        "latency_ms": step.tool_result.latency_ms,
+                    },
+                )
+            )
+
+            # 可视化来源：按工具类型补齐 v1 事件
+            if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                data = step.tool_result.data
+                columns = data.get("columns") if isinstance(data.get("columns"), list) else []
+                rows_any = data.get("rows") if isinstance(data.get("rows"), list) else []
+                rows: list[dict[str, Any]] = [r for r in rows_any if isinstance(r, dict)]
+                truncated = len(rows) > 20
+                events.append(
+                    _event(
+                        typ="sql.result",
+                        started_at=started_at,
+                        step_id=f"q_step{step.step_number}",
+                        payload={
+                            "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                            "columns": [c for c in columns if isinstance(c, str)],
+                            "rows": rows[:20],
+                            "truncated": truncated,
+                        },
+                    )
+                )
+            elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                data = step.tool_result.data
+                hits_any = data.get("hits")
+                hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                rag_sources_payload = _build_rag_sources_event(hits, top_k=10)
+                events.append(
+                    _event(
+                        typ="rag.sources",
+                        started_at=started_at,
+                        step_id=f"s_step{step.step_number}",
+                        payload=rag_sources_payload,
+                    )
+                )
+
+            events.append(
+                _event(
+                    typ="agent.step.end",
+                    started_at=started_at,
+                    step_id=f"{step_id}_end",
+                    payload={
+                        "step_number": step.step_number,
+                        "tool_used": step.tool_used,
+                        "mode": step.mode,
+                        "success": step.success,
+                        "next_action": step.next_action,
+                    },
+                )
+            )
+
+        events.append(
+            _event(
+                typ="agent.final",
+                started_at=started_at,
+                step_id="a_final",
+                payload={
+                    "total_steps": agent_result.final.total_steps,
+                    "tools_used": agent_result.final.tools_used,
+                    "modes": agent_result.final.modes,
+                    "fallback_used": agent_result.final.fallback_used,
+                },
+            )
+        )
+
+        events.append(
+            _event(
+                typ="assistant.message",
+                started_at=started_at,
+                step_id="s_answer",
+                payload={"role": "assistant", "content": agent_result.final.answer},
+            )
+        )
+
+        events.append(
+            _event(
+                typ="latency",
+                started_at=started_at,
+                step_id="l1",
+                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+            )
+        )
+
+        # 记忆持久化：仅一轮结束写一次（优先写 agent_steps/tool_results 列；不兼容时降级写入 metadata）
+        try:
+            sb = supabase_client()
+            agent_steps_json: dict[str, Any] = {
+                "total_steps": agent_result.final.total_steps,
+                "tools_used": agent_result.final.tools_used,
+                "fallback_used": agent_result.final.fallback_used,
+                "steps": [
+                    {
+                        "step_number": s.step_number,
+                        "tool_used": s.tool_used,
+                        "mode": s.mode,
+                        "success": s.success,
+                        "next_action": s.next_action,
+                        "thought": s.think_payload.get("thought"),
+                    }
+                    for s in agent_result.steps
+                ],
+            }
+            tool_results_json: dict[str, Any] = {
+                "results": [
+                    {
+                        "tool": s.tool_used,
+                        "success": s.tool_result.success,
+                        "error_code": s.tool_result.error_code,
+                        "error_stage": s.tool_result.error_stage,
+                        "latency_ms": s.tool_result.latency_ms,
+                        "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                    }
+                    for s in agent_result.steps
+                ]
+            }
+            if session_id:
+                text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+                router_trace_v1: dict[str, Any] | None = None
+                if mode == "text2sql" and text2sql_exec_trace:
+                    router_trace_v1 = _shrink_router_trace_v1(
+                        {
+                            "v": "router_trace_v1",
+                            "ts_ms": int(time.time() * 1000),
+                            "run_id": run_id,
+                            "mode": mode,
+                            "prefer": "auto" if prefer == "auto" else str(prefer),
+                            "decision": {
+                                "candidate_mode": "text2sql",
+                                "final_mode": "text2sql",
+                                "fallback": None,
+                            },
+                            "timing_ms": {"total": _now_ms(started_at)},
+                            "text2sql_exec": text2sql_exec_trace,
+                        }
+                    )
+
+                payload_full = {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": agent_result.final.answer,
+                    "metadata": {
+                        "mode": agent_result.final.mode,
+                        "v": "chatbi_v2_agent",
+                        "router_debug": {
+                            "router_trace_v1": router_trace_v1,
+                        },
+                    },
+                    "agent_steps": agent_steps_json,
+                    "tool_results": tool_results_json,
+                }
+                try:
+                    sb.table("rag_conversation_logs").insert(payload_full).execute()
+                except Exception as exc:  # noqa: BLE001
+                    # 兼容降级：当 DB 未包含 agent_steps/tool_results 列时，仍要保证该轮对话可入库。
+                    if _debug_agent_db_log_enabled():
+                        print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+                    payload_fallback = {
+                        "session_id": session_id,
+                        "query": query,
+                        "rewritten_query": query,
+                        "retrieved_context": {},
+                        "response": agent_result.final.answer,
+                        "metadata": {
+                            "mode": agent_result.final.mode,
+                            "v": "chatbi_v2_agent",
+                            "router_debug": {
+                                "router_trace_v1": router_trace_v1,
+                            },
+                            "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                            "agent_db_fallback": True,
+                        },
+                    }
+                    sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+        except Exception as exc:  # noqa: BLE001
+            # 记忆写入降级：不阻断对外回答；但可选输出错误以便排查
+            if _debug_agent_db_log_enabled():
+                print(f"[agent-db] insert failed: {exc!s}", flush=True)
+
+        return finish(ok=True, mode=mode)
+
     # mode decide (v1 router)
+    t_router0 = time.perf_counter()
     decision = decide_intent(query=query, prefer=prefer)
+    t_router_decide_ms = int((time.perf_counter() - t_router0) * 1000)
     mode = decision.final_mode
     events.append(
         _event(
@@ -207,6 +793,148 @@ async def handle_unified_chat(
             },
         )
     )
+    events.append(
+        _event(
+            typ="router.evidence",
+            started_at=started_at,
+            step_id="re1",
+            payload={
+                "candidate_mode": decision.candidate_mode,
+                "final_mode": decision.final_mode,
+                "fallback": decision.fallback,
+                "ddl": {
+                    "hits": int((decision.evidence or {}).get("ddl_hits") or 0),
+                    "top_score": (decision.evidence or {}).get("ddl_top_score"),
+                    "topk": int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3")),
+                    "min_score": float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05")),
+                },
+                "fts": {
+                    "hits": int((decision.evidence or {}).get("fts_hits") or 0),
+                    "top1_score": (decision.evidence or {}).get("fts_top1_score"),
+                    "topk": int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3")),
+                },
+            },
+        )
+    )
+    if debug_router or db_log_router or db_log_router_trace:
+        ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+        ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+        fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+
+        ddl_rows_any: list[dict[str, Any]] = []
+        try:
+            t0 = time.perf_counter()
+            store = get_text2sql_store()
+            raw_any = store.search(query, top_k=ddl_topk)
+            ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+            t_ddl_search_ms = int((time.perf_counter() - t0) * 1000)
+        except Exception:
+            ddl_rows_any = []
+            t_ddl_search_ms = None
+
+        ddl_candidates: list[dict[str, Any]] = []
+        for r in ddl_rows_any[: max(1, ddl_topk)]:
+            if not isinstance(r, dict) or r.get("doc_type") != "ddl":
+                continue
+            title = r.get("title") if isinstance(r.get("title"), str) else ""
+            score = r.get("score")
+            try:
+                score_f = float(score) if score is not None else None
+            except Exception:  # noqa: BLE001
+                score_f = None
+            ddl_candidates.append({"title": _safe_text_for_event(title, max_len=120), "score": score_f})
+
+        fts_candidates: list[dict[str, Any]] = []
+        try:
+            t1 = time.perf_counter()
+            sb = supabase_client()
+            raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
+            rows = raw if isinstance(raw, list) else []
+            for rr in rows[: max(1, fts_topk)]:
+                if not isinstance(rr, dict):
+                    continue
+                meta = rr.get("metadata") if isinstance(rr.get("metadata"), dict) else {}
+                path = meta.get("relativePath") if isinstance(meta.get("relativePath"), str) else None
+                score = rr.get("score")
+                try:
+                    score_f = float(score) if score is not None else None
+                except Exception:  # noqa: BLE001
+                    score_f = None
+                fts_candidates.append(
+                    {
+                        "id": rr.get("id"),
+                        "path": _safe_text_for_event(path or "", max_len=180),
+                        "score": score_f,
+                    }
+                )
+        except Exception:
+            fts_candidates = []
+            t_fts_search_ms = None
+        else:
+            t_fts_search_ms = int((time.perf_counter() - t1) * 1000)
+
+        details_payload = {
+            "candidate_mode": decision.candidate_mode,
+            "final_mode": decision.final_mode,
+            "fallback": decision.fallback,
+            "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+            "ddl_candidates": ddl_candidates,
+            "fts_candidates": fts_candidates,
+        }
+        if debug_router:
+            events.append(
+                _event(
+                    typ="router.evidence.details",
+                    started_at=started_at,
+                    step_id="red1",
+                    payload={
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                        "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                        "ddl_candidates": ddl_candidates,
+                        "fts_candidates": fts_candidates,
+                    },
+                )
+            )
+
+        if db_log_router_trace:
+            router_trace_v1 = _shrink_router_trace_v1(
+                {
+                    "ts_ms": int(time.time() * 1000),
+                    "run_id": run_id,
+                    "mode": mode,
+                    "prefer": decision.prefer,
+                    "debug_router": bool(body.get("debug_router") is True),
+                    "timing_ms": {
+                        "router_decide": int(t_router_decide_ms or 0),
+                        "ddl_search": int(t_ddl_search_ms or 0),
+                        "fts_search": int(t_fts_search_ms or 0),
+                        "total": 0,
+                    },
+                    "ddl_search": {
+                        "query_text": _safe_text_for_event(query, max_len=200),
+                        "topk": int(ddl_topk),
+                        "min_score": float(ddl_min_score),
+                        "returned": int(len(ddl_candidates)),
+                        "candidates": ddl_candidates[: max(1, ddl_topk)],
+                    },
+                    "fts_search": {
+                        "query_text": _safe_text_for_event(query, max_len=200),
+                        "match_count": int(fts_topk),
+                        "returned": int(len(fts_candidates)),
+                        "candidates": fts_candidates[: max(1, fts_topk)],
+                    },
+                    "decision": {
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                    },
+                    "events_digest": _compact_event_digest(events, max_events=64),
+                    "errors": _compact_errors(events, max_items=16),
+                    "v": "router_trace_v1",
+                }
+            )
 
     if mode.startswith("tool:"):
         events.append(
@@ -217,7 +945,14 @@ async def handle_unified_chat(
                 payload={"stage": "router", "message": f"未实现的工具路由：{mode}"},
             )
         )
-        events.append(_event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)}))
+        events.append(
+            _event(
+                typ="latency",
+                started_at=started_at,
+                step_id="l1",
+                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+            )
+        )
         return finish(ok=False, mode=mode)
 
     if mode == "no_data":
@@ -261,6 +996,30 @@ async def handle_unified_chat(
             events.append(_event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "no_data.generate", "message": gen_err}))
         events.append(_event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
         events.append(_event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"generate": t_gen_ms}}))
+        if (db_log_router or db_log_router_trace) and session_id:
+            if router_trace_v1:
+                router_trace_v1 = dict(router_trace_v1)
+                timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                timing2 = dict(timing)
+                timing2["total"] = _now_ms(started_at)
+                router_trace_v1["timing_ms"] = timing2
+            _async_save_rag_log(
+                {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": ans,
+                    "metadata": {
+                        "mode": mode,
+                        "v": "router_evidence_observability_v1",
+                        "router_debug": {
+                            "router_evidence_details": locals().get("details_payload"),
+                            **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
+                        },
+                    },
+                }
+            )
         return finish(ok=gen_err is None, mode=mode)
 
     if mode == "text2sql":
@@ -306,7 +1065,12 @@ async def handle_unified_chat(
                 )
             )
             events.append(
-                _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)})
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
             )
             return finish(ok=False, mode=mode)
 
@@ -351,7 +1115,12 @@ async def handle_unified_chat(
                 )
             )
             events.append(
-                _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)})
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
             )
             return finish(ok=False, mode=mode)
 
@@ -373,6 +1142,7 @@ async def handle_unified_chat(
         except Exception as exc:  # noqa: BLE001
             exec_err = str(exc)
         t_exec_ms = int((time.perf_counter() - t2) * 1000)
+        text2sql_exec_trace: dict[str, Any] | None = _build_text2sql_exec_trace(sql=sql, sql_raw=sql_raw, columns=columns, rows=rows, error=exec_err, latency_ms=t_exec_ms)
         events.append(
             _event(
                 typ="tool.call.end",
@@ -448,6 +1218,33 @@ async def handle_unified_chat(
                 },
             )
         )
+        if (db_log_router or db_log_router_trace) and session_id:
+            if router_trace_v1:
+                router_trace_v1 = dict(router_trace_v1)
+                if mode == "text2sql" and text2sql_exec_trace:
+                    router_trace_v1["text2sql_exec"] = text2sql_exec_trace
+                timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                timing2 = dict(timing)
+                timing2["total"] = _now_ms(started_at)
+                router_trace_v1["timing_ms"] = timing2
+                router_trace_v1 = _shrink_router_trace_v1(router_trace_v1)
+            _async_save_rag_log(
+                {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": answer,
+                    "metadata": {
+                        "mode": mode,
+                        "v": "router_evidence_observability_v1",
+                        "router_debug": {
+                            "router_evidence_details": locals().get("details_payload"),
+                            **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
+                        },
+                    },
+                }
+            )
         return finish(ok=exec_err is None and gen_err is None, mode=mode)
 
     # ---- RAG branch (non-streaming v1) ----
@@ -669,12 +1466,44 @@ async def handle_unified_chat(
             payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}},
         )
     )
+    if (db_log_router or db_log_router_trace) and session_id:
+        if router_trace_v1:
+            router_trace_v1 = dict(router_trace_v1)
+            timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+            timing2 = dict(timing)
+            timing2["total"] = _now_ms(started_at)
+            router_trace_v1["timing_ms"] = timing2
+        _async_save_rag_log(
+            {
+                "session_id": session_id,
+                "query": query,
+                "rewritten_query": rewritten,
+                "retrieved_context": {},
+                "response": ans,
+                "metadata": {
+                    "mode": mode,
+                    "v": "router_evidence_observability_v1",
+                    "router_debug": {
+                        "router_evidence_details": locals().get("details_payload"),
+                        **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
+                    },
+                },
+            }
+        )
     return finish(ok=gen_err is None, mode=mode)
 
 
 def _sse(event: str, data: dict[str, Any]) -> str:
     # SSE 要求每条消息以空行结束
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    # 注意：SSE 分支使用 json.dumps，无法像 JSONResponse 一样自动处理 Decimal/date/datetime 等类型。
+    # 这里统一做 jsonable_encoder，避免在后续事件（如 sql.result rows）序列化时报错，导致 SSE 中断。
+    try:
+        from fastapi.encoders import jsonable_encoder
+
+        safe = jsonable_encoder(data)
+    except Exception:  # noqa: BLE001
+        safe = data
+    payload = json.dumps(safe, ensure_ascii=False, separators=(",", ":"), default=str)
     return f"event: {event}\ndata: {payload}\n\n"
 
 
@@ -703,8 +1532,372 @@ async def handle_unified_chat_stream(
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
+    debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
+    db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
 
+    # CHATBI v2（Agent）SSE 主路径
+    use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+    if use_agent:
+        if str(prefer).startswith("tool:"):
+            mode = str(prefer)
+
+            async def event_stream():
+                ok_local = False
+                try:
+                    yield _sse(
+                        "chain",
+                        {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}},
+                    )
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="error",
+                            started_at=started_at,
+                            step_id="e_agent",
+                            payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
+                        ),
+                    )
+                except GeneratorExit:
+                    return
+                except Exception as exc:  # noqa: BLE001
+                    _ = exc
+                    ok_local = False
+                finally:
+                    yield _sse(
+                        "done",
+                        {
+                            "ok": ok_local,
+                            "mode": mode,
+                            "run_id": run_id,
+                            "request_id": run_id,
+                            "session_id": session_id,
+                        },
+                    )
+
+            headers = {"Cache-Control": "no-cache"}
+            return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
+
+        tool_registry = get_tool_registry()
+        agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
+        max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
+
+        async def event_stream():
+            agent_result = None
+            mode_local: str = "auto" if prefer == "auto" else str(prefer)
+            ok_local = False
+            try:
+                yield _sse(
+                    "chain",
+                    {
+                        "type": "meta",
+                        "ts": _now_ms(started_at),
+                        "step_id": "m1",
+                        "payload": {"run_id": run_id, "mode": mode_local, "session_id": session_id},
+                    },
+                )
+
+                agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+                mode_local = agent_result.final.mode
+                ok_local = True
+
+                # 可选：一轮结束写一次 memory（失败不阻断 SSE）
+                try:
+                    if session_id:
+                        sb = supabase_client()
+                        agent_steps_json: dict[str, Any] = {
+                            "total_steps": agent_result.final.total_steps,
+                            "tools_used": agent_result.final.tools_used,
+                            "fallback_used": agent_result.final.fallback_used,
+                            "steps": [
+                                {
+                                    "step_number": s.step_number,
+                                    "tool_used": s.tool_used,
+                                    "mode": s.mode,
+                                    "success": s.success,
+                                    "next_action": s.next_action,
+                                    "thought": s.think_payload.get("thought"),
+                                }
+                                for s in agent_result.steps
+                            ],
+                        }
+                        tool_results_json: dict[str, Any] = {
+                            "results": [
+                                {
+                                    "tool": s.tool_used,
+                                    "success": s.tool_result.success,
+                                    "error_code": s.tool_result.error_code,
+                                    "error_stage": s.tool_result.error_stage,
+                                    "latency_ms": s.tool_result.latency_ms,
+                                    "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                                }
+                                for s in agent_result.steps
+                            ]
+                        }
+                        text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+                        router_trace_v1: dict[str, Any] | None = None
+                        if mode_local == "text2sql" and text2sql_exec_trace:
+                            router_trace_v1 = _shrink_router_trace_v1(
+                                {
+                                    "v": "router_trace_v1",
+                                    "ts_ms": int(time.time() * 1000),
+                                    "run_id": run_id,
+                                    "mode": mode_local,
+                                    "prefer": "auto" if prefer == "auto" else str(prefer),
+                                    "decision": {
+                                        "candidate_mode": "text2sql",
+                                        "final_mode": "text2sql",
+                                        "fallback": None,
+                                    },
+                                    "timing_ms": {"total": _now_ms(started_at)},
+                                    "text2sql_exec": text2sql_exec_trace,
+                                }
+                            )
+
+                        payload_full = {
+                            "session_id": session_id,
+                            "query": query,
+                            "rewritten_query": query,
+                            "retrieved_context": {},
+                            "response": agent_result.final.answer,
+                            "metadata": {
+                                "mode": agent_result.final.mode,
+                                "v": "chatbi_v2_agent",
+                                "router_debug": {"router_trace_v1": router_trace_v1},
+                            },
+                            "agent_steps": agent_steps_json,
+                            "tool_results": tool_results_json,
+                        }
+                        try:
+                            sb.table("rag_conversation_logs").insert(payload_full).execute()
+                        except Exception as exc:  # noqa: BLE001
+                            if _debug_agent_db_log_enabled():
+                                print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+                            payload_fallback = {
+                                "session_id": session_id,
+                                "query": query,
+                                "rewritten_query": query,
+                                "retrieved_context": {},
+                                "response": agent_result.final.answer,
+                                "metadata": {
+                                    "mode": agent_result.final.mode,
+                                    "v": "chatbi_v2_agent",
+                                    "router_debug": {"router_trace_v1": router_trace_v1},
+                                    "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                                    "agent_db_fallback": True,
+                                },
+                            }
+                            sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+                except Exception as exc:  # noqa: BLE001
+                    if _debug_agent_db_log_enabled():
+                        print(f"[agent-db] insert failed: {exc!s}", flush=True)
+
+                intent_decision = agent_result.intent_decision
+                step1 = agent_result.steps[0] if agent_result.steps else None
+                step1_mode = step1.mode if step1 else mode_local
+                candidate_mode = intent_decision.mode if intent_decision else step1_mode
+                final_mode = step1_mode
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="router.decision",
+                        started_at=started_at,
+                        step_id="r1",
+                        payload={
+                            "prefer": "auto" if prefer == "auto" else prefer,
+                            "candidate_mode": candidate_mode,
+                            "final_mode": final_mode,
+                            "rule_hits": [],
+                            "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                            "fallback": intent_decision.fallback if intent_decision else None,
+                        },
+                    ),
+                )
+
+                for step in agent_result.steps:
+                    step_id = f"a{step.step_number}"
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.step.start",
+                            started_at=started_at,
+                            step_id=step_id,
+                            payload={"step_number": step.step_number, "max_steps": max_steps},
+                        ),
+                    )
+
+                    if step.step_number == 1 and intent_decision is not None:
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="agent.intent",
+                                started_at=started_at,
+                                step_id="intent_1",
+                                payload={
+                                    "tool": intent_decision.tool,
+                                    "mode": intent_decision.mode,
+                                    "reasoning": intent_decision.reasoning,
+                                    "confidence": intent_decision.confidence,
+                                    "fallback": intent_decision.fallback,
+                                },
+                            ),
+                        )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.think",
+                            started_at=started_at,
+                            step_id=f"{step_id}_think",
+                            payload={
+                                "step_number": step.step_number,
+                                "thought": step.think_payload["thought"],
+                                "selected_tool": step.think_payload["selected_tool"],
+                                "mode": step.think_payload["mode"],
+                                "confidence": step.think_payload["confidence"],
+                            },
+                        ),
+                    )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="tool.call.start",
+                            started_at=started_at,
+                            step_id=f"t_step{step.step_number}",
+                            payload={"tool": step.tool_used, "input": {"query": query}},
+                        ),
+                    )
+
+                    err = step.tool_result.error
+                    out_answer: str | None = None
+                    if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                        out_answer = step.tool_result.data.get("answer")
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="tool.call.end",
+                            started_at=started_at,
+                            step_id=f"t_step{step.step_number}",
+                            payload={
+                                "output": {"answer": out_answer},
+                                "error": err,
+                                "latency_ms": step.tool_result.latency_ms,
+                            },
+                        ),
+                    )
+
+                    if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                        data = step.tool_result.data
+                        columns_any = data.get("columns")
+                        columns = columns_any if isinstance(columns_any, list) else []
+                        rows_any = data.get("rows")
+                        rows_any2 = rows_any if isinstance(rows_any, list) else []
+                        rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
+                        truncated = len(rows) > 20
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="sql.result",
+                                started_at=started_at,
+                                step_id=f"q_step{step.step_number}",
+                                payload={
+                                    "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                                    "columns": [c for c in columns if isinstance(c, str)],
+                                    "rows": rows[:20],
+                                    "truncated": truncated,
+                                },
+                            ),
+                        )
+                    elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                        data = step.tool_result.data
+                        hits_any = data.get("hits")
+                        hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="rag.sources",
+                                started_at=started_at,
+                                step_id=f"s_step{step.step_number}",
+                                payload=_build_rag_sources_event(hits, top_k=10),
+                            ),
+                        )
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="agent.step.end",
+                            started_at=started_at,
+                            step_id=f"{step_id}_end",
+                            payload={
+                                "step_number": step.step_number,
+                                "tool_used": step.tool_used,
+                                "mode": step.mode,
+                                "success": step.success,
+                                "next_action": step.next_action,
+                            },
+                        ),
+                    )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="agent.final",
+                        started_at=started_at,
+                        step_id="a_final",
+                        payload={
+                            "total_steps": agent_result.final.total_steps,
+                            "tools_used": agent_result.final.tools_used,
+                            "modes": agent_result.final.modes,
+                            "fallback_used": agent_result.final.fallback_used,
+                        },
+                    ),
+                )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="assistant.message",
+                        started_at=started_at,
+                        step_id="s_answer",
+                        payload={"role": "assistant", "content": agent_result.final.answer},
+                    ),
+                )
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="latency",
+                        started_at=started_at,
+                        step_id="l1",
+                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                    ),
+                )
+            except GeneratorExit:
+                return
+            except Exception:  # noqa: BLE001
+                ok_local = False
+                yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "agent", "message": "SSE V2 运行异常"}))
+            finally:
+                yield _sse(
+                    "done",
+                    {
+                        "ok": ok_local,
+                        "mode": mode_local if isinstance(mode_local, str) else ("auto" if prefer == "auto" else str(prefer)),
+                        "run_id": run_id,
+                        "request_id": run_id,
+                        "session_id": session_id,
+                    },
+                )
+
+        headers = {"Cache-Control": "no-cache"}
+        return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
+
+    t_router0 = time.perf_counter()
     decision = decide_intent(query=query, prefer=prefer)
+    t_router_decide_ms = int((time.perf_counter() - t_router0) * 1000)
     mode = decision.final_mode
 
     async def event_stream():
@@ -728,6 +1921,159 @@ async def handle_unified_chat_stream(
                     },
                 ),
             )
+            yield _sse(
+                "chain",
+                _event(
+                    typ="router.evidence",
+                    started_at=started_at,
+                    step_id="re1",
+                    payload={
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                        "ddl": {
+                            "hits": int((decision.evidence or {}).get("ddl_hits") or 0),
+                            "top_score": (decision.evidence or {}).get("ddl_top_score"),
+                            "topk": int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3")),
+                            "min_score": float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05")),
+                        },
+                        "fts": {
+                            "hits": int((decision.evidence or {}).get("fts_hits") or 0),
+                            "top1_score": (decision.evidence or {}).get("fts_top1_score"),
+                            "topk": int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3")),
+                        },
+                    },
+                ),
+            )
+            details_payload: dict[str, Any] | None = None
+            log_rewritten_query: str = query
+            log_retrieved_context: dict[str, Any] = {}
+            log_response: str = ""
+            text2sql_exec_trace: dict[str, Any] | None = None
+
+            if debug_router or db_log_router or db_log_router_trace:
+                ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+                ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+                fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+
+                ddl_rows_any: list[dict[str, Any]] = []
+                try:
+                    t0 = time.perf_counter()
+                    store = get_text2sql_store()
+                    raw_any = store.search(query, top_k=ddl_topk)
+                    ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+                    t_ddl_search_ms = int((time.perf_counter() - t0) * 1000)
+                except Exception:
+                    ddl_rows_any = []
+                    t_ddl_search_ms = None
+
+                ddl_candidates: list[dict[str, Any]] = []
+                for r in ddl_rows_any[: max(1, ddl_topk)]:
+                    if not isinstance(r, dict) or r.get("doc_type") != "ddl":
+                        continue
+                    title = r.get("title") if isinstance(r.get("title"), str) else ""
+                    score = r.get("score")
+                    try:
+                        score_f = float(score) if score is not None else None
+                    except Exception:  # noqa: BLE001
+                        score_f = None
+                    ddl_candidates.append({"title": _safe_text_for_event(title, max_len=120), "score": score_f})
+
+                fts_candidates: list[dict[str, Any]] = []
+                try:
+                    t1 = time.perf_counter()
+                    sb = supabase_client()
+                    raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
+                    rows = raw if isinstance(raw, list) else []
+                    for rr in rows[: max(1, fts_topk)]:
+                        if not isinstance(rr, dict):
+                            continue
+                        meta = rr.get("metadata") if isinstance(rr.get("metadata"), dict) else {}
+                        path = meta.get("relativePath") if isinstance(meta.get("relativePath"), str) else None
+                        score = rr.get("score")
+                        try:
+                            score_f = float(score) if score is not None else None
+                        except Exception:  # noqa: BLE001
+                            score_f = None
+                        fts_candidates.append(
+                            {
+                                "id": rr.get("id"),
+                                "path": _safe_text_for_event(path or "", max_len=180),
+                                "score": score_f,
+                            }
+                        )
+                except Exception:
+                    fts_candidates = []
+                    t_fts_search_ms = None
+                else:
+                    t_fts_search_ms = int((time.perf_counter() - t1) * 1000)
+
+                details_payload = {
+                    "candidate_mode": decision.candidate_mode,
+                    "final_mode": decision.final_mode,
+                    "fallback": decision.fallback,
+                    "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                    "ddl_candidates": ddl_candidates,
+                    "fts_candidates": fts_candidates,
+                }
+                if debug_router:
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="router.evidence.details",
+                            started_at=started_at,
+                            step_id="red1",
+                            payload={
+                                "candidate_mode": decision.candidate_mode,
+                                "final_mode": decision.final_mode,
+                                "fallback": decision.fallback,
+                                "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                                "ddl_candidates": ddl_candidates,
+                                "fts_candidates": fts_candidates,
+                            },
+                        ),
+                    )
+
+                if db_log_router_trace:
+                    router_trace_v1 = _shrink_router_trace_v1(
+                        {
+                            "ts_ms": int(time.time() * 1000),
+                            "run_id": run_id,
+                            "mode": mode,
+                            "prefer": decision.prefer,
+                            "debug_router": bool(body.get("debug_router") is True),
+                            "timing_ms": {
+                                "router_decide": int(t_router_decide_ms or 0),
+                                "ddl_search": int(t_ddl_search_ms or 0),
+                                "fts_search": int(t_fts_search_ms or 0),
+                                "total": 0,
+                            },
+                            "ddl_search": {
+                                "query_text": _safe_text_for_event(query, max_len=200),
+                                "topk": int(ddl_topk),
+                                "min_score": float(ddl_min_score),
+                                "returned": int(len(ddl_candidates)),
+                                "candidates": ddl_candidates[: max(1, ddl_topk)],
+                            },
+                            "fts_search": {
+                                "query_text": _safe_text_for_event(query, max_len=200),
+                                "match_count": int(fts_topk),
+                                "returned": int(len(fts_candidates)),
+                                "candidates": fts_candidates[: max(1, fts_topk)],
+                            },
+                            "decision": {
+                                "candidate_mode": decision.candidate_mode,
+                                "final_mode": decision.final_mode,
+                                "fallback": decision.fallback,
+                            },
+                            "events_digest": [
+                                {"type": "router.decision", "step_id": "r1", "ts": _now_ms(started_at)},
+                                {"type": "router.evidence", "step_id": "re1", "ts": _now_ms(started_at)},
+                            ],
+                            "errors": [],
+                            "v": "router_trace_v1",
+                        }
+                    )
 
             if mode.startswith("tool:"):
                 ok = False
@@ -740,7 +2086,15 @@ async def handle_unified_chat_stream(
                         payload={"stage": "router", "message": f"未实现的工具路由：{mode}"},
                     ),
                 )
-                yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at)}))
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="latency",
+                        started_at=started_at,
+                        step_id="l1",
+                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                    ),
+                )
                 return
 
             if mode == "no_data":
@@ -787,6 +2141,7 @@ async def handle_unified_chat_stream(
                     yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "no_data.generate", "message": gen_err}))
                 yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
                 yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"generate": t_gen_ms}}))
+                log_response = ans
                 return
 
             if mode == "text2sql":
@@ -849,6 +2204,7 @@ async def handle_unified_chat_stream(
                 except Exception as exc:  # noqa: BLE001
                     exec_err = str(exc)
                 t_exec_ms = int((time.perf_counter() - t2) * 1000)
+                text2sql_exec_trace = _build_text2sql_exec_trace(sql=sql, sql_raw=sql_raw, columns=columns, rows=rows, error=exec_err, latency_ms=t_exec_ms)
                 yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_execute_sql", payload={"output": {"columns": columns, "rows_len": len(rows)}, "error": exec_err, "latency_ms": t_exec_ms}))
                 if exec_err:
                     ok = False
@@ -874,6 +2230,7 @@ async def handle_unified_chat_stream(
                 yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_summarize", payload={"output": {"answer": answer}, "error": sum_err, "latency_ms": t_sum_ms}))
                 yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": answer}))
                 yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"retrieve": t_retrieve_ms, "generate_sql": t_gen_ms, "execute_sql": t_exec_ms, "summarize": t_sum_ms}}))
+                log_response = answer
                 return
 
             # ---- RAG branch (non-streaming answer v1) ----
@@ -1022,12 +2379,41 @@ async def handle_unified_chat_stream(
                 yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "rag.generate", "message": gen_err}))
             yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
             yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}}))
+            log_rewritten_query = rewritten
+            log_response = ans
         except GeneratorExit:
             return
         except Exception as exc:  # noqa: BLE001
             ok = False
             yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "unhandled", "message": str(exc)}))
         finally:
+            if (db_log_router or db_log_router_trace) and session_id:
+                if router_trace_v1:
+                    router_trace_v1 = dict(router_trace_v1)
+                    if mode == "text2sql" and text2sql_exec_trace:
+                        router_trace_v1["text2sql_exec"] = text2sql_exec_trace
+                    timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                    timing2 = dict(timing)
+                    timing2["total"] = _now_ms(started_at)
+                    router_trace_v1["timing_ms"] = timing2
+                    router_trace_v1 = _shrink_router_trace_v1(router_trace_v1)
+                _async_save_rag_log(
+                    {
+                        "session_id": session_id,
+                        "query": query,
+                        "rewritten_query": log_rewritten_query,
+                        "retrieved_context": log_retrieved_context,
+                        "response": log_response,
+                        "metadata": {
+                            "mode": mode,
+                            "v": "router_evidence_observability_v1",
+                            "router_debug": {
+                                "router_evidence_details": details_payload,
+                                **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
+                            },
+                        },
+                    }
+                )
             # done must be the last message if client still connected
             try:
                 # request_id：端到端链路标识（当前与 run_id 等价，便于逐步在前后端统一命名）

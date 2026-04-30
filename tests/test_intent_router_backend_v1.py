@@ -15,6 +15,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
     monkeypatch.setenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.0")
+    # 仓库 .env 可能默认开启 v2 agent；v1 测试必须显式关闭，避免分支被短路。
+    monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
     import api.intent_router as intent_router
     import api.unified_chat as unified_chat
@@ -175,4 +177,39 @@ def test_router_auto_to_rag(monkeypatch: pytest.MonkeyPatch):
     types = [e.get("type") for e in data["events"]]
     assert "router.decision" in types
     assert "rag.sources" in types
+
+
+def test_router_allows_safe_count_without_ddl(monkeypatch: pytest.MonkeyPatch):
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+
+    # ddl evidence: none
+    def fake_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 3):  # noqa: ANN001
+                return []
+
+        return _S()
+
+    monkeypatch.setattr(intent_router, "get_text2sql_store", fake_store)
+
+    # fts evidence: none
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(intent_router, "supabase_client", lambda: _Sb())
+
+    d = intent_router.decide_intent(query="统计 heros 表里有多少条数据", prefer="auto")
+    assert d.candidate_mode == "text2sql"
+    assert d.final_mode == "text2sql"
 
