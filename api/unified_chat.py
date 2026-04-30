@@ -169,6 +169,10 @@ def _router_trace_db_log_enabled() -> bool:
     return (os.getenv("DEBUG_ROUTER_TRACE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
 
 
+def _debug_agent_db_log_enabled() -> bool:
+    return (os.getenv("DEBUG_AGENT_DB_LOG", "0") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
 def _compact_event_digest(events: list[dict[str, Any]], *, max_events: int = 64) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for e in events[: max(1, int(max_events))]:
@@ -619,7 +623,7 @@ async def handle_unified_chat(
             )
         )
 
-        # 记忆持久化：仅一轮结束写一次（JSONB：agent_steps/tool_results）
+        # 记忆持久化：仅一轮结束写一次（优先写 agent_steps/tool_results 列；不兼容时降级写入 metadata）
         try:
             sb = supabase_client()
             agent_steps_json: dict[str, Any] = {
@@ -652,21 +656,40 @@ async def handle_unified_chat(
                 ]
             }
             if session_id:
-                sb.table("rag_conversation_logs").insert(
-                    {
+                payload_full = {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": agent_result.final.answer,
+                    "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                    "agent_steps": agent_steps_json,
+                    "tool_results": tool_results_json,
+                }
+                try:
+                    sb.table("rag_conversation_logs").insert(payload_full).execute()
+                except Exception as exc:  # noqa: BLE001
+                    # 兼容降级：当 DB 未包含 agent_steps/tool_results 列时，仍要保证该轮对话可入库。
+                    if _debug_agent_db_log_enabled():
+                        print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+                    payload_fallback = {
                         "session_id": session_id,
                         "query": query,
                         "rewritten_query": query,
                         "retrieved_context": {},
                         "response": agent_result.final.answer,
-                        "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
-                        "agent_steps": agent_steps_json,
-                        "tool_results": tool_results_json,
+                        "metadata": {
+                            "mode": agent_result.final.mode,
+                            "v": "chatbi_v2_agent",
+                            "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                            "agent_db_fallback": True,
+                        },
                     }
-                ).execute()
-        except Exception:
-            # 记忆写入降级：不阻断对外回答
-            pass
+                    sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+        except Exception as exc:  # noqa: BLE001
+            # 记忆写入降级：不阻断对外回答；但可选输出错误以便排查
+            if _debug_agent_db_log_enabled():
+                print(f"[agent-db] insert failed: {exc!s}", flush=True)
 
         return finish(ok=True, mode=mode)
 
@@ -1531,20 +1554,38 @@ async def handle_unified_chat_stream(
                                 for s in agent_result.steps
                             ]
                         }
-                        sb.table("rag_conversation_logs").insert(
-                            {
+                        payload_full = {
+                            "session_id": session_id,
+                            "query": query,
+                            "rewritten_query": query,
+                            "retrieved_context": {},
+                            "response": agent_result.final.answer,
+                            "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                            "agent_steps": agent_steps_json,
+                            "tool_results": tool_results_json,
+                        }
+                        try:
+                            sb.table("rag_conversation_logs").insert(payload_full).execute()
+                        except Exception as exc:  # noqa: BLE001
+                            if _debug_agent_db_log_enabled():
+                                print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+                            payload_fallback = {
                                 "session_id": session_id,
                                 "query": query,
                                 "rewritten_query": query,
                                 "retrieved_context": {},
                                 "response": agent_result.final.answer,
-                                "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
-                                "agent_steps": agent_steps_json,
-                                "tool_results": tool_results_json,
+                                "metadata": {
+                                    "mode": agent_result.final.mode,
+                                    "v": "chatbi_v2_agent",
+                                    "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                                    "agent_db_fallback": True,
+                                },
                             }
-                        ).execute()
-                except Exception:
-                    pass
+                            sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+                except Exception as exc:  # noqa: BLE001
+                    if _debug_agent_db_log_enabled():
+                        print(f"[agent-db] insert failed: {exc!s}", flush=True)
 
                 intent_decision = agent_result.intent_decision
                 step1 = agent_result.steps[0] if agent_result.steps else None
