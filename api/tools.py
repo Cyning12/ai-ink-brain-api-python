@@ -451,7 +451,13 @@ def get_tool_registry() -> ToolRegistry:
     registry.register(
         Tool(
             name="text2sql_query",
-            description="查询数据库获取结构化数据，适合统计/聚合/趋势等问题。",
+            description=(
+                "执行数据库查询，获取结构化数据结果。适合以下场景：\n"
+                "- 用户要求查数据、统计数据、计算金额（如'有多少条'、'总和多少'、'排名第几'）\n"
+                "- 用户问具体数值（如'昨天销售额是多少'）\n"
+                "- 需要时间趋势、分组汇总、排序排名\n"
+                "不适合：解释 SQL 语法、教用户怎么写 SQL、概念解释"
+            ),
             parameters={
                 "type": "object",
                 "properties": {"query": {"type": "string", "description": "自然语言查询"}},

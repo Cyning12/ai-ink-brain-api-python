@@ -158,11 +158,51 @@ async def _llm_decide_v2(*, oai: OpenAI, query: str, history: list[dict[str, Any
 ## 可用工具
 {tools_desc}
 
-## 判断标准（语义化，不要依赖关键词匹配）
-1. 是否需要结构化数据聚合？是 -> text2sql_query；否 -> 继续判断
-2. 是否需要内部文档证据？是 -> rag_search
-3. 是否是纯写作/语言任务？是 -> direct_answer
-4. 不确定时 -> rag_search（安全默认）
+## 判断标准（关键：区分"要求执行查询" vs "询问方法/概念"）
+
+1. **用户是否要求实际查询数据？**
+   - 关键词信号："查一下"、"统计"、"有多少"、"是多少"、"排名第几"、"总和多少"
+   - 特征：用户想要**具体的数字/结果**，而不是解释
+   - -> **text2sql_query**
+
+2. **用户是否在问概念/方法/原理？**
+   - 关键词信号："什么是"、"怎么写"、"如何优化"、"为什么"、"原理"
+   - 特征：用户想要**知识/解释**
+   - -> **rag_search**（查文档）或 **direct_answer**（通用知识）
+
+3. **用户是否要求翻译/写作/生成内容？**
+   - 关键词信号："翻译"、"润色"、"写一封"、"生成"、"总结"
+   - -> **direct_answer**
+
+## 重要区分（避免误判）
+
+| 用户问题 | 意图 | 选择 |
+|---------|------|------|
+| "统计 heros 表有多少数据" | 要求执行统计 | **text2sql_query** |
+| "怎么统计 heros 表数据" | 问方法 | direct_answer |
+| "heros 表是什么结构" | 查文档 | rag_search |
+| "昨天销售额是多少" | 要求查询 | **text2sql_query** |
+| "SQL 的 COUNT 怎么用" | 问语法 | direct_answer |
+
+## Few-shot 示例
+
+Q: "昨天销售额是多少？"
+-> {{"tool": "text2sql_query", "reasoning": "需要查询数据库获取具体金额", "confidence": 0.95}}
+
+Q: "统计 heros 表有多少条数据"
+-> {{"tool": "text2sql_query", "reasoning": "需要执行 COUNT 查询获取表记录数", "confidence": 0.92}}
+
+Q: "什么是RAG？"
+-> {{"tool": "rag_search", "reasoning": "需要查文档解释概念", "confidence": 0.88}}
+
+Q: "怎么写 SQL 统计表数据？"
+-> {{"tool": "direct_answer", "reasoning": "用户在问方法，不是要求执行查询", "confidence": 0.85}}
+
+Q: "翻译 hello"
+-> {{"tool": "direct_answer", "reasoning": "纯翻译任务", "confidence": 0.95}}
+
+Q: "heros 表有哪些字段"
+-> {{"tool": "rag_search", "reasoning": "需要查文档了解表结构", "confidence": 0.82}}
 
 ## 历史对话
 {history_block}
@@ -171,10 +211,10 @@ async def _llm_decide_v2(*, oai: OpenAI, query: str, history: list[dict[str, Any
 {query}
 
 ## 输出格式
-请严格输出 JSON：
+请严格输出 JSON，不要输出任何其他内容：
 {{
   "tool": "rag_search | text2sql_query | direct_answer",
-  "reasoning": "用户级 1-2 句话摘要",
+  "reasoning": "用户级 1-2 句话摘要，说明为什么选这个工具",
   "confidence": 0.0-1.0
 }}
 """
