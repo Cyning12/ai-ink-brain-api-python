@@ -20,6 +20,7 @@
       "type_values": [
         "meta",
         "router.decision",
+        "router.evidence",
         "tool.call.start",
         "tool.call.end",
         "rag.query_expand",
@@ -38,6 +39,7 @@
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
         "meta": ["run_id", "mode", "session_id"],
         "router.decision": ["prefer", "candidate_mode", "final_mode", "rule_hits", "evidence", "fallback"],
+        "router.evidence": ["candidate_mode", "final_mode", "fallback", "ddl", "fts"],
         "tool.call.start": ["tool", "input"],
         "tool.call.end": ["output", "error", "latency_ms"],
         "rag.query_expand": ["raw", "rewrite"],

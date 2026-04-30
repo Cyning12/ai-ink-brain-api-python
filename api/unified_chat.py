@@ -139,6 +139,30 @@ def _build_rag_sources_event(hits: list[dict[str, Any]], *, top_k: int = 10) -> 
     return {"sources": packed, "retrieval": {"top_k": int(top_k), "rrf_k": RRF_K}}
 
 
+def _router_evidence_payload(*, candidate_mode: str, final_mode: str, fallback: str | None, evidence: dict[str, Any] | None) -> dict[str, Any]:
+    """构造 router.evidence 的 payload（用于 Timeline 直观展示降级前证据）。"""
+    ev = evidence if isinstance(evidence, dict) else {}
+    ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+    ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+    fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+    return {
+        "candidate_mode": candidate_mode,
+        "final_mode": final_mode,
+        "fallback": fallback,
+        "ddl": {
+            "hits": int(ev.get("ddl_hits") or 0),
+            "top_score": ev.get("ddl_top_score"),
+            "topk": ddl_topk,
+            "min_score": ddl_min_score,
+        },
+        "fts": {
+            "hits": int(ev.get("fts_hits") or 0),
+            "top1_score": ev.get("fts_top1_score"),
+            "topk": fts_topk,
+        },
+    }
+
+
 def _rag_generate_answer(*, oai: OpenAI, chat_model: str, query: str, hits: list[dict[str, Any]]) -> str:
     parts: list[str] = []
     for i, h in enumerate(hits[:12]):
@@ -462,6 +486,29 @@ async def handle_unified_chat(
                 "rule_hits": decision.rule_hits,
                 "evidence": decision.evidence,
                 "fallback": decision.fallback,
+            },
+        )
+    )
+    events.append(
+        _event(
+            typ="router.evidence",
+            started_at=started_at,
+            step_id="re1",
+            payload={
+                "candidate_mode": decision.candidate_mode,
+                "final_mode": decision.final_mode,
+                "fallback": decision.fallback,
+                "ddl": {
+                    "hits": int((decision.evidence or {}).get("ddl_hits") or 0),
+                    "top_score": (decision.evidence or {}).get("ddl_top_score"),
+                    "topk": int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3")),
+                    "min_score": float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05")),
+                },
+                "fts": {
+                    "hits": int((decision.evidence or {}).get("fts_hits") or 0),
+                    "top1_score": (decision.evidence or {}).get("fts_top1_score"),
+                    "topk": int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3")),
+                },
             },
         )
     )
@@ -1310,6 +1357,30 @@ async def handle_unified_chat_stream(
                         "rule_hits": decision.rule_hits,
                         "evidence": decision.evidence,
                         "fallback": decision.fallback,
+                    },
+                ),
+            )
+            yield _sse(
+                "chain",
+                _event(
+                    typ="router.evidence",
+                    started_at=started_at,
+                    step_id="re1",
+                    payload={
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                        "ddl": {
+                            "hits": int((decision.evidence or {}).get("ddl_hits") or 0),
+                            "top_score": (decision.evidence or {}).get("ddl_top_score"),
+                            "topk": int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3")),
+                            "min_score": float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05")),
+                        },
+                        "fts": {
+                            "hits": int((decision.evidence or {}).get("fts_hits") or 0),
+                            "top1_score": (decision.evidence or {}).get("fts_top1_score"),
+                            "topk": int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3")),
+                        },
                     },
                 ),
             )

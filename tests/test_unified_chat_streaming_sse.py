@@ -139,4 +139,5 @@ def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
                 break
         assert "event: chain" in text
         assert "event: done" in text
+        assert '"type":"router.evidence"' in text
 

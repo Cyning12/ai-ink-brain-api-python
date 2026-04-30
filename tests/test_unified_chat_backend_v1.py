@@ -63,6 +63,7 @@ def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
     data = res.json()
     assert data["mode"] == "text2sql"
     types = [e.get("type") for e in data["events"]]
+    assert "router.evidence" in types
     assert "sql.result" in types
     assert "assistant.message" in types
 
