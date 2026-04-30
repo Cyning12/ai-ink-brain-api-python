@@ -176,3 +176,38 @@ def test_router_auto_to_rag(monkeypatch: pytest.MonkeyPatch):
     assert "router.decision" in types
     assert "rag.sources" in types
 
+
+def test_router_allows_safe_count_without_ddl(monkeypatch: pytest.MonkeyPatch):
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+
+    # ddl evidence: none
+    def fake_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 3):  # noqa: ANN001
+                return []
+
+        return _S()
+
+    monkeypatch.setattr(intent_router, "get_text2sql_store", fake_store)
+
+    # fts evidence: none
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(intent_router, "supabase_client", lambda: _Sb())
+
+    d = intent_router.decide_intent(query="统计 heros 表里有多少条数据", prefer="auto")
+    assert d.candidate_mode == "text2sql"
+    assert d.final_mode == "text2sql"
+

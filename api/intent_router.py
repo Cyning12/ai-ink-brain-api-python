@@ -89,6 +89,44 @@ def _sql_rule_hits(query: str) -> list[str]:
     return hits
 
 
+def _is_safe_count_query(query: str) -> bool:
+    """是否属于“安全 COUNT 查询”。
+
+    目标：避免在 DDL evidence=0 时把明确的计数类查询误降级到 no_data。
+    约束：仅放行“计数/总数”这一类不依赖列信息的查询意图。
+    """
+    q = (query or "").strip().lower()
+    if not q:
+        return False
+
+    # 必须出现“表”与一个可疑标识符（表名倾向）
+    has_table_word = "表" in q
+    has_identifier_hint = re.search(r"\b[a-z][a-z0-9_]{2,}\b", q) is not None
+    if not (has_table_word and has_identifier_hint):
+        return False
+
+    # 必须是计数语义（不要求精确关键词匹配，但至少要有明显的 count/总数/多少条）
+    count_needles = (
+        "count",
+        "总数",
+        "多少条",
+        "多少行",
+        "有多少",
+        "多少条数据",
+        "条数据",
+        "记录数",
+        "条记录",
+    )
+    if any(n in q for n in count_needles):
+        return True
+
+    # “统计 + 表 + 多少/条”也视为计数类（中文口语常见）
+    if "统计" in q and ("多少" in q or "条" in q):
+        return True
+
+    return False
+
+
 def _tool_rule_hits(query: str) -> list[str]:
     # v1 仅预留，返回空
     _ = query
@@ -209,8 +247,12 @@ def decide_intent(*, query: str, prefer: str) -> RouterDecision:
 
     # protect: sql needs ddl evidence
     if candidate == "text2sql" and ddl_hits <= 0:
+        # 特判：明确的“统计某表有多少条”属于安全 COUNT 查询，不依赖列信息，允许直接走 text2sql。
+        if _is_safe_count_query(query):
+            final_mode = "text2sql"
+            fallback = "text2sql_without_ddl_allowed_safe_count"
         # fall back: prefer rag if fts has evidence else no_data
-        if fts_hits > 0:
+        elif fts_hits > 0:
             final_mode = "rag"
             fallback = "text2sql_without_ddl→rag"
         else:
