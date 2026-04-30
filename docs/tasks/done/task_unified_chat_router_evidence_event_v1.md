@@ -1,6 +1,6 @@
 # Task：Unified Chat（后端）— 新增 `router.evidence` 事件（降级前证据可视化）
 
-状态：pending  
+状态：done（2026-04-30 验收通过）  
 范围：仅后端 `ai-ink-brain-api-python`  
 关联：
 - `docs/_tech_graph/_contract_manifest.json`（SSE 契约真值）
@@ -93,15 +93,43 @@
 ## 验收标准（必须可操作）
 
 ### 1) 契约门禁（阻断项）
-- [ ] 更新 `docs/_tech_graph/_contract_manifest.json` 后，`python tools/tech_graph_contract_check.py` 通过
+- [x] 更新 `docs/_tech_graph/_contract_manifest.json` 后，`python tools/tech_graph_contract_check.py` 通过
 
 ### 2) 行为验收（阻断项）
-- [ ] `prefer=auto` 时，`router.decision` 后紧跟输出 `router.evidence`
-- [ ] `router.evidence.payload` 与 `router.decision.payload` 对齐（至少 `candidate_mode/final_mode/fallback` 一致）
-- [ ] JSON（非流式）与 SSE（流式）两条路径都能输出该事件
+- [x] `prefer=auto` 时，`router.decision` 后紧跟输出 `router.evidence`
+- [x] `router.evidence.payload` 与 `router.decision.payload` 对齐（至少 `candidate_mode/final_mode/fallback` 一致）
+- [x] JSON（非流式）与 SSE（流式）两条路径都能输出该事件
 
 ### 3) 测试验收（阻断项）
-- [ ] pytest 覆盖：至少断言 `router.evidence` 出现，且包含契约最小键（建议复用/扩展现有 unified_chat 测试）
+- [x] pytest 覆盖：至少断言 `router.evidence` 出现，且包含契约最小键（建议复用/扩展现有 unified_chat 测试）
+
+---
+
+## 验收记录
+
+### 契约门禁
+
+```bash
+python tools/tech_graph_contract_check.py
+```
+
+关键输出（节选）：
+
+```text
+OK: cross-repo contract check passed (backend truth covers contract; frontend reads within contract).
+```
+
+### 测试
+
+```bash
+pytest -q
+```
+
+关键输出（节选）：
+
+```text
+39 passed, 3 warnings in 0.87s
+```
 
 ---
 
