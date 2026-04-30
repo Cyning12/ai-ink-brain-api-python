@@ -5,12 +5,15 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 try:
     import faiss  # type: ignore[import-not-found]
 except Exception:  # noqa: BLE001
     faiss = None  # type: ignore[assignment]
+
+if TYPE_CHECKING:
+    import numpy as np  # type: ignore[import-not-found]
 
 
 DocType = Literal["ddl", "example"]

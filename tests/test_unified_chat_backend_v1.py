@@ -32,6 +32,7 @@ def test_unified_unauthorized(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE", "1")
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat
 
@@ -64,6 +65,7 @@ def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
     assert data["mode"] == "text2sql"
     types = [e.get("type") for e in data["events"]]
     assert "router.evidence" in types
+    assert "router.evidence.details" in types
     assert "sql.result" in types
     assert "assistant.message" in types
 

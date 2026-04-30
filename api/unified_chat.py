@@ -78,6 +78,30 @@ def _safe_text_for_event(text: str, *, max_len: int) -> str:
     return t[: max_len - 3] + "..."
 
 
+def _debug_router_evidence_enabled() -> bool:
+    return (os.getenv("DEBUG_ROUTER_EVIDENCE", "0") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _router_evidence_db_log_enabled() -> bool:
+    # 默认开启：便于事后追溯；如需关闭可设置为 0/false/off。
+    return (os.getenv("DEBUG_ROUTER_EVIDENCE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _async_save_rag_log(payload: dict[str, Any]) -> None:
+    """异步写入 rag_conversation_logs（best-effort，不阻塞主流程）。"""
+    try:
+        import asyncio
+
+        def _sync_insert() -> None:
+            sb = supabase_client()
+            sb.table("rag_conversation_logs").insert(payload).execute()
+
+        asyncio.create_task(asyncio.to_thread(_sync_insert))
+    except Exception:
+        # best-effort：任何异常都不影响主流程
+        return
+
+
 def _build_query_expand_event_payload(meta: dict[str, Any] | None, *, max_raw: int, max_expanded: int) -> dict[str, Any]:
     if not meta:
         return {"raw": "", "expanded": "", "candidates": [], "source": "none", "truncated": False, "enabled": False, "mode": "off"}
@@ -210,6 +234,8 @@ async def handle_unified_chat(
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
     events: list[dict[str, Any]] = []
+    debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
 
     def finish(*, ok: bool, mode: str) -> JSONResponse:
         return JSONResponse(
@@ -512,6 +538,80 @@ async def handle_unified_chat(
             },
         )
     )
+    if debug_router or db_log_router:
+        ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+        ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+        fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+
+        ddl_rows_any: list[dict[str, Any]] = []
+        try:
+            store = get_text2sql_store()
+            raw_any = store.search(query, top_k=ddl_topk)
+            ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+        except Exception:
+            ddl_rows_any = []
+
+        ddl_candidates: list[dict[str, Any]] = []
+        for r in ddl_rows_any[: max(1, ddl_topk)]:
+            if not isinstance(r, dict) or r.get("doc_type") != "ddl":
+                continue
+            title = r.get("title") if isinstance(r.get("title"), str) else ""
+            score = r.get("score")
+            try:
+                score_f = float(score) if score is not None else None
+            except Exception:  # noqa: BLE001
+                score_f = None
+            ddl_candidates.append({"title": _safe_text_for_event(title, max_len=120), "score": score_f})
+
+        fts_candidates: list[dict[str, Any]] = []
+        try:
+            sb = supabase_client()
+            raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
+            rows = raw if isinstance(raw, list) else []
+            for rr in rows[: max(1, fts_topk)]:
+                if not isinstance(rr, dict):
+                    continue
+                meta = rr.get("metadata") if isinstance(rr.get("metadata"), dict) else {}
+                path = meta.get("relativePath") if isinstance(meta.get("relativePath"), str) else None
+                score = rr.get("score")
+                try:
+                    score_f = float(score) if score is not None else None
+                except Exception:  # noqa: BLE001
+                    score_f = None
+                fts_candidates.append(
+                    {
+                        "id": rr.get("id"),
+                        "path": _safe_text_for_event(path or "", max_len=180),
+                        "score": score_f,
+                    }
+                )
+        except Exception:
+            fts_candidates = []
+
+        details_payload = {
+            "candidate_mode": decision.candidate_mode,
+            "final_mode": decision.final_mode,
+            "fallback": decision.fallback,
+            "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+            "ddl_candidates": ddl_candidates,
+            "fts_candidates": fts_candidates,
+        }
+        if debug_router:
+            events.append(
+                _event(
+                    typ="router.evidence.details",
+                    started_at=started_at,
+                    step_id="red1",
+                    payload={
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                        "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                        "ddl_candidates": ddl_candidates,
+                        "fts_candidates": fts_candidates,
+                    },
+                )
+            )
 
     if mode.startswith("tool:"):
         events.append(
@@ -573,6 +673,23 @@ async def handle_unified_chat(
             events.append(_event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "no_data.generate", "message": gen_err}))
         events.append(_event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
         events.append(_event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"generate": t_gen_ms}}))
+        if db_log_router and session_id:
+            _async_save_rag_log(
+                {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": ans,
+                    "metadata": {
+                        "mode": mode,
+                        "v": "router_evidence_observability_v1",
+                        "router_debug": {
+                            "router_evidence_details": locals().get("details_payload"),
+                        },
+                    },
+                }
+            )
         return finish(ok=gen_err is None, mode=mode)
 
     if mode == "text2sql":
@@ -770,6 +887,23 @@ async def handle_unified_chat(
                 },
             )
         )
+        if db_log_router and session_id:
+            _async_save_rag_log(
+                {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": answer,
+                    "metadata": {
+                        "mode": mode,
+                        "v": "router_evidence_observability_v1",
+                        "router_debug": {
+                            "router_evidence_details": locals().get("details_payload"),
+                        },
+                    },
+                }
+            )
         return finish(ok=exec_err is None and gen_err is None, mode=mode)
 
     # ---- RAG branch (non-streaming v1) ----
@@ -991,6 +1125,23 @@ async def handle_unified_chat(
             payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}},
         )
     )
+    if db_log_router and session_id:
+        _async_save_rag_log(
+            {
+                "session_id": session_id,
+                "query": query,
+                "rewritten_query": rewritten,
+                "retrieved_context": {},
+                "response": ans,
+                "metadata": {
+                    "mode": mode,
+                    "v": "router_evidence_observability_v1",
+                    "router_debug": {
+                        "router_evidence_details": locals().get("details_payload"),
+                    },
+                },
+            }
+        )
     return finish(ok=gen_err is None, mode=mode)
 
 
@@ -1025,6 +1176,8 @@ async def handle_unified_chat_stream(
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
+    debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
 
     # CHATBI v2（Agent）SSE 主路径
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
@@ -1384,6 +1537,86 @@ async def handle_unified_chat_stream(
                     },
                 ),
             )
+            details_payload: dict[str, Any] | None = None
+            log_rewritten_query: str = query
+            log_retrieved_context: dict[str, Any] = {}
+            log_response: str = ""
+
+            if debug_router or db_log_router:
+                ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
+                ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
+                fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
+
+                ddl_rows_any: list[dict[str, Any]] = []
+                try:
+                    store = get_text2sql_store()
+                    raw_any = store.search(query, top_k=ddl_topk)
+                    ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+                except Exception:
+                    ddl_rows_any = []
+
+                ddl_candidates: list[dict[str, Any]] = []
+                for r in ddl_rows_any[: max(1, ddl_topk)]:
+                    if not isinstance(r, dict) or r.get("doc_type") != "ddl":
+                        continue
+                    title = r.get("title") if isinstance(r.get("title"), str) else ""
+                    score = r.get("score")
+                    try:
+                        score_f = float(score) if score is not None else None
+                    except Exception:  # noqa: BLE001
+                        score_f = None
+                    ddl_candidates.append({"title": _safe_text_for_event(title, max_len=120), "score": score_f})
+
+                fts_candidates: list[dict[str, Any]] = []
+                try:
+                    sb = supabase_client()
+                    raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
+                    rows = raw if isinstance(raw, list) else []
+                    for rr in rows[: max(1, fts_topk)]:
+                        if not isinstance(rr, dict):
+                            continue
+                        meta = rr.get("metadata") if isinstance(rr.get("metadata"), dict) else {}
+                        path = meta.get("relativePath") if isinstance(meta.get("relativePath"), str) else None
+                        score = rr.get("score")
+                        try:
+                            score_f = float(score) if score is not None else None
+                        except Exception:  # noqa: BLE001
+                            score_f = None
+                        fts_candidates.append(
+                            {
+                                "id": rr.get("id"),
+                                "path": _safe_text_for_event(path or "", max_len=180),
+                                "score": score_f,
+                            }
+                        )
+                except Exception:
+                    fts_candidates = []
+
+                details_payload = {
+                    "candidate_mode": decision.candidate_mode,
+                    "final_mode": decision.final_mode,
+                    "fallback": decision.fallback,
+                    "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                    "ddl_candidates": ddl_candidates,
+                    "fts_candidates": fts_candidates,
+                }
+                if debug_router:
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="router.evidence.details",
+                            started_at=started_at,
+                            step_id="red1",
+                            payload={
+                                "candidate_mode": decision.candidate_mode,
+                                "final_mode": decision.final_mode,
+                                "fallback": decision.fallback,
+                                "thresholds": {"ddl_topk": ddl_topk, "ddl_min_score": ddl_min_score, "fts_topk": fts_topk},
+                                "ddl_candidates": ddl_candidates,
+                                "fts_candidates": fts_candidates,
+                            },
+                        ),
+                    )
 
             if mode.startswith("tool:"):
                 ok = False
@@ -1451,6 +1684,7 @@ async def handle_unified_chat_stream(
                     yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "no_data.generate", "message": gen_err}))
                 yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
                 yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"generate": t_gen_ms}}))
+                log_response = ans
                 return
 
             if mode == "text2sql":
@@ -1538,6 +1772,7 @@ async def handle_unified_chat_stream(
                 yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_summarize", payload={"output": {"answer": answer}, "error": sum_err, "latency_ms": t_sum_ms}))
                 yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": answer}))
                 yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"retrieve": t_retrieve_ms, "generate_sql": t_gen_ms, "execute_sql": t_exec_ms, "summarize": t_sum_ms}}))
+                log_response = answer
                 return
 
             # ---- RAG branch (non-streaming answer v1) ----
@@ -1686,12 +1921,29 @@ async def handle_unified_chat_stream(
                 yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "rag.generate", "message": gen_err}))
             yield _sse("chain", _event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
             yield _sse("chain", _event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}}))
+            log_rewritten_query = rewritten
+            log_response = ans
         except GeneratorExit:
             return
         except Exception as exc:  # noqa: BLE001
             ok = False
             yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "unhandled", "message": str(exc)}))
         finally:
+            if db_log_router and session_id:
+                _async_save_rag_log(
+                    {
+                        "session_id": session_id,
+                        "query": query,
+                        "rewritten_query": log_rewritten_query,
+                        "retrieved_context": log_retrieved_context,
+                        "response": log_response,
+                        "metadata": {
+                            "mode": mode,
+                            "v": "router_evidence_observability_v1",
+                            "router_debug": {"router_evidence_details": details_payload},
+                        },
+                    }
+                )
             # done must be the last message if client still connected
             try:
                 # request_id：端到端链路标识（当前与 run_id 等价，便于逐步在前后端统一命名）

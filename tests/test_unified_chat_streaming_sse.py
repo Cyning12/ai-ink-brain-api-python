@@ -32,6 +32,7 @@ def test_unified_stream_unauthorized(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE", "1")
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat
 
@@ -140,4 +141,5 @@ def test_unified_stream_emits_sse(monkeypatch: pytest.MonkeyPatch):
         assert "event: chain" in text
         assert "event: done" in text
         assert '"type":"router.evidence"' in text
+        assert '"type":"router.evidence.details"' in text
 
