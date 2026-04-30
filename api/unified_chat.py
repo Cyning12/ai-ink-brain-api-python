@@ -87,6 +87,85 @@ def _router_evidence_db_log_enabled() -> bool:
     return (os.getenv("DEBUG_ROUTER_EVIDENCE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
 
 
+def _router_trace_db_log_enabled() -> bool:
+    # 默认开启：便于事后追溯；如需关闭可设置为 0/false/off。
+    return (os.getenv("DEBUG_ROUTER_TRACE_DB", "1") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _compact_event_digest(events: list[dict[str, Any]], *, max_events: int = 64) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for e in events[: max(1, int(max_events))]:
+        if not isinstance(e, dict):
+            continue
+        typ = e.get("type")
+        step_id = e.get("step_id")
+        ts = e.get("ts")
+        if not isinstance(typ, str) or not isinstance(step_id, str):
+            continue
+        try:
+            ts_i = int(ts)
+        except Exception:  # noqa: BLE001
+            ts_i = 0
+        out.append({"type": typ, "step_id": step_id, "ts": ts_i})
+    return out
+
+
+def _compact_errors(events: list[dict[str, Any]], *, max_items: int = 16) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for e in events:
+        if not isinstance(e, dict) or e.get("type") != "error":
+            continue
+        payload = e.get("payload") if isinstance(e.get("payload"), dict) else {}
+        stage = payload.get("stage") if isinstance(payload.get("stage"), str) else ""
+        msg = payload.get("message") if isinstance(payload.get("message"), str) else ""
+        if stage or msg:
+            out.append({"stage": _safe_text_for_event(stage, max_len=64), "message": _safe_text_for_event(msg, max_len=300)})
+        if len(out) >= max(1, int(max_items)):
+            break
+    return out
+
+
+def _shrink_router_trace_v1(trace: dict[str, Any], *, max_bytes: int = 8192) -> dict[str, Any]:
+    """限制落库体积（best-effort）。超限时按“先丢非关键、后截断”策略缩小。"""
+    try:
+        raw = json.dumps(trace, ensure_ascii=False, separators=(",", ":"))
+        if len(raw.encode("utf-8")) <= max_bytes:
+            return trace
+    except Exception:  # noqa: BLE001
+        return trace
+
+    t = dict(trace)
+    # 1) 丢弃 events_digest
+    t.pop("events_digest", None)
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 2) 丢弃 candidates（仍保留 returned 计数与阈值）
+    for k in ("ddl_search", "fts_search"):
+        part = t.get(k)
+        if isinstance(part, dict):
+            part2 = dict(part)
+            part2.pop("candidates", None)
+            t[k] = part2
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 3) 最后兜底：强制缩短 query_text
+    for k in ("ddl_search", "fts_search"):
+        part = t.get(k)
+        if isinstance(part, dict) and isinstance(part.get("query_text"), str):
+            part2 = dict(part)
+            part2["query_text"] = _safe_text_for_event(part2["query_text"], max_len=80)
+            t[k] = part2
+    return t
+
+
 def _async_save_rag_log(payload: dict[str, Any]) -> None:
     """异步写入 rag_conversation_logs（best-effort，不阻塞主流程）。"""
     try:
@@ -236,6 +315,11 @@ async def handle_unified_chat(
     events: list[dict[str, Any]] = []
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
+    db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
+    router_trace_v1: dict[str, Any] | None = None
+    t_router_decide_ms: int | None = None
+    t_ddl_search_ms: int | None = None
+    t_fts_search_ms: int | None = None
 
     def finish(*, ok: bool, mode: str) -> JSONResponse:
         return JSONResponse(
@@ -498,7 +582,9 @@ async def handle_unified_chat(
         return finish(ok=True, mode=mode)
 
     # mode decide (v1 router)
+    t_router0 = time.perf_counter()
     decision = decide_intent(query=query, prefer=prefer)
+    t_router_decide_ms = int((time.perf_counter() - t_router0) * 1000)
     mode = decision.final_mode
     events.append(
         _event(
@@ -538,18 +624,21 @@ async def handle_unified_chat(
             },
         )
     )
-    if debug_router or db_log_router:
+    if debug_router or db_log_router or db_log_router_trace:
         ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
         ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
         fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
 
         ddl_rows_any: list[dict[str, Any]] = []
         try:
+            t0 = time.perf_counter()
             store = get_text2sql_store()
             raw_any = store.search(query, top_k=ddl_topk)
             ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+            t_ddl_search_ms = int((time.perf_counter() - t0) * 1000)
         except Exception:
             ddl_rows_any = []
+            t_ddl_search_ms = None
 
         ddl_candidates: list[dict[str, Any]] = []
         for r in ddl_rows_any[: max(1, ddl_topk)]:
@@ -565,6 +654,7 @@ async def handle_unified_chat(
 
         fts_candidates: list[dict[str, Any]] = []
         try:
+            t1 = time.perf_counter()
             sb = supabase_client()
             raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
             rows = raw if isinstance(raw, list) else []
@@ -587,6 +677,9 @@ async def handle_unified_chat(
                 )
         except Exception:
             fts_candidates = []
+            t_fts_search_ms = None
+        else:
+            t_fts_search_ms = int((time.perf_counter() - t1) * 1000)
 
         details_payload = {
             "candidate_mode": decision.candidate_mode,
@@ -611,6 +704,44 @@ async def handle_unified_chat(
                         "fts_candidates": fts_candidates,
                     },
                 )
+            )
+
+        if db_log_router_trace:
+            router_trace_v1 = _shrink_router_trace_v1(
+                {
+                    "ts_ms": int(time.time() * 1000),
+                    "run_id": run_id,
+                    "mode": mode,
+                    "prefer": decision.prefer,
+                    "debug_router": bool(body.get("debug_router") is True),
+                    "timing_ms": {
+                        "router_decide": int(t_router_decide_ms or 0),
+                        "ddl_search": int(t_ddl_search_ms or 0),
+                        "fts_search": int(t_fts_search_ms or 0),
+                        "total": 0,
+                    },
+                    "ddl_search": {
+                        "query_text": _safe_text_for_event(query, max_len=200),
+                        "topk": int(ddl_topk),
+                        "min_score": float(ddl_min_score),
+                        "returned": int(len(ddl_candidates)),
+                        "candidates": ddl_candidates[: max(1, ddl_topk)],
+                    },
+                    "fts_search": {
+                        "query_text": _safe_text_for_event(query, max_len=200),
+                        "match_count": int(fts_topk),
+                        "returned": int(len(fts_candidates)),
+                        "candidates": fts_candidates[: max(1, fts_topk)],
+                    },
+                    "decision": {
+                        "candidate_mode": decision.candidate_mode,
+                        "final_mode": decision.final_mode,
+                        "fallback": decision.fallback,
+                    },
+                    "events_digest": _compact_event_digest(events, max_events=64),
+                    "errors": _compact_errors(events, max_items=16),
+                    "v": "router_trace_v1",
+                }
             )
 
     if mode.startswith("tool:"):
@@ -673,7 +804,13 @@ async def handle_unified_chat(
             events.append(_event(typ="error", started_at=started_at, step_id="e_generate", payload={"stage": "no_data.generate", "message": gen_err}))
         events.append(_event(typ="assistant.message", started_at=started_at, step_id="s_answer", payload={"role": "assistant", "content": ans}))
         events.append(_event(typ="latency", started_at=started_at, step_id="l1", payload={"total_ms": _now_ms(started_at), "stages_ms": {"generate": t_gen_ms}}))
-        if db_log_router and session_id:
+        if (db_log_router or db_log_router_trace) and session_id:
+            if router_trace_v1:
+                router_trace_v1 = dict(router_trace_v1)
+                timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                timing2 = dict(timing)
+                timing2["total"] = _now_ms(started_at)
+                router_trace_v1["timing_ms"] = timing2
             _async_save_rag_log(
                 {
                     "session_id": session_id,
@@ -686,6 +823,7 @@ async def handle_unified_chat(
                         "v": "router_evidence_observability_v1",
                         "router_debug": {
                             "router_evidence_details": locals().get("details_payload"),
+                            **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
                         },
                     },
                 }
@@ -887,7 +1025,13 @@ async def handle_unified_chat(
                 },
             )
         )
-        if db_log_router and session_id:
+        if (db_log_router or db_log_router_trace) and session_id:
+            if router_trace_v1:
+                router_trace_v1 = dict(router_trace_v1)
+                timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                timing2 = dict(timing)
+                timing2["total"] = _now_ms(started_at)
+                router_trace_v1["timing_ms"] = timing2
             _async_save_rag_log(
                 {
                     "session_id": session_id,
@@ -900,6 +1044,7 @@ async def handle_unified_chat(
                         "v": "router_evidence_observability_v1",
                         "router_debug": {
                             "router_evidence_details": locals().get("details_payload"),
+                            **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
                         },
                     },
                 }
@@ -1125,7 +1270,13 @@ async def handle_unified_chat(
             payload={"total_ms": _now_ms(started_at), "stages_ms": {"rewrite": t_rw_ms, "embed": t_emb_ms, "retrieve": t_ret_ms, "generate": t_gen_ms}},
         )
     )
-    if db_log_router and session_id:
+    if (db_log_router or db_log_router_trace) and session_id:
+        if router_trace_v1:
+            router_trace_v1 = dict(router_trace_v1)
+            timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+            timing2 = dict(timing)
+            timing2["total"] = _now_ms(started_at)
+            router_trace_v1["timing_ms"] = timing2
         _async_save_rag_log(
             {
                 "session_id": session_id,
@@ -1138,6 +1289,7 @@ async def handle_unified_chat(
                     "v": "router_evidence_observability_v1",
                     "router_debug": {
                         "router_evidence_details": locals().get("details_payload"),
+                        **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
                     },
                 },
             }
@@ -1178,6 +1330,11 @@ async def handle_unified_chat_stream(
     run_id = str(uuid.uuid4())
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
+    db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
+    router_trace_v1: dict[str, Any] | None = None
+    t_router_decide_ms: int | None = None
+    t_ddl_search_ms: int | None = None
+    t_fts_search_ms: int | None = None
 
     # CHATBI v2（Agent）SSE 主路径
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
@@ -1489,7 +1646,9 @@ async def handle_unified_chat_stream(
         headers = {"Cache-Control": "no-cache"}
         return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
 
+    t_router0 = time.perf_counter()
     decision = decide_intent(query=query, prefer=prefer)
+    t_router_decide_ms = int((time.perf_counter() - t_router0) * 1000)
     mode = decision.final_mode
 
     async def event_stream():
@@ -1542,18 +1701,21 @@ async def handle_unified_chat_stream(
             log_retrieved_context: dict[str, Any] = {}
             log_response: str = ""
 
-            if debug_router or db_log_router:
+            if debug_router or db_log_router or db_log_router_trace:
                 ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
                 ddl_min_score = float(os.getenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.05"))
                 fts_topk = int(os.getenv("INTENT_FTS_EVIDENCE_TOPK", "3"))
 
                 ddl_rows_any: list[dict[str, Any]] = []
                 try:
+                    t0 = time.perf_counter()
                     store = get_text2sql_store()
                     raw_any = store.search(query, top_k=ddl_topk)
                     ddl_rows_any = raw_any if isinstance(raw_any, list) else []
+                    t_ddl_search_ms = int((time.perf_counter() - t0) * 1000)
                 except Exception:
                     ddl_rows_any = []
+                    t_ddl_search_ms = None
 
                 ddl_candidates: list[dict[str, Any]] = []
                 for r in ddl_rows_any[: max(1, ddl_topk)]:
@@ -1569,6 +1731,7 @@ async def handle_unified_chat_stream(
 
                 fts_candidates: list[dict[str, Any]] = []
                 try:
+                    t1 = time.perf_counter()
                     sb = supabase_client()
                     raw = sb.rpc("keyword_documents", {"query_text": (query or "").strip(), "match_count": fts_topk}).execute().data
                     rows = raw if isinstance(raw, list) else []
@@ -1591,6 +1754,9 @@ async def handle_unified_chat_stream(
                         )
                 except Exception:
                     fts_candidates = []
+                    t_fts_search_ms = None
+                else:
+                    t_fts_search_ms = int((time.perf_counter() - t1) * 1000)
 
                 details_payload = {
                     "candidate_mode": decision.candidate_mode,
@@ -1616,6 +1782,47 @@ async def handle_unified_chat_stream(
                                 "fts_candidates": fts_candidates,
                             },
                         ),
+                    )
+
+                if db_log_router_trace:
+                    router_trace_v1 = _shrink_router_trace_v1(
+                        {
+                            "ts_ms": int(time.time() * 1000),
+                            "run_id": run_id,
+                            "mode": mode,
+                            "prefer": decision.prefer,
+                            "debug_router": bool(body.get("debug_router") is True),
+                            "timing_ms": {
+                                "router_decide": int(t_router_decide_ms or 0),
+                                "ddl_search": int(t_ddl_search_ms or 0),
+                                "fts_search": int(t_fts_search_ms or 0),
+                                "total": 0,
+                            },
+                            "ddl_search": {
+                                "query_text": _safe_text_for_event(query, max_len=200),
+                                "topk": int(ddl_topk),
+                                "min_score": float(ddl_min_score),
+                                "returned": int(len(ddl_candidates)),
+                                "candidates": ddl_candidates[: max(1, ddl_topk)],
+                            },
+                            "fts_search": {
+                                "query_text": _safe_text_for_event(query, max_len=200),
+                                "match_count": int(fts_topk),
+                                "returned": int(len(fts_candidates)),
+                                "candidates": fts_candidates[: max(1, fts_topk)],
+                            },
+                            "decision": {
+                                "candidate_mode": decision.candidate_mode,
+                                "final_mode": decision.final_mode,
+                                "fallback": decision.fallback,
+                            },
+                            "events_digest": [
+                                {"type": "router.decision", "step_id": "r1", "ts": _now_ms(started_at)},
+                                {"type": "router.evidence", "step_id": "re1", "ts": _now_ms(started_at)},
+                            ],
+                            "errors": [],
+                            "v": "router_trace_v1",
+                        }
                     )
 
             if mode.startswith("tool:"):
@@ -1929,7 +2136,13 @@ async def handle_unified_chat_stream(
             ok = False
             yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "unhandled", "message": str(exc)}))
         finally:
-            if db_log_router and session_id:
+            if (db_log_router or db_log_router_trace) and session_id:
+                if router_trace_v1:
+                    router_trace_v1 = dict(router_trace_v1)
+                    timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
+                    timing2 = dict(timing)
+                    timing2["total"] = _now_ms(started_at)
+                    router_trace_v1["timing_ms"] = timing2
                 _async_save_rag_log(
                     {
                         "session_id": session_id,
@@ -1940,7 +2153,10 @@ async def handle_unified_chat_stream(
                         "metadata": {
                             "mode": mode,
                             "v": "router_evidence_observability_v1",
-                            "router_debug": {"router_evidence_details": details_payload},
+                            "router_debug": {
+                                "router_evidence_details": details_payload,
+                                **({"router_trace_v1": router_trace_v1} if router_trace_v1 else {}),
+                            },
                         },
                     }
                 )

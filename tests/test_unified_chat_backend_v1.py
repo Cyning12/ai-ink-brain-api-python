@@ -70,6 +70,122 @@ def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
     assert "assistant.message" in types
 
 
+def test_unified_router_trace_db_toggle(monkeypatch: pytest.MonkeyPatch):
+    # 覆盖 3 个关键行为：
+    # 1) DEBUG_ROUTER_TRACE_DB=1 默认写入 router_trace_v1
+    # 2) DEBUG_ROUTER_TRACE_DB=0 且 debug_router=false 不写入 router_trace_v1
+    # 3) DEBUG_ROUTER_TRACE_DB=0 但 debug_router=true 强制写入 router_trace_v1
+    import api.unified_chat as unified_chat
+
+    class _DummyChatMsg:
+        def __init__(self, content: str):
+            self.content = content
+
+    class _DummyChoice:
+        def __init__(self, content: str):
+            self.message = _DummyChatMsg(content)
+
+    class _DummyChatResp:
+        def __init__(self, content: str):
+            self.choices = [_DummyChoice(content)]
+
+    class _DummyOpenAI:
+        def __init__(self):
+            self.chat = self
+            self.completions = self
+
+        def create(self, **_kwargs: Any):  # noqa: ANN401
+            return _DummyChatResp("ok")
+
+    def _install_common_mocks() -> list[dict[str, Any]]:
+        saved: list[dict[str, Any]] = []
+
+        monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+
+        def fake_get_store():  # noqa: ANN001
+            class _S:
+                def search(self, query: str, *, top_k: int = 6):  # noqa: ANN001
+                    return [{"doc_type": "ddl", "title": "DDL: customer_info", "content": "create table ...", "score": 0.9}][:top_k]
+
+            return _S()
+
+        class _Rpc:
+            def execute(self):
+                class _R:
+                    data: list[dict[str, Any]]
+
+                r = _R()
+                r.data = [{"id": "d1", "score": 0.12, "metadata": {"relativePath": "docs/a.md"}}]
+                return r
+
+        class _Sb:
+            def rpc(self, _name: str, _params: dict[str, Any]):  # noqa: ANN001
+                return _Rpc()
+
+        monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+        monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+
+        def fake_async_save(payload: dict[str, Any]) -> None:
+            saved.append(payload)
+
+        monkeypatch.setattr(unified_chat, "_async_save_rag_log", fake_async_save)
+        return saved
+
+    # case 1: env=1 -> 写入
+    monkeypatch.setenv("DEBUG_ROUTER_TRACE_DB", "1")
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE_DB", "0")
+    index = _reload_api_index(monkeypatch)
+    importlib.reload(unified_chat)
+    saved = _install_common_mocks()
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "no_data", "query": "hi"},
+    )
+    assert res.status_code == 200
+    assert saved, "expected best-effort DB log payload"
+    meta = (saved[-1].get("metadata") or {}).get("router_debug") or {}
+    trace = meta.get("router_trace_v1") if isinstance(meta, dict) else None
+    assert isinstance(trace, dict)
+    assert trace.get("v") == "router_trace_v1"
+    assert isinstance(trace.get("decision"), dict)
+    assert isinstance((trace.get("timing_ms") or {}), dict)
+
+    # case 2: env=0 + debug_router=false -> 不写入
+    monkeypatch.setenv("DEBUG_ROUTER_TRACE_DB", "0")
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE_DB", "0")
+    index2 = _reload_api_index(monkeypatch)
+    importlib.reload(unified_chat)
+    saved2 = _install_common_mocks()
+    client2 = TestClient(index2.app)
+    res2 = client2.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "no_data", "query": "hi"},
+    )
+    assert res2.status_code == 200
+    assert not saved2, "expected no DB log when both DEBUG_ROUTER_TRACE_DB and DEBUG_ROUTER_EVIDENCE_DB are disabled"
+
+    # case 3: env=0 + debug_router=true -> 强制写入
+    monkeypatch.setenv("DEBUG_ROUTER_TRACE_DB", "0")
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE_DB", "0")
+    index3 = _reload_api_index(monkeypatch)
+    importlib.reload(unified_chat)
+    saved3 = _install_common_mocks()
+    client3 = TestClient(index3.app)
+    res3 = client3.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "no_data", "query": "hi", "debug_router": True},
+    )
+    assert res3.status_code == 200
+    meta3 = (saved3[-1].get("metadata") or {}).get("router_debug") or {}
+    trace3 = meta3.get("router_trace_v1") if isinstance(meta3, dict) else None
+    assert isinstance(trace3, dict)
+    assert trace3.get("v") == "router_trace_v1"
+
+
 def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat

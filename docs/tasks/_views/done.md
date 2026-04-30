@@ -14,4 +14,5 @@
 - `../done/task_tech_graph_p7_contract_ci_guardrail_v1.md`
 - `../done/task_rag_i18n_crosslingual_recall_v1.md`（文件内标注：2026-04-24 验收通过）
 - `../done/task_docs_truth_and_rag_unify_v1.md`（2026-04-28 验收通过：PROJECT_CONFIG / `99_spec` Backlog 表 / `api/rag_shared` 初批）
+- `../done/task_unified_chat_router_observability_full_trace_v1.md`（2026-04-30 验收通过）
 
