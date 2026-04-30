@@ -78,6 +78,83 @@ def _safe_text_for_event(text: str, *, max_len: int) -> str:
     return t[: max_len - 3] + "..."
 
 
+_TEXT2SQL_SENSITIVE_COL_RE = re.compile(r"(?i)(^|_)(phone|mobile|tel|email|mail|address|addr|id_card|idcard|身份证|邮箱|住址|地址)($|_)")
+
+
+def _build_text2sql_exec_trace(
+    *,
+    sql: str,
+    sql_raw: str,
+    columns: list[str],
+    rows: list[dict[str, Any]],
+    error: str | None,
+    latency_ms: int,
+) -> dict[str, Any]:
+    """构造可落库的 Text2SQL 执行摘要（严格限量/截断/脱敏）。"""
+    truncated = False
+
+    sql_safe = _safe_text_for_event(sql or "", max_len=2000)
+    if (sql or "") != sql_safe:
+        truncated = True
+
+    sql_raw_safe = _safe_text_for_event(sql_raw or "", max_len=2000) if (sql_raw or "").strip() else ""
+    if (sql_raw or "").strip() and sql_raw_safe != (sql_raw or ""):
+        truncated = True
+
+    err_safe: str | None = None
+    if error:
+        err_safe = _safe_text_for_event(str(error), max_len=300)
+        if err_safe != str(error):
+            truncated = True
+
+    cols_in = [c for c in columns if isinstance(c, str) and c.strip()]
+    if len(cols_in) > 30:
+        truncated = True
+    cols_raw = [c.strip() for c in cols_in[:30]]
+    cols_safe = [_safe_text_for_event(c, max_len=64) for c in cols_raw]
+    col_pairs = list(zip(cols_raw, cols_safe, strict=True))
+
+    # 只要包含明显敏感字段，就不落 rows_preview（保守策略）。
+    has_sensitive_col = any(bool(_TEXT2SQL_SENSITIVE_COL_RE.search(raw) or _TEXT2SQL_SENSITIVE_COL_RE.search(safe)) for (raw, safe) in col_pairs)
+    rows_preview: list[dict[str, str]] | None = None
+    if not has_sensitive_col:
+        rows_preview = []
+        if len(rows) > 10:
+            truncated = True
+        preview_pairs = col_pairs[:20]
+        if len(col_pairs) > 20:
+            truncated = True
+        for r in rows[:10]:
+            if not isinstance(r, dict):
+                continue
+            packed: dict[str, str] = {}
+            for raw_col, safe_col in preview_pairs:
+                v = r.get(raw_col)
+                raw = "" if v is None else str(v)
+                safe = _safe_text_for_event(raw, max_len=80)
+                if safe != raw:
+                    truncated = True
+                packed[safe_col] = safe
+            rows_preview.append(packed)
+    else:
+        truncated = True
+
+    out: dict[str, Any] = {
+        "sql": sql_safe,
+        "ok": bool(error is None),
+        "error": err_safe,
+        "latency_ms": int(latency_ms),
+        "rows_len": int(len(rows)),
+        "columns": cols_safe,
+        "truncated": bool(truncated),
+    }
+    if sql_raw_safe:
+        out["sql_raw"] = sql_raw_safe
+    if rows_preview is not None and error is None:
+        out["rows_preview"] = rows_preview
+    return out
+
+
 def _debug_router_evidence_enabled() -> bool:
     return (os.getenv("DEBUG_ROUTER_EVIDENCE", "0") or "").strip().lower() in ("1", "true", "yes", "on")
 
@@ -156,7 +233,19 @@ def _shrink_router_trace_v1(trace: dict[str, Any], *, max_bytes: int = 8192) -> 
     except Exception:  # noqa: BLE001
         return t
 
-    # 3) 最后兜底：强制缩短 query_text
+    # 3) 丢弃 text2sql_exec.rows_preview（保留 sql/ok/error/rows_len/columns）
+    part = t.get("text2sql_exec")
+    if isinstance(part, dict):
+        part2 = dict(part)
+        part2.pop("rows_preview", None)
+        t["text2sql_exec"] = part2
+    try:
+        if len(json.dumps(t, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) <= max_bytes:
+            return t
+    except Exception:  # noqa: BLE001
+        return t
+
+    # 4) 最后兜底：强制缩短 query_text
     for k in ("ddl_search", "fts_search"):
         part = t.get(k)
         if isinstance(part, dict) and isinstance(part.get("query_text"), str):
@@ -950,6 +1039,7 @@ async def handle_unified_chat(
         except Exception as exc:  # noqa: BLE001
             exec_err = str(exc)
         t_exec_ms = int((time.perf_counter() - t2) * 1000)
+        text2sql_exec_trace: dict[str, Any] | None = _build_text2sql_exec_trace(sql=sql, sql_raw=sql_raw, columns=columns, rows=rows, error=exec_err, latency_ms=t_exec_ms)
         events.append(
             _event(
                 typ="tool.call.end",
@@ -1028,10 +1118,13 @@ async def handle_unified_chat(
         if (db_log_router or db_log_router_trace) and session_id:
             if router_trace_v1:
                 router_trace_v1 = dict(router_trace_v1)
+                if mode == "text2sql" and text2sql_exec_trace:
+                    router_trace_v1["text2sql_exec"] = text2sql_exec_trace
                 timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
                 timing2 = dict(timing)
                 timing2["total"] = _now_ms(started_at)
                 router_trace_v1["timing_ms"] = timing2
+                router_trace_v1 = _shrink_router_trace_v1(router_trace_v1)
             _async_save_rag_log(
                 {
                     "session_id": session_id,
@@ -1384,71 +1477,79 @@ async def handle_unified_chat_stream(
 
         tool_registry = get_tool_registry()
         agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
-        agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
-        mode = agent_result.final.mode
         max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
-
-        # 可选：一轮结束写一次 memory（失败不阻断 SSE）
-        try:
-            if session_id:
-                sb = supabase_client()
-                agent_steps_json: dict[str, Any] = {
-                    "total_steps": agent_result.final.total_steps,
-                    "tools_used": agent_result.final.tools_used,
-                    "fallback_used": agent_result.final.fallback_used,
-                    "steps": [
-                        {
-                            "step_number": s.step_number,
-                            "tool_used": s.tool_used,
-                            "mode": s.mode,
-                            "success": s.success,
-                            "next_action": s.next_action,
-                            "thought": s.think_payload.get("thought"),
-                        }
-                        for s in agent_result.steps
-                    ],
-                }
-                tool_results_json: dict[str, Any] = {
-                    "results": [
-                        {
-                            "tool": s.tool_used,
-                            "success": s.tool_result.success,
-                            "error_code": s.tool_result.error_code,
-                            "error_stage": s.tool_result.error_stage,
-                            "latency_ms": s.tool_result.latency_ms,
-                            "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
-                        }
-                        for s in agent_result.steps
-                    ]
-                }
-                sb.table("rag_conversation_logs").insert(
-                    {
-                        "session_id": session_id,
-                        "query": query,
-                        "rewritten_query": query,
-                        "retrieved_context": {},
-                        "response": agent_result.final.answer,
-                        "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
-                        "agent_steps": agent_steps_json,
-                        "tool_results": tool_results_json,
-                    }
-                ).execute()
-        except Exception:
-            pass
-
-        ok = True
+        ok = False
 
         async def event_stream():
             nonlocal ok
+            agent_result = None
+            mode_local: str = "auto" if prefer == "auto" else str(prefer)
             try:
                 yield _sse(
                     "chain",
-                    {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}},
+                    {
+                        "type": "meta",
+                        "ts": _now_ms(started_at),
+                        "step_id": "m1",
+                        "payload": {"run_id": run_id, "mode": mode_local, "session_id": session_id},
+                    },
                 )
+
+                agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+                mode_local = agent_result.final.mode
+                ok = True
+
+                # 可选：一轮结束写一次 memory（失败不阻断 SSE）
+                try:
+                    if session_id:
+                        sb = supabase_client()
+                        agent_steps_json: dict[str, Any] = {
+                            "total_steps": agent_result.final.total_steps,
+                            "tools_used": agent_result.final.tools_used,
+                            "fallback_used": agent_result.final.fallback_used,
+                            "steps": [
+                                {
+                                    "step_number": s.step_number,
+                                    "tool_used": s.tool_used,
+                                    "mode": s.mode,
+                                    "success": s.success,
+                                    "next_action": s.next_action,
+                                    "thought": s.think_payload.get("thought"),
+                                }
+                                for s in agent_result.steps
+                            ],
+                        }
+                        tool_results_json: dict[str, Any] = {
+                            "results": [
+                                {
+                                    "tool": s.tool_used,
+                                    "success": s.tool_result.success,
+                                    "error_code": s.tool_result.error_code,
+                                    "error_stage": s.tool_result.error_stage,
+                                    "latency_ms": s.tool_result.latency_ms,
+                                    "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                                }
+                                for s in agent_result.steps
+                            ]
+                        }
+                        sb.table("rag_conversation_logs").insert(
+                            {
+                                "session_id": session_id,
+                                "query": query,
+                                "rewritten_query": query,
+                                "retrieved_context": {},
+                                "response": agent_result.final.answer,
+                                "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                                "agent_steps": agent_steps_json,
+                                "tool_results": tool_results_json,
+                            }
+                        ).execute()
+                except Exception:
+                    pass
 
                 intent_decision = agent_result.intent_decision
                 step1 = agent_result.steps[0] if agent_result.steps else None
-                step1_mode = step1.mode if step1 else mode
+                step1_mode = step1.mode if step1 else mode_local
                 candidate_mode = intent_decision.mode if intent_decision else step1_mode
                 final_mode = step1_mode
 
@@ -1639,7 +1740,7 @@ async def handle_unified_chat_stream(
                     "done",
                     {
                         "ok": ok,
-                        "mode": mode,
+                        "mode": mode_local if isinstance(mode_local, str) else ("auto" if prefer == "auto" else str(prefer)),
                         "run_id": run_id,
                         "request_id": run_id,
                         "session_id": session_id,
@@ -1703,6 +1804,7 @@ async def handle_unified_chat_stream(
             log_rewritten_query: str = query
             log_retrieved_context: dict[str, Any] = {}
             log_response: str = ""
+            text2sql_exec_trace: dict[str, Any] | None = None
 
             if debug_router or db_log_router or db_log_router_trace:
                 ddl_topk = int(os.getenv("INTENT_DDL_EVIDENCE_TOPK", "3"))
@@ -1957,6 +2059,7 @@ async def handle_unified_chat_stream(
                 except Exception as exc:  # noqa: BLE001
                     exec_err = str(exc)
                 t_exec_ms = int((time.perf_counter() - t2) * 1000)
+                text2sql_exec_trace = _build_text2sql_exec_trace(sql=sql, sql_raw=sql_raw, columns=columns, rows=rows, error=exec_err, latency_ms=t_exec_ms)
                 yield _sse("chain", _event(typ="tool.call.end", started_at=started_at, step_id="t_execute_sql", payload={"output": {"columns": columns, "rows_len": len(rows)}, "error": exec_err, "latency_ms": t_exec_ms}))
                 if exec_err:
                     ok = False
@@ -2142,10 +2245,13 @@ async def handle_unified_chat_stream(
             if (db_log_router or db_log_router_trace) and session_id:
                 if router_trace_v1:
                     router_trace_v1 = dict(router_trace_v1)
+                    if mode == "text2sql" and text2sql_exec_trace:
+                        router_trace_v1["text2sql_exec"] = text2sql_exec_trace
                     timing = router_trace_v1.get("timing_ms") if isinstance(router_trace_v1.get("timing_ms"), dict) else {}
                     timing2 = dict(timing)
                     timing2["total"] = _now_ms(started_at)
                     router_trace_v1["timing_ms"] = timing2
+                    router_trace_v1 = _shrink_router_trace_v1(router_trace_v1)
                 _async_save_rag_log(
                     {
                         "session_id": session_id,

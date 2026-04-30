@@ -188,6 +188,129 @@ def test_unified_router_trace_db_toggle(monkeypatch: pytest.MonkeyPatch):
     assert trace3.get("v") == "router_trace_v1"
 
 
+def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
+    # 目标：
+    # - mode=text2sql 且执行 SQL：落库 router_trace_v1.text2sql_exec，且截断/限量生效
+    # - mode!=text2sql：不落库 text2sql_exec
+    monkeypatch.setenv("DEBUG_ROUTER_TRACE_DB", "1")
+    monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE_DB", "0")
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+
+    saved: list[dict[str, Any]] = []
+
+    def fake_async_save(payload: dict[str, Any]) -> None:
+        saved.append(payload)
+
+    monkeypatch.setattr(unified_chat, "_async_save_rag_log", fake_async_save)
+
+    class _DummyOAI:
+        pass
+
+    # text2sql 分支用 OpenAI(...) 实例
+    monkeypatch.setattr(unified_chat, "OpenAI", lambda api_key, base_url: _DummyOAI())
+
+    def fake_get_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 6):  # noqa: ANN001
+                return [{"doc_type": "ddl", "title": "DDL: t", "content": "create table ...", "score": 1.0}][:top_k]
+
+        return _S()
+
+    monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+
+    long_sql = "select '" + ("x" * 2100) + "' as big"
+    monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: long_sql)  # noqa: ARG005
+    monkeypatch.setattr(unified_chat, "validate_sql_readonly", lambda s: s)
+
+    cols = [f"c{i}" for i in range(25)]
+    rows = [{c: ("y" * 200 if c == "c0" else i) for c in cols} for i in range(12)]
+    monkeypatch.setattr(unified_chat, "execute_select_sql", lambda sql, limit_rows=200: (cols, rows))  # noqa: ARG005
+    monkeypatch.setattr(unified_chat, "llm_summarize", lambda *, oai, model, prompt: "ok")  # noqa: ARG005
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "text2sql", "query": "随便问"},
+    )
+    assert res.status_code == 200
+    assert saved, "expected best-effort DB log payload"
+
+    meta = (saved[-1].get("metadata") or {}).get("router_debug") or {}
+    trace = meta.get("router_trace_v1") if isinstance(meta, dict) else None
+    assert isinstance(trace, dict)
+    t2 = trace.get("text2sql_exec")
+    assert isinstance(t2, dict)
+    assert t2.get("ok") is True
+    assert isinstance(t2.get("latency_ms"), int)
+    assert t2.get("rows_len") == 12
+    assert isinstance(t2.get("columns"), list)
+    assert len(t2.get("columns") or []) == 25
+    assert isinstance(t2.get("sql"), str)
+    assert len(t2.get("sql")) <= 2000
+    assert t2.get("truncated") is True
+
+    preview = t2.get("rows_preview")
+    assert isinstance(preview, list)
+    assert len(preview) == 10
+    assert isinstance(preview[0], dict)
+    assert len(preview[0].keys()) == 20
+    assert all(isinstance(v, str) and len(v) <= 80 for v in preview[0].values())
+
+    # mode != text2sql -> 不应写入 text2sql_exec
+    saved.clear()
+
+    class _DummyChatMsg:
+        def __init__(self, content: str):
+            self.content = content
+
+    class _DummyChoice:
+        def __init__(self, content: str):
+            self.message = _DummyChatMsg(content)
+
+    class _DummyChatResp:
+        def __init__(self, content: str):
+            self.choices = [_DummyChoice(content)]
+
+    class _DummyOpenAI:
+        def __init__(self):
+            self.chat = self
+            self.completions = self
+
+        def create(self, **_kwargs: Any):  # noqa: ANN401
+            return _DummyChatResp("ok")
+
+    monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = [{"id": "d1", "score": 0.12, "metadata": {"relativePath": "docs/a.md"}}]
+            return r
+
+    class _Sb:
+        def rpc(self, _name: str, _params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+
+    res2 = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"session_id": "s", "prefer": "no_data", "query": "hi"},
+    )
+    assert res2.status_code == 200
+    assert saved, "expected DB log payload for no_data branch"
+    meta2 = (saved[-1].get("metadata") or {}).get("router_debug") or {}
+    trace2 = meta2.get("router_trace_v1") if isinstance(meta2, dict) else None
+    assert isinstance(trace2, dict)
+    assert "text2sql_exec" not in trace2
+
+
 def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat
