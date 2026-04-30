@@ -103,7 +103,7 @@
 - [ ] `router_trace_v1` 仍满足 8KB 约束（超限时能自动 shrink，且优先丢 `rows_preview`）
 
 ### 测试验收（阻断项）
-- [ ] pytest 至少 1 条用例：mock 一次 text2sql 执行，断言 `text2sql_exec` 字段存在且截断生效
+- [ ] pytest 至少 1 条用例：一次 text2sql 执行，断言 `text2sql_exec` 字段存在且截断生效，query:统计客户数量，列一下1995年之后出生的客户名称
 
 ---
 

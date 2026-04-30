@@ -205,6 +205,106 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
     assert "rag_search" in final_evt["payload"]["tools_used"]
 
 
+def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.MonkeyPatch):
+    """V2：mode=text2sql 时落库 router_trace_v1.text2sql_exec，且 rows_preview 过滤 id_number。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    # mock text2sql tool returns sql + rows with id_number
+    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={
+                "answer": "sql ok",
+                "sql": "select id_number, name from customer_info limit 1",
+                "columns": ["id_number", "name"],
+                "rows": [{"id_number": "123456", "name": "张三"}],
+            },
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=6,
+        )
+
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(success=True, data={"answer": "rag ok", "hits": []}, latency_ms=3)
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("text2sql_query", _sql_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("direct_answer", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="该问题需要统计数据。",
+            reasoning_full="该问题需要统计数据。",
+            confidence=0.9,
+            fallback=None,
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=True),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    saved: list[dict[str, Any]] = []
+
+    class _Insert:
+        def __init__(self, payload: dict[str, Any]) -> None:
+            self._payload = payload
+
+        def execute(self) -> Any:  # noqa: ANN401
+            saved.append(self._payload)
+            return type("_R", (), {"data": []})()
+
+    class _Table:
+        def insert(self, payload: dict[str, Any]) -> _Insert:
+            return _Insert(payload)
+
+    class _Sb:
+        def table(self, name: str) -> _Table:
+            assert name == "rag_conversation_logs"
+            return _Table()
+
+    monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "统计客户数量", "session_id": "s"},
+    )
+    assert res.status_code == 200
+    assert saved, "expected db insert payload"
+    meta = saved[-1].get("metadata") if isinstance(saved[-1].get("metadata"), dict) else {}
+    router_debug = meta.get("router_debug") if isinstance(meta.get("router_debug"), dict) else {}
+    trace = router_debug.get("router_trace_v1") if isinstance(router_debug.get("router_trace_v1"), dict) else {}
+    t2 = trace.get("text2sql_exec") if isinstance(trace.get("text2sql_exec"), dict) else {}
+    assert t2.get("sql")
+    assert t2.get("rows_len") == 1
+    rows_preview = t2.get("rows_preview")
+    assert isinstance(rows_preview, list) and rows_preview, "expected rows_preview"
+    row0 = rows_preview[0] if isinstance(rows_preview[0], dict) else {}
+    assert "id_number" not in row0
+
+
 def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_USE_AGENT", "true")
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")

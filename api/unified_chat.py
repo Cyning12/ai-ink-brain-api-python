@@ -78,7 +78,8 @@ def _safe_text_for_event(text: str, *, max_len: int) -> str:
     return t[: max_len - 3] + "..."
 
 
-_TEXT2SQL_SENSITIVE_COL_RE = re.compile(r"(?i)(^|_)(phone|mobile|tel|email|mail|address|addr|id_card|idcard|身份证|邮箱|住址|地址)($|_)")
+# Text2SQL 结果摘要的敏感字段过滤：当前最小化仅过滤 id_number（未来可按权限扩展）。
+_TEXT2SQL_SENSITIVE_COL_RE = re.compile(r"(?i)(^|_)id_number($|_)")
 
 
 def _build_text2sql_exec_trace(
@@ -114,16 +115,28 @@ def _build_text2sql_exec_trace(
     cols_safe = [_safe_text_for_event(c, max_len=64) for c in cols_raw]
     col_pairs = list(zip(cols_raw, cols_safe, strict=True))
 
-    # 只要包含明显敏感字段，就不落 rows_preview（保守策略）。
-    has_sensitive_col = any(bool(_TEXT2SQL_SENSITIVE_COL_RE.search(raw) or _TEXT2SQL_SENSITIVE_COL_RE.search(safe)) for (raw, safe) in col_pairs)
+    # rows_preview：允许落预览，但需过滤敏感列（当前仅 id_number）。
+    def _is_sensitive_col(col: str) -> bool:
+        return bool(_TEXT2SQL_SENSITIVE_COL_RE.search(col))
+
+    has_sensitive_col = any(_is_sensitive_col(raw) or _is_sensitive_col(safe) for (raw, safe) in col_pairs)
     rows_preview: list[dict[str, str]] | None = None
-    if not has_sensitive_col:
-        rows_preview = []
-        if len(rows) > 10:
-            truncated = True
-        preview_pairs = col_pairs[:20]
-        if len(col_pairs) > 20:
-            truncated = True
+    rows_preview = []
+    if len(rows) > 10:
+        truncated = True
+
+    preview_pairs_all = col_pairs[:20]
+    if len(col_pairs) > 20:
+        truncated = True
+
+    preview_pairs = [(raw, safe) for (raw, safe) in preview_pairs_all if not (_is_sensitive_col(raw) or _is_sensitive_col(safe))]
+    if has_sensitive_col:
+        truncated = True
+
+    # 若只剩敏感列，则不落 rows_preview（只保留 rows_len/columns）。
+    if not preview_pairs:
+        rows_preview = None
+    else:
         for r in rows[:10]:
             if not isinstance(r, dict):
                 continue
@@ -136,8 +149,6 @@ def _build_text2sql_exec_trace(
                     truncated = True
                 packed[safe_col] = safe
             rows_preview.append(packed)
-    else:
-        truncated = True
 
     out: dict[str, Any] = {
         "sql": sql_safe,
@@ -153,6 +164,46 @@ def _build_text2sql_exec_trace(
     if rows_preview is not None and error is None:
         out["rows_preview"] = rows_preview
     return out
+
+
+def _agent_text2sql_exec_trace(agent_result: Any) -> dict[str, Any] | None:  # noqa: ANN401
+    """从 V2 Agent 的 steps 里提取 Text2SQL 的 sql/结果摘要（若可得）。"""
+    steps = getattr(agent_result, "steps", None)
+    if not isinstance(steps, list):
+        return None
+
+    for s in steps:
+        tool_used = getattr(s, "tool_used", None)
+        if tool_used != "text2sql_query":
+            continue
+        tool_result = getattr(s, "tool_result", None)
+        data = getattr(tool_result, "data", None) if tool_result is not None else None
+        if not isinstance(data, dict):
+            return None
+        sql = data.get("sql") if isinstance(data.get("sql"), str) else ""
+        sql_raw = data.get("sql_raw") if isinstance(data.get("sql_raw"), str) else ""
+        columns_any = data.get("columns")
+        columns = [c for c in columns_any if isinstance(c, str)] if isinstance(columns_any, list) else []
+        rows_any = data.get("rows")
+        rows = [r for r in rows_any if isinstance(r, dict)] if isinstance(rows_any, list) else []
+        err = getattr(tool_result, "error", None) if tool_result is not None else None
+        err_s = err if isinstance(err, str) and err.strip() else None
+        lat = getattr(tool_result, "latency_ms", 0) if tool_result is not None else 0
+        try:
+            latency_ms = int(lat)
+        except Exception:  # noqa: BLE001
+            latency_ms = 0
+        if not sql and not sql_raw and not columns and not rows and err_s is None:
+            return None
+        return _build_text2sql_exec_trace(
+            sql=sql,
+            sql_raw=sql_raw,
+            columns=columns,
+            rows=rows,
+            error=err_s,
+            latency_ms=latency_ms,
+        )
+    return None
 
 
 def _debug_router_evidence_enabled() -> bool:
@@ -656,13 +707,39 @@ async def handle_unified_chat(
                 ]
             }
             if session_id:
+                text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+                router_trace_v1: dict[str, Any] | None = None
+                if mode == "text2sql" and text2sql_exec_trace:
+                    router_trace_v1 = _shrink_router_trace_v1(
+                        {
+                            "v": "router_trace_v1",
+                            "ts_ms": int(time.time() * 1000),
+                            "run_id": run_id,
+                            "mode": mode,
+                            "prefer": "auto" if prefer == "auto" else str(prefer),
+                            "decision": {
+                                "candidate_mode": "text2sql",
+                                "final_mode": "text2sql",
+                                "fallback": None,
+                            },
+                            "timing_ms": {"total": _now_ms(started_at)},
+                            "text2sql_exec": text2sql_exec_trace,
+                        }
+                    )
+
                 payload_full = {
                     "session_id": session_id,
                     "query": query,
                     "rewritten_query": query,
                     "retrieved_context": {},
                     "response": agent_result.final.answer,
-                    "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                    "metadata": {
+                        "mode": agent_result.final.mode,
+                        "v": "chatbi_v2_agent",
+                        "router_debug": {
+                            "router_trace_v1": router_trace_v1,
+                        },
+                    },
                     "agent_steps": agent_steps_json,
                     "tool_results": tool_results_json,
                 }
@@ -681,6 +758,9 @@ async def handle_unified_chat(
                         "metadata": {
                             "mode": agent_result.final.mode,
                             "v": "chatbi_v2_agent",
+                            "router_debug": {
+                                "router_trace_v1": router_trace_v1,
+                            },
                             "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
                             "agent_db_fallback": True,
                         },
@@ -1554,13 +1634,37 @@ async def handle_unified_chat_stream(
                                 for s in agent_result.steps
                             ]
                         }
+                        text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+                        router_trace_v1: dict[str, Any] | None = None
+                        if mode_local == "text2sql" and text2sql_exec_trace:
+                            router_trace_v1 = _shrink_router_trace_v1(
+                                {
+                                    "v": "router_trace_v1",
+                                    "ts_ms": int(time.time() * 1000),
+                                    "run_id": run_id,
+                                    "mode": mode_local,
+                                    "prefer": "auto" if prefer == "auto" else str(prefer),
+                                    "decision": {
+                                        "candidate_mode": "text2sql",
+                                        "final_mode": "text2sql",
+                                        "fallback": None,
+                                    },
+                                    "timing_ms": {"total": _now_ms(started_at)},
+                                    "text2sql_exec": text2sql_exec_trace,
+                                }
+                            )
+
                         payload_full = {
                             "session_id": session_id,
                             "query": query,
                             "rewritten_query": query,
                             "retrieved_context": {},
                             "response": agent_result.final.answer,
-                            "metadata": {"mode": agent_result.final.mode, "v": "chatbi_v2_agent"},
+                            "metadata": {
+                                "mode": agent_result.final.mode,
+                                "v": "chatbi_v2_agent",
+                                "router_debug": {"router_trace_v1": router_trace_v1},
+                            },
                             "agent_steps": agent_steps_json,
                             "tool_results": tool_results_json,
                         }
@@ -1578,6 +1682,7 @@ async def handle_unified_chat_stream(
                                 "metadata": {
                                     "mode": agent_result.final.mode,
                                     "v": "chatbi_v2_agent",
+                                    "router_debug": {"router_trace_v1": router_trace_v1},
                                     "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
                                     "agent_db_fallback": True,
                                 },
