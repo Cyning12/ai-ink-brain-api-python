@@ -1437,10 +1437,10 @@ async def handle_unified_chat_stream(
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
     if use_agent:
         if str(prefer).startswith("tool:"):
-            ok = False
             mode = str(prefer)
 
             async def event_stream():
+                ok_local = False
                 try:
                     yield _sse(
                         "chain",
@@ -1459,12 +1459,12 @@ async def handle_unified_chat_stream(
                     return
                 except Exception as exc:  # noqa: BLE001
                     _ = exc
-                    ok = False
+                    ok_local = False
                 finally:
                     yield _sse(
                         "done",
                         {
-                            "ok": ok,
+                            "ok": ok_local,
                             "mode": mode,
                             "run_id": run_id,
                             "request_id": run_id,
@@ -1478,12 +1478,11 @@ async def handle_unified_chat_stream(
         tool_registry = get_tool_registry()
         agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
         max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
-        ok = False
 
         async def event_stream():
-            nonlocal ok
             agent_result = None
             mode_local: str = "auto" if prefer == "auto" else str(prefer)
+            ok_local = False
             try:
                 yield _sse(
                     "chain",
@@ -1497,7 +1496,7 @@ async def handle_unified_chat_stream(
 
                 agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
                 mode_local = agent_result.final.mode
-                ok = True
+                ok_local = True
 
                 # 可选：一轮结束写一次 memory（失败不阻断 SSE）
                 try:
@@ -1733,13 +1732,13 @@ async def handle_unified_chat_stream(
             except GeneratorExit:
                 return
             except Exception:  # noqa: BLE001
-                ok = False
+                ok_local = False
                 yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "agent", "message": "SSE V2 运行异常"}))
             finally:
                 yield _sse(
                     "done",
                     {
-                        "ok": ok,
+                        "ok": ok_local,
                         "mode": mode_local if isinstance(mode_local, str) else ("auto" if prefer == "auto" else str(prefer)),
                         "run_id": run_id,
                         "request_id": run_id,
