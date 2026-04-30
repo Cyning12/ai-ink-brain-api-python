@@ -14,6 +14,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
+    # 仓库 .env 可能默认开启 v2 agent；v1 SSE 测试必须显式关闭。
+    monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
     import api.unified_chat as unified_chat
     import api.index as index

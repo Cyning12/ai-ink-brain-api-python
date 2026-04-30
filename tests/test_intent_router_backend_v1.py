@@ -15,6 +15,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
     monkeypatch.setenv("INTENT_DDL_EVIDENCE_MIN_SCORE", "0.0")
+    # 仓库 .env 可能默认开启 v2 agent；v1 测试必须显式关闭，避免分支被短路。
+    monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
     import api.intent_router as intent_router
     import api.unified_chat as unified_chat

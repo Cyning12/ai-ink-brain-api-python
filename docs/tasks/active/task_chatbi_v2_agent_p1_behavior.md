@@ -22,6 +22,67 @@ P1 目标：
 
 ---
 
+## 执行拆解（P1 内部 WBS）
+
+> 原则：先建立“可验证闭环”（测试集+报告+基准），再做缓存与调优；任何优化都必须能在报告里体现提升。
+
+### A. 真实 LLM 意图测试闭环（必做，优先级 P0）
+
+- [ ] **A1. 去 stub / 真实调用开关对齐**
+  - **目标**：可以一键切换 stub vs 真实 LLM；默认 CI 仍走 stub（避免外部依赖），本地/手动评测走真实 LLM。
+  - **交付物**：`api/intent_agent.py` 与测试侧统一开关（例如 `CHATBI_V2_INTENT_LLM=true/false` 或同义配置）。
+  - **验收**：在本地开启真实 LLM 时，测试工具能打印每条 query 的 tool/mode/confidence/latency_ms；关闭时完全不触发外部请求。
+
+- [ ] **A2. 60 条测试集落盘（结构确定 + 可扩展）**
+  - **目标**：用例集合稳定可复用，支持多轮 history。
+  - **交付物**：`tests/test_intent_agent_accuracy.py`（仅数据与评测逻辑；默认不在 CI 强制跑真实 LLM）。
+  - **验收**：60 条按分类完整覆盖（Text2SQL 20 / RAG 20 / Direct 10 / 多轮 10），并能导出 per-case 结果（JSONL/CSV 二选一）。
+
+- [ ] **A3. 准确率报告生成**
+  - **目标**：自动输出 macro-F1 / per-class F1 / confusion matrix（可用文本版）。
+  - **交付物**：`docs/diary/2026-04-29-p1-intent-benchmark.md`（或更新到当日 diary），包含模型、参数、样本、结果与主要误判样例。
+  - **验收**：报告可复跑、字段齐全，至少列出 Top-10 误判样例（含 reasoning/置信度/实际 tool）。
+
+### B. 性能基准与回归（必做，优先级 P0）
+
+- [ ] **B1. Intent latency benchmark（真实 LLM）**
+  - **交付物**：`tests/benchmark_intent_latency.py`
+  - **验收**：输出 P50/P95/P99 + min/max；支持 `n=100`；结果可贴进报告。
+
+- [ ] **B2. Agent step / E2E latency 基准（最小化）**
+  - **交付物**：基准脚本或 pytest 标记脚本（允许不进 CI），并在报告中写明测量方法与采样量。
+  - **验收**：能复现同一套指标口径（Intent / step / total）。
+
+- [ ] **B3. 回归门禁**
+  - **交付物**：更新/补充必要测试（仍以 stub 为主）；确保不引入 flaky 外部依赖。
+  - **验收**：P0 回归测试全绿；`CHATBI_USE_AGENT=false` 时 V1 行为不变。
+
+### C. 意图缓存（必做，优先级 P1）
+
+- [ ] **C1. IntentCache 实现（LRU + TTL）**
+  - **目标**：降低重复 query 的真实 LLM 成本与延迟。
+  - **交付物**：`api/intent_agent.py` 内 `_intent_cache`（maxsize=1000，TTL=300s），key = query + history_hash（最近 3 轮）。
+  - **验收**：
+    - 相同 query 第二次命中缓存，Intent 延迟 < 10ms（本地测）
+    - TTL 到期失效
+    - 不同 history 不污染（key 区分）
+
+- [ ] **C2. 缓存可观测性（不新增事件类型）**
+  - **交付物**：在现有日志/trace（如 `router_trace_v1` 或 server log）中记录 cache_hit/cache_miss（字段级即可）。
+  - **验收**：报告中能看到缓存命中率与对延迟的影响（至少对比一次）。
+
+### D. 误判调优（可选，优先级 P2，但通常会做）
+
+- [ ] **D1. Prompt 调优迭代**
+  - **策略**：先修正误判最多的类别边界（Text2SQL vs RAG vs Direct），再补 few-shot。
+  - **验收**：每次改动必须附带“前后对比”（macro-F1 与关键类召回）。
+
+- [ ] **D2. 置信度阈值与 fallback 细化（如需要）**
+  - **约束**：不引入新事件类型；只在 P1 任务内改行为/参数，并被测试集覆盖。
+  - **验收**：误判率下降且不显著牺牲召回；性能不退化。
+
+---
+
 ## 范围 / 非范围
 
 ### 范围
@@ -94,6 +155,7 @@ P1 目标：
 
 ```python
 # tests/test_intent_agent_accuracy.py
+
 
 TEST_CASES = [
     # Text2SQL 场景（20条）
@@ -243,3 +305,26 @@ async def benchmark_intent(n: int = 100):
 | Phase 2 | 5/1-5/2 | 60 条测试集跑完 + 准确率报告 |
 | Phase 3 | 5/3 | 性能基准测试 + 调优 |
 | Phase 4 | 5/4 | 文档 + 归档 |
+
+---
+
+## 实现备忘（由子 Agent 回填）
+
+| 项 | 内容 |
+|----|------|
+| 涉及文件（预期） | `api/intent_agent.py`、`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py`、`docs/diary/*.md` |
+| 新增/变更 env（预期） | `CHATBI_V2_INTENT_LLM`（或既有开关复用，需对齐命名） |
+| 数据输出格式 | accuracy 结果建议 JSONL（逐条记录），汇总写入 diary |
+
+## 未来需要再次探讨的问题
+
+
+----- 下面的问法就去查询了
+Q:统计客户数量，列一下1990年之前出生的客户名称
+A:1990年之前出生的客户共有4位，名单如下：李辉、李璐、张玉、张杰。
+
+----- 这个问题没有route到text2sql
+Q:列一下1990年之前出生的客户名称 
+A:抱歉，我无法直接访问或查询具体的客户数据，包括出生年份。建议您通过公司客户管理系统或数据库，利用筛选功能查询1990年之前出生的客户信息。
+--> 
+让LLM知道需要查数据库且他有能力查()

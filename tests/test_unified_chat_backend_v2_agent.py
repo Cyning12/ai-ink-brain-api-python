@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib
 import asyncio
+import datetime as dt
+from decimal import Decimal
 from typing import Any, Callable
 
 import pytest
@@ -295,6 +297,89 @@ def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
         assert "event: chain" in text
         assert "agent.step.start" in text
         assert "agent.final" in text
+        assert "event: done" in text
+
+
+def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPatch):
+    """SSE V2：sql.result 中包含 Decimal/date/datetime 也不应导致序列化崩溃。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={
+                "answer": "sql ok",
+                "sql": "select 1",
+                "columns": ["amount", "created_at", "birthday"],
+                "rows": [
+                    {
+                        "amount": Decimal("12.34"),
+                        "created_at": dt.datetime(2020, 1, 2, 3, 4, 5),
+                        "birthday": dt.date(1990, 8, 27),
+                    }
+                ],
+            },
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=6,
+        )
+
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(success=True, data={"answer": "rag ok", "hits": []}, latency_ms=3)
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("text2sql_query", _sql_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("direct_answer", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="该问题需要统计数据。",
+            reasoning_full="该问题需要统计数据。",
+            confidence=0.9,
+            fallback=None,
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=True),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    client = TestClient(index.app)
+    with client.stream(
+        "POST",
+        "/api/py/unified/chat/stream",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "统计客户数量"},
+    ) as res:
+        assert res.status_code == 200
+        text = ""
+        for chunk in res.iter_text():
+            text += chunk
+            if "event: done" in text:
+                break
+        assert "event: chain" in text
+        assert "sql.result" in text
+        assert "SSE V2 运行异常" not in text
         assert "event: done" in text
 
 

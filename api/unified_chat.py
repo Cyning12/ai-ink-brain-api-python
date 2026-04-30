@@ -1299,7 +1299,15 @@ async def handle_unified_chat(
 
 def _sse(event: str, data: dict[str, Any]) -> str:
     # SSE 要求每条消息以空行结束
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    # 注意：SSE 分支使用 json.dumps，无法像 JSONResponse 一样自动处理 Decimal/date/datetime 等类型。
+    # 这里统一做 jsonable_encoder，避免在后续事件（如 sql.result rows）序列化时报错，导致 SSE 中断。
+    try:
+        from fastapi.encoders import jsonable_encoder
+
+        safe = jsonable_encoder(data)
+    except Exception:  # noqa: BLE001
+        safe = data
+    payload = json.dumps(safe, ensure_ascii=False, separators=(",", ":"), default=str)
     return f"event: {event}\ndata: {payload}\n\n"
 
 
@@ -1331,10 +1339,6 @@ async def handle_unified_chat_stream(
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
     db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
-    router_trace_v1: dict[str, Any] | None = None
-    t_router_decide_ms: int | None = None
-    t_ddl_search_ms: int | None = None
-    t_fts_search_ms: int | None = None
 
     # CHATBI v2（Agent）SSE 主路径
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
@@ -1361,7 +1365,6 @@ async def handle_unified_chat_stream(
                 except GeneratorExit:
                     return
                 except Exception as exc:  # noqa: BLE001
-                    ok_local = False
                     _ = exc
                     ok = False
                 finally:
