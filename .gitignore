@@ -114,3 +114,5 @@ docs/*
 # Task specs and tech graph must be tracked
 !docs/tasks/
 !docs/_tech_graph/
+
+!docs/text2sql/
