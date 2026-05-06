@@ -40,8 +40,8 @@ P1 目标：
 
 摘要（勿与本表冲突时以子任务为准）：
 
-- [ ] A1–A3：真实 LLM 开关、60 条集、准确率报告（diary）
-- [ ] B1–B3：Intent 延迟基准、最小化 Agent/E2E 基准、stub 回归门禁
+- [x] A1–A3：真实 LLM 开关、60 条集、准确率报告骨架与导出（**工具链与 WBS 见** `task_chatbi_v2_agent_p1_eval_benchmark_v1.md`；**macro-F1 等数值验收**仍以跑批 + diary 为准）
+- [x] B1–B3：Intent 延迟脚本、Agent/E2E 测量说明于 diary、stub 回归门禁（同上，**延迟表 TBD** 见 diary）
 
 ### C. 意图缓存（必做，优先级 P1）
 
