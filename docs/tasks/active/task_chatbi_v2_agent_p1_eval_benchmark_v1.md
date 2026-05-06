@@ -58,7 +58,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 - [x] **A2. 60 条测试集落盘**
   - **目标**：稳定可扩展结构；支持多轮 `history`。
   - **交付物**：`tests/test_intent_agent_accuracy.py`（或拆 `tests/data/intent_eval_cases.json` 由测试加载）。
-  - **验收**：**Text2SQL 20 / RAG 20 / Direct 10 / 多轮 10**；可导出 per-case 结果（JSONL 或 CSV）。
+  - **验收**：**Text2SQL 20 / RAG 24 / Direct 16**（末 10 条多轮）；可导出 per-case 结果（JSONL 或 CSV）。
 
 - [x] **A3. 准确率报告**（报告骨架与复跑命令见 `docs/diary/2026-05-06-p1-intent-benchmark.md`；数值待跑批）
   - **目标**：macro-F1、per-class F1、confusion（文本矩阵即可）、Top 误判样例。
@@ -86,9 +86,12 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 
 与总任务 `task_chatbi_v2_agent_p1_behavior.md` 对齐的数值门槛（达成或文档中明确「未达标 + 后续 P1-D 跟踪」）：
 
-- [ ] 60 条全部跑完并有导出文件（须本地 `CHATBI_V2_INTENT_EVAL=true` + 密钥）
-- [ ] macro-F1 > 90%
-- [ ] Text2SQL 召回 ≥ 17/20；RAG ≥ 18/20；Direct ≥ 9/10；多轮 ≥ 8/10  
+- [x] 60 条全部跑完并有导出文件（`tests/_out/intent_llm_latest.jsonl` / `.csv`，2026-05-06 回填见 `docs/diary/2026-05-06-p1-intent-benchmark.md`）
+- [ ] macro-F1 > 90%（**本次 0.868**，未达标，见 diary）
+- [x] Text2SQL 召回 ≥ 17/20（**18/20**）
+- [ ] RAG：任务单原阈「≥18/20」；当前金标为 **24** 条 `rag_search`，**18/24**（未按原 20 条口径对齐时请改任务单或单独切片复评）
+- [x] Direct：当前金标 **16** 条，**16/16**（原阈 ≥9/10 已覆盖）
+- [x] 多轮子集 i=51–60：**8/10**（≥8/10）  
 
 > 若环境/模型变更导致暂时不达标：**必须在同一 diary 报告中**列出差距与样例，并指向 P1-D 或 spec 变更提案；**不得**在无报告情况下合并「号称完成」。
 
@@ -116,6 +119,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 | env 开关真值 | 已登记：`CHATBI_V2_INTENT_LLM`、`CHATBI_V2_INTENT_EVAL`、`CHATBI_V2_INTENT_EVAL_OUT`、`CHATBI_V2_INTENT_BENCH_N`、`CHATBI_V2_INTENT_TIMEOUT_S`、`CHATBI_V2_INTENT_BENCH_RUN`、`CHATBI_USE_AGENT`、`INTENT_LLM_MODEL` |
 | 涉及文件（预期） | `api/intent_agent.py`、`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py`、`pytest.ini`、`docs/diary/2026-05-06-p1-intent-benchmark.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
 | 评测命令示例 | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true pytest tests/test_intent_agent_accuracy.py -m intent_eval -s`；stub 导出：`CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=false pytest …` |
+| **2026-05-06 跑批回填** | 准确率见 diary；**macro-F1 未过**；产物 `tests/_out/intent_llm_latest.*`；B1/B2 延迟表 intent 行已由 JSONL 粗算填入 diary，正式 B1/B2 脚本仍待跑 |
 
 ---
 

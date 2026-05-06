@@ -124,8 +124,8 @@ def _make_tools() -> list[Tool]:
 
 
 def _cases() -> list[IntentCase]:
-    # 约束：总计 60 条（Text2SQL 20 / RAG 20 / Direct 10 / 多轮 10）
-    # 说明：多轮 10 条的 expected 仍属于三类之一，但依赖 history 做指代/省略消解。
+    # 约束：总计 60 条（Text2SQL 20 / RAG 24 / Direct 16；其中末 10 条为多轮，expected 仍为三类之一）
+    # 说明：多轮依赖 history；切片门禁见 test_intent_eval_cases_inventory。
     return [
         # Text2SQL（20）
         IntentCase("昨天销售额是多少", "text2sql_query", "时间+金额", "口语化", []),
@@ -148,7 +148,7 @@ def _cases() -> list[IntentCase]:
         IntentCase("过去一年每月订单数", "text2sql_query", "趋势", "长时间跨度", []),
         IntentCase("按城市分组统计订单数", "text2sql_query", "分组", "明确分组", []),
         IntentCase("用户增长趋势", "text2sql_query", "趋势", "无关键词但强统计倾向", []),
-        # RAG（20）
+        # RAG 单轮块（20）；另有 4 条 expected=rag_search 在多轮块，合计 24
         IntentCase("什么是RAG", "rag_search", "概念", "标准概念", []),
         IntentCase("MCP 是什么", "rag_search", "概念", "新术语", []),
         IntentCase("ReAct 和 Plan-and-Execute 区别", "rag_search", "对比", "技术对比", []),
@@ -169,7 +169,7 @@ def _cases() -> list[IntentCase]:
         IntentCase("为什么要区分 direct_answer 和 rag_search", "rag_search", "设计", "路由边界", []),
         IntentCase("LangChain 的 long-term memory 是什么", "rag_search", "概念", "内部学习资料", []),
         IntentCase("这个仓库的 intent_router 做了什么", "rag_search", "代码", "查文档/代码解释", []),
-        # Direct（10）
+        # Direct（16）
         IntentCase("翻译：Hello", "direct_answer", "翻译", "明确翻译", []),
         IntentCase("把这段英文翻译成中文：How are you?", "direct_answer", "翻译", "语言转换", []),
         IntentCase("润色这段话：今天工作很忙", "direct_answer", "润色", "文本处理", []),
@@ -477,16 +477,19 @@ def test_intent_agent_accuracy_smoke(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_intent_eval_cases_inventory() -> None:
-    """数据集结构门禁：60 条 + Text2SQL20 / RAG20 / Direct10 / 多轮10（无外部依赖）。"""
+    """数据集结构门禁：60 条 + Text2SQL20 / RAG24 / Direct16 + 末 10 条多轮（无外部依赖）。"""
     cases = _cases()
     assert len(cases) == 60
     t2s = cases[:20]
-    rag = cases[20:40]
-    dire = cases[40:50]
+    pure_rag = cases[20:40]
+    pure_direct = cases[40:50]
     multi = cases[50:60]
     assert all(c.expected == "text2sql_query" for c in t2s)
-    assert all(c.expected == "rag_search" for c in rag)
-    assert all(c.expected == "direct_answer" for c in dire)
+    assert all(c.expected == "rag_search" for c in pure_rag)
+    assert all(c.expected == "direct_answer" for c in pure_direct)
+    assert sum(1 for c in cases if c.expected == "rag_search") == 24
+    assert sum(1 for c in cases if c.expected == "direct_answer") == 16
+    assert sum(1 for c in cases if c.expected == "text2sql_query") == 20
     assert len(multi) == 10
     assert sum(len(c.history) > 0 for c in multi) == 10
 
