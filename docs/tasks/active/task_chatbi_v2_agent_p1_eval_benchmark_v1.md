@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P1-Eval）— 可验证评测与性能基准（v1）
 
-状态：done（工具链/CI 门禁已落地；macro-F1 与延迟数值须本地带密钥跑批后填入 `docs/diary/2026-05-06-p1-intent-benchmark.md`）  
+状态：done（工具链/CI 门禁已落地）；**准确率冻结以「稳定网络下复跑」为准**——同日 **复跑二**因 `v1_fallback` 过多仅作归档，见 diary「待网络稳定后」与 `tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.*`  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联图谱 / 规格：
@@ -86,12 +86,14 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 
 与总任务 `task_chatbi_v2_agent_p1_behavior.md` 对齐的数值门槛（达成或文档中明确「未达标 + 后续 P1-D 跟踪」）：
 
-- [x] 60 条全部跑完并有导出文件（`tests/_out/intent_llm_latest.jsonl` / `.csv`，2026-05-06 回填见 `docs/diary/2026-05-06-p1-intent-benchmark.md`）
-- [ ] macro-F1 > 90%（**本次 0.868**，未达标，见 diary）
-- [x] Text2SQL 召回 ≥ 17/20（**18/20**）
-- [ ] RAG：任务单原阈「≥18/20」；当前金标为 **24** 条 `rag_search`，**18/24**（未按原 20 条口径对齐时请改任务单或单独切片复评）
-- [x] Direct：当前金标 **16** 条，**16/16**（原阈 ≥9/10 已覆盖）
-- [x] 多轮子集 i=51–60：**8/10**（≥8/10）  
+- [x] 60 条全部跑完并有导出文件（2026-05-06 **首轮**已回填 diary；**复跑二**已改名归档：`tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.jsonl` / `.csv`；仓库内**不再保留**无后缀 `intent_llm_latest.*` 以免误读）
+- [ ] macro-F1 > 90%（**首轮 ≈0.868**；**复跑二 ≈0.821**，均未达标；复跑二受超时影响更大，见 diary）
+- [x] Text2SQL 召回 ≥ 17/20（**首轮 18/20**；复跑二 **16/20** 因 `v1_fallback` 过多，**不冻结为验收结论**）
+- [ ] RAG：任务单原阈「≥18/20」；当前金标 **24** 条 `rag_search`（**首轮 18/24**；复跑二 **17/24**）
+- [x] Direct：当前金标 **16** 条（首轮与复跑二均为 **16/16**）
+- [x] 多轮子集 i=51–60（**首轮 8/10** 达标；复跑二 **7/10**，同上不冻结）
+
+- [ ] **（阻塞：外网 / 上游稳定性）** 更换更稳定网络或时段后，**再跑一轮** `intent_eval`，导出新的 JSONL/CSV（建议继续带时间戳后缀归档），对比 `v1_fallback` 条数与 macro-F1；通过后更新 diary「冻结验收」行并勾选本条。
 
 > 若环境/模型变更导致暂时不达标：**必须在同一 diary 报告中**列出差距与样例，并指向 P1-D 或 spec 变更提案；**不得**在无报告情况下合并「号称完成」。
 
@@ -119,7 +121,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 | env 开关真值 | 已登记：`CHATBI_V2_INTENT_LLM`、`CHATBI_V2_INTENT_EVAL`、`CHATBI_V2_INTENT_EVAL_OUT`、`CHATBI_V2_INTENT_BENCH_N`、`CHATBI_V2_INTENT_TIMEOUT_S`、`CHATBI_V2_INTENT_BENCH_RUN`、`CHATBI_USE_AGENT`、`INTENT_LLM_MODEL` |
 | 涉及文件（预期） | `api/intent_agent.py`、`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py`、`pytest.ini`、`docs/diary/2026-05-06-p1-intent-benchmark.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
 | 评测命令示例 | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true pytest tests/test_intent_agent_accuracy.py -m intent_eval -s`；stub 导出：`CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=false pytest …` |
-| **2026-05-06 跑批回填** | 准确率见 diary；**macro-F1 未过**；产物 `tests/_out/intent_llm_latest.*`；B1/B2 延迟表 intent 行已由 JSONL 粗算填入 diary，正式 B1/B2 脚本仍待跑 |
+| **2026-05-06 跑批回填** | **首轮**：准确率见 diary；macro-F1 未过；当时产物为 `intent_llm_latest.*`（已被覆盖）。**复跑二**：`v1_fallback=15/60`，acc≈0.817，macro-F1≈0.821；产物已改名为 `intent_llm_latest_20260506_171351_v1fb15_acc0817.{jsonl,csv}`。**待稳定网络后复跑**并更新 diary 冻结口径；B1/B2 正式脚本仍待跑 |
 
 ---
 

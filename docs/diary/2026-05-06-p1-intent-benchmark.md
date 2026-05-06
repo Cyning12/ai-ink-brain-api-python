@@ -3,15 +3,74 @@
 关联任务：`docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`  
 Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表）、`SPEC-ChatBI-V2-Intent.md`（60 条约定）
 
-## 跑批元信息（2026-05-06 回填）
+## 归档产物（防覆盖改名）
+
+**复跑二**结束后已将 `intent_llm_latest` 改名归档（避免后续跑批覆盖）：
+
+- `tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.jsonl`
+- `tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.csv`
+
+命名含义：`v1fb15` = 本文件内 `raw_response.used=v1_fallback` 共 **15** 条；`acc0817` ≈ **49/60** 准确率。  
+**下次跑批**：请显式设置 `CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_latest.jsonl`（或新时间戳路径）；当前仓库内**无** `intent_llm_latest.jsonl`，避免误以为仍有「最新」文件。
+
+---
+
+## 首轮跑批（同日较早，环境相对正常）
 
 | 项 | 值 |
 |----|-----|
-| 产物 | `tests/_out/intent_llm_latest.jsonl`、`tests/_out/intent_llm_latest.csv`（同次跑批；另有带时间戳副本见 `tests/_out/intent_llm_20260506_*.jsonl`） |
-| 模型 / 密钥 | `INTENT_LLM_MODEL` 以跑批环境为准（与 SiliconFlow 一致）；本批 `raw_response.used=v1_fallback` 共 **10** 条（多为 `CHATBI_V2_INTENT_TIMEOUT_S` 边界触发） |
-| 汇总 | **n=60**，**ok=52**，**acc=0.867**，**macro-F1≈0.868**；per-class F1：text2sql **0.947**，rag **0.857**，direct **0.800** |
-| 分桶（与当前 `_cases()` 一致：T2S 20 / RAG 24 / Direct 16，多轮 10 条混在三类内） | Text2SQL **18/20**；RAG（expected=`rag_search` 共 24 条）**18/24**；Direct **16/16**；多轮子集 **i=51–60** 共 10 条 **8/10** |
-| 对照门槛（任务单原「RAG≥18/20」按 20 条金标写法） | macro-F1 **未达** >0.90；RAG 在 **24** 条上为 **18/24**；Text2SQL **18/20**（≥17 **达标**）；Direct **16/16**；多轮 **8/10**（达标）→ 未过项 **链 P1-D**（超时、prompt、金标/任务口径） |
+| 产物 | 当时为 `tests/_out/intent_llm_latest.*`（已被复跑二覆盖前已提交 git 的摘要；原始 JSONL 未保留） |
+| `v1_fallback` | **10** / 60 |
+| 汇总 | **n=60**，**ok=52**，**acc≈0.867**，**macro-F1≈0.868** |
+| per-class F1 | text2sql **≈0.947**，rag **≈0.857**，direct **≈0.800** |
+| 分桶 | Text2SQL **18/20**；RAG（`rag_search` 共 24）**18/24**；Direct **16/16**；多轮 **i=51–60** **8/10** |
+| 混淆矩阵 | T2S 18/0/2；RAG 0/18/6；Direct 0/0/16 |
+
+---
+
+## 复跑二（网络不稳，`v1_fallback` 过多 — **不作为最终验收冻结**）
+
+| 项 | 值 |
+|----|-----|
+| 归档 | 见上文 `intent_llm_latest_20260506_171351_v1fb15_acc0817.*` |
+| `v1_fallback` | **15** / 60（`reasoning` 均为「意图识别超时，降级到 V1 规则路由。」） |
+| 汇总 | **ok=49**，**acc≈0.817**，**macro-F1≈0.821** |
+| per-class F1 | text2sql **≈0.889**，rag **≈0.829**，direct **≈0.744** |
+| 分桶 | Text2SQL **16/20**（**低于** ≥17/20）；RAG **17/24**；Direct **16/16**；多轮 **7/10**（**低于** ≥8/10） |
+| 真 LLM 分歧（非 `v1_fallback`） | **2** 条：`i=33`（`rag_search`→`direct_answer`）、`i=56`（多轮，`rag_search`→`direct_answer`） |
+
+### 混淆矩阵（复跑二，expected → predicted）
+
+| expected \\ predicted | text2sql_query | rag_search | direct_answer |
+|------------------------|----------------|------------|----------------|
+| text2sql_query | 16 | 0 | 4 |
+| rag_search | 0 | 17 | 7 |
+| direct_answer | 0 | 0 | 16 |
+
+### Intent 延迟粗算（复跑二，`latency_ms`）
+
+| 子集 | n | P50 | P95 |
+|------|---|-----|-----|
+| 全量 60 条 | 60 | ≈8498 ms | ≈31037 ms |
+| 剔除 `v1_fallback` | 45 | ≈7906 ms | ≈18795 ms |
+
+### 复跑二 `ok=false` 一览（共 11，按 confidence 降序）
+
+1. **i=33** `rag_search`→`direct_answer` conf=**0.90** — 真 LLM：「如何计算 confusion matrix」判为通用知识直接答。
+2. **i=56** `rag_search`→`direct_answer` conf=**0.85** — 真 LLM：多轮「那需要查数据库吗」判 direct。
+3. 其余 9 条均为 **`v1_fallback` + conf=0.60**（超时后 V1 路由，多为判成 `direct_answer` 或少数侥幸对齐金标）：i=**1,6,10,12**（T2S）、**27,28,32**（RAG）、**51,52**（多轮 RAG）。
+
+**归因**：本轮 **`v1_fallback` 15 条**，`latency_ms` 在 fallback 样本上多集中在 **~30.6–31.7s**，与 **`CHATBI_V2_INTENT_TIMEOUT_S`≈30s** 顶满一致；**优先怀疑外网/上游不稳定**，而非 RAG prompt 单独失效。  
+**结论**：**须在更稳定网络下复跑 60 条**，再更新任务单验收数字；本轮仅作归档与对比基线。
+
+---
+
+## 待网络稳定后（任务跟踪）
+
+- [ ] 固定时段或更换网络后，**重新执行** `pytest … -m intent_eval`，导出新的 `intent_llm_latest.jsonl`（或带时间戳文件名），对比 **`v1_fallback` 条数**与 macro-F1；若 fallback 明显下降，再以该次作为「环境正常」主报告。
+- 可选：跑前记录上游 RTT / 并发；仍不达标再进入 **P1-D**（超时阈值、重试、prompt、金标口径）。
+
+---
 
 ## 复跑命令（与 PROJECT_CONFIG 对齐）
 
@@ -79,43 +138,24 @@ python tests/benchmark_agent_e2e_latency.py
 
 与 Overview 目标（Intent P50/P95、Agent 单步、整体 E2E）对照时，在表中注明「B2 为 stub 工具链」或「已切换真实 intent」等变量。
 
-## 验收数值（须本地跑批后填写）
+---
 
-| 项 | 目标 / 备注 | 本次跑批 |
-|----|-------------|----------|
-| macro-F1 | > 90%（未达标则列样例并链 P1-D） | **0.868**（未达标） |
-| Text2SQL 召回 | ≥ 17/20（金标 20 条） | **18/20** |
-| RAG 召回 | ≥ 18/20（任务单按 20 条写法；当前集为 **24** 条 `rag_search`） | **18/24**（未达原「18/20」比例意涵时请改任务门槛或切片口径） |
-| Direct 召回 | ≥ 9/10 | **16/16**（当前集为 16 条 `direct_answer`，**全部正确**） |
-| 多轮 召回 | ≥ 8/10（子集 i=51–60） | **8/10** |
-| Intent P50 / P95 | < 200ms / < 500ms（B1 口径） | **未达标**：本批为评测循环内 `latency_ms`（60 条全量）**P50≈7431ms，P95≈20938ms**；剔除 `v1_fallback` 后 **n=50**，**P50≈3768ms，P95≈16030ms**（仍远高于 Overview 理想值，属上游延迟 + 长 prompt） |
-| Agent 单步 P50 / P95 | < 1.5s / < 3s（B2 口径） | 未跑 B2 脚本，**TBD** |
-| E2E P50 / P95 | < 3s / < 8s（B2 口径） | 未跑 B2 脚本，**TBD** |
+## 验收数值对照表（首轮 vs 复跑二）
 
-### 混淆矩阵（expected → predicted，本次）
+| 项 | 目标 / 备注 | 首轮（较早） | 复跑二（网络差，已归档） |
+|----|-------------|--------------|--------------------------|
+| macro-F1 | > 90% | **≈0.868**（未达标） | **≈0.821**（未达标） |
+| Text2SQL | ≥ 17/20 | **18/20** | **16/20** |
+| RAG（24 条 `rag_search`） | 见任务单口径 | **18/24** | **17/24** |
+| Direct | 当前 16 条 | **16/16** | **16/16** |
+| 多轮 i=51–60 | ≥ 8/10 | **8/10** | **7/10** |
+| `v1_fallback` | 越少越好（过程性） | **10** | **15** |
+| Intent P50 / P95（JSONL 粗算） | Overview 理想值仍远未达 | 首轮见历史 git / 上文摘要 | 全量 P50≈8498ms，P95≈31037ms；剔除 fallback 后 P50≈7906ms，P95≈18795ms |
+| B2 | diary 链 | **TBD** | **TBD** |
 
-| expected \\ predicted | text2sql_query | rag_search | direct_answer |
-|------------------------|----------------|------------|----------------|
-| text2sql_query | 18 | 0 | 2 |
-| rag_search | 0 | 18 | 6 |
-| direct_answer | 0 | 0 | 16 |
-
-## Top-10 误判（从 `ok=false` 按 confidence 降序）
-
-本次共 **8** 条 `ok=false`（按 confidence 降序；与 `intent_llm_latest.jsonl` 一致）：
-
-1. **i=33** expected=`rag_search` actual=`direct_answer` conf=**0.90** — 「如何计算 confusion matrix」：模型判为通用知识直接回答（金标为 rag；可议）。
-2. **i=56** expected=`rag_search` actual=`direct_answer` conf=**0.90** — 「那需要查数据库吗」（**多轮**）：模型判为元问题直接回答（金标为 rag；可议）。
-3. **i=3** expected=`text2sql_query` actual=`direct_answer` conf=**0.60** — 「最近7天收入多少」：**意图识别超时 → V1 降级**。
-4. **i=20** expected=`text2sql_query` actual=`direct_answer` conf=**0.60** — 「用户增长趋势」：**超时降级**。
-5. **i=26** expected=`rag_search` actual=`direct_answer` conf=**0.60** — 「Text2SQL 的原理是什么」：**超时降级**。
-6. **i=29** expected=`rag_search` actual=`direct_answer` conf=**0.60** — 「如何写一份 _tech_graph 的流程图」：**超时降级**。
-7. **i=31** expected=`rag_search` actual=`direct_answer` conf=**0.60** — 「如何做意图缓存（LRU+TTL）」：**超时降级**。
-8. **i=52** expected=`rag_search` actual=`direct_answer` conf=**0.60** — 「那怎么优化」（**多轮**）：**超时降级**。
-
-**归因小结**：**expected=`rag_search` 共 24 条**中错 6 条：纯 RAG 段内多为 **超时降级**（如 i=26/29/31）+ **i=33** 模型判 direct；多轮里 **i=52** 超时、**i=56** 模型判 direct。macro-F1 未过 0.90 → **P1-D**：`CHATBI_V2_INTENT_TIMEOUT_S`、prompt、或金标/切片口径与任务单对齐。
+---
 
 ## 备注
 
-- 更早模板见 `docs/diary/2026-04-30-p1-intent-benchmark.md`；本文件为 **P1-Eval v1 任务** 当日归档与复跑入口。
+- 更早模板见 `docs/diary/2026-04-30-p1-intent-benchmark.md`；本文件为 **P1-Eval v1** 当日归档与复跑入口。
 - CI：`pytest` 默认不设置 `CHATBI_V2_INTENT_EVAL` / `CHATBI_V2_INTENT_BENCH_RUN`，相关用例跳过；stub 用例覆盖导出与零外呼门禁。
