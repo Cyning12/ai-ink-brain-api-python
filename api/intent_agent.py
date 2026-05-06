@@ -237,6 +237,17 @@ Q: "heros 表有哪些字段"
     return obj
 
 
+def _effective_intent_llm_timeout_s(override: float) -> float:
+    """Intent LLM 单次 `wait_for` 上限：优先读 `CHATBI_V2_INTENT_TIMEOUT_S`，否则用调用方传入值。"""
+    raw = (os.getenv("CHATBI_V2_INTENT_TIMEOUT_S") or "").strip()
+    if raw:
+        try:
+            return max(0.5, min(120.0, float(raw)))
+        except ValueError:
+            pass
+    return max(0.5, min(120.0, float(override)))
+
+
 def _heuristic_decide(query: str) -> tuple[ToolName, V1Mode, float, str]:
     # 轻量启发式：用于 LLM 不可用时保证功能可用
     if is_text2sql_intent(query):
@@ -279,6 +290,7 @@ async def decide_intent_v2(
     )
 
     try:
+        # 与 tests、benchmark、PROJECT_CONFIG 对齐：关闭时仅启发式/V1 降级，不创建 SiliconFlow client（CI 零外呼）。
         use_intent_llm_raw = (os.getenv("CHATBI_V2_INTENT_LLM", "true") or "").strip().lower()
         use_intent_llm = use_intent_llm_raw in ("1", "true", "yes", "on")
 
@@ -310,8 +322,9 @@ async def decide_intent_v2(
                 _intent_cache.set(cache_key, decision)
                 return decision
 
+            t_llm = _effective_intent_llm_timeout_s(timeout)
             raw_obj = await _llm_decide_v2(
-                oai=oai, query=query, history=hist, tools=use_tools, timeout_s=timeout
+                oai=oai, query=query, history=hist, tools=use_tools, timeout_s=t_llm
             )
 
             tool_raw = raw_obj.get("tool")

@@ -1,11 +1,22 @@
 from __future__ import annotations
 
+"""Intent 延迟基准（B1）。
+
+测量边界：自 `decide_intent_v2` 入口起至返回止的 wall-clock（含内部 `asyncio.to_thread` 调 LLM）。
+`CHATBI_V2_INTENT_LLM=false` 时为启发式路径，用于对照网络型延迟。
+
+用法示例：
+  CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 python tests/benchmark_intent_latency.py
+"""
+
 import asyncio
 import os
 import random
 import time
 from dataclasses import dataclass
 from typing import Any
+
+import pytest
 
 from api.intent_agent import decide_intent_v2
 from api.tools import Tool
@@ -104,6 +115,16 @@ def main() -> None:
     print(f"- Avg: {st.avg:.1f}ms")
     print(f"- Min: {st.min:.1f}ms")
     print(f"- Max: {st.max:.1f}ms")
+
+
+@pytest.mark.intent_benchmark
+@pytest.mark.skipif(
+    (os.getenv("CHATBI_V2_INTENT_BENCH_RUN", "") or "").strip().lower() not in ("1", "true", "yes", "on"),
+    reason="默认不进 CI；设置 CHATBI_V2_INTENT_BENCH_RUN=true 且配置 SILICONFLOW 后执行。",
+)
+def test_intent_latency_benchmark_pytest() -> None:
+    """与 `main()` 同源逻辑，便于 `pytest -m intent_benchmark` 统一入口。"""
+    main()
 
 
 if __name__ == "__main__":

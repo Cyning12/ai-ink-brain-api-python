@@ -4,12 +4,15 @@
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P1-P0 已具备评测闭环脚本（accuracy/latency/agent-e2e）  
 关联：
-- `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总任务）
+- `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览）
+- `docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`（P1-Eval：评测/基准主线；与本任务并行时共享「CI 不调外部 LLM」约束）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md`（缓存策略：key=query+history_hash）
 
 ---
 
 ## 背景与目标
+
+前置建议：P1-Eval 已具备 **accuracy / latency** 最小脚本与门禁口径后再合入缓存对比数据更顺；若并行开发，以各任务单验收为准。
 
 当前 `api/intent_agent.py` 已具备最小缓存对象 `_intent_cache`，但仍存在缺口：
 
