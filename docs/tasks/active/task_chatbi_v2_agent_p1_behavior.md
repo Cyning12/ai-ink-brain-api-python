@@ -47,7 +47,7 @@ P1 目标：
 
 > **实现与可观测性细节以** `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` **为准**；本节保留总览与总验收对齐。
 
-- [ ] **C1. IntentCache 实现（LRU + TTL）**
+- [x] **C1. IntentCache 实现（LRU + TTL）**（2026-05-06 见 `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` + `tests/test_intent_cache.py`）
   - **目标**：降低重复 query 的真实 LLM 成本与延迟。
   - **交付物**：`api/intent_agent.py` 内 `_intent_cache`（maxsize=1000，TTL=300s），key = query + history_hash（最近 3 轮）。
   - **验收**：
@@ -55,7 +55,7 @@ P1 目标：
     - TTL 到期失效
     - 不同 history 不污染（key 区分）
 
-- [ ] **C2. 缓存可观测性（不新增事件类型）**
+- [x] **C2. 缓存可观测性（不新增事件类型）**（`raw_response.cache` / `cache_key_hash` / `latency_ms`；`DEBUG_INTENT_CACHE`；diary `2026-05-06-p1-intent-cache.md`）
   - **交付物**：在现有日志/trace（如 `router_trace_v1` 或 server log）中记录 cache_hit/cache_miss（字段级即可）。
   - **验收**：报告中能看到缓存命中率与对延迟的影响（至少对比一次）。
 
