@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hmac
 import os
 import re
@@ -26,7 +27,7 @@ from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_selec
 from .text2sql_store import get_text2sql_store
 from .intent_router import decide_intent
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
-from .agent import ChatBIAgent
+from .agent import AgentRunView, ChatBIAgent
 from .agent_memory import get_memory_store
 from .tools import get_tool_registry
 
@@ -313,8 +314,6 @@ def _shrink_router_trace_v1(trace: dict[str, Any], *, max_bytes: int = 8192) -> 
 def _async_save_rag_log(payload: dict[str, Any]) -> None:
     """异步写入 rag_conversation_logs（best-effort，不阻塞主流程）。"""
     try:
-        import asyncio
-
         def _sync_insert() -> None:
             sb = supabase_client()
             sb.table("rag_conversation_logs").insert(payload).execute()
@@ -322,6 +321,116 @@ def _async_save_rag_log(payload: dict[str, Any]) -> None:
         asyncio.create_task(asyncio.to_thread(_sync_insert))
     except Exception:
         # best-effort：任何异常都不影响主流程
+        return
+
+
+def _async_save_chatbi_v2_agent_log(
+    *,
+    session_id: str | None,
+    query: str,
+    run_id: str,
+    prefer: PreferMode | str,
+    started_at: float,
+    agent_result: AgentRunView,
+) -> None:
+    """V2 Agent 一轮结束落库：异步线程执行，避免阻塞 SSE（此前会触发 BFF body 空闲超时）。"""
+    if not session_id:
+        return
+
+    def _sync_dual_insert() -> None:
+        try:
+            sb = supabase_client()
+            agent_steps_json: dict[str, Any] = {
+                "total_steps": agent_result.final.total_steps,
+                "tools_used": agent_result.final.tools_used,
+                "fallback_used": agent_result.final.fallback_used,
+                "steps": [
+                    {
+                        "step_number": s.step_number,
+                        "tool_used": s.tool_used,
+                        "mode": s.mode,
+                        "success": s.success,
+                        "next_action": s.next_action,
+                        "thought": s.think_payload.get("thought"),
+                    }
+                    for s in agent_result.steps
+                ],
+            }
+            tool_results_json: dict[str, Any] = {
+                "results": [
+                    {
+                        "tool": s.tool_used,
+                        "success": s.tool_result.success,
+                        "error_code": s.tool_result.error_code,
+                        "error_stage": s.tool_result.error_stage,
+                        "latency_ms": s.tool_result.latency_ms,
+                        "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                    }
+                    for s in agent_result.steps
+                ]
+            }
+            text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+            router_trace_v1: dict[str, Any] | None = None
+            mode_local = agent_result.final.mode
+            if mode_local == "text2sql" and text2sql_exec_trace:
+                router_trace_v1 = _shrink_router_trace_v1(
+                    {
+                        "v": "router_trace_v1",
+                        "ts_ms": int(time.time() * 1000),
+                        "run_id": run_id,
+                        "mode": mode_local,
+                        "prefer": "auto" if prefer == "auto" else str(prefer),
+                        "decision": {
+                            "candidate_mode": "text2sql",
+                            "final_mode": "text2sql",
+                            "fallback": None,
+                        },
+                        "timing_ms": {"total": _now_ms(started_at)},
+                        "text2sql_exec": text2sql_exec_trace,
+                    }
+                )
+
+            payload_full = {
+                "session_id": session_id,
+                "query": query,
+                "rewritten_query": query,
+                "retrieved_context": {},
+                "response": agent_result.final.answer,
+                "metadata": {
+                    "mode": agent_result.final.mode,
+                    "v": "chatbi_v2_agent",
+                    "router_debug": {"router_trace_v1": router_trace_v1},
+                },
+                "agent_steps": agent_steps_json,
+                "tool_results": tool_results_json,
+            }
+            try:
+                sb.table("rag_conversation_logs").insert(payload_full).execute()
+            except Exception as exc:  # noqa: BLE001
+                if _debug_agent_db_log_enabled():
+                    print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+                payload_fallback = {
+                    "session_id": session_id,
+                    "query": query,
+                    "rewritten_query": query,
+                    "retrieved_context": {},
+                    "response": agent_result.final.answer,
+                    "metadata": {
+                        "mode": agent_result.final.mode,
+                        "v": "chatbi_v2_agent",
+                        "router_debug": {"router_trace_v1": router_trace_v1},
+                        "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                        "agent_db_fallback": True,
+                    },
+                }
+                sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+        except Exception as exc:  # noqa: BLE001
+            if _debug_agent_db_log_enabled():
+                print(f"[agent-db] insert failed: {exc!s}", flush=True)
+
+    try:
+        asyncio.create_task(asyncio.to_thread(_sync_dual_insert))
+    except Exception:
         return
 
 
@@ -674,102 +783,15 @@ async def handle_unified_chat(
             )
         )
 
-        # 记忆持久化：仅一轮结束写一次（优先写 agent_steps/tool_results 列；不兼容时降级写入 metadata）
-        try:
-            sb = supabase_client()
-            agent_steps_json: dict[str, Any] = {
-                "total_steps": agent_result.final.total_steps,
-                "tools_used": agent_result.final.tools_used,
-                "fallback_used": agent_result.final.fallback_used,
-                "steps": [
-                    {
-                        "step_number": s.step_number,
-                        "tool_used": s.tool_used,
-                        "mode": s.mode,
-                        "success": s.success,
-                        "next_action": s.next_action,
-                        "thought": s.think_payload.get("thought"),
-                    }
-                    for s in agent_result.steps
-                ],
-            }
-            tool_results_json: dict[str, Any] = {
-                "results": [
-                    {
-                        "tool": s.tool_used,
-                        "success": s.tool_result.success,
-                        "error_code": s.tool_result.error_code,
-                        "error_stage": s.tool_result.error_stage,
-                        "latency_ms": s.tool_result.latency_ms,
-                        "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
-                    }
-                    for s in agent_result.steps
-                ]
-            }
-            if session_id:
-                text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
-                router_trace_v1: dict[str, Any] | None = None
-                if mode == "text2sql" and text2sql_exec_trace:
-                    router_trace_v1 = _shrink_router_trace_v1(
-                        {
-                            "v": "router_trace_v1",
-                            "ts_ms": int(time.time() * 1000),
-                            "run_id": run_id,
-                            "mode": mode,
-                            "prefer": "auto" if prefer == "auto" else str(prefer),
-                            "decision": {
-                                "candidate_mode": "text2sql",
-                                "final_mode": "text2sql",
-                                "fallback": None,
-                            },
-                            "timing_ms": {"total": _now_ms(started_at)},
-                            "text2sql_exec": text2sql_exec_trace,
-                        }
-                    )
-
-                payload_full = {
-                    "session_id": session_id,
-                    "query": query,
-                    "rewritten_query": query,
-                    "retrieved_context": {},
-                    "response": agent_result.final.answer,
-                    "metadata": {
-                        "mode": agent_result.final.mode,
-                        "v": "chatbi_v2_agent",
-                        "router_debug": {
-                            "router_trace_v1": router_trace_v1,
-                        },
-                    },
-                    "agent_steps": agent_steps_json,
-                    "tool_results": tool_results_json,
-                }
-                try:
-                    sb.table("rag_conversation_logs").insert(payload_full).execute()
-                except Exception as exc:  # noqa: BLE001
-                    # 兼容降级：当 DB 未包含 agent_steps/tool_results 列时，仍要保证该轮对话可入库。
-                    if _debug_agent_db_log_enabled():
-                        print(f"[agent-db] insert full failed: {exc!s}", flush=True)
-                    payload_fallback = {
-                        "session_id": session_id,
-                        "query": query,
-                        "rewritten_query": query,
-                        "retrieved_context": {},
-                        "response": agent_result.final.answer,
-                        "metadata": {
-                            "mode": agent_result.final.mode,
-                            "v": "chatbi_v2_agent",
-                            "router_debug": {
-                                "router_trace_v1": router_trace_v1,
-                            },
-                            "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
-                            "agent_db_fallback": True,
-                        },
-                    }
-                    sb.table("rag_conversation_logs").insert(payload_fallback).execute()
-        except Exception as exc:  # noqa: BLE001
-            # 记忆写入降级：不阻断对外回答；但可选输出错误以便排查
-            if _debug_agent_db_log_enabled():
-                print(f"[agent-db] insert failed: {exc!s}", flush=True)
+        # 记忆持久化：异步写入，避免阻塞 JSON 响应体返回
+        _async_save_chatbi_v2_agent_log(
+            session_id=session_id,
+            query=query,
+            run_id=run_id,
+            prefer=prefer,
+            started_at=started_at,
+            agent_result=agent_result,
+        )
 
         return finish(ok=True, mode=mode)
 
@@ -1597,100 +1619,22 @@ async def handle_unified_chat_stream(
                     },
                 )
 
-                agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+                # Agent 运行可能耗时较长：若长时间不向客户端写字节，Next/undici 会触发 BodyTimeoutError。
+                # 因此在 await 期间周期性发送 SSE 注释行保活；落库改异步，避免阻塞在首个 meta 之后。
+                _run_task = asyncio.create_task(agent.run(query=query, session_id=session_id, prefer=prefer))
+                try:
+                    _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
+                except Exception:  # noqa: BLE001
+                    _iv = 15.0
+                _iv = max(5.0, min(_iv, 60.0))
+                while not _run_task.done():
+                    await asyncio.wait({_run_task}, timeout=_iv)
+                    if _run_task.done():
+                        break
+                    yield ": sse-keepalive\n\n"
+                agent_result = await _run_task
                 mode_local = agent_result.final.mode
                 ok_local = True
-
-                # 可选：一轮结束写一次 memory（失败不阻断 SSE）
-                try:
-                    if session_id:
-                        sb = supabase_client()
-                        agent_steps_json: dict[str, Any] = {
-                            "total_steps": agent_result.final.total_steps,
-                            "tools_used": agent_result.final.tools_used,
-                            "fallback_used": agent_result.final.fallback_used,
-                            "steps": [
-                                {
-                                    "step_number": s.step_number,
-                                    "tool_used": s.tool_used,
-                                    "mode": s.mode,
-                                    "success": s.success,
-                                    "next_action": s.next_action,
-                                    "thought": s.think_payload.get("thought"),
-                                }
-                                for s in agent_result.steps
-                            ],
-                        }
-                        tool_results_json: dict[str, Any] = {
-                            "results": [
-                                {
-                                    "tool": s.tool_used,
-                                    "success": s.tool_result.success,
-                                    "error_code": s.tool_result.error_code,
-                                    "error_stage": s.tool_result.error_stage,
-                                    "latency_ms": s.tool_result.latency_ms,
-                                    "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
-                                }
-                                for s in agent_result.steps
-                            ]
-                        }
-                        text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
-                        router_trace_v1: dict[str, Any] | None = None
-                        if mode_local == "text2sql" and text2sql_exec_trace:
-                            router_trace_v1 = _shrink_router_trace_v1(
-                                {
-                                    "v": "router_trace_v1",
-                                    "ts_ms": int(time.time() * 1000),
-                                    "run_id": run_id,
-                                    "mode": mode_local,
-                                    "prefer": "auto" if prefer == "auto" else str(prefer),
-                                    "decision": {
-                                        "candidate_mode": "text2sql",
-                                        "final_mode": "text2sql",
-                                        "fallback": None,
-                                    },
-                                    "timing_ms": {"total": _now_ms(started_at)},
-                                    "text2sql_exec": text2sql_exec_trace,
-                                }
-                            )
-
-                        payload_full = {
-                            "session_id": session_id,
-                            "query": query,
-                            "rewritten_query": query,
-                            "retrieved_context": {},
-                            "response": agent_result.final.answer,
-                            "metadata": {
-                                "mode": agent_result.final.mode,
-                                "v": "chatbi_v2_agent",
-                                "router_debug": {"router_trace_v1": router_trace_v1},
-                            },
-                            "agent_steps": agent_steps_json,
-                            "tool_results": tool_results_json,
-                        }
-                        try:
-                            sb.table("rag_conversation_logs").insert(payload_full).execute()
-                        except Exception as exc:  # noqa: BLE001
-                            if _debug_agent_db_log_enabled():
-                                print(f"[agent-db] insert full failed: {exc!s}", flush=True)
-                            payload_fallback = {
-                                "session_id": session_id,
-                                "query": query,
-                                "rewritten_query": query,
-                                "retrieved_context": {},
-                                "response": agent_result.final.answer,
-                                "metadata": {
-                                    "mode": agent_result.final.mode,
-                                    "v": "chatbi_v2_agent",
-                                    "router_debug": {"router_trace_v1": router_trace_v1},
-                                    "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
-                                    "agent_db_fallback": True,
-                                },
-                            }
-                            sb.table("rag_conversation_logs").insert(payload_fallback).execute()
-                except Exception as exc:  # noqa: BLE001
-                    if _debug_agent_db_log_enabled():
-                        print(f"[agent-db] insert failed: {exc!s}", flush=True)
 
                 intent_decision = agent_result.intent_decision
                 step1 = agent_result.steps[0] if agent_result.steps else None
@@ -1874,6 +1818,14 @@ async def handle_unified_chat_stream(
                         step_id="l1",
                         payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
                     ),
+                )
+                _async_save_chatbi_v2_agent_log(
+                    session_id=session_id,
+                    query=query,
+                    run_id=run_id,
+                    prefer=prefer,
+                    started_at=started_at,
+                    agent_result=agent_result,
                 )
             except GeneratorExit:
                 return

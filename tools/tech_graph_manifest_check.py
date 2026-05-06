@@ -20,6 +20,7 @@ KEY_ENV_PREFIX = (
     "SILICONFLOW_",
     "RAG_",
     "DEBUG_",
+    "SSE_",
     "TEXT2SQL_",
 )
 KEY_ENV_EXACT = {
