@@ -59,7 +59,7 @@
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
 | `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `Qwen/Qwen2.5-7B-Instruct` | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL` | 启用 60 条意图准确率 pytest（`@pytest.mark.intent_eval`） | 可选 | `tests/test_intent_agent_accuracy.py` | 不设为跳过；需密钥时配 `CHATBI_V2_INTENT_LLM=true` + `SILICONFLOW_API_KEY` | 与项目无关 |
-| `CHATBI_V2_INTENT_EVAL_OUT` | 评测结果 JSONL/同 stem CSV 输出路径 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `tests/_out/intent_accuracy.jsonl` | 与项目无关 |
+| `CHATBI_V2_INTENT_EVAL_OUT` | 评测结果 JSONL/同 stem CSV 输出路径 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `tests/_out/intent_accuracy.jsonl`。**相对路径**（推荐）：以 `ai-ink-brain-api-python` 仓库根为锚写 `tests/_out/foo.jsonl`；或以 `tests/` 为锚写 `_out/foo.jsonl`（与 pytest 启动目录无关） | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL_PROGRESS` | 60 条评测是否逐条打印开始/结束行 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `true`；CI 内 `test_stub_eval_end_to_end_writes_exports` 强制 `false` | 与项目无关 |
 | `CHATBI_V2_INTENT_BENCH_N` | Intent 延迟基准采样次数 | 可选 | `tests/benchmark_intent_latency.py` | 默认 `100` | 与项目无关 |
 | `CHATBI_V2_INTENT_TIMEOUT_S` | Intent LLM 单次等待上限（秒），`asyncio.wait_for` 包住上游 `chat.completions` | 可选 | `api/intent_agent.py`（`decide_intent_v2`）、`tests/benchmark_intent_latency.py` | 未设时沿用调用方默认 `3.0`；SiliconFlow 较慢时建议 `15`～`30` | 与项目无关 |

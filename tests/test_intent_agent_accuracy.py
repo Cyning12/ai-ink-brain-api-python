@@ -43,12 +43,28 @@ def _intent_eval_progress_enabled() -> bool:
     return _env_flag("CHATBI_V2_INTENT_EVAL_PROGRESS", default=True)
 
 
+def _tests_dir() -> Path:
+    return Path(__file__).resolve().parent
+
+
+def _repo_root() -> Path:
+    return _tests_dir().parent
+
+
 def _ensure_out_path() -> Path:
+    """解析 CHATBI_V2_INTENT_EVAL_OUT：绝对路径原样；相对路径以仓库根或 tests 目录为锚（不依赖 pytest cwd）。"""
     out = (os.getenv("CHATBI_V2_INTENT_EVAL_OUT") or "").strip()
-    if out:
-        p = Path(out)
+    if not out:
+        p = _tests_dir() / "_out" / "intent_accuracy.jsonl"
     else:
-        p = Path(__file__).resolve().parent / "_out" / "intent_accuracy.jsonl"
+        p = Path(out)
+        if not p.is_absolute():
+            # tests/_out/run.jsonl → 仓库根 / tests / _out / run.jsonl
+            # _out/run.jsonl        → tests 目录 / _out / run.jsonl
+            if p.parts and p.parts[0] == "tests":
+                p = _repo_root() / p
+            else:
+                p = _tests_dir() / p
     p.parent.mkdir(parents=True, exist_ok=True)
     return p
 

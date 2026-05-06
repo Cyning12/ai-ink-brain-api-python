@@ -1,0 +1,61 @@
+i,query,expected,predicted,ok,category,note,confidence,latency_ms,reasoning
+1,昨天销售额是多少,text2sql_query,direct_answer,False,时间+金额,口语化,0.6,21025,意图识别超时，降级到 V1 规则路由。
+2,这个月有多少订单,text2sql_query,text2sql_query,True,数量,口语化,0.95,7699,用户要求统计本月订单数量，需要执行数据库查询获取具体数值
+3,最近7天收入多少,text2sql_query,text2sql_query,True,时间范围,自然语言,0.95,5709,用户要求查询最近7天的收入具体数值，需要执行数据库查询获取结果
+4,按月统计销售额,text2sql_query,text2sql_query,True,分组+时间,聚合,0.95,5048,用户要求按月统计销售额，需要执行数据库查询获取具体数值结果
+5,Top10产品销售额,text2sql_query,text2sql_query,True,排名,英文+数字,0.95,8547,用户要求查询Top10产品的销售额，需要执行数据库查询获取具体数值结果
+6,平均客单价,text2sql_query,text2sql_query,True,平均,业务术语,0.9,3171,用户要求计算平均客单价，这是一个需要查询数据库获取具体数值的统计任务
+7,各渠道转化率,text2sql_query,text2sql_query,True,分组,无统计词但强业务指标,0.9,2090,用户要求查询各渠道的转化率，需要从数据库中获取具体数值，属于结构化数据查询。
+8,同比去年增长了多少,text2sql_query,text2sql_query,True,对比,同比,0.6,21196,意图识别超时，降级到 V1 规则路由。
+9,环比上月增长多少,text2sql_query,text2sql_query,True,对比,环比,0.92,6686,用户要求计算环比增长，需要查询数据库获取具体数值进行对比计算
+10,本周每日新增用户数,text2sql_query,text2sql_query,True,趋势,时间序列,0.95,10824,用户要求查询本周每日新增用户数，需要执行数据库查询获取具体数值
+11,上周退款金额,text2sql_query,text2sql_query,True,金额,退款,0.95,7687,用户要求查询上周退款金额，需要从数据库中获取具体数值
+12,昨天的订单量和销售额,text2sql_query,text2sql_query,True,多指标,组合指标,0.95,1705,用户要求查询昨天的订单量和销售额，需要从数据库获取具体数值
+13,近30天复购率,text2sql_query,text2sql_query,True,比率,业务指标,0.95,5327,用户要求查询近30天的复购率，这是一个需要从数据库获取具体数值的统计查询
+14,哪个产品卖得最好,text2sql_query,text2sql_query,True,排名,口语化,0.95,4236,用户询问哪个产品卖得最好，需要查询数据库获取具体销售数据或排名，属于结构化数据查询
+15,哪个渠道贡献最大,text2sql_query,text2sql_query,True,排名,口语化,0.92,8071,用户要求查询哪个渠道贡献最大，需要执行数据库查询获取具体数值结果
+16,本季度销售额趋势,text2sql_query,text2sql_query,True,趋势,季度,0.95,8912,用户要求查询本季度销售额趋势，需要从数据库获取具体数值和变化情况
+17,看一下昨天的数据,text2sql_query,text2sql_query,True,模糊-数据,模糊表达,0.9,7562,用户要求查看昨天的数据，需要执行数据库查询获取具体数值
+18,过去一年每月订单数,text2sql_query,text2sql_query,True,趋势,长时间跨度,0.95,12117,用户要求查询过去一年每月订单数，需要执行数据库查询获取具体数值结果
+19,按城市分组统计订单数,text2sql_query,text2sql_query,True,分组,明确分组,0.95,2479,用户要求按城市分组统计订单数，需要执行数据库查询获取具体数值结果
+20,用户增长趋势,text2sql_query,text2sql_query,True,趋势,无关键词但强统计倾向,0.9,3338,用户要求查询用户增长趋势，需要从数据库中获取具体的时间序列数据或统计结果
+21,什么是RAG,rag_search,rag_search,True,概念,标准概念,0.88,7637,用户询问RAG的概念，需要检索内部文档或知识库来提供解释
+22,MCP 是什么,rag_search,rag_search,True,概念,新术语,0.85,1895,用户询问'MCP'的概念，需要检索项目内部文档或知识库来提供定义和解释。
+23,ReAct 和 Plan-and-Execute 区别,rag_search,rag_search,True,对比,技术对比,0.85,11933,用户询问两种概念的区别，需要检索项目内部文档或知识库来回答
+24,怎么优化向量检索,rag_search,rag_search,True,如何,技术操作,0.85,19391,用户询问优化向量检索的方法，需要查阅项目内部文档或知识库获取相关概念和操作步骤
+25,为什么检索不准,rag_search,rag_search,True,为什么,原因分析,0.85,6147,用户询问检索不准的原因，属于概念/原理类问题，需要查阅项目内部文档或知识库来回答
+26,Text2SQL 的原理是什么,rag_search,rag_search,True,概念,技术原理,0.9,19739,用户询问Text2SQL的原理，属于概念解释类问题，需要检索内部文档或知识库来回答。
+27,怎么部署这个项目,rag_search,rag_search,True,如何,操作文档,0.85,8045,用户询问如何部署项目，需要检索项目内部文档或知识库中的部署步骤
+28,这个项目的目录结构是怎样的,rag_search,rag_search,True,文档,项目约定,0.85,8548,用户询问项目目录结构，需要检索项目内部文档来回答
+29,如何写一份 _tech_graph 的流程图,rag_search,direct_answer,False,规范,项目内规范,0.6,20885,意图识别超时，降级到 V1 规则路由。
+30,Supabase 失败时应该返回什么错误码,rag_search,rag_search,True,规范,错误处理约定,0.85,17118,用户询问Supabase失败时应返回的错误码，这属于项目文档或知识库中的概念/规范问题，需要检索内部文档来回答。
+31,如何做意图缓存（LRU+TTL）,rag_search,direct_answer,False,方法,实现建议,0.6,20750,意图识别超时，降级到 V1 规则路由。
+32,什么是 macro-F1,rag_search,rag_search,True,概念,指标解释,0.85,4747,用户询问概念定义，需要检索内部文档或知识库来回答什么是 macro-F1
+33,如何计算 confusion matrix,rag_search,direct_answer,False,概念,指标解释,0.9,3349,用户询问如何计算混淆矩阵，这是一个通用的机器学习概念，不涉及具体数据查询或内部文档检索，适合直接回答。
+34,这份任务单的 P1 目标是什么,rag_search,rag_search,True,文档,指向任务说明,0.85,17489,用户询问任务单中P1目标的具体内容，需要检索项目内部文档或知识库来回答
+35,为什么 CI 默认要走 stub,rag_search,rag_search,True,原因,工程约束,0.85,8880,用户询问CI默认走stub的原因，属于概念/原理类问题，需要检索项目内部文档或知识库来回答
+36,如何做性能基准的 P50/P95,rag_search,rag_search,True,方法,性能指标口径,0.85,3151,用户询问如何计算性能基准的P50/P95，属于方法/概念类问题，需要检索项目内部文档或知识库来回答
+37,RAG 检索的 topk 该怎么选,rag_search,rag_search,True,选型,参数选择,0.9,13585,用户询问RAG检索中topk参数的选择方法，属于概念/方法类问题，需要查阅项目内部文档或知识库来回答
+38,为什么要区分 direct_answer 和 rag_search,rag_search,rag_search,True,设计,路由边界,0.85,4510,用户询问区分两个工具的原因，需要查阅项目内部文档或知识库来回答概念性问题
+39,LangChain 的 long-term memory 是什么,rag_search,rag_search,True,概念,内部学习资料,0.9,9158,用户询问 LangChain 的 long-term memory 概念，需要检索项目内部文档或知识库来回答
+40,这个仓库的 intent_router 做了什么,rag_search,rag_search,True,代码,查文档/代码解释,0.85,1314,用户询问仓库中某个模块的功能，需要检索项目内部文档或代码库来回答
+41,翻译：Hello,direct_answer,direct_answer,True,翻译,明确翻译,0.95,7092,用户要求翻译，属于直接任务，不依赖内部数据或文档
+42,把这段英文翻译成中文：How are you?,direct_answer,direct_answer,True,翻译,语言转换,0.95,9802,用户要求翻译英文句子，属于直接翻译任务，不依赖内部数据或文档
+43,润色这段话：今天工作很忙,direct_answer,direct_answer,True,润色,文本处理,0.95,1536,用户要求润色文本，属于直接的语言处理任务，不需要查询数据库或文档
+44,帮我写周报，包含本周进展和下周计划,direct_answer,direct_answer,True,写作,内容生成,0.95,2150,用户要求写周报，属于文本生成任务，不涉及数据查询或文档检索
+45,写一封请假邮件，语气正式,direct_answer,direct_answer,True,写作,商务写作,0.95,1843,用户要求写一封正式请假邮件，属于文本生成任务，不依赖内部数据或文档
+46,用 Python 写快排,direct_answer,direct_answer,True,代码,代码生成,0.95,5487,用户要求用Python写快速排序代码，属于代码生成任务，不依赖内部数据或文档。
+47,解释一下量子计算，用通俗语言,direct_answer,direct_answer,True,解释,通用知识,0.95,14914,用户要求用通俗语言解释量子计算的概念，属于通用知识解释，不涉及内部文档或数据查询
+48,头脑风暴：新产品 idea 5 个,direct_answer,direct_answer,True,创意,发散,0.95,13322,用户要求进行创意生成，属于通用知识/写作任务，不依赖内部数据或文档
+49,总结下面这段话：……,direct_answer,direct_answer,True,总结,文本处理,0.95,7627,用户要求总结一段文本，属于文本处理任务，不依赖内部数据或文档
+50,给这段代码加注释：print('hi'),direct_answer,direct_answer,True,代码,代码辅助,0.6,21201,意图识别超时，降级到 V1 规则路由。
+51,它有什么缺点,rag_search,rag_search,True,多轮-指代,指代消解（它=RAG）,0.85,5012,用户问'它有什么缺点'，结合历史对话中用户问'什么是RAG'，可知'它'指RAG，需要查文档了解RAG的缺点
+52,那怎么优化,rag_search,rag_search,True,多轮-省略,省略主语（那=向量检索）,0.85,12252,用户问的是优化方法，需要检索文档中关于向量检索优化的知识
+53,改成更正式一点,direct_answer,direct_answer,True,多轮-改写,对上文内容改写,0.95,1036,用户要求改写文本风格，属于润色任务，不涉及数据查询或文档检索
+54,再给我 3 个点子,direct_answer,direct_answer,True,多轮-续写,延续创意生成,0.95,5004,用户要求继续生成创意点子，属于内容生成任务，不涉及数据查询或文档检索
+55,把第 2 个展开说说,direct_answer,direct_answer,True,多轮-扩写,基于上轮列点扩写,0.9,3381,用户要求展开之前给出的第2条学习建议，属于对已有回答的进一步解释，不涉及数据查询或文档检索
+56,那需要查数据库吗,rag_search,direct_answer,False,多轮-澄清,问路由边界/方法,0.9,16997,用户询问是否需要查数据库，这是一个关于工具使用方法的元问题，不涉及实际查询或文档检索，适合直接回答。
+57,那你给个 SQL 示例,direct_answer,direct_answer,True,多轮-示例,请求示例而非实际查询,0.95,2156,用户要求给出SQL示例，属于方法/代码生成任务，不涉及实际数据查询或文档检索
+58,那份文档在哪,rag_search,rag_search,True,多轮-定位,定位项目内文档,0.9,9196,用户询问文档的位置，需要检索项目内部文档/知识库来回答
+59,顺便给我一个性能压测脚本,direct_answer,direct_answer,True,多轮-生成,请求代码生成,0.6,20620,意图识别超时，降级到 V1 规则路由。
+60,再补 10 条测试用例,direct_answer,direct_answer,True,多轮-生成,请求生成测试数据,0.9,1771,用户要求补充测试用例，属于内容生成任务，不涉及数据库查询或文档检索
