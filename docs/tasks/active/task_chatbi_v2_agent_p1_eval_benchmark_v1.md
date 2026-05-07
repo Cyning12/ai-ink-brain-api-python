@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P1-Eval）— 可验证评测与性能基准（v1）
 
-状态：done（工具链/CI 门禁已落地）；**准确率冻结以「复跑三」归档为准**（`tests/_out/intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`）；**复跑二**仍保留为对照基线，见 `docs/diary/2026-05-06-p1-intent-benchmark.md`  
+状态：done（工具链/CI 门禁已落地）；**准确率验收冻结以「复跑五」为准**（`tests/_out/intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，`CHATBI_V2_INTENT_TIMEOUT_S=60`）；**复跑三**（`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`）为前冻结历史对照；**复跑四**为补充对照；见 `docs/diary/2026-05-06-p1-intent-benchmark.md`；**复跑二**仍为网络差基线  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联图谱 / 规格：
@@ -60,7 +60,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
   - **交付物**：`tests/test_intent_agent_accuracy.py`（或拆 `tests/data/intent_eval_cases.json` 由测试加载）。
   - **验收**：**Text2SQL 20 / RAG 24 / Direct 16**（末 10 条多轮）；可导出 per-case 结果（JSONL 或 CSV）。
 
-- [x] **A3. 准确率报告**（报告骨架与复跑命令见 `docs/diary/2026-05-06-p1-intent-benchmark.md`；数值待跑批）
+- [x] **A3. 准确率报告**（报告骨架、复跑命令与**冻结数值**见 `docs/diary/2026-05-06-p1-intent-benchmark.md`「复跑五 / 当前冻结验收轮」；复跑三为历史对照）
   - **目标**：macro-F1、per-class F1、confusion（文本矩阵即可）、Top 误判样例。
   - **交付物**：`docs/diary/YYYY-MM-DD-p1-intent-benchmark.md`（日期用实际跑批当日）。
   - **验收**：报告含模型名、参数、数据集版本、命令行复跑方式；**至少 Top-10 误判**（含 expected vs actual、confidence、reasoning 摘要）。
@@ -86,14 +86,14 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 
 与总任务 `task_chatbi_v2_agent_p1_behavior.md` 对齐的数值门槛（达成或文档中明确「未达标 + 后续 P1-D 跟踪」）：
 
-- [x] 60 条全部跑完并有导出文件（**冻结轮**：`tests/_out/intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.jsonl` / `.csv`；历史：`intent_llm_latest_20260506_171351_v1fb15_acc0817.*`。**归档后**仓库内可无无后缀 `intent_llm_latest.*`，下次跑批请显式设置 `CHATBI_V2_INTENT_EVAL_OUT`）
-- [x] macro-F1 > 90%（**冻结轮 ≈0.932** 达标；首轮/复跑二见 diary）
-- [x] Text2SQL 召回 ≥ 17/20（**冻结轮 19/20**）
-- [x] RAG：金标 **24** 条 `rag_search`（**冻结轮 21/24**；原「≥18/20」语义为至少 18 条正确时已满足）
+- [x] 60 条全部跑完并有导出文件（**冻结轮（复跑五）**：`tests/_out/intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.jsonl` / `.csv`；**前冻结轮（复跑三）**：`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`；历史：`intent_llm_latest_20260506_171351_v1fb15_acc0817.*`。**归档后**仓库内可无无后缀 `intent_llm_latest.*`，下次跑批请显式设置 `CHATBI_V2_INTENT_EVAL_OUT`）
+- [x] macro-F1 > 90%（**冻结轮（复跑五）≈0.948** 达标；首轮/复跑二/复跑三见 diary）
+- [x] Text2SQL 召回 ≥ 17/20（**冻结轮（复跑五）19/20**）
+- [x] RAG：金标 **24** 条 `rag_search`（**冻结轮（复跑五）22/24**；原「≥18/20」语义为至少 18 条正确时已满足）
 - [x] Direct：当前金标 **16** 条（冻结轮 **16/16**）
-- [x] 多轮子集 i=51–60（**冻结轮 9/10**）
+- [x] 多轮子集 i=51–60（**冻结轮（复跑五）9/10**）
 
-- [x] **（外网 / 上游稳定性）** 已通过 **复跑三**（`v1_fallback=3/60`）归档并写入 diary；换模型或网络后建议再跑一轮并**新增时间戳文件名**归档。
+- [x] **（外网 / 上游稳定性）** 已通过 **复跑五**（`v1_fallback=1/60`，`TIMEOUT_S=60`）归档并写入 diary；换模型或网络后建议再跑一轮并**新增时间戳文件名**归档。
 
 > 若环境/模型变更导致暂时不达标：**必须在同一 diary 报告中**列出差距与样例，并指向 P1-D 或 spec 变更提案；**不得**在无报告情况下合并「号称完成」。
 
@@ -105,7 +105,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 | Agent 单步 | < 1.5s | < 3s | B2 最小化测量 |
 | 整体 E2E | < 3s | < 8s | B2 最小化测量 |
 
-- [ ] B1 报告粘贴或链接至 diary；未达标须注释网络/模型/并发变量。（diary 已预留表；待跑批粘贴）
+- [x] B1 证据已链至 diary：`docs/diary/2026-05-06-p1-intent-benchmark.md`「复跑五」**Intent 延迟粗算**（由 60 条导出 `latency_ms` 分位数，与独立 `benchmark_intent_latency.py` n=100 脚本可并存对照）。相对 Overview 理想目标仍偏高，diary 已注释网络/超时/样本构成；若需严格对齐 B1 脚本口径可再跑 `CHATBI_V2_INTENT_BENCH_RUN` + `CHATBI_V2_INTENT_LLM=true`。
 
 ### 3) 回归（CI）
 
@@ -121,7 +121,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 | env 开关真值 | 已登记：`CHATBI_V2_INTENT_LLM`、`CHATBI_V2_INTENT_EVAL`、`CHATBI_V2_INTENT_EVAL_OUT`、`CHATBI_V2_INTENT_BENCH_N`、`CHATBI_V2_INTENT_TIMEOUT_S`、`CHATBI_V2_INTENT_BENCH_RUN`、`CHATBI_USE_AGENT`、`INTENT_LLM_MODEL` |
 | 涉及文件（预期） | `api/intent_agent.py`、`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py`、`pytest.ini`、`docs/diary/2026-05-06-p1-intent-benchmark.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
 | 评测命令示例 | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true pytest tests/test_intent_agent_accuracy.py -m intent_eval -s`；stub 导出：`CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=false pytest …` |
-| **跑批回填** | **冻结轮（2026-05-07）**：`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`，acc≈0.933，macro-F1≈0.932，`v1_fallback=3`，见 diary「复跑三」。**复跑二**仍作对照：`intent_llm_latest_20260506_171351_v1fb15_acc0817.*`。B1/B2 正式脚本仍待跑 |
+| **跑批回填** | **冻结轮（复跑五，总设 2026-05-07 同意切换）**：`intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，acc≈0.950，macro-F1≈0.948，`v1_fallback=1`，RAG 22/24、T2S 19/20，`CHATBI_V2_INTENT_TIMEOUT_S=60`，见 diary「复跑五」。**前冻结轮（复跑三）**：`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`（历史对照）。**复跑四**：`intent_llm_20260507_1509_v1fb1_acc9500_macro9492.*`。**复跑二**：`intent_llm_latest_20260506_171351_v1fb15_acc0817.*`。独立 B1 n=100 与 B2 脚本为可选增强（diary 已给命令） |
 
 ---
 

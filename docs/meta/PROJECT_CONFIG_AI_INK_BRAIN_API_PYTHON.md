@@ -62,6 +62,8 @@
 | `CHATBI_V2_INTENT_EVAL_OUT` | 评测结果 JSONL/同 stem CSV 输出路径 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `tests/_out/intent_accuracy.jsonl`。**相对路径**（推荐）：以 `ai-ink-brain-api-python` 仓库根为锚写 `tests/_out/foo.jsonl`；或以 `tests/` 为锚写 `_out/foo.jsonl`（与 pytest 启动目录无关） | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL_PROGRESS` | 60 条评测是否逐条打印开始/结束行 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `true`；CI 内 `test_stub_eval_end_to_end_writes_exports` 强制 `false` | 与项目无关 |
 | `CHATBI_V2_INTENT_BENCH_N` | Intent 延迟基准采样次数 | 可选 | `tests/benchmark_intent_latency.py` | 默认 `100` | 与项目无关 |
+| `CHATBI_V2_INTENT_BENCH_COLD_WARM` | Intent 延迟脚本是否输出「冷缓存 vs 热缓存」两轮 P50/P95 | 可选 | `tests/benchmark_intent_latency.py` | `1/true/...` 开启；需 `PYTHONPATH=.` 从仓库根运行脚本 | 与项目无关 |
+| `DEBUG_INTENT_CACHE` | Intent 缓存诊断日志（仅 `key_hash` + `latency_ms`，不打印完整 query） | 可选 | `api/intent_agent.py` | `1/true/...` 开启 | 与项目无关 |
 | `CHATBI_V2_INTENT_TIMEOUT_S` | Intent LLM 单次等待上限（秒），`asyncio.wait_for` 包住上游 `chat.completions` | 可选 | `api/intent_agent.py`（`decide_intent_v2`）、`tests/benchmark_intent_latency.py` | 未设时沿用调用方默认 `3.0`；SiliconFlow 较慢时建议 `15`～`30` | 与项目无关 |
 | `CHATBI_V2_INTENT_BENCH_RUN` | 是否执行 pytest 中 B1 延迟基准（`intent_benchmark`） | 可选 | `tests/benchmark_intent_latency.py` | 默认不跑；`true` 时依赖外网与 `SILICONFLOW_API_KEY` | 与项目无关 |
 | `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/rag_shared.py:parse_match_threshold()`；由 `api/index.py`（Legacy chat）、`api/unified_chat.py`、`api/code_retrieval.py`（注入）调用 | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值或 `<0` 回退默认；`>1` 视为关闭过滤（`None`） | 与项目无关 |

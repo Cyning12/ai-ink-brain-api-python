@@ -10,9 +10,12 @@ Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表
 | 批次 | JSONL / CSV（`tests/_out/`） |
 |------|-------------------------------|
 | 复跑二（网络差，不冻结） | `intent_llm_latest_20260506_171351_v1fb15_acc0817.{jsonl,csv}` |
-| **冻结轮（复跑三）** | `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.{jsonl,csv}` |
+| 复跑三（**前**冻结验收轮，历史对照） | `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.{jsonl,csv}` |
+| **复跑四（本地 rerun，补充归档）** | `intent_llm_20260507_1509_v1fb1_acc9500_macro9492.{jsonl,csv}` |
+| **冻结验收轮（复跑五，`CHATBI_V2_INTENT_TIMEOUT_S=60`）** | `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.{jsonl,csv}` |
 
-命名含义（冻结轮）：`v1fb3` = `v1_fallback` **3** 条；`acc0933` ≈ **56/60**；`macro0932` ≈ **macro-F1 0.932**。  
+命名含义（**当前冻结轮·复跑五**）：`v1fb1` = `v1_fallback` **1** 条；`acc9500` ≈ **57/60**；`macro9484` ≈ **macro-F1 0.948**；`tout60` = 评测时 **`CHATBI_V2_INTENT_TIMEOUT_S=60`**。  
+**历史**：复跑三文件名中 `v1fb3` / `acc0933` / `macro0932` 含义见下文「复跑三」专节。  
 **下次跑批**：显式 `export CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_latest.jsonl`（或新时间戳路径）；归档后仓库内**可能暂无**无后缀 `intent_llm_latest.*`，勿误读旧路径。
 
 ---
@@ -67,7 +70,7 @@ Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表
 
 ---
 
-## 复跑三 / **冻结验收轮**（`v1_fallback` 低、macro-F1 达标）
+## 复跑三（**前**冻结验收轮，历史对照；**2026-05-07 总设同意**后由复跑五接任冻结）
 
 | 项 | 值 |
 |----|-----|
@@ -100,13 +103,81 @@ Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表
 | 全量 | 60 | ≈4496 ms | ≈28424 ms |
 | 剔除 `v1_fallback` | 57 | ≈4327 ms | ≈12492 ms |
 
-**结论**：本冻结轮满足 P1-Eval 任务单 **macro-F1 > 90%**；`v1_fallback=3` 与分桶达标，**作为当前主验收归档**（环境变更后请再跑一轮对比）。
+**结论**：本轮满足 P1-Eval **macro-F1 > 90%** 与分桶门槛；**曾为冻结验收轮**，总设已同意切换至 **复跑五**（见上表与「复跑五」节），本段保留作历史对照。
+
+---
+
+## 复跑四（本地 rerun，补充归档）
+
+> **与冻结轮关系**：冻结验收已切换至 **复跑五**；本条仍为 **2026-05-07** 使用 `.env` 的对照跑批（默认超时口径下 **RAG 21/24**），便于与复跑五（`TIMEOUT_S=60`、**RAG 22/24**）对比。后续误判优化走 **P1-D**。
+
+| 项 | 值 |
+|----|-----|
+| 归档 | `tests/_out/intent_llm_20260507_1509_v1fb1_acc9500_macro9492.{jsonl,csv}` |
+| 命名 | `v1fb1` = `v1_fallback` **1**；`acc9500`≈**0.950**（57/60）；`macro9492`≈**macro-F1 0.949** |
+| 汇总 | **ok=57/60**，**acc≈0.950**，**macro-F1≈0.949** |
+| `v1_fallback` | **1**/60 |
+| 分桶 | Text2SQL **20/20**；RAG **21/24**；Direct **16/16**；多轮 i=51–60 **9/10** |
+| 相对复跑三 | acc / macro 略升，`v1_fallback` 更少；**RAG 正确数未变**（仍为 21） |
+
+### `ok=false`（共 3）
+
+1. **i=21** `rag_search`→`direct_answer`：**`v1_fallback`**（超时降级，`latency_ms`≈32118，`conf=0.60`），query「什么是RAG」。
+2. **i=33** `rag_search`→`direct_answer`：真 LLM，`conf=0.95`，query「如何计算 confusion matrix」。
+3. **i=56** `rag_search`→`direct_answer`：真 LLM（多轮），`conf=0.85`，query「那需要查数据库吗」。
+
+### Intent 延迟粗算（复跑四，顶层 `latency_ms`）
+
+| 子集 | n | P50 | P95 | P99 |
+|------|---|-----|-----|-----|
+| 全量 | 60 | ≈6983 ms | ≈16345 ms | ≈25016 ms |
+
+### 复跑命令（密钥已在 `.env`，一行）
+
+```bash
+cd ai-ink-brain-api-python && CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_rerun.jsonl python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -s
+```
+
+跑完后将 `intent_llm_rerun.{jsonl,csv}` **改名**为带统计的 stem（见上表「归档」行），避免覆盖。
+
+**提示**：逐条进度依赖 **`pytest -s`**（关闭输出捕获）；否则长时间无打印属正常现象。
+
+---
+
+## 复跑五 / **当前冻结验收轮**（`CHATBI_V2_INTENT_TIMEOUT_S=60`）
+
+> **总设裁定（2026-05-07）**：同意将 **P1-Eval 冻结验收**从复跑三切换至本轮（本文件名）。复跑三保留为历史对照。  
+> **目的**：在 **`CHATBI_V2_INTENT_TIMEOUT_S=60`** 下复跑 60 条，降低 `v1_fallback` 条数并改善 RAG 桶（相对复跑三/四）。
+
+| 项 | 值 |
+|----|-----|
+| 归档 | `tests/_out/intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.{jsonl,csv}` |
+| 环境 | `.env` 中 **`CHATBI_V2_INTENT_TIMEOUT_S=60`**（与复跑四默认超时对比） |
+| 汇总 | **ok=57/60**，**acc≈0.950**，**macro-F1≈0.948** |
+| `v1_fallback` | **1**/60 |
+| 分桶 | Text2SQL **19/20**；RAG **22/24**；Direct **16/16**；多轮 i=51–60 **9/10** |
+| 相对复跑四 | **RAG +1**（22/24）；**Text2SQL −1**（`v1_fallback` 从 i=21 迁至 **i=16「本季度销售额趋势」**，`latency_ms` 仍顶高） |
+
+### `ok=false`（共 3）
+
+1. **i=16** `text2sql_query`→`direct_answer`：**`v1_fallback`**，`latency_ms` 很高（≈65s 量级），仍为超时降级链路。  
+2. **i=33** `rag_search`→`direct_answer`：真 LLM（与复跑四同类）。  
+3. **i=56** `rag_search`→`direct_answer`：真 LLM，多轮（与复跑四同类）。
+
+### Intent 延迟粗算（复跑五，顶层 `latency_ms`）
+
+| 子集 | n | P50 | P95 | P99 |
+|------|---|-----|-----|-----|
+| 全量 | 60 | ≈7336 ms | ≈16211 ms | ≈41945 ms |
+| 剔除 `v1_fallback` | 59 | ≈7336 ms | ≈14281 ms | — |
 
 ---
 
 ## 待网络稳定后（任务跟踪）
 
-- [x] **（2026-05-07 已满足）** 已再跑 `intent_eval` 并归档 `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`；`v1_fallback` 与 macro-F1 见上节「复跑三」。后续若换模型/网络，**建议重复本流程**并新增时间戳归档。
+- [x] **（2026-05-07）** 已归档复跑三 `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`（**前**冻结轮，历史对照）。
+- [x] **（2026-05-07 总设同意）** **冻结验收轮已切换为复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`（`TIMEOUT_S=60`）；任务单 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 已同步。
+- [x] **（2026-05-07 补充）** **复跑四** 仍为对照跑批；**P1-Eval 数值门槛**以冻结轮（复跑五）为准仍满足；残余 3 条误判与 1 条 `v1_fallback` 进入 **P1-D** / 上游稳定性跟踪。
 - 可选：跑前记录上游 RTT / 并发；仍不达标再进入 **P1-D**（超时阈值、重试、prompt、金标口径）。
 
 ---
@@ -128,6 +199,7 @@ export INTENT_LLM_MODEL="Qwen/Qwen2.5-7B-Instruct"   # 或 deepseek-ai/DeepSeek-
 # 仍可用绝对路径：export CHATBI_V2_INTENT_EVAL_OUT="/tmp/intent_run.jsonl"
 
 python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -s
+# `-s` 建议保留：否则 pytest 捕获 stdout，长时间看不到 `[intent_eval]` 进度。
 # 等价：python tests/test_intent_agent_accuracy.py
 ```
 
@@ -179,22 +251,26 @@ python tests/benchmark_agent_e2e_latency.py
 
 ---
 
-## 验收数值对照表（首轮 / 复跑二 / **冻结轮·复跑三**）
+## 验收数值对照表（首轮 / 复跑二 / **冻结轮·复跑五**）
 
-| 项 | 目标 / 备注 | 首轮（较早） | 复跑二（网络差，已归档） | **冻结轮（复跑三，已归档）** |
-|----|-------------|--------------|--------------------------|-------------------------------|
-| macro-F1 | > 90% | **≈0.868**（未） | **≈0.821**（未） | **≈0.932**（**达标**） |
+| 项 | 目标 / 备注 | 首轮（较早） | 复跑二（网络差，已归档） | **冻结轮（复跑五，`tout60`，已归档）** |
+|----|-------------|--------------|--------------------------|----------------------------------------|
+| macro-F1 | > 90% | **≈0.868**（未） | **≈0.821**（未） | **≈0.948**（**达标**） |
 | Text2SQL | ≥ 17/20 | **18/20** | **16/20** | **19/20** |
-| RAG（24 条 `rag_search`） | 见任务单 | **18/24** | **17/24** | **21/24** |
+| RAG（24 条 `rag_search`） | 见任务单 | **18/24** | **17/24** | **22/24** |
 | Direct | 当前 16 条 | **16/16** | **16/16** | **16/16** |
 | 多轮 i=51–60 | ≥ 8/10 | **8/10** | **7/10** | **9/10** |
-| `v1_fallback` | 过程性 | **10** | **15** | **3** |
-| Intent P50 / P95（JSONL 粗算） | Overview 仍远未达理想 | 见上文 | 全量 P50≈8498ms，P95≈31037ms | 全量 P50≈4496ms，P95≈28424ms；剔除 fallback 后 P50≈4327ms，P95≈12492ms |
+| `v1_fallback` | 过程性 | **10** | **15** | **1** |
+| Intent P50 / P95（JSONL 粗算） | Overview 仍远未达理想 | 见上文 | 全量 P50≈8498ms，P95≈31037ms | 全量 P50≈7336ms，P95≈16211ms；剔除 fallback 后 P50≈7336ms，P95≈14281ms |
 | B2 | diary 链 | **TBD** | **TBD** | **TBD** |
+
+**附（复跑三，前冻结轮）**：macro≈0.932、RAG 21/24、`v1_fallback=3`、延迟粗算见「复跑三」专节。  
+**附（复跑四）**：Intent 全量粗算 P50≈6983ms、P95≈16345ms，见「复跑四」专节。
 
 ---
 
 ## 备注
 
+- **2026-05-07**：总设**书面同意**将 P1-Eval **冻结验收轮**由复跑三切换为复跑五（`intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`）；任务单 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 与 `task_chatbi_v2_agent_p1_behavior.md` 已同步。
 - 更早模板见 `docs/diary/2026-04-30-p1-intent-benchmark.md`；本文件为 **P1-Eval v1** 当日归档与复跑入口。
 - CI：`pytest` 默认不设置 `CHATBI_V2_INTENT_EVAL` / `CHATBI_V2_INTENT_BENCH_RUN`，相关用例跳过；stub 用例覆盖导出与零外呼门禁。

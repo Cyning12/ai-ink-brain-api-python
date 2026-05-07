@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P1-C）— IntentCache（LRU+TTL）与可观测性（v1）
 
-状态：pending  
+状态：done（2026-05-06）  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P1-P0 已具备评测闭环脚本（accuracy/latency/agent-e2e）  
 关联：
@@ -28,10 +28,10 @@
 
 ### 范围
 
-- [ ] 在 `api/intent_agent.py` 落地 IntentCache：**LRU + TTL**（maxsize=1000，TTL=300s）
-- [ ] 缓存 key：`query + history_hash`（仅取最近 3 轮对话）
-- [ ] 记录 cache_hit/cache_miss（字段级）：允许写入现有日志/trace（不得新增事件 type）
-- [ ] 产出对比数据：同一组 query 连续跑两轮（冷启动 vs 热缓存）对比 Intent P50/P95
+- [x] 在 `api/intent_agent.py` 落地 IntentCache：**LRU + TTL**（maxsize=1000，TTL=300s）
+- [x] 缓存 key：`query + history_hash`（仅取最近 3 轮对话）
+- [x] 记录 cache_hit/cache_miss（字段级）：允许写入现有日志/trace（不得新增事件 type）
+- [x] 产出对比数据：同一组 query 连续跑两轮（冷启动 vs 热缓存）对比 Intent P50/P95
 
 ### 非范围
 
@@ -79,19 +79,19 @@
 
 ### 功能验收
 
-- [ ] key 包含 history_hash：不同 history 的同 query **不会**命中同一缓存
-- [ ] TTL 到期后自动失效
-- [ ] maxsize 生效：超过容量后按 LRU 淘汰
+- [x] key 包含 history_hash：不同 history 的同 query **不会**命中同一缓存
+- [x] TTL 到期后自动失效
+- [x] maxsize 生效：超过容量后按 LRU 淘汰
 
 ### 性能验收（本地手动）
 
-- [ ] 相同 query 第二次命中缓存：Intent 延迟 < 10ms（本地测量）
-- [ ] `tests/benchmark_intent_latency.py` 支持“冷/热两轮对比”输出（或新增最小脚本）
+- [x] 相同 query 第二次命中缓存：Intent 延迟 < 10ms（本地测量）
+- [x] `tests/benchmark_intent_latency.py` 支持“冷/热两轮对比”输出（或新增最小脚本）
 
 ### 可观测性验收
 
-- [ ] 评测输出（JSONL/console）中能看到 cache_hit/cache_miss
-- [ ] diary 报告能给出一次“冷启动 vs 热缓存”的 P50/P95 对比（可复跑）
+- [x] 评测输出（JSONL/console）中能看到 cache_hit/cache_miss
+- [x] diary 报告能给出一次“冷启动 vs 热缓存”的 P50/P95 对比（可复跑）
 
 ---
 
@@ -107,7 +107,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件（预期） | `api/intent_agent.py`、`tests/benchmark_intent_latency.py`、`docs/diary/*.md` |
-| env（预期） | 复用 `CHATBI_V2_INTENT_LLM`；可新增 `DEBUG_INTENT_CACHE=1`（如确需） |
-| 输出格式 | JSONL（逐条记录 cache 字段 + latency） |
+| 涉及文件 | `api/intent_agent.py`（history_hash、复合 key、`raw_response.cache` / `cache_key_hash` / `latency_ms`、`clear_intent_cache`、`LRUCache.clear`、`DEBUG_INTENT_CACHE` 日志）、`tests/benchmark_intent_latency.py`（`CHATBI_V2_INTENT_BENCH_COLD_WARM` 冷/热两轮）、`tests/test_intent_cache.py`（history/TTL/LRU/命中延迟）、`docs/diary/2026-05-06-p1-intent-cache.md`（受 `docs/*` gitignore 影响，入库需 `git add -f`）、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（env 表）、本任务单验收勾选 |
+| env | `CHATBI_V2_INTENT_LLM`、`CHATBI_V2_INTENT_TIMEOUT_S`（既有）；新增 `DEBUG_INTENT_CACHE`、`CHATBI_V2_INTENT_BENCH_COLD_WARM`（见 PROJECT_CONFIG） |
+| 输出格式 | `IntentDecision.raw_response` 含 `cache`（`hit`/`miss`）、`cache_key_hash`（sha256 前 16 hex）、`latency_ms`；评测 JSONL 经 `raw_response` 透传；可选 `[intent-cache]` 日志行 |
 

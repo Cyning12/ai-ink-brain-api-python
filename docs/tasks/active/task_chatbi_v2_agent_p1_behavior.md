@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P1 总览）— 意图准确率、性能基准、缓存与调优
 
-状态：pending  
+状态：A+B+C 已闭环（P1-Eval **冻结验收**已切换为 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，总设 2026-05-07 同意）；**P1-D（误判/Prompt/阈值/上游超时）**为下一阶段  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联：
@@ -40,8 +40,8 @@ P1 目标：
 
 摘要（勿与本表冲突时以子任务为准）：
 
-- [x] A1–A3：真实 LLM 开关、60 条集、准确率报告骨架与导出（**工具链与 WBS 见** `task_chatbi_v2_agent_p1_eval_benchmark_v1.md`；**macro-F1 等数值验收**仍以跑批 + diary 为准）
-- [x] B1–B3：Intent 延迟脚本、Agent/E2E 测量说明于 diary、stub 回归门禁（同上，**延迟表 TBD** 见 diary）
+- [x] A1–A3：真实 LLM 开关、60 条集、准确率报告与导出（**工具链与 WBS 见** `task_chatbi_v2_agent_p1_eval_benchmark_v1.md`；**macro-F1 等数值**已以**冻结轮·复跑五** + diary 归档为准）
+- [x] B1–B3：Intent 延迟证据（60 条导出粗算 + 可选 B1 脚本）、Agent/E2E 测量说明于 diary、stub 回归门禁（见 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 与 diary「复跑五」）
 
 ### C. 意图缓存（必做，优先级 P1）
 
@@ -109,14 +109,14 @@ P1 目标：
 
 ### 1) 准确率验收（阻断项，P1）
 
-> **冻结口径**：以 diary `2026-05-06-p1-intent-benchmark.md` **复跑三** + 归档 `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*` 为准（60 条：T2S 20 / RAG 24 / Direct 16，多轮 10）。
+> **冻结口径（总设 2026-05-07 同意切换）**：以 diary `2026-05-06-p1-intent-benchmark.md` **复跑五** + 归档 `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为准（`CHATBI_V2_INTENT_TIMEOUT_S=60`；60 条金标：T2S 20 / RAG 24 / Direct 16，多轮 10）。
 
 - [x] 60 条测试集全部跑过（真实 LLM）
-- [x] macro-F1 > 90%（冻结轮 **≈0.932**）
-- [x] Text2SQL 召回率 > 85%（20 条中至少 17 条正确）（冻结轮 **19/20**）
-- [ ] RAG 召回率 > 90%（**原表为「20 条中 18」**；当前金标 **24** 条，冻结轮 **21/24≈87.5%**，**未达 90%**，可改任务口径或走 P1-D）
+- [x] macro-F1 > 90%（冻结轮（复跑五）**≈0.948**）
+- [x] Text2SQL 召回率 > 85%（20 条中至少 17 条正确）（冻结轮（复跑五）**19/20**）
+- [x] RAG 召回率 > 90%（金标 **24** 条，冻结轮（复跑五）**22/24≈91.7%**）
 - [x] Direct Answer 准确率 > 95%（当前集 **16** 条，**16/16**）
-- [x] 多轮准确率 > 80%（10 条中至少 8 条正确）（冻结轮 **9/10**）
+- [x] 多轮准确率 > 80%（10 条中至少 8 条正确）（冻结轮（复跑五）**9/10**）
 
 ### 2) 性能验收（阻断项，P1）
 
