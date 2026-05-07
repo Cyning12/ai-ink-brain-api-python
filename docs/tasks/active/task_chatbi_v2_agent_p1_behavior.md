@@ -1,12 +1,20 @@
-# Task：ChatBI V2 Agent（P1 行为正确性）— 意图准确率、性能基准与缓存
+# Task：ChatBI V2 Agent（P1 总览）— 意图准确率、性能基准、缓存与调优
 
-状态：pending  
+状态：A+B+C 已闭环（P1-Eval **冻结验收**已切换为 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，总设 2026-05-07 同意）；**P1-D（误判/Prompt/阈值/上游超时）**为下一阶段  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联：
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` — 性能指标 P50/P95
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md` — 测试集 60 条、缓存策略
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Gap-Checklist.md` — P1 缺口项
+
+**子任务（单独文档，避免本文件过长）**
+
+| 子任务 | 文档 | 说明 |
+|--------|------|------|
+| **P1-Eval（主线：可验证评测 + 性能基准）** | `docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md` | A+B 全量 WBS、本阶段阻断验收 |
+| **P1-C（缓存 + 可观测性）** | `docs/tasks/active/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` | LRU/TTL、history key、命中率对比 |
+| **P1-D（误判 / Prompt / 阈值）** | `docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` | Prompt 迭代、置信度与 fallback、超时策略；须带 intent_eval 前后对比 |
 
 ---
 
@@ -15,10 +23,10 @@
 P0 完成了 V2 Agent 骨架（ReAct 循环、事件流、契约、回归测试），但当前测试基于 **stub（mock 意图决策）**，未验证真实 LLM 意图识别的准确率与性能。
 
 P1 目标：
-1. **真实 LLM 意图验证**：关闭 stub，验证 DeepSeek-V3 / Qwen-Turbo 的实际决策质量
-2. **准确率基准**：60 条测试集，macro-F1 > 90%
-3. **性能基准**：Intent P50 < 200ms，P95 < 500ms
-4. **缓存落地**：`_intent_cache` LRU 实现，降低重复 query 成本
+1. **真实 LLM 意图验证**：关闭 stub，验证 DeepSeek-V3 / Qwen-Turbo 的实际决策质量 → **见 P1-Eval**
+2. **准确率基准**：60 条测试集，macro-F1 > 90% → **见 P1-Eval**
+3. **性能基准**：Intent P50 < 200ms，P95 < 500ms → **见 P1-Eval**
+4. **缓存落地**：`_intent_cache` LRU 实现，降低重复 query 成本 → **见 P1-C**
 
 ---
 
@@ -26,40 +34,21 @@ P1 目标：
 
 > 原则：先建立“可验证闭环”（测试集+报告+基准），再做缓存与调优；任何优化都必须能在报告里体现提升。
 
-### A. 真实 LLM 意图测试闭环（必做，优先级 P0）
+### A + B. 可验证评测与性能基准（已拆至独立任务单）
 
-- [ ] **A1. 去 stub / 真实调用开关对齐**
-  - **目标**：可以一键切换 stub vs 真实 LLM；默认 CI 仍走 stub（避免外部依赖），本地/手动评测走真实 LLM。
-  - **交付物**：`api/intent_agent.py` 与测试侧统一开关（例如 `CHATBI_V2_INTENT_LLM=true/false` 或同义配置）。
-  - **验收**：在本地开启真实 LLM 时，测试工具能打印每条 query 的 tool/mode/confidence/latency_ms；关闭时完全不触发外部请求。
+**详细 checklist、范围边界与验收以子任务为准：**  
+`docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`
 
-- [ ] **A2. 60 条测试集落盘（结构确定 + 可扩展）**
-  - **目标**：用例集合稳定可复用，支持多轮 history。
-  - **交付物**：`tests/test_intent_agent_accuracy.py`（仅数据与评测逻辑；默认不在 CI 强制跑真实 LLM）。
-  - **验收**：60 条按分类完整覆盖（Text2SQL 20 / RAG 20 / Direct 10 / 多轮 10），并能导出 per-case 结果（JSONL/CSV 二选一）。
+摘要（勿与本表冲突时以子任务为准）：
 
-- [ ] **A3. 准确率报告生成**
-  - **目标**：自动输出 macro-F1 / per-class F1 / confusion matrix（可用文本版）。
-  - **交付物**：`docs/diary/2026-04-29-p1-intent-benchmark.md`（或更新到当日 diary），包含模型、参数、样本、结果与主要误判样例。
-  - **验收**：报告可复跑、字段齐全，至少列出 Top-10 误判样例（含 reasoning/置信度/实际 tool）。
-
-### B. 性能基准与回归（必做，优先级 P0）
-
-- [ ] **B1. Intent latency benchmark（真实 LLM）**
-  - **交付物**：`tests/benchmark_intent_latency.py`
-  - **验收**：输出 P50/P95/P99 + min/max；支持 `n=100`；结果可贴进报告。
-
-- [ ] **B2. Agent step / E2E latency 基准（最小化）**
-  - **交付物**：基准脚本或 pytest 标记脚本（允许不进 CI），并在报告中写明测量方法与采样量。
-  - **验收**：能复现同一套指标口径（Intent / step / total）。
-
-- [ ] **B3. 回归门禁**
-  - **交付物**：更新/补充必要测试（仍以 stub 为主）；确保不引入 flaky 外部依赖。
-  - **验收**：P0 回归测试全绿；`CHATBI_USE_AGENT=false` 时 V1 行为不变。
+- [x] A1–A3：真实 LLM 开关、60 条集、准确率报告与导出（**工具链与 WBS 见** `task_chatbi_v2_agent_p1_eval_benchmark_v1.md`；**macro-F1 等数值**已以**冻结轮·复跑五** + diary 归档为准）
+- [x] B1–B3：Intent 延迟证据（60 条导出粗算 + 可选 B1 脚本）、Agent/E2E 测量说明于 diary、stub 回归门禁（见 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 与 diary「复跑五」）
 
 ### C. 意图缓存（必做，优先级 P1）
 
-- [ ] **C1. IntentCache 实现（LRU + TTL）**
+> **实现与可观测性细节以** `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` **为准**；本节保留总览与总验收对齐。
+
+- [x] **C1. IntentCache 实现（LRU + TTL）**（2026-05-06 见 `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` + `tests/test_intent_cache.py`）
   - **目标**：降低重复 query 的真实 LLM 成本与延迟。
   - **交付物**：`api/intent_agent.py` 内 `_intent_cache`（maxsize=1000，TTL=300s），key = query + history_hash（最近 3 轮）。
   - **验收**：
@@ -67,11 +56,13 @@ P1 目标：
     - TTL 到期失效
     - 不同 history 不污染（key 区分）
 
-- [ ] **C2. 缓存可观测性（不新增事件类型）**
+- [x] **C2. 缓存可观测性（不新增事件类型）**（`raw_response.cache` / `cache_key_hash` / `latency_ms`；`DEBUG_INTENT_CACHE`；diary `2026-05-06-p1-intent-cache.md`）
   - **交付物**：在现有日志/trace（如 `router_trace_v1` 或 server log）中记录 cache_hit/cache_miss（字段级即可）。
   - **验收**：报告中能看到缓存命中率与对延迟的影响（至少对比一次）。
 
 ### D. 误判调优（可选，优先级 P2，但通常会做）
+
+> **独立任务单（WBS / 验收 / 风险）**：`docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`
 
 - [ ] **D1. Prompt 调优迭代**
   - **策略**：先修正误判最多的类别边界（Text2SQL vs RAG vs Direct），再补 few-shot。
@@ -104,7 +95,7 @@ P1 目标：
 
 4. **测试集扩展**
    - 从当前 10 条 stub 扩展到 60 条真实用例
-   - 分类：Text2SQL 20 + RAG 20 + Direct 10 + 多轮 10
+   - 分类：Text2SQL 20 + RAG 24 + Direct 16（末 10 条多轮，expected 仍为上述三类之一）
    - 覆盖口语化、模糊表达、边界 case
 
 ### 非范围
@@ -117,14 +108,18 @@ P1 目标：
 
 ## 验收标准（必须可操作）
 
+> **准确率、Intent/Agent/E2E 性能与 CI 回归的阻断验收**以 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 为准；下表为总览对齐，避免重复维护时以子任务为准。
+
 ### 1) 准确率验收（阻断项，P1）
 
-- [ ] 60 条测试集全部跑过（真实 LLM）
-- [ ] macro-F1 > 90%
-- [ ] Text2SQL 召回率 > 85%（20 条中至少 17 条正确）
-- [ ] RAG 召回率 > 90%（20 条中至少 18 条正确）
-- [ ] Direct Answer 准确率 > 95%（10 条中至少 9 条正确）
-- [ ] 多轮准确率 > 80%（10 条中至少 8 条正确）
+> **冻结口径（总设 2026-05-07 同意切换）**：以 diary `2026-05-06-p1-intent-benchmark.md` **复跑五** + 归档 `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为准（`CHATBI_V2_INTENT_TIMEOUT_S=60`；60 条金标：T2S 20 / RAG 24 / Direct 16，多轮 10）。
+
+- [x] 60 条测试集全部跑过（真实 LLM）
+- [x] macro-F1 > 90%（冻结轮（复跑五）**≈0.948**）
+- [x] Text2SQL 召回率 > 85%（20 条中至少 17 条正确）（冻结轮（复跑五）**19/20**）
+- [x] RAG 召回率 > 90%（金标 **24** 条，冻结轮（复跑五）**22/24≈91.7%**）
+- [x] Direct Answer 准确率 > 95%（当前集 **16** 条，**16/16**）
+- [x] 多轮准确率 > 80%（10 条中至少 8 条正确）（冻结轮（复跑五）**9/10**）
 
 ### 2) 性能验收（阻断项，P1）
 
@@ -138,9 +133,9 @@ P1 目标：
 
 ### 3) 缓存验收（阻断项，P1）
 
-- [ ] 相同 query 第二次命中缓存，Intent 延迟 < 10ms
-- [ ] 缓存 TTL 到期后自动失效
-- [ ] 缓存不污染不同 history 的 query（key 包含 history_hash）
+- [x] 相同 query 第二次命中缓存，Intent 延迟 < 10ms（见 `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` + `tests/test_intent_cache.py`）
+- [x] 缓存 TTL 到期后自动失效
+- [x] 缓存不污染不同 history 的 query（key 包含 history_hash）
 
 ### 4) 回归验收（阻断项，P1）
 
@@ -279,10 +274,10 @@ async def benchmark_intent(n: int = 100):
 
 ## 交付物
 
-1. `tests/test_intent_agent_accuracy.py` — 60 条真实 LLM 意图测试 + 准确率报告
-2. `tests/benchmark_intent_latency.py` — 性能基准测试脚本 + 报告
-3. `api/intent_agent.py` — 缓存实现（`_intent_cache` 落地）
-4. `docs/diary/2026-04-29-p1-intent-benchmark.md` — 测试报告与优化建议
+| 交付物 | 归属子任务 |
+|--------|------------|
+| `tests/test_intent_agent_accuracy.py`、benchmark 脚本、`docs/diary/*-p1-intent-benchmark.md` | `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` |
+| `api/intent_agent.py` 内 IntentCache（LRU+TTL+history key）与 cache 字段日志 | `task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` |
 
 ---
 

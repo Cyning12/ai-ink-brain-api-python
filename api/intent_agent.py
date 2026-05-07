@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import asyncio
 from collections import OrderedDict
+import hashlib
 import json
+import logging
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Literal
 
 from openai import OpenAI
@@ -21,13 +23,21 @@ ToolName = Literal["rag_search", "text2sql_query", "direct_answer"]
 V1Mode = Literal["rag", "text2sql", "no_data"]
 
 
+_logger = logging.getLogger(__name__)
+
+_VOLATILE_RAW_KEYS = frozenset({"cache", "cache_key_hash", "latency_ms"})
+
+
 class LRUCache:
-    """P0 预留：用于 IntentDecision 缓存（P1 实现）。当前用最小 TTL LRU 实现。"""
+    """IntentDecision 缓存：TTL 到期失效 + 超容量 LRU 淘汰。"""
 
     def __init__(self, *, maxsize: int, ttl_s: float) -> None:
         self._maxsize = maxsize
         self._ttl_s = ttl_s
         self._items: "OrderedDict[str, tuple[float, Any]]" = OrderedDict()
+
+    def clear(self) -> None:
+        self._items.clear()
 
     def get(self, key: str) -> Any | None:
         now = time.time()
@@ -53,8 +63,58 @@ class LRUCache:
             self._items.popitem(last=False)
 
 
-# 预留接口：P0 可不启用，但变量必须存在
+# 全局 Intent 缓存：maxsize/TTL 与任务单 P1-C 对齐
 _intent_cache: LRUCache = LRUCache(maxsize=1000, ttl_s=300.0)
+
+
+def clear_intent_cache() -> None:
+    """供基准脚本 / 测试做「冷启动」轮次清空缓存。"""
+    _intent_cache.clear()
+
+
+def _debug_intent_cache_enabled() -> bool:
+    raw = (os.getenv("DEBUG_INTENT_CACHE", "") or "").strip().lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def _intent_history_tail_for_hash(history: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """最近 3 轮对话：最多 6 条 user/assistant 消息，仅 role + content。"""
+    tail = (history or [])[-6:]
+    out: list[dict[str, str]] = []
+    for m in tail:
+        role = str(m.get("role", "") or "")
+        content = str(m.get("content", "") or "")
+        out.append({"role": role, "content": content})
+    return out
+
+
+def compute_history_hash(history: list[dict[str, Any]] | None) -> str:
+    """稳定 history 指纹：JSON sort_keys + sha256 前 16 hex。"""
+    normalized = _intent_history_tail_for_hash(history or [])
+    payload = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _intent_composite_cache_key(*, query: str, history: list[dict[str, Any]] | None) -> str:
+    """缓存主键：history_hash + query，不同 history 不会共用条目。"""
+    hh = compute_history_hash(history)
+    return f"{hh}\x1f{(query or '').strip()}"
+
+
+def _cache_key_obs_hash(composite_key: str) -> str:
+    """可观测短哈希：不暴露 query 明文。"""
+    return hashlib.sha256(composite_key.encode("utf-8")).hexdigest()[:16]
+
+
+def _raw_response_for_cache_store(raw: dict[str, Any]) -> dict[str, Any]:
+    """写入缓存前去掉本轮可观测字段，避免污染命中副本。"""
+    return {k: v for k, v in raw.items() if k not in _VOLATILE_RAW_KEYS}
+
+
+def _log_intent_cache_line(*, event: str, key_hash: str, latency_ms: int) -> None:
+    if not _debug_intent_cache_enabled():
+        return
+    _logger.info("[intent-cache] %s key_hash=%s latency_ms=%s", event, key_hash, latency_ms)
 
 
 @dataclass(frozen=True)
@@ -75,6 +135,21 @@ class IntentDecision:
     fallback: ToolName | None
     structured_signals: StructuredSignals
     raw_response: dict[str, Any]
+
+
+def _intent_decision_for_cache_store(d: IntentDecision) -> IntentDecision:
+    return replace(d, raw_response=_raw_response_for_cache_store(dict(d.raw_response)))
+
+
+def _attach_cache_observability(
+    d: IntentDecision,
+    *,
+    cache: Literal["hit", "miss"],
+    cache_key_hash: str,
+    latency_ms: int,
+) -> IntentDecision:
+    merged = {**dict(d.raw_response), "cache": cache, "cache_key_hash": cache_key_hash, "latency_ms": latency_ms}
+    return replace(d, raw_response=merged)
 
 
 def _clamp01(x: float) -> float:
@@ -237,6 +312,17 @@ Q: "heros 表有哪些字段"
     return obj
 
 
+def _effective_intent_llm_timeout_s(override: float) -> float:
+    """Intent LLM 单次 `wait_for` 上限：优先读 `CHATBI_V2_INTENT_TIMEOUT_S`，否则用调用方传入值。"""
+    raw = (os.getenv("CHATBI_V2_INTENT_TIMEOUT_S") or "").strip()
+    if raw:
+        try:
+            return max(0.5, min(120.0, float(raw)))
+        except ValueError:
+            pass
+    return max(0.5, min(120.0, float(override)))
+
+
 def _heuristic_decide(query: str) -> tuple[ToolName, V1Mode, float, str]:
     # 轻量启发式：用于 LLM 不可用时保证功能可用
     if is_text2sql_intent(query):
@@ -269,6 +355,7 @@ async def decide_intent_v2(
     min_confidence: float = 0.6,
     timeout: float = 3.0,
 ) -> IntentDecision:
+    t_start = time.perf_counter()
     hist = history or []
     use_tools = tools or []
 
@@ -278,17 +365,34 @@ async def decide_intent_v2(
         has_aggregation_signals=_has_aggregation_keywords(query),
     )
 
+    # 与 tests、benchmark、PROJECT_CONFIG 对齐：关闭时仅启发式/V1 降级，不创建 SiliconFlow client（CI 零外呼）。
+    use_intent_llm_raw = (os.getenv("CHATBI_V2_INTENT_LLM", "true") or "").strip().lower()
+    use_intent_llm = use_intent_llm_raw in ("1", "true", "yes", "on")
+
+    composite_key = _intent_composite_cache_key(query=query, history=hist)
+    key_obs = _cache_key_obs_hash(composite_key)
+
+    def _latency_ms() -> int:
+        return int((time.perf_counter() - t_start) * 1000)
+
+    def _return_cache_hit(base: IntentDecision) -> IntentDecision:
+        lat = _latency_ms()
+        out = _attach_cache_observability(base, cache="hit", cache_key_hash=key_obs, latency_ms=lat)
+        _log_intent_cache_line(event="hit", key_hash=key_obs, latency_ms=lat)
+        return out
+
+    def _return_cache_miss(decision: IntentDecision) -> IntentDecision:
+        lat = _latency_ms()
+        _intent_cache.set(composite_key, _intent_decision_for_cache_store(decision))
+        out = _attach_cache_observability(decision, cache="miss", cache_key_hash=key_obs, latency_ms=lat)
+        _log_intent_cache_line(event="miss", key_hash=key_obs, latency_ms=lat)
+        return out
+
+    cached = _intent_cache.get(composite_key)
+    if isinstance(cached, IntentDecision):
+        return _return_cache_hit(cached)
+
     try:
-        use_intent_llm_raw = (os.getenv("CHATBI_V2_INTENT_LLM", "true") or "").strip().lower()
-        use_intent_llm = use_intent_llm_raw in ("1", "true", "yes", "on")
-
-        # P0 预留接口：可缓存意图结果（默认仍可关闭/不依赖）。
-        cache_key = query.strip()
-        if use_intent_llm:
-            cached = _intent_cache.get(cache_key)
-            if isinstance(cached, IntentDecision):
-                return cached
-
         if use_intent_llm:
             # 显式开启：用 LLM 做主决策
             oai = openai_siliconflow_client()
@@ -307,11 +411,11 @@ async def decide_intent_v2(
                     structured_signals=structured,
                     raw_response=raw,
                 )
-                _intent_cache.set(cache_key, decision)
-                return decision
+                return _return_cache_miss(decision)
 
+            t_llm = _effective_intent_llm_timeout_s(timeout)
             raw_obj = await _llm_decide_v2(
-                oai=oai, query=query, history=hist, tools=use_tools, timeout_s=timeout
+                oai=oai, query=query, history=hist, tools=use_tools, timeout_s=t_llm
             )
 
             tool_raw = raw_obj.get("tool")
@@ -335,8 +439,7 @@ async def decide_intent_v2(
                 structured_signals=structured,
                 raw_response=raw_obj,
             )
-            _intent_cache.set(cache_key, decision2)
-            return decision2
+            return _return_cache_miss(decision2)
     except asyncio.TimeoutError:
         # timeout -> 降级到 V1 规则路由
         v1 = decide_intent_v1(query=query, prefer="auto")
@@ -355,8 +458,7 @@ async def decide_intent_v2(
             structured_signals=structured,
             raw_response={"used": "v1_fallback", "confidence": conf},
         )
-        _intent_cache.set(cache_key, decision3)
-        return decision3
+        return _return_cache_miss(decision3)
     except Exception:
         # LLM 失败/输出不符合预期 -> 启发式降级
         pass
@@ -384,6 +486,5 @@ async def decide_intent_v2(
         structured_signals=structured,
         raw_response={"used": "heuristic", "confidence": conf_h},
     )
-    _intent_cache.set(cache_key, decision4)
-    return decision4
+    return _return_cache_miss(decision4)
 

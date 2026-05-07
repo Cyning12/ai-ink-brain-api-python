@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import math
 import os
 import re
 import time
@@ -25,6 +26,7 @@ from .rag_env import (
 )
 from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
 from .text2sql_store import get_text2sql_store
+from .intent_agent import IntentDecision
 from .intent_router import decide_intent
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .agent import AgentRunView, ChatBIAgent
@@ -66,6 +68,47 @@ def _now_ms(started_at: float) -> int:
 
 def _event(*, typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     return {"type": typ, "ts": _now_ms(started_at), "step_id": step_id, "payload": payload}
+
+
+def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: bool) -> dict[str, Any]:
+    """agent.intent 的 payload：契约要求键齐全；cache 可观测字段仅在 debug_router 时取自 raw_response。"""
+    rr: dict[str, Any] = intent_decision.raw_response if debug_router else {}
+    cache_raw = rr.get("cache")
+    cache_out = cache_raw if isinstance(cache_raw, str) and cache_raw in ("hit", "miss") else None
+    h_raw = rr.get("cache_key_hash")
+    hash_out = h_raw.strip() if isinstance(h_raw, str) and h_raw.strip() else None
+    lat_raw = rr.get("latency_ms")
+    lat_out: int | None = None
+    if isinstance(lat_raw, (int, float)) and math.isfinite(float(lat_raw)):
+        lat_out = int(round(float(lat_raw)))
+    return {
+        "tool": intent_decision.tool,
+        "mode": intent_decision.mode,
+        "reasoning": intent_decision.reasoning,
+        "confidence": intent_decision.confidence,
+        "fallback": intent_decision.fallback,
+        "cache": cache_out,
+        "cache_key_hash": hash_out,
+        "latency_ms": lat_out,
+    }
+
+
+# 契约静态扫描锚点：与 _agent_intent_obs_payload 键集合一致（勿删改键名）
+_CONTRACT_ANCHOR_AGENT_INTENT_KEYS = _event(
+    typ="agent.intent",
+    started_at=0.0,
+    step_id="__contract_anchor__",
+    payload={
+        "tool": "",
+        "mode": "",
+        "reasoning": "",
+        "confidence": 0.0,
+        "fallback": None,
+        "cache": "hit",
+        "cache_key_hash": "",
+        "latency_ms": 0,
+    },
+)
 
 _MASK_SECRET_RE = re.compile(r"(?i)\b(sk-[A-Za-z0-9]{10,}|sf-[A-Za-z0-9]{10,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})\b")
 
@@ -650,13 +693,7 @@ async def handle_unified_chat(
                         typ="agent.intent",
                         started_at=started_at,
                         step_id="intent_1",
-                        payload={
-                            "tool": intent_decision.tool,
-                            "mode": intent_decision.mode,
-                            "reasoning": intent_decision.reasoning,
-                            "confidence": intent_decision.confidence,
-                            "fallback": intent_decision.fallback,
-                        },
+                        payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
                     )
                 )
 
@@ -1678,13 +1715,7 @@ async def handle_unified_chat_stream(
                                 typ="agent.intent",
                                 started_at=started_at,
                                 step_id="intent_1",
-                                payload={
-                                    "tool": intent_decision.tool,
-                                    "mode": intent_decision.mode,
-                                    "reasoning": intent_decision.reasoning,
-                                    "confidence": intent_decision.confidence,
-                                    "fallback": intent_decision.fallback,
-                                },
+                                payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
                             ),
                         )
 

@@ -5,6 +5,22 @@
 
 ---
 
+## 实现对齐快照（2026-05-06 审计 · 与仓库对照）
+
+以下条目在**下文各节**仍保留「原始缺口描述」便于读 spec；**本表仅标当前代码侧是否已基本落地**，后续改代码时请同步更新两处以免误导。
+
+| 原 § | 主题 | 当前结论 |
+|------|------|----------|
+| P0 §1 | `agent.*` 写入 `_contract_manifest.json` | **已落地**：`docs/_tech_graph/_contract_manifest.json` 含 `agent.step.start` / `agent.think` / `agent.intent` / `agent.step.end` / `agent.final` 及 `payload_min_keys_by_type`。 |
+| P0 §2 | `rag_conversation_logs` 增加 `agent_steps` / `tool_results` | **已落地**：`supabase/sql/create_rag_conversation_logs.sql` 已含对应 `jsonb` 列（生产库是否已迁移需以实际 Supabase 为准）。 |
+| P0 §3 | `intent_agent` / `agent` / `tools` / `agent_memory` 模块 | **已落地**：`api/intent_agent.py`、`api/agent.py`、`api/tools.py`、`api/agent_memory.py` 存在；细节与 spec 差异以代码为准。 |
+| P0 §4 | `unified_chat` 接入 V2 + `CHATBI_USE_AGENT` | **已落地**：V2 路径与 `agent.*` 事件流已实现（与契约门禁一致）。 |
+| P1 §5 | ToolResult + `error_code` + fallback | **部分落地**：`api/tools.py` 的 `ToolResult`、`api/agent.py` 的 `FailureTypeHandler`（含 `RAG_RETRIEVE_EMPTY` gating）已实现；与 Overview 逐条对照仍建议走一次回归清单。 |
+| P1 §6–§7 | ReAct 事件时序、reasoning 分级 | **需持续对照**：以 `_contract_manifest.json` + 实际 SSE 为准；若与 spec 仍有偏差在本表下方 § 内更新。 |
+| P2 §8–§9 | 测试覆盖、env 默认值统一 | **进行中**：V2 专用测试与 P1-Eval 工具链在迭代；`CHATBI_V2_INTENT_TIMEOUT_S` 等已写入 `PROJECT_CONFIG`。 |
+
+---
+
 ## P0（阻断项：必须先补齐，否则契约/验收无法通过）
 
 ### 1) SSE 契约真值缺失：`agent.*` 未写入 `_contract_manifest.json`

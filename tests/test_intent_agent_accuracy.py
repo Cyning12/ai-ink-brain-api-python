@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+import csv
 import json
 import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Literal
+from typing import Any, Literal
 
 import pytest
 
 from api.intent_agent import IntentDecision, decide_intent_v2
-from api.tools import Tool, ToolName
+from api.tools import Tool
 
 
 ExpectedTool = Literal["rag_search", "text2sql_query", "direct_answer"]
@@ -37,14 +38,58 @@ def _env_flag(name: str, default: bool = False) -> bool:
     return raw in ("1", "true", "yes", "on")
 
 
+def _intent_eval_progress_enabled() -> bool:
+    """每条用例前后是否打印进度（默认开；CI 过吵可设 CHATBI_V2_INTENT_EVAL_PROGRESS=false）。"""
+    return _env_flag("CHATBI_V2_INTENT_EVAL_PROGRESS", default=True)
+
+
+def _tests_dir() -> Path:
+    return Path(__file__).resolve().parent
+
+
+def _repo_root() -> Path:
+    return _tests_dir().parent
+
+
 def _ensure_out_path() -> Path:
+    """解析 CHATBI_V2_INTENT_EVAL_OUT：绝对路径原样；相对路径以仓库根或 tests 目录为锚（不依赖 pytest cwd）。"""
     out = (os.getenv("CHATBI_V2_INTENT_EVAL_OUT") or "").strip()
-    if out:
-        p = Path(out)
+    if not out:
+        p = _tests_dir() / "_out" / "intent_accuracy.jsonl"
     else:
-        p = Path(__file__).resolve().parent / "_out" / "intent_accuracy.jsonl"
+        p = Path(out)
+        if not p.is_absolute():
+            # tests/_out/run.jsonl → 仓库根 / tests / _out / run.jsonl
+            # _out/run.jsonl        → tests 目录 / _out / run.jsonl
+            if p.parts and p.parts[0] == "tests":
+                p = _repo_root() / p
+            else:
+                p = _tests_dir() / p
     p.parent.mkdir(parents=True, exist_ok=True)
     return p
+
+
+def _write_csv(records: list[dict[str, Any]], jsonl_path: Path) -> Path:
+    csv_path = jsonl_path.with_suffix(".csv")
+    fieldnames = (
+        "i",
+        "query",
+        "expected",
+        "predicted",
+        "ok",
+        "category",
+        "note",
+        "confidence",
+        "latency_ms",
+        "reasoning",
+    )
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+        w.writeheader()
+        for r in records:
+            row = {k: r.get(k) for k in fieldnames}
+            w.writerow(row)
+    return csv_path
 
 
 async def _dummy_execute(*, query: str, history: list[dict[str, Any]] | None = None) -> Any:  # noqa: ANN401
@@ -79,8 +124,8 @@ def _make_tools() -> list[Tool]:
 
 
 def _cases() -> list[IntentCase]:
-    # 约束：总计 60 条（Text2SQL 20 / RAG 20 / Direct 10 / 多轮 10）
-    # 说明：多轮 10 条的 expected 仍属于三类之一，但依赖 history 做指代/省略消解。
+    # 约束：总计 60 条（Text2SQL 20 / RAG 24 / Direct 16；其中末 10 条为多轮，expected 仍为三类之一）
+    # 说明：多轮依赖 history；切片门禁见 test_intent_eval_cases_inventory。
     return [
         # Text2SQL（20）
         IntentCase("昨天销售额是多少", "text2sql_query", "时间+金额", "口语化", []),
@@ -103,7 +148,7 @@ def _cases() -> list[IntentCase]:
         IntentCase("过去一年每月订单数", "text2sql_query", "趋势", "长时间跨度", []),
         IntentCase("按城市分组统计订单数", "text2sql_query", "分组", "明确分组", []),
         IntentCase("用户增长趋势", "text2sql_query", "趋势", "无关键词但强统计倾向", []),
-        # RAG（20）
+        # RAG 单轮块（20）；另有 4 条 expected=rag_search 在多轮块，合计 24
         IntentCase("什么是RAG", "rag_search", "概念", "标准概念", []),
         IntentCase("MCP 是什么", "rag_search", "概念", "新术语", []),
         IntentCase("ReAct 和 Plan-and-Execute 区别", "rag_search", "对比", "技术对比", []),
@@ -124,7 +169,7 @@ def _cases() -> list[IntentCase]:
         IntentCase("为什么要区分 direct_answer 和 rag_search", "rag_search", "设计", "路由边界", []),
         IntentCase("LangChain 的 long-term memory 是什么", "rag_search", "概念", "内部学习资料", []),
         IntentCase("这个仓库的 intent_router 做了什么", "rag_search", "代码", "查文档/代码解释", []),
-        # Direct（10）
+        # Direct（16）
         IntentCase("翻译：Hello", "direct_answer", "翻译", "明确翻译", []),
         IntentCase("把这段英文翻译成中文：How are you?", "direct_answer", "翻译", "语言转换", []),
         IntentCase("润色这段话：今天工作很忙", "direct_answer", "润色", "文本处理", []),
@@ -271,10 +316,25 @@ async def _run_eval(*, real_llm: bool) -> dict[str, Any]:
     labels: list[str] = ["rag_search", "text2sql_query", "direct_answer"]
     cm = _confusion_matrix(labels)
     out_path = _ensure_out_path()
+    show_progress = _intent_eval_progress_enabled()
+    all_cases = list(_cases())
+    n_total = len(all_cases)
+
+    if show_progress:
+        print(
+            f"[intent_eval] 开始：共 {n_total} 条，real_llm={real_llm}，导出将写入 {out_path}",
+            flush=True,
+        )
 
     records: list[dict[str, Any]] = []
-    for idx, tc in enumerate(_cases(), start=1):
+    for idx, tc in enumerate(all_cases, start=1):
         hist_dicts = _as_history_dicts(tc.history)
+        q_preview = tc.query if len(tc.query) <= 100 else f"{tc.query[:100]}…"
+        if show_progress:
+            print(
+                f"[intent_eval] >>> 开始 i={idx}/{n_total} expected={tc.expected} category={tc.category!r} q={q_preview!r}",
+                flush=True,
+            )
         t0 = time.perf_counter()
         decision: IntentDecision = await decide_intent_v2(
             query=tc.query,
@@ -289,13 +349,14 @@ async def _run_eval(*, real_llm: bool) -> dict[str, Any]:
         if predicted not in labels:
             predicted = "direct_answer"
         cm[expected][predicted] += 1
+        ok = predicted == expected
 
         rec = {
             "i": idx,
             "query": tc.query,
             "expected": expected,
             "predicted": predicted,
-            "ok": predicted == expected,
+            "ok": ok,
             "category": tc.category,
             "note": tc.note,
             "confidence": float(decision.confidence),
@@ -309,13 +370,51 @@ async def _run_eval(*, real_llm: bool) -> dict[str, Any]:
             "real_llm": real_llm,
         }
         records.append(rec)
+        if show_progress:
+            mark = "OK" if ok else "XX"
+            rshort = (decision.reasoning or "")[:100]
+            rshort = rshort + ("…" if len(decision.reasoning or "") > 100 else "")
+            print(
+                f"[intent_eval] <<< 结束 i={idx}/{n_total} [{mark}] pred={predicted} latency_ms={latency_ms} "
+                f"conf={float(decision.confidence):.3f} reasoning={rshort!r}",
+                flush=True,
+            )
 
+    if show_progress:
+        print(f"[intent_eval] 写入 JSONL/CSV …（{len(records)} 条）", flush=True)
+    t_jsonl0 = time.perf_counter()
     with out_path.open("w", encoding="utf-8") as f:
-        for r in records:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        for i, r in enumerate(records, start=1):
+            # default=str：防止 raw_response 等字段混入不可 JSON 序列化对象时卡死/抛错
+            line = json.dumps(r, ensure_ascii=False, default=str) + "\n"
+            f.write(line)
+            if show_progress and (i % 15 == 0 or i == len(records)):
+                print(f"[intent_eval]    … JSONL 进度 {i}/{len(records)}", flush=True)
+        f.flush()
+    if show_progress:
+        dt_ms = int((time.perf_counter() - t_jsonl0) * 1000)
+        try:
+            nbytes = out_path.stat().st_size
+        except OSError:
+            nbytes = -1
+        print(f"[intent_eval] JSONL 完成：{dt_ms}ms，约 {nbytes} bytes -> {out_path}", flush=True)
 
+    t_csv0 = time.perf_counter()
+    csv_path = _write_csv(records, out_path)
+    if show_progress:
+        dt_csv = int((time.perf_counter() - t_csv0) * 1000)
+        try:
+            ncsv = csv_path.stat().st_size
+        except OSError:
+            ncsv = -1
+        print(f"[intent_eval] CSV 完成：{dt_csv}ms，约 {ncsv} bytes -> {csv_path}", flush=True)
+
+    if show_progress:
+        print("[intent_eval] 计算 macro-F1 / 混淆矩阵 …", flush=True)
     per_f1, macro_f1 = _f1_scores(cm, labels)
     ok_cnt = sum(1 for r in records if bool(r.get("ok")))
+    if show_progress:
+        print("[intent_eval] 汇总完成，交还 pytest 打印报告", flush=True)
     return {
         "n": len(records),
         "ok": ok_cnt,
@@ -324,26 +423,41 @@ async def _run_eval(*, real_llm: bool) -> dict[str, Any]:
         "per_class_f1": per_f1,
         "confusion_matrix": cm,
         "out_path": str(out_path),
+        "csv_path": str(csv_path),
+        "records": records,
     }
 
 
 def _print_report(summary: dict[str, Any]) -> None:
-    print("Intent Accuracy Summary")
-    print(f"- n: {summary['n']}, ok: {summary['ok']}, acc: {summary['acc']:.3f}")
-    print(f"- macro_f1: {summary['macro_f1']:.3f}")
-    print("- per_class_f1:")
+    print("Intent Accuracy Summary", flush=True)
+    print(f"- n: {summary['n']}, ok: {summary['ok']}, acc: {summary['acc']:.3f}", flush=True)
+    print(f"- macro_f1: {summary['macro_f1']:.3f}", flush=True)
+    print("- per_class_f1:", flush=True)
     per: dict[str, float] = summary["per_class_f1"]
     for k in ("text2sql_query", "rag_search", "direct_answer"):
         if k in per:
-            print(f"  - {k}: {per[k]:.3f}")
-    print(f"- out: {summary['out_path']}")
-    print("- confusion_matrix (expected -> predicted):")
+            print(f"  - {k}: {per[k]:.3f}", flush=True)
+    print(f"- jsonl: {summary['out_path']}", flush=True)
+    print(f"- csv: {summary.get('csv_path', '')}", flush=True)
+    print("- confusion_matrix (expected -> predicted):", flush=True)
     cm: dict[str, dict[str, int]] = summary["confusion_matrix"]
     for exp, row in cm.items():
         items = ", ".join([f"{pred}={row[pred]}" for pred in ("text2sql_query", "rag_search", "direct_answer")])
-        print(f"  - {exp}: {items}")
+        print(f"  - {exp}: {items}", flush=True)
+
+    bad = [r for r in summary.get("records", []) if not bool(r.get("ok"))]
+    bad.sort(key=lambda r: float(r.get("confidence", 0.0)), reverse=True)
+    print("- top_misjudgments (最多 10 条，按 confidence 降序):", flush=True)
+    for r in bad[:10]:
+        print(
+            f"  - i={r.get('i')} expected={r.get('expected')} actual={r.get('predicted')} "
+            f"conf={float(r.get('confidence', 0.0)):.3f} q={str(r.get('query',''))[:80]!r} "
+            f"reasoning={str(r.get('reasoning',''))[:120]!r}",
+            flush=True,
+        )
 
 
+@pytest.mark.intent_eval
 @pytest.mark.skipif(
     not _env_flag("CHATBI_V2_INTENT_EVAL", default=False),
     reason="默认不跑真实 LLM/评测；本地设置 CHATBI_V2_INTENT_EVAL=true 执行。",
@@ -353,10 +467,62 @@ def test_intent_agent_accuracy_smoke(monkeypatch: pytest.MonkeyPatch) -> None:
     # 说明：此测试只负责“评测闭环可跑通”，不作为 CI gate（已 skip）。
     real_llm = _env_flag("CHATBI_V2_INTENT_LLM", default=True)
     summary = asyncio.run(_run_eval(real_llm=real_llm))
+    if _intent_eval_progress_enabled():
+        print("[intent_eval] 正在打印 Intent Accuracy Summary …", flush=True)
     _print_report(summary)
 
     # 最小验收（本地跑用）：避免完全跑偏
     assert summary["n"] == 60
+    assert float(summary["macro_f1"]) >= 0.0
+
+
+def test_intent_eval_cases_inventory() -> None:
+    """数据集结构门禁：60 条 + Text2SQL20 / RAG24 / Direct16 + 末 10 条多轮（无外部依赖）。"""
+    cases = _cases()
+    assert len(cases) == 60
+    t2s = cases[:20]
+    pure_rag = cases[20:40]
+    pure_direct = cases[40:50]
+    multi = cases[50:60]
+    assert all(c.expected == "text2sql_query" for c in t2s)
+    assert all(c.expected == "rag_search" for c in pure_rag)
+    assert all(c.expected == "direct_answer" for c in pure_direct)
+    assert sum(1 for c in cases if c.expected == "rag_search") == 24
+    assert sum(1 for c in cases if c.expected == "direct_answer") == 16
+    assert sum(1 for c in cases if c.expected == "text2sql_query") == 20
+    assert len(multi) == 10
+    assert sum(len(c.history) > 0 for c in multi) == 10
+
+
+def test_intent_llm_off_never_opens_upstream_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CHATBI_V2_INTENT_LLM=false 时不得调用 SiliconFlow client（stub 路径）。"""
+    import api.intent_agent as ia
+
+    def _boom() -> None:
+        raise RuntimeError("upstream client must not be used when CHATBI_V2_INTENT_LLM=false")
+
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setattr(ia, "openai_siliconflow_client", _boom)
+    tools = _make_tools()
+
+    async def _one(q: str, hist: list[dict[str, Any]]) -> None:
+        d = await decide_intent_v2(query=q, history=hist, tools=tools, timeout=3.0)
+        assert d.tool in ("rag_search", "text2sql_query", "direct_answer")
+
+    asyncio.run(_one("昨天销售额是多少", []))
+    asyncio.run(_one("什么是RAG", []))
+    asyncio.run(_one("翻译：Hello", []))
+
+
+def test_stub_eval_end_to_end_writes_exports(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """启发式全量跑通导出（不触网），用于回归导出链路与指标计算。"""
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("CHATBI_V2_INTENT_EVAL_PROGRESS", "false")
+    monkeypatch.setenv("CHATBI_V2_INTENT_EVAL_OUT", str(tmp_path / "stub_run.jsonl"))
+    summary = asyncio.run(_run_eval(real_llm=False))
+    assert summary["n"] == 60
+    assert Path(summary["out_path"]).is_file()
+    assert Path(summary["csv_path"]).is_file()
     assert float(summary["macro_f1"]) >= 0.0
 
 

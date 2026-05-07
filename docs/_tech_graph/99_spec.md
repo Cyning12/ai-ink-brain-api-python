@@ -37,6 +37,8 @@ flowchart TD
 
 - 最小漂移校验（P0_3）：运行 `python tools/tech_graph_drift_check.py`，检查端点/RPC/env/表名是否在 `docs/_tech_graph/*.md` 被覆盖（用于避免文档静默过期）。
 
+- **drift_check 字面量锚点（勿删）**：下列字符串须保留在 `_tech_graph` 某处，供脚本子串匹配与 `api/*.py` 中 `os.getenv` 关键 DEBUG 对齐：`DEBUG_AGENT_DB_LOG` `DEBUG_INTENT_CACHE` `DEBUG_ROUTER_EVIDENCE` `DEBUG_ROUTER_EVIDENCE_DB` `DEBUG_ROUTER_TRACE_DB`。
+
 ```mermaid
 flowchart TD
   %% Env Truth Table（变量 -> 影响节点）
@@ -69,6 +71,7 @@ flowchart TD
     CK[SILICONFLOW_API_KEY] --> OAI[openai_siliconflow_client / OpenAI]
     CM[SILICONFLOW_CHAT_MODEL] --> OAI
     BASE[SILICONFLOW_BASE_URL] --> OAI
+    DIC[DEBUG_INTENT_CACHE] --> ICLOG[intent-cache log<br/>api/intent_agent.py]
   end
 
   subgraph Text2SQL["Text2SQL"]

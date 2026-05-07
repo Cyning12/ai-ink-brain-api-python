@@ -55,7 +55,7 @@ flowchart TD
   LOG --"->"--> DB[(DB: rag_conversation_logs)]
 
   %% === Debug toggles (边界：只列变量名) ===
-  ENV[[Debug env toggles]] --"->"--> ENV_KEYS["DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST"]
+  ENV[[Debug env toggles]] --"->"--> ENV_KEYS["DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB"]
   // → api/index.py::_rag_debug_enabled
   // → api/ingest_pipeline.py#L33
 
