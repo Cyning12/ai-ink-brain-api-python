@@ -348,18 +348,56 @@ rag_tool = Tool(
 
 ### 7.5 深度回归操作（建议固定为发布前 Checklist）
 
-以下按**由浅入深**排列；**越深越接近「全量相对总规」**，成本越高（外呼、密钥、时长）。
+以下按 **L0→L7 由浅入深**；**越深越接近「全量相对总规」**，成本越高（外呼、密钥、时长）。
 
-| 层级 | 目的 | 操作（仓库根 `ai-ink-brain-api-python`） | 通过准则（摘要） |
-|------|------|-------------------------------------------|------------------|
-| **L0** | 契约 + 默认零外呼 | `unset CHATBI_V2_INTENT_EVAL CHATBI_V2_INTENT_BENCH_RUN`（可选再 unset `CHATBI_V2_INTENT_LLM`）；`PYTHONPATH=. python tools/tech_graph_contract_check.py`；`PYTHONPATH=. python -m pytest tests -q --tb=short` | contract_check **OK**；pytest **与当前收集条数一致**（如 53 passed + 2 skipped） |
-| **L1** | Intent 黄金 60 条（真实 LLM） | 配置 `SILICONFLOW_API_KEY`、`CHATBI_V2_INTENT_LLM=true`、`CHATBI_V2_INTENT_EVAL=true`；`CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_<stamp>.jsonl`；`PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v` | macro-F1 / 三桶 / `v1_fallback` 条数对照 **上一轮归档**或任务单红线 |
-| **L2** | Intent 延迟分布 | `CHATBI_V2_INTENT_BENCH_RUN=true` 且密钥齐全：`pytest … -m intent_benchmark`；或 `PYTHONPATH=. CHATBI_V2_INTENT_BENCH_N=… python tests/benchmark_intent_latency.py` | 产出 P50/P95 或分位数日志，**与 §2.3 差距**在发布说明中显式记录 |
-| **L3** | Unified Agent（JSON） | `CHATBI_USE_AGENT=true`；`pytest tests/test_unified_chat_backend_v2_agent.py -q --tb=short` | 全绿；覆盖 **关闸 / 基础事件** |
-| **L4** | SSE 全链路与事件序 | 启动 API；对 **`POST /api/py/unified/chat/stream`**（见 `api/index.py`；经网关时前缀以部署为准）发真实请求，`CHATBI_USE_AGENT=true`，抓 SSE；对照 `SPEC-ChatBI-V2-Events.md` + `_contract_manifest.json` 中 **`agent.step.start` → … → `agent.final`** 与 `tool.*` 穿插关系 | 无契约外必填字段缺失；前端不崩溃（未知 type 忽略） |
-| **L5** | Fallback / gating **矩阵** | 构造或调用触发 **`SQL_GEN_*` / `SQL_EXEC_*` / `RAG_RETRIEVE_EMPTY` / `LLM_API_TIMEOUT`** 的场景（单测 + 手工）；核对是否落入 **预期下一工具**而非盲 SQL | 与 `api/agent.py` 中 `FailureTypeHandler` 及 §2.4.1 **逐条一致** |
-| **L6** | 跨仓端到端 | 前端 `ai-ink-brain` 指向本 API；走 **流式** ChatBI；开关 Agent | UI、日志、session 与 mode 正确；**生产 Supabase** 行内可见 `agent_steps`（若已迁移） |
-| **L7** | 运维与配置 | 对照 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` + 部署环境 `.env`；**禁止**把评测开关带入生产 | 生产 **`CHATBI_V2_INTENT_EVAL=false`** 等；DB migration 与代码版本匹配 |
+**约定**：命令均在仓库根 **`ai-ink-brain-api-python`** 执行。下文 **`PYTHONPATH=.`** 可改为先执行 **`export PYTHONPATH=.`**，则后续命令可省略该前缀。
+
+#### 7.5.1 环境变量与密钥（勿写入可复制的一行命令、勿提交）
+
+在 **`.env`** 或当前 shell 中 **`export`**（**密钥类**只放本机，勿贴 PR / 聊天公开处）：
+
+| 变量 | L1 | L2 | L3 | L4（HTTP 打流） | 说明 |
+|------|:--:|:--:|:--:|:--:|------|
+| **`SILICONFLOW_API_KEY`** | 必 | 必 | — | — | Intent 真实 LLM / 基准外呼 |
+| **`INTENT_LLM_MODEL`** | 选 | 选 | — | — | 默认见 `PROJECT_CONFIG` |
+| **`CHATBI_V2_INTENT_EVAL`** | `true` | — | — | — | 打开 `-m intent_eval` |
+| **`CHATBI_V2_INTENT_LLM`** | `true`（真实） / `false`（stub） | `true` 推荐 | — | — | 与评测脚本内 `real_llm` 一致 |
+| **`CHATBI_V2_INTENT_EVAL_OUT`** | 选 | — | — | — | 导出 JSONL/CSV 路径；未设则落默认文件名（见 `tests/_out/README.md`） |
+| **`CHATBI_V2_INTENT_EVAL_PROGRESS`** | 选 | — | — | — | 默认 `true`；过吵可 `false` |
+| **`CHATBI_V2_INTENT_BENCH_RUN`** | — | `true` | — | — | 打开 `intent_benchmark` |
+| **`CHATBI_V2_INTENT_BENCH_N`** | — | 选 | — | — | 默认 `100` |
+| **`CHATBI_V2_INTENT_BENCH_COLD_WARM`** | — | 选 | — | — | 冷/热两轮，见 `benchmark_intent_latency.py` 注释 |
+| **`CHATBI_USE_AGENT`** | — | — | `true` | 服务端须 `true` | L3 单测；L4 打流前 API 进程环境 |
+| **`NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY`** | — | — | 单测内 monkeypatch | 与 Bearer 一致 | L4：`Authorization: Bearer <与之一致>` |
+| **`API_BASE`** | — | — | — | 选 | L4 `curl` 目标主机，如 `http://127.0.0.1:8787` |
+
+**说明（L1 与线上超时）**：`tests/test_intent_agent_accuracy.py` 中 `_run_eval` 调用 `decide_intent_v2(..., timeout=3.0)` 为**写死**秒数，与运行环境里的 **`CHATBI_V2_INTENT_TIMEOUT_S`** 解耦；冻结跑批 / 对照归档时以任务单与 diary 为准。
+
+#### 7.5.2 一行命令（非密钥开关可内联；密钥仅依赖 7.5.1）
+
+**pytest 日志**：**`-v`** 逐条用例名；**`-s`** 等价 **`--capture=no`**，把用例里的 **`print` / `[intent_eval]` 进度与 Summary`** 打到终端（否则会被 pytest 吞掉）。
+
+| 层级 | 目的 | 一行命令 |
+|------|------|----------|
+| **L0** | 契约 + 全量 pytest（默认 2 skip） | `unset CHATBI_V2_INTENT_EVAL CHATBI_V2_INTENT_BENCH_RUN 2>/dev/null; unset CHATBI_V2_INTENT_LLM 2>/dev/null; PYTHONPATH=. python tools/tech_graph_contract_check.py && PYTHONPATH=. python -m pytest tests -q --tb=short` |
+| **L1** | 60 条 Intent 评测（**须已 export `SILICONFLOW_API_KEY` 等**；真实 LLM） | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_$(date +%Y%m%d_%H%M%S).jsonl PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v -s --tb=short` |
+| **L1′** | 同上但 **stub**（无上游，仅验证导出/门禁） | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=false CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_stub.jsonl PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v -s --tb=short` |
+| **L2** | Intent 延迟基准（**须密钥 + `CHATBI_V2_INTENT_BENCH_RUN`**） | `CHATBI_V2_INTENT_BENCH_RUN=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 PYTHONPATH=. python -m pytest tests/benchmark_intent_latency.py -m intent_benchmark -v -s --tb=short` |
+| **L2′** | 同逻辑脚本入口（不经 pytest marker） | `CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 PYTHONPATH=. python tests/benchmark_intent_latency.py` |
+| **L3** | Unified V2 Agent 单测 | `CHATBI_USE_AGENT=true PYTHONPATH=. python -m pytest tests/test_unified_chat_backend_v2_agent.py -q --tb=short` |
+
+**通过准则（摘要）**：L0 → contract **OK** 且 **53 passed + 2 skipped**（与当前收集一致）；L1 → `n==60` 且 macro / 三桶 / `v1_fallback` 对照归档或任务红线；L2 → 终端或日志中有分位数/样本延迟；L3 → 全绿。
+
+**L4**（SSE，**无单条万能命令**：依赖已启动的 API 与 Bearer）。先保证服务进程 **`CHATBI_USE_AGENT=true`** 且 **7.5.1** 中 admin/API 密钥已配置，再示例：
+
+```bash
+curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application/json" \
+  -d '{"query":"昨天销售额多少","session_id":null}' "${API_BASE}/api/py/unified/chat/stream"
+```
+
+（`ADMIN_TOKEN` = 服务端 `NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY` 的明文；**勿**把真值写进仓库。）
+
+**L5** / **L6** / **L7**：以单测矩阵 + 手工触发 `error_code`、前端联调、`PROJECT_CONFIG` 与生产 **`.env` 对照** 为主，**无固定一行命令**；L7 强调生产 **`CHATBI_V2_INTENT_EVAL=false`**、评测 out 路径勿指生产盘等。
 
 **最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**。
 
