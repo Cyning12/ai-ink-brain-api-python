@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-04-28（`docs/tasks/active/task_docs_truth_and_rag_unify_v1.md` · T1）
+> **最后校准**：2026-05-07（P1-D：`task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` — `CHATBI_V2_INTENT_TIMEOUT_S` / `INTENT_MIN_CONFIDENCE` 真值）；此前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -64,7 +64,8 @@
 | `CHATBI_V2_INTENT_BENCH_N` | Intent 延迟基准采样次数 | 可选 | `tests/benchmark_intent_latency.py` | 默认 `100` | 与项目无关 |
 | `CHATBI_V2_INTENT_BENCH_COLD_WARM` | Intent 延迟脚本是否输出「冷缓存 vs 热缓存」两轮 P50/P95 | 可选 | `tests/benchmark_intent_latency.py` | `1/true/...` 开启；需 `PYTHONPATH=.` 从仓库根运行脚本 | 与项目无关 |
 | `DEBUG_INTENT_CACHE` | Intent 缓存诊断日志（仅 `key_hash` + `latency_ms`，不打印完整 query） | 可选 | `api/intent_agent.py` | `1/true/...` 开启 | 与项目无关 |
-| `CHATBI_V2_INTENT_TIMEOUT_S` | Intent LLM 单次等待上限（秒），`asyncio.wait_for` 包住上游 `chat.completions` | 可选 | `api/intent_agent.py`（`decide_intent_v2`）、`tests/benchmark_intent_latency.py` | 未设时沿用调用方默认 `3.0`；SiliconFlow 较慢时建议 `15`～`30` | 与项目无关 |
+| `CHATBI_V2_INTENT_TIMEOUT_S` | Intent LLM 单次等待上限（秒），`asyncio.wait_for` 包住上游 `chat.completions`；超时后 `raw_response.used=v1_fallback`，走 V1 规则路由 | 可选 | `api/intent_agent.py`（`decide_intent_v2`）、`tests/benchmark_intent_latency.py` | 未设时沿用调用方默认 `3.0`；SiliconFlow 较慢时建议 `15`～`30`；**60 条 intent_eval 冻结验收**见 `docs/diary/2026-05-06-p1-intent-benchmark.md`（复跑五使用 `60`） | 与项目无关 |
+| `INTENT_MIN_CONFIDENCE` | V2 Agent 传入 `decide_intent_v2` 的最低置信度；低于则填 `fallback`（映射见 `api/intent_agent.py:_fallback_tool_by_low_confidence`） | 可选 | `api/agent.py`（`ChatBIAgent`） | 默认 `0.6` | 与项目无关 |
 | `CHATBI_V2_INTENT_BENCH_RUN` | 是否执行 pytest 中 B1 延迟基准（`intent_benchmark`） | 可选 | `tests/benchmark_intent_latency.py` | 默认不跑；`true` 时依赖外网与 `SILICONFLOW_API_KEY` | 与项目无关 |
 | `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/rag_shared.py:parse_match_threshold()`；由 `api/index.py`（Legacy chat）、`api/unified_chat.py`、`api/code_retrieval.py`（注入）调用 | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值或 `<0` 回退默认；`>1` 视为关闭过滤（`None`） | 与项目无关 |
 | `DEBUG_RAG` / `RAG_DEBUG` | RAG 调试日志开关 | 可选 | `api/index.py` | `1/true/yes/on` 或 `NODE_ENV=development` | 与项目无关 |
