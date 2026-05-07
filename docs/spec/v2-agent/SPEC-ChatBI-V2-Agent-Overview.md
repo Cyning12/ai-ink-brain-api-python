@@ -369,9 +369,9 @@ rag_tool = Tool(
 | **`CHATBI_V2_INTENT_BENCH_COLD_WARM`** | — | 选 | — | — | 冷/热两轮，见 `benchmark_intent_latency.py` 注释 |
 | **`CHATBI_USE_AGENT`** | — | — | `true` | 服务端须 `true` | L3 单测；L4 打流前 API 进程环境 |
 | **`NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY`** | — | — | 单测内 monkeypatch | 与 Bearer 一致 | L4：`Authorization: Bearer <与之一致>` |
-| **`API_BASE`** | — | — | — | 选 | L4 `curl` 目标主机，如 `http://127.0.0.1:8787` |
+| **`API_BASE`** | — | — | — | 选 | L4 `curl` 目标主机，如 `http://127.0.0.1:8000`（与本地 `uvicorn` 端口一致） |
 
-**说明（L1 与线上超时）**：`tests/test_intent_agent_accuracy.py` 中 `_run_eval` 调用 `decide_intent_v2(..., timeout=3.0)` 为**写死**秒数，与运行环境里的 **`CHATBI_V2_INTENT_TIMEOUT_S`** 解耦；冻结跑批 / 对照归档时以任务单与 diary 为准。
+**说明（L1 与超时）**：`tests/test_intent_agent_accuracy.py` 的 `_run_eval` 虽传入 `timeout=3.0`，但 `decide_intent_v2` 内 **`_effective_intent_llm_timeout_s` 优先读取 `CHATBI_V2_INTENT_TIMEOUT_S`**（见 `api/intent_agent.py`）；故 **Intent 评测实际等待上限以 env 为准**。归档验收见 **`docs/diary/2026-05-07-l0-l3-regression-acceptance.md`**。
 
 #### 7.5.2 一行命令（非密钥开关可内联；密钥仅依赖 7.5.1）
 
@@ -388,18 +388,80 @@ rag_tool = Tool(
 
 **通过准则（摘要）**：L0 → contract **OK** 且 **53 passed + 2 skipped**（与当前收集一致）；L1 → `n==60` 且 macro / 三桶 / `v1_fallback` 对照归档或任务红线；L2 → 终端或日志中有分位数/样本延迟；L3 → 全绿。
 
-**L4**（SSE，**无单条万能命令**：依赖已启动的 API 与 Bearer）。先保证服务进程 **`CHATBI_USE_AGENT=true`** 且 **7.5.1** 中 admin/API 密钥已配置，再示例：
+#### 7.5.3 L4 — SSE 全链路与事件序（详细流程）
 
-```bash
-curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application/json" \
-  -d '{"query":"昨天销售额多少","session_id":null}' "${API_BASE}/api/py/unified/chat/stream"
-```
+**目的**：验证运行中的 API 输出的 **`chain` / SSE** 与 **`docs/_tech_graph/_contract_manifest.json`**、`SPEC-ChatBI-V2-Events.md` 中 **事件类型与最小 payload** 一致；并确认 **未知 type 不导致前端崩溃**（策略 B）。
 
-（`ADMIN_TOKEN` = 服务端 `NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY` 的明文；**勿**把真值写进仓库。）
+**前置（环境）**
 
-**L5** / **L6** / **L7**：以单测矩阵 + 手工触发 `error_code`、前端联调、`PROJECT_CONFIG` 与生产 **`.env` 对照** 为主，**无固定一行命令**；L7 强调生产 **`CHATBI_V2_INTENT_EVAL=false`**、评测 out 路径勿指生产盘等。
+1. 在 **`.env`** 或 shell 中：`CHATBI_USE_AGENT=true`；配置 **`NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY`**（与 L4 请求头一致）；配置 **`SILICONFLOW_*` / `SUPABASE_*`** 等使 **真实 Agent 路径可跑通**（与线上一致或 staging 等价）。  
+2. `export API_BASE=http://127.0.0.1:8000`（端口以实际为准）。  
+3. `export ADMIN_TOKEN='<与 NEXT_PUBLIC_ADMIN_SECRET 或 API_KEY 相同的明文>'`（**勿**写入仓库、勿提交 shell 历史若可配置 `HISTCONTROL`）。
 
-**最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**。
+**操作步骤**
+
+1. **启动 API**（仓库根，已激活 venv）：`python -m uvicorn main:app --host 127.0.0.1 --port 8000`（若 `README` 端口不同则同步改 `API_BASE`）。  
+2. **健康检查**（可选）：`curl -sS "${API_BASE}/"` 或项目已有 health 路径。  
+3. **发起流式 Unified Chat**（一行示例，密钥用环境变量）：  
+   `curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application/json" -d '{"query":"昨天销售额多少","session_id":null}' "${API_BASE}/api/py/unified/chat/stream"`  
+4. **收集输出**：将终端完整输出保存为 `sse_sample_*.txt`，或重定向 `tee`。  
+5. **对照契约**：逐条解析 `data: {…}` 内 **`type`** 序列；核对是否出现 **`agent.step.start` → `agent.think` / `agent.intent` → `tool.call.start` / `tool.call.end` → … → `agent.step.end` / `agent.final` → `assistant.message` / `latency` / `done`**（与当次实际工具路径一致即可，允许分支差异）。打开 **`_contract_manifest.json`** 中 `sse.chain.type_values` 与 `payload_min_keys_by_type`，确认每条类型的 **必填键** 均存在。  
+6. **前端抽查（可选同次）**：浏览器打开 `ai-ink-brain` 对应页，同一 `PY_API_URL` 指向该 API，走流式对话，确认 **Console 无未捕获异常**、Timeline **可忽略未知 agent 事件**。
+
+**通过准则**：无 **500**；SSE 流正常结束（`done`）；**契约键不缺失**；前端不白屏。
+
+#### 7.5.4 L5 — Fallback / `error_code` 矩阵（详细流程）
+
+**目的**：证明 **`api/agent.py` 中 `FailureTypeHandler`** 与 Overview **§2.4 / §2.4.1** 的映射一致，**尤其 `RAG_RETRIEVE_EMPTY` → SQL 的 gating**。
+
+**前置**
+
+1. 通读 **`api/agent.py`** 中 `FailureTypeHandler`（及 `api/tools.py` 中 `ToolResult` / `error_code` 枚举）。  
+2. 列出矩阵表：行 = **`error_code`**（如 `SQL_GEN_SYNTAX`、`SQL_EXEC_TABLE_NOT_FOUND`、`RAG_RETRIEVE_EMPTY`、`LLM_API_TIMEOUT` 等），列 = **预期下一动作**（重试 / 换工具 / 直接答 / 追问）。
+
+**操作步骤**
+
+1. **单测路径**：在 `tests/test_unified_chat_backend_v2_agent.py`（或新建 `tests/test_chatbi_v2_fallback_*.py`）为每个 **`error_code`** 增加 **mock `ToolResult`**，断言 **下一步工具名 / 是否结束 / `structured_signals` 参与 gating**。优先覆盖 **§2.4.1** 三条 gating 分支。  
+2. **集成路径（可选）**：启动 API（同 L4），对会触发 **SQL 失败 / RAG 空命中** 的 query 做手工请求（需可控测试库或 mock 层）；抓取 **SSE + 服务端日志**，对照矩阵表打勾。  
+3. **归档**：将矩阵表（Markdown 或表格）保存到 **`docs/diary/`** 或任务单「实现备忘」，并注明 **commit / 日期**。
+
+**通过准则**：矩阵 **无「未定义行为」**；**RAG 空命中** 在未满足 gating 时 **不得**盲启 `text2sql_query`。
+
+#### 7.5.5 L6 — 跨仓端到端（详细流程）
+
+**目的**：验证 **Next BFF → Python API → SSE → 前端 UI** 全链路。
+
+**前置**
+
+1. **Python API**：同 L4 启动，且 **`CHATBI_USE_AGENT=true`**。  
+2. **前端 `ai-ink-brain`**：`.env.local`（或部署环境）中 **`PY_API_URL`**（或项目真值表中的等价变量）指向 **`API_BASE`**；如需鉴权，与 BFF 约定一致。  
+3. **浏览器**：Chrome DevTools → **Network** 保留 **`stream`** 请求。
+
+**操作步骤**
+
+1. `ai-ink-brain` 目录：`npm install`（若未装）→ `npm run dev`（以该仓 `README` 为准）。  
+2. 打开 **Unified Chat / Chain** 相关页面，发送 **至少 2 类 query**（如「概念类」+「查数类」），各 **1–2 轮** 多轮追问。  
+3. 在 Network 中确认 **SSE 事件顺序** 与 L4 文档一致；在 UI 中确认 **最终回答与 mode**（`rag` / `text2sql` / `no_data`）合理。  
+4. **（可选）Supabase**：若生产已迁移 **`agent_steps` / `tool_results`**，在 Dashboard 抽查 **`rag_conversation_logs`** 新行是否写入 **JSONB**（注意 **service role**，勿在前端暴露）。
+
+**通过准则**：无 **401/500**；用户可见回答正确；**session_id** 多轮可延续（若产品启用）。
+
+#### 7.5.6 L7 — 运维与配置（详细流程）
+
+**目的**：生产/staging **配置与代码版本、DB 迁移**一致；**评测开关不外泄**。
+
+**操作步骤**
+
+1. 打开 **`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`**，与 **部署平台环境变量** 逐项核对（**`CHATBI_USE_AGENT`**、**`SILICONFLOW_*`**、**`CHATBI_V2_INTENT_*`**、**`DEBUG_*`** 等）。  
+2. **强制**：生产 **`CHATBI_V2_INTENT_EVAL=false`**、**`CHATBI_V2_INTENT_BENCH_RUN` 不设或为 false**；**勿**将 **`CHATBI_V2_INTENT_EVAL_OUT`** 指到生产只读卷以外的敏感路径。  
+3. **数据库**：在 Supabase **SQL Editor** 执行或核对迁移：表 **`rag_conversation_logs`** 含 **`agent_steps` / `tool_results`**（定义见 `supabase/sql/create_rag_conversation_logs.sql` 或等价迁移）；**生产**执行前先在 **staging** 验证。  
+4. **发布后烟测**：对 **`POST /api/py/unified/chat/stream`** 执行 **L4 同款 curl**（使用 **生产** `API_BASE` 与 **轮换密钥**）；再跑 **L0**（可对 CI 仓库 tag，不必在生产机跑 pytest 全量，按团队规范）。
+
+**通过准则**：配置无 **评测误开**；DB schema 与代码 **无漂移**；烟测 **200 + SSE 正常**。
+
+---
+
+**最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**；**上线前后**建议 **L7 + L4 烟测**；全栈体验加 **L6**。
 
 ---
 
@@ -442,3 +504,5 @@ curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application
 - 任务单：
   - `docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`
   - `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（及子链 P1-Eval / P1-C / P1-D）
+- 回归归档：
+  - `docs/diary/2026-05-07-l0-l3-regression-acceptance.md` — **L0–L3** 本轮验收表（**入库需** `git add -f`，`docs/*` 默认 ignore）
