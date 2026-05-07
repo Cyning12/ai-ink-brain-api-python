@@ -14,6 +14,7 @@
 |--------|------|------|
 | **P1-Eval（主线：可验证评测 + 性能基准）** | `docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md` | A+B 全量 WBS、本阶段阻断验收 |
 | **P1-C（缓存 + 可观测性）** | `docs/tasks/active/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` | LRU/TTL、history key、命中率对比 |
+| **P1-D（误判 / Prompt / 阈值）** | `docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` | Prompt 迭代、置信度与 fallback、超时策略；须带 intent_eval 前后对比 |
 
 ---
 
@@ -60,6 +61,8 @@ P1 目标：
   - **验收**：报告中能看到缓存命中率与对延迟的影响（至少对比一次）。
 
 ### D. 误判调优（可选，优先级 P2，但通常会做）
+
+> **独立任务单（WBS / 验收 / 风险）**：`docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`
 
 - [ ] **D1. Prompt 调优迭代**
   - **策略**：先修正误判最多的类别边界（Text2SQL vs RAG vs Direct），再补 few-shot。
