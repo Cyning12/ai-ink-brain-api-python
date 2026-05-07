@@ -8,6 +8,7 @@
 
 关联：
 - `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览 §D）
+- `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（**§7.4** 全量对照、**§7.5** 深度回归 L1/L2）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md`（工具定义、输出 JSON 约定）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Gap-Checklist.md`（与 Overview 对齐时的缺口跟踪）
 

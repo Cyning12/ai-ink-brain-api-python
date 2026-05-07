@@ -1,12 +1,12 @@
 # Task：ChatBI V2 Agent（P1 总览）— 意图准确率、性能基准、缓存与调优
 
-状态：A+B+C 已闭环（P1-Eval **冻结验收**已切换为 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，总设 2026-05-07 同意）；**P1-D（误判/Prompt/阈值/上游超时）**为下一阶段  
-范围：仅后端 `ai-ink-brain-api-python`  
+状态：A+B+C **与 P1-D 均已闭环**（P1-Eval 冻结口径仍以 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为基线；P1-D 见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `tests/_out/intent_llm_20260507_160444_p1d_live.*`）  
+范围：仅后端 `ai-ink-brain-api-python`（**全仓相对总规的完成度**不以本文件为唯一口径，见 `SPEC-ChatBI-V2-Agent-Overview.md` **§7.4**、**§7.5**）  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联：
-- `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` — 性能指标 P50/P95
+- `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` — §7 验收勾选、**§7.4 全量对照**、**§7.5 深度回归**
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md` — 测试集 60 条、缓存策略
-- `docs/spec/v2-agent/SPEC-ChatBI-V2-Gap-Checklist.md` — P1 缺口项
+- `docs/spec/v2-agent/SPEC-ChatBI-V2-Gap-Checklist.md` — 缺口快照（与 §7.4 互补）
 
 **子任务（单独文档，避免本文件过长）**
 

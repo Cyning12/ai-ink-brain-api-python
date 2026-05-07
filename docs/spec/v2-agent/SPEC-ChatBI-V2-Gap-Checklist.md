@@ -1,23 +1,25 @@
 # SPEC: ChatBI V2 —— Gap Checklist（缺口清单）
 
 > 对齐对象：`docs/spec/v2-agent/SPEC-ChatBI-V2-*.md`  
-> 维护说明：本文件用于记录「现有实现 vs V2 规格」的缺口、优先级与建议改动点，避免实现时遗漏关键契约/回退/记忆要求。
+> 维护说明：本文件用于记录「现有实现 vs V2 规格」的缺口、优先级与建议改动点，避免实现时遗漏关键契约/回退/记忆要求。  
+> **读法**：下方 **「实现对齐快照」表为当前真值**；各 `## P0` 起章节保留**历史缺口原文**便于审计，**不得以旧 § 文字覆盖上表**。
 
 ---
 
-## 实现对齐快照（2026-05-06 审计 · 与仓库对照）
+## 实现对齐快照（2026-05-07 审计 · 全仓对照 · 与 `SPEC-ChatBI-V2-Agent-Overview.md` §7.4 一致）
 
-以下条目在**下文各节**仍保留「原始缺口描述」便于读 spec；**本表仅标当前代码侧是否已基本落地**，后续改代码时请同步更新两处以免误导。
+以下条目在**下文各节**仍保留「原始缺口描述」便于读 spec；**本表仅标当前代码 / 部署 / 测试侧结论**；**深度回归操作**见 Overview **§7.5**。
 
 | 原 § | 主题 | 当前结论 |
 |------|------|----------|
 | P0 §1 | `agent.*` 写入 `_contract_manifest.json` | **已落地**：`docs/_tech_graph/_contract_manifest.json` 含 `agent.step.start` / `agent.think` / `agent.intent` / `agent.step.end` / `agent.final` 及 `payload_min_keys_by_type`。 |
-| P0 §2 | `rag_conversation_logs` 增加 `agent_steps` / `tool_results` | **已落地**：`supabase/sql/create_rag_conversation_logs.sql` 已含对应 `jsonb` 列（生产库是否已迁移需以实际 Supabase 为准）。 |
-| P0 §3 | `intent_agent` / `agent` / `tools` / `agent_memory` 模块 | **已落地**：`api/intent_agent.py`、`api/agent.py`、`api/tools.py`、`api/agent_memory.py` 存在；细节与 spec 差异以代码为准。 |
-| P0 §4 | `unified_chat` 接入 V2 + `CHATBI_USE_AGENT` | **已落地**：V2 路径与 `agent.*` 事件流已实现（与契约门禁一致）。 |
-| P1 §5 | ToolResult + `error_code` + fallback | **部分落地**：`api/tools.py` 的 `ToolResult`、`api/agent.py` 的 `FailureTypeHandler`（含 `RAG_RETRIEVE_EMPTY` gating）已实现；与 Overview 逐条对照仍建议走一次回归清单。 |
-| P1 §6–§7 | ReAct 事件时序、reasoning 分级 | **需持续对照**：以 `_contract_manifest.json` + 实际 SSE 为准；若与 spec 仍有偏差在本表下方 § 内更新。 |
-| P2 §8–§9 | 测试覆盖、env 默认值统一 | **进行中**：V2 专用测试与 P1-Eval 工具链在迭代；`CHATBI_V2_INTENT_TIMEOUT_S` 等已写入 `PROJECT_CONFIG`。 |
+| P0 §2 | `rag_conversation_logs` 增加 `agent_steps` / `tool_results` | **已落地（SQL）**：`supabase/sql/create_rag_conversation_logs.sql` 已含对应 `jsonb` 列；**生产库是否已迁移**以实际 Supabase 为准（全量对照「运维」行）。 |
+| P0 §3 | `intent_agent` / `agent` / `tools` / `agent_memory` 模块 | **已落地**：`api/intent_agent.py`、`api/agent.py`、`api/tools.py`、`api/agent_memory.py`；P1-D 已迭代 Intent Prompt。 |
+| P0 §4 | `unified_chat` 接入 V2 + `CHATBI_USE_AGENT` | **已落地**：JSON + SSE 路径；前端 `ai-ink-brain` 已部分消费 `agent.*` 类型（见 Overview §7.4）。 |
+| P1 §5 | ToolResult + `error_code` + fallback | **部分落地**：`FailureTypeHandler` + gating 已实现；**与 Overview §2.4 逐条等价**依赖 **§7.5 L5** 矩阵回归，非仅单元测存在即闭合。 |
+| P1 §6–§7 | ReAct 事件时序、reasoning 分级 | **需持续对照**：以 `_contract_manifest.json` + **L4 实 SSE** 为准。 |
+| P2 §8 | 多步 fallback / `agent.*` E2E 覆盖 | **部分**：`test_unified_chat_backend_v2_agent.py` 等存在；**Gap 原文所列「完全缺失」已不再成立**，仍缺 **L5/L6** 级全矩阵与跨仓报告。 |
+| P2 §9 | env 默认值与 spec 一致 | **部分**：`PROJECT_CONFIG` / `.env.example` 已对齐 V2 开关；**纸面 P50/P95** 与线上延迟仍不一致（见 Overview §7.2）。 |
 
 ---
 
@@ -158,9 +160,10 @@ spec 中如 `INTENT_MIN_CONFIDENCE=0.6`、Intent 超时 3s、`AGENT_MAX_STEPS` �
 
 ---
 
-## 建议下一步（最小闭环）
+## 建议下一步（相对当前快照）
 
-1. 补齐 P0（契约真值 + 记忆表字段 + V2 模块 + unified_chat 接入）
-2. 实现 P1 的 fallback/gating 与 ReAct 事件时序
-3. 补齐 P2 测试后再开并发/压测验收
+1. **发布前**：执行 Overview **§7.5** 中 **L0 + L3**；若对外承诺 Intent 质量则加 **L1**。
+2. **宣称与 §2.4 完全等价前**：执行 **L5**（`error_code` 矩阵）并归档用例 / 日志。
+3. **宣称延迟 SLA 前**：执行 **L2**，并在 Overview §7.2 或发布说明中写明与纸面目标的差距及缓解（超时、`v1_fallback`、模型选型）。
+4. **生产 DB**：确认迁移与代码版本一致后，再在 §7.4 将「记忆 / 落库」标为已对齐。
 

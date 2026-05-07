@@ -1,10 +1,10 @@
 # SPEC: ChatBI V2 —— Agent 架构升级（总规）
 
-> **状态**：draft  
+> **状态**：implemented（后端 P0+P1 主线已合；**与纸面目标的差距**以 §7.4 全量对照为准）  
 > **版本**：v2（已按审查意见修订）  
-> **日期**：2026-04-27  
+> **日期**：2026-04-27（**文档对齐**：2026-05-07 — §7 验收勾选、任务索引、§7.4 / §7.5）  
 > **负责人**：cyning  
-> **关联任务**：`docs/tasks/active/task_chatbi_v2_agent_v1.md`（待创建）
+> **关联任务（真值）**：`docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`（P0 归档）· `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，含 Eval/C/D）· `SPEC-ChatBI-V2-Gap-Checklist.md`（缺口快照）
 
 ---
 
@@ -303,13 +303,15 @@ rag_tool = Tool(
 
 ## 7. 验收标准
 
+> **说明**：下列 `[x]` / `[ ]` 表示**相对本总规条文**的当前达成度；**不以「是否合并某张任务单」为口径**。细粒度证据见 `task_chatbi_v2_agent_p1_behavior.md`、P1-Eval 子任务、diary、`tests/_out/` 归档与 §7.4。
+
 ### 7.1 功能验收
 
-- [ ] Agent 能根据 Query 自主选择正确工具（准确率 > 90%，macro-F1）
-- [ ] 支持多步推理（至少 2 个工具串行调用）
-- [ ] SQL 执行失败时按失败类型 fallback
-- [ ] 多轮对话能保持上下文（最近 5 轮）
-- [ ] SSE 事件流对外兼容（mode 保留 V1 语义）
+- [x] Agent 能根据 Query 自主选择正确工具（**Intent**：60 条金标 + `intent_eval` / P1-D 归档；macro-F1 约 **0.95+** 量级；**RAG 桶**曾存在 **22/24** 与超时相关误判，见 diary，**不等同于**「全场景 >90% 永真」）
+- [ ] 支持多步推理（至少 2 个工具串行调用）（**`AGENT_MAX_STEPS` 默认 5** 已具备；**典型「SQL→RAG」串联**依赖失败/fallback 触发路径，**缺独立 E2E 黄金用例与压测报告**，见 Gap §8 / §7.4）
+- [x] SQL 执行失败等按 **`error_code`** 分支 fallback / gating（**部分**：`FailureTypeHandler` + `RAG_RETRIEVE_EMPTY` gating 已落地；与 Overview §2.4 **逐条等价**仍建议走 §7.5 L5 深度用例）
+- [x] 多轮对话能保持上下文（**最近 5 条**会话从 `rag_conversation_logs` 加载，见 `api/agent_memory.py`；与 spec「5 轮」口径一致按「条」计）
+- [x] SSE 事件流对外兼容（**mode** 仍为 `rag` / `text2sql` / `no_data`；`agent.*` 为增量事件；契约见 `_contract_manifest.json`）
 
 ### 7.2 性能验收
 
@@ -320,13 +322,46 @@ rag_tool = Tool(
 | 整体响应 | 3s | 8s | 端到端测试 |
 | 并发 | 与 V1 持平 | — | 负载测试 |
 
+- [ ] **纸面 P50/P95 未达标（已知）**：真实 SiliconFlow Intent 延迟与 **§2.3** 目标差距大；`CHATBI_V2_INTENT_TIMEOUT_S` 顶满时出现 **`v1_fallback`**（见 P1-Eval / P1-D 日志）。**验收改以「可观测 + 退化正确」为主**，数值目标保留为后续优化项。
+
 ### 7.3 代码验收
 
-- [ ] 新增文件：`api/intent_agent.py`, `api/agent.py`, `api/tools.py`, `api/agent_memory.py`
-- [ ] 修改文件：`api/unified_chat.py`（接入 Agent）
-- [ ] 保留文件：`api/intent_router.py`（降级备用）
-- [ ] 契约更新：`docs/_tech_graph/_contract_manifest.json`（新增 agent.* 事件类型 + payload 最小键集合）；`docs/_tech_graph/_manifest.json`（如有新端点/env）
-- [ ] 测试覆盖：Intent 准确率测试集 50 条 + Agent 单元测试
+- [x] 新增文件：`api/intent_agent.py`, `api/agent.py`, `api/tools.py`, `api/agent_memory.py`
+- [x] 修改文件：`api/unified_chat.py`（接入 Agent + SSE）
+- [x] 保留文件：`api/intent_router.py`（降级备用）
+- [x] 契约更新：`docs/_tech_graph/_contract_manifest.json`（`agent.*` + `payload_min_keys_by_type`）；`_manifest.json` 与 env 以 `PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 为准
+- [x] 测试覆盖：**60 条** Intent 集 + stub/缓存/统一聊天 V2 单测（`pytest tests` **55** 条收集口径；其中 **2** 条 `intent_eval` / `intent_benchmark` 默认 skip）
+
+### 7.4 全量实现对照（总规 × 仓，不限任务单）
+
+| 维度 | 总规要求（摘要） | 后端 `ai-ink-brain-api-python` | 前端 `ai-ink-brain` | DB / 运维 | 测试与证据 | 结论 |
+|------|------------------|-------------------------------|---------------------|-----------|------------|------|
+| 契约 `agent.*` | `_contract_manifest.json` 真值 | 已维护；`tech_graph_contract_check` 门禁 | `chain-chat` 类型含 `agent.*`；未知事件应忽略 | — | CI / 本地 contract_check | **已对齐** |
+| Unified 接入 | `CHATBI_USE_AGENT` 分流 | `unified_chat` JSON + SSE 路径已实现 | BFF 透传依赖部署 `PY_API_URL` / env | — | `test_unified_chat_backend_v2_agent.py` 等 | **已对齐**（部署面另验） |
+| Intent 质量 | macro-F1、三桶准确率 | P1-Eval + **P1-D** Prompt/历史窗口；**RAG 桶仍有超时边界** | 不参与 | — | `tests/_out/intent_llm_*`、diary | **部分**（质量达标为主路径，非全 query 宇宙） |
+| Intent 延迟 | §2.3 P50/P95 | 实际上游常 **秒级**；`v1_fallback` 可观测 | — | — | benchmark 脚本、评测 `latency_ms` | **缺口**（相对纸面指标） |
+| ReAct 多步 | ≥2 工具、max_steps | `AGENT_MAX_STEPS`、步内换工具逻辑存在 | Timeline 未要求消费全部 `agent.*` | — | 缺专门 E2E 黄金场景 | **部分** |
+| Fallback / gating | §2.4 `error_code` 映射 | `ToolResult` + `FailureTypeHandler` + RAG→SQL gating | — | — | 单元测覆盖**不等同**全矩阵 | **部分** |
+| 记忆 | 最近 5 轮等 | `agent_memory.load` **最近 5 条**；`agent_steps`/`tool_results` 由 unified 落库 | — | **生产库须已迁移** SQL 列 | P0 / 迁移清单 | **部分**（**库表以环境为准**） |
+| reasoning 分级 | 用户摘要 vs 内部 | SSE `agent.think` 摘要；完整链路日志 / admin | 仅展示摘要类事件 | — | 人工 SSE 抽查 | **需持续对照** |
+| 压测 / 并发 | §7.2 最后一行 | 未作为阻断交付 | — | — | P1 子任务「压力脚本报告」仍 **open** | **缺口** |
+
+### 7.5 深度回归操作（建议固定为发布前 Checklist）
+
+以下按**由浅入深**排列；**越深越接近「全量相对总规」**，成本越高（外呼、密钥、时长）。
+
+| 层级 | 目的 | 操作（仓库根 `ai-ink-brain-api-python`） | 通过准则（摘要） |
+|------|------|-------------------------------------------|------------------|
+| **L0** | 契约 + 默认零外呼 | `unset CHATBI_V2_INTENT_EVAL CHATBI_V2_INTENT_BENCH_RUN`（可选再 unset `CHATBI_V2_INTENT_LLM`）；`PYTHONPATH=. python tools/tech_graph_contract_check.py`；`PYTHONPATH=. python -m pytest tests -q --tb=short` | contract_check **OK**；pytest **与当前收集条数一致**（如 53 passed + 2 skipped） |
+| **L1** | Intent 黄金 60 条（真实 LLM） | 配置 `SILICONFLOW_API_KEY`、`CHATBI_V2_INTENT_LLM=true`、`CHATBI_V2_INTENT_EVAL=true`；`CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_<stamp>.jsonl`；`PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v` | macro-F1 / 三桶 / `v1_fallback` 条数对照 **上一轮归档**或任务单红线 |
+| **L2** | Intent 延迟分布 | `CHATBI_V2_INTENT_BENCH_RUN=true` 且密钥齐全：`pytest … -m intent_benchmark`；或 `PYTHONPATH=. CHATBI_V2_INTENT_BENCH_N=… python tests/benchmark_intent_latency.py` | 产出 P50/P95 或分位数日志，**与 §2.3 差距**在发布说明中显式记录 |
+| **L3** | Unified Agent（JSON） | `CHATBI_USE_AGENT=true`；`pytest tests/test_unified_chat_backend_v2_agent.py -q --tb=short` | 全绿；覆盖 **关闸 / 基础事件** |
+| **L4** | SSE 全链路与事件序 | 启动 API；对 **`POST /api/py/unified/chat/stream`**（见 `api/index.py`；经网关时前缀以部署为准）发真实请求，`CHATBI_USE_AGENT=true`，抓 SSE；对照 `SPEC-ChatBI-V2-Events.md` + `_contract_manifest.json` 中 **`agent.step.start` → … → `agent.final`** 与 `tool.*` 穿插关系 | 无契约外必填字段缺失；前端不崩溃（未知 type 忽略） |
+| **L5** | Fallback / gating **矩阵** | 构造或调用触发 **`SQL_GEN_*` / `SQL_EXEC_*` / `RAG_RETRIEVE_EMPTY` / `LLM_API_TIMEOUT`** 的场景（单测 + 手工）；核对是否落入 **预期下一工具**而非盲 SQL | 与 `api/agent.py` 中 `FailureTypeHandler` 及 §2.4.1 **逐条一致** |
+| **L6** | 跨仓端到端 | 前端 `ai-ink-brain` 指向本 API；走 **流式** ChatBI；开关 Agent | UI、日志、session 与 mode 正确；**生产 Supabase** 行内可见 `agent_steps`（若已迁移） |
+| **L7** | 运维与配置 | 对照 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` + 部署环境 `.env`；**禁止**把评测开关带入生产 | 生产 **`CHATBI_V2_INTENT_EVAL=false`** 等；DB migration 与代码版本匹配 |
+
+**最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**。
 
 ---
 
@@ -349,7 +384,7 @@ rag_tool = Tool(
 | Phase 1 | 4/28-4/30 | Tool 封装 + Intent Agent + Agent 核心骨架 |
 | Phase 2 | 5/1-5/4 | ReAct 循环 + 记忆管理 + Fallback 策略 |
 | Phase 3 | 5/5-5/7 | 接入 Unified Chat + 事件流兼容 + 契约更新 |
-| Phase 4 | 5/8-5/11 | 测试（准确率/性能）+ 优化 + 文档 |
+| Phase 4 | 5/8-5/11 | 测试（准确率/性能）+ 优化 + 文档（**2026-05-07**：§7 / Gap / P1 总览 **文档对齐**；**性能纸面目标**仍见 §7.2） |
 
 ---
 
@@ -361,9 +396,11 @@ rag_tool = Tool(
   - `SPEC-ChatBI-V2-ReAct-Loop.md` — ReAct 循环详细设计
   - `SPEC-ChatBI-V2-Memory.md` — 记忆管理设计
   - `SPEC-ChatBI-V2-Events.md` — 事件流兼容设计
+  - `SPEC-ChatBI-V2-Gap-Checklist.md` — 缺口快照（与 §7.4 互补；下文 P0 各节为历史审计原文）
 - 技术图谱：
   - `docs/_tech_graph/10_flow_rag.md`
   - `docs/_tech_graph/11_flow_text2sql.md`
-  - `docs/_tech_graph/_manifest.json`（需更新）
+  - `docs/_tech_graph/_manifest.json` · `_contract_manifest.json`（SSE 真值）
 - 任务单：
-  - `docs/tasks/active/task_chatbi_v2_agent_v1.md`（待创建）
+  - `docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`
+  - `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（及子链 P1-Eval / P1-C / P1-D）
