@@ -5,13 +5,15 @@ Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表
 
 ## 归档产物（防覆盖改名）
 
-**复跑二**结束后已将 `intent_llm_latest` 改名归档（避免后续跑批覆盖）：
+历史与最新归档（文件名内嵌关键统计，便于对比）：
 
-- `tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.jsonl`
-- `tests/_out/intent_llm_latest_20260506_171351_v1fb15_acc0817.csv`
+| 批次 | JSONL / CSV（`tests/_out/`） |
+|------|-------------------------------|
+| 复跑二（网络差，不冻结） | `intent_llm_latest_20260506_171351_v1fb15_acc0817.{jsonl,csv}` |
+| **冻结轮（复跑三）** | `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.{jsonl,csv}` |
 
-命名含义：`v1fb15` = 本文件内 `raw_response.used=v1_fallback` 共 **15** 条；`acc0817` ≈ **49/60** 准确率。  
-**下次跑批**：请显式设置 `CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_latest.jsonl`（或新时间戳路径）；当前仓库内**无** `intent_llm_latest.jsonl`，避免误以为仍有「最新」文件。
+命名含义（冻结轮）：`v1fb3` = `v1_fallback` **3** 条；`acc0933` ≈ **56/60**；`macro0932` ≈ **macro-F1 0.932**。  
+**下次跑批**：显式 `export CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_latest.jsonl`（或新时间戳路径）；归档后仓库内**可能暂无**无后缀 `intent_llm_latest.*`，勿误读旧路径。
 
 ---
 
@@ -65,9 +67,46 @@ Spec：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（P50/P95 目标表
 
 ---
 
+## 复跑三 / **冻结验收轮**（`v1_fallback` 低、macro-F1 达标）
+
+| 项 | 值 |
+|----|-----|
+| 归档 | `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.jsonl` / `.csv` |
+| `v1_fallback` | **3** / 60 |
+| 汇总 | **ok=56**，**acc≈0.933**，**macro-F1≈0.932**（**> 0.90**） |
+| per-class F1 | text2sql **≈0.974**，rag **≈0.933**，direct **≈0.889** |
+| 分桶 | Text2SQL **19/20**；RAG **21/24**；Direct **16/16**；多轮 **9/10** |
+| `raw_response.cache` | 评测集 60 条均为 **`miss`**（逐条独立 `(query,history)`，无重复键；**不表示**线上缓存失效） |
+
+### 混淆矩阵（复跑三，expected → predicted）
+
+| expected \\ predicted | text2sql_query | rag_search | direct_answer |
+|------------------------|----------------|------------|----------------|
+| text2sql_query | 19 | 0 | 1 |
+| rag_search | 0 | 21 | 3 |
+| direct_answer | 0 | 0 | 16 |
+
+### `ok=false`（共 4）
+
+- **i=16** `text2sql_query`→`direct_answer`：`v1_fallback`（超时降级）。  
+- **i=26** `rag_search`→`direct_answer`：`v1_fallback`。  
+- **i=33** `rag_search`→`direct_answer`：真 LLM（「如何计算 confusion matrix」判 direct）。  
+- **i=56** `rag_search`→`direct_answer`：真 LLM（多轮「那需要查数据库吗」判 direct）。
+
+### Intent 延迟粗算（复跑三，`latency_ms` 顶层字段）
+
+| 子集 | n | P50 | P95 |
+|------|---|-----|-----|
+| 全量 | 60 | ≈4496 ms | ≈28424 ms |
+| 剔除 `v1_fallback` | 57 | ≈4327 ms | ≈12492 ms |
+
+**结论**：本冻结轮满足 P1-Eval 任务单 **macro-F1 > 90%**；`v1_fallback=3` 与分桶达标，**作为当前主验收归档**（环境变更后请再跑一轮对比）。
+
+---
+
 ## 待网络稳定后（任务跟踪）
 
-- [ ] 固定时段或更换网络后，**重新执行** `pytest … -m intent_eval`，导出新的 `intent_llm_latest.jsonl`（或带时间戳文件名），对比 **`v1_fallback` 条数**与 macro-F1；若 fallback 明显下降，再以该次作为「环境正常」主报告。
+- [x] **（2026-05-07 已满足）** 已再跑 `intent_eval` 并归档 `intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`；`v1_fallback` 与 macro-F1 见上节「复跑三」。后续若换模型/网络，**建议重复本流程**并新增时间戳归档。
 - 可选：跑前记录上游 RTT / 并发；仍不达标再进入 **P1-D**（超时阈值、重试、prompt、金标口径）。
 
 ---
@@ -140,18 +179,18 @@ python tests/benchmark_agent_e2e_latency.py
 
 ---
 
-## 验收数值对照表（首轮 vs 复跑二）
+## 验收数值对照表（首轮 / 复跑二 / **冻结轮·复跑三**）
 
-| 项 | 目标 / 备注 | 首轮（较早） | 复跑二（网络差，已归档） |
-|----|-------------|--------------|--------------------------|
-| macro-F1 | > 90% | **≈0.868**（未达标） | **≈0.821**（未达标） |
-| Text2SQL | ≥ 17/20 | **18/20** | **16/20** |
-| RAG（24 条 `rag_search`） | 见任务单口径 | **18/24** | **17/24** |
-| Direct | 当前 16 条 | **16/16** | **16/16** |
-| 多轮 i=51–60 | ≥ 8/10 | **8/10** | **7/10** |
-| `v1_fallback` | 越少越好（过程性） | **10** | **15** |
-| Intent P50 / P95（JSONL 粗算） | Overview 理想值仍远未达 | 首轮见历史 git / 上文摘要 | 全量 P50≈8498ms，P95≈31037ms；剔除 fallback 后 P50≈7906ms，P95≈18795ms |
-| B2 | diary 链 | **TBD** | **TBD** |
+| 项 | 目标 / 备注 | 首轮（较早） | 复跑二（网络差，已归档） | **冻结轮（复跑三，已归档）** |
+|----|-------------|--------------|--------------------------|-------------------------------|
+| macro-F1 | > 90% | **≈0.868**（未） | **≈0.821**（未） | **≈0.932**（**达标**） |
+| Text2SQL | ≥ 17/20 | **18/20** | **16/20** | **19/20** |
+| RAG（24 条 `rag_search`） | 见任务单 | **18/24** | **17/24** | **21/24** |
+| Direct | 当前 16 条 | **16/16** | **16/16** | **16/16** |
+| 多轮 i=51–60 | ≥ 8/10 | **8/10** | **7/10** | **9/10** |
+| `v1_fallback` | 过程性 | **10** | **15** | **3** |
+| Intent P50 / P95（JSONL 粗算） | Overview 仍远未达理想 | 见上文 | 全量 P50≈8498ms，P95≈31037ms | 全量 P50≈4496ms，P95≈28424ms；剔除 fallback 后 P50≈4327ms，P95≈12492ms |
+| B2 | diary 链 | **TBD** | **TBD** | **TBD** |
 
 ---
 
