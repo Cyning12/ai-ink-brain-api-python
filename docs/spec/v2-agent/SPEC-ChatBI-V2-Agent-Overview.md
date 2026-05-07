@@ -408,6 +408,16 @@ rag_tool = Tool(
 5. **对照契约**：逐条解析 `data: {…}` 内 **`type`** 序列；核对是否出现 **`agent.step.start` → `agent.think` / `agent.intent` → `tool.call.start` / `tool.call.end` → … → `agent.step.end` / `agent.final` → `assistant.message` / `latency` / `done`**（与当次实际工具路径一致即可，允许分支差异）。打开 **`_contract_manifest.json`** 中 `sse.chain.type_values` 与 `payload_min_keys_by_type`，确认每条类型的 **必填键** 均存在。  
 6. **前端抽查（可选同次）**：浏览器打开 `ai-ink-brain` 对应页，同一 `PY_API_URL` 指向该 API，走流式对话，确认 **Console 无未捕获异常**、Timeline **可忽略未知 agent 事件**。
 
+**为何后台终端可能「没有日志」**（常见误解）
+
+- **设计如此**：`handle_unified_chat_stream` 的 Agent SSE 路径 **不向 stdout 逐条打印** `chain` 事件（避免噪声、避免在共享日志里泄露 query/推理全文）；**L4 的主观测面是客户端收到的 SSE**（`curl … | tee sse.txt`），不是 uvicorn 控制台刷屏。  
+- **uvicorn 默认**：一般只看到 **HTTP 访问行**（若开启 access log），**不会**打印响应体里的每条 SSE。  
+- **需要更多服务端轨迹时**（仍非「每条 SSE」）：  
+  - 请求 JSON 带 **`"debug_router": true`**（与 `DEBUG_ROUTER_*` 协同），便于路由证据 / `router_trace` **落库**与部分诊断（见 `unified_chat.py` 分支）；  
+  - 环境变量 **`DEBUG_AGENT_DB_LOG=1`**：Agent 轮次写 **`rag_conversation_logs`** 失败时会有 **`print`**（非成功路径默认仍安静）；  
+  - 自行在本地临时加 `logging` / `print` 仅限排障，**勿**当生产依赖。  
+- **若完全无 HTTP 访问日志**：确认启动命令是否带 **`--access-log`**（视 uvicorn 版本与默认而定），或检查是否把进程输出重定向到文件。
+
 **通过准则**：无 **500**；SSE 流正常结束（`done`）；**契约键不缺失**；前端不白屏。
 
 #### 7.5.4 L5 — Fallback / `error_code` 矩阵（详细流程）
