@@ -64,11 +64,11 @@ P1 目标：
 
 > **独立任务单（WBS / 验收 / 风险）**：`docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`
 
-- [ ] **D1. Prompt 调优迭代**
+- [x] **D1. Prompt 调优迭代**（**done**：见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `docs/diary/2026-05-07-p1-intent-p1d.md`）
   - **策略**：先修正误判最多的类别边界（Text2SQL vs RAG vs Direct），再补 few-shot。
   - **验收**：每次改动必须附带“前后对比”（macro-F1 与关键类召回）。
 
-- [ ] **D2. 置信度阈值与 fallback 细化（如需要）**
+- [x] **D2. 置信度阈值与 fallback 细化（如需要）**（**done**：同上；本轮以文档化 `INTENT_MIN_CONFIDENCE` / `CHATBI_V2_INTENT_TIMEOUT_S` 为主，代码映射未改）
   - **约束**：不引入新事件类型；只在 P1 任务内改行为/参数，并被测试集覆盖。
   - **验收**：误判率下降且不显著牺牲召回；性能不退化。
 
@@ -139,8 +139,8 @@ P1 目标：
 
 ### 4) 回归验收（阻断项，P1）
 
-- [ ] P0 全部 38 个测试仍通过
-- [ ] `CHATBI_USE_AGENT=false` 时 V1 行为不变
+- [x] **`tests/` 全量 pytest（默认零外呼）**：`unset CHATBI_V2_INTENT_EVAL CHATBI_V2_INTENT_BENCH_RUN CHATBI_V2_INTENT_LLM` 后执行 `PYTHONPATH=. python -m pytest tests -q --tb=short`。当前收集 **55** 条：**53 passed**，**2 skipped**（预期：`intent_benchmark` 需 `CHATBI_V2_INTENT_BENCH_RUN`；`intent_eval` 需 `CHATBI_V2_INTENT_EVAL`）。**旧文案「38 个」已废弃**，以 `pytest tests --collect-only -q` 的 `N tests collected` 为准。
+- [x] **`CHATBI_USE_AGENT=false` 时 V1 行为不变**（以 `tests/test_unified_chat_backend_v2_agent.py::test_v2_agent_disabled_regression` 等单测为门禁；含于上述全量 `pytest tests`）
 
 ---
 
