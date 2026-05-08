@@ -14,9 +14,10 @@
     "envelope_keys": ["event", "data"],
     "allowed_events": ["chain", "done"],
     "chain": {
-      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。",
+      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。frontend_ts_ignore_payload_like_keys：TS 里 ExecSection 等 UI 判别/派生字段名，易被 contract_check 的 .map((x)=> 启发式误扫进「载荷键」；非 SSE wire keys。",
       "data_keys": ["type", "ts", "step_id", "payload"],
       "frontend_optional_chain_data_keys": ["step"],
+      "frontend_ts_ignore_payload_like_keys": ["kind", "finalMode", "dropped", "snippet"],
       "type_values": [
         "meta",
         "router.decision",

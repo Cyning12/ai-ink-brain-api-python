@@ -238,6 +238,9 @@ def main() -> int:
 
         chain_data_keys = set(chain.get("data_keys") or [])
         chain_opt_data_keys = set(chain.get("frontend_optional_chain_data_keys") or [])
+        chain_ts_ui_ignore = set(chain.get("frontend_ts_ignore_payload_like_keys") or [])
+        if not all(isinstance(x, str) for x in chain_ts_ui_ignore):
+            raise TypeError("contract.sse.chain.frontend_ts_ignore_payload_like_keys must be list[str]")
         chain_type_values = set(chain.get("type_values") or [])
         done_data_keys = set(done.get("data_keys") or [])
 
@@ -363,6 +366,7 @@ def main() -> int:
         contract_key_union |= {"event", "data"}
         contract_key_union |= chain_data_keys
         contract_key_union |= chain_opt_data_keys
+        contract_key_union |= chain_ts_ui_ignore
         contract_key_union |= done_data_keys
         contract_key_union |= chain_type_values
         # payload keys union
@@ -403,6 +407,8 @@ def main() -> int:
             "startsWith",
         }
         used_union = set([x for x in used_union if x not in ignore])
+        # TS 侧 ExecSection / 右栏摘要等 discriminated union 字段，非 chain payload；从 .map 启发式中剔除
+        used_union -= chain_ts_ui_ignore
 
         forbidden = sorted([x for x in used_union if x not in contract_key_union])
         if forbidden:
