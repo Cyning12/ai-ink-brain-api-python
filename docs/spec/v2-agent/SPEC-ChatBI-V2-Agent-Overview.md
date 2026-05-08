@@ -507,7 +507,7 @@ rag_tool = Tool(
   - `SPEC-ChatBI-V2-Memory.md` — 记忆管理设计
   - `SPEC-ChatBI-V2-Events.md` — 事件流兼容设计
   - `SPEC-ChatBI-V2-Gap-Checklist.md` — 缺口快照（与 §7.4 互补；下文 P0 各节为历史审计原文）
-  - `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` — **下一版**：执行期增量 SSE、LLM 子步流式、Timeline/双栏（§11.3）
+  - `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` — **下一版**：执行期增量 SSE、LLM 子步流式、**默认左右双栏**（左 Timeline / 右流式；不验收移动端）（§11.3）
 - 技术图谱：
   - `docs/_tech_graph/10_flow_rag.md`
   - `docs/_tech_graph/11_flow_text2sql.md`
@@ -533,4 +533,4 @@ rag_tool = Tool(
 
 ### 11.3 下一版交互（SPEC）
 
-**增量 SSE + LLM 子步流式 + Timeline / 可选双栏对照**：见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`**。
+**增量 SSE + LLM 子步流式 + 默认左右双栏**（左 Timeline / 右流式；单栏为可选降级；不验收移动端）：见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`**。

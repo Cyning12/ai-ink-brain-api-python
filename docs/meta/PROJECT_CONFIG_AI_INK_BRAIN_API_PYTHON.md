@@ -56,6 +56,7 @@
 | `NEXT_PUBLIC_ADMIN_SECRET` | Admin/Chat 鉴权 secret | **必填（二选一）** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空：鉴权接口 500 | 与项目无关 |
 | `CHAT_API_SECRET` | Admin secret 别名 | **可选（二选一）** | `api/rag_env.py:admin_secret()` | 留空则使用 `NEXT_PUBLIC_ADMIN_SECRET` | 与项目无关 |
 | `CHATBI_USE_AGENT` | Unified Chat 是否走 V2 Agent（ReAct）路径 | 可选 | `api/unified_chat.py` | 默认 `false`；`1/true/yes/on` 开启 V2 | 与项目无关 |
+| `CHATBI_SSE_INCREMENTAL` | Unified Agent 流式是否 **边执行边 emit**（vNext） | 可选 | `api/unified_chat.py`（规划） | 默认 **`true`**（vNext 落地后）；`false` 时 **强制** `await run` 后批量 replay，**忽略** `X-ChatBI-Sse-Contract: 2` 的增量语义（仍须安全）；组合真值见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` **§9** | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
 | `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `Qwen/Qwen2.5-7B-Instruct` | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL` | 启用 60 条意图准确率 pytest（`@pytest.mark.intent_eval`） | 可选 | `tests/test_intent_agent_accuracy.py` | 不设为跳过；需密钥时配 `CHATBI_V2_INTENT_LLM=true` + `SILICONFLOW_API_KEY` | 与项目无关 |

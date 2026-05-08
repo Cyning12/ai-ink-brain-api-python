@@ -1,9 +1,18 @@
 # SPEC：ChatBI V2 —— 增量 SSE 与 Timeline 实时感知（下一版 / vNext）
 
-> **状态**：draft（仅需求与架构约束，**未**绑定实现排期）  
-> **日期**：2026-05-07  
+> **状态**：**终稿**（需求与契约已定，与 §5 及澄清简报 §9 一致；**实现代码与排期未绑定**；`type_values` 枚举须与代码 **同 PR** 落地，见 manifest `_note`）  
+> **日期**：2026-05-07（文首状态对齐：**2026-05-08**）  
 > **依赖**：`SPEC-ChatBI-V2-Agent-Overview.md`、`SPEC-ChatBI-V2-Events.md`、前端 `ai-ink-brain` Unified Chat SSE 实现、后端 `api/unified_chat.py` + `api/agent.py`  
 > **与当前 V2 关系**：在 **「V2 里程碑暂结」**（L0–L4 与 P1 主线）之上，**下一版**聚焦 **人机交互与可观测性**；不改变 Intent/Tool 业务语义，**改变事件下发时序与 LLM 输出粒度**。
+
+---
+
+## 0. 修订目标与执行顺序（任务 Agent）
+
+1. **锁契约（唯一真值链）**：以本文 **§5** + `SPEC-ChatBI-V2-Events.md` **§8** 为语义真值；**实现合并日**将 `chain.type` / `payload_min_keys_by_type` 写入 `docs/_tech_graph/_contract_manifest.json`（与 `unified_chat.py` **同一 PR**，见 manifest `_note`）。**禁止**长期「token 或 chain 二选一」并行表述。  
+2. **锁验收口径**：**§7** — CI 用 **顺序 / tick** 断言；产品级「≤1s」为 **staging 手测非阻断**；「有意义」以 **Events §8.3 白名单** 为准。  
+3. **锁降级矩阵**：**§9** — `CHATBI_USE_AGENT` × `CHATBI_SSE_INCREMENTAL` × `X-ChatBI-Sse-Contract` 组合。  
+4. **同步任务单填空**：后端任务写死 **G2 推荐**、契约头、矩阵、mock/LLM；前端任务写死 **query + localStorage**、**不做** step 聚合 v1、坏帧策略、**开工门槛**。
 
 ---
 
@@ -20,7 +29,7 @@
 
 ### 1.3 目标（产品一句话）
 
-**每一步**（Intent 判定、单步 ReAct、工具执行边界、各 LLM 调用）在 **时间轴上可即时感知**；凡 **调用 LLM** 的环节，**均以 SSE 增量输出**；展示落点优先 **Timeline**，可选 **新增一栏** 专收「流式正文 / LLM delta」，**原 Timeline 保留不动** 以便 **对照**（A/B 或上下分栏）。
+**每一步**（Intent 判定、单步 ReAct、工具执行边界、各 LLM 调用）在 **时间轴上可即时感知**；凡 **调用 LLM** 的环节，**均以 SSE 增量输出**；**默认布局为左右双栏**（见 **§3.2 方案 B**）：**左侧** 为 **Timeline**（链路 / `chain` 语义与当前对齐，便于对照），**右侧** 专收 **流式正文 / LLM delta** 与当前子步骤标题；**本版不考虑移动端专适**（桌面优先验收）。
 
 ---
 
@@ -32,33 +41,34 @@
 |----|------|
 | **后端** | `unified_chat` Agent SSE：**在 `agent.run` 执行过程中**即下发 `chain`（及约定的 LLM delta 事件）；必要时重构 `ChatBIAgent.run` 为 **可增量汇报** 的接口（见 §4）。 |
 | **契约** | 扩展或复用 SSE `event` / `chain.type`；更新 **`docs/_tech_graph/_contract_manifest.json`** 与 **`SPEC-ChatBI-V2-Events.md`**；CI `tech_graph_contract_check` 同步。 |
-| **前端** | `UnifiedChatPageClient`（及 `ChainTimeline` / 相关组件）：**边收边渲染**；支持 **双栏/副栏** 方案；**未知事件类型** 仍须容错（策略 B）。 |
+| **前端** | `UnifiedChatPageClient`（及 `ChainTimeline` / 相关组件）：**边收边渲染**；**默认左右双栏**（左 Timeline、右流式）；**未知事件类型** 仍须容错（策略 B）。 |
 | **BFF** | `ai-ink-brain` 对 `/api/py/unified/chat/stream` **继续透传 body**，**禁止** `await upstream.text()` 吞流（与既有任务单一致）。 |
 
 ### 2.2 非范围（本 SPEC 不强制）
 
 - 不改变 **V1 mode 对外语义**（`rag` / `text2sql` / `no_data`）。  
 - 不替代 **L5–L7** 的后续验收（仅推迟）；本版 **不要求** 一次 PR 内完成 Gap 全闭合。  
-- **不**承诺所有第三方 LLM 均支持 **OpenAI 式 `stream=True` chunk**；若某步仅支持同步 API，须定义 **服务端分片模拟**（如按句/按块切分）或 **显式标注为非流式降级**（仍发 `chain` 但无 delta）。
+- **不**承诺所有第三方 LLM 均支持 **OpenAI 式 `stream=True` chunk**；若某步仅支持同步 API，须定义 **服务端分片模拟**（如按句/按块切分）或 **显式标注为非流式降级**（仍发 `chain` 但无 delta）。  
+- **移动端** 响应式与触控专适（§3.2）：**本版不纳入范围**。
 
 ---
 
 ## 3. 体验与信息架构（UX）
 
-### 3.1 方案 A（默认）：单 Timeline 增量
+### 3.1 方案 A（内核 / 非默认 UI）：单 Timeline 增量
 
-- **同一** `ChainTimeline`：**按到达顺序 append** `chain` 事件；**LLM delta** 以 **子事件** 或 **嵌套 payload** 形式挂在对应 `agent.think` / `tool.call.*` / 新增 **`agent.llm.*`** 下（具体见 §5）。  
-- **优点**：实现路径短；与现有 mental model 一致。  
-- **风险**：事件密度上升后 Timeline **可读性**下降，需折叠/聚合策略（后续迭代）。
+- **同一** `ChainTimeline`：**按到达顺序 append** `chain`；**LLM delta** 亦可挂在对应 `agent.think` / **`agent.llm.*`** 下（见 §5）。  
+- **用途**：作为 **数据与状态机内核**；当用户 **显式关闭双栏**（非默认）时，页面 **回退为单栏** 仅展示本 Timeline（流式区可折叠、合并或隐藏，实现阶段定稿）。  
+- **风险**：单栏模式下事件密度高时 **可读性** 下降，可后续加折叠/聚合。
 
-### 3.2 方案 B（可选）：双栏 —「经典 Timeline」+「流式视图」
+### 3.2 方案 B（默认布局）：左右双栏 —「Timeline」+「流式视图」
 
-- **左（或上）**：**冻结为当前行为语义** 的 Timeline（或仅展示 **非 delta** 的 `chain`），用于 **与旧版对比 / 排障**。  
-- **右（或下）**：**仅展示** LLM 流式输出（token / delta）及「当前子步骤标题」。  
-- **优点**：对照清晰；便于灰度 **A/B**。  
-- **成本**：前端状态机、布局、移动端适配。
+- **左侧**：**Timeline**（`chain` 语义与当前 V2 对齐，用于 **对照 / 排障**）。  
+- **右侧**：**仅展示** 由 **`agent.llm.delta`** 拼接的流式正文及 **当前子步骤标题**（与 §5 契约一致；**不**依赖顶层 `event: token`）。  
+- **布局**：**仅采用左右分栏**（不采用上下分栏作为默认或等价替代）。  
+- **移动端**：**本版不在验收范围内**（不要求小屏断点、触控专适；实现可固定最小宽度或保留横向滚动，但不强制「可用性达标」）。
 
-**决策**：vNext **必须**支持 **方案 A**；**方案 B** 为 **feature flag**（如 `?stream_panel=1` 或用户设置），默认关闭。
+**决策**：vNext **默认开启** 左右双栏（方案 B）。**可选**（**非默认**）：`?single_panel=1`、用户设置或等价开关，折叠为 **§3.1 单栏** 以便排障或与旧版对比。
 
 ---
 
@@ -80,40 +90,59 @@
 
 对每个 **会调用上游 chat/completions** 的子过程，定义以下之一：
 
-1. **原生流式**：上游 `stream=True`，服务端 **边读 chunk 边** `yield` **`event: token`** 或 **`chain` + 新 `type`**（见 §5）；  
+1. **原生流式**：上游 `stream=True`，服务端 **边读 chunk 边** `yield` **`chain`** 且 `type` 为 **`agent.llm.delta`** 序列（见 §5）；**禁止**在 Unified Chat Agent 路径用顶层 **`event: token`** 承载子步 LLM 增量。  
 2. **伪流式**：上游仅同步整段返回时，服务端 **切分**（按标点/长度）后 **节流** 发出 delta（**须在 UI 标明**「模拟流式」或在 metadata 标记 `simulated_stream: true`）。
 
 ### 4.3 保活与背压
 
 - 保留 **`SSE_KEEPALIVE_INTERVAL_S`** 语义；在 **长 LLM chunk 间隔** 间仍须 **注释行保活**。  
-- **背压**：若客户端消费慢，服务端 **不得** 无界缓冲 delta；需 **上限**（队列长度 / 丢弃策略）并在 **`error`** 或 **`meta`** 中可观测。
+- **背压**：若客户端消费慢，服务端 **不得** 无界缓冲 delta；需 **上限**（队列长度 / 丢弃策略）。触顶时 **必须** 发出可观测 `chain`：`type: agent.llm.truncated`，`payload` 至少含 **`dropped_chars`**（number）、**`reason`**（string，如 `backpressure`）（见 §8.5）。可选同步 `error` / `done` 仍须到达（见 §8.3）。
 
 ---
 
-## 5. 契约与事件设计（草案）
+## 5. 契约与事件设计（终稿 — vNext）
 
-> **说明**：以下为 **vNext 提案**；落地前须走 **`_contract_manifest.json` + drift_check**。
+> **唯一真值**：`SPEC-ChatBI-V2-Events.md` **§8**（语义、顺序、坏例、Legacy）与本节；**机器枚举**以合并日 `docs/_tech_graph/_contract_manifest.json` 为准（与代码同 PR）。
 
-### 5.1 复用 `event: token`（优先评估）
+### 5.1 已锁定：LLM 子步增量 **仅** 走 `event: chain`
 
-- **现状**：前端已对 `token` **容错**（可忽略）。  
-- **扩展**：`data` 内增加 **`scope`**（如 `intent` | `rag_generate` | `text2sql_sql` | `text2sql_summary` | `direct`）、**`step_id`**、**`run_id`**，避免与旧版「最终答案 token」混淆。  
-- **优点**：少增顶层 `event` 类型。  
-- **风险**：与 **Legacy RAG 页** 的 `token` 语义需 **严格区分**（仅靠 `scope` + 路由区分）。
+| 项 | 规则 |
+|----|------|
+| **载体** | 每条增量为一条 **`event: chain`**，`data.type` ∈ `{ agent.llm.start, agent.llm.delta, agent.llm.end, agent.llm.truncated }`。 |
+| **兄弟事件** | **`agent.llm.delta` 为多条独立 `chain`**，**不**嵌套在 `agent.think.payload` 内；嵌套深度 **1**（与现有 `ChainEventCard` 一一对应）。 |
+| **`agent.think` 语义** | **仅用户级摘要**（1–2 句），在 **`agent.llm.end` 之后**发出（允许与 `assistant.message` 紧相邻）；**全文真相源**见 §8.4。 |
+| **`event: token`** | **Unified Chat + `CHATBI_USE_AGENT=true` + 增量路径** 下 **禁止** 用顶层 `token` 传子步 LLM 增量（避免与 Legacy RAG 页 `token` 混义）。Legacy 仍限于 **非 Unified** 端点，靠 **URL 路径** 区分。 |
+| **弃用** | 历史草案中「`token` + scope」方案 **不采用**；manifest / TS **不得**再并列两套路由。 |
 
-### 5.2 或新增 `chain` 子类型（备选）
+### 5.2 `payload` 最小字段（实现写入 manifest 时对齐）
 
-- 例如 **`agent.llm.delta`**：`payload` 含 `text`、`part_index`、`encoding`。  
-- **优点**：Timeline 类型系统更干净。  
-- **成本**：manifest + 前端 `ChainEventCard` 分支增加。
+| `type` | `payload` 最小键 | 说明 |
+|--------|------------------|------|
+| `agent.llm.start` | `phase`, `step_id` | `phase`：如 `intent` \| `rag_generate` \| `text2sql_sql` \| `text2sql_summary` \| `direct`（与 Events §8.4 枚举一致）。 |
+| `agent.llm.delta` | `text`, `part_index` | `part_index` 从 **0** 递增；`encoding` 可选，默认 `utf-8`。 |
+| `agent.llm.end` | `ok`, `phase`, `step_id` | `ok: false` 表示本段 LLM 失败；可选 `simulated_stream`（bool）。 |
+| `agent.llm.truncated` | `dropped_chars`, `reason` | 背压或截断；见 §4.3。 |
 
-### 5.3 `chain` 事件时序（目标）
+### 5.3 单步内 `chain` 顺序（冻结）
 
-在 **单步内** 建议顺序（可微调，须写入 Events 子规）：
+`agent.step.start` →（`agent.intent` 若适用）→ **`agent.llm.start`** → **若干 `agent.llm.delta`** → **`agent.llm.end`** → **`agent.think`** → `tool.call.start` → …  
 
-`agent.step.start` →（`agent.intent` 若本步适用）→ **`agent.llm.start`（可选）** → **delta 序列** → **`agent.llm.end`（可选）** → `agent.think`（最终摘要或合并）→ `tool.call.start` → …
+Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`** 或 **`agent.intent`**（含进行中语义），避免长时间无 `chain`。
 
-**Intent 单独一步**：若 Intent 走 LLM，**须在 Intent 完成前** 下发 **delta** 或至少 **`agent.intent` 的「进行中」占位**（避免长时间无 `chain`）。
+### 5.4 最小 JSON 示例（SSE 帧体 — 节选）
+
+**好例（单步骨架，仅 `data` 内对象）** — 顺序意义大于数值：
+
+```json
+{"type":"agent.step.start","ts":1,"step_id":"s1","payload":{"step_number":1,"max_steps":5}}
+{"type":"agent.llm.start","ts":2,"step_id":"s1","payload":{"phase":"intent","step_id":"s1"}}
+{"type":"agent.llm.delta","ts":3,"step_id":"s1","payload":{"text":"分","part_index":0}}
+{"type":"agent.llm.delta","ts":4,"step_id":"s1","payload":{"text":"析","part_index":1}}
+{"type":"agent.llm.end","ts":5,"step_id":"s1","payload":{"ok":true,"phase":"intent","step_id":"s1"}}
+{"type":"agent.think","ts":6,"step_id":"s1_think","payload":{"step_number":1,"thought":"意图简述…","selected_tool":"rag_search","mode":"rag","confidence":0.9}}
+```
+
+**坏例（delta 缺 `text`）** — 前端 **策略 B**：**跳过该帧**，内部 **`parse_error_count += 1`**；**不对用户默认展示计数**（可 `console.debug`；若 `meta` 带 `debug: true` 可镜像到 `meta.debug.sse_parse_errors` **可选**，非 v1 强制）。
 
 ---
 
@@ -121,20 +150,43 @@
 
 | 项 | 要求 |
 |----|------|
-| **解析** | 维持 **`\n\n` 分帧**；**单帧 JSON 损坏** 时跳过并计数，不白屏。 |
-| **Timeline** | **增量 append**；可选 **按 `step_id` 聚合** delta。 |
-| **双栏** | flag 关闭时 **零 UI 回归**；开启时 **不阻塞** `done` 解锁输入。 |
-| **性能** | 高频 `token` 下 **React 渲染** 须节流（`requestAnimationFrame` / batch）。 |
+| **解析** | 维持 **`\n\n` 分帧**；**单帧 JSON 损坏** 时跳过并计数，不白屏（见 §5.4 坏例）。 |
+| **Timeline** | **增量 append**；**v1 不要求** 按 `step_id` **聚合** delta（留 v2）；右栏可直接拼接 `agent.llm.delta.text`。 |
+| **双栏** | **默认**左右分栏；**单栏**为可选降级（非默认）。任一排版下 **不阻塞** `done` 解锁输入。 |
+| **布局开关（无 NEXT_PUBLIC_）** | **仅** `?single_panel=1`（首屏）与 **`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**（`"1"` / `"0"`）；**后端无感**，**不**增加 Python 侧 query/header 依赖。 |
+| **版本协商** | Unified Chat 前端 **必须** 对 stream 请求携带 **`X-ChatBI-Sse-Contract: 2`**（见 §9）；BFF **原样透传**该头。 |
+| **性能** | 高频 **`agent.llm.delta`** 下 **React 渲染** 须节流（`requestAnimationFrame` / batch）。 |
 
 ---
 
-## 7. 验收标准（vNext）
+## 7. 验收标准（vNext — 可测化）
 
-- [ ] **T+0s**：在 `meta` 之后 **≤1s**（或一次网络 RTT）内出现 **下一帧有意义 `chain`**（Intent 或 step 开始），**非** 长期仅 keepalive。  
-- [ ] **Intent LLM**：若开启真实 LLM，用户可在 Timeline（或流式栏）看到 **delta 或明确进行中状态**。  
-- [ ] **RAG / Text2SQL / Direct**：至少 **一条路径** 在 E2E 中验证 **LLM 段有增量 SSE**。  
-- [ ] **契约**：`_contract_manifest.json` 与 **前端类型** 同步；`tech_graph_contract_check` **通过**。  
-- [ ] **兼容**：关闭 flag 时，行为与 **当前 V2「完成后批量发事件」** 相比 **用户可见差异** 仅体现在「更实时」，**不**改变最终 `assistant.message` 与 `done` 语义。
+### 7.1 CI / 单测（阻断；不测真实 wall-clock 1s）
+
+- [ ] 使用 **mock emitter**（或队列替身）注入事件序列，断言：**在首个 `chain` 且 `type: meta` 之后**，于 **同一同步探测点** 已存在 **至少一条** 后续 **`chain`**，且其 `type` ∈ **「首条有意义白名单」**（与 **§7.3** 一致）。  
+- [ ] **可选加强**：断言 **`meta` → 第一条非 keepalive 的 `chain` data JSON** 之间 **插入的异步 tick 数 ≤ N**（由测试固定 N，如 `await asyncio.sleep(0)` 次数），**不**断言真实时间 ≤1s。
+
+### 7.2 集成 / 手测（非阻断 / staging checklist）
+
+- [ ] 脚本或清单写明：**连接 → 发流式请求 → 观察 DevTools / 脚本日志** 中 **`meta` 后尽快出现** `router.decision` 或 `agent.step.start` 或 `agent.llm.start`（产品感知的「≤1s」仅在此层描述，**不作为** CI 硬断言）。
+
+### 7.3 「有意义」首条 `chain.type` 白名单
+
+以下 **任一** 出现在 `meta` 之后的首条 **非 keepalive、非纯注释** 的 `chain` 上，即算满足 **§7.1**：`router.decision`、`agent.step.start`、`agent.intent`、`agent.llm.start`、`tool.call.start`。  
+
+**不算「有意义 data 帧」**：仅 **SSE 注释行**（如 `: keepalive`）、**空行**、或 **无法解析的 data**（计 **parse_error** 但 **不**计入白名单命中）。
+
+### 7.4 与 keepalive 的边界
+
+- **注释行**（`:` 开头）**不**算作 **§7.1** 中的「一帧 data 事件」。  
+- **`event: chain` + 合法 JSON `data`** 才算一帧。
+
+### 7.5 其它产品验收（阻断）
+
+- [ ] **Intent LLM**（真实 LLM 可选，见任务单 **mock vs LLM**）：左栏 Timeline + 右栏可见 **`agent.llm.delta`** 或 **`agent.llm.start`** 占位。  
+- [ ] **RAG / Text2SQL / Direct**：**CI 以 mock/stub 流为准**；至少一条路径在 mock 下验证 delta 序列；**真实 LLM** 走 **release / staging checklist**（与任务单统一一句）。  
+- [ ] **契约**：合并实现 PR 时 `_contract_manifest.json` 与 **前端类型** 同步；`tech_graph_contract_check` **通过**。  
+- [ ] **布局**：**默认**左右双栏；**单栏降级**不改变 `assistant.message` 与 `done` 语义。
 
 ---
 
@@ -146,19 +198,84 @@
 | 事件顺序与前端排序 | `ts` **单调**；文档规定 **以服务端到达顺序为准** |
 | 多 LLM 厂商流式差异 | `simulated_stream` 降级 + 单测 mock |
 
+### 8.1 run_id / step_id 与生命周期
+
+- **`run_id`**：与首包 **`meta`** 中已有字段 **一致**，一次 Unified stream 请求 **一个** `run_id`。  
+- **`step_id`**：由后端生成，建议 **`{run_id}_s{step_number}_{phase_slug}`** 或 UUID；须在 **`agent.llm.*`** 与同一 ReAct 步的 **`agent.think`** 上 **可关联**（便于右栏标题）。  
+- **`conversation_id` / `message_id`（DB）与 `step_id`**：本节 **仅约束 SSE 侧** 标识；若 ingest / 表结构（如 `rag_conversation_logs`）须与 `step_id` **强绑定或同值**，属 **实现 PR 填空**，对照 **`PROJECT_CONFIG`** 与 SQL 真值 **另补一行** 即可 — **非契约阻断**（与澄清简报 **§8.8**、任务单 **实现备忘** 一致）。  
+- **SSE 重连**：本版 **不** 保证跨连接续传 delta；重连视为 **新 `run_id`**（若产品后续要 resume，另开 SPEC）。
+
+### 8.2 并发与顺序
+
+- **多工具并行**（若存在）：**不**要求全局 `ts` 单调；客户端 **只按 SSE 到达顺序** append（与既有「策略 B」一致）。  
+- **前端实现**须与 **§8.2** 一致，**禁止**按 `type` 重排覆盖到达序（除白名单测试外）。
+
+### 8.3 流式中途失败
+
+- **须**发出 **`agent.llm.end`**，`payload.ok: false`，并可跟 **`error`** `chain`。  
+- **`done`**：**仍须**到达（`ok` 与业务一致）；**`assistant.message`** 可为 **空**、**部分**（已生成片段）或 **错误提示全文** — 三者择一须在 Events §8 与实现一致并写入测试。  
+- **右栏**：展示至失败点为止的 delta；不强制清空。
+
+### 8.4 双写与真相源（全文）
+
+- **用户可见最终答案**以 **`assistant.message`**（`chain`）为 **唯一产品真相源**。  
+- **右栏** delta 拼接为 **过程态**；在 **成功路径** 上，拼接结果 **须与** `assistant.message.content` **一致**（允许末尾空白归一化差异，须在测试中固定规则）。
+
+### 8.5 背压触顶与可观测字段
+
+- 触顶时除 **`agent.llm.truncated`**（§5.2）外，可选再发 **`agent.llm.end`** `ok: false`；**Timeline** 左栏 **建议**展示 `agent.llm.truncated` 卡片（与 `ChainEventCard` 扩展一致）。
+
+### 8.6 观测与隐私
+
+- **默认**不在服务端日志中落库 **delta 全文**；若调试开启，须遵守既有 **脱敏 / 长度截断** 策略（与运维约定一句即可，细节见 `PROJECT_CONFIG` 与日志实现）。
+
+### 8.7 版本协商（与 manifest）
+
+- 客户端 **`X-ChatBI-Sse-Contract: 2`** 与本文 **`agent.llm.*`** 契约 **绑定**；未来 **v3** 递增版本号并同步 `tech_graph_contract_check` 允许的文档锚点。  
+- **manifest** 仅承载 **已合并代码** 的枚举；**禁止**隐式仅靠路由推断契约版本。
+
 ---
 
-## 9. 关联与任务落点建议
+## 9. 降级与组合真值表
 
-| 仓库 | 建议任务单路径 |
-|------|----------------|
-| `ai-ink-brain-api-python` | `docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`（待建） |
-| `ai-ink-brain` | 沿用 / 扩展 `content/tasks/task_frontend_unified_chat_streaming_sse_v1.md` 或新建 **v2 incremental** 任务单 |
+### 9.1 环境变量
+
+| 变量 | 默认（vNext 落地后建议） | 含义 |
+|------|--------------------------|------|
+| `CHATBI_USE_AGENT` | 依部署 | `false` → V1 路由路径，**不适用**本增量 SPEC。 |
+| `CHATBI_SSE_INCREMENTAL` | `true` | `false` → **强制**走「`await run` 完成后批量 emit」（与当前行为一致），**忽略**客户端增量协商头（仍须安全）。 |
+
+### 9.2 客户端识别（与后端行为）
+
+| 条件 | 后端时序 |
+|------|----------|
+| `CHATBI_USE_AGENT=true` 且 `CHATBI_SSE_INCREMENTAL=true` 且请求带 **`X-ChatBI-Sse-Contract: 2`** | **增量 emit**（vNext）。 |
+| 同上但 **缺失**该头，或值为 **`0` / `1`** | **批量 replay**（旧前端 / 兼容）。 |
+| `CHATBI_SSE_INCREMENTAL=false` | **批量 replay**（服务端降级）。 |
+| `CHATBI_USE_AGENT=false` | V1 非 Agent 路径（本表不展开）。 |
+
+### 9.3 与前端布局的关系
+
+- **`single_panel` / localStorage** **仅影响**前端排版，**不**改变 §9.2 后端分支。  
+- BFF **须透传** `X-ChatBI-Sse-Contract`。
 
 ---
 
-## 10. 修订记录
+## 10. 关联与任务落点建议
+
+| 仓库 | 任务单路径 |
+|------|------------|
+| `ai-ink-brain-api-python` | `docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md` |
+| `ai-ink-brain` | `content/tasks/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`（前置：`task_frontend_unified_chat_streaming_sse_v1.md`） |
+| `PROJECT_CONFIG` | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` — `CHATBI_SSE_INCREMENTAL` 真值（不复制 `.env`） |
+
+---
+
+## 11. 修订记录
 
 | 日期 | 说明 |
 |------|------|
+| 2026-05-08（晚） | 文首 **状态** 与 §5「终稿」及澄清简报 §9 **对齐**（不再标 `draft`）；§8.1 增补 **DB id ↔ step_id** 为 **实现 PR 填空、非阻断** |
+| 2026-05-08 | 终稿化：§0 执行顺序；§5 **chain-only** LLM 契约 + 最小 JSON；§7 可测验收 + 白名单；§8.1–8.7；§9 降级矩阵；章节 **§10** 任务 / **§11** 修订；`CHATBI_SSE_INCREMENTAL` + `X-ChatBI-Sse-Contract: 2`；manifest `_note` 约束「代码同 PR」 |
+| 2026-05-06 | §3/§6/§7：方案 B 固定为 **左右双栏**、**默认开启**；**不考虑移动端**；单栏为可选非默认降级 |
 | 2026-05-07 | 初稿：冻结 L5–L7 背景下，定义增量 SSE + Timeline/双栏 UX 与契约方向 |
