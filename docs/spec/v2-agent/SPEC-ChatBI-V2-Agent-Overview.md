@@ -516,3 +516,4 @@ rag_tool = Tool(
   - `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（及子链 P1-Eval / P1-C / P1-D）
 - 回归归档：
   - `docs/diary/2026-05-07-l0-l3-regression-acceptance.md` — **L0–L3** 本轮验收表（**入库需** `git add -f`，`docs/*` 默认 ignore）
+  - `docs/diary/2026-05-07-l4-sse-acceptance.md` — **L4**（curl SSE 样本 + 前端 Timeline；**Intent 超时 / v1_fallback 不记 L4 失败**）
