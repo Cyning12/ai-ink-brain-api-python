@@ -68,7 +68,8 @@
 - **布局**：**仅采用左右分栏**（不采用上下分栏作为默认或等价替代）。  
 - **移动端**：**本版不在验收范围内**（不要求小屏断点、触控专适；实现可固定最小宽度或保留横向滚动，但不强制「可用性达标」）。
 
-**决策**：vNext **默认开启** 左右双栏（方案 B）。**可选**（**非默认**）：`?single_panel=1`、用户设置或等价开关，折叠为 **§3.1 单栏** 以便排障或与旧版对比。
+**决策**：vNext **默认开启** 左右双栏（方案 B）。**可选**（**非默认**）：`?single_panel=1`、用户设置或等价开关，折叠为 **§3.1 单栏** 以便排障或与旧版对比。  
+**与当前前端真值**：`ai-ink-brain` Unified Chat **首版落地**对「可选单栏」的接线见 **§6.1**（固定双栏与 §6 表格「布局开关」行存在**有文档登记**的差异）。
 
 ---
 
@@ -153,9 +154,18 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 | **解析** | 维持 **`\n\n` 分帧**；**单帧 JSON 损坏** 时跳过并计数，不白屏（见 §5.4 坏例）。 |
 | **Timeline** | **增量 append**；**v1 不要求** 按 `step_id` **聚合** delta（留 v2）；右栏可直接拼接 `agent.llm.delta.text`。 |
 | **双栏** | **默认**左右分栏；**单栏**为可选降级（非默认）。任一排版下 **不阻塞** `done` 解锁输入。 |
-| **布局开关（无 NEXT_PUBLIC_）** | **仅** `?single_panel=1`（首屏）与 **`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**（`"1"` / `"0"`）；**后端无感**，**不**增加 Python 侧 query/header 依赖。 |
+| **布局开关（无 NEXT_PUBLIC_）— 产品目标** | **目标行为**：**仅** `?single_panel=1`（首屏）与 **`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**（`"1"` / `"0"`）；**后端无感**，**不**增加 Python 侧 query/header 依赖。**当前 `ai-ink-brain` 实现真值**见 **§6.1**（与目标有差异时以 §6.1 为准，直至后续 PR 对齐）。 |
 | **版本协商** | Unified Chat 前端 **必须** 对 stream 请求携带 **`X-ChatBI-Sse-Contract: 2`**（见 §9）；BFF **原样透传**该头。 |
 | **性能** | 高频 **`agent.llm.delta`** 下 **React 渲染** 须节流（`requestAnimationFrame` / batch）。 |
+
+### 6.1 前端实现登记：`single_panel` / `localStorage` 与「固定双栏」（2026-05-08）
+
+| 维度 | 内容 |
+|------|------|
+| **产品目标（§3.2 / §6 上表）** | 默认 **左右双栏**；**可选单栏**：`?single_panel=1` 与 **`localStorage`** `ink-brain.chatbi.unified.singlePanel`（`"1"` / `"0"`）控制折叠为 §3.1 单栏式排障。 |
+| **`ai-ink-brain` 当前真值** | `UnifiedChatPageClient` 主区 **固定** `grid-cols-2`（左 Timeline、右 LLM 增量）；**未**读取 `single_panel` query、**未**读写上述 **`localStorage`** 键；**无**勾选/持久化 UI 切换单双栏（避免与「始终左右对照」诉求冲突）。代码注释约 **L650** 一带写明「不再用 LS/勾选切换」。 |
+| **后端** | 不受影响；§9.2 / §9.3 仍成立（布局开关**本就不**经 Python）。 |
+| **后续对齐** | 若产品仍要 **query + LS** 与 SPEC 原文一致，在 **`ai-ink-brain`** 单独 PR 接线并回填本任务单验收；届时可删或收窄本节「差异」表述。 |
 
 ---
 
@@ -186,7 +196,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 - [ ] **Intent LLM**（真实 LLM 可选，见任务单 **mock vs LLM**）：左栏 Timeline + 右栏可见 **`agent.llm.delta`** 或 **`agent.llm.start`** 占位。  
 - [ ] **RAG / Text2SQL / Direct**：**CI 以 mock/stub 流为准**；至少一条路径在 mock 下验证 delta 序列；**真实 LLM** 走 **release / staging checklist**（与任务单统一一句）。  
 - [ ] **契约**：合并实现 PR 时 `_contract_manifest.json` 与 **前端类型** 同步；`tech_graph_contract_check` **通过**。  
-- [ ] **布局**：**默认**左右双栏；**单栏降级**不改变 `assistant.message` 与 `done` 语义。
+- [ ] **布局**：**默认**左右双栏；**单栏降级**（query/LS，见 §6）不改变 `assistant.message` 与 `done` 语义。**当前前端**若尚未接线单栏，见 **§6.1**，本项中「单栏降级」可对 **首版** 标为 **N/A** 或拆子项验收。
 
 ---
 
@@ -256,7 +266,8 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 ### 9.3 与前端布局的关系
 
-- **`single_panel` / localStorage** **仅影响**前端排版，**不**改变 §9.2 后端分支。  
+- **`single_panel` / localStorage**（产品目标下）**仅影响**前端排版，**不**改变 §9.2 后端分支。  
+- **当前**：若前端 **未**消费 query/LS（见 **§6.1**），本节第一句对运行时**无效果**，仍以 §9.2 为 SSE 真值。  
 - BFF **须透传** `X-ChatBI-Sse-Contract`。
 
 ---
@@ -275,6 +286,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 | 日期 | 说明 |
 |------|------|
+| 2026-05-08 | **§6.1**：登记 `ai-ink-brain` Unified Chat **固定双栏**与 **`single_panel` + `localStorage`** 产品目标的**实现差异**；§6 布局开关行改为「产品目标 + §6.1 真值」；§3.2 / §9.3 交叉引用 |
 | 2026-05-08（晚） | 文首 **状态** 与 §5「终稿」及澄清简报 §9 **对齐**（不再标 `draft`）；§8.1 增补 **DB id ↔ step_id** 为 **实现 PR 填空、非阻断** |
 | 2026-05-08 | 终稿化：§0 执行顺序；§5 **chain-only** LLM 契约 + 最小 JSON；§7 可测验收 + 白名单；§8.1–8.7；§9 降级矩阵；章节 **§10** 任务 / **§11** 修订；`CHATBI_SSE_INCREMENTAL` + `X-ChatBI-Sse-Contract: 2`；manifest `_note` 约束「代码同 PR」 |
 | 2026-05-06 | §3/§6/§7：方案 B 固定为 **左右双栏**、**默认开启**；**不考虑移动端**；单栏为可选非默认降级 |

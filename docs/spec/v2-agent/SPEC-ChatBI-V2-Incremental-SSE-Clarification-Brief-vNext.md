@@ -3,7 +3,7 @@
 > **状态**：**已吸收**（2026-05-08 二稿）。本文件为 **回溯索引**：原「未锁定」项均已落盘到主 SPEC / Events / 任务单 / manifest 注释；**实现真值**以 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`** + **`SPEC-ChatBI-V2-Events.md` §8** + **`docs/_tech_graph/_contract_manifest.json`**（与代码 **同 PR** 更新枚举）为准。  
 > **日期**：2026-05-08  
 > **依赖**：`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`、`SPEC-ChatBI-V2-Events.md`、`docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`、`ai-ink-brain/content/tasks/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`  
-> **用途**：给审阅者 **10 分钟内** 对照「原七类问题 + §8 补充」与 **主文档节号**；**实现前优先读主 SPEC §0**，本简报 **仅作索引**。剩余主要是 **§8.8 DB 关联**（非阻断）、**manifest 与代码同 PR**、以及任务单 **实现备忘** 中的落地填空。
+> **用途**：给审阅者 **10 分钟内** 对照「原七类问题 + §8 补充」与 **主文档节号**；**实现前优先读主 SPEC §0**，本简报 **仅作索引**。剩余主要是 **§8.8 DB 关联**（非阻断）、**manifest 与代码同 PR**、以及任务单 **实现备忘** 中的落地填空。**前端布局**：`single_panel`/LS 与 **§6.1** 实现差异见主 SPEC **§6.1** 与前端任务单 **「与 SPEC §6 差异」**。
 
 ---
 
@@ -33,11 +33,11 @@
 
 ---
 
-## 3. 原 §3 Feature flag / 持久化 → 已锁定
+## 3. 原 §3 Feature flag / 持久化 → 已锁定（含 **§6.1 实现差异**）
 
 | 原问题 | 落盘位置 | 结论 |
 |--------|----------|------|
-| query / localStorage / 默认 | Timeline **§6**；前端任务单 | **`?single_panel=1`**；**`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**；**默认双栏**；**无 `NEXT_PUBLIC_*`** 布局开关。 |
+| query / localStorage / 默认 | Timeline **§6**（产品目标行）、**§6.1**（当前真值）；前端任务单 | **产品目标**：**`?single_panel=1`**；**`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**；**默认双栏**；**无 `NEXT_PUBLIC_*`** 布局开关。**当前 `ai-ink-brain` 首版**：主区 **固定双栏**，**未**接线 query/LS — 见主 SPEC **§6.1** 与前端任务单 **「与 SPEC §6 差异」**。 |
 | ~~`stream_panel`~~ | — | **废止**该命名；以 **`single_panel`** 为准。 |
 | 后端是否感知布局 | Timeline **§9.3**；前端任务单 | **布局纯前端**；后端感知的是 **`X-ChatBI-Sse-Contract`** 与 **`CHATBI_SSE_INCREMENTAL`**（流式时序），非单双栏。 |
 
@@ -109,7 +109,7 @@
 | `SPEC-ChatBI-V2-Events.md` | **已终稿**：**§8** vNext；§2.2 增补 `agent.llm.*`；§6 规则同 PR |
 | `docs/_tech_graph/_contract_manifest.json` | **`_note` 已更新**；`type_values` **待实现 PR** |
 | `docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md` | **契约与流程已填**（G2、§9 矩阵、mock/LLM、门槛）；**实现备忘** 仍为落地 PR 填空（见该节说明） |
-| `ai-ink-brain/content/tasks/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md` | **同上**（协商头、query/LS、聚合 v1 不做）；**实现备忘** 为落地 PR 填空 |
+| `ai-ink-brain/content/tasks/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md` | **同上**（协商头、聚合 v1 不做）；**`single_panel`/LS** 见任务单 **与 SPEC §6 差异**；**实现备忘** 为落地 PR 填空 |
 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | **已增** `CHATBI_SSE_INCREMENTAL` |
 
 ---
@@ -118,6 +118,7 @@
 
 | 日期 | 说明 |
 |------|------|
+| 2026-05-08 | **§3**：补 **§6.1** 与 `ai-ink-brain` **固定双栏 / 未接线 query·LS** 的索引；§9 前端任务行同步 |
 | 2026-05-08（末） | §8.8 改为「实现 PR 填空 / 非阻断」三句定稿；§9 任务行区分 **契约已填** vs **实现备忘**；用途段补 **结论口径**；主 SPEC 文首已与「终稿」对齐 |
 | 2026-05-08（晚） | **二稿**：全文改为「吸收索引」；各节映射主 SPEC / Events 节号；废止 `stream_panel`；增 **§8.8**；文件清单改状态列 |
 | 2026-05-08 | 初稿：合并前端 Agent 七类问题 + §8 补充项 + 文件清单 |
