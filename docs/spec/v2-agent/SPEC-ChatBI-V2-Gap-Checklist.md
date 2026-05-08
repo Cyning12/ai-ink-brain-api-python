@@ -166,5 +166,6 @@ spec 中如 `INTENT_MIN_CONFIDENCE=0.6`、Intent 超时 3s、`AGENT_MAX_STEPS` �
 2. **宣称与 §2.4 完全等价前**：执行 **L5**（`error_code` 矩阵）并归档用例 / 日志。
 3. **宣称延迟 SLA 前**：执行 **L2**，并在 Overview §7.2 或发布说明中写明与纸面目标的差距及缓解（超时、`v1_fallback`、模型选型）。
 4. **生产 DB**：确认迁移与代码版本一致后，再在 §7.4 将「记忆 / 落库」标为已对齐。
-5. **L4–L7 操作细则**：见 Overview **§7.5.3–§7.5.6**（SSE、`curl`、跨仓、运维核对）；**L0–L3 验收归档**见 `docs/diary/2026-05-07-l0-l3-regression-acceptance.md`（`git add -f`）。
+5. **L4–L7 操作细则**：见 Overview **§7.5.3–§7.5.6**（SSE、`curl`、跨仓、运维核对）；**L0–L3 验收归档**见 `docs/diary/2026-05-07-l0-l3-regression-acceptance.md`（`git add -f`）。  
+6. **（2026-05-07）L5–L7 暂停集中验收**：与 **Overview §11** 一致；**下一版交互**见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`**。
 

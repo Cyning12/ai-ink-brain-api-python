@@ -507,6 +507,7 @@ rag_tool = Tool(
   - `SPEC-ChatBI-V2-Memory.md` — 记忆管理设计
   - `SPEC-ChatBI-V2-Events.md` — 事件流兼容设计
   - `SPEC-ChatBI-V2-Gap-Checklist.md` — 缺口快照（与 §7.4 互补；下文 P0 各节为历史审计原文）
+  - `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` — **下一版**：执行期增量 SSE、LLM 子步流式、Timeline/双栏（§11.3）
 - 技术图谱：
   - `docs/_tech_graph/10_flow_rag.md`
   - `docs/_tech_graph/11_flow_text2sql.md`
@@ -517,3 +518,19 @@ rag_tool = Tool(
 - 回归归档：
   - `docs/diary/2026-05-07-l0-l3-regression-acceptance.md` — **L0–L3** 本轮验收表（**入库需** `git add -f`，`docs/*` 默认 ignore）
   - `docs/diary/2026-05-07-l4-sse-acceptance.md` — **L4**（curl SSE 样本 + 前端 Timeline；**Intent 超时 / v1_fallback 不记 L4 失败**）
+
+---
+
+## 11. 验收冻结与「V2 当前里程碑」声明（2026-05-07）
+
+### 11.1 L5–L7
+
+**状态**：**暂停**后续集中验收（排期再开）；**不**表示总规 **§7.4** 或 **Gap** 已自动清零。恢复时继续执行 **§7.5.4–§7.5.6** 并回写 **Gap 快照 / §7.4**。
+
+### 11.2 V2 暂结口径
+
+在 **L0–L4 已通过** 且 **P0 / P1 主线已交付** 的前提下，**暂时以「V2 可交付里程碑」结案**；未覆盖项仍以 **Gap** 与 **§7.4** 中「部分 / 缺口」行为准，避免对外宣称为 **总规全文 100% 闭合**。
+
+### 11.3 下一版交互（SPEC）
+
+**增量 SSE + LLM 子步流式 + Timeline / 可选双栏对照**：见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`**。

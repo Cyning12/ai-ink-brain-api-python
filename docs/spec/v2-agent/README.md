@@ -1,7 +1,7 @@
 # ChatBI V2 Agent 架构 —— SPEC 文档目录
 
 > **状态**：总规 **§7.4 / §7.5** 已与实现对齐（2026-05-07）；子规仍可能各自标 `draft`  
-> **日期**：2026-04-27（目录修订：2026-05-07）
+> **日期**：2026-04-27（目录修订：2026-05-07；**vNext 交互 SPEC** 见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`）
 
 ---
 
@@ -16,7 +16,8 @@ docs/spec/v2-agent/
 ├── SPEC-ChatBI-V2-Tool-Design.md          # 子规：Tool 接口与封装
 ├── SPEC-ChatBI-V2-ReAct-Loop.md           # 子规：ReAct 循环详细设计
 ├── SPEC-ChatBI-V2-Memory.md               # 子规：记忆管理设计
-└── SPEC-ChatBI-V2-Events.md               # 子规：事件流兼容设计
+├── SPEC-ChatBI-V2-Events.md               # 子规：事件流兼容设计
+└── SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md  # 下一版：执行期增量 SSE + LLM 流式 + Timeline/双栏
 ```
 
 ---
@@ -27,7 +28,8 @@ docs/spec/v2-agent/
 2. **SPEC-ChatBI-V2-Tool-Design.md** — 再读 Tool 设计，理解如何复用 V1
 3. **SPEC-ChatBI-V2-ReAct-Loop.md** — 再读 ReAct 循环，理解 Agent 核心逻辑
 4. **SPEC-ChatBI-V2-Memory.md** — 再读记忆管理，理解多轮对话
-5. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容
+5. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容  
+6. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE 与 Timeline/双栏（**在 V2 里程碑暂结之后**排期）
 
 ---
 
@@ -52,3 +54,4 @@ docs/spec/v2-agent/
 - [ReAct 循环详细设计](SPEC-ChatBI-V2-ReAct-Loop.md)
 - [记忆管理设计](SPEC-ChatBI-V2-Memory.md)
 - [事件流兼容设计](SPEC-ChatBI-V2-Events.md)
+- [下一版：增量 SSE 与 Timeline 实时感知](SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md)
