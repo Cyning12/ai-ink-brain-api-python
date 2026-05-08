@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -13,6 +14,67 @@ from .text2sql_core import is_text2sql_intent
 
 
 V1Mode = Literal["rag", "text2sql", "no_data"]
+
+LlmPhase = Literal["intent", "rag_generate", "text2sql_sql", "text2sql_summary", "direct"]
+
+
+def _agent_chain(typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """与 unified_chat._event 同形，供 SSE chain 帧序列化。"""
+    return {"type": typ, "ts": int((time.perf_counter() - started_at) * 1000), "step_id": step_id, "payload": payload}
+
+
+async def _emit_simulated_llm(
+    emit: Callable[[dict[str, Any]], Awaitable[None]],
+    *,
+    started_at: float,
+    step_id: str,
+    inner_step_id: str,
+    phase: LlmPhase,
+    text: str,
+    simulated_stream: bool,
+    chunk_size: int = 16,
+    max_parts: int = 400,
+) -> None:
+    """伪流式：将整段文本切分为 agent.llm.delta 序列（上游非 stream 时）。"""
+    await emit(
+        _agent_chain(
+            typ="agent.llm.start",
+            started_at=started_at,
+            step_id=step_id,
+            payload={"phase": phase, "step_id": inner_step_id},
+        )
+    )
+    body = text or ""
+    part = 0
+    for i in range(0, len(body), max(1, chunk_size)):
+        if part >= max_parts:
+            await emit(
+                _agent_chain(
+                    typ="agent.llm.truncated",
+                    started_at=started_at,
+                    step_id=step_id,
+                    payload={"dropped_chars": max(0, len(body) - i), "reason": "emit_chunk_cap"},
+                )
+            )
+            break
+        chunk = body[i : i + chunk_size]
+        await emit(
+            _agent_chain(
+                typ="agent.llm.delta",
+                started_at=started_at,
+                step_id=step_id,
+                payload={"text": chunk, "part_index": part},
+            )
+        )
+        part += 1
+    await emit(
+        _agent_chain(
+            typ="agent.llm.end",
+            started_at=started_at,
+            step_id=step_id,
+            payload={"ok": True, "phase": phase, "step_id": inner_step_id, "simulated_stream": simulated_stream},
+        )
+    )
 
 
 def _env_int(name: str, default: int) -> int:
@@ -217,8 +279,20 @@ class ChatBIAgent:
         m = tool_mode_map()[tool]
         return m  # type: ignore[return-value]
 
-    async def run(self, *, query: str, session_id: str | None, prefer: str) -> AgentRunView:
-        started_at = time.perf_counter()
+    async def run(
+        self,
+        *,
+        query: str,
+        session_id: str | None,
+        prefer: str,
+        sse_started_at: float | None = None,
+        run_id: str | None = None,
+        emit: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
+        debug_router: bool = False,
+        intent_obs_payload_fn: Callable[[IntentDecision], dict[str, Any]] | None = None,
+    ) -> AgentRunView:
+        loop_started = time.perf_counter()
+        ts_ref = sse_started_at if sse_started_at is not None else loop_started
         # tools 侧历史格式：[{query, response}, ...]
         history = await self._memory.load(session_id)
         turn_history: list[dict[str, Any]] = list(history)
@@ -293,8 +367,161 @@ class ChatBIAgent:
         max_steps = self._max_steps
         intent_tool_original = intent.tool if intent else step1_tool
 
+        rid_short = (run_id or "run").replace("-", "")[:12] or "run"
+
+        # vNext 增量 SSE：在首步工具执行前下发 intent / router（G2 emit）
+        if emit is not None:
+            if intent is None or intent_obs_payload_fn is None:
+                raise RuntimeError("emit 路径需要 intent 与 intent_obs_payload_fn")
+            await emit(
+                _agent_chain(
+                    typ="agent.step.start",
+                    started_at=ts_ref,
+                    step_id="a1",
+                    payload={"step_number": 1, "max_steps": max_steps},
+                )
+            )
+            _intent_llm_text = (intent.reasoning_full or intent.reasoning or "").strip()
+            if not _intent_llm_text:
+                _intent_llm_text = "（意图简述不可用）"
+            await _emit_simulated_llm(
+                emit,
+                started_at=ts_ref,
+                step_id=f"{rid_short}_s1_intent",
+                inner_step_id="s1",
+                phase="intent",
+                text=_intent_llm_text,
+                simulated_stream=True,
+            )
+            await emit(
+                _agent_chain(
+                    typ="agent.intent",
+                    started_at=ts_ref,
+                    step_id="intent_1",
+                    payload=intent_obs_payload_fn(intent),
+                )
+            )
+            _cand_mode = intent.mode
+            _final_mode = step1_mode
+            await emit(
+                _agent_chain(
+                    typ="router.decision",
+                    started_at=ts_ref,
+                    step_id="r1",
+                    payload={
+                        "prefer": "auto" if prefer == "auto" else prefer,
+                        "candidate_mode": _cand_mode,
+                        "final_mode": _final_mode,
+                        "rule_hits": [],
+                        "evidence": {"agent_reasoning": intent.reasoning_full or intent.reasoning},
+                        "fallback": intent.fallback,
+                    },
+                )
+            )
+
+        async def _emit_post_tool_chains(
+            *,
+            step_number: int,
+            tool_used: ToolName,
+            mode_for_step: V1Mode,
+            tr: ToolResult,
+            answer_text_for_llm: str,
+            next_action_val: Literal["continue", "final_answer"],
+            success_val: bool,
+        ) -> None:
+            if emit is None:
+                return
+            from .unified_chat import _build_rag_sources_event  # noqa: PLC0415
+
+            if tool_used == "text2sql_query" and tr.success and tr.data:
+                data = tr.data
+                columns_any = data.get("columns")
+                columns = columns_any if isinstance(columns_any, list) else []
+                rows_any = data.get("rows")
+                rows_any2 = rows_any if isinstance(rows_any, list) else []
+                rows2: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
+                truncated = len(rows2) > 20
+                await emit(
+                    _agent_chain(
+                        typ="sql.result",
+                        started_at=ts_ref,
+                        step_id=f"q_step{step_number}",
+                        payload={
+                            "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                            "columns": [c for c in columns if isinstance(c, str)],
+                            "rows": rows2[:20],
+                            "truncated": truncated,
+                        },
+                    )
+                )
+            elif tool_used == "rag_search" and tr.success and tr.data:
+                hits_any = tr.data.get("hits")
+                hits2: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                await emit(
+                    _agent_chain(
+                        typ="rag.sources",
+                        started_at=ts_ref,
+                        step_id=f"s_step{step_number}",
+                        payload=_build_rag_sources_event(hits2, top_k=10),
+                    )
+                )
+            if tr.success and (answer_text_for_llm or "").strip():
+                llm_phase: LlmPhase = (
+                    "rag_generate"
+                    if tool_used == "rag_search"
+                    else ("text2sql_summary" if tool_used == "text2sql_query" else "direct")
+                )
+                await _emit_simulated_llm(
+                    emit,
+                    started_at=ts_ref,
+                    step_id=f"{rid_short}_s{step_number}_{llm_phase}",
+                    inner_step_id=f"s{step_number}",
+                    phase=llm_phase,
+                    text=answer_text_for_llm,
+                    simulated_stream=True,
+                )
+            await emit(
+                _agent_chain(
+                    typ="agent.step.end",
+                    started_at=ts_ref,
+                    step_id=f"a{step_number}_end",
+                    payload={
+                        "step_number": step_number,
+                        "tool_used": tool_used,
+                        "mode": mode_for_step,
+                        "success": success_val,
+                        "next_action": next_action_val,
+                    },
+                )
+            )
+
+        async def _emit_final_chains(fin: AgentFinalView, answer: str) -> None:
+            if emit is None:
+                return
+            await emit(
+                _agent_chain(
+                    typ="agent.final",
+                    started_at=ts_ref,
+                    step_id="a_final",
+                    payload={
+                        "total_steps": fin.total_steps,
+                        "tools_used": fin.tools_used,
+                        "modes": fin.modes,
+                        "fallback_used": fin.fallback_used,
+                    },
+                )
+            )
+            await emit(
+                _agent_chain(
+                    typ="assistant.message",
+                    started_at=ts_ref,
+                    step_id="s_answer",
+                    payload={"role": "assistant", "content": answer},
+                )
+            )
+
         for step_idx in range(1, max_steps + 1):
-            elapsed_ms = int((time.perf_counter() - started_at) * 1000)
+            elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
             if elapsed_ms > self._max_latency_ms:
                 # 超时：降级到 V1 rule router 并最终执行一次工具
                 v1 = decide_intent_v1(query=query, prefer="auto")
@@ -310,10 +537,59 @@ class ChatBIAgent:
 
             tool = self._select_tool(current_tool)
             call_history: list[dict[str, Any]] = turn_history[-6:]
-            # tool.call.start/end 由 unified_chat 产生，这里只负责执行与返回结果
+            if emit is not None:
+                if step_idx > 1:
+                    await emit(
+                        _agent_chain(
+                            typ="agent.step.start",
+                            started_at=ts_ref,
+                            step_id=f"a{step_idx}",
+                            payload={"step_number": step_idx, "max_steps": max_steps},
+                        )
+                    )
+                await emit(
+                    _agent_chain(
+                        typ="agent.think",
+                        started_at=ts_ref,
+                        step_id=f"a{step_idx}_think",
+                        payload={
+                            "step_number": step_idx,
+                            "thought": current_thought[:120],
+                            "selected_tool": current_tool,
+                            "mode": current_mode,
+                            "confidence": step1_conf if step_idx == 1 else 1.0,
+                        },
+                    )
+                )
+                await emit(
+                    _agent_chain(
+                        typ="tool.call.start",
+                        started_at=ts_ref,
+                        step_id=f"t_step{step_idx}",
+                        payload={"tool": current_tool, "input": {"query": query}},
+                    )
+                )
+            # tool.call.end 在 emit 路径下由本处与 execute 结果一并下发
             current_tool_result = await tool.execute(query, history=call_history)  # type: ignore[arg-type]
 
             tools_used.append(current_tool)
+
+            if emit is not None:
+                _out_ans0: str | None = None
+                if current_tool_result.data and isinstance(current_tool_result.data.get("answer"), str):
+                    _out_ans0 = current_tool_result.data.get("answer")
+                await emit(
+                    _agent_chain(
+                        typ="tool.call.end",
+                        started_at=ts_ref,
+                        step_id=f"t_step{step_idx}",
+                        payload={
+                            "output": {"answer": _out_ans0},
+                            "error": current_tool_result.error,
+                            "latency_ms": current_tool_result.latency_ms,
+                        },
+                    )
+                )
 
             success = bool(current_tool_result.success)
             next_action: Literal["continue", "final_answer"] = "continue"
@@ -351,6 +627,16 @@ class ChatBIAgent:
                             tool_result=current_tool_result,
                         )
                     )
+                    if emit is not None:
+                        await _emit_post_tool_chains(
+                            step_number=step_idx,
+                            tool_used=current_tool,
+                            mode_for_step=current_mode,
+                            tr=current_tool_result,
+                            answer_text_for_llm=ans,
+                            next_action_val="continue",
+                            success_val=True,
+                        )
                     current_tool = next_tool
                     current_mode = next_mode2
                     current_thought = next_thought2
@@ -374,6 +660,16 @@ class ChatBIAgent:
                         tool_result=current_tool_result,
                     )
                 )
+                if emit is not None:
+                    await _emit_post_tool_chains(
+                        step_number=step_idx,
+                        tool_used=current_tool,
+                        mode_for_step=current_mode,
+                        tr=current_tool_result,
+                        answer_text_for_llm=ans,
+                        next_action_val="final_answer",
+                        success_val=True,
+                    )
                 fallback_used = any(t != intent_tool_original for t in tools_used)
                 final = AgentFinalView(
                     answer=ans,
@@ -383,6 +679,8 @@ class ChatBIAgent:
                     modes=[s.mode for s in steps],
                     fallback_used=fallback_used,
                 )
+                if emit is not None:
+                    await _emit_final_chains(final, final.answer)
                 return AgentRunView(intent_decision=intent, steps=steps, final=final)
 
             # 失败：根据失败类型决定下一步
@@ -390,7 +688,32 @@ class ChatBIAgent:
             code = current_tool_result.error_code or "UNKNOWN"
             if code in ("SQL_GEN_EMPTY", "SQL_GEN_SYNTAX"):
                 # 重试一次同工具
+                if emit is not None:
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.start",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}_retry",
+                            payload={"tool": current_tool, "input": {"query": query}},
+                        )
+                    )
                 retry_tool_result = await tool.execute(query, history=call_history)  # type: ignore[arg-type]
+                if emit is not None:
+                    _oa_r: str | None = None
+                    if retry_tool_result.data and isinstance(retry_tool_result.data.get("answer"), str):
+                        _oa_r = retry_tool_result.data.get("answer")
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.end",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}_retry",
+                            payload={
+                                "output": {"answer": _oa_r},
+                                "error": retry_tool_result.error,
+                                "latency_ms": retry_tool_result.latency_ms,
+                            },
+                        )
+                    )
                 if retry_tool_result.success:
                     # 重试成功：直接 final
                     ans2 = ""
@@ -415,6 +738,16 @@ class ChatBIAgent:
                             tool_result=retry_tool_result,
                         )
                     )
+                    if emit is not None:
+                        await _emit_post_tool_chains(
+                            step_number=step_idx,
+                            tool_used=current_tool,
+                            mode_for_step=current_mode,
+                            tr=retry_tool_result,
+                            answer_text_for_llm=ans2,
+                            next_action_val="final_answer",
+                            success_val=True,
+                        )
                     fallback_used = any(t != intent_tool_original for t in tools_used)
                     final = AgentFinalView(
                         answer=ans2,
@@ -424,6 +757,8 @@ class ChatBIAgent:
                         modes=[s.mode for s in steps],
                         fallback_used=fallback_used,
                     )
+                    if emit is not None:
+                        await _emit_final_chains(final, final.answer)
                     return AgentRunView(intent_decision=intent, steps=steps, final=final)
                 current_tool_result = retry_tool_result
 
@@ -465,6 +800,16 @@ class ChatBIAgent:
                         tool_result=current_tool_result,
                     )
                 )
+                if emit is not None:
+                    await _emit_post_tool_chains(
+                        step_number=step_idx,
+                        tool_used=current_tool,
+                        mode_for_step=current_mode,
+                        tr=current_tool_result,
+                        answer_text_for_llm=ans3,
+                        next_action_val="final_answer",
+                        success_val=False,
+                    )
                 fallback_used = any(t != intent_tool_original for t in tools_used)
                 final = AgentFinalView(
                     answer=ans3,
@@ -474,6 +819,8 @@ class ChatBIAgent:
                     modes=[s.mode for s in steps],
                     fallback_used=fallback_used,
                 )
+                if emit is not None:
+                    await _emit_final_chains(final, final.answer)
                 return AgentRunView(intent_decision=intent, steps=steps, final=final)
 
             next_action = "continue"
@@ -494,6 +841,16 @@ class ChatBIAgent:
                     tool_result=current_tool_result,
                 )
             )
+            if emit is not None:
+                await _emit_post_tool_chains(
+                    step_number=step_idx,
+                    tool_used=current_tool,
+                    mode_for_step=current_mode,
+                    tr=current_tool_result,
+                    answer_text_for_llm="",
+                    next_action_val="continue",
+                    success_val=False,
+                )
 
             # 进入下一步
             current_tool = next_tool
@@ -511,6 +868,8 @@ class ChatBIAgent:
             modes=[s.mode for s in steps] or [current_mode],
             fallback_used=fallback_used,
         )
+        if emit is not None:
+            await _emit_final_chains(final, final.answer)
         return AgentRunView(intent_decision=intent, steps=steps, final=final)
 
 
