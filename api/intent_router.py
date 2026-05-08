@@ -27,6 +27,52 @@ def _contains_any(text: str, needles: list[str]) -> bool:
     return any(n.lower() in t for n in needles)
 
 
+def _rag_rule_hits(query: str) -> list[str]:
+    """偏「读仓库内文档 / 日记 / 任务说明」的轻量规则，用于在 auto 下优先走 RAG 候选。"""
+    hits: list[str] = []
+    q = (query or "").strip()
+    if not q:
+        return hits
+
+    rag_kw = [
+        "日记",
+        "diary",
+        "markdown",
+        ".md",
+        "任务单",
+        "规范",
+        "架构说明",
+        "_tech_graph",
+        "文档",
+        "文章",
+        "博客",
+        "写了什么",
+        "内容是什么",
+        "讲了什么",
+        "说了什么",
+        "摘录",
+        "这篇",
+        "那篇",
+        "哪篇",
+        "readme",
+    ]
+    if _contains_any(q, rag_kw):
+        hits.append("rule:rag_keywords")
+
+    # 任务编号 / 章节式引用（偏文档检索）
+    if re.search(r"\btask\s*\d+", q, re.IGNORECASE):
+        hits.append("rule:task_ref_hint")
+
+    # 日期 + 文档形态（如 2026-04-28.md、某天的日记）
+    if re.search(r"\d{4}-\d{2}-\d{2}", q) and (".md" in q.lower() or "日记" in q or "diary" in q.lower()):
+        hits.append("rule:date_doc_hint")
+
+    if "content/" in q.lower() or "task_" in q.lower():
+        hits.append("rule:repo_path_hint")
+
+    return hits
+
+
 def _no_data_rule_hits(query: str) -> list[str]:
     hits: list[str] = []
     q = (query or "").strip()
@@ -198,16 +244,20 @@ def decide_intent(*, query: str, prefer: str) -> RouterDecision:
 
     rule_hits: list[str] = []
     tool_hits = _tool_rule_hits(query)
+    rag_hits = _rag_rule_hits(query)
     sql_hits = _sql_rule_hits(query)
     nodata_hits = _no_data_rule_hits(query)
     rule_hits.extend(tool_hits)
+    rule_hits.extend(rag_hits)
     rule_hits.extend(sql_hits)
     rule_hits.extend(nodata_hits)
 
-    # candidate selection
+    # candidate selection（rag 信号优先于纯 SQL 关键词 / no_data 创作词，减少「查日记」误成 text2sql）
     candidate: str
     if tool_hits:
         candidate = "tool:unknown"
+    elif rag_hits:
+        candidate = "rag"
     elif nodata_hits and not sql_hits:
         candidate = "no_data"
     elif sql_hits:
@@ -259,14 +309,21 @@ def decide_intent(*, query: str, prefer: str) -> RouterDecision:
             final_mode = "no_data"
             fallback = "text2sql_without_ddl→no_data"
 
-    # protect: rag without evidence becomes no_data unless sql evidence exists
+    # protect: rag 在 FTS 无命中时，仅当 DDL 与 FTS 两侧都无有效信号且无 rag 规则命中时再降为 no_data
     if final_mode == "rag" and fts_hits <= 0:
         if ddl_hits > 0 and sql_hits:
             final_mode = "text2sql"
             fallback = fallback or "rag_without_fts→text2sql"
-        else:
+        elif ddl_hits <= 0 and fts_hits <= 0 and not rag_hits:
             final_mode = "no_data"
             fallback = fallback or "rag_without_fts→no_data"
+        else:
+            final_mode = "rag"
+            if not fallback:
+                if rag_hits and ddl_hits <= 0 and fts_hits <= 0:
+                    fallback = "rag_without_evidence_but_rag_signals"
+                else:
+                    fallback = "rag_without_fts_keep_rag_ddl_evidence"
 
     return RouterDecision(
         prefer="auto",
