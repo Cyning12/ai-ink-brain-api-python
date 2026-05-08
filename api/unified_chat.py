@@ -498,6 +498,21 @@ def _build_query_expand_event_payload(meta: dict[str, Any] | None, *, max_raw: i
     }
 
 
+def _env_chatbi_sse_incremental_enabled() -> bool:
+    """vNext：默认 true；false 时强制 await run 后批量 replay。"""
+    raw = (os.getenv("CHATBI_SSE_INCREMENTAL", "true") or "").strip().lower()
+    return raw not in ("0", "false", "no", "off")
+
+
+def _request_sse_contract_v2(request: Request) -> bool:
+    v = (request.headers.get("x-chatbi-sse-contract") or "").strip()
+    return v == "2"
+
+
+def _unified_agent_sse_incremental(request: Request) -> bool:
+    return _env_chatbi_sse_incremental_enabled() and _request_sse_contract_v2(request)
+
+
 def _parse_prefer(raw: object) -> PreferMode:
     if not isinstance(raw, str):
         return "auto"
@@ -1640,9 +1655,10 @@ async def handle_unified_chat_stream(
         tool_registry = get_tool_registry()
         agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
         max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
+        sse_incremental = _unified_agent_sse_incremental(request)
 
         async def event_stream():
-            agent_result = None
+            agent_result: AgentRunView | None = None
             mode_local: str = "auto" if prefer == "auto" else str(prefer)
             ok_local = False
             try:
@@ -1656,208 +1672,293 @@ async def handle_unified_chat_stream(
                     },
                 )
 
-                # Agent 运行可能耗时较长：若长时间不向客户端写字节，Next/undici 会触发 BodyTimeoutError。
-                # 因此在 await 期间周期性发送 SSE 注释行保活；落库改异步，避免阻塞在首个 meta 之后。
-                _run_task = asyncio.create_task(agent.run(query=query, session_id=session_id, prefer=prefer))
-                try:
-                    _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
-                except Exception:  # noqa: BLE001
-                    _iv = 15.0
-                _iv = max(5.0, min(_iv, 60.0))
-                while not _run_task.done():
-                    await asyncio.wait({_run_task}, timeout=_iv)
-                    if _run_task.done():
-                        break
-                    yield ": sse-keepalive\n\n"
-                agent_result = await _run_task
-                mode_local = agent_result.final.mode
-                ok_local = True
+                if sse_incremental:
+                    # G2：Agent 内 emit → 队列 → 本生成器边收边 yield（vNext 协商头 + CHATBI_SSE_INCREMENTAL）
+                    q: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=512)
+                    holder: dict[str, Any] = {}
 
-                intent_decision = agent_result.intent_decision
-                step1 = agent_result.steps[0] if agent_result.steps else None
-                step1_mode = step1.mode if step1 else mode_local
-                candidate_mode = intent_decision.mode if intent_decision else step1_mode
-                final_mode = step1_mode
+                    async def forward(ev: dict[str, Any]) -> None:
+                        await q.put(ev)
 
-                yield _sse(
-                    "chain",
-                    _event(
-                        typ="router.decision",
-                        started_at=started_at,
-                        step_id="r1",
-                        payload={
-                            "prefer": "auto" if prefer == "auto" else prefer,
-                            "candidate_mode": candidate_mode,
-                            "final_mode": final_mode,
-                            "rule_hits": [],
-                            "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
-                            "fallback": intent_decision.fallback if intent_decision else None,
-                        },
-                    ),
-                )
+                    async def runner() -> None:
+                        try:
+                            holder["agent_result"] = await agent.run(
+                                query=query,
+                                session_id=session_id,
+                                prefer=prefer,
+                                sse_started_at=started_at,
+                                run_id=run_id,
+                                emit=forward,
+                                debug_router=debug_router,
+                                intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
+                            )
+                        except Exception as exc:  # noqa: BLE001
+                            holder["exc"] = exc
+                        finally:
+                            await q.put(None)
 
-                for step in agent_result.steps:
-                    step_id = f"a{step.step_number}"
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="agent.step.start",
-                            started_at=started_at,
-                            step_id=step_id,
-                            payload={"step_number": step.step_number, "max_steps": max_steps},
-                        ),
-                    )
-
-                    if step.step_number == 1 and intent_decision is not None:
+                    run_task = asyncio.create_task(runner())
+                    try:
+                        _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
+                    except Exception:  # noqa: BLE001
+                        _iv = 15.0
+                    _iv = max(5.0, min(_iv, 60.0))
+                    while True:
+                        try:
+                            item = await asyncio.wait_for(q.get(), timeout=_iv)
+                        except asyncio.TimeoutError:
+                            if run_task.done():
+                                break
+                            yield ": sse-keepalive\n\n"
+                            continue
+                        if item is None:
+                            break
+                        yield _sse("chain", item)
+                    await run_task
+                    while True:
+                        try:
+                            tail = q.get_nowait()
+                        except asyncio.QueueEmpty:
+                            break
+                        if tail is not None:
+                            yield _sse("chain", tail)
+                    exc_run = holder.get("exc")
+                    if exc_run is not None:
+                        ok_local = False
                         yield _sse(
                             "chain",
                             _event(
-                                typ="agent.intent",
+                                typ="error",
                                 started_at=started_at,
-                                step_id="intent_1",
-                                payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
+                                step_id="e_agent_run",
+                                payload={"stage": "agent", "message": str(exc_run)[:500]},
+                            ),
+                        )
+                    else:
+                        agent_result = holder.get("agent_result")
+                        if agent_result is not None:
+                            ok_local = True
+                            mode_local = agent_result.final.mode
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="latency",
+                                    started_at=started_at,
+                                    step_id="l1",
+                                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                                ),
+                            )
+                            _async_save_chatbi_v2_agent_log(
+                                session_id=session_id,
+                                query=query,
+                                run_id=run_id,
+                                prefer=prefer,
+                                started_at=started_at,
+                                agent_result=agent_result,
+                            )
+                else:
+                    # 批量 replay：await run 结束后再按旧顺序 yield（兼容缺省协商头）
+                    _run_task = asyncio.create_task(agent.run(query=query, session_id=session_id, prefer=prefer))
+                    try:
+                        _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
+                    except Exception:  # noqa: BLE001
+                        _iv = 15.0
+                    _iv = max(5.0, min(_iv, 60.0))
+                    while not _run_task.done():
+                        await asyncio.wait({_run_task}, timeout=_iv)
+                        if _run_task.done():
+                            break
+                        yield ": sse-keepalive\n\n"
+                    agent_result = await _run_task
+                    mode_local = agent_result.final.mode
+                    ok_local = True
+
+                if not sse_incremental:
+                    intent_decision = agent_result.intent_decision
+                    step1 = agent_result.steps[0] if agent_result.steps else None
+                    step1_mode = step1.mode if step1 else mode_local
+                    candidate_mode = intent_decision.mode if intent_decision else step1_mode
+                    final_mode = step1_mode
+
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="router.decision",
+                            started_at=started_at,
+                            step_id="r1",
+                            payload={
+                                "prefer": "auto" if prefer == "auto" else prefer,
+                                "candidate_mode": candidate_mode,
+                                "final_mode": final_mode,
+                                "rule_hits": [],
+                                "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                                "fallback": intent_decision.fallback if intent_decision else None,
+                            },
+                        ),
+                    )
+
+                    for step in agent_result.steps:
+                        step_id = f"a{step.step_number}"
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="agent.step.start",
+                                started_at=started_at,
+                                step_id=step_id,
+                                payload={"step_number": step.step_number, "max_steps": max_steps},
                             ),
                         )
 
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="agent.think",
-                            started_at=started_at,
-                            step_id=f"{step_id}_think",
-                            payload={
-                                "step_number": step.step_number,
-                                "thought": step.think_payload["thought"],
-                                "selected_tool": step.think_payload["selected_tool"],
-                                "mode": step.think_payload["mode"],
-                                "confidence": step.think_payload["confidence"],
-                            },
-                        ),
-                    )
+                        if step.step_number == 1 and intent_decision is not None:
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="agent.intent",
+                                    started_at=started_at,
+                                    step_id="intent_1",
+                                    payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
+                                ),
+                            )
 
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="tool.call.start",
-                            started_at=started_at,
-                            step_id=f"t_step{step.step_number}",
-                            payload={"tool": step.tool_used, "input": {"query": query}},
-                        ),
-                    )
-
-                    err = step.tool_result.error
-                    out_answer: str | None = None
-                    if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
-                        out_answer = step.tool_result.data.get("answer")
-
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="tool.call.end",
-                            started_at=started_at,
-                            step_id=f"t_step{step.step_number}",
-                            payload={
-                                "output": {"answer": out_answer},
-                                "error": err,
-                                "latency_ms": step.tool_result.latency_ms,
-                            },
-                        ),
-                    )
-
-                    if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
-                        data = step.tool_result.data
-                        columns_any = data.get("columns")
-                        columns = columns_any if isinstance(columns_any, list) else []
-                        rows_any = data.get("rows")
-                        rows_any2 = rows_any if isinstance(rows_any, list) else []
-                        rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
-                        truncated = len(rows) > 20
                         yield _sse(
                             "chain",
                             _event(
-                                typ="sql.result",
+                                typ="agent.think",
                                 started_at=started_at,
-                                step_id=f"q_step{step.step_number}",
+                                step_id=f"{step_id}_think",
                                 payload={
-                                    "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
-                                    "columns": [c for c in columns if isinstance(c, str)],
-                                    "rows": rows[:20],
-                                    "truncated": truncated,
+                                    "step_number": step.step_number,
+                                    "thought": step.think_payload["thought"],
+                                    "selected_tool": step.think_payload["selected_tool"],
+                                    "mode": step.think_payload["mode"],
+                                    "confidence": step.think_payload["confidence"],
                                 },
                             ),
                         )
-                    elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
-                        data = step.tool_result.data
-                        hits_any = data.get("hits")
-                        hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+
                         yield _sse(
                             "chain",
                             _event(
-                                typ="rag.sources",
+                                typ="tool.call.start",
                                 started_at=started_at,
-                                step_id=f"s_step{step.step_number}",
-                                payload=_build_rag_sources_event(hits, top_k=10),
+                                step_id=f"t_step{step.step_number}",
+                                payload={"tool": step.tool_used, "input": {"query": query}},
+                            ),
+                        )
+
+                        err = step.tool_result.error
+                        out_answer: str | None = None
+                        if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                            out_answer = step.tool_result.data.get("answer")
+
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="tool.call.end",
+                                started_at=started_at,
+                                step_id=f"t_step{step.step_number}",
+                                payload={
+                                    "output": {"answer": out_answer},
+                                    "error": err,
+                                    "latency_ms": step.tool_result.latency_ms,
+                                },
+                            ),
+                        )
+
+                        if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                            data = step.tool_result.data
+                            columns_any = data.get("columns")
+                            columns = columns_any if isinstance(columns_any, list) else []
+                            rows_any = data.get("rows")
+                            rows_any2 = rows_any if isinstance(rows_any, list) else []
+                            rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
+                            truncated = len(rows) > 20
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="sql.result",
+                                    started_at=started_at,
+                                    step_id=f"q_step{step.step_number}",
+                                    payload={
+                                        "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                                        "columns": [c for c in columns if isinstance(c, str)],
+                                        "rows": rows[:20],
+                                        "truncated": truncated,
+                                    },
+                                ),
+                            )
+                        elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                            data = step.tool_result.data
+                            hits_any = data.get("hits")
+                            hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="rag.sources",
+                                    started_at=started_at,
+                                    step_id=f"s_step{step.step_number}",
+                                    payload=_build_rag_sources_event(hits, top_k=10),
+                                ),
+                            )
+
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="agent.step.end",
+                                started_at=started_at,
+                                step_id=f"{step_id}_end",
+                                payload={
+                                    "step_number": step.step_number,
+                                    "tool_used": step.tool_used,
+                                    "mode": step.mode,
+                                    "success": step.success,
+                                    "next_action": step.next_action,
+                                },
                             ),
                         )
 
                     yield _sse(
                         "chain",
                         _event(
-                            typ="agent.step.end",
+                            typ="agent.final",
                             started_at=started_at,
-                            step_id=f"{step_id}_end",
+                            step_id="a_final",
                             payload={
-                                "step_number": step.step_number,
-                                "tool_used": step.tool_used,
-                                "mode": step.mode,
-                                "success": step.success,
-                                "next_action": step.next_action,
+                                "total_steps": agent_result.final.total_steps,
+                                "tools_used": agent_result.final.tools_used,
+                                "modes": agent_result.final.modes,
+                                "fallback_used": agent_result.final.fallback_used,
                             },
                         ),
                     )
 
-                yield _sse(
-                    "chain",
-                    _event(
-                        typ="agent.final",
-                        started_at=started_at,
-                        step_id="a_final",
-                        payload={
-                            "total_steps": agent_result.final.total_steps,
-                            "tools_used": agent_result.final.tools_used,
-                            "modes": agent_result.final.modes,
-                            "fallback_used": agent_result.final.fallback_used,
-                        },
-                    ),
-                )
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="assistant.message",
+                            started_at=started_at,
+                            step_id="s_answer",
+                            payload={"role": "assistant", "content": agent_result.final.answer},
+                        ),
+                    )
 
-                yield _sse(
-                    "chain",
-                    _event(
-                        typ="assistant.message",
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="latency",
+                            started_at=started_at,
+                            step_id="l1",
+                            payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                        ),
+                    )
+                    _async_save_chatbi_v2_agent_log(
+                        session_id=session_id,
+                        query=query,
+                        run_id=run_id,
+                        prefer=prefer,
                         started_at=started_at,
-                        step_id="s_answer",
-                        payload={"role": "assistant", "content": agent_result.final.answer},
-                    ),
-                )
-
-                yield _sse(
-                    "chain",
-                    _event(
-                        typ="latency",
-                        started_at=started_at,
-                        step_id="l1",
-                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
-                    ),
-                )
-                _async_save_chatbi_v2_agent_log(
-                    session_id=session_id,
-                    query=query,
-                    run_id=run_id,
-                    prefer=prefer,
-                    started_at=started_at,
-                    agent_result=agent_result,
-                )
+                        agent_result=agent_result,
+                    )
             except GeneratorExit:
                 return
             except Exception:  # noqa: BLE001

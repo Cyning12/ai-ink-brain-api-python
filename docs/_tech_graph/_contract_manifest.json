@@ -2,7 +2,7 @@
   "schema_version": "tech_graph_contract_manifest_v1",
   "repo": "ai-ink-brain-api-python",
   "topic": "unified_chat_sse_contract",
-  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。2026-04-28：Unified Chat SSE v1 已落地并按本契约补齐 latency.stages_ms（允许为空对象）。",
+  "_note": "备注：本文件是跨端（前端消费 vs 后端产出）的 SSE/events 契约真值。所有 *_keys / allowed_events / type_values / payload_min_keys_by_type 均用于门禁校验：删改必需键会导致 tools/tech_graph_contract_check.py 失败。2026-04-28：Unified Chat SSE v1 已落地并按本契约补齐 latency.stages_ms（允许为空对象）。2026-05-08：vNext `agent.llm.*` 已在 `api/agent.py` emit + `api/unified_chat.py` 增量队列路径落地；静态真值扫描合并 `unified_chat.py` + `agent.py`（见 tech_graph_contract_check `BACKEND_CONTRACT_SOURCES`）。语义真值见 `SPEC-ChatBI-V2-Events.md` §8 与 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`。",
   "sse": {
     "_required": {
       "envelope_keys": ["event", "data"],
@@ -14,9 +14,10 @@
     "envelope_keys": ["event", "data"],
     "allowed_events": ["chain", "done"],
     "chain": {
-      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。",
+      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。frontend_ts_ignore_payload_like_keys：TS 里 ExecSection 等 UI 判别/派生字段名，易被 contract_check 的 .map((x)=> 启发式误扫进「载荷键」；非 SSE wire keys。",
       "data_keys": ["type", "ts", "step_id", "payload"],
       "frontend_optional_chain_data_keys": ["step"],
+      "frontend_ts_ignore_payload_like_keys": ["kind", "finalMode", "dropped", "snippet"],
       "type_values": [
         "meta",
         "router.decision",
@@ -34,7 +35,11 @@
         "agent.think",
         "agent.intent",
         "agent.step.end",
-        "agent.final"
+        "agent.final",
+        "agent.llm.start",
+        "agent.llm.delta",
+        "agent.llm.end",
+        "agent.llm.truncated"
       ],
       "payload_min_keys_by_type": {
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
@@ -59,7 +64,11 @@
         "agent.think": ["step_number", "thought", "selected_tool", "mode", "confidence"],
         "agent.intent": ["tool", "mode", "reasoning", "confidence", "fallback", "cache", "cache_key_hash", "latency_ms"],
         "agent.step.end": ["step_number", "tool_used", "mode", "success", "next_action"],
-        "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"]
+        "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"],
+        "agent.llm.start": ["phase", "step_id"],
+        "agent.llm.delta": ["text", "part_index"],
+        "agent.llm.end": ["ok", "phase", "step_id"],
+        "agent.llm.truncated": ["dropped_chars", "reason"]
       }
     },
     "done": {

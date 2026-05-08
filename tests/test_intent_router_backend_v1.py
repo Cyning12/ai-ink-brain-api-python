@@ -213,3 +213,76 @@ def test_router_allows_safe_count_without_ddl(monkeypatch: pytest.MonkeyPatch):
     assert d.candidate_mode == "text2sql"
     assert d.final_mode == "text2sql"
 
+
+def test_router_rag_signals_priority_over_sql_keywords(monkeypatch: pytest.MonkeyPatch):
+    """日记 / 文档类表述优先 RAG 候选，避免「查询」单独把整句划进 text2sql。"""
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+
+    def fake_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 3):  # noqa: ANN001
+                return []
+
+        return _S()
+
+    monkeypatch.setattr(intent_router, "get_text2sql_store", fake_store)
+
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(intent_router, "supabase_client", lambda: _Sb())
+
+    d = intent_router.decide_intent(query="查询下我的2026-04-28的日记", prefer="auto")
+    assert d.candidate_mode == "rag"
+    assert "rule:rag_keywords" in d.rule_hits
+    assert d.final_mode == "rag"
+    assert d.fallback == "rag_without_evidence_but_rag_signals"
+
+
+def test_router_rag_keeps_when_ddl_positive_but_fts_empty(monkeypatch: pytest.MonkeyPatch):
+    """FTS 无命中但 DDL 有证据且非 sql 升级：保持 RAG，不降为 no_data。"""
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+
+    def fake_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 3):  # noqa: ANN001
+                return [
+                    {"doc_type": "ddl", "score": 0.2, "content": "create table t (id int);"},
+                ]
+
+        return _S()
+
+    monkeypatch.setattr(intent_router, "get_text2sql_store", fake_store)
+
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(intent_router, "supabase_client", lambda: _Sb())
+
+    d = intent_router.decide_intent(query="这个项目怎么部署？", prefer="auto")
+    assert d.candidate_mode == "rag"
+    assert d.final_mode == "rag"
+    assert d.fallback == "rag_without_fts_keep_rag_ddl_evidence"
+

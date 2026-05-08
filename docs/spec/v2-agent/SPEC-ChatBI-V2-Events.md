@@ -1,8 +1,8 @@
 # SPEC: ChatBI V2 —— 事件流兼容设计
 
 > **状态**：draft  
-> **版本**：v2（已按审查意见修订：明确 agent.* 契约、前端忽略约束、manifest 同步）  
-> **日期**：2026-04-27  
+> **版本**：v2 + vNext §8（增量 LLM：`agent.llm.*`，chain-only）  
+> **日期**：2026-04-27（vNext 终稿修订：2026-05-08）  
 > **父文档**：`SPEC-ChatBI-V2-Agent-Overview.md`
 
 ---
@@ -42,6 +42,10 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 | `agent.intent` | 意图识别结果 | Intent Agent 决策后 | **可忽略** |
 | `agent.step.end` | Agent 步骤结束 | 每步 ReAct 循环结束时 | **可忽略** |
 | `agent.final` | Agent 最终决策 | Agent 决定直接回答时 | **可忽略** |
+| `agent.llm.start` | LLM 子阶段开始（vNext） | 子步调用上游前 | Unified 增量客户端 **须处理**（右栏标题等） |
+| `agent.llm.delta` | LLM 文本增量（vNext） | 上游流式 chunk | **须处理**（右栏拼接）；未知字段策略 B |
+| `agent.llm.end` | LLM 子阶段结束（vNext） | 子步完成/失败 | **须处理** |
+| `agent.llm.truncated` | 背压/截断信号（vNext） | 队列触顶 | **须处理**（可折叠展示） |
 
 ---
 
@@ -330,7 +334,7 @@ CHATBI_USE_AGENT=false  # 降级到 V1
 | 端点/RPC/表/env 是否同步到 `_manifest.json` | `tools/tech_graph_manifest_check.py` | PR 阻断 |
 | 文档是否覆盖新增变更 | `tools/tech_graph_drift_check.py` | 告警（P0_3） |
 
-> **规则**：新增事件 → 先改 `_contract_manifest.json`（补 type + payload 键），再改 `_manifest.json`（如有新端点/env），最后改 spec 文档。CI 全通过后方可合并。
+> **规则**：新增事件 → **实现代码与** `_contract_manifest.json`（补 type + payload 键）**须同一 PR**；再改 `_manifest.json`（如有新端点/env），最后改 spec 文档。CI 全通过后方可合并。**vNext `agent.llm.*`** 见 **§8**；禁止 manifest 先于 `unified_chat.py` 空转。
 
 ---
 
@@ -347,7 +351,56 @@ CHATBI_USE_AGENT=false  # 降级到 V1
 
 ---
 
-## 8. 关联文档
+## 8. vNext：Unified Chat LLM 流式（`chain-only`）
+
+> **父 SPEC**：`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` §0 / §5 / §7 / §9。本节为 **语义真值**；**枚举与最小键**以合并日 `docs/_tech_graph/_contract_manifest.json` 为准。
+
+### 8.1 与 Legacy `event: token` 的硬区分
+
+| 路径 | `event: token` |
+|------|----------------|
+| **Legacy RAG**（非 `/api/py/unified/chat/stream` 的既有流式页） | **允许**沿用历史语义。 |
+| **Unified Chat + `CHATBI_USE_AGENT` + 增量路径** | **禁止**用顶层 `token` 承载 **子步 LLM** 增量；子步 **必须**为 **`event: chain`** 且 `type ∈ { agent.llm.start, agent.llm.delta, agent.llm.end, agent.llm.truncated }`。 |
+
+区分依据：**HTTP 路径** +（Unified 侧）**`X-ChatBI-Sse-Contract: 2`**，**不**靠 `scope` 推断 Legacy。
+
+### 8.2 新增 `chain.type`（vNext 落地时写入 manifest）
+
+| `type` | 说明 |
+|--------|------|
+| `agent.llm.start` | 某 LLM 子阶段开始；`payload.phase` 见 §8.4。 |
+| `agent.llm.delta` | 文本增量；**多条兄弟 `chain`**，`payload.text` + `part_index`。 |
+| `agent.llm.end` | 子阶段结束；`payload.ok`。 |
+| `agent.llm.truncated` | 背压 / 截断可观测信号。 |
+
+### 8.3 「首条有意义 chain」白名单（验收用）
+
+用于 **`meta` 之后**首条有效 `chain.data` 的 CI 断言：`router.decision`、`agent.step.start`、`agent.intent`、`agent.llm.start`、`tool.call.start`。  
+**排除**：SSE **注释行**、**坏 JSON**（前端策略 B 跳过）。
+
+### 8.4 `phase` 枚举（`agent.llm.start` / `agent.llm.end`）
+
+`intent` | `rag_generate` | `text2sql_sql` | `text2sql_summary` | `direct`（扩展须同步 manifest + 本表）。
+
+### 8.5 好例与坏例（最小）
+
+**好例**（顺序）：见 vNext SPEC **§5.4** JSON 行序列。
+
+**坏例**：一条 `agent.llm.delta` **缺少** `payload.text` → 前端 **丢弃该帧**，`parse_error_count++`，**不抛异常**、**不白屏**。
+
+### 8.6 与 `agent.think` / `assistant.message` 的关系
+
+- **`agent.think`**：**仅摘要**；出现在 **`agent.llm.end` 之后**（同一步内）。  
+- **`assistant.message`**：**最终答案唯一真相源**（成功路径全文）；右栏 **执行链路** 中各 **`agent.llm.*` 段内** delta 为过程展示，**同一 phase（如最终作答段）内宜可对齐** `assistant.message.content`（归一化规则由实现 + 单测固定）；**跨 phase** 右栏全文 **不要求** 与最终答案逐字一致 — 见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` §8.4**。
+
+### 8.7 流式失败与 `done`
+
+- 子步失败：**`agent.llm.end`** `ok: false` → 可接 **`error`** `chain` → **`done` 仍到达**。  
+- `assistant.message` 内容策略三选一（空 / 部分 / 错误全文）须在 **实现 PR** 固定并在 pytest 覆盖一种默认策略。
+
+---
+
+## 9. 关联文档
 
 - 父文档：`SPEC-ChatBI-V2-Agent-Overview.md`
 - 意图识别：`SPEC-ChatBI-V2-Intent.md`

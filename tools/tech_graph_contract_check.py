@@ -9,7 +9,11 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CONTRACT_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_contract_manifest.json"
-BACKEND_UNIFIED_CHAT = REPO_ROOT / "api" / "unified_chat.py"
+# vNext：`agent.llm.*` 等在 `api/agent.py` emit；须与 manifest 同 PR 纳入静态真值
+BACKEND_CONTRACT_SOURCES = [
+    REPO_ROOT / "api" / "unified_chat.py",
+    REPO_ROOT / "api" / "agent.py",
+]
 
 
 @dataclass(frozen=True)
@@ -79,9 +83,9 @@ def _backend_truth_from_unified_chat(py_text: str) -> dict[str, Any]:
     chain_types = set(re.findall(r'typ="([A-Za-z0-9_.-]+)"', py_text))
     chain_types |= set(re.findall(r'"type"\s*:\s*"([A-Za-z0-9_.-]+)"', py_text))
 
-    # 3) per-type payload keys (only for dict-literal payload= {...} within the same _event call)
+    # 3) per-type payload keys（_event 与 api/agent.py 的 _agent_chain 同形）
     payload_keys_by_type: dict[str, set[str]] = {}
-    event_starts = [m.start() for m in re.finditer(r"_event\(", py_text)]
+    event_starts = [m.start() for m in re.finditer(r"(?:_event|_agent_chain)\(", py_text)]
     event_starts.append(len(py_text))
     for i in range(len(event_starts) - 1):
         seg = py_text[event_starts[i] : event_starts[i + 1]]
@@ -234,6 +238,9 @@ def main() -> int:
 
         chain_data_keys = set(chain.get("data_keys") or [])
         chain_opt_data_keys = set(chain.get("frontend_optional_chain_data_keys") or [])
+        chain_ts_ui_ignore = set(chain.get("frontend_ts_ignore_payload_like_keys") or [])
+        if not all(isinstance(x, str) for x in chain_ts_ui_ignore):
+            raise TypeError("contract.sse.chain.frontend_ts_ignore_payload_like_keys must be list[str]")
         chain_type_values = set(chain.get("type_values") or [])
         done_data_keys = set(done.get("data_keys") or [])
 
@@ -261,11 +268,14 @@ def main() -> int:
                 print(f"- {x}")
             return 1
 
-        # Load backend truth
-        if not BACKEND_UNIFIED_CHAT.exists():
-            print(f"ERROR: backend file missing: {BACKEND_UNIFIED_CHAT}")
+        # Load backend truth（多文件合并，避免 chain.type 仅落在 agent.py 时漏检）
+        missing_backend = [str(p) for p in BACKEND_CONTRACT_SOURCES if not p.exists()]
+        if missing_backend:
+            print("ERROR: backend file(s) missing:")
+            for x in missing_backend:
+                print(f"  - {x}")
             return 2
-        backend_text = _read_text(BACKEND_UNIFIED_CHAT)
+        backend_text = "\n\n".join(_read_text(p) for p in BACKEND_CONTRACT_SOURCES)
         bt = _backend_truth_from_unified_chat(backend_text)
 
         problems: list[str] = []
@@ -356,6 +366,7 @@ def main() -> int:
         contract_key_union |= {"event", "data"}
         contract_key_union |= chain_data_keys
         contract_key_union |= chain_opt_data_keys
+        contract_key_union |= chain_ts_ui_ignore
         contract_key_union |= done_data_keys
         contract_key_union |= chain_type_values
         # payload keys union
@@ -396,6 +407,8 @@ def main() -> int:
             "startsWith",
         }
         used_union = set([x for x in used_union if x not in ignore])
+        # TS 侧 ExecSection / 右栏摘要等 discriminated union 字段，非 chain payload；从 .map 启发式中剔除
+        used_union -= chain_ts_ui_ignore
 
         forbidden = sorted([x for x in used_union if x not in contract_key_union])
         if forbidden:

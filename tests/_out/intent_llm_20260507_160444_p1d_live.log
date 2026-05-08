@@ -1,0 +1,181 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0 -- /Users/cyning/.pyenv/versions/3.11.15/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/cyning/Desktop/Projects/ai-ink-brain-api-python
+configfile: pytest.ini
+plugins: langsmith-0.7.30, anyio-4.13.0
+collecting ... collected 4 items / 3 deselected / 1 selected
+
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke [intent_eval] 开始：共 60 条，real_llm=True，导出将写入 /Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tests/_out/intent_llm_20260507_160444_p1d_live.jsonl
+[intent_eval] >>> 开始 i=1/60 expected=text2sql_query category='时间+金额' q='昨天销售额是多少'
+[intent_eval] <<< 结束 i=1/60 [OK] pred=text2sql_query latency_ms=10340 conf=0.950 reasoning='用户询问昨天销售额的具体数值，需要查询数据库获取业务数据'
+[intent_eval] >>> 开始 i=2/60 expected=text2sql_query category='数量' q='这个月有多少订单'
+[intent_eval] <<< 结束 i=2/60 [OK] pred=text2sql_query latency_ms=1961 conf=0.950 reasoning='用户询问本月订单数量，需要查询业务数据库获取具体数值'
+[intent_eval] >>> 开始 i=3/60 expected=text2sql_query category='时间范围' q='最近7天收入多少'
+[intent_eval] <<< 结束 i=3/60 [OK] pred=text2sql_query latency_ms=3406 conf=0.950 reasoning='用户询问最近7天的收入，需要查询业务数据库获取具体数值'
+[intent_eval] >>> 开始 i=4/60 expected=text2sql_query category='分组+时间' q='按月统计销售额'
+[intent_eval] <<< 结束 i=4/60 [OK] pred=text2sql_query latency_ms=992 conf=0.950 reasoning='用户要求按月统计销售额，需要查询数据库中的业务数据并聚合计算'
+[intent_eval] >>> 开始 i=5/60 expected=text2sql_query category='排名' q='Top10产品销售额'
+[intent_eval] <<< 结束 i=5/60 [OK] pred=text2sql_query latency_ms=687 conf=0.950 reasoning='用户需要查询本库业务数据中Top10产品的具体销售额，应由数据库查询给出数值结果。'
+[intent_eval] >>> 开始 i=6/60 expected=text2sql_query category='平均' q='平均客单价'
+[intent_eval] <<< 结束 i=6/60 [OK] pred=text2sql_query latency_ms=4194 conf=0.920 reasoning='平均客单价是业务数据指标，需要查询数据库中的订单或交易表进行聚合计算。'
+[intent_eval] >>> 开始 i=7/60 expected=text2sql_query category='分组' q='各渠道转化率'
+[intent_eval] <<< 结束 i=7/60 [OK] pred=text2sql_query latency_ms=9248 conf=0.950 reasoning='用户询问各渠道转化率，需要从数据库中查询业务数据并计算聚合统计。'
+[intent_eval] >>> 开始 i=8/60 expected=text2sql_query category='对比' q='同比去年增长了多少'
+[intent_eval] <<< 结束 i=8/60 [OK] pred=text2sql_query latency_ms=31387 conf=0.950 reasoning='用户询问同比去年增长的具体数值，需要查询业务数据库中的历史数据来计算增长率。'
+[intent_eval] >>> 开始 i=9/60 expected=text2sql_query category='对比' q='环比上月增长多少'
+[intent_eval] <<< 结束 i=9/60 [OK] pred=text2sql_query latency_ms=2966 conf=0.950 reasoning='用户询问环比上月增长，需要查询本库业务数据的具体数值和趋势，应由数据库查询给出答案。'
+[intent_eval] >>> 开始 i=10/60 expected=text2sql_query category='趋势' q='本周每日新增用户数'
+[intent_eval] <<< 结束 i=10/60 [OK] pred=text2sql_query latency_ms=8142 conf=0.950 reasoning='需要查询本库业务数据中本周每日新增用户数的具体数值'
+[intent_eval] >>> 开始 i=11/60 expected=text2sql_query category='金额' q='上周退款金额'
+[intent_eval] <<< 结束 i=11/60 [OK] pred=text2sql_query latency_ms=8275 conf=0.950 reasoning='用户询问上周退款金额，需要查询业务数据库获取具体数值'
+[intent_eval] >>> 开始 i=12/60 expected=text2sql_query category='多指标' q='昨天的订单量和销售额'
+[intent_eval] <<< 结束 i=12/60 [OK] pred=text2sql_query latency_ms=11439 conf=0.950 reasoning='用户需要查询本库业务数据的具体数值（订单量和销售额），应由数据库查询给出答案。'
+[intent_eval] >>> 开始 i=13/60 expected=text2sql_query category='比率' q='近30天复购率'
+[intent_eval] <<< 结束 i=13/60 [OK] pred=text2sql_query latency_ms=8939 conf=0.950 reasoning='用户询问近30天复购率，需要查询业务数据库中的订单或用户行为数据来计算该指标。'
+[intent_eval] >>> 开始 i=14/60 expected=text2sql_query category='排名' q='哪个产品卖得最好'
+[intent_eval] <<< 结束 i=14/60 [OK] pred=text2sql_query latency_ms=7681 conf=0.950 reasoning='用户询问哪个产品销量最高，需要查询业务数据库获取具体排名数据'
+[intent_eval] >>> 开始 i=15/60 expected=text2sql_query category='排名' q='哪个渠道贡献最大'
+[intent_eval] <<< 结束 i=15/60 [OK] pred=text2sql_query latency_ms=9439 conf=0.920 reasoning='用户询问哪个渠道贡献最大，需要查询本库业务数据中的渠道贡献排名，应由数据库查询给出具体数值结果。'
+[intent_eval] >>> 开始 i=16/60 expected=text2sql_query category='趋势' q='本季度销售额趋势'
+[intent_eval] <<< 结束 i=16/60 [OK] pred=text2sql_query latency_ms=15437 conf=0.950 reasoning='用户询问本季度销售额趋势，需要从数据库中查询具体数值和变化趋势'
+[intent_eval] >>> 开始 i=17/60 expected=text2sql_query category='模糊-数据' q='看一下昨天的数据'
+[intent_eval] <<< 结束 i=17/60 [OK] pred=text2sql_query latency_ms=18353 conf=0.950 reasoning='用户要求查看昨天的数据，需要从数据库中查询具体数值或表格结果。'
+[intent_eval] >>> 开始 i=18/60 expected=text2sql_query category='趋势' q='过去一年每月订单数'
+[intent_eval] <<< 结束 i=18/60 [OK] pred=text2sql_query latency_ms=45367 conf=0.950 reasoning='用户需要查询过去一年每月订单数的具体数值，属于业务数据聚合统计，应由数据库查询给出结果。'
+[intent_eval] >>> 开始 i=19/60 expected=text2sql_query category='分组' q='按城市分组统计订单数'
+[intent_eval] <<< 结束 i=19/60 [OK] pred=text2sql_query latency_ms=8669 conf=0.950 reasoning='用户要求按城市分组统计订单数，属于本库业务数据的聚合统计，需要数据库查询返回结果'
+[intent_eval] >>> 开始 i=20/60 expected=text2sql_query category='趋势' q='用户增长趋势'
+[intent_eval] <<< 结束 i=20/60 [OK] pred=text2sql_query latency_ms=9156 conf=0.920 reasoning='用户询问用户增长趋势，需要查询本库业务数据中的用户数量变化，应由数据库查询给出具体数值和趋势'
+[intent_eval] >>> 开始 i=21/60 expected=rag_search category='概念' q='什么是RAG'
+[intent_eval] <<< 结束 i=21/60 [OK] pred=rag_search latency_ms=6822 conf=0.920 reasoning='用户询问RAG概念，在本产品中RAG是核心功能之一，需要检索项目内部文档来准确回答其定义、原理及在本仓库中的实现方式。'
+[intent_eval] >>> 开始 i=22/60 expected=rag_search category='概念' q='MCP 是什么'
+[intent_eval] <<< 结束 i=22/60 [OK] pred=rag_search latency_ms=8171 conf=0.850 reasoning='MCP 可能是项目内部文档中定义的术语或规范，需要检索知识库确认其含义。'
+[intent_eval] >>> 开始 i=23/60 expected=rag_search category='对比' q='ReAct 和 Plan-and-Execute 区别'
+[intent_eval] <<< 结束 i=23/60 [OK] pred=rag_search latency_ms=1635 conf=0.850 reasoning='ReAct 和 Plan-and-Execute 是项目内可能涉及的 Agent 架构概念，需检索内部文档或知识库中的定义与对比说明。'
+[intent_eval] >>> 开始 i=24/60 expected=rag_search category='如何' q='怎么优化向量检索'
+[intent_eval] <<< 结束 i=24/60 [OK] pred=rag_search latency_ms=8398 conf=0.920 reasoning='向量检索优化涉及项目内文档、实现细节与最佳实践，需检索内部知识库。'
+[intent_eval] >>> 开始 i=25/60 expected=rag_search category='为什么' q='为什么检索不准'
+[intent_eval] <<< 结束 i=25/60 [OK] pred=rag_search latency_ms=9674 conf=0.900 reasoning='用户询问检索不准的原因，属于项目内文档/知识库的检索效果问题，需要查阅内部文档或规范来回答。'
+[intent_eval] >>> 开始 i=26/60 expected=rag_search category='概念' q='Text2SQL 的原理是什么'
+[intent_eval] <<< 结束 i=26/60 [OK] pred=rag_search latency_ms=9420 conf=0.900 reasoning='用户询问 Text2SQL 的原理，属于项目内文档/知识库应涵盖的概念说明，需检索内部资料以对齐口径。'
+[intent_eval] >>> 开始 i=27/60 expected=rag_search category='如何' q='怎么部署这个项目'
+[intent_eval] <<< 结束 i=27/60 [OK] pred=rag_search latency_ms=983 conf=0.950 reasoning='用户询问如何部署本项目，需要检索项目内文档中的部署说明、环境配置等资料。'
+[intent_eval] >>> 开始 i=28/60 expected=rag_search category='文档' q='这个项目的目录结构是怎样的'
+[intent_eval] <<< 结束 i=28/60 [OK] pred=rag_search latency_ms=1108 conf=0.950 reasoning='用户询问项目目录结构，需要检索项目内部文档来回答'
+[intent_eval] >>> 开始 i=29/60 expected=rag_search category='规范' q='如何写一份 _tech_graph 的流程图'
+[intent_eval] <<< 结束 i=29/60 [OK] pred=rag_search latency_ms=1119 conf=0.950 reasoning='用户询问如何写 _tech_graph 的流程图，这属于项目内部文档/规范，需要检索仓库内相关说明。'
+[intent_eval] >>> 开始 i=30/60 expected=rag_search category='规范' q='Supabase 失败时应该返回什么错误码'
+[intent_eval] <<< 结束 i=30/60 [OK] pred=rag_search latency_ms=2214 conf=0.950 reasoning='问题涉及本项目中 Supabase 的错误处理约定，需检索内部文档'
+[intent_eval] >>> 开始 i=31/60 expected=rag_search category='方法' q='如何做意图缓存（LRU+TTL）'
+[intent_eval] <<< 结束 i=31/60 [OK] pred=rag_search latency_ms=8119 conf=0.920 reasoning='意图缓存（LRU+TTL）属于项目内实现细节/架构说明，需检索仓库文档'
+[intent_eval] >>> 开始 i=32/60 expected=rag_search category='概念' q='什么是 macro-F1'
+[intent_eval] <<< 结束 i=32/60 [OK] pred=rag_search latency_ms=8404 conf=0.900 reasoning='macro-F1 属于评测指标，在本产品中需检索项目内文档以对齐口径与实现细节'
+[intent_eval] >>> 开始 i=33/60 expected=rag_search category='概念' q='如何计算 confusion matrix'
+[intent_eval] <<< 结束 i=33/60 [OK] pred=rag_search latency_ms=3955 conf=0.900 reasoning='用户询问如何计算 confusion matrix，属于评测指标，应检索项目内文档说明'
+[intent_eval] >>> 开始 i=34/60 expected=rag_search category='文档' q='这份任务单的 P1 目标是什么'
+[intent_eval] <<< 结束 i=34/60 [OK] pred=rag_search latency_ms=4098 conf=0.950 reasoning='用户询问任务单的 P1 目标，属于项目内部文档内容，需检索知识库获取具体信息。'
+[intent_eval] >>> 开始 i=35/60 expected=rag_search category='原因' q='为什么 CI 默认要走 stub'
+[intent_eval] <<< 结束 i=35/60 [OK] pred=rag_search latency_ms=2947 conf=0.920 reasoning='用户询问 CI 默认走 stub 的原因，属于项目内工程约束/规范，需检索内部文档说明'
+[intent_eval] >>> 开始 i=36/60 expected=rag_search category='方法' q='如何做性能基准的 P50/P95'
+[intent_eval] <<< 结束 i=36/60 [XX] pred=direct_answer latency_ms=65268 conf=0.600 reasoning='意图识别超时，降级到 V1 规则路由。'
+[intent_eval] >>> 开始 i=37/60 expected=rag_search category='选型' q='RAG 检索的 topk 该怎么选'
+[intent_eval] <<< 结束 i=37/60 [OK] pred=rag_search latency_ms=1311 conf=0.920 reasoning='用户询问RAG检索的topk参数选择，属于项目内文档/知识库中的配置说明，需要检索内部规范或最佳实践。'
+[intent_eval] >>> 开始 i=38/60 expected=rag_search category='设计' q='为什么要区分 direct_answer 和 rag_search'
+[intent_eval] <<< 结束 i=38/60 [XX] pred=direct_answer latency_ms=65056 conf=0.600 reasoning='意图识别超时，降级到 V1 规则路由。'
+[intent_eval] >>> 开始 i=39/60 expected=rag_search category='概念' q='LangChain 的 long-term memory 是什么'
+[intent_eval] <<< 结束 i=39/60 [OK] pred=rag_search latency_ms=11487 conf=0.850 reasoning='用户询问 LangChain 的 long-term memory 概念，属于项目内文档/知识库可检索的技术概念，需查内部资料以对齐口径。'
+[intent_eval] >>> 开始 i=40/60 expected=rag_search category='代码' q='这个仓库的 intent_router 做了什么'
+[intent_eval] <<< 结束 i=40/60 [OK] pred=rag_search latency_ms=2626 conf=0.950 reasoning='用户询问仓库内intent_router的功能，属于项目内部文档/架构说明，需检索知识库回答。'
+[intent_eval] >>> 开始 i=41/60 expected=direct_answer category='翻译' q='翻译：Hello'
+[intent_eval] <<< 结束 i=41/60 [OK] pred=direct_answer latency_ms=7673 conf=0.950 reasoning='翻译任务不依赖内部数据或文档，直接完成即可。'
+[intent_eval] >>> 开始 i=42/60 expected=direct_answer category='翻译' q='把这段英文翻译成中文：How are you?'
+[intent_eval] <<< 结束 i=42/60 [OK] pred=direct_answer latency_ms=7006 conf=0.950 reasoning='翻译任务不依赖内部数据或文档，可直接完成。'
+[intent_eval] >>> 开始 i=43/60 expected=direct_answer category='润色' q='润色这段话：今天工作很忙'
+[intent_eval] <<< 结束 i=43/60 [OK] pred=direct_answer latency_ms=60599 conf=0.600 reasoning='意图识别超时，降级到 V1 规则路由。'
+[intent_eval] >>> 开始 i=44/60 expected=direct_answer category='写作' q='帮我写周报，包含本周进展和下周计划'
+[intent_eval] <<< 结束 i=44/60 [OK] pred=direct_answer latency_ms=9659 conf=0.950 reasoning='写周报属于文本创作任务，不依赖内部数据或文档，可直接完成。'
+[intent_eval] >>> 开始 i=45/60 expected=direct_answer category='写作' q='写一封请假邮件，语气正式'
+[intent_eval] <<< 结束 i=45/60 [OK] pred=direct_answer latency_ms=9996 conf=0.950 reasoning='用户要求写一封正式请假邮件，属于文本创作任务，不依赖内部数据或文档。'
+[intent_eval] >>> 开始 i=46/60 expected=direct_answer category='代码' q='用 Python 写快排'
+[intent_eval] <<< 结束 i=46/60 [OK] pred=direct_answer latency_ms=1667 conf=0.950 reasoning='用户要求编写快速排序算法，属于通用编程任务，不依赖项目内部数据或文档。'
+[intent_eval] >>> 开始 i=47/60 expected=direct_answer category='解释' q='解释一下量子计算，用通俗语言'
+[intent_eval] <<< 结束 i=47/60 [OK] pred=direct_answer latency_ms=8555 conf=0.880 reasoning='用户要求用通俗语言解释量子计算，与项目内部文档无关，属于通用知识科普。'
+[intent_eval] >>> 开始 i=48/60 expected=direct_answer category='创意' q='头脑风暴：新产品 idea 5 个'
+[intent_eval] <<< 结束 i=48/60 [OK] pred=direct_answer latency_ms=7838 conf=0.950 reasoning='头脑风暴新产品创意属于创作类任务，不依赖内部数据或文档，可直接回答。'
+[intent_eval] >>> 开始 i=49/60 expected=direct_answer category='总结' q='总结下面这段话：……'
+[intent_eval] <<< 结束 i=49/60 [OK] pred=direct_answer latency_ms=9863 conf=0.950 reasoning='用户要求总结一段文本，属于文本处理任务，不依赖内部数据或文档。'
+[intent_eval] >>> 开始 i=50/60 expected=direct_answer category='代码' q="给这段代码加注释：print('hi')"
+[intent_eval] <<< 结束 i=50/60 [OK] pred=direct_answer latency_ms=8213 conf=0.950 reasoning='用户要求给代码加注释，属于代码润色/生成任务，不依赖内部文档或数据'
+[intent_eval] >>> 开始 i=51/60 expected=rag_search category='多轮-指代' q='它有什么缺点'
+[intent_eval] <<< 结束 i=51/60 [OK] pred=rag_search latency_ms=8387 conf=0.900 reasoning='用户问RAG的缺点，属于项目内文档/知识库的概念解释，应检索内部资料'
+[intent_eval] >>> 开始 i=52/60 expected=rag_search category='多轮-省略' q='那怎么优化'
+[intent_eval] <<< 结束 i=52/60 [OK] pred=rag_search latency_ms=1634 conf=0.900 reasoning='用户询问向量检索优化方法，需检索项目内文档或知识库中的相关策略与最佳实践'
+[intent_eval] >>> 开始 i=53/60 expected=direct_answer category='多轮-改写' q='改成更正式一点'
+[intent_eval] <<< 结束 i=53/60 [OK] pred=direct_answer latency_ms=3722 conf=0.950 reasoning='用户要求改写语气，属于润色任务，不依赖内部数据或文档'
+[intent_eval] >>> 开始 i=54/60 expected=direct_answer category='多轮-续写' q='再给我 3 个点子'
+[intent_eval] <<< 结束 i=54/60 [OK] pred=direct_answer latency_ms=10766 conf=0.950 reasoning='用户要求继续头脑风暴，属于创意生成，不依赖内部数据或文档'
+[intent_eval] >>> 开始 i=55/60 expected=direct_answer category='多轮-扩写' q='把第 2 个展开说说'
+[intent_eval] <<< 结束 i=55/60 [OK] pred=direct_answer latency_ms=3057 conf=0.920 reasoning='用户要求展开上一条回复中的第2条学习建议，属于续写/扩展，不依赖内部数据或文档。'
+[intent_eval] >>> 开始 i=56/60 expected=rag_search category='多轮-澄清' q='那需要查数据库吗'
+[intent_eval] <<< 结束 i=56/60 [OK] pred=rag_search latency_ms=12869 conf=0.860 reasoning='用户在上文讨论查库后询问是否需要查数据库，属于产品路由说明，应检索文档确认'
+[intent_eval] >>> 开始 i=57/60 expected=direct_answer category='多轮-示例' q='那你给个 SQL 示例'
+[intent_eval] <<< 结束 i=57/60 [OK] pred=direct_answer latency_ms=8313 conf=0.900 reasoning='用户要求给出SQL示例，属于代码生成任务，不依赖内部数据或文档。'
+[intent_eval] >>> 开始 i=58/60 expected=rag_search category='多轮-定位' q='那份文档在哪'
+[intent_eval] <<< 结束 i=58/60 [OK] pred=rag_search latency_ms=13803 conf=0.950 reasoning='用户询问部署文档的位置，需要检索项目内部文档来回答'
+[intent_eval] >>> 开始 i=59/60 expected=direct_answer category='多轮-生成' q='顺便给我一个性能压测脚本'
+[intent_eval] <<< 结束 i=59/60 [OK] pred=direct_answer latency_ms=8084 conf=0.920 reasoning='用户要求生成一个性能压测脚本，属于代码生成任务，不依赖内部文档即可完成。'
+[intent_eval] >>> 开始 i=60/60 expected=direct_answer category='多轮-生成' q='再补 10 条测试用例'
+[intent_eval] <<< 结束 i=60/60 [OK] pred=direct_answer latency_ms=2607 conf=0.900 reasoning='用户要求补充测试用例，属于创作/生成任务，不依赖内部数据或文档。'
+[intent_eval] 写入 JSONL/CSV …（60 条）
+[intent_eval]    … JSONL 进度 15/60
+[intent_eval]    … JSONL 进度 30/60
+[intent_eval]    … JSONL 进度 45/60
+[intent_eval]    … JSONL 进度 60/60
+[intent_eval] JSONL 完成：3ms，约 47638 bytes -> /Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tests/_out/intent_llm_20260507_160444_p1d_live.jsonl
+[intent_eval] CSV 完成：1ms，约 12055 bytes -> /Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tests/_out/intent_llm_20260507_160444_p1d_live.csv
+[intent_eval] 计算 macro-F1 / 混淆矩阵 …
+[intent_eval] 汇总完成，交还 pytest 打印报告
+[intent_eval] 正在打印 Intent Accuracy Summary …
+Intent Accuracy Summary
+- n: 60, ok: 58, acc: 0.967
+- macro_f1: 0.966
+- per_class_f1:
+  - text2sql_query: 1.000
+  - rag_search: 0.957
+  - direct_answer: 0.941
+- jsonl: /Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tests/_out/intent_llm_20260507_160444_p1d_live.jsonl
+- csv: /Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tests/_out/intent_llm_20260507_160444_p1d_live.csv
+- confusion_matrix (expected -> predicted):
+  - rag_search: text2sql_query=0, rag_search=22, direct_answer=2
+  - text2sql_query: text2sql_query=20, rag_search=0, direct_answer=0
+  - direct_answer: text2sql_query=0, rag_search=0, direct_answer=16
+- top_misjudgments (最多 10 条，按 confidence 降序):
+  - i=36 expected=rag_search actual=direct_answer conf=0.600 q='如何做性能基准的 P50/P95' reasoning='意图识别超时，降级到 V1 规则路由。'
+  - i=38 expected=rag_search actual=direct_answer conf=0.600 q='为什么要区分 direct_answer 和 rag_search' reasoning='意图识别超时，降级到 V1 规则路由。'
+PASSED
+
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+  /Users/cyning/.pyenv/versions/3.11.15/lib/python3.11/site-packages/supabase/_sync/client.py:309: DeprecationWarning: The 'timeout' parameter is deprecated. Please configure it in the http client instead.
+    return SyncPostgrestClient(
+
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+tests/test_intent_agent_accuracy.py::test_intent_agent_accuracy_smoke
+  /Users/cyning/.pyenv/versions/3.11.15/lib/python3.11/site-packages/supabase/_sync/client.py:309: DeprecationWarning: The 'verify' parameter is deprecated. Please configure it in the http client instead.
+    return SyncPostgrestClient(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 1 passed, 3 deselected, 9 warnings in 643.46s (0:10:43) ============
