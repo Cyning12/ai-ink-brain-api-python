@@ -391,7 +391,7 @@ CHATBI_USE_AGENT=false  # 降级到 V1
 ### 8.6 与 `agent.think` / `assistant.message` 的关系
 
 - **`agent.think`**：**仅摘要**；出现在 **`agent.llm.end` 之后**（同一步内）。  
-- **`assistant.message`**：**最终答案唯一真相源**（成功路径全文）；右栏 delta 为过程展示，**须可对齐** `assistant.message.content`（归一化规则由实现 + 单测固定）。
+- **`assistant.message`**：**最终答案唯一真相源**（成功路径全文）；右栏 **执行链路** 中各 **`agent.llm.*` 段内** delta 为过程展示，**同一 phase（如最终作答段）内宜可对齐** `assistant.message.content`（归一化规则由实现 + 单测固定）；**跨 phase** 右栏全文 **不要求** 与最终答案逐字一致 — 见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` §8.4**。
 
 ### 8.7 流式失败与 `done`
 

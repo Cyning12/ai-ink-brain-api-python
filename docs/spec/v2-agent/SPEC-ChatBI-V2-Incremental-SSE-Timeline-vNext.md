@@ -29,7 +29,7 @@
 
 ### 1.3 目标（产品一句话）
 
-**每一步**（Intent 判定、单步 ReAct、工具执行边界、各 LLM 调用）在 **时间轴上可即时感知**；凡 **调用 LLM** 的环节，**均以 SSE 增量输出**；**默认布局为左右双栏**（见 **§3.2 方案 B**）：**左侧** 为 **Timeline**（链路 / `chain` 语义与当前对齐，便于对照），**右侧** 专收 **流式正文 / LLM delta** 与当前子步骤标题；**本版不考虑移动端专适**（桌面优先验收）。
+**每一步**（Intent 判定、单步 ReAct、工具执行边界、各 LLM 调用）在 **时间轴上可即时感知**；凡 **调用 LLM** 的环节，**均以 SSE 增量输出**；**默认布局为左右双栏**（见 **§3.2 方案 B**）：**左侧** 为 **Timeline**（`ChainTimeline`，链路 / `chain` 语义与当前对齐，便于对照），**右侧** 为 **执行链路**（按 phase 分段的 LLM 正文 + router / intent / think / tool 等一行摘要，**不**与左侧重复 Timeline）；**本版不考虑移动端专适**（桌面优先验收）。
 
 ---
 
@@ -41,7 +41,7 @@
 |----|------|
 | **后端** | `unified_chat` Agent SSE：**在 `agent.run` 执行过程中**即下发 `chain`（及约定的 LLM delta 事件）；必要时重构 `ChatBIAgent.run` 为 **可增量汇报** 的接口（见 §4）。 |
 | **契约** | 扩展或复用 SSE `event` / `chain.type`；更新 **`docs/_tech_graph/_contract_manifest.json`** 与 **`SPEC-ChatBI-V2-Events.md`**；CI `tech_graph_contract_check` 同步。 |
-| **前端** | `UnifiedChatPageClient`（及 `ChainTimeline` / 相关组件）：**边收边渲染**；**默认左右双栏**（左 Timeline、右流式）；**未知事件类型** 仍须容错（策略 B）。 |
+| **前端** | `UnifiedChatPageClient`（及 `ChainTimeline` / 相关组件）：**边收边渲染**；**默认左右双栏**（左 Timeline、右 **执行链路**）；**未知事件类型** 仍须容错（策略 B）。 |
 | **BFF** | `ai-ink-brain` 对 `/api/py/unified/chat/stream` **继续透传 body**，**禁止** `await upstream.text()` 吞流（与既有任务单一致）。 |
 
 ### 2.2 非范围（本 SPEC 不强制）
@@ -61,10 +61,10 @@
 - **用途**：作为 **数据与状态机内核**；当用户 **显式关闭双栏**（非默认）时，页面 **回退为单栏** 仅展示本 Timeline（流式区可折叠、合并或隐藏，实现阶段定稿）。  
 - **风险**：单栏模式下事件密度高时 **可读性** 下降，可后续加折叠/聚合。
 
-### 3.2 方案 B（默认布局）：左右双栏 —「Timeline」+「流式视图」
+### 3.2 方案 B（默认布局）：左右双栏 —「Timeline」+「执行链路」
 
-- **左侧**：**Timeline**（`chain` 语义与当前 V2 对齐，用于 **对照 / 排障**）。  
-- **右侧**：**仅展示** 由 **`agent.llm.delta`** 拼接的流式正文及 **当前子步骤标题**（与 §5 契约一致；**不**依赖顶层 `event: token`）。  
+- **左侧**：**Timeline**（`ChainTimeline`，`chain` 按 SSE **到达序** 全量展示，用于 **对照 / 排障**）。  
+- **右侧**：**执行链路**（可读摘要，**非**第二份 Timeline）：**Query** + 按 SSE 顺序的 **`step-1` / `step-2` / …** 叙事块；每段 **`agent.llm.start` … `agent.llm.delta*` … `agent.llm.end`** **仅在该 phase 内**拼接正文（**禁止**跨 phase 把所有 `agent.llm.delta` 混成一段）；并穿插 **`router.decision` / `agent.intent` / `agent.think` / `tool.call.*` / `error` / `agent.llm.truncated`** 等一行摘要。**不在右栏重复** `ChainTimeline`（避免与左侧重复）。  
 - **布局**：**仅采用左右分栏**（不采用上下分栏作为默认或等价替代）。  
 - **移动端**：**本版不在验收范围内**（不要求小屏断点、触控专适；实现可固定最小宽度或保留横向滚动，但不强制「可用性达标」）。
 
@@ -152,7 +152,8 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 | 项 | 要求 |
 |----|------|
 | **解析** | 维持 **`\n\n` 分帧**；**单帧 JSON 损坏** 时跳过并计数，不白屏（见 §5.4 坏例）。 |
-| **Timeline** | **增量 append**；**v1 不要求** 按 `step_id` **聚合** delta（留 v2）；右栏可直接拼接 `agent.llm.delta.text`。 |
+| **Timeline** | **增量 append**；**v1 不要求** 按 `step_id` **聚合** delta（留 v2）。 |
+| **执行链路（右栏）** | 由 `events` **派生**（`useMemo` 等）：按 §3.2 规则生成 **Query + step 叙事**；**不**复制左侧 `ChainTimeline`；高频更新可 **`requestAnimationFrame`** 合并 `setState`（与 §6「性能」行一致）。 |
 | **双栏** | **默认**左右分栏；**单栏**为可选降级（非默认）。任一排版下 **不阻塞** `done` 解锁输入。 |
 | **布局开关（无 NEXT_PUBLIC_）— 产品目标** | **目标行为**：**仅** `?single_panel=1`（首屏）与 **`localStorage`** 键 **`ink-brain.chatbi.unified.singlePanel`**（`"1"` / `"0"`）；**后端无感**，**不**增加 Python 侧 query/header 依赖。**当前 `ai-ink-brain` 实现真值**见 **§6.1**（与目标有差异时以 §6.1 为准，直至后续 PR 对齐）。 |
 | **版本协商** | Unified Chat 前端 **必须** 对 stream 请求携带 **`X-ChatBI-Sse-Contract: 2`**（见 §9）；BFF **原样透传**该头。 |
@@ -163,7 +164,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 | 维度 | 内容 |
 |------|------|
 | **产品目标（§3.2 / §6 上表）** | 默认 **左右双栏**；**可选单栏**：`?single_panel=1` 与 **`localStorage`** `ink-brain.chatbi.unified.singlePanel`（`"1"` / `"0"`）控制折叠为 §3.1 单栏式排障。 |
-| **`ai-ink-brain` 当前真值** | `UnifiedChatPageClient` 主区 **固定** `grid-cols-2`（左 Timeline、右 LLM 增量）；**未**读取 `single_panel` query、**未**读写上述 **`localStorage`** 键；**无**勾选/持久化 UI 切换单双栏（避免与「始终左右对照」诉求冲突）。代码注释约 **L650** 一带写明「不再用 LS/勾选切换」。 |
+| **`ai-ink-brain` 当前真值** | `UnifiedChatPageClient` 主区 **固定** `grid-cols-2`（左 **`ChainTimeline`**、右 **执行链路** 摘要区）；右栏 **不**再嵌套第二份 Timeline；**未**读取 `single_panel` query、**未**读写上述 **`localStorage`** 键；**无**勾选/持久化 UI 切换单双栏。实现入口：`buildExecutionTraceSections` + 右栏区块（与 **§3.2** 一致）。 |
 | **后端** | 不受影响；§9.2 / §9.3 仍成立（布局开关**本就不**经 Python）。 |
 | **后续对齐** | 若产品仍要 **query + LS** 与 SPEC 原文一致，在 **`ai-ink-brain`** 单独 PR 接线并回填本任务单验收；届时可删或收窄本节「差异」表述。 |
 
@@ -193,7 +194,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 ### 7.5 其它产品验收（阻断）
 
-- [ ] **Intent LLM**（真实 LLM 可选，见任务单 **mock vs LLM**）：左栏 Timeline + 右栏可见 **`agent.llm.delta`** 或 **`agent.llm.start`** 占位。  
+- [ ] **Intent LLM**（真实 LLM 可选，见任务单 **mock vs LLM**）：左栏 Timeline 可见完整 `chain`；右栏 **执行链路** 在对应 **`step-*`** 下可见 **intent** 段 `agent.llm.*`（start / 正文 / end）或等价占位。  
 - [ ] **RAG / Text2SQL / Direct**：**CI 以 mock/stub 流为准**；至少一条路径在 mock 下验证 delta 序列；**真实 LLM** 走 **release / staging checklist**（与任务单统一一句）。  
 - [ ] **契约**：合并实现 PR 时 `_contract_manifest.json` 与 **前端类型** 同步；`tech_graph_contract_check` **通过**。  
 - [ ] **布局**：**默认**左右双栏；**单栏降级**（query/LS，见 §6）不改变 `assistant.message` 与 `done` 语义。**当前前端**若尚未接线单栏，见 **§6.1**，本项中「单栏降级」可对 **首版** 标为 **N/A** 或拆子项验收。
@@ -224,12 +225,12 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 - **须**发出 **`agent.llm.end`**，`payload.ok: false`，并可跟 **`error`** `chain`。  
 - **`done`**：**仍须**到达（`ok` 与业务一致）；**`assistant.message`** 可为 **空**、**部分**（已生成片段）或 **错误提示全文** — 三者择一须在 Events §8 与实现一致并写入测试。  
-- **右栏**：展示至失败点为止的 delta；不强制清空。
+- **右栏（执行链路）**：对应 **LLM 子段** 展示至失败点为止的正文；不强制清空；**不**要求右栏与 `assistant.message` 实时逐字一致（真相源仍 §8.4）。
 
 ### 8.4 双写与真相源（全文）
 
 - **用户可见最终答案**以 **`assistant.message`**（`chain`）为 **唯一产品真相源**。  
-- **右栏** delta 拼接为 **过程态**；在 **成功路径** 上，拼接结果 **须与** `assistant.message.content` **一致**（允许末尾空白归一化差异，须在测试中固定规则）。
+- **右栏** 各 **`agent.llm.*` 段内** 拼接为 **过程态**；在 **成功路径** 上，**同一 phase 内** delta 拼接与最终 **`assistant.message.content`** **宜一致**（允许末尾空白归一化差异，须在测试中固定规则）；**跨 phase** 的右栏全文 **不要求** 与最终答案逐字对齐（避免 intent 提示与 direct 正文混读）。
 
 ### 8.5 背压触顶与可观测字段
 
@@ -286,6 +287,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 | 日期 | 说明 |
 |------|------|
+| 2026-05-09 | **§3.2 / §6 / §6.1 / §7.5 / §8.3–8.4**：右栏由「全量 delta 一锅端」改为 **执行链路**（Query + `step-*`、**按 phase** 拼接 LLM；router / intent / think / tool 等穿插）；**移除**右栏嵌套第二份 Timeline；与 `UnifiedChatPageClient`（`buildExecutionTraceSections`）对齐 |
 | 2026-05-08 | **§6.1**：登记 `ai-ink-brain` Unified Chat **固定双栏**与 **`single_panel` + `localStorage`** 产品目标的**实现差异**；§6 布局开关行改为「产品目标 + §6.1 真值」；§3.2 / §9.3 交叉引用 |
 | 2026-05-08（晚） | 文首 **状态** 与 §5「终稿」及澄清简报 §9 **对齐**（不再标 `draft`）；§8.1 增补 **DB id ↔ step_id** 为 **实现 PR 填空、非阻断** |
 | 2026-05-08 | 终稿化：§0 执行顺序；§5 **chain-only** LLM 契约 + 最小 JSON；§7 可测验收 + 白名单；§8.1–8.7；§9 降级矩阵；章节 **§10** 任务 / **§11** 修订；`CHATBI_SSE_INCREMENTAL` + `X-ChatBI-Sse-Contract: 2`；manifest `_note` 约束「代码同 PR」 |
