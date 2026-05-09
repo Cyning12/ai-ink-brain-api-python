@@ -1,7 +1,7 @@
 # ChatBI V2 Agent 架构 —— SPEC 文档目录
 
 > **状态**：总规 **§7.4 / §7.5** 已与实现对齐（2026-05-07）；子规仍可能各自标 `draft`  
-> **日期**：2026-04-27（目录修订：2026-05-08；**vNext 交互 SPEC（终稿）** 见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；**吸收索引** 见 `SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md`）
+> **日期**：2026-04-27（目录修订：2026-05-08；**2026-05-09** — 新增 `SPEC-ChatBI-V2-Multiturn-Semantics.md`；**vNext 交互 SPEC（终稿）** 见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；**吸收索引** 见 `SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md`）
 
 ---
 
@@ -16,6 +16,7 @@ docs/spec/v2-agent/
 ├── SPEC-ChatBI-V2-Tool-Design.md          # 子规：Tool 接口与封装
 ├── SPEC-ChatBI-V2-ReAct-Loop.md           # 子规：ReAct 循环详细设计
 ├── SPEC-ChatBI-V2-Memory.md               # 子规：记忆管理设计
+├── SPEC-ChatBI-V2-Multiturn-Semantics.md  # 子规：多轮语义承接（指代 / rewrite / 与 §2.6 边界）
 ├── SPEC-ChatBI-V2-Events.md               # 子规：事件流兼容设计
 ├── SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md  # 下一版：增量 SSE + LLM 流式 + Timeline/双栏
 └── SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md  # vNext：澄清简报（吸收索引；真值见 Timeline + Events §8）
@@ -28,10 +29,11 @@ docs/spec/v2-agent/
 1. **SPEC-ChatBI-V2-Agent-Overview.md** — 先读总规，理解架构目标和模块关系
 2. **SPEC-ChatBI-V2-Tool-Design.md** — 再读 Tool 设计，理解如何复用 V1
 3. **SPEC-ChatBI-V2-ReAct-Loop.md** — 再读 ReAct 循环，理解 Agent 核心逻辑
-4. **SPEC-ChatBI-V2-Memory.md** — 再读记忆管理，理解多轮对话
-5. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容  
-6. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE、Timeline/双栏（**在 V2 里程碑暂结之后**排期）  
-7. **SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md** — vNext **吸收索引**（不明点已收口；**优先读 Timeline §0**）
+4. **SPEC-ChatBI-V2-Memory.md** — 再读记忆管理，理解多轮对话（存储与窗口）
+5. **SPEC-ChatBI-V2-Multiturn-Semantics.md** — 多轮**语义**承接（与 §2.6 传输层解耦；追问 / 指代 / rewrite）
+6. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容  
+7. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE、Timeline/双栏（**在 V2 里程碑暂结之后**排期）  
+8. **SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md** — vNext **吸收索引**（不明点已收口；**优先读 Timeline §0**）
 
 ---
 
@@ -55,6 +57,7 @@ docs/spec/v2-agent/
 - [Tool 设计与封装](SPEC-ChatBI-V2-Tool-Design.md)
 - [ReAct 循环详细设计](SPEC-ChatBI-V2-ReAct-Loop.md)
 - [记忆管理设计](SPEC-ChatBI-V2-Memory.md)
+- [多轮对话语义承接](SPEC-ChatBI-V2-Multiturn-Semantics.md)
 - [事件流兼容设计](SPEC-ChatBI-V2-Events.md)
 - [下一版：增量 SSE 与 Timeline 实时感知](SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md)
 - [vNext：增量 SSE 澄清简报（吸收索引）](SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md)
