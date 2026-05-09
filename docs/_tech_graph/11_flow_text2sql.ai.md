@@ -73,3 +73,5 @@ flowchart TD
   class SPEC milestone
   class ERR_AUTH,OUT1,ERR_VALIDATE,ERR_EXEC,ERR_DSN err
 ```
+
+**V2 多轮锚点（2026-05-09）**：`tool_results.text2sql_grounding` → `agent_memory.load` → `history_to_rewrite_block` / Intent assistant 前缀；实现见 `api/text2sql_grounding.py`、`api/unified_chat.py::_text2sql_grounding_from_agent_result`。

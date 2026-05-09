@@ -25,6 +25,7 @@ from .rag_env import (
     supabase_client,
 )
 from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
+from .text2sql_grounding import build_text2sql_grounding_dict
 from .text2sql_store import get_text2sql_store
 from .intent_agent import IntentDecision
 from .intent_router import decide_intent
@@ -250,6 +251,27 @@ def _agent_text2sql_exec_trace(agent_result: Any) -> dict[str, Any] | None:  # n
     return None
 
 
+def _text2sql_grounding_from_agent_result(agent_result: Any) -> dict[str, Any] | None:  # noqa: ANN401
+    """成功执行的 Text2SQL 步上抽取主表/SQL 摘要，写入 tool_results.text2sql_grounding。"""
+    steps = getattr(agent_result, "steps", None)
+    if not isinstance(steps, list):
+        return None
+    for s in steps:
+        if getattr(s, "tool_used", None) != "text2sql_query":
+            continue
+        tr = getattr(s, "tool_result", None)
+        if tr is None or not bool(getattr(tr, "success", False)):
+            continue
+        data = getattr(tr, "data", None)
+        if not isinstance(data, dict):
+            continue
+        sql = data.get("sql")
+        if not isinstance(sql, str) or not sql.strip():
+            continue
+        return build_text2sql_grounding_dict(sql=sql)
+    return None
+
+
 def _debug_router_evidence_enabled() -> bool:
     return (os.getenv("DEBUG_ROUTER_EVIDENCE", "0") or "").strip().lower() in ("1", "true", "yes", "on")
 
@@ -266,6 +288,14 @@ def _router_trace_db_log_enabled() -> bool:
 
 def _debug_agent_db_log_enabled() -> bool:
     return (os.getenv("DEBUG_AGENT_DB_LOG", "0") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _debug_llm_prompts_enabled(body: dict[str, Any]) -> bool:
+    """SSE/JSON：透传完整 LLM messages（Intent + 各工具内多段 LLM）。可用 env 或请求体开启。"""
+    raw = (os.getenv("CHATBI_V2_DEBUG_LLM_PROMPTS", "") or "").strip().lower()
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    return bool(body.get("debug_llm_prompts") is True)
 
 
 def _compact_event_digest(events: list[dict[str, Any]], *, max_events: int = 64) -> list[dict[str, Any]]:
@@ -367,7 +397,7 @@ def _async_save_rag_log(payload: dict[str, Any]) -> None:
         return
 
 
-def _async_save_chatbi_v2_agent_log(
+def _sync_persist_chatbi_v2_agent_log(
     *,
     session_id: str | None,
     query: str,
@@ -375,65 +405,86 @@ def _async_save_chatbi_v2_agent_log(
     prefer: PreferMode | str,
     started_at: float,
     agent_result: AgentRunView,
-) -> None:
-    """V2 Agent 一轮结束落库：异步线程执行，避免阻塞 SSE（此前会触发 BFF body 空闲超时）。"""
+) -> dict[str, Any]:
+    """V2 Agent 一轮结束落库（同步，在线程池中执行）。返回结构化结果供 SSE done / JSON 与 error 事件使用。"""
     if not session_id:
-        return
+        return {"ok": True, "skipped": True, "reason": "no_session_id"}
+    try:
+        sb = supabase_client()
+        agent_steps_json: dict[str, Any] = {
+            "total_steps": agent_result.final.total_steps,
+            "tools_used": agent_result.final.tools_used,
+            "fallback_used": agent_result.final.fallback_used,
+            "steps": [
+                {
+                    "step_number": s.step_number,
+                    "tool_used": s.tool_used,
+                    "mode": s.mode,
+                    "success": s.success,
+                    "next_action": s.next_action,
+                    "thought": s.think_payload.get("thought"),
+                }
+                for s in agent_result.steps
+            ],
+        }
+        tool_results_json: dict[str, Any] = {
+            "results": [
+                {
+                    "tool": s.tool_used,
+                    "success": s.tool_result.success,
+                    "error_code": s.tool_result.error_code,
+                    "error_stage": s.tool_result.error_stage,
+                    "latency_ms": s.tool_result.latency_ms,
+                    "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
+                }
+                for s in agent_result.steps
+            ]
+        }
+        t2s_ground = _text2sql_grounding_from_agent_result(agent_result)
+        if t2s_ground:
+            tool_results_json["text2sql_grounding"] = t2s_ground
+        text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
+        router_trace_v1: dict[str, Any] | None = None
+        mode_local = agent_result.final.mode
+        if mode_local == "text2sql" and text2sql_exec_trace:
+            router_trace_v1 = _shrink_router_trace_v1(
+                {
+                    "v": "router_trace_v1",
+                    "ts_ms": int(time.time() * 1000),
+                    "run_id": run_id,
+                    "mode": mode_local,
+                    "prefer": "auto" if prefer == "auto" else str(prefer),
+                    "decision": {
+                        "candidate_mode": "text2sql",
+                        "final_mode": "text2sql",
+                        "fallback": None,
+                    },
+                    "timing_ms": {"total": _now_ms(started_at)},
+                    "text2sql_exec": text2sql_exec_trace,
+                }
+            )
 
-    def _sync_dual_insert() -> None:
+        payload_full = {
+            "session_id": session_id,
+            "query": query,
+            "rewritten_query": query,
+            "retrieved_context": {},
+            "response": agent_result.final.answer,
+            "metadata": {
+                "mode": agent_result.final.mode,
+                "v": "chatbi_v2_agent",
+                "router_debug": {"router_trace_v1": router_trace_v1},
+            },
+            "agent_steps": agent_steps_json,
+            "tool_results": tool_results_json,
+        }
         try:
-            sb = supabase_client()
-            agent_steps_json: dict[str, Any] = {
-                "total_steps": agent_result.final.total_steps,
-                "tools_used": agent_result.final.tools_used,
-                "fallback_used": agent_result.final.fallback_used,
-                "steps": [
-                    {
-                        "step_number": s.step_number,
-                        "tool_used": s.tool_used,
-                        "mode": s.mode,
-                        "success": s.success,
-                        "next_action": s.next_action,
-                        "thought": s.think_payload.get("thought"),
-                    }
-                    for s in agent_result.steps
-                ],
-            }
-            tool_results_json: dict[str, Any] = {
-                "results": [
-                    {
-                        "tool": s.tool_used,
-                        "success": s.tool_result.success,
-                        "error_code": s.tool_result.error_code,
-                        "error_stage": s.tool_result.error_stage,
-                        "latency_ms": s.tool_result.latency_ms,
-                        "answer": (s.tool_result.data or {}).get("answer") if s.tool_result.data else None,
-                    }
-                    for s in agent_result.steps
-                ]
-            }
-            text2sql_exec_trace = _agent_text2sql_exec_trace(agent_result)
-            router_trace_v1: dict[str, Any] | None = None
-            mode_local = agent_result.final.mode
-            if mode_local == "text2sql" and text2sql_exec_trace:
-                router_trace_v1 = _shrink_router_trace_v1(
-                    {
-                        "v": "router_trace_v1",
-                        "ts_ms": int(time.time() * 1000),
-                        "run_id": run_id,
-                        "mode": mode_local,
-                        "prefer": "auto" if prefer == "auto" else str(prefer),
-                        "decision": {
-                            "candidate_mode": "text2sql",
-                            "final_mode": "text2sql",
-                            "fallback": None,
-                        },
-                        "timing_ms": {"total": _now_ms(started_at)},
-                        "text2sql_exec": text2sql_exec_trace,
-                    }
-                )
-
-            payload_full = {
+            sb.table("rag_conversation_logs").insert(payload_full).execute()
+            return {"ok": True, "path": "full"}
+        except Exception as exc:  # noqa: BLE001
+            if _debug_agent_db_log_enabled():
+                print(f"[agent-db] insert full failed: {exc!s}", flush=True)
+            payload_fallback = {
                 "session_id": session_id,
                 "query": query,
                 "rewritten_query": query,
@@ -443,38 +494,68 @@ def _async_save_chatbi_v2_agent_log(
                     "mode": agent_result.final.mode,
                     "v": "chatbi_v2_agent",
                     "router_debug": {"router_trace_v1": router_trace_v1},
+                    "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
+                    "agent_db_fallback": True,
                 },
-                "agent_steps": agent_steps_json,
-                "tool_results": tool_results_json,
             }
             try:
-                sb.table("rag_conversation_logs").insert(payload_full).execute()
-            except Exception as exc:  # noqa: BLE001
-                if _debug_agent_db_log_enabled():
-                    print(f"[agent-db] insert full failed: {exc!s}", flush=True)
-                payload_fallback = {
-                    "session_id": session_id,
-                    "query": query,
-                    "rewritten_query": query,
-                    "retrieved_context": {},
-                    "response": agent_result.final.answer,
-                    "metadata": {
-                        "mode": agent_result.final.mode,
-                        "v": "chatbi_v2_agent",
-                        "router_debug": {"router_trace_v1": router_trace_v1},
-                        "agent": {"agent_steps": agent_steps_json, "tool_results": tool_results_json},
-                        "agent_db_fallback": True,
-                    },
-                }
                 sb.table("rag_conversation_logs").insert(payload_fallback).execute()
-        except Exception as exc:  # noqa: BLE001
-            if _debug_agent_db_log_enabled():
-                print(f"[agent-db] insert failed: {exc!s}", flush=True)
+                return {
+                    "ok": True,
+                    "path": "fallback",
+                    "full_insert_error": str(exc)[:500],
+                }
+            except Exception as exc2:  # noqa: BLE001
+                if _debug_agent_db_log_enabled():
+                    print(f"[agent-db] insert failed: {exc2!s}", flush=True)
+                return {
+                    "ok": False,
+                    "path": "fallback",
+                    "error": str(exc2)[:500],
+                    "full_insert_error": str(exc)[:500],
+                }
+    except Exception as exc:  # noqa: BLE001
+        if _debug_agent_db_log_enabled():
+            print(f"[agent-db] insert failed: {exc!s}", flush=True)
+        return {"ok": False, "path": "none", "error": str(exc)[:500]}
 
+
+async def _await_persist_chatbi_v2_agent_log(
+    *,
+    session_id: str | None,
+    query: str,
+    run_id: str,
+    prefer: PreferMode | str,
+    started_at: float,
+    agent_result: AgentRunView,
+) -> dict[str, Any]:
+    """在线程池执行落库，带总超时，避免无限挂死 SSE。"""
+    raw = (os.getenv("CHATBI_AGENT_DB_PERSIST_TIMEOUT_S", "12") or "").strip()
     try:
-        asyncio.create_task(asyncio.to_thread(_sync_dual_insert))
-    except Exception:
-        return
+        timeout_s = float(raw)
+    except Exception:  # noqa: BLE001
+        timeout_s = 12.0
+    timeout_s = max(1.0, min(timeout_s, 120.0))
+    try:
+        return await asyncio.wait_for(
+            asyncio.to_thread(
+                _sync_persist_chatbi_v2_agent_log,
+                session_id=session_id,
+                query=query,
+                run_id=run_id,
+                prefer=prefer,
+                started_at=started_at,
+                agent_result=agent_result,
+            ),
+            timeout=timeout_s,
+        )
+    except asyncio.TimeoutError:
+        return {
+            "ok": False,
+            "error": "persist_wait_timeout",
+            "timeout_s": timeout_s,
+            "hint": "Supabase 写入在超时内未完成，可能仍会在后台重试失败；会话摘要或次轮历史可能缺失",
+        }
 
 
 def _build_query_expand_event_payload(meta: dict[str, Any] | None, *, max_raw: int, max_expanded: int) -> dict[str, Any]:
@@ -625,6 +706,7 @@ async def handle_unified_chat(
     run_id = str(uuid.uuid4())
     events: list[dict[str, Any]] = []
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    debug_llm_prompts = _debug_llm_prompts_enabled(body)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
     db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
     router_trace_v1: dict[str, Any] | None = None
@@ -632,10 +714,11 @@ async def handle_unified_chat(
     t_ddl_search_ms: int | None = None
     t_fts_search_ms: int | None = None
 
-    def finish(*, ok: bool, mode: str) -> JSONResponse:
-        return JSONResponse(
-            content={"ok": ok, "run_id": run_id, "session_id": session_id, "mode": mode, "events": events}
-        )
+    def finish(*, ok: bool, mode: str, persist: dict[str, Any] | None = None) -> JSONResponse:
+        body: dict[str, Any] = {"ok": ok, "run_id": run_id, "session_id": session_id, "mode": mode, "events": events}
+        if persist is not None:
+            body["persist"] = persist
+        return JSONResponse(content=body)
 
     # CHATBI v2（Agent）主路径：开关开启时，输出 agent.* 事件
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
@@ -662,7 +745,12 @@ async def handle_unified_chat(
 
         tool_registry = get_tool_registry()
         agent = ChatBIAgent(tools=tool_registry.list_tools(), memory=get_memory_store())
-        agent_result = await agent.run(query=query, session_id=session_id, prefer=prefer)
+        agent_result = await agent.run(
+            query=query,
+            session_id=session_id,
+            prefer=prefer,
+            debug_llm_prompts=debug_llm_prompts,
+        )
 
         mode = agent_result.final.mode
         max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
@@ -711,6 +799,17 @@ async def handle_unified_chat(
                         payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
                     )
                 )
+                if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
+                    _ilp = intent_decision.raw_response.get("llm_prompts")
+                    if isinstance(_ilp, list) and _ilp:
+                        events.append(
+                            _event(
+                                typ="agent.debug.llm_prompts",
+                                started_at=started_at,
+                                step_id="intent_llm_json",
+                                payload={"scope": "intent", "items": _ilp},
+                            )
+                        )
 
             events.append(
                 _event(
@@ -727,19 +826,58 @@ async def handle_unified_chat(
                 )
             )
 
-            events.append(
-                _event(
-                    typ="tool.call.start",
-                    started_at=started_at,
-                    step_id=f"t_step{step.step_number}",
-                    payload={"tool": step.tool_used, "input": {"query": query}},
+            td = step.tool_result.data if isinstance(step.tool_result.data, dict) else {}
+            if step.tool_used == "rag_search":
+                _rw = td.get("rewritten") if isinstance(td.get("rewritten"), str) else ""
+                _rw_ms = int(td.get("rewrite_latency_ms") or 0)
+                events.append(
+                    _event(
+                        typ="tool.call.start",
+                        started_at=started_at,
+                        step_id=f"t_step{step.step_number}_rewrite",
+                        payload={"tool": "rag.rewrite", "input": {"query": query}},
+                    )
                 )
-            )
+                events.append(
+                    _event(
+                        typ="tool.call.end",
+                        started_at=started_at,
+                        step_id=f"t_step{step.step_number}_rewrite",
+                        payload={
+                            "output": {"rewritten_query": _rw or query},
+                            "error": None,
+                            "latency_ms": _rw_ms,
+                        },
+                    )
+                )
+                events.append(
+                    _event(
+                        typ="tool.call.start",
+                        started_at=started_at,
+                        step_id=f"t_step{step.step_number}",
+                        payload={"tool": "rag_search", "input": {"query": query, "rewritten_query": _rw or query}},
+                    )
+                )
+            else:
+                events.append(
+                    _event(
+                        typ="tool.call.start",
+                        started_at=started_at,
+                        step_id=f"t_step{step.step_number}",
+                        payload={"tool": step.tool_used, "input": {"query": query}},
+                    )
+                )
 
             err = step.tool_result.error
             out_answer: str | None = None
             if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
                 out_answer = step.tool_result.data.get("answer")
+
+            _out_payload_json: dict[str, Any] = {}
+            if out_answer is not None:
+                _out_payload_json["answer"] = out_answer
+            if step.tool_used == "rag_search" and isinstance(td.get("rewritten"), str):
+                _out_payload_json["rewritten_query"] = td["rewritten"]
 
             events.append(
                 _event(
@@ -747,12 +885,26 @@ async def handle_unified_chat(
                     started_at=started_at,
                     step_id=f"t_step{step.step_number}",
                     payload={
-                        "output": {"answer": out_answer},
+                        "output": _out_payload_json,
                         "error": err,
                         "latency_ms": step.tool_result.latency_ms,
                     },
                 )
             )
+            if debug_llm_prompts and isinstance(td.get("llm_prompts"), list) and td.get("llm_prompts"):
+                events.append(
+                    _event(
+                        typ="agent.debug.llm_prompts",
+                        started_at=started_at,
+                        step_id=f"tool_llm_json_{step.step_number}",
+                        payload={
+                            "scope": "tool",
+                            "tool": step.tool_used,
+                            "step_number": step.step_number,
+                            "items": td["llm_prompts"],
+                        },
+                    )
+                )
 
             # 可视化来源：按工具类型补齐 v1 事件
             if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
@@ -835,8 +987,7 @@ async def handle_unified_chat(
             )
         )
 
-        # 记忆持久化：异步写入，避免阻塞 JSON 响应体返回
-        _async_save_chatbi_v2_agent_log(
+        persist_json = await _await_persist_chatbi_v2_agent_log(
             session_id=session_id,
             query=query,
             run_id=run_id,
@@ -844,8 +995,21 @@ async def handle_unified_chat(
             started_at=started_at,
             agent_result=agent_result,
         )
+        if not persist_json.get("ok"):
+            events.append(
+                _event(
+                    typ="error",
+                    started_at=started_at,
+                    step_id="e_agent_db",
+                    payload={
+                        "stage": "agent_db",
+                        "message": (str(persist_json.get("error") or "persist_failed"))[:500],
+                        "persist": persist_json,
+                    },
+                )
+            )
 
-        return finish(ok=True, mode=mode)
+        return finish(ok=True, mode=mode, persist=persist_json)
 
     # mode decide (v1 router)
     t_router0 = time.perf_counter()
@@ -1607,6 +1771,7 @@ async def handle_unified_chat_stream(
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
+    debug_llm_prompts = _debug_llm_prompts_enabled(body)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
     db_log_router_trace = _router_trace_db_log_enabled() or bool(body.get("debug_router") is True)
 
@@ -1661,6 +1826,7 @@ async def handle_unified_chat_stream(
             agent_result: AgentRunView | None = None
             mode_local: str = "auto" if prefer == "auto" else str(prefer)
             ok_local = False
+            persist_result: dict[str, Any] | None = None
             try:
                 yield _sse(
                     "chain",
@@ -1690,6 +1856,7 @@ async def handle_unified_chat_stream(
                                 run_id=run_id,
                                 emit=forward,
                                 debug_router=debug_router,
+                                debug_llm_prompts=debug_llm_prompts,
                                 intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
                             )
                         except Exception as exc:  # noqa: BLE001
@@ -1748,7 +1915,7 @@ async def handle_unified_chat_stream(
                                     payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
                                 ),
                             )
-                            _async_save_chatbi_v2_agent_log(
+                            persist_result = await _await_persist_chatbi_v2_agent_log(
                                 session_id=session_id,
                                 query=query,
                                 run_id=run_id,
@@ -1756,9 +1923,30 @@ async def handle_unified_chat_stream(
                                 started_at=started_at,
                                 agent_result=agent_result,
                             )
+                            if not persist_result.get("ok"):
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="error",
+                                        started_at=started_at,
+                                        step_id="e_agent_db",
+                                        payload={
+                                            "stage": "agent_db",
+                                            "message": (str(persist_result.get("error") or "persist_failed"))[:500],
+                                            "persist": persist_result,
+                                        },
+                                    ),
+                                )
                 else:
                     # 批量 replay：await run 结束后再按旧顺序 yield（兼容缺省协商头）
-                    _run_task = asyncio.create_task(agent.run(query=query, session_id=session_id, prefer=prefer))
+                    _run_task = asyncio.create_task(
+                        agent.run(
+                            query=query,
+                            session_id=session_id,
+                            prefer=prefer,
+                            debug_llm_prompts=debug_llm_prompts,
+                        )
+                    )
                     try:
                         _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
                     except Exception:  # noqa: BLE001
@@ -1819,6 +2007,18 @@ async def handle_unified_chat_stream(
                                     payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
                                 ),
                             )
+                            if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
+                                _ilp2 = intent_decision.raw_response.get("llm_prompts")
+                                if isinstance(_ilp2, list) and _ilp2:
+                                    yield _sse(
+                                        "chain",
+                                        _event(
+                                            typ="agent.debug.llm_prompts",
+                                            started_at=started_at,
+                                            step_id="intent_llm_replay",
+                                            payload={"scope": "intent", "items": _ilp2},
+                                        ),
+                                    )
 
                         yield _sse(
                             "chain",
@@ -1836,20 +2036,62 @@ async def handle_unified_chat_stream(
                             ),
                         )
 
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="tool.call.start",
-                                started_at=started_at,
-                                step_id=f"t_step{step.step_number}",
-                                payload={"tool": step.tool_used, "input": {"query": query}},
-                            ),
-                        )
+                        td2 = step.tool_result.data if isinstance(step.tool_result.data, dict) else {}
+                        if step.tool_used == "rag_search":
+                            _rw2 = td2.get("rewritten") if isinstance(td2.get("rewritten"), str) else ""
+                            _rw_ms2 = int(td2.get("rewrite_latency_ms") or 0)
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="tool.call.start",
+                                    started_at=started_at,
+                                    step_id=f"t_step{step.step_number}_rewrite",
+                                    payload={"tool": "rag.rewrite", "input": {"query": query}},
+                                ),
+                            )
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="tool.call.end",
+                                    started_at=started_at,
+                                    step_id=f"t_step{step.step_number}_rewrite",
+                                    payload={
+                                        "output": {"rewritten_query": _rw2 or query},
+                                        "error": None,
+                                        "latency_ms": _rw_ms2,
+                                    },
+                                ),
+                            )
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="tool.call.start",
+                                    started_at=started_at,
+                                    step_id=f"t_step{step.step_number}",
+                                    payload={"tool": "rag_search", "input": {"query": query, "rewritten_query": _rw2 or query}},
+                                ),
+                            )
+                        else:
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="tool.call.start",
+                                    started_at=started_at,
+                                    step_id=f"t_step{step.step_number}",
+                                    payload={"tool": step.tool_used, "input": {"query": query}},
+                                ),
+                            )
 
                         err = step.tool_result.error
                         out_answer: str | None = None
                         if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
                             out_answer = step.tool_result.data.get("answer")
+
+                        _out_payload_replay: dict[str, Any] = {}
+                        if out_answer is not None:
+                            _out_payload_replay["answer"] = out_answer
+                        if step.tool_used == "rag_search" and isinstance(td2.get("rewritten"), str):
+                            _out_payload_replay["rewritten_query"] = td2["rewritten"]
 
                         yield _sse(
                             "chain",
@@ -1858,12 +2100,27 @@ async def handle_unified_chat_stream(
                                 started_at=started_at,
                                 step_id=f"t_step{step.step_number}",
                                 payload={
-                                    "output": {"answer": out_answer},
+                                    "output": _out_payload_replay,
                                     "error": err,
                                     "latency_ms": step.tool_result.latency_ms,
                                 },
                             ),
                         )
+                        if debug_llm_prompts and isinstance(td2.get("llm_prompts"), list) and td2.get("llm_prompts"):
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="agent.debug.llm_prompts",
+                                    started_at=started_at,
+                                    step_id=f"tool_llm_replay_{step.step_number}",
+                                    payload={
+                                        "scope": "tool",
+                                        "tool": step.tool_used,
+                                        "step_number": step.step_number,
+                                        "items": td2["llm_prompts"],
+                                    },
+                                ),
+                            )
 
                         if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
                             data = step.tool_result.data
@@ -1951,7 +2208,7 @@ async def handle_unified_chat_stream(
                             payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
                         ),
                     )
-                    _async_save_chatbi_v2_agent_log(
+                    persist_result = await _await_persist_chatbi_v2_agent_log(
                         session_id=session_id,
                         query=query,
                         run_id=run_id,
@@ -1959,22 +2216,36 @@ async def handle_unified_chat_stream(
                         started_at=started_at,
                         agent_result=agent_result,
                     )
+                    if not persist_result.get("ok"):
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="error",
+                                started_at=started_at,
+                                step_id="e_agent_db",
+                                payload={
+                                    "stage": "agent_db",
+                                    "message": (str(persist_result.get("error") or "persist_failed"))[:500],
+                                    "persist": persist_result,
+                                },
+                            ),
+                        )
             except GeneratorExit:
                 return
             except Exception:  # noqa: BLE001
                 ok_local = False
                 yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_unhandled", payload={"stage": "agent", "message": "SSE V2 运行异常"}))
             finally:
-                yield _sse(
-                    "done",
-                    {
-                        "ok": ok_local,
-                        "mode": mode_local if isinstance(mode_local, str) else ("auto" if prefer == "auto" else str(prefer)),
-                        "run_id": run_id,
-                        "request_id": run_id,
-                        "session_id": session_id,
-                    },
-                )
+                done_body: dict[str, Any] = {
+                    "ok": ok_local,
+                    "mode": mode_local if isinstance(mode_local, str) else ("auto" if prefer == "auto" else str(prefer)),
+                    "run_id": run_id,
+                    "request_id": run_id,
+                    "session_id": session_id,
+                }
+                if persist_result is not None:
+                    done_body["persist"] = persist_result
+                yield _sse("done", done_body)
 
         headers = {"Cache-Control": "no-cache"}
         return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)

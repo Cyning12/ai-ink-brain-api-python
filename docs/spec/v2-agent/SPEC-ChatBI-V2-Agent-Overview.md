@@ -100,7 +100,7 @@ RAG 检索无命中（`error_code=RAG_RETRIEVE_EMPTY`）时，**不能无条件 
 
 ### 2.6 多轮对话（后端契约与前后端分工）
 
-> **结论（后端）**：Unified Chat V2 Agent 路径**已支持**多轮上下文，前提是调用方在**每一轮**请求体中传入**同一**非空 `session_id`，并依赖 `rag_conversation_logs` 落库成功（见 `api/agent_memory.py`、`api/unified_chat.py::_async_save_chatbi_v2_agent_log`）。  
+> **结论（后端）**：Unified Chat V2 Agent 路径**已支持**多轮上下文，前提是调用方在**每一轮**请求体中传入**同一**非空 `session_id`，并依赖 `rag_conversation_logs` 落库成功（见 `api/agent_memory.py`、`api/unified_chat.py::_await_persist_chatbi_v2_agent_log`；失败时 SSE 先发 `error`/`stage=agent_db`，`done` 带 `persist` 字段）。  
 > **结论（前端）**：`ai-ink-brain` 当前页面若**未**在后续请求中回传服务端认可的 `session_id`，则用户体验仍为**单轮**；该缺口在**前端 / BFF**，不改变后端契约。
 
 #### 2.6.1 HTTP 与字段约定
@@ -112,7 +112,7 @@ RAG 检索无命中（`error_code=RAG_RETRIEVE_EMPTY`）时，**不能无条件 
 | `prefer` | string | 否 | 与既有 Unified Chat 一致（`auto` / `rag` / `text2sql` / `no_data` 等） |
 
 - **首轮**：客户端应直接生成并传入 `session_id`（**不要**依赖服务端分配；JSON 响应 / SSE `meta` 会**回显**同一 `session_id`，便于客户端校验）。
-- **`session_id` 为空或缺省**：`AgentMemoryStore.load` 返回空历史；V2 Agent **不会**调用 `_async_save_chatbi_v2_agent_log` 落库（无 `session_id` 即 return），后续轮无法从 DB 恢复上下文。
+- **`session_id` 为空或缺省**：`AgentMemoryStore.load` 返回空历史；V2 Agent **不会**写入 `rag_conversation_logs`（persist 视为 `skipped`），后续轮无法从 DB 恢复上下文。
 
 #### 2.6.2 历史窗口与数据真值
 
@@ -122,7 +122,7 @@ RAG 检索无命中（`error_code=RAG_RETRIEVE_EMPTY`）时，**不能无条件 
 | Intent | 将上述列表展开为 `role: user` / `role: assistant` 消息序列，供意图模型使用 | `api/agent.py`（`intent_history`） |
 | Intent 提示窗口 | 与 `intent_agent` 内 **最近 6 条** role 消息块对齐（避免指代过短） | `api/intent_agent.py`（`history_block`、`[-6:]`） |
 | 工具侧 | `text2sql` / `rag` 等工具收到的 `history` 为 **`turn_history` 最近 6 条**（同轮多步执行中会在内存追加本条 `query` 与中间回答形态，与 DB 条目不混） | `api/agent.py`（`call_history = turn_history[-6:]`） |
-| 持久化 | 每轮对话结束 **异步** `insert` 一行（含 `agent_steps` / `tool_results` 等）；**非**每 ReAct 步写库 | `api/unified_chat.py::_async_save_chatbi_v2_agent_log` |
+| 持久化 | 每轮对话结束在 SSE **`done` 之前** `await` 落库（`insert`，含 `agent_steps` / `tool_results` 等，超时见 `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S`）；**非**每 ReAct 步写库 | `api/unified_chat.py::_await_persist_chatbi_v2_agent_log` |
 
 **与 §4 Memory 文字的关系**：总规「最近 5 轮」在实现上按 **最近 5 条 `rag_conversation_logs` 行**（每行 = 用户一问 + 助手一答）计，与 §7.1 勾选口径一致。
 

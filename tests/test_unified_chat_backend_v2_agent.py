@@ -45,8 +45,13 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
 
 
 def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
-    async def _exec(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
-        return await execute(query=query, history=history)
+    async def _exec(
+        query: str,
+        *,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
+        return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 
     return Tool(name=name, description=f"dummy-{name}", parameters={}, execute=_exec)
 
@@ -59,7 +64,9 @@ def test_v2_json_single_tool_fallback_used_true(monkeypatch: pytest.MonkeyPatch)
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _direct_answer_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _direct_answer_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -70,7 +77,9 @@ def test_v2_json_single_tool_fallback_used_true(monkeypatch: pytest.MonkeyPatch)
             latency_ms=2,
         )
 
-    async def _rag_search_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_search_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -96,8 +105,8 @@ def test_v2_json_single_tool_fallback_used_true(monkeypatch: pytest.MonkeyPatch)
 
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="rag_search",
             mode="rag",
@@ -136,7 +145,9 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=False,
@@ -147,7 +158,9 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
             latency_ms=7,
         )
 
-    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -190,8 +203,8 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="text2sql_query",
             mode="text2sql",
@@ -230,7 +243,9 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     import api.agent as agent_module
 
     # mock text2sql tool returns sql + rows with id_number
-    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -246,7 +261,9 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
             latency_ms=6,
         )
 
-    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(success=True, data={"answer": "rag ok", "hits": []}, latency_ms=3)
 
@@ -264,8 +281,8 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="text2sql_query",
             mode="text2sql",
@@ -328,7 +345,9 @@ def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=False,
@@ -339,7 +358,9 @@ def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
             latency_ms=7,
         )
 
-    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -381,8 +402,8 @@ def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="text2sql_query",
             mode="text2sql",
@@ -424,7 +445,9 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -446,7 +469,9 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
             latency_ms=6,
         )
 
-    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(success=True, data={"answer": "rag ok", "hits": []}, latency_ms=3)
 
@@ -464,8 +489,8 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="text2sql_query",
             mode="text2sql",
@@ -509,7 +534,9 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     import api.agent as agent_module
 
     # [mock ①a] 首步 rag_search：ToolResult.error_code=RAG_RETRIEVE_EMPTY（模拟检索无命中）。
-    async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=False,
@@ -521,7 +548,9 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
         )
 
     # [mock ①b] 第二步 text2sql_query：成功桩，验证 gated fallback 后下一工具可执行。
-    async def _sql_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _sql_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -548,8 +577,8 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     # [mock ③] 见文件头说明：替换 decide_intent_v2；首工具 rag_search + has_aggregation_signals 驱动 gating。
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="rag_search",
             mode="rag",
@@ -593,7 +622,9 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
 
     clear_intent_cache()
 
-    async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=False,
@@ -604,7 +635,9 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
             latency_ms=2,
         )
 
-    async def _direct_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _direct_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
             success=True,
@@ -615,7 +648,9 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
             latency_ms=3,
         )
 
-    async def _sql_must_not_run(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _sql_must_not_run(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         raise AssertionError("无 gating 时不应调用 text2sql_query")
 
     class _DummyRegistry:
@@ -670,7 +705,9 @@ def test_v2_intent_timeout_fallback_v1(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setattr(intent_agent, "decide_intent_v1", lambda *, query, prefer: _V1())  # noqa: ARG005
 
-    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _rag_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(success=True, data={"answer": "rag ok", "hits": []}, latency_ms=2)
 

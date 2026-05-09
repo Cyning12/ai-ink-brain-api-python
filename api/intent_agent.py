@@ -25,7 +25,7 @@ V1Mode = Literal["rag", "text2sql", "no_data"]
 
 _logger = logging.getLogger(__name__)
 
-_VOLATILE_RAW_KEYS = frozenset({"cache", "cache_key_hash", "latency_ms"})
+_VOLATILE_RAW_KEYS = frozenset({"cache", "cache_key_hash", "latency_ms", "llm_prompts"})
 
 
 class LRUCache:
@@ -107,7 +107,7 @@ def _cache_key_obs_hash(composite_key: str) -> str:
 
 
 def _raw_response_for_cache_store(raw: dict[str, Any]) -> dict[str, Any]:
-    """写入缓存前去掉本轮可观测字段，避免污染命中副本。"""
+    """写入缓存前去掉本轮可观测字段与大段 prompt，避免污染命中副本。"""
     return {k: v for k, v in raw.items() if k not in _VOLATILE_RAW_KEYS}
 
 
@@ -221,7 +221,15 @@ def _extract_json_obj(text: str) -> dict[str, Any] | None:
     return None
 
 
-async def _llm_decide_v2(*, oai: OpenAI, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float) -> dict[str, Any]:
+async def _llm_decide_v2(
+    *,
+    oai: OpenAI,
+    query: str,
+    history: list[dict[str, Any]],
+    tools: list[Tool],
+    timeout_s: float,
+    capture_prompts: bool = False,
+) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
     # 让 LLM 按 spec 输出 tool/reasoning/confidence（并尽量使用结构化 JSON）
     tools_desc = "\n\n".join([f"- {t.name}: {t.description}" for t in tools])
     # 与 compute_history_hash 的「最近 6 条」对齐，避免多轮指代时上下文过短
@@ -296,21 +304,22 @@ user: 那需要查数据库吗
 }}
 """
 
+    intent_model = os.getenv("INTENT_LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+    intent_messages: list[dict[str, str]] = [
+        {
+            "role": "system",
+            "content": (
+                "你是严谨的意图分类器。仅从工具名集合中选择；"
+                "只输出一个 JSON 对象，不要 Markdown、不要前后缀说明。"
+            ),
+        },
+        {"role": "user", "content": prompt},
+    ]
+
     def _sync_call() -> str:
         res = oai.chat.completions.create(
-            model=os.getenv(
-                "INTENT_LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct"
-            ),
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "你是严谨的意图分类器。仅从工具名集合中选择；"
-                        "只输出一个 JSON 对象，不要 Markdown、不要前后缀说明。"
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
+            model=intent_model,
+            messages=intent_messages,
             temperature=0.0,
             stream=False,
         )
@@ -320,7 +329,10 @@ user: 那需要查数据库吗
     obj = _extract_json_obj(text)
     if obj is None:
         raise ValueError("LLM intent 输出不是合法 JSON")
-    return obj
+    prompts: list[dict[str, Any]] | None = None
+    if capture_prompts:
+        prompts = [{"phase": "intent", "model": intent_model, "messages": intent_messages}]
+    return obj, prompts
 
 
 def _effective_intent_llm_timeout_s(override: float) -> float:
@@ -365,6 +377,7 @@ async def decide_intent_v2(
     tools: list[Tool] | None = None,
     min_confidence: float = 0.6,
     timeout: float = 3.0,
+    capture_llm_prompts: bool = False,
 ) -> IntentDecision:
     t_start = time.perf_counter()
     hist = history or []
@@ -425,8 +438,13 @@ async def decide_intent_v2(
                 return _return_cache_miss(decision)
 
             t_llm = _effective_intent_llm_timeout_s(timeout)
-            raw_obj = await _llm_decide_v2(
-                oai=oai, query=query, history=hist, tools=use_tools, timeout_s=t_llm
+            raw_obj, intent_prompts = await _llm_decide_v2(
+                oai=oai,
+                query=query,
+                history=hist,
+                tools=use_tools,
+                timeout_s=t_llm,
+                capture_prompts=capture_llm_prompts,
             )
 
             tool_raw = raw_obj.get("tool")
@@ -440,6 +458,9 @@ async def decide_intent_v2(
             conf = _clamp01(float(confidence_raw if confidence_raw is not None else 0.0))
             reasoning = str(reasoning_raw or "").strip() or "意图识别完成。"
             fallback_tool = _fallback_tool_by_low_confidence(tool_t) if conf < min_confidence else None
+            raw_merged: dict[str, Any] = dict(raw_obj)
+            if intent_prompts:
+                raw_merged["llm_prompts"] = intent_prompts
             decision2 = IntentDecision(
                 tool=tool_t,
                 mode=mode,  # type: ignore[arg-type]
@@ -448,7 +469,7 @@ async def decide_intent_v2(
                 confidence=conf,
                 fallback=fallback_tool,
                 structured_signals=structured,
-                raw_response=raw_obj,
+                raw_response=raw_merged,
             )
             return _return_cache_miss(decision2)
     except asyncio.TimeoutError:
