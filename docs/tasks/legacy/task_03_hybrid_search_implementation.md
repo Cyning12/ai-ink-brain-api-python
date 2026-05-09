@@ -109,5 +109,5 @@
 ---
 
 ## 4) 对前端的交付物
-- 对接文档输出到前端仓库：`content/tasks/task_03_hybrid_search_backend_frontend_contract.md`
+- 对接文档输出到前端仓库：`content/tasks/active/task_03_hybrid_search_backend_frontend_contract.md`
 - 文档需包含：接口不变说明、需要执行的 SQL 清单、RRF 融合解释、排障方式（查 `rag_conversation_logs`）。

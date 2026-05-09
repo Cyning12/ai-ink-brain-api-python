@@ -3,7 +3,7 @@
 > **状态**：`implemented`（代码已落地；合并前请按验收勾选核对）  
 > **范围**：`ai-ink-brain-api-python` — V2 Agent SSE/JSON、`tools`、`intent_agent`、`query_rewrite`  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（chain 事件、RAG 子步）  
-> **配对前端任务**：`ai-ink-brain/content/tasks/task_frontend_unified_chat_v2_rewrite_llm_prompt_debug_v1.md`  
+> **配对前端任务**：`ai-ink-brain/content/tasks/active/task_frontend_unified_chat_v2_rewrite_llm_prompt_debug_v1.md`  
 > **真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（增补 env 时请同步该文件）
 
 ---
@@ -11,7 +11,8 @@
 ## 背景与目标
 
 1. **Rewrite 上链**：V2 在 `rag_search` 路径与 V1 对齐，在 Timeline 上可见 **`tool.call.start/end`**，且 `payload.tool` 为 **`rag.rewrite`**，结束帧携带 **`rewritten_query`**；随后再发 **`rag_search`** 的 start/end，主工具 end 的 **`output`** 含 **`answer`** 与 **`rewritten_query`**（若存在）。  
-2. **LLM Prompt 采集**：在显式开关下，将本轮请求内发往各子模型的 **完整 messages**（Intent、RAG 改写/生成、Text2SQL、Direct 等）以结构化事件透出，便于多轮核对「实际入模」内容。
+2. **LLM Prompt 采集**：在显式开关下，将本轮请求内发往各子模型的 **完整 messages**（Intent、RAG 改写/生成、Text2SQL、Direct 等）以结构化事件透出，便于多轮核对「实际入模」内容。  
+3. **V2 文档闭环（归档流程）**：功能验收与合并后，按 `docs/tasks/README.md` **任务归档流程**处理本任务单：**`git mv`** 自 `docs/tasks/active/` 至归档目录 **`docs/tasks/done/`**，更新 **`docs/tasks/_views/done.md`**，头部 **`状态`** 改为 `done（YYYY-MM-DD 验收通过）`；配对前端按 `ai-ink-brain/content/tasks/README.md`：**`git mv`** `content/tasks/active/task_frontend_unified_chat_v2_rewrite_llm_prompt_debug_v1.md` → **`content/tasks/done/`**，更新 **`content/tasks/_views/done.md`**，头部同步为 `done（YYYY-MM-DD 验收通过）`。关联规格 `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` 等**不随任务归档搬迁**，继续在 `docs/spec/` 维护。
 
 ---
 
@@ -58,4 +59,4 @@
 
 ## 给 Cursor
 
-验收、非范围、依赖、图谱、`_tech_graph`、`rag.rewrite`、`agent.debug.llm_prompts`、`CHATBI_V2_DEBUG_LLM_PROMPTS`、`debug_llm_prompts`
+验收、非范围、依赖、图谱、`_tech_graph`、`rag.rewrite`、`agent.debug.llm_prompts`、`CHATBI_V2_DEBUG_LLM_PROMPTS`、`debug_llm_prompts`、任务归档、`docs/tasks/done`、`_views/done.md`
