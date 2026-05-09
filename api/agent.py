@@ -164,7 +164,14 @@ def _make_tool_call_input(query: str) -> dict[str, Any]:
 
 
 class FailureTypeHandler:
-    """按失败类型决定下一步工具与是否继续 ReAct 循环。"""
+    """按失败类型决定下一步工具与是否继续 ReAct 循环。
+
+    L5 / 单测 mock：**勿**在本类内硬改 error 分支、**勿**对 IntentDecision 原地赋值（frozen dataclass）。
+    请在 pytest 中：monkeypatch get_tool_registry 注入 dummy 工具；在 dummy execute 的 ToolResult.error_code
+    上模拟失败码（如 RAG_RETRIEVE_EMPTY）；monkeypatch decide_intent_v2 返回完整 IntentDecision 覆盖 gating。
+    参考：tests/test_unified_chat_backend_v2_agent.py::test_v2_rag_empty_gated_fallback；
+    SPEC-ChatBI-V2-Agent-Overview.md §7.5.4。
+    """
 
     @staticmethod
     def _allow_sql_fallback(*, intent: IntentDecision) -> bool:
@@ -197,7 +204,6 @@ class FailureTypeHandler:
         - stop_now：True 表示无需再走下一步工具，直接给 final_answer（如 SQL 无数据）
         """
         code = tool_result.error_code or "UNKNOWN"
-
         # 默认：继续用 intent 的 fallback tool
         next_tool: ToolName = fallback_from_intent
         next_mode: V1Mode = tool_mode_map()[next_tool]  # type: ignore[assignment]
@@ -522,7 +528,11 @@ class ChatBIAgent:
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
-            if elapsed_ms > self._max_latency_ms:
+            # 软超时 + V1 覆盖：仅允许在「尚未执行过任何工具」时生效（len(tools_used)==0）。
+            # 若在每步开头无差别覆盖，则首轮意图+rag 已超过 AGENT_MAX_LATENCY_MS 后，后续步会反复
+            # 把 current_tool 打回 V1 的 rag（日记类 query 常见），从而覆盖 FailureTypeHandler 给出的
+            # direct_answer/text2sql，造成 rag_search 死循环直至 max_steps。
+            if elapsed_ms > self._max_latency_ms and len(tools_used) == 0:
                 # 超时：降级到 V1 rule router 并最终执行一次工具
                 v1 = decide_intent_v1(query=query, prefer="auto")
                 final_mode = v1.final_mode

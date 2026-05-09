@@ -2,7 +2,7 @@
 
 > **状态**：implemented（后端 P0+P1 主线已合；**与纸面目标的差距**以 §7.4 全量对照为准）  
 > **版本**：v2（已按审查意见修订）  
-> **日期**：2026-04-27（**文档对齐**：2026-05-07 — §7 验收勾选、任务索引、§7.4 / §7.5）  
+> **日期**：2026-04-27（**文档对齐**：2026-05-07 — §7 验收勾选、任务索引、§7.4 / §7.5；**2026-05-09** — §2.6 多轮会话后端契约、§7.5.5 L6 多轮验收）  
 > **负责人**：cyning  
 > **关联任务（真值）**：`docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`（P0 归档）· `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，含 Eval/C/D）· `SPEC-ChatBI-V2-Gap-Checklist.md`（缺口快照）
 
@@ -97,6 +97,46 @@ RAG 检索无命中（`error_code=RAG_RETRIEVE_EMPTY`）时，**不能无条件 
 |------|------|---------|------|
 | 用户级 | 1-2 句话摘要（如"正在查询数据库"） | SSE `agent.think` payload.summary | 无 |
 | 内部级 | 完整 reasoning、raw_response、prompt | 日志 / 调试接口 `/api/py/admin/agent/debug` | admin token |
+
+### 2.6 多轮对话（后端契约与前后端分工）
+
+> **结论（后端）**：Unified Chat V2 Agent 路径**已支持**多轮上下文，前提是调用方在**每一轮**请求体中传入**同一**非空 `session_id`，并依赖 `rag_conversation_logs` 落库成功（见 `api/agent_memory.py`、`api/unified_chat.py::_async_save_chatbi_v2_agent_log`）。  
+> **结论（前端）**：`ai-ink-brain` 当前页面若**未**在后续请求中回传服务端认可的 `session_id`，则用户体验仍为**单轮**；该缺口在**前端 / BFF**，不改变后端契约。
+
+#### 2.6.1 HTTP 与字段约定
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `query` | string | 是 | 当前轮用户问题 |
+| `session_id` | string \| null | **多轮时视为必填** | 会话稳定标识（建议客户端 `uuid4`）；**全轮次保持一致** |
+| `prefer` | string | 否 | 与既有 Unified Chat 一致（`auto` / `rag` / `text2sql` / `no_data` 等） |
+
+- **首轮**：客户端应直接生成并传入 `session_id`（**不要**依赖服务端分配；JSON 响应 / SSE `meta` 会**回显**同一 `session_id`，便于客户端校验）。
+- **`session_id` 为空或缺省**：`AgentMemoryStore.load` 返回空历史；V2 Agent **不会**调用 `_async_save_chatbi_v2_agent_log` 落库（无 `session_id` 即 return），后续轮无法从 DB 恢复上下文。
+
+#### 2.6.2 历史窗口与数据真值
+
+| 环节 | 行为 | 代码锚点 |
+|------|------|----------|
+| 加载 | 按 `session_id` 查询 `rag_conversation_logs`，`order(created_at, desc=True).limit(5)`，再**反转为时间正序**，构造 `{ "query", "response" }` 列表 | `api/agent_memory.py::AgentMemoryStore.load` |
+| Intent | 将上述列表展开为 `role: user` / `role: assistant` 消息序列，供意图模型使用 | `api/agent.py`（`intent_history`） |
+| Intent 提示窗口 | 与 `intent_agent` 内 **最近 6 条** role 消息块对齐（避免指代过短） | `api/intent_agent.py`（`history_block`、`[-6:]`） |
+| 工具侧 | `text2sql` / `rag` 等工具收到的 `history` 为 **`turn_history` 最近 6 条**（同轮多步执行中会在内存追加本条 `query` 与中间回答形态，与 DB 条目不混） | `api/agent.py`（`call_history = turn_history[-6:]`） |
+| 持久化 | 每轮对话结束 **异步** `insert` 一行（含 `agent_steps` / `tool_results` 等）；**非**每 ReAct 步写库 | `api/unified_chat.py::_async_save_chatbi_v2_agent_log` |
+
+**与 §4 Memory 文字的关系**：总规「最近 5 轮」在实现上按 **最近 5 条 `rag_conversation_logs` 行**（每行 = 用户一问 + 助手一答）计，与 §7.1 勾选口径一致。
+
+#### 2.6.3 竞态与观测
+
+- **异步落库**：首轮 `insert` 为 `asyncio.to_thread` 触发，若客户端**极短间隔**连发第二轮，存在第二轮 `load` 时尚未读到首轮行的 **best-effort** 窗口；L6 验收建议在轮间 **≥1s** 或待首轮 SSE `done` 后再发第二轮。
+- **SSE**：首条 `chain` 中 `type: meta` 的 `payload` 含 `run_id`、`mode`、`session_id`（与请求一致），可用于前端调试与 L4/L6 抓包对照。
+
+#### 2.6.4 L6 与前后端分工（摘要）
+
+| 层级 | 多轮责任 |
+|------|----------|
+| 后端 | 校验并实现 §2.6.1–2.6.3 |
+| BFF / 前端 | 分配或存储 `session_id`，并在**每次** `unified/chat`（JSON 或 `stream`）请求中携带；Timeline UI 是否展示多轮由产品决定，**与后端是否具备多轮能力无关** |
 
 ---
 
@@ -310,7 +350,7 @@ rag_tool = Tool(
 - [x] Agent 能根据 Query 自主选择正确工具（**Intent**：60 条金标 + `intent_eval` / P1-D 归档；macro-F1 约 **0.95+** 量级；**RAG 桶**曾存在 **22/24** 与超时相关误判，见 diary，**不等同于**「全场景 >90% 永真」）
 - [ ] 支持多步推理（至少 2 个工具串行调用）（**`AGENT_MAX_STEPS` 默认 5** 已具备；**典型「SQL→RAG」串联**依赖失败/fallback 触发路径，**缺独立 E2E 黄金用例与压测报告**，见 Gap §8 / §7.4）
 - [x] SQL 执行失败等按 **`error_code`** 分支 fallback / gating（**部分**：`FailureTypeHandler` + `RAG_RETRIEVE_EMPTY` gating 已落地；与 Overview §2.4 **逐条等价**仍建议走 §7.5 L5 深度用例）
-- [x] 多轮对话能保持上下文（**最近 5 条**会话从 `rag_conversation_logs` 加载，见 `api/agent_memory.py`；与 spec「5 轮」口径一致按「条」计）
+- [x] 多轮对话能保持上下文（**最近 5 条**会话从 `rag_conversation_logs` 加载，见 `api/agent_memory.py`；与 spec「5 轮」口径一致按「条」计；**契约与验收口径**见 **§2.6**、**§7.5.5**）
 - [x] SSE 事件流对外兼容（**mode** 仍为 `rag` / `text2sql` / `no_data`；`agent.*` 为增量事件；契约见 `_contract_manifest.json`）
 
 ### 7.2 性能验收
@@ -342,7 +382,7 @@ rag_tool = Tool(
 | Intent 延迟 | §2.3 P50/P95 | 实际上游常 **秒级**；`v1_fallback` 可观测 | — | — | benchmark 脚本、评测 `latency_ms` | **缺口**（相对纸面指标） |
 | ReAct 多步 | ≥2 工具、max_steps | `AGENT_MAX_STEPS`、步内换工具逻辑存在 | Timeline 未要求消费全部 `agent.*` | — | 缺专门 E2E 黄金场景 | **部分** |
 | Fallback / gating | §2.4 `error_code` 映射 | `ToolResult` + `FailureTypeHandler` + RAG→SQL gating | — | — | 单元测覆盖**不等同**全矩阵 | **部分** |
-| 记忆 | 最近 5 轮等 | `agent_memory.load` **最近 5 条**；`agent_steps`/`tool_results` 由 unified 落库 | — | **生产库须已迁移** SQL 列 | P0 / 迁移清单 | **部分**（**库表以环境为准**） |
+| 记忆 / 多轮 | 最近 5 轮等；**同 `session_id` 跨请求** | `agent_memory.load` **最近 5 条**；**须非空 `session_id`** 才 V2 落库；Intent/工具 **6 条**窗口见 §2.6 | **页面未传 `session_id` 时等价单轮** | **生产库须已迁移** SQL 列 | §2.6、§7.5.5 L6、P0 迁移 | **后端已具备**；**全链路依赖前端传参** |
 | reasoning 分级 | 用户摘要 vs 内部 | SSE `agent.think` 摘要；完整链路日志 / admin | 仅展示摘要类事件 | — | 人工 SSE 抽查 | **需持续对照** |
 | 压测 / 并发 | §7.2 最后一行 | 未作为阻断交付 | — | — | P1 子任务「压力脚本报告」仍 **open** | **缺口** |
 
@@ -450,11 +490,45 @@ rag_tool = Tool(
 **操作步骤**
 
 1. `ai-ink-brain` 目录：`npm install`（若未装）→ `npm run dev`（以该仓 `README` 为准）。  
-2. 打开 **Unified Chat / Chain** 相关页面，发送 **至少 2 类 query**（如「概念类」+「查数类」），各 **1–2 轮** 多轮追问。  
+2. 打开 **Unified Chat / Chain** 相关页面，发送 **至少 2 类 query**（如「概念类」+「查数类」）。  
 3. 在 Network 中确认 **SSE 事件顺序** 与 L4 文档一致；在 UI 中确认 **最终回答与 mode**（`rag` / `text2sql` / `no_data`）合理。  
 4. **（可选）Supabase**：若生产已迁移 **`agent_steps` / `tool_results`**，在 Dashboard 抽查 **`rag_conversation_logs`** 新行是否写入 **JSONB**（注意 **service role**，勿在前端暴露）。
 
-**通过准则**：无 **401/500**；用户可见回答正确；**session_id** 多轮可延续（若产品启用）。
+**通过准则（单轮 UI）**：无 **401/500**；用户可见回答与 mode 合理。
+
+---
+
+##### 7.5.5.1 L6 — 多轮对话（后端契约验收，**推荐纳入 L6 必做**）
+
+> **背景**：Ink-Brain 页面可能尚未在请求体中**固定回传** `session_id`，则即使用户连续发送多条消息，后端仍按**孤立单轮**处理（见 **§2.6**）。本小节用 **可重复的 curl / API 客户端** 验收「后端多轮」，与 UI 是否已接线**解耦**；待前端接好 `session_id` 后，可将同一脚本改为在浏览器 Network 中核对请求体。
+
+**前置（追加）**
+
+- 与 L4 相同：`API_BASE`、`ADMIN_TOKEN`、**Supabase 可写**（否则历史始终为空，多轮无意义）。  
+- 固定会话：`export SESSION_ID="$(python3 -c 'import uuid; print(uuid.uuid4())')"`（或 `uuidgen`）。
+
+**操作步骤（SSE `stream`）**
+
+1. **第一轮**：发送带业务锚点的问题（便于第二轮指代），且 **必须**带 `session_id`：  
+   `curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application/json" -d "{\"query\":\"2025年1月销售额是多少\",\"session_id\":\"${SESSION_ID}\"}" "${API_BASE}/api/py/unified/chat/stream" | tee /tmp/l6_turn1.txt`  
+2. 等待流结束（出现 **`done`**），**间隔 ≥1s**（规避异步落库竞态，见 §2.6.3）。  
+3. **第二轮**：使用**同一** `SESSION_ID`，发送依赖上下文的追问（指代 / 省略主语均可），示例：  
+   `curl -sN -H "Authorization: Bearer ${ADMIN_TOKEN}" -H "Content-Type: application/json" -d "{\"query\":\"那2月呢？和1月比怎么样\",\"session_id\":\"${SESSION_ID}\"}" "${API_BASE}/api/py/unified/chat/stream" | tee /tmp/l6_turn2.txt`  
+4. **（推荐）对照 Intent**：在 `/tmp/l6_turn2.txt` 中查找 **`agent.intent`**（或完整链路日志）；第二轮的意图 / 工具选择应能利用「已在首轮建立的语义锚点」（**人工判读**即可，不设固定 F1）。  
+5. **（可选）DB 证据**：在 Supabase 对 `rag_conversation_logs` 按 `session_id = SESSION_ID` 过滤，应 **≥2** 行，且按 `created_at` 升序阅读的 `query` 与两轮提问一致。
+
+**负例（可选一条）**
+
+- 两轮使用 **不同** `session_id`，第二轮不应依赖第一轮锚点；用于确认隔离性。
+
+**通过准则（多轮）**
+
+- [ ] 两轮请求均 **200**，SSE 正常结束；首轮 **`meta.payload.session_id`** 与请求体一致。  
+- [ ] 第二轮回答或 `agent.intent` / `agent.think` 摘要 **在人工判读下**体现对首轮话题的延续（非完全无关的冷启动）。  
+- [ ] **负例**：不同 `session_id` 时第二轮不「误继承」另一会话内容。  
+- [ ] **（若验 DB）** 同 `session_id` 下日志行数符合预期。
+
+**与 UI 的关系**：当前前端若无多轮：**L6 仍可通过 §7.5.5.1 对后端打勾**；全栈「页面内多轮」待前端实现 `session_id` 生命周期后，将 §7.5.5 步骤 2 扩展为「在 UI 连续发问且 Network 请求体含同一 `session_id`」即可。
 
 #### 7.5.6 L7 — 运维与配置（详细流程）
 
@@ -471,7 +545,7 @@ rag_tool = Tool(
 
 ---
 
-**最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**；**上线前后**建议 **L7 + L4 烟测**；全栈体验加 **L6**。
+**最小发布前组合**：**L0 + L3** 必做；发版说明含 Intent 质量时加 **L1**；承诺延迟 SLA 时加 **L2**；对外宣称「与总规 §2.4 完全等价」时加 **L5**；**上线前后**建议 **L7 + L4 烟测**；全栈体验加 **L6**；**宣称支持多轮 / 记忆**时加 **L6 §7.5.5.1**（可与纯 UI L6 拆分验收）。
 
 ---
 

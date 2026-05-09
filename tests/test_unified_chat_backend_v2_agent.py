@@ -9,8 +9,23 @@ from typing import Any, Callable
 import pytest
 from fastapi.testclient import TestClient
 
-from api.intent_agent import IntentDecision, StructuredSignals
+from api.intent_agent import IntentDecision, StructuredSignals, clear_intent_cache
 from api.tools import Tool, ToolResult, ToolName
+
+# --- L5 / FailureTypeHandler：pytest mock 注入点（总规 SPEC-ChatBI-V2-Agent-Overview §7.5.4）---
+# 完整说明与示例 A/B 逐步拆解见：docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md
+# ① error_code：在 dummy 工具 execute 返回的 ToolResult 上设置（勿改 agent.py decide_next）。
+# ② 工具表：monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))。
+# ③ 意图与 gating：monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_...)，用 IntentDecision(...) +
+#    StructuredSignals；字段调整请 dataclasses.replace，禁止 intent.tool = ...。
+# ④ 自然「必 RAG」query：CHATBI_V2_INTENT_LLM=false 且不 patch decide_intent_v2；仅 ①+②；query 不含
+#    text2sql 启发式关键词，见 test_v2_natural_diary_query_rag_empty_fallback_to_direct。
+# canonical（gated SQL）：test_v2_rag_empty_gated_fallback。
+#
+# 下列两则 L5 canonical 用例若带 @pytest.mark.skip：去掉装饰器即可恢复（详见上述指南 §8）。
+
+# 含「日记」、无统计类关键词：启发式意图首工具恒为 rag_search（不依赖外呼 LLM）。
+RAG_FIRST_DIARY_QUERY = "2026-04-28日记的大致内容"
 
 
 def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
@@ -483,6 +498,7 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
         assert "event: done" in text
 
 
+@pytest.mark.skip(reason="L5 mock 暂缓：恢复时删除本行。说明见 docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md")
 def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     """RAG_RETRIEVE_EMPTY + has_aggregation_signals=true -> fallback SQL（gated 生效）。"""
     monkeypatch.setenv("CHATBI_USE_AGENT", "true")
@@ -492,6 +508,7 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
+    # [mock ①a] 首步 rag_search：ToolResult.error_code=RAG_RETRIEVE_EMPTY（模拟检索无命中）。
     async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
@@ -503,6 +520,7 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
             latency_ms=4,
         )
 
+    # [mock ①b] 第二步 text2sql_query：成功桩，验证 gated fallback 后下一工具可执行。
     async def _sql_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
         _ = (query, history)
         return ToolResult(
@@ -526,8 +544,10 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
         _make_tool("text2sql_query", _sql_ok_exec),
         _make_tool("direct_answer", _sql_ok_exec),
     ]
+    # [mock ②] 见文件头说明：替换 get_tool_registry，本轮仅使用 dummy_tools。
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
+    # [mock ③] 见文件头说明：替换 decide_intent_v2；首工具 rag_search + has_aggregation_signals 驱动 gating。
     async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
         _ = (query, history, tools, min_confidence, timeout)
         return IntentDecision(
@@ -544,6 +564,7 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
 
     client = TestClient(index.app)
+    # 请求体仅作语义占位；首步工具与失败码完全由 [mock ②][mock ③] 决定。
     res = client.post(
         "/api/py/unified/chat",
         headers={"Authorization": "Bearer api-key-123"},
@@ -551,10 +572,81 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     )
     assert res.status_code == 200
     data = res.json()
+    # [验收] agent.final：先 rag_search，再因 RAG_RETRIEVE_EMPTY + gating 出现 text2sql_query。
     final_evt = next(e for e in data["events"] if e.get("type") == "agent.final")
     assert final_evt["payload"]["total_steps"] == 2
     assert final_evt["payload"]["tools_used"][0] == "rag_search"
     assert "text2sql_query" in final_evt["payload"]["tools_used"]
+
+
+@pytest.mark.skip(reason="L5 mock 暂缓：恢复时删除本行。说明见 docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md")
+def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest.MonkeyPatch):
+    """自然 query 首步必 rag：不 patch decide_intent_v2；rag 空命中且无 SQL gating 时走 direct_answer。
+
+    与 test_v2_rag_empty_gated_fallback 区别：本用例验证「无聚合/SQL 信号」时不得盲启 text2sql_query。
+    """
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+
+    clear_intent_cache()
+
+    async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=False,
+            data=None,
+            error="RAG empty",
+            error_code="RAG_RETRIEVE_EMPTY",
+            error_stage="rag.retrieve",
+            latency_ms=2,
+        )
+
+    async def _direct_ok_exec(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "stub：库中未检索到该日日记正文。"},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=3,
+        )
+
+    async def _sql_must_not_run(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+        raise AssertionError("无 gating 时不应调用 text2sql_query")
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("rag_search", _rag_empty_exec),
+        _make_tool("direct_answer", _direct_ok_exec),
+        _make_tool("text2sql_query", _sql_must_not_run),
+    ]
+    # [mock ②] 仅替换工具表；[mock ③] 不使用——走真实 decide_intent_v2（启发式）。
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": RAG_FIRST_DIARY_QUERY},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    final_evt = next(e for e in data["events"] if e.get("type") == "agent.final")
+    used = final_evt["payload"]["tools_used"]
+    assert used[0] == "rag_search"
+    assert used[1] == "direct_answer"
+    assert "text2sql_query" not in used
+    assert final_evt["payload"]["total_steps"] == 2
 
 
 def test_v2_intent_timeout_fallback_v1(monkeypatch: pytest.MonkeyPatch):
