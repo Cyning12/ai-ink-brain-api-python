@@ -1,0 +1,17 @@
+# Text2SQL 业务术语与库内取值（补充 DDL，不替代表结构）
+# 数据真值对齐：docs/text2sql/v1/sql/supabase_init.sql
+version: 1
+tables:
+  agent_info:
+    gender:
+      column: gender
+      values: ["男", "女"]
+      synonyms:
+        男性: 男
+        男的: 男
+        female: 女
+    commission_structure:
+      column: commission_structure
+      values: ["底薪加提成", "固定佣金", "提成结构"]
+      synonyms:
+        提成结构: 底薪加提成

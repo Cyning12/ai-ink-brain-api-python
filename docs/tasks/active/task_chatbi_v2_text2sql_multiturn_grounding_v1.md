@@ -1,6 +1,6 @@
 # Task：ChatBI V2 — Text2SQL 多轮语义承接（已实现基线 + 值域锚点后续）
 
-> **状态**：`in_progress`（**A 已落地代码**；**B/C 待实现**，验收未全绿前保持本状态）  
+> **状态**：`in_progress`（**A / C 基线已落地**；**B-PR1 已于 2026-05-09 验收通过**；**B-PR2（DISTINCT 探针）未做**，仍记为后续迭代；本子任务「PR1 范围」可视为交付闭环，全任务闭环待 PR2）  
 > **范围**：仅后端 `ai-ink-brain-api-python`（Text2SQL 工具链、会话记忆形状；不涉及前端 transcript UI）  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（L1–L4 分层、§3 指代与 rewrite、§4 结构化上下文）  
 > **父任务索引**：`docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览；本子任务可视为其下「多轮 + Text2SQL 真值」专项）  
@@ -13,10 +13,11 @@
 
 多轮场景下，用户首轮明确表名（如 `agent_info`），次轮用「刚刚那张表 / 其中有多少男性」等**省略主语**的问法时，系统需在语义上接得住：**Intent 仍走结构化查库、Text2SQL 检索与生成能继承上轮表/语境**，避免出现「未查到数据」或**选错表**（如 `agent_info` 与 `customer_info` 混用）、**条件字面量与库内枚举不一致**等问题。
 
-本子任务落盘两部分：
+本子任务落盘 **A / B / C** 三块（可分期验收）：
 
 1. **A（已实现）**：在 Text2SQL 路径注入会话历史，用于 DDL 检索与 SQL 生成提示（基线修复）。  
-2. **B/C（待改进）**：值域/同义词字典（或 DISTINCT 采样）与上轮结构化锚点（表/SQL 摘要），与规格 §4 对齐。
+2. **B（分阶段）**：**PR1 已完成**可版本化字典 + `build_sql_prompt` 注入；**PR2 仍待** DISTINCT 采样与防漂移并集。与规格 §4 对齐。  
+3. **C（已实现基线）**：上轮结构化锚点（表/SQL 摘要）；澄清策略 P1+ 另单。
 
 ---
 
@@ -29,11 +30,12 @@
 - [x] `build_sql_prompt`：可选 `dialogue_context`，注入「近期对话（指代消解）」说明块。  
 - [x] `AgentMemoryStore.save`：内存缓存条目与 `load` 一致为 `{query, response}`，避免同进程次轮解析出空历史。
 
-### B. 枚举 / 同义词 / 列值域提示（待实现）
+### B. 枚举 / 同义词 / 列值域提示（PR1 已落地；PR2 待做）
 
-- [ ] 维护可版本化的**业务字典**或**从库 DISTINCT 采样**（如 `gender`：`男`/`女`；`commission_structure`：底薪加提成、提成结构、固定佣金等），注入 `build_sql_prompt` 或独立「术语→条件」小节。  
-- [ ] 明确与 DDL 文档的边界：字典为**补充真值**，不替代 `public.*` 表结构来源。  
-- [ ] 可选 env：字典文件路径、是否启用 DISTINCT 探针、每列最大 distinct 条数等（具体名以 `PROJECT_CONFIG` 增补为准）。
+- [x] **PR1**：可版本化 **YAML**（`docs/text2sql/v1/value_hints.yaml`：当前 `agent_info.gender` + `commission_structure`，`values` 与 `docs/text2sql/v1/sql/supabase_init.sql` 对齐），经 `api/text2sql_value_hints.py` 注入 `build_sql_prompt(..., value_hints_block=)`；**DISTINCT 探针**按方案留 **PR2**。  
+- [x] 与 DDL 边界：prompt 内固定为「业务术语与库内取值」+ 不替代表结构说明（见代码拼装）。  
+- [x] **PR1 env**：`TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED` 已写入 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`。  
+- [ ] **PR2 env**：`TEXT2SQL_DISTINCT_PROBE` / `TEXT2SQL_DISTINCT_MAX` / `TEXT2SQL_DISTINCT_COLUMNS` 等（随 DISTINCT 实现一并增补 `PROJECT_CONFIG`）。
 
 ### C. 上轮结构化锚点（已实现基线；澄清策略仍为 P1+）
 
@@ -91,7 +93,7 @@ tables:
 | 加载与缓存 | 新建 `api/text2sql_value_hints.py`：`load_hints(path) -> dict`；进程内 `functools.lru_cache` 或模块级「mtime 变更则重载」，避免每次请求读盘。 |
 | Prompt 拼装 | `api/text2sql_core.py`：为 `build_sql_prompt` 增加可选参数 `value_hints_block`，在 `ctx_block` 前插入「【值域与口语映射】」固定说明 + 块正文。 |
 | 调用方 | `api/tools.py`：`text2sql_execute` 在组 `dialogue_context` 之后、`build_sql_prompt` 之前：根据 env、检索结果中的 DDL 表名集合、以及已有 `text2sql_grounding`（若有）决定要注入的表/列，调用 `format_hints_for_prompt(...)`。 |
-| 其它入口 | `unified_chat.py` / `chain_chat.py` / `text2sql_api.py` 若直连 `build_sql_prompt`：首版可 **不传** `value_hints_block`（行为与现网一致）；或统一经一处 helper，避免分叉行为（二选一在 PR 描述中写死）。 |
+| 其它入口 | **已统一**：`unified_chat.py` / `chain_chat.py` / `text2sql_api.py` 均调用 `build_value_hints_block_for_text2sql`（无会话历史处传 `history=None`）；Agent 路径以 `tools.text2sql_execute` 为准并传入 `history`。 |
 
 ### B.3 环境变量（草案 → 落地后写入 PROJECT_CONFIG）
 
@@ -150,10 +152,11 @@ tables:
 - [x] 同一 `session_id` 下，首轮问「统计 agent_info 表有多少条」、次轮问「刚刚的表里多少男性」时，`text2sql` 路径的检索串或生成 prompt 中**能出现**首轮语境中的表名锚点（日志或 debug 可核对）。  
 - [x] `pytest`：`tests/test_unified_chat_backend_v2_agent.py`、`tests/test_intent_cache.py` 等与 Agent 路径相关用例不因本次改动失败。
 
-### B（待实现）
+### B（PR1 部分可勾选；PR2 / 文档仍开放）
 
-- [ ] 对「男性 / 女 / commission 口语」等用例，生成 SQL 中 **WHERE 字面量与库内枚举一致**（fixture 以 `supabase_init.sql` 或约定测试库为准）。  
-- [ ] 字典或 DISTINCT 与真实库**漂移**时有文档说明（更新频率或 CI 校验策略）。
+- [x] **PR1 自动化**：`tests/test_text2sql_value_hints.py` 断言 prompt 含性别/佣金 **库内取值与同义词映射**（不依赖外呼 LLM）。  
+- [ ] **集成 / 人工**：对「男性 / commission 口语」等，**实际生成 SQL** 的 `WHERE` 字面量与库一致（`temperature=0` + 日志或 `CHATBI_V2_DEBUG_LLM_PROMPTS` 核对；审核 Agent 建议抽 1～2 条跑通）。  
+- [ ] **漂移说明**：PR2 DISTINCT 落地后，在 `docs/text2sql/` 或本任务实现备忘补「YAML ∪ DISTINCT 并集 + 同义词仍人工」；当前仅 YAML 与 `supabase_init.sql` 人工对齐（**审核可记为已知缺口**）。
 
 ### C（已实现基线）
 
@@ -169,8 +172,24 @@ tables:
 | **A 已涉及文件** | `api/tools.py`（`_text2sql_retrieve_query`、`text2sql_execute`）、`api/text2sql_core.py`（`build_sql_prompt(..., dialogue_context=)`）、`api/agent_memory.py`（`save` 缓存形状） |
 | **A 新增 env** | `TEXT2SQL_RETRIEVE_QUERY_MAX_LEN`（默认 `1200`，可选） |
 | **C 已涉及文件** | `api/text2sql_grounding.py`（新建）、`api/unified_chat.py`（`_text2sql_grounding_from_agent_result` / 落库）、`api/agent_memory.py`（load 合并）、`api/query_rewrite.py`、`api/agent.py`、`tests/test_text2sql_grounding.py` |
-| **B 待拆 PR** | 见上文「## B 实施方案细化」：PR1 YAML + `build_sql_prompt`；PR2 DISTINCT 与 YAML **并集防漂移**（默认不 YAML 短路） |
-| **图谱** | 若流程变更跨请求锚点，同步 `_tech_graph/` 中 Text2SQL / Agent 子流程（遵守双轨与 Mermaid 协议） |
+| **B-PR1 已涉及文件** | `docs/text2sql/v1/value_hints.yaml`、`api/text2sql_value_hints.py`、`api/text2sql_core.py`（`value_hints_block`）、`api/tools.py`、`api/unified_chat.py`、`api/chain_chat.py`、`api/text2sql_api.py`、`tests/test_text2sql_value_hints.py`、`requirements.txt`（`pyyaml`） |
+| **B-PR1 新增 env** | `TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED`（真值表 §C） |
+| **B 待拆 PR** | **PR2**：DISTINCT allowlist + 与 YAML 并集防漂移 + 超时降级 + `PROJECT_CONFIG` 增补 DISTINCT 相关 env |
+| **图谱** | 若流程变更跨请求锚点，同步 `_tech_graph/` 中 Text2SQL / Agent 子流程（遵守双轨与 Mermaid 协议）；**B-PR1 未改跨请求契约，图谱非强制，审核可选查** |
+
+---
+
+## 审核清单（供审核 Agent）
+
+> 审核目标：确认 **B-PR1** 与任务单 / `PROJECT_CONFIG` 一致，且无回归；**不**要求本轮完成 PR2。
+
+- [x] **代码与路径**：存在 `docs/text2sql/v1/value_hints.yaml`；存在 `api/text2sql_value_hints.py`；`build_sql_prompt` 含 `value_hints_block`，且块在「近期对话」**之前**（`text2sql_core.py`：`vh` 先于 `ctx_block` 追加）。  
+- [x] **入口一致**：`tools.text2sql_execute` 与 `unified_chat` / `chain_chat` / `text2sql_api` 均通过 `build_value_hints_block_for_text2sql` 注入（Agent 路径带 `history` 以利 grounding 表裁剪）。  
+- [x] **环境变量真值**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 已收录 `TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED`，且与代码读取逻辑一致（含「显式 `false` 关闭」语义）。  
+- [x] **数据对齐**：YAML 中 `gender` / `commission_structure` 的 `values` 与 `supabase_init.sql` 样例数据中出现的取值一致（`commission_structure` 含库内字面量「提成结构」，与同义词表并存属已知产品语义点，见下条）。  
+- [x] **测试**：`pytest tests/test_text2sql_value_hints.py tests/test_text2sql_grounding.py tests/test_unified_chat_backend_v2_agent.py tests/test_intent_cache.py` → **26 passed, 2 skipped**（skipped 为 L5 mock 暂缓，见 `docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md`）。  
+- [x] **已知缺口登记**：同义词「提成结构→底薪加提成」与库内字面量「提成结构」同名，产品若需区分须在后续迭代拆 `logical_key` 或改措辞；**PR2 DISTINCT 未实现**，不记为缺陷（本任务未承诺 PR2 已交付）。  
+- [x] **结论（2026-05-09 验收）**：**通过（B-PR1 + A/C 回归）**。开放项：任务 §B 验收中「集成 / 人工核对实际生成 SQL」与「PR2 漂移说明文档」仍待 PR2 或单独抽检时闭合。
 
 ---
 

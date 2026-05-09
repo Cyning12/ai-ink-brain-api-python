@@ -21,6 +21,7 @@ from .rag_recall_tools import (
     structured_recall_by_date,
 )
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
+from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
 from .text2sql_core import (
     build_sql_prompt,
     build_summary_prompt,
@@ -29,8 +30,8 @@ from .text2sql_core import (
     llm_summarize,
     validate_sql_readonly,
 )
-from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
 from .text2sql_store import get_text2sql_store
+from .text2sql_value_hints import build_value_hints_block_for_text2sql
 
 
 @dataclass(frozen=True)
@@ -338,7 +339,13 @@ async def text2sql_execute(
         oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
         chat_model = _pick_chat_model()
 
-        sql_prompt = build_sql_prompt(query, retrieved, dialogue_context=dialogue_ctx or None)
+        vh_block = build_value_hints_block_for_text2sql(retrieved, history=hist)
+        sql_prompt = build_sql_prompt(
+            query,
+            retrieved,
+            dialogue_context=dialogue_ctx or None,
+            value_hints_block=vh_block,
+        )
         if debug_llm_prompts:
             llm_prompts.append(
                 {

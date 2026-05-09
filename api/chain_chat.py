@@ -20,6 +20,7 @@ from .text2sql_core import (
     validate_sql_readonly,
 )
 from .text2sql_store import get_text2sql_store
+from .text2sql_value_hints import build_value_hints_block_for_text2sql
 
 
 def _require_chain_auth(authorization: str | None, x_blog_admin_token: str | None, x_admin_token: str | None) -> None:
@@ -163,7 +164,11 @@ async def handle_chain_chat(
     oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
 
     # 2) generate sql
-    sql_prompt = build_sql_prompt(query, retrieved)
+    sql_prompt = build_sql_prompt(
+        query,
+        retrieved,
+        value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+    )
     events.append(
         _event(
             typ="tool.call.start",

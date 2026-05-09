@@ -25,6 +25,7 @@ from .rag_env import (
     supabase_client,
 )
 from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
+from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .text2sql_grounding import build_text2sql_grounding_dict
 from .text2sql_store import get_text2sql_store
 from .intent_agent import IntentDecision
@@ -1316,7 +1317,11 @@ async def handle_unified_chat(
         chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
 
         # generate sql
-        sql_prompt = build_sql_prompt(query, retrieved)
+        sql_prompt = build_sql_prompt(
+            query,
+            retrieved,
+            value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+        )
         events.append(
             _event(
                 typ="tool.call.start",
@@ -2530,7 +2535,11 @@ async def handle_unified_chat_stream(
                 chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
 
                 # generate sql
-                sql_prompt = build_sql_prompt(query, retrieved)
+                sql_prompt = build_sql_prompt(
+                    query,
+                    retrieved,
+                    value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+                )
                 yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_generate_sql", payload={"tool": "text2sql.generate_sql", "input": {"query": query}}))
                 t1 = time.perf_counter()
                 sql_raw = ""

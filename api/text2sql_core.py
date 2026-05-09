@@ -118,9 +118,11 @@ def build_sql_prompt(
     retrieved: list[dict[str, Any]],
     *,
     dialogue_context: str | None = None,
+    value_hints_block: str | None = None,
 ) -> str:
     ddl = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "ddl"][:4])
     examples = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "example"][:3])
+    vh = (value_hints_block or "").strip()
     ctx = (dialogue_context or "").strip()
     ctx_block = (
         "\n\n".join(
@@ -143,6 +145,8 @@ def build_sql_prompt(
         f"【可用表结构(DDL)】\n{ddl}".strip(),
         f"【示例问答与SQL】\n{examples}".strip(),
     ]
+    if vh:
+        parts.append(vh)
     if ctx_block:
         parts.append(ctx_block)
     parts.extend(

@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-07（P1-D：`task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` — `CHATBI_V2_INTENT_TIMEOUT_S` / `INTENT_MIN_CONFIDENCE` 真值）；此前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
+> **最后校准**：2026-05-09（`task_chatbi_v2_text2sql_multiturn_grounding_v1.md` · **B-PR1**：`TEXT2SQL_VALUE_HINTS_PATH` / `TEXT2SQL_VALUE_HINTS_ENABLED`）；此前 2026-05-07（P1-D：`task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`）；再前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -78,6 +78,8 @@
 | `CONTENT_ROOT` | Markdown 内容根目录（用于 ingest/sync） | 可选 | `api/ingest_pipeline.py:get_all_markdown_chunks()` | 留空：使用后端仓库内 `REPO_ROOT/content`；设置则扫描该目录（不存在则返回空） | 与项目无关 |
 | `EMBEDDING_DIM` | 期望向量维度（入库校验） | 可选 | `api/rag_env.py:expected_embedding_dim()` | 默认 `1024` | **必须与** `vector(N)` **一致** |
 | `SILICONFLOW_EMBEDDING_DIM` | `EMBEDDING_DIM` 兼容别名 | 可选 | `api/rag_env.py:expected_embedding_dim()` | 留空则看 `EMBEDDING_DIM` | **必须与** `vector(N)` **一致** |
+| `TEXT2SQL_VALUE_HINTS_PATH` | Text2SQL 列值域 / 同义词 YAML 路径 | 可选 | `api/text2sql_value_hints.py:_resolve_hints_path()` | 留空则使用仓库内 `docs/text2sql/v1/value_hints.yaml`（存在则加载） | 与 Text2SQL 样例库枚举一致 |
+| `TEXT2SQL_VALUE_HINTS_ENABLED` | 是否注入值域块 | 可选 | `api/text2sql_value_hints.py:_resolve_hints_path()` | `0`/`false`/`no`/`off` 关闭；未设时默认开启（仍受路径与文件是否存在约束） | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 

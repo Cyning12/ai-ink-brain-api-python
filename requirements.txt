@@ -8,3 +8,4 @@ requests
 faiss-cpu
 numpy
 psycopg[binary]
+pyyaml
