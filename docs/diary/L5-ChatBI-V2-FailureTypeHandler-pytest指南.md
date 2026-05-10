@@ -100,25 +100,25 @@ python -m pytest tests/test_unified_chat_backend_v2_agent.py -q --tb=short
 
 ## 8. 暂时关闭 L5 mock 用例、之后如何再开
 
-两则 canonical 用例可能带有 **`@pytest.mark.skip(...)`**（若仓库已加上）：
+两则 canonical 用例在仓库中**默认已启用**（无 `@pytest.mark.skip`）。若需临时关闭：
 
-- **恢复**：删除对应函数上的 **`@pytest.mark.skip`** 装饰器即可。  
-- **原因**：便于本地先不跑 mock、或排期后再开；**不要**把大段 `monkeypatch` 用 `#` 注释掉（易残留语法错误）。
+- **关闭**：在 `test_v2_rag_empty_gated_fallback` / `test_v2_natural_diary_query_rag_empty_fallback_to_direct` 上恢复 **`@pytest.mark.skip(...)`**。  
+- **不要**把大段 `monkeypatch` 用 `#` 注释掉（易残留语法错误）。
 
 ---
 
 ## 9. 总规要求的「矩阵归档」（可选但建议）
 
-在 **`docs/diary/`**（本文件同目录）另建一页表格，例如：
+**已定稿页**：`docs/diary/2026-05-10-l5-failure-matrix-acceptance.md`（自 **`FailureTypeHandler.decide_next`** 摘录 + pytest 列；**日期 / 分支** 见该文与 Runner **§2.9**）。
+
+以下为撰写前的示例草稿，**以定稿页为准**：
 
 | `error_code` | 输入意图摘要 | 预期 `next_tool` | 预期 `stop_now` | pytest 用例 / 待补 |
 |--------------|--------------|------------------|-------------------|---------------------|
 | `RAG_RETRIEVE_EMPTY` | gating 开 | `text2sql_query` | false | `test_v2_rag_empty_gated_fallback` |
 | `RAG_RETRIEVE_EMPTY` | gating 关 | `direct_answer` | false | `test_v2_natural_diary_query_rag_empty_fallback_to_direct` |
-| `SQL_GEN_SYNTAX` | … | `rag_search` | … | 见同文件其它用例 / 待补 |
+| `SQL_GEN_SYNTAX` | … | `rag_search` | … | 定稿表中标「待补」 |
 | … | … | … | … | … |
-
-表末注明 **日期、commit**，即满足 §7.5.4 **「归档」** 的字面要求。
 
 ---
 

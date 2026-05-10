@@ -21,8 +21,6 @@ from api.tools import Tool, ToolResult, ToolName
 # ④ 自然「必 RAG」query：CHATBI_V2_INTENT_LLM=false 且不 patch decide_intent_v2；仅 ①+②；query 不含
 #    text2sql 启发式关键词，见 test_v2_natural_diary_query_rag_empty_fallback_to_direct。
 # canonical（gated SQL）：test_v2_rag_empty_gated_fallback。
-#
-# 下列两则 L5 canonical 用例若带 @pytest.mark.skip：去掉装饰器即可恢复（详见上述指南 §8）。
 
 # 含「日记」、无统计类关键词：启发式意图首工具恒为 rag_search（不依赖外呼 LLM）。
 RAG_FIRST_DIARY_QUERY = "2026-04-28日记的大致内容"
@@ -523,7 +521,6 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
         assert "event: done" in text
 
 
-@pytest.mark.skip(reason="L5 mock 暂缓：恢复时删除本行。说明见 docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md")
 def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     """RAG_RETRIEVE_EMPTY + has_aggregation_signals=true -> fallback SQL（gated 生效）。"""
     monkeypatch.setenv("CHATBI_USE_AGENT", "true")
@@ -608,7 +605,6 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     assert "text2sql_query" in final_evt["payload"]["tools_used"]
 
 
-@pytest.mark.skip(reason="L5 mock 暂缓：恢复时删除本行。说明见 docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md")
 def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest.MonkeyPatch):
     """自然 query 首步必 rag：不 patch decide_intent_v2；rag 空命中且无 SQL gating 时走 direct_answer。
 
