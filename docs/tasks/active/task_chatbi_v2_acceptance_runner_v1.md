@@ -119,6 +119,7 @@
 | 2.4 | **L2** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · §2.4 同款命令 · `n=100` · **P50 0.0ms / P95 0.1ms / P99 6806.6ms / Avg 253.1ms / Max 7967.6ms** · pytest **~25.5s**（`benchmark_intent` 为 `random.choice` 混合缓存命中与偶发全链路外呼，分位数与总规 §7.2 纸面目标对照时注明「本机归档」）。 |
 | 2.5 | **L4** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · 总规 **§7.5.3** `curl` SSE · 原始流归档 **`tests/_out/sse_sample_l4.txt`**（单轮 `session_id:null`，`done.ok=true`）；**§7.5.5.1** 两轮同会话佐证 **`tests/_out/l6_turn1.txt`**、**`tests/_out/l6_turn2.txt`**（`meta`/`done` 中 `session_id` 一致，第二轮 `agent.debug.llm_prompts` 含首轮锚点）。细节见 **`docs/diary/2026-05-10-l4-sse-acceptance-archive.md`**。 |
 | 2.6 | **L5** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · **`pytest tests` → 71 passed, 2 skipped**；**`RAG_RETRIEVE_EMPTY` gating** 与 **`SQL_EXEC_TABLE_NOT_FOUND`→RAG** 已由 `tests/test_unified_chat_backend_v2_agent.py` 覆盖；**全量 `error_code` 矩阵表**见 **`docs/diary/2026-05-10-l5-failure-matrix-acceptance.md`**（表中「待补」为后续专项 mock，不否掉本轮结论）。 |
+| 2.7 | **L6** | **通过** | **2026-05-10** · **`ai-ink-brain`** Unified + **`PY_API_URL`** · **同一 `session_id`** 三轮：`agent_info` **总行数 10** → **男性 3** → **其中固定佣金模式 2**；指代与查数链正常。**后端 curl 两轮**仍见 **`tests/_out/l6_turn*.txt`** 与 **`docs/diary/2026-05-10-l4-sse-acceptance-archive.md`**。UI 摘录见 **`docs/diary/2026-05-10-l6-multiturn-ui-acceptance.md`**。 |
 
 ---
 
@@ -141,6 +142,7 @@
 | `docs/diary/2026-05-10-l4-sse-acceptance-archive.md` | L4（2026-05-10；SSE 落 `tests/_out/`） |
 | `docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md` | L5 pytest 写法 |
 | `docs/diary/2026-05-10-l5-failure-matrix-acceptance.md` | L5 `error_code` 矩阵归档（§7.5.4） |
+| `docs/diary/2026-05-10-l6-multiturn-ui-acceptance.md` | L6 前端多轮（§7.5.5）摘录 |
 
 ---
 
@@ -148,7 +150,8 @@
 
 1. ~~在本机跑通 **§2.1 L0** + **§2.2 L3**~~（均已通过，见 **§2.9**）。  
 2. ~~**L4** `curl` 与样本归档~~（**2026-05-10** 已回填 **§2.9**，diary 见 **`docs/diary/2026-05-10-l4-sse-acceptance-archive.md`**，SSE 文件在 **`tests/_out/`**）。  
-3. 优先：**L5** 矩阵（总规 **§7.5.4**）或总规 **§7** 未勾项；需要全栈时再 **L6** UI。
+3. ~~**L5** / **L6** 按层验收~~（L5 见 **§2.6**；L6 见 **§2.7** 与 **`2026-05-10-l6-multiturn-ui-acceptance.md`**）。  
+4. 后续：**L7** 运维/env/发布烟测，或总规 **§7** 其余未勾项。
 
 ---
 

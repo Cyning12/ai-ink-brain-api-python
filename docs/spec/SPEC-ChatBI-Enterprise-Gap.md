@@ -517,6 +517,7 @@ class ModelRouter:
 | 结构化日志 | P1 | JSON 日志 + Trace ID |
 | 评估测试集 | P1 | 100 条标注样本 |
 | 健康检查 | P1 | /health / /ready / /live |
+| Text2SQL 工具链延迟与可观测（多轮 SSE / 聚合快路径 / LLM timeout） | P1 | `docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` |
 
 ### 4.3 V4 阶段（7/1-8/31）
 
