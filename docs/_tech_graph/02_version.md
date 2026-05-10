@@ -26,5 +26,6 @@ timeline
   2026-05-08 : 45d99d8 auto: api/agent.py
   2026-05-09 : da0fe2f auto: api/agent.py
   2026-05-09 : multiturn Text2SQL grounding tool_results + memory load
+  2026-05-10 : e67ab5b auto: api/text2sql_value_hints.py
 ```
 

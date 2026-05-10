@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("yaml", reason="值域 YAML 测试依赖 PyYAML（requirements.txt 含 pyyaml）")
+
 from api.text2sql_core import build_sql_prompt
 from api.text2sql_value_hints import (
     build_value_hints_block_for_text2sql,
@@ -75,6 +79,9 @@ def test_build_sql_prompt_inserts_hints_before_dialogue() -> None:
 
 
 def test_load_hints_from_file_roundtrip(tmp_path: Path) -> None:
+    import api.text2sql_value_hints as vh_mod
+
+    vh_mod._loaded.clear()
     p = tmp_path / "h.yaml"
     p.write_text(
         """
@@ -90,6 +97,8 @@ tables:
         encoding="utf-8",
     )
     data = load_hints(p)
+    if data is None:
+        pytest.fail(f"load_hints 返回 None，请检查 PyYAML 与文件内容: {p}（exists={p.is_file()}）")
     assert isinstance(data, dict)
     assert data.get("version") == 1
     body = format_hints_for_prompt(data, {"agent_info"})
@@ -97,6 +106,9 @@ tables:
 
 
 def test_build_value_hints_block_respects_env_path(tmp_path: Path, monkeypatch) -> None:
+    import api.text2sql_value_hints as vh_mod
+
+    vh_mod._loaded.clear()
     repo_root = Path(__file__).resolve().parents[1]
     bundled = repo_root / "docs/text2sql/v1/value_hints.yaml"
     fallback = """
@@ -124,6 +136,14 @@ tables:
         }
     ]
     block = build_value_hints_block_for_text2sql(retrieved, history=None)
+    if block is None:
+        import os
+
+        rp = vh_mod._resolve_hints_path()
+        pytest.fail(
+            "build_value_hints_block_for_text2sql 返回 None；"
+            f"_resolve_hints_path()={rp!s}, TEXT2SQL_VALUE_HINTS_ENABLED={os.environ.get('TEXT2SQL_VALUE_HINTS_ENABLED')!r}"
+        )
     assert block
     assert "【值域与口语映射】" in block
     assert "男性→男" in block

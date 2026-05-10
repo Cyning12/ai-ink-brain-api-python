@@ -52,8 +52,11 @@ def load_hints(path: str | Path) -> dict[str, Any] | None:
     except ImportError:
         return None
     try:
-        data = yaml.safe_load(p.read_text(encoding="utf-8"))
-    except Exception:  # noqa: BLE001
+        # utf-8-sig：避免 Windows/编辑器写入的 BOM 导致 safe_load 异常或解析异常
+        data = yaml.safe_load(p.read_text(encoding="utf-8-sig"))
+    except yaml.YAMLError:
+        return None
+    except (OSError, UnicodeDecodeError):
         return None
     if not isinstance(data, dict):
         return None

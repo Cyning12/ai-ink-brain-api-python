@@ -31,9 +31,10 @@ docs/spec/v2-agent/
 3. **SPEC-ChatBI-V2-ReAct-Loop.md** — 再读 ReAct 循环，理解 Agent 核心逻辑
 4. **SPEC-ChatBI-V2-Memory.md** — 再读记忆管理，理解多轮对话（存储与窗口）
 5. **SPEC-ChatBI-V2-Multiturn-Semantics.md** — 多轮**语义**承接（与 §2.6 传输层解耦；追问 / 指代 / rewrite）
-6. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容  
-7. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE、Timeline/双栏（**在 V2 里程碑暂结之后**排期）  
-8. **SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md** — vNext **吸收索引**（不明点已收口；**优先读 Timeline §0**）
+6. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容
+7. **SPEC-ChatBI-V2-Enterprise-Gap.md** — 企业级能力差距分析（面试准备、V3/V4 规划）
+8. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE、Timeline/双栏（**在 V2 里程碑暂结之后**排期）  
+9. **SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md** — vNext **吸收索引**（不明点已收口；**优先读 Timeline §0**）
 
 ---
 
@@ -53,11 +54,12 @@ docs/spec/v2-agent/
 ## 快速导航
 
 - [总规：架构目标与模块设计](SPEC-ChatBI-V2-Agent-Overview.md)
-- [意图识别升级设计](SPEC-ChatBI-V2-Intent.md) ⬅️ 新增
+- [意图识别升级设计](SPEC-ChatBI-V2-Intent.md)
 - [Tool 设计与封装](SPEC-ChatBI-V2-Tool-Design.md)
 - [ReAct 循环详细设计](SPEC-ChatBI-V2-ReAct-Loop.md)
 - [记忆管理设计](SPEC-ChatBI-V2-Memory.md)
 - [多轮对话语义承接](SPEC-ChatBI-V2-Multiturn-Semantics.md)
 - [事件流兼容设计](SPEC-ChatBI-V2-Events.md)
+- [企业级能力差距分析](SPEC-ChatBI-V2-Enterprise-Gap.md) ⬅️ 新增
 - [下一版：增量 SSE 与 Timeline 实时感知](SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md)
 - [vNext：增量 SSE 澄清简报（吸收索引）](SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md)

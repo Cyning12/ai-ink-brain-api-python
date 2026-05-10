@@ -59,7 +59,8 @@
 | 项 | 内容 |
 |----|------|
 | 前置 | 已 `export SILICONFLOW_API_KEY` 等（§7.5.1） |
-| 命令 | `CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_$(date +%Y%m%d_%H%M%S).jsonl PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v -s --tb=short` |
+| **必带** | **`CHATBI_PYTEST_KEEP_INTENT_ENV=1`**：否则 `tests/conftest.py` 会在导入用例前把 `CHATBI_V2_INTENT_*` 强制为 `false`，你在命令行写的 `CHATBI_V2_INTENT_EVAL=true` 会被覆盖，`-m intent_eval` 仍会 **skip**（见 §2.1「`.env` 与卡死」）。 |
+| 命令 | `CHATBI_PYTEST_KEEP_INTENT_ENV=1 CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_EVAL_OUT=tests/_out/intent_llm_$(date +%Y%m%d_%H%M%S).jsonl PYTHONPATH=. python -m pytest tests/test_intent_agent_accuracy.py -m intent_eval -v -s --tb=short` |
 | Stub 替代 | `CHATBI_V2_INTENT_LLM=false` 的 **L1′** 见总规 §7.5.2 表 |
 | 通过 | `n==60`；macro / 三桶 / `v1_fallback` 对照任务红线或既有归档 |
 
@@ -67,7 +68,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 命令（pytest） | `CHATBI_V2_INTENT_BENCH_RUN=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 PYTHONPATH=. python -m pytest tests/benchmark_intent_latency.py -m intent_benchmark -v -s --tb=short` |
+| 命令（pytest） | `CHATBI_PYTEST_KEEP_INTENT_ENV=1 CHATBI_V2_INTENT_BENCH_RUN=true CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 PYTHONPATH=. python -m pytest tests/benchmark_intent_latency.py -m intent_benchmark -v -s --tb=short` |
 | 脚本入口 | `CHATBI_V2_INTENT_LLM=true CHATBI_V2_INTENT_BENCH_N=100 PYTHONPATH=. python tests/benchmark_intent_latency.py` |
 | 说明 | 纸面 P50/P95 见 §7.2；真实延迟常与纸面有差距，归档时写明环境 |
 
