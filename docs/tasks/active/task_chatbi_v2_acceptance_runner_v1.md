@@ -115,6 +115,8 @@
 |---|------|------|---------------------------|
 | 2.1 | **L0** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · `tech_graph_contract_check` **OK**；`pytest tests -q --tb=short` → **69 passed, 4 skipped**（约 5.34s；skip 含 benchmark 默认、`intent_eval` 默认关、V2 Agent 内 2×L5 mock 暂缓等，以终端 `short test summary` 为准）。 |
 | 2.2 | **L3** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · `CHATBI_USE_AGENT=true … test_unified_chat_backend_v2_agent.py` → **7 passed, 2 skipped**（2 条为 L5 mock 暂缓，见该文件 skip 说明）。 |
+| 2.3 | **L1** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · `intent_eval` 真实 LLM · 产物 **`tests/_out/intent_llm_20260510_173118.{jsonl,csv}`** · **n=60** · 对照 `task_chatbi_v2_agent_p1_eval_benchmark_v1` 冻结线：**macro-F1≈0.948**、**T2S 19/20**、**RAG 22/24**、**Direct 16/16**、**多轮 9/10**（**57/60**）；**备注**：3 条错判与 **Intent 超时→V1 降级** 同因，属外呼稳定性留档，非红线未过。 |
+| 2.4 | **L2** | **通过** | **2026-05-10** · `feat/chatbi-v2-agent` · §2.4 同款命令 · `n=100` · **P50 0.0ms / P95 0.1ms / P99 6806.6ms / Avg 253.1ms / Max 7967.6ms** · pytest **~25.5s**（`benchmark_intent` 为 `random.choice` 混合缓存命中与偶发全链路外呼，分位数与总规 §7.2 纸面目标对照时注明「本机归档」）。 |
 
 ---
 
