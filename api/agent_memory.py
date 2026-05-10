@@ -64,14 +64,20 @@ class AgentMemoryStore:
             self._cache[sid] = history
             return history
 
-        # 返回给工具侧的历史格式：{query, response}
+        # 返回给工具侧：{query, response}；可选 text2sql_grounding（来自上轮 tool_results）
         history: list[dict[str, Any]] = []
         for row in reversed(rows_desc):
             q = row.get("query") if isinstance(row.get("query"), str) else ""
             r = row.get("response") if isinstance(row.get("response"), str) else ""
             if not q.strip():
                 continue
-            history.append({"query": q.strip(), "response": r.strip()})
+            item: dict[str, Any] = {"query": q.strip(), "response": r.strip()}
+            tr = row.get("tool_results")
+            if isinstance(tr, dict):
+                g = tr.get("text2sql_grounding")
+                if isinstance(g, dict) and isinstance(g.get("primary_table"), str) and g.get("primary_table", "").strip():
+                    item["text2sql_grounding"] = g
+            history.append(item)
 
         self._cache[sid] = history
         return history
@@ -86,9 +92,9 @@ class AgentMemoryStore:
         sid = session_id.strip()
         if not sid:
             return
+        # 与 load() 返回的 {query, response} 形状一致，避免同进程次轮读到空 intent/history
         self._cache.setdefault(sid, [])
-        self._cache[sid].append({"role": "user", "content": payload.query})
-        self._cache[sid].append({"role": "assistant", "content": payload.response})
+        self._cache[sid].append({"query": payload.query.strip(), "response": (payload.response or "").strip()})
 
 
 def get_memory_store() -> AgentMemoryStore:

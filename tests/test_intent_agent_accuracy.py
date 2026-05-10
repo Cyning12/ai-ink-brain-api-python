@@ -311,7 +311,20 @@ def _f1_scores(cm: dict[str, dict[str, int]], labels: list[str]) -> tuple[dict[s
 
 
 async def _run_eval(*, real_llm: bool) -> dict[str, Any]:
-    # 约束：CI 默认不跑真实 LLM；脚本内仍允许用 env 切换。
+    # decide_intent_v2 读 CHATBI_V2_INTENT_LLM；api 侧 unset 时默认为 true，故此处必须按 real_llm 临时覆盖，否则 stub 评测仍会外呼 60 次卡死。
+    _prev_llm = os.environ.get("CHATBI_V2_INTENT_LLM")
+    os.environ["CHATBI_V2_INTENT_LLM"] = "true" if real_llm else "false"
+    try:
+        return await _run_eval_body(real_llm=real_llm)
+    finally:
+        if _prev_llm is None:
+            os.environ.pop("CHATBI_V2_INTENT_LLM", None)
+        else:
+            os.environ["CHATBI_V2_INTENT_LLM"] = _prev_llm
+
+
+async def _run_eval_body(*, real_llm: bool) -> dict[str, Any]:
+    # 约束：CI 默认不跑真实 LLM；入口见 _run_eval（负责 env 对齐）。
     tools = _make_tools()
     labels: list[str] = ["rag_search", "text2sql_query", "direct_answer"]
     cm = _confusion_matrix(labels)
@@ -463,9 +476,10 @@ def _print_report(summary: dict[str, Any]) -> None:
     reason="默认不跑真实 LLM/评测；本地设置 CHATBI_V2_INTENT_EVAL=true 执行。",
 )
 def test_intent_agent_accuracy_smoke(monkeypatch: pytest.MonkeyPatch) -> None:
-    # 默认跑真实 LLM：由任务单要求；如需 stub，可在本地将 CHATBI_V2_INTENT_LLM=false。
-    # 说明：此测试只负责“评测闭环可跑通”，不作为 CI gate（已 skip）。
-    real_llm = _env_flag("CHATBI_V2_INTENT_LLM", default=True)
+    # 默认 stub：与 L0（unset CHATBI_V2_INTENT_LLM）及 CI 一致，避免 60 条外呼卡死数分钟。
+    # 真实 LLM：显式 export CHATBI_V2_INTENT_LLM=true 并配置 SILICONFLOW / 模型后再跑本用例。
+    # 说明：此测试只负责「评测闭环可跑通」；全量真实评测请用 -m intent_eval。
+    real_llm = _env_flag("CHATBI_V2_INTENT_LLM", default=False)
     summary = asyncio.run(_run_eval(real_llm=real_llm))
     if _intent_eval_progress_enabled():
         print("[intent_eval] 正在打印 Intent Accuracy Summary …", flush=True)

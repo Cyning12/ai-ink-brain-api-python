@@ -41,10 +41,12 @@ def test_history_hash_isolates_cache(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
         calls: list[int] = []
 
-        async def _fake_llm(*, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float) -> dict[str, Any]:
-            _ = (oai, tools, timeout_s)
+        async def _fake_llm(
+            *, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float, capture_prompts: bool = False
+        ) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+            _ = (oai, tools, timeout_s, capture_prompts)
             calls.append(1)
-            return {"tool": "rag_search", "reasoning": "ok", "confidence": 0.9}
+            return {"tool": "rag_search", "reasoning": "ok", "confidence": 0.9}, None
 
         monkeypatch.setattr(ia, "_llm_decide_v2", _fake_llm)
         monkeypatch.setattr(ia, "openai_siliconflow_client", lambda: object())
@@ -98,10 +100,12 @@ def test_lru_eviction(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
         calls: list[str] = []
 
-        async def _fake_llm(*, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float) -> dict[str, Any]:
-            _ = (oai, history, tools, timeout_s)
+        async def _fake_llm(
+            *, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float, capture_prompts: bool = False
+        ) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+            _ = (oai, history, tools, timeout_s, capture_prompts)
             calls.append(query)
-            return {"tool": "rag_search", "reasoning": query, "confidence": 0.8}
+            return {"tool": "rag_search", "reasoning": query, "confidence": 0.8}, None
 
         monkeypatch.setattr(ia, "_llm_decide_v2", _fake_llm)
         monkeypatch.setattr(ia, "openai_siliconflow_client", lambda: object())
@@ -124,9 +128,11 @@ def test_cache_hit_latency_under_10ms(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _run() -> None:
         monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
 
-        async def _fake_llm(*, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float) -> dict[str, Any]:
-            _ = (oai, query, history, tools, timeout_s)
-            return {"tool": "direct_answer", "reasoning": "x", "confidence": 0.9}
+        async def _fake_llm(
+            *, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float, capture_prompts: bool = False
+        ) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+            _ = (oai, query, history, tools, timeout_s, capture_prompts)
+            return {"tool": "direct_answer", "reasoning": "x", "confidence": 0.9}, None
 
         monkeypatch.setattr(ia, "_llm_decide_v2", _fake_llm)
         monkeypatch.setattr(ia, "openai_siliconflow_client", lambda: object())

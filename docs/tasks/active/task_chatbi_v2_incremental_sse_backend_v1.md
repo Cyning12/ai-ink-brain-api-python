@@ -10,7 +10,7 @@
 - `docs/_tech_graph/_contract_manifest.json` — **须与 `unified_chat.py` 同一 PR** 追加 `agent.llm.*`（见 manifest `_note`）  
 - `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` — `CHATBI_SSE_INCREMENTAL`
 
-**配对前端任务**：`ai-ink-brain/content/tasks/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`
+**配对前端任务**：`ai-ink-brain/content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`
 
 ---
 

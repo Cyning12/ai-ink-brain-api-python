@@ -44,3 +44,7 @@ flowchart TD
     class OUT1,OUT2 err
     class SPEC err
 ```
+
+## 补充：ChatBI V2 多轮锚点（2026-05-09）
+
+Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sync_persist_chatbi_v2_agent_log`（经 `_await_persist_chatbi_v2_agent_log`）在 `rag_conversation_logs.tool_results.text2sql_grounding` 写入 `primary_table` / `resolved_tables` / `sql_excerpt`（由 `api/text2sql_grounding.py` 从 SQL 解析）。次轮 `api/agent_memory.py::load` 合并进 `history[]`，经 `api/query_rewrite.py::history_to_rewrite_block` 与 `api/agent.py`（Intent 历史前缀）注入 Text2SQL 检索与生成。

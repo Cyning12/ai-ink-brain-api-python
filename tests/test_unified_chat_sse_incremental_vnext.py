@@ -29,8 +29,13 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
 
 
 def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
-    async def _exec(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
-        return await execute(query=query, history=history)
+    async def _exec(
+        query: str,
+        *,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
+        return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 
     return Tool(name=name, description=f"dummy-{name}", parameters={}, execute=_exec)
 
@@ -62,8 +67,10 @@ def test_sse_incremental_meta_then_whitelisted_chain(monkeypatch: pytest.MonkeyP
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _rag_ok(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
-        _ = (query, history)
+    async def _rag_ok(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history, debug_llm_prompts)
         return ToolResult(
             success=True,
             data={"answer": "stub-rag", "hits": []},
@@ -87,8 +94,8 @@ def test_sse_incremental_meta_then_whitelisted_chain(monkeypatch: pytest.MonkeyP
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="rag_search",
             mode="rag",
@@ -145,8 +152,10 @@ def test_sse_batch_without_contract_header_starts_with_router(monkeypatch: pytes
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _rag_ok(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
-        _ = (query, history)
+    async def _rag_ok(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history, debug_llm_prompts)
         return ToolResult(success=True, data={"answer": "x", "hits": []}, error=None, error_code=None, error_stage=None, latency_ms=1)
 
     class _DummyRegistry:
@@ -158,8 +167,8 @@ def test_sse_batch_without_contract_header_starts_with_router(monkeypatch: pytes
 
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry([_make_tool("rag_search", _rag_ok), _make_tool("direct_answer", _rag_ok), _make_tool("text2sql_query", _rag_ok)]))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="rag_search",
             mode="rag",
@@ -201,8 +210,10 @@ def test_sse_incremental_disabled_env_forces_batch(monkeypatch: pytest.MonkeyPat
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
-    async def _rag_ok(*, query: str, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
-        _ = (query, history)
+    async def _rag_ok(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history, debug_llm_prompts)
         return ToolResult(success=True, data={"answer": "x", "hits": []}, error=None, error_code=None, error_stage=None, latency_ms=1)
 
     class _DummyRegistry:
@@ -214,8 +225,8 @@ def test_sse_incremental_disabled_env_forces_batch(monkeypatch: pytest.MonkeyPat
 
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry([_make_tool("rag_search", _rag_ok), _make_tool("direct_answer", _rag_ok), _make_tool("text2sql_query", _rag_ok)]))
 
-    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float):  # noqa: ANN001
-        _ = (query, history, tools, min_confidence, timeout)
+    async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
         return IntentDecision(
             tool="rag_search",
             mode="rag",

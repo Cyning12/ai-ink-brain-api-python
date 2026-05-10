@@ -113,24 +113,50 @@ class Text2SqlResult:
     retrieved: list[dict[str, Any]]
 
 
-def build_sql_prompt(query: str, retrieved: list[dict[str, Any]]) -> str:
+def build_sql_prompt(
+    query: str,
+    retrieved: list[dict[str, Any]],
+    *,
+    dialogue_context: str | None = None,
+    value_hints_block: str | None = None,
+) -> str:
     ddl = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "ddl"][:4])
     examples = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "example"][:3])
-    return "\n\n".join(
+    vh = (value_hints_block or "").strip()
+    ctx = (dialogue_context or "").strip()
+    ctx_block = (
+        "\n\n".join(
+            [
+                "【近期对话（指代消解）】",
+                "若当前问题含「刚刚/该表/那张表/其中/上面」等，须结合下文继承**具体表名、统计对象**，不得臆造其它表。",
+                ctx,
+            ]
+        ).strip()
+        if ctx
+        else ""
+    )
+    parts: list[str] = [
+        "你是 Text2SQL 生成器。请根据用户问题生成可在 Postgres(Supabase) 执行的 SQL。",
+        "硬性约束：",
+        "- 只输出一条 SQL；只允许 SELECT（或 WITH ... SELECT）；不要包含解释文字；",
+        "- 只能使用下方提供的表与字段；不要编造不存在的表/字段；",
+        "- 尽量使用 snake_case 小写表/字段名。",
+        "",
+        f"【可用表结构(DDL)】\n{ddl}".strip(),
+        f"【示例问答与SQL】\n{examples}".strip(),
+    ]
+    if vh:
+        parts.append(vh)
+    if ctx_block:
+        parts.append(ctx_block)
+    parts.extend(
         [
-            "你是 Text2SQL 生成器。请根据用户问题生成可在 Postgres(Supabase) 执行的 SQL。",
-            "硬性约束：",
-            "- 只输出一条 SQL；只允许 SELECT（或 WITH ... SELECT）；不要包含解释文字；",
-            "- 只能使用下方提供的表与字段；不要编造不存在的表/字段；",
-            "- 尽量使用 snake_case 小写表/字段名。",
-            "",
-            f"【可用表结构(DDL)】\n{ddl}".strip(),
-            f"【示例问答与SQL】\n{examples}".strip(),
             f"【用户问题】\n{query}".strip(),
             "",
             "只输出 SQL：",
         ]
-    ).strip()
+    )
+    return "\n\n".join(parts).strip()
 
 
 def build_summary_prompt(query: str, sql: str, columns: list[str], rows: list[dict[str, Any]]) -> str:

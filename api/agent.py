@@ -11,11 +11,35 @@ from .intent_agent import IntentDecision, decide_intent_v2
 from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
 from .text2sql_core import is_text2sql_intent
+from .text2sql_grounding import grounding_prefix_for_intent
 
 
 V1Mode = Literal["rag", "text2sql", "no_data"]
 
 LlmPhase = Literal["intent", "rag_generate", "text2sql_sql", "text2sql_summary", "direct"]
+
+# agent.think / AgentStepView.thought 截断上限（含失败原因摘要，略放宽便于 Timeline 排查）
+AGENT_THINK_TEXT_CLIP = 420
+
+
+def _tool_failure_digest(tr: ToolResult, *, max_detail: int = 260) -> str:
+    """从 ToolResult 抽取单行可读的失败摘要（供 think 与 FailureTypeHandler 拼接）。"""
+    code = (tr.error_code or "UNKNOWN").strip() or "UNKNOWN"
+    stage = (tr.error_stage or "").strip()
+    err = (tr.error or "").strip().replace("\r", " ").replace("\n", " ")
+    if len(err) > max_detail:
+        err = err[: max_detail - 1] + "…"
+    parts: list[str] = [f"code={code}"]
+    if stage:
+        parts.append(f"stage={stage}")
+    if err:
+        parts.append(f"msg={err}")
+    return " ".join(parts)
+
+
+def _failure_context_suffix(tr: ToolResult) -> str:
+    """拼在 next_thought 末尾，便于确认「为何失败、当前 error_code 是什么」。"""
+    return f"（{_tool_failure_digest(tr)}）"
 
 
 def _agent_chain(typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -164,7 +188,14 @@ def _make_tool_call_input(query: str) -> dict[str, Any]:
 
 
 class FailureTypeHandler:
-    """按失败类型决定下一步工具与是否继续 ReAct 循环。"""
+    """按失败类型决定下一步工具与是否继续 ReAct 循环。
+
+    L5 / 单测 mock：**勿**在本类内硬改 error 分支、**勿**对 IntentDecision 原地赋值（frozen dataclass）。
+    请在 pytest 中：monkeypatch get_tool_registry 注入 dummy 工具；在 dummy execute 的 ToolResult.error_code
+    上模拟失败码（如 RAG_RETRIEVE_EMPTY）；monkeypatch decide_intent_v2 返回完整 IntentDecision 覆盖 gating。
+    参考：tests/test_unified_chat_backend_v2_agent.py::test_v2_rag_empty_gated_fallback；
+    SPEC-ChatBI-V2-Agent-Overview.md §7.5.4。
+    """
 
     @staticmethod
     def _allow_sql_fallback(*, intent: IntentDecision) -> bool:
@@ -197,43 +228,43 @@ class FailureTypeHandler:
         - stop_now：True 表示无需再走下一步工具，直接给 final_answer（如 SQL 无数据）
         """
         code = tool_result.error_code or "UNKNOWN"
-
         # 默认：继续用 intent 的 fallback tool
         next_tool: ToolName = fallback_from_intent
         next_mode: V1Mode = tool_mode_map()[next_tool]  # type: ignore[assignment]
         next_thought = "尝试使用备用方案继续回答。"
         stop_now = False
+        sfx = _failure_context_suffix(tool_result)
 
         # SQL：生成/执行失败映射
         if code in ("SQL_GEN_EMPTY", "SQL_GEN_SYNTAX"):
             # 已在本 step 内重试过；仍失败则切换到 RAG 兜底
             next_tool = "rag_search"
             next_mode = "rag"
-            next_thought = "SQL 生成仍失败，改用文档检索兜底。"
+            next_thought = f"SQL 生成仍失败，改用文档检索兜底。{sfx}"
         elif code in ("SQL_EXEC_TABLE_NOT_FOUND", "SQL_EXEC_PERMISSION_DENIED"):
             next_tool = "rag_search"
             next_mode = "rag"
-            next_thought = "查库失败可能是表/权限问题，改用文档检索定位信息。"
+            next_thought = f"查库失败可能是表/权限问题，改用文档检索定位信息。{sfx}"
         elif code in ("SQL_EXEC_NO_DATA",):
             # 不换工具：直接回答“未查到数据”
             next_tool = "text2sql_query"
             next_mode = "text2sql"
-            next_thought = "数据库未返回结果，直接给出未查到数据的结论。"
+            next_thought = f"数据库未返回结果，直接给出未查到数据的结论。{sfx}"
             stop_now = True
         # RAG：检索无命中必须 gated
         elif code == "RAG_RETRIEVE_EMPTY":
             if intent is not None and FailureTypeHandler._allow_sql_fallback(intent=intent):
                 next_tool = "text2sql_query"
                 next_mode = "text2sql"
-                next_thought = "文档检索无命中，但问题具有结构化统计意图，因此改查数据库。"
+                next_thought = f"文档检索无命中，但问题具有结构化统计意图，因此改查数据库。{sfx}"
             else:
                 next_tool = "direct_answer"
                 next_mode = "no_data"
-                next_thought = "文档检索无命中，改用直接回答或请用户澄清。"
+                next_thought = f"文档检索无命中，改用直接回答或请用户澄清。{sfx}"
         elif code == "RAG_GENERATE_UNCERTAIN":
             next_tool = "direct_answer"
             next_mode = "no_data"
-            next_thought = "检索答案不够确定，改用直接回答或进一步追问。"
+            next_thought = f"检索答案不够确定，改用直接回答或进一步追问。{sfx}"
         # LLM：超时降级到 V1 rule router（由 agent.py 执行最终工具）
         elif code == "LLM_API_TIMEOUT":
             v1 = decide_intent_v1(query=query, prefer="auto")
@@ -244,11 +275,11 @@ class FailureTypeHandler:
             else:
                 next_tool = "direct_answer"
             next_mode = v1.final_mode  # type: ignore[assignment]
-            next_thought = "意图/模型调用超时，降级到 V1 规则路由。"
+            next_thought = f"意图/模型调用超时，降级到 V1 规则路由。{sfx}"
         else:
             next_tool = fallback_from_intent
             next_mode = tool_mode_map()[next_tool]  # type: ignore[assignment]
-            next_thought = "处理工具失败，继续使用备用方案。"
+            next_thought = f"处理工具失败，继续使用备用方案。{sfx}"
 
         return next_tool, next_mode, next_thought, stop_now
 
@@ -289,6 +320,7 @@ class ChatBIAgent:
         run_id: str | None = None,
         emit: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
         debug_router: bool = False,
+        debug_llm_prompts: bool = False,
         intent_obs_payload_fn: Callable[[IntentDecision], dict[str, Any]] | None = None,
     ) -> AgentRunView:
         loop_started = time.perf_counter()
@@ -304,7 +336,9 @@ class ChatBIAgent:
             if isinstance(q, str) and q.strip():
                 intent_history.append({"role": "user", "content": q.strip()})
             if isinstance(r, str) and r.strip():
-                intent_history.append({"role": "assistant", "content": r.strip()})
+                pre = grounding_prefix_for_intent(h if isinstance(h, dict) else {})
+                body = f"{pre}\n{r.strip()}" if pre else r.strip()
+                intent_history.append({"role": "assistant", "content": body})
 
         tools_used: list[ToolName] = []
         steps: list[AgentStepView] = []
@@ -347,6 +381,7 @@ class ChatBIAgent:
                 tools=list(self._tools.values()),
                 min_confidence=self._min_confidence,
                 timeout=3.0,
+                capture_llm_prompts=debug_llm_prompts,
             )
             # intent.fallback：低置信度时预置 fallback 工具
             if intent.confidence < self._min_confidence and intent.fallback:
@@ -418,6 +453,17 @@ class ChatBIAgent:
                     },
                 )
             )
+            if debug_llm_prompts and intent and isinstance(intent.raw_response, dict):
+                _ilp = intent.raw_response.get("llm_prompts")
+                if isinstance(_ilp, list) and _ilp:
+                    await emit(
+                        _agent_chain(
+                            typ="agent.debug.llm_prompts",
+                            started_at=ts_ref,
+                            step_id=f"{rid_short}_intent_llm",
+                            payload={"scope": "intent", "items": _ilp},
+                        )
+                    )
 
         async def _emit_post_tool_chains(
             *,
@@ -522,7 +568,11 @@ class ChatBIAgent:
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
-            if elapsed_ms > self._max_latency_ms:
+            # 软超时 + V1 覆盖：仅允许在「尚未执行过任何工具」时生效（len(tools_used)==0）。
+            # 若在每步开头无差别覆盖，则首轮意图+rag 已超过 AGENT_MAX_LATENCY_MS 后，后续步会反复
+            # 把 current_tool 打回 V1 的 rag（日记类 query 常见），从而覆盖 FailureTypeHandler 给出的
+            # direct_answer/text2sql，造成 rag_search 死循环直至 max_steps。
+            if elapsed_ms > self._max_latency_ms and len(tools_used) == 0:
                 # 超时：降级到 V1 rule router 并最终执行一次工具
                 v1 = decide_intent_v1(query=query, prefer="auto")
                 final_mode = v1.final_mode
@@ -554,42 +604,99 @@ class ChatBIAgent:
                         step_id=f"a{step_idx}_think",
                         payload={
                             "step_number": step_idx,
-                            "thought": current_thought[:120],
+                            "thought": current_thought[:AGENT_THINK_TEXT_CLIP],
                             "selected_tool": current_tool,
                             "mode": current_mode,
                             "confidence": step1_conf if step_idx == 1 else 1.0,
                         },
                     )
                 )
-                await emit(
-                    _agent_chain(
-                        typ="tool.call.start",
-                        started_at=ts_ref,
-                        step_id=f"t_step{step_idx}",
-                        payload={"tool": current_tool, "input": {"query": query}},
+                if current_tool == "rag_search":
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.start",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}_rewrite",
+                            payload={"tool": "rag.rewrite", "input": {"query": query}},
+                        )
                     )
-                )
+                else:
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.start",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}",
+                            payload={"tool": current_tool, "input": {"query": query}},
+                        )
+                    )
             # tool.call.end 在 emit 路径下由本处与 execute 结果一并下发
-            current_tool_result = await tool.execute(query, history=call_history)  # type: ignore[arg-type]
+            current_tool_result = await tool.execute(  # type: ignore[call-arg]
+                query,
+                history=call_history,
+                debug_llm_prompts=debug_llm_prompts,
+            )
 
             tools_used.append(current_tool)
 
             if emit is not None:
                 _out_ans0: str | None = None
+                _data = current_tool_result.data if isinstance(current_tool_result.data, dict) else {}
                 if current_tool_result.data and isinstance(current_tool_result.data.get("answer"), str):
                     _out_ans0 = current_tool_result.data.get("answer")
+                if current_tool == "rag_search":
+                    _rw = _data.get("rewritten") if isinstance(_data.get("rewritten"), str) else ""
+                    _rw_ms = int(_data.get("rewrite_latency_ms") or 0)
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.end",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}_rewrite",
+                            payload={
+                                "output": {"rewritten_query": _rw or query},
+                                "error": None,
+                                "latency_ms": _rw_ms,
+                            },
+                        )
+                    )
+                    await emit(
+                        _agent_chain(
+                            typ="tool.call.start",
+                            started_at=ts_ref,
+                            step_id=f"t_step{step_idx}",
+                            payload={"tool": "rag_search", "input": {"query": query, "rewritten_query": _rw or query}},
+                        )
+                    )
+                _out_payload: dict[str, Any] = {}
+                if _out_ans0 is not None:
+                    _out_payload["answer"] = _out_ans0
+                if current_tool == "rag_search" and isinstance(_data.get("rewritten"), str):
+                    _out_payload["rewritten_query"] = _data["rewritten"]
                 await emit(
                     _agent_chain(
                         typ="tool.call.end",
                         started_at=ts_ref,
                         step_id=f"t_step{step_idx}",
                         payload={
-                            "output": {"answer": _out_ans0},
+                            "output": _out_payload,
                             "error": current_tool_result.error,
                             "latency_ms": current_tool_result.latency_ms,
                         },
                     )
                 )
+                if debug_llm_prompts and isinstance(_data.get("llm_prompts"), list) and _data.get("llm_prompts"):
+                    await emit(
+                        _agent_chain(
+                            typ="agent.debug.llm_prompts",
+                            started_at=ts_ref,
+                            step_id=f"{rid_short}_s{step_idx}_tool_llm",
+                            payload={
+                                "scope": "tool",
+                                "tool": current_tool,
+                                "step_number": step_idx,
+                                "items": _data["llm_prompts"],
+                            },
+                        )
+                    )
 
             success = bool(current_tool_result.success)
             next_action: Literal["continue", "final_answer"] = "continue"
@@ -615,7 +722,7 @@ class ChatBIAgent:
                             step_number=step_idx,
                             think_payload={
                                 "step_number": step_idx,
-                                "thought": current_thought[:120],
+                                "thought": current_thought[:AGENT_THINK_TEXT_CLIP],
                                 "selected_tool": current_tool,
                                 "mode": current_mode,
                                 "confidence": step1_conf if step_idx == 1 else 1.0,
@@ -648,7 +755,7 @@ class ChatBIAgent:
                         step_number=step_idx,
                         think_payload={
                             "step_number": step_idx,
-                            "thought": current_thought[:120],
+                            "thought": current_thought[:AGENT_THINK_TEXT_CLIP],
                             "selected_tool": current_tool,
                             "mode": current_mode,
                             "confidence": step1_conf if step_idx == 1 else 1.0,
@@ -697,7 +804,11 @@ class ChatBIAgent:
                             payload={"tool": current_tool, "input": {"query": query}},
                         )
                     )
-                retry_tool_result = await tool.execute(query, history=call_history)  # type: ignore[arg-type]
+                retry_tool_result = await tool.execute(  # type: ignore[call-arg]
+                    query,
+                    history=call_history,
+                    debug_llm_prompts=debug_llm_prompts,
+                )
                 if emit is not None:
                     _oa_r: str | None = None
                     if retry_tool_result.data and isinstance(retry_tool_result.data.get("answer"), str):
@@ -788,7 +899,7 @@ class ChatBIAgent:
                         step_number=step_idx,
                         think_payload={
                             "step_number": step_idx,
-                            "thought": current_thought[:120],
+                            "thought": current_thought[:AGENT_THINK_TEXT_CLIP],
                             "selected_tool": current_tool,
                             "mode": current_mode,
                             "confidence": step1_conf if step_idx == 1 else 1.0,
@@ -829,7 +940,7 @@ class ChatBIAgent:
                     step_number=step_idx,
                     think_payload={
                         "step_number": step_idx,
-                        "thought": current_thought[:180],
+                        "thought": current_thought[:AGENT_THINK_TEXT_CLIP],
                         "selected_tool": current_tool,
                         "mode": current_mode,
                         "confidence": step1_conf if step_idx == 1 else 1.0,

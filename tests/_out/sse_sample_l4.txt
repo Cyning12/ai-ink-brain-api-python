@@ -1,0 +1,49 @@
+event: chain
+data: {"type":"meta","ts":3,"step_id":"m1","payload":{"run_id":"befd5faf-a86d-49b9-b0b6-592346477463","mode":"auto","session_id":null}}
+
+: sse-keepalive
+
+: sse-keepalive
+
+event: chain
+data: {"type":"router.decision","ts":32287,"step_id":"r1","payload":{"prefer":"auto","candidate_mode":"text2sql","final_mode":"text2sql","rule_hits":[],"evidence":{"agent_reasoning":"用户询问具体数值，需要查数据库获取销售额数据"},"fallback":null}}
+
+event: chain
+data: {"type":"agent.step.start","ts":32288,"step_id":"a1","payload":{"step_number":1,"max_steps":5}}
+
+event: chain
+data: {"type":"agent.intent","ts":32288,"step_id":"intent_1","payload":{"tool":"text2sql_query","mode":"text2sql","reasoning":"用户询问具体数值，需要查数据库获取销售额数据","confidence":0.95,"fallback":null,"cache":null,"cache_key_hash":null,"latency_ms":null}}
+
+event: chain
+data: {"type":"agent.debug.llm_prompts","ts":32288,"step_id":"intent_llm_replay","payload":{"scope":"intent","items":[{"phase":"intent","model":"deepseek-ai/DeepSeek-V4-Flash","messages":[{"role":"system","content":"你是严谨的意图分类器。仅从工具名集合中选择；只输出一个 JSON 对象，不要 Markdown、不要前后缀说明。"},{"role":"user","content":"你是 ChatBI V2 的意图识别器：在下列工具中选**恰好一个**，用于本仓库/本产品的对话路由（评测集亦按此口径）。\n\n## 可用工具（描述以注册表为准）\n- rag_search: 从文档库中检索信息，适合概念解释与非结构化内容问题。\n\n- text2sql_query: 执行数据库查询，获取结构化数据结果。适合以下场景：\n- 用户要求查数据、统计数据、计算金额（如'有多少条'、'总和多少'、'排名第几'）\n- 用户问具体数值（如'昨天销售额是多少'）\n- 需要时间趋势、分组汇总、排序排名\n不适合：解释 SQL 语法、教用户怎么写 SQL、概念解释\n\n- direct_answer: 无需检索或查库，直接用 LLM 生成回答。\n\n## 总原则\n\n- **text2sql_query**：用户要**本库业务数据**的具体数值/排名/趋势/分组统计，且应由数据库查询给出答案。\n- **rag_search**：需要**项目内文档、规范、任务单、架构说明、评测口径、错误码约定、实现细节**等；或问题明显落在「本仓库怎么说/怎么做」而非百科通识一句带过。\n- **direct_answer**：**不依赖**内部文档即可完成——翻译、润色、创作、头脑风暴、纯算法题/语法教学、与当前产品/仓库无关的通识科普等。\n\n## 「通用知识」vs「须查资料」（易错点）\n\n下列主题若**未**明确说「只要高中数学定义、不要项目文档」，在本产品中默认走 **rag_search**（便于对齐内部文档与评测口径）：\n\n- 指标与评测：**macro-F1**、**confusion matrix**、准确率/Precision/Recall、分桶统计等；\n- 工程约束：**CI**、**stub**、零外呼门禁、**P50/P95** 基准写法；\n- 仓库与规范：**_tech_graph**、**intent_router**、**Supabase** 在本项目中的错误处理约定等。\n\n若用户只要**与项目无关**的通识（例：「用通俗语言解释量子计算」），选 **direct_answer**。\n\n## 多轮对话\n\n- 必须结合 **历史对话** 做指代消解：「它/那/这个」继承上文主题。\n- 若上文在讨论 **Text2SQL / 销售额 / 查库**，本轮问「**要不要查数据库**」「**是否要走 SQL**」「路由边界」等——属于**产品能力/路由说明**，选 **rag_search**（查文档说明），**不要**因字面像常识而选 direct_answer。\n- 若上文是写作/翻译/生成示例代码，本轮续写、改写语气、再要例子——多为 **direct_answer**。\n\n## 与 text2sql 的边界\n\n| 用户问题 | 选择 |\n|---------|------|\n| 「昨天销售额是多少」 | **text2sql_query**（要真实数据） |\n| 「怎么统计 heros 表」且明显教写法、不要执行 | **direct_answer** |\n| 「heros 表有哪些字段」 | **rag_search** |\n\n## Few-shot（短）\n\nQ: 昨天销售额是多少？\n{\"tool\": \"text2sql_query\", \"reasoning\": \"需要查库得到金额\", \"confidence\": 0.95}\n\nQ: 如何计算 confusion matrix\n{\"tool\": \"rag_search\", \"reasoning\": \"评测/文档口径，宜检索项目内说明\", \"confidence\": 0.9}\n\nQ: 解释一下量子计算，用通俗语言\n{\"tool\": \"direct_answer\", \"reasoning\": \"与仓库无关的通识解释\", \"confidence\": 0.88}\n\n[历史]\nuser: 昨天销售额是多少\nassistant: 我可以通过 Text2SQL 去查询……\nuser: 那需要查数据库吗\n{\"tool\": \"rag_search\", \"reasoning\": \"结合上文仍在谈查数路由，应查文档说明是否走库\", \"confidence\": 0.86}\n\n## 历史对话\n无历史对话\n\n## 当前用户问题\n昨天销售额多少\n\n## 输出\n仅输出一个 JSON 对象，勿其它文字：\n{\n  \"tool\": \"rag_search | text2sql_query | direct_answer\",\n  \"reasoning\": \"用户可见的 1-2 句摘要\",\n  \"confidence\": 0.0-1.0\n}\n"}]}]}}
+
+event: chain
+data: {"type":"agent.think","ts":32289,"step_id":"a1_think","payload":{"step_number":1,"thought":"用户询问具体数值，需要查数据库获取销售额数据","selected_tool":"text2sql_query","mode":"text2sql","confidence":0.95}}
+
+event: chain
+data: {"type":"tool.call.start","ts":32289,"step_id":"t_step1","payload":{"tool":"text2sql_query","input":{"query":"昨天销售额多少"}}}
+
+event: chain
+data: {"type":"tool.call.end","ts":32289,"step_id":"t_step1","payload":{"output":{"answer":"未查到数据。"},"error":null,"latency_ms":25596}}
+
+event: chain
+data: {"type":"agent.debug.llm_prompts","ts":32289,"step_id":"tool_llm_replay_1","payload":{"scope":"tool","tool":"text2sql_query","step_number":1,"items":[{"phase":"text2sql_sql","model":"deepseek-ai/DeepSeek-V4-Flash","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"你是 Text2SQL 生成器。请根据用户问题生成可在 Postgres(Supabase) 执行的 SQL。\n\n硬性约束：\n\n- 只输出一条 SQL；只允许 SELECT（或 WITH ... SELECT）；不要包含解释文字；\n\n- 只能使用下方提供的表与字段；不要编造不存在的表/字段；\n\n- 尽量使用 snake_case 小写表/字段名。\n\n\n\n【可用表结构(DDL)】\ncreate table public.policy_info (\n  policy_number text,\n  customer_id text,\n  product_id text,\n  policy_status text,\n  beneficiary text,\n  relationship text,\n  policy_start_date timestamp,\n  policy_end_date timestamp,\n  premium_payment_status text,\n  payment_date timestamp,\n  payment_method text,\n  agent_id text\n);\n\ncreate table public.employee_info (\n  employee_id bigint,\n  name text,\n  gender text,\n  date_of_birth timestamp,\n  address text,\n  phone_number text,\n  email_address text,\n  hire_date timestamp,\n  position text,\n  department text,\n  salary bigint,\n  location text,\n  supervisor text,\n  employee_type text,\n  employee_status text\n);\n\ncreate table public.customer_info (\n  customer_id bigint,\n  name text,\n  gender text,\n  date_of_birth date,\n  id_number text,\n  address text,\n  phone_number bigint,\n  email_address text,\n  marital_status text,\n  occupation text,\n  health_status text,\n  registration_date date,\n  customer_type text,\n  source_of_customer text,\n  customer_status text\n);\n\ncreate table public.claim_info (\n  claim_number text,\n  policy_number text,\n  claim_date timestamp,\n  claim_type text,\n  claim_amount bigint,\n  claim_status text,\n  claim_description text,\n  beneficiary_id text,\n  medical_records text,\n  accident_report text,\n  claim_handler text,\n  review_date timestamp,\n  payment_method text,\n  payment_date timestamp,\n  denial_reason text\n);\n\n【示例问答与SQL】\n\n【业务术语与库内取值】\n以下为业务字典补充，不替代上方 DDL；WHERE / CASE / GROUP BY 中的枚举字面量须与下列「库内取值」一致。\n【值域与口语映射】\n表 public.agent_info\n  - 列 commission_structure：库内取值：底薪加提成、固定佣金、提成结构；口语同义词：提成结构→底薪加提成\n  - 列 gender：库内取值：男、女；口语同义词：female→女；男性→男；男的→男\n\n【用户问题】\n昨天销售额多少\n\n\n\n只输出 SQL："}]},{"phase":"text2sql_summary","model":"deepseek-ai/DeepSeek-V4-Flash","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"你是数据分析助手。请根据用户问题、SQL 和查询结果，输出简洁的中文回答。\n\n要求：\n\n- 只输出回答正文；\n\n- 若结果为空，说明“未查到数据”；\n\n- 数字可适度格式化。\n\n\n\n【用户问题】\n昨天销售额多少\n\n【SQL】\nSELECT \n    SUM(ci.claim_amount) AS yesterday_sales\nFROM public.claim_info ci\nWHERE ci.claim_date >= CURRENT_DATE - INTERVAL '1 day'\n  AND ci.claim_date < CURRENT_DATE\n\n【列】\n['yesterday_sales']\n\n【结果预览(最多20行)】\n[{'yesterday_sales': None}]"}]}]}}
+
+event: chain
+data: {"type":"sql.result","ts":32289,"step_id":"q_step1","payload":{"sql":"SELECT \n    SUM(ci.claim_amount) AS yesterday_sales\nFROM public.claim_info ci\nWHERE ci.claim_date >= CURRENT_DATE - INTERVAL '1 day'\n  AND ci.claim_date < CURRENT_DATE","columns":["yesterday_sales"],"rows":[{"yesterday_sales":null}],"truncated":false}}
+
+event: chain
+data: {"type":"agent.step.end","ts":32289,"step_id":"a1_end","payload":{"step_number":1,"tool_used":"text2sql_query","mode":"text2sql","success":true,"next_action":"final_answer"}}
+
+event: chain
+data: {"type":"agent.final","ts":32289,"step_id":"a_final","payload":{"total_steps":1,"tools_used":["text2sql_query"],"modes":["text2sql"],"fallback_used":false}}
+
+event: chain
+data: {"type":"assistant.message","ts":32289,"step_id":"s_answer","payload":{"role":"assistant","content":"未查到数据。"}}
+
+event: chain
+data: {"type":"latency","ts":32290,"step_id":"l1","payload":{"total_ms":32290,"stages_ms":{}}}
+
+event: done
+data: {"ok":true,"mode":"text2sql","run_id":"befd5faf-a86d-49b9-b0b6-592346477463","request_id":"befd5faf-a86d-49b9-b0b6-592346477463","session_id":null,"persist":{"ok":true,"skipped":true,"reason":"no_session_id"}}
+

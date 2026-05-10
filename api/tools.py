@@ -9,7 +9,6 @@ from typing import Any, Awaitable, Callable, Literal
 from openai import OpenAI
 
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
-from .query_rewrite import rewrite_query_with_history
 from .rag_env import (
     embedding_kwargs_for_inputs,
     openai_siliconflow_client,
@@ -22,6 +21,7 @@ from .rag_recall_tools import (
     structured_recall_by_date,
 )
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
+from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
 from .text2sql_core import (
     build_sql_prompt,
     build_summary_prompt,
@@ -31,6 +31,7 @@ from .text2sql_core import (
     validate_sql_readonly,
 )
 from .text2sql_store import get_text2sql_store
+from .text2sql_value_hints import build_value_hints_block_for_text2sql
 
 
 @dataclass(frozen=True)
@@ -176,30 +177,58 @@ async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, A
     }
 
 
-async def rag_search_execute(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:
+async def rag_search_execute(
+    query: str,
+    *,
+    history: list[dict[str, Any]] | None = None,
+    debug_llm_prompts: bool = False,
+) -> ToolResult:
     started_at = time.perf_counter()
     hist = history or []
+    llm_prompts: list[dict[str, Any]] = []
     try:
-        # query rewrite（复用 V1 逻辑）
         oai = openai_siliconflow_client()
         chat_model = _pick_chat_model()
-        rewritten = await rewrite_query_with_history(
-            oai=oai, query=query, history=hist[-6:], chat_model=chat_model
-        )
+        rw_msgs = build_rewrite_llm_messages(history=hist[-6:], query=query)
+        rewrite_ms = 0
+        if rw_msgs is None:
+            rewritten = query
+        else:
+            if debug_llm_prompts:
+                llm_prompts.append({"phase": "rag.rewrite", "model": chat_model, "messages": list(rw_msgs)})
+            t_rw0 = time.perf_counter()
+
+            def _sync_rw() -> str:
+                res = oai.chat.completions.create(
+                    model=chat_model,
+                    messages=rw_msgs,
+                    temperature=0.0,
+                    stream=False,
+                )
+                try:
+                    return (res.choices[0].message.content or "").strip()
+                except Exception:  # noqa: BLE001
+                    return ""
+
+            rw_out = await asyncio.to_thread(_sync_rw)
+            rewrite_ms = int((time.perf_counter() - t_rw0) * 1000)
+            rewritten = rw_out if rw_out else query
 
         retrieved = await _rag_retrieve(query, rewritten=rewritten, history=hist)
         hits = retrieved.get("hits")
         if not isinstance(hits, list) or not hits:
+            data_err: dict[str, Any] | None = None
+            if debug_llm_prompts and llm_prompts:
+                data_err = {"llm_prompts": llm_prompts, "rewritten": rewritten, "rewrite_latency_ms": rewrite_ms}
             return ToolResult(
                 success=False,
-                data=None,
+                data=data_err,
                 error="RAG 命中为空",
                 error_code="RAG_RETRIEVE_EMPTY",
                 error_stage="rag.retrieve",
                 latency_ms=_elapsed_ms(started_at),
             )
 
-        # generate（复用 unified_chat 的简化生成策略）
         parts: list[str] = []
         for i, h in enumerate(hits[:12]):
             content = h.get("content") if isinstance(h, dict) else None
@@ -213,11 +242,14 @@ async def rag_search_execute(query: str, *, history: list[dict[str, Any]] | None
             "回答要求：中文、简洁、给出关键结论；必要时引用上下文要点。"
         )
         user = f"【上下文】\n{context}\n\n【问题】\n{query}\n"
+        gen_messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        if debug_llm_prompts:
+            llm_prompts.append({"phase": "rag.generate", "model": chat_model, "messages": gen_messages})
 
         def _sync_generate() -> str:
             res = oai.chat.completions.create(
                 model=chat_model,
-                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                messages=gen_messages,
                 temperature=0.2,
                 stream=False,
             )
@@ -225,20 +257,31 @@ async def rag_search_execute(query: str, *, history: list[dict[str, Any]] | None
 
         answer = await asyncio.to_thread(_sync_generate)
         if not answer or _rag_should_treat_as_uncertain(answer):
+            data_err2: dict[str, Any] | None = None
+            if debug_llm_prompts and llm_prompts:
+                data_err2 = {
+                    "llm_prompts": llm_prompts,
+                    "rewritten": rewritten,
+                    "rewrite_latency_ms": rewrite_ms,
+                }
             return ToolResult(
                 success=False,
-                data=None,
+                data=data_err2,
                 error="RAG 生成不确定/为空",
                 error_code="RAG_GENERATE_UNCERTAIN",
                 error_stage="rag.generate",
                 latency_ms=_elapsed_ms(started_at),
             )
 
-        return ToolResult(
-            success=True,
-            data={"answer": answer, "hits": hits, "rewritten": rewritten},
-            latency_ms=_elapsed_ms(started_at),
-        )
+        out: dict[str, Any] = {
+            "answer": answer,
+            "hits": hits,
+            "rewritten": rewritten,
+            "rewrite_latency_ms": rewrite_ms,
+        }
+        if debug_llm_prompts and llm_prompts:
+            out["llm_prompts"] = llm_prompts
+        return ToolResult(success=True, data=out, latency_ms=_elapsed_ms(started_at))
     except asyncio.TimeoutError:
         return ToolResult(
             success=False,
@@ -261,19 +304,59 @@ async def rag_search_execute(query: str, *, history: list[dict[str, Any]] | None
         )
 
 
-async def text2sql_execute(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:
+def _text2sql_retrieve_query(query: str, history: list[dict[str, Any]] | None) -> str:
+    """多轮追问常省略表名；把历史 Q/A 拼进检索串，便于向量/哈希检索命中上轮相关 DDL。"""
+    block = history_to_rewrite_block(history or [])
+    if not block:
+        return query
+    merged = f"{block}\n\n【当前问题】\n{query}".strip()
+    max_len = int(os.getenv("TEXT2SQL_RETRIEVE_QUERY_MAX_LEN", "1200"))
+    if max_len > 0 and len(merged) > max_len:
+        merged = merged[-max_len:]
+    return merged
+
+
+_T2SQL_GEN_SYSTEM = "You are a helpful assistant."
+
+
+async def text2sql_execute(
+    query: str,
+    *,
+    history: list[dict[str, Any]] | None = None,
+    debug_llm_prompts: bool = False,
+) -> ToolResult:
     started_at = time.perf_counter()
-    _ = history
+    hist = history or []
+    dialogue_ctx = history_to_rewrite_block(hist)
+    llm_prompts: list[dict[str, Any]] = []
     try:
         store = get_text2sql_store()
         topk = int(os.getenv("TEXT2SQL_RETRIEVE_TOPK", "6"))
-        retrieved = store.search(query, top_k=topk)
+        retrieve_q = _text2sql_retrieve_query(query, hist)
+        retrieved = store.search(retrieve_q, top_k=topk)
 
         api_key = os.getenv("SILICONFLOW_API_KEY", "").strip()
         oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
         chat_model = _pick_chat_model()
 
-        sql_prompt = build_sql_prompt(query, retrieved)
+        vh_block = build_value_hints_block_for_text2sql(retrieved, history=hist)
+        sql_prompt = build_sql_prompt(
+            query,
+            retrieved,
+            dialogue_context=dialogue_ctx or None,
+            value_hints_block=vh_block,
+        )
+        if debug_llm_prompts:
+            llm_prompts.append(
+                {
+                    "phase": "text2sql_sql",
+                    "model": chat_model,
+                    "messages": [
+                        {"role": "system", "content": _T2SQL_GEN_SYSTEM},
+                        {"role": "user", "content": sql_prompt},
+                    ],
+                }
+            )
         try:
             sql_raw = await asyncio.to_thread(
                 lambda: llm_generate_sql(oai=oai, model=chat_model, prompt=sql_prompt)
@@ -344,6 +427,17 @@ async def text2sql_execute(query: str, *, history: list[dict[str, Any]] | None =
         api_key2 = os.getenv("SILICONFLOW_API_KEY", "").strip()
         oai2 = OpenAI(api_key=api_key2, base_url=siliconflow_base())
         sum_prompt = build_summary_prompt(query, sql, columns, rows)
+        if debug_llm_prompts:
+            llm_prompts.append(
+                {
+                    "phase": "text2sql_summary",
+                    "model": chat_model,
+                    "messages": [
+                        {"role": "system", "content": _T2SQL_GEN_SYSTEM},
+                        {"role": "user", "content": sum_prompt},
+                    ],
+                }
+            )
         try:
             answer = await asyncio.to_thread(
                 lambda: llm_summarize(oai=oai2, model=chat_model, prompt=sum_prompt)
@@ -353,11 +447,10 @@ async def text2sql_execute(query: str, *, history: list[dict[str, Any]] | None =
             _ = exc
             answer = f"查询返回 {len(rows)} 行结果。"
 
-        return ToolResult(
-            success=True,
-            data={"answer": answer, "sql": sql, "columns": columns, "rows": rows},
-            latency_ms=_elapsed_ms(started_at),
-        )
+        out: dict[str, Any] = {"answer": answer, "sql": sql, "columns": columns, "rows": rows}
+        if debug_llm_prompts and llm_prompts:
+            out["llm_prompts"] = llm_prompts
+        return ToolResult(success=True, data=out, latency_ms=_elapsed_ms(started_at))
     except asyncio.TimeoutError:
         return ToolResult(
             success=False,
@@ -379,7 +472,12 @@ async def text2sql_execute(query: str, *, history: list[dict[str, Any]] | None =
         )
 
 
-async def direct_answer_execute(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:
+async def direct_answer_execute(
+    query: str,
+    *,
+    history: list[dict[str, Any]] | None = None,
+    debug_llm_prompts: bool = False,
+) -> ToolResult:
     started_at = time.perf_counter()
     _ = history
     try:
@@ -388,11 +486,12 @@ async def direct_answer_execute(query: str, *, history: list[dict[str, Any]] | N
 
         system = "你是一个中文助手。请直接回答用户问题。"
         user = query
+        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
         def _sync_generate() -> str:
             res = oai.chat.completions.create(
                 model=chat_model,
-                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                messages=msgs,
                 temperature=0.7,
                 stream=False,
             )
@@ -408,11 +507,10 @@ async def direct_answer_execute(query: str, *, history: list[dict[str, Any]] | N
                 error_stage="direct_answer.generate",
                 latency_ms=_elapsed_ms(started_at),
             )
-        return ToolResult(
-            success=True,
-            data={"answer": answer},
-            latency_ms=_elapsed_ms(started_at),
-        )
+        out: dict[str, Any] = {"answer": answer}
+        if debug_llm_prompts:
+            out["llm_prompts"] = [{"phase": "direct_answer", "model": chat_model, "messages": msgs}]
+        return ToolResult(success=True, data=out, latency_ms=_elapsed_ms(started_at))
     except asyncio.TimeoutError:
         return ToolResult(
             success=False,
