@@ -3,11 +3,11 @@
 状态：**done**（2026-05-07：`intent_eval` 已跑并归档 `intent_llm_20260507_160444_p1d_live.*`；见 `docs/diary/2026-05-07-p1-intent-p1d.md` 前后表）  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：
-- **P1-Eval**：已有可复跑 `intent_eval` + 归档 JSONL/CSV；**冻结/对照口径**以 `docs/diary/2026-05-06-p1-intent-benchmark.md` 与 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md` 为准（勿虚构数字）。
-- **P1-C**：`task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` 已 **done**；本任务**不**改 LRU/TTL/复合 key 语义，除非缺陷修复。
+- **P1-Eval**：已有可复跑 `intent_eval` + 归档 JSONL/CSV；**冻结/对照口径**以 `docs/diary/2026-05-06-p1-intent-benchmark.md` 与 **`docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`** 为准（勿虚构数字）。
+- **P1-C**：`docs/tasks/done/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` 已 **done**；本任务**不**改 LRU/TTL/复合 key 语义，除非缺陷修复。
 
 关联：
-- `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览 §D）
+- `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览 §D）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（**§7.4** 全量对照、**§7.5** 深度回归 L1/L2）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md`（工具定义、输出 JSON 约定）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Gap-Checklist.md`（与 Overview 对齐时的缺口跟踪）

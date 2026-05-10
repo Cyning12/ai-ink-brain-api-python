@@ -52,7 +52,7 @@
 ## 交付物约定（给总 Agent / 子 Agent）
 
 - **配置真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（随代码演进持续更新）
-- **任务驱动**：优先阅读对应 `docs/tasks/*.md`，实现完成后回填验收项与涉及文件列表；**验收通过后**须按 `docs/tasks/README.md` 将任务单从 `active/` **归档**至 `docs/tasks/done/` 并更新 `_views/done.md`
+- **任务驱动**：优先阅读对应 `docs/tasks/*.md`，实现完成后回填验收项与涉及文件列表；**验收通过后**须按 `docs/tasks/README.md` 将任务单从 `active/` **归档**至 `docs/tasks/done/` 并更新 `_views/done.md`：**头部 `done（日期）` 与 `git mv` 同一提交完成**，禁止「状态 done 但文件仍在 `active/`」
 - **图谱同步**：代码变更后自动增量更新 `docs/_tech_graph/` 对应文件
   - 流程图（`10_*.md` ~ `13_*.md`）维护双轨：`.md`（人类版）+ `.ai.md`（AI 协议版）
   - 修改代码后，优先更新 `.ai.md`，再同步 `.md`

@@ -44,6 +44,7 @@ docs/tasks/
 1. **核对验收**：任务正文「验收标准」已全部勾选为完成，或等价说明已写明例外与签核人/日期。  
 2. **更新头部状态**：将 `> **状态**：...` 改为 `done（YYYY-MM-DD 验收通过）`（日期为实际验收日）。  
 3. **移动文件**：在仓库根执行 `git mv docs/tasks/active/<文件名>.md docs/tasks/done/`，**禁止**仅复制内容而遗留 `active/` 同名文件。  
+   - **硬规则**：**禁止**只把头部改成 `done` 而文件仍留在 `active/`（会误导 Agent）；**`done` 状态与 `git mv` 须在同一提交内完成**，真值以 **目录位置 + 头部状态** 双一致为准。  
 4. **更新已完成索引**：在 `docs/tasks/_views/done.md` 追加一行指向 `../done/<文件名>.md` 的相对链接（可附简短验收说明，与现有条目风格一致）。  
 5. **若任务曾列入进行中视图**：检查 `docs/tasks/_views/in_progress.md`，移除或更新对该任务的引用（避免双轨）。  
 6. **配对前端 / 跨仓任务**：若头部或正文引用了 `ai-ink-brain/content/tasks/active/task_*.md`，须在 `ai-ink-brain` 仓按 **`content/tasks/README.md`** 执行归档：**`git mv`** 至 **`content/tasks/done/`**，更新 **`content/tasks/_views/done.md`**，头部 **`状态`** 改为 `done（YYYY-MM-DD 验收通过）`。（**不**移动 `docs/spec/` 下规格文件，规格持续维护、不因任务归档而搬迁。）

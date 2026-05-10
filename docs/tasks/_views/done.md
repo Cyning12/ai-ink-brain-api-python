@@ -16,4 +16,9 @@
 - `../done/task_docs_truth_and_rag_unify_v1.md`（2026-04-28 验收通过：PROJECT_CONFIG / `99_spec` Backlog 表 / `api/rag_shared` 初批）
 - `../done/task_unified_chat_router_observability_full_trace_v1.md`（2026-04-30 验收通过）
 - `../done/task_unified_chat_router_trace_text2sql_exec_v1.md`（2026-04-30 验收通过）
+- `../done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`（2026-05-11 归档：P1-Eval）
+- `../done/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md`（2026-05-11 归档：P1-C）
+- `../done/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`（2026-05-11 归档：P1-D）
+- `../done/task_chatbi_v2_agent_p1_behavior.md`（2026-05-11 归档：P1 总览）
+- `../done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`（2026-05-11：V2 SPEC/任务验收归档索引）
 

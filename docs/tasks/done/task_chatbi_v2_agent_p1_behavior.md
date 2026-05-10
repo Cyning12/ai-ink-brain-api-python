@@ -1,6 +1,6 @@
 # Task：ChatBI V2 Agent（P1 总览）— 意图准确率、性能基准、缓存与调优
 
-状态：A+B+C **与 P1-D 均已闭环**（P1-Eval 冻结口径仍以 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为基线；P1-D 见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `tests/_out/intent_llm_20260507_160444_p1d_live.*`）  
+状态：**done（2026-05-11 验收通过）** — 本文件已按 `docs/tasks/README.md` 迁入 **`docs/tasks/done/`**；P1-Eval 冻结口径仍以 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为基线；P1-D 见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `tests/_out/intent_llm_20260507_160444_p1d_live.*`  
 范围：仅后端 `ai-ink-brain-api-python`（**全仓相对总规的完成度**不以本文件为唯一口径，见 `SPEC-ChatBI-V2-Agent-Overview.md` **§7.4**、**§7.5**）  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  
 关联：
@@ -12,9 +12,9 @@
 
 | 子任务 | 文档 | 说明 |
 |--------|------|------|
-| **P1-Eval（主线：可验证评测 + 性能基准）** | `docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md` | A+B 全量 WBS、本阶段阻断验收 |
-| **P1-C（缓存 + 可观测性）** | `docs/tasks/active/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` | LRU/TTL、history key、命中率对比 |
-| **P1-D（误判 / Prompt / 阈值）** | `docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` | Prompt 迭代、置信度与 fallback、超时策略；须带 intent_eval 前后对比 |
+| **P1-Eval（主线：可验证评测 + 性能基准）** | `docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md` | A+B 全量 WBS、本阶段阻断验收 |
+| **P1-C（缓存 + 可观测性）** | `docs/tasks/done/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` | LRU/TTL、history key、命中率对比 |
+| **P1-D（误判 / Prompt / 阈值）** | `docs/tasks/done/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` | Prompt 迭代、置信度与 fallback、超时策略；须带 intent_eval 前后对比 |
 
 ---
 
@@ -37,7 +37,7 @@ P1 目标：
 ### A + B. 可验证评测与性能基准（已拆至独立任务单）
 
 **详细 checklist、范围边界与验收以子任务为准：**  
-`docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`
+`docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`
 
 摘要（勿与本表冲突时以子任务为准）：
 
@@ -62,7 +62,7 @@ P1 目标：
 
 ### D. 误判调优（可选，优先级 P2，但通常会做）
 
-> **独立任务单（WBS / 验收 / 风险）**：`docs/tasks/active/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`
+> **独立任务单（WBS / 验收 / 风险）**：`docs/tasks/done/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`
 
 - [x] **D1. Prompt 调优迭代**（**done**：见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `docs/diary/2026-05-07-p1-intent-p1d.md`）
   - **策略**：先修正误判最多的类别边界（Text2SQL vs RAG vs Direct），再补 few-shot。

@@ -3,7 +3,7 @@
 > **状态**：`in_progress`（**A / C 基线已落地**；**B-PR1 已于 2026-05-09 验收通过**；**B-PR2（DISTINCT 探针）未做**，仍记为后续迭代；本子任务「PR1 范围」可视为交付闭环，全任务闭环待 PR2）  
 > **范围**：仅后端 `ai-ink-brain-api-python`（Text2SQL 工具链、会话记忆形状；不涉及前端 transcript UI）  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（L1–L4 分层、§3 指代与 rewrite、§4 结构化上下文）  
-> **父任务索引**：`docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览；本子任务可视为其下「多轮 + Text2SQL 真值」专项）  
+> **父任务索引**：`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，**已归档**；本子任务可视为其下「多轮 + Text2SQL 真值」专项）  
 > **真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（环境变量与路由以该文件为准，本文不复制）  
 > **关联（V2 可观测 / RAG 改写 / LLM Prompt）**：`docs/tasks/active/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`
 
@@ -127,7 +127,7 @@ tables:
 ## 非范围
 
 - 前端 Unified Chat `session_id` 传参与 Timeline UI（见前端任务单与 `_tech_graph`）。  
-- Intent 模型选型与 60 条集准确率（见 `task_chatbi_v2_agent_p1_eval_benchmark_v1.md`）。  
+- Intent 模型选型与 60 条集准确率（见 **`docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`**）。  
 - 修改 `SPEC-ChatBI-V2-Multiturn-Semantics.md` 正文（以规格为引用真值；任务单只跟踪实现）。
 
 ---

@@ -1,7 +1,8 @@
 # ChatBI V2 Agent 架构 —— SPEC 文档目录
 
 > **状态**：总规 **§7.4 / §7.5** 已与实现对齐（2026-05-07）；子规仍可能各自标 `draft`  
-> **日期**：2026-04-27（目录修订：2026-05-08；**2026-05-09** — 新增 `SPEC-ChatBI-V2-Multiturn-Semantics.md`；**vNext 交互 SPEC（终稿）** 见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；**吸收索引** 见 `SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md`）
+> **日期**：2026-04-27（目录修订：2026-05-08；**2026-05-09** — 新增 `SPEC-ChatBI-V2-Multiturn-Semantics.md`；**vNext 交互 SPEC（终稿）** 见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；**吸收索引** 见 `SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md`）  
+> **V2 文档验收归档（2026-05-11）**：Runner **L0–L7** 与 SPEC/任务索引见 **`../../tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`**（**已迁入 done/**）；**V3 规划入口**（依简历评估收口后再展开）见 **`../../tasks/active/task_chatbi_v3_planning_after_resume_v1.md`**。
 
 ---
 
@@ -32,7 +33,7 @@ docs/spec/v2-agent/
 4. **SPEC-ChatBI-V2-Memory.md** — 再读记忆管理，理解多轮对话（存储与窗口）
 5. **SPEC-ChatBI-V2-Multiturn-Semantics.md** — 多轮**语义**承接（与 §2.6 传输层解耦；追问 / 指代 / rewrite）
 6. **SPEC-ChatBI-V2-Events.md** — 最后读事件流，理解前后端兼容
-7. **SPEC-ChatBI-V2-Enterprise-Gap.md** — 企业级能力差距分析（面试准备、V3/V4 规划）
+7. **`../SPEC-ChatBI-Enterprise-Gap.md`** — 企业级能力差距与 V3/V4 路线图（仓库根下 `docs/spec/`；非本子目录文件）
 8. **SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md** — 下一版：执行期增量 SSE、Timeline/双栏（**在 V2 里程碑暂结之后**排期）  
 9. **SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md** — vNext **吸收索引**（不明点已收口；**优先读 Timeline §0**）
 
@@ -43,7 +44,9 @@ docs/spec/v2-agent/
 | 文档 | 位置 | 说明 |
 |------|------|------|
 | P0 归档 | `docs/tasks/done/task_chatbi_v2_agent_p0_backend.md` | 骨架与契约 |
-| P1 总览 | `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md` | Eval / 缓存 / P1-D 等子链入口 |
+| P1 总览 | `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md` | Eval / 缓存 / P1-D 等子链入口（**已归档**） |
+| **V2 文档验收归档** | `docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md` | SPEC 目录 + 任务索引 + L0–L7 收口（**已归档**） |
+| **V3 规划入口** | `docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md` | 依 `简历评估意见-2026-5-9.md` 与 Enterprise Gap 排期 |
 | 技术图谱 | `docs/_tech_graph/10_flow_rag.md` | RAG 流程 |
 | 技术图谱 | `docs/_tech_graph/11_flow_text2sql.md` | Text2SQL 流程 |
 | 项目配置 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 环境变量真值表 |
@@ -60,6 +63,6 @@ docs/spec/v2-agent/
 - [记忆管理设计](SPEC-ChatBI-V2-Memory.md)
 - [多轮对话语义承接](SPEC-ChatBI-V2-Multiturn-Semantics.md)
 - [事件流兼容设计](SPEC-ChatBI-V2-Events.md)
-- [企业级能力差距分析](SPEC-ChatBI-V2-Enterprise-Gap.md) ⬅️ 新增
+- [企业级能力差距与路线图](../SPEC-ChatBI-Enterprise-Gap.md)（`docs/spec/`）
 - [下一版：增量 SSE 与 Timeline 实时感知](SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md)
 - [vNext：增量 SSE 澄清简报（吸收索引）](SPEC-ChatBI-V2-Incremental-SSE-Clarification-Brief-vNext.md)
