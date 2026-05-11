@@ -3,6 +3,7 @@
 ## 元信息
 
 - **状态**：backlog（V3 开工时纳入迭代）
+- **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§3** 任务归拢；**§2** 可观测支柱）
 - **背景会话**：多轮追问下 `text2sql_query` 的 `tool.call.start` → `tool.call.end` 间隔可达百秒级，期间无 SSE，体感「卡在 step5→step6」
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）

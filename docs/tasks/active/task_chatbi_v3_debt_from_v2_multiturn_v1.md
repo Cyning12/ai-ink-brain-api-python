@@ -3,6 +3,7 @@
 > **状态**：`backlog`（**仅在 V3 排期中考虑**；不阻塞 V2 主线）  
 > **来源（已归档）**：`docs/tasks/done/task_chatbi_v2_text2sql_multiturn_grounding_v1.md`（V2 本子任务 **done**，A/B/C 与 PR1/PR2 已交付）  
 > **统筹入口**：`docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md`  
+> **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§3** 任务归拢；**§2** 多轮技术债支柱）  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（§4.3 澄清）、`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`
 
 ---

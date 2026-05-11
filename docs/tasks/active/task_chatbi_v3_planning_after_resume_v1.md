@@ -1,6 +1,7 @@
 # Task：ChatBI V3 —— 规划入口（在 V2 文档归档之后执行）
 
 状态：**planning**（V2 文档层收口见 **`docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`**（**done**）；本入口可展开 V3 排期）  
+**V3 规格真值（初版）**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（目录 `docs/spec/v3-agent/README.md` — **含 `docs/tasks/active` 下 V3 任务归拢表**）  
 **权威叙述边界**：`docs/diary/简历评估意见-2026-5-9.md`（**§三 状态分层**、**§四 技术表述**、**§五 时间线**、**§七 文档结构**）  
 **企业路线图**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`  
 **已存在 V3 子单**：`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（Text2SQL 工具链延迟与可观测）；**V2 多轮/值域未纳入交付的欠债**：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`（澄清 §4.3、同义词语义等，**V3 再考虑**）
@@ -29,4 +30,4 @@
 
 ## 3. 给 Cursor 的稳定关键词
 
-`task_chatbi_v3_planning_after_resume_v1`、简历评估、Enterprise Gap、V3 排期
+`task_chatbi_v3_planning_after_resume_v1`、`SPEC-ChatBI-V3-Overview`、`docs/spec/v3-agent`、简历评估、Enterprise Gap、V3 排期
