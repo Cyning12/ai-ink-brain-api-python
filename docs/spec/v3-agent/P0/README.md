@@ -16,6 +16,7 @@
 | [`阶段B-验收.md`](阶段B-验收.md) | 基准留档（含历史双 `run_id` 样例时可对照） |
 | [`阶段B-验收-1.md`](阶段B-验收-1.md) | **修订版**：前端于 **`meta`** 采用 **`payload.run_id`** 并回填后，**全链 `ChainEvent.run_id` 与 done / `CHATBI_JSON_LOG` 同源**（文首「修改后的表现」） |
 | [`阶段B-留证-curl-stream-b-smoke-2026-05-11.md`](阶段B-留证-curl-stream-b-smoke-2026-05-11.md) | **curl SSE 原文落盘**（`b-smoke`、`prefer=text2sql`）；**stderr `text2sql_tool_call_end`** 对读见该文件 **§stderr 对齐** |
+| [`阶段B-前端输出.md`](阶段B-前端输出.md) | **Ink 导出 Timeline**；文首 **此次验收结果** 表（含与 **验收-1** 同源口径对读结论） |
 
 ## 环境说明（阶段 A 读数）
 
