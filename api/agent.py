@@ -567,6 +567,48 @@ class ChatBIAgent:
                 )
             )
 
+        # P1-4 §4.3：低置信 + SQL 候选时可选「澄清短路」（默认关，避免改变现网行为）
+        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
+        if (
+            clarify_gate
+            and emit is not None
+            and prefer == "auto"
+            and intent is not None
+            and intent.tool == "text2sql_query"
+            and intent.confidence < self._min_confidence
+        ):
+            _cl_msg = "待您澄清（低置信度）"
+            _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
+            _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
+            if not _cl_prompt:
+                _cl_prompt = "当前对您的问题与可用数据表的对应关系不够确定；请补充业务语境、时间范围或具体指标后再试。"
+            await emit(
+                _agent_chain(
+                    typ="agent.clarify",
+                    started_at=ts_ref,
+                    step_id="a1_clarify",
+                    payload={
+                        "step_number": 1,
+                        "message": _cl_msg,
+                        "prompt_for_user": _cl_prompt,
+                    },
+                )
+            )
+            _final_answer = (
+                "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；"
+                "也可改用 prefer=text2sql 强制路径或改写问题后重试。"
+            )
+            final_cl = AgentFinalView(
+                answer=_final_answer,
+                mode="text2sql",
+                total_steps=0,
+                tools_used=[],
+                modes=["text2sql"],
+                fallback_used=False,
+            )
+            await _emit_final_chains(final_cl, final_cl.answer)
+            return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
+
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
             # 软超时 + V1 覆盖：仅允许在「尚未执行过任何工具」时生效（len(tools_used)==0）。

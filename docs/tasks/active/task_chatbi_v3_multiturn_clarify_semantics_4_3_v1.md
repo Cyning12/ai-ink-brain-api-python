@@ -9,7 +9,8 @@
 - **V2 语义锚点**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md` — **§4「结构化上下文」第 3 点「澄清策略」**（组织内惯称 **§4.3**：指代表意模糊或置信不足时 **SSE 追问** 优于盲执行；与总规 **§2.4** fallback / 追问精神一致）
 - **RBAC 交叉**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access.md` — 澄清话术若 **展示表名 / 候选表**，须先对齐 **按角色脱敏** 规则（见 Multiturn-Debt **§4**）；无规约前可用 **非敏感 fixture** 或 **占位文案** 收敛技术路径
 - **P0 已就绪（排障留证）**：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`；staging 建议 **`CHATBI_JSON_LOG=1`** + Timeline **`run_id`**（与 `meta.payload.run_id` / `done` 同源）做 E2E grep 对齐 — 见 Multiturn-Debt **§0.1**
-- **配对前端任务（Ink-Brain）**：`ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md` — SSE/Timeline 澄清 UI 与契约消费；**新 `chain.type` 须前后端同 PR + manifest**
+- **配对前端任务（Ink-Brain）**：`Projects/ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md` — SSE/Timeline 澄清 UI；**新 `chain.type` 须前后端同 PR + manifest**；前端 **开工闸门** 见该文件 **§开工闸门与前后端节奏**
+- **Ink BFF（默认）**：初版 **`app/api/py/unified/chat/stream/route.ts` 无新增 query/header**；若本 PR 确需新增（如 Contract 升级），在 **§实现备忘** 显式列 **`需新增：Header/Query 名 + 示例`** 并 **@ 前端任务**；否则写 **`BFF：无需变更（Ink）`**
 - **事件契约**：任何新增 **`chain.type`** 或对外 SSE 形状变更，须与 **`docs/spec/v2-agent/SPEC-ChatBI-V2-Events.md`**、**`docs/_tech_graph/_contract_manifest.json`** **同 PR** 更新，并执行 **`python tools/tech_graph_contract_check.py`**
 
 ## 背景与目标
@@ -51,6 +52,9 @@ V2 已交付 grounding、`value_hints`、历史注入等，**未**实现「低�
 - 涉及文件：`api/agent.py`、…（待填）
 - 新增 env（若有）：同步 **`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`**、**`.env.example`**
 - 与 P1-3 RBAC 文档的评审结论链接：…
+- **开工闸门（前端）**：二选一贴 PR — **(A)** manifest+Events 同 PR 绿；**(B)** 无契约变更 + **payload 键白名单** 两行。**勿**让前端在无 A/B 时开工（见 Ink 前端任务 §开工闸门）。
+- **SSE 脱敏样例路径**（供前端 mock / 单测）：…（可放在 `docs/spec/v3-agent/P0/` 或 PR 附件）
+- **Ink BFF**：`BFF：无需变更（Ink）` 或 `需新增：…`（见元信息）
 
 ## 给 Cursor
 
@@ -61,3 +65,4 @@ V2 已交付 grounding、`value_hints`、历史注入等，**未**实现「低�
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 首版：P1-4 implementation 子任务自母单 §0.1 拆出 |
+| 2026-05-11 | 元信息：Ink 配对路径 `Projects/…`、BFF 默认无变更、实现备忘补开工闸门 / SSE 样例 / BFF 回填 |

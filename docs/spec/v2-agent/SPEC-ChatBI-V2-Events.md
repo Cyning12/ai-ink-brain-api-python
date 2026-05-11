@@ -84,6 +84,26 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 
 **注意**：`thought` 字段只包含用户级摘要（1-2 句话），不含系统提示或策略细节。
 
+### 3.2.1 agent.clarify（多轮低置信澄清 · V3 §4.3）
+
+> **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.clarify` 的 `payload_min_keys_by_type`。  
+> **触发**：由 `api/agent.py` 实现；当前可选环境变量 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 `prefer=auto`、Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE` 时短路并发此帧（**不执行**首轮 `text2sql_query`），再以 `assistant.message` 给出操作指引。
+
+```json
+{
+  "type": "agent.clarify",
+  "ts": 400,
+  "step_id": "a1_clarify",
+  "payload": {
+    "step_number": 1,
+    "message": "待您澄清（低置信度）",
+    "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。"
+  }
+}
+```
+
+**与 `assistant.message` 边界**：`agent.clarify` **仅**承载追问与对齐语义的过程文案；**最终答案全文**仍以 **`assistant.message`** 为准（澄清短路路径下紧随 `agent.final` 后的 `assistant.message`）。
+
 ### 3.3 agent.intent
 
 ```json
@@ -390,9 +410,10 @@ CHATBI_USE_AGENT=false  # 降级到 V1
 
 **坏例**：一条 `agent.llm.delta` **缺少** `payload.text` → 前端 **丢弃该帧**，`parse_error_count++`，**不抛异常**、**不白屏**。
 
-### 8.6 与 `agent.think` / `assistant.message` 的关系
+### 8.6 与 `agent.think` / `agent.clarify` / `assistant.message` 的关系
 
 - **`agent.think`**：**仅摘要**；出现在 **`agent.llm.end` 之后**（同一步内）。  
+- **`agent.clarify`**：**追问 / 待用户补充**，与 `agent.think` 并列过程态；**不得**顶替 `assistant.message` 作为最终答案区唯一来源（Ink 前端须可区分展示）。  
 - **`assistant.message`**：**最终答案唯一真相源**（成功路径全文）；右栏 **执行链路** 中各 **`agent.llm.*` 段内** delta 为过程展示，**同一 phase（如最终作答段）内宜可对齐** `assistant.message.content`（归一化规则由实现 + 单测固定）；**跨 phase** 右栏全文 **不要求** 与最终答案逐字一致 — 见 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` §8.4**。
 
 ### 8.7 流式失败与 `done`

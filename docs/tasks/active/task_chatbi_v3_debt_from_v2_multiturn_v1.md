@@ -13,7 +13,7 @@
 
 | 本文件章节 | 总规批次 | 说明 |
 |------------|----------|------|
-| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期；**implementation 子任务**：[`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）。 |
+| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期；**implementation 子任务**：`Projects/ai-ink-brain-api-python/docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（`todo`）。 |
 | **§1** 末行「集成抽检扩展」 | **P2-2** 协同 | 与 **评估 / 烟测集**（`SPEC-ChatBI-V3-Evaluation`）同批更省重复建设。 |
 | **§2**（同义词、DISTINCT 节能、漂移 CI、图谱） | **P2-3** | 优化与非阻塞项；可多条小 PR，**不必**与 §1 同发布火车。 |
 
@@ -21,7 +21,7 @@
 
 ### 0.1 建议首包（P1-4 入口）
 
-**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：后端 [`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）；前端 **Ink-Brain** `content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`（`pending`，**新 `chain.type` 须前后端同 PR + manifest**）。
+**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：后端 `Projects/ai-ink-brain-api-python/docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（`todo`）；前端 **Ink-Brain** `Projects/ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`（`pending`，**新 `chain.type` 须前后端同 PR + manifest**；前端 **开工闸门** 见该文件 **§开工闸门与前后端节奏**）。
 
 ---
 
