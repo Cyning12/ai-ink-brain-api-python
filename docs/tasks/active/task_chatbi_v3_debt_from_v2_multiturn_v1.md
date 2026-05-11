@@ -19,6 +19,10 @@
 
 **结论**：本文件是 **欠债清单母单**，实施时按上表 **拆 PR / 拆子任务**；不要求「整单一次性 done」。
 
+### 0.1 建议首包（P1-4 入口）
+
+**§1 低置信澄清** 开干前：确认 **P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证优先复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**，再拆独立 implementation task（命名示例：`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`，**待建**）。
+
 ---
 
 ## 1. 功能与产品语义（优先在 V3 拆解）
