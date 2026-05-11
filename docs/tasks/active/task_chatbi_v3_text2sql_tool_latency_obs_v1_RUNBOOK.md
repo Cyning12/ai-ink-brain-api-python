@@ -3,7 +3,7 @@
 > **关联任务（真值：拍板 / 改进点 / 主验收勾选）**：[`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1.md)  
 > **维护约定**：本文件为 **过程文档**；实现推进中 **随 PR / 会议结论同步改**（执行步骤打勾、环境键名、事件名、pytest 路径等）。**架构拍板** 仍以任务单 **§拍板** 为准；若与本 runbook 冲突，**以任务单为准**并修正本文件。  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`、`SPEC-ChatBI-V3-Logging-Trace.md`  
-> **状态占位**（执行中回填）：`planning` → `in_progress` → `stage_a_done` → `stage_b_done` → `ready_for_close`
+> **状态占位**（执行中回填）：`planning` → `in_progress` → **`stage_a_done`（2026-05-11：阶段 A 中间验收已归档，见 §4）** → `stage_b_done` → `ready_for_close`
 
 ---
 
@@ -13,12 +13,12 @@
 
 | 序号 | 步骤 | 说明 | 状态 |
 |------|------|------|------|
-| A1 | 契约与设计冻结 | 读 `SPEC-ChatBI-V2-Events.md`、`_contract_manifest.json`、`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；定子阶段 **事件名 / `chain.type` / payload**、`X-ChatBI-Sse-Contract` 递增；与 `tools/tech_graph_contract_check.py` 同 PR 绿 | [ ] |
-| A2 | 分段计时 + `text2sql_phases_ms` | `text2sql_execute` 链路上对 `retrieve` / `llm_sql` / `validate` / `db` / `llm_summary` 打点；写入 **`ToolResult.data.text2sql_phases_ms`**（非负整数 ms；未经历阶段 **省略或 0** 二选一，PR 内写死） | [ ] |
-| A3 | SSE 子阶段 emit | 进行中 emit（非顶层 `token`）；`subphase_id` / 对齐字段采用 **`text2sql.phase.<phase_id>`** | [ ] |
-| A4 | LLM 分阶段 timeout | `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S`、`CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` → 回退 `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` → 默认 `120.0`；超时 **`LLM_API_TIMEOUT`** + `llm_sql` / `llm_summary` 可区分 | [ ] |
-| A5 | 改进点 2 / 3 / 5（与 A 同批或紧随） | 确定性总结 `_try_summarize_aggregate`；`dialogue_context` / retrieve 预算复核；可选 **`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL`**（空白 = Intent 生效模型） | [ ] |
-| A6 | 测试与回填 | pytest（含超时 / 多轮或长路径）；`PROJECT_CONFIG`、`.env.example`；必要时先增量 `_tech_graph/11_flow_text2sql.md` | [ ] |
+| A1 | 契约与设计冻结 | 读 `SPEC-ChatBI-V2-Events.md`、`_contract_manifest.json`、`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`；定子阶段 **事件名 / `chain.type` / payload**、`X-ChatBI-Sse-Contract` 递增；与 `tools/tech_graph_contract_check.py` 同 PR 绿 | [x] |
+| A2 | 分段计时 + `text2sql_phases_ms` | `text2sql_execute` 链路上对 `retrieve` / `llm_sql` / `validate` / `db` / `llm_summary` 打点；写入 **`ToolResult.data.text2sql_phases_ms`**（非负整数 ms；未经历阶段 **省略或 0** 二选一，PR 内写死） | [x] |
+| A3 | SSE 子阶段 emit | 进行中 emit（非顶层 `token`）；`subphase_id` / 对齐字段采用 **`text2sql.phase.<phase_id>`** | [x] |
+| A4 | LLM 分阶段 timeout | `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S`、`CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` → 回退 `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` → 默认 `120.0`；超时 **`LLM_API_TIMEOUT`** + `llm_sql` / `llm_summary` 可区分 | [x] |
+| A5 | 改进点 2 / 3 / 5（与 A 同批或紧随） | 确定性总结 `_try_summarize_aggregate`；`dialogue_context` / retrieve 预算复核；可选 **`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL`**（空白 = Intent 生效模型） | [x] |
+| A6 | 测试与回填 | pytest（含超时 / 多轮或长路径）；`PROJECT_CONFIG`、`.env.example`；必要时先增量 `_tech_graph/11_flow_text2sql.md` | [x] |
 
 ### 阶段 B — P0-2（最终验收前完成）
 
@@ -43,9 +43,9 @@
 
 ### 2.1 阶段 A（中间验收）
 
-- [ ] SSE 子阶段事件 + `ToolResult` 上 **`text2sql_phases_ms`**；**进行中** 可区分等模型 / 查库
-- [ ] 分阶段 timeout（§拍板 #5）+ **`LLM_API_TIMEOUT`** + phase 可区分（`detail.phase` 等）
-- [ ] 契约：`X-ChatBI-Sse-Contract`、`_contract_manifest.json`、`tech_graph_contract_check` 与语义变更 **同合并批次**
+- [x] SSE 子阶段事件 + `ToolResult` 上 **`text2sql_phases_ms`**；**进行中** 可区分等模型 / 查库
+- [x] 分阶段 timeout（§拍板 #5）+ **`LLM_API_TIMEOUT`** + phase 可区分（`detail.phase` 等）
+- [x] 契约：`X-ChatBI-Sse-Contract`、`_contract_manifest.json`、`tech_graph_contract_check` 与语义变更 **同合并批次**
 
 ### 2.2 阶段 B（P0-2）
 
@@ -85,7 +85,7 @@
 1. **环境**：检出含阶段 A 的 commit；`.env` / `PROJECT_CONFIG` 中 **timeout 与可选模型** 与 PR 说明一致。  
 2. **自动化**：`pytest`（本单相关用例全绿）；记录命令与摘要到 **§4 进度日志**。  
 3. **SSE / ToolResult**：多轮或长查询场景下确认：**`tool.call.end` 前** 已收到子阶段事件；结束帧或 Tool 结果中含 **`text2sql_phases_ms`**，且能区分 **`llm_*` vs `db`/`retrieve`**。  
-4. **超时（可选抽检）**：将 SQL / Summary timeout 调至极小，确认 **T 秒内** 返回 **`LLM_API_TIMEOUT`** 且 **phase 可区分**（见 §拍板 #5）。  
+4. **超时（可选抽检）**：将 SQL / Summary timeout 调至极小，确认 **T 秒内** 返回 **`LLM_API_TIMEOUT`** 且 **phase 可区分**（见 §拍板 #5）。**注意**：`retrieve` 依赖 **Supabase / 外网** 时墙时钟波动大，抽检数值偏高 **多为环境现象**，与成功路径留档对读（见 `docs/spec/v3-agent/P0/`）。  
 5. **门禁**：§2.1 与上表 **A1–A6** 完成 → 可在 runbook / 团队看板标记 **stage_a_done**；主任务单仅勾选 **（A）** 两项（若策略为「中间也勾主单」）。
 
 ### 3.4 阶段 B — P0-2 验收流程
@@ -115,6 +115,7 @@
 |------|----------|-----------|
 | 2026-05-11 | 初版：执行计划、checklist、验收流程落盘 | — |
 | 2026-05-11 | 阶段 A 实现：`text2sql_phases_ms`、`text2sql.phase.*` SSE、分阶段 timeout、确定性总结迁入 `text2sql_core`；manifest + contract_check 纳入 `tools.py` | 本 PR |
+| 2026-05-11 | **阶段 A 中间验收归档**：§1 A1–A6、§2.1 已勾选；留档见 `docs/spec/v3-agent/P0/阶段A-中间验收.md`（成功路径）、`…/阶段A-中间验收-超时.md`（抽检；文首注明 **Supabase/外网易超时**）；自动化：`tools/tech_graph_contract_check.py` 绿、`pytest` 本单相关子集绿（命令与摘要见实现 PR / 团队笔记） | `stage_a_done` |
 
 ---
 
@@ -123,6 +124,7 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 初版 |
+| 2026-05-11 | 阶段 A 中间验收归档：`stage_a_done`、A1–A6 与 §2.1 勾选；§3.3 增补 Supabase/外网抽检说明；§4 归档行 |
 
 ---
 

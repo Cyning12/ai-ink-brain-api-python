@@ -12,6 +12,10 @@
 ```
 docs/spec/v3-agent/
 ├── README.md                                    # 本文件
+├── P0/                                          # 阶段 A 中间验收留档（见 P0/README.md）
+│   ├── README.md
+│   ├── 阶段A-中间验收.md
+│   └── 阶段A-中间验收-超时.md
 ├── SPEC-ChatBI-V3-Overview.md                   # L0 总览
 ├── SPEC-ChatBI-V3-Observability-Text2SQL.md     # L1 可观测 · Text2SQL
 ├── SPEC-ChatBI-V3-Logging-Trace.md              # L1 日志 · Trace

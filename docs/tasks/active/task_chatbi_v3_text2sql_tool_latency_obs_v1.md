@@ -70,8 +70,8 @@
 > **节奏**：**阶段 A（P0-1+3）** 可先勾选下列 **A** 项做中间验收；**阶段 B（P0-2）** 完成后勾选 **B** 项；**最终** 须 **A+B** 全勾满再宣称总规 P0 本单验收完成。  
 > **验收流程细则**（角色、门禁顺序、阶段入口/出口、留档建议）：见 [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) **§3**。
 
-- [ ] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
-- [ ] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）
+- [x] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
+- [x] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）
 - [ ] **（B · 最终）** JSON 日志贯通 **`request_id` + `run_id`**；含 **`text2sql_phases_ms`** 的日志行与 **同一 `run_id`** 的 SSE/会话可对齐；子阶段日志可带 **`subphase_id` = `text2sql.phase.<phase_id>`**（见 L1 Logging-Trace）
 - [ ] **（最终）** `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
 - [ ] **（最终）** `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
