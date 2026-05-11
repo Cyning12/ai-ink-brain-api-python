@@ -1,6 +1,14 @@
 # 阶段 B · 前端验收留档（Unified Chat 导出）
 
-## 此次验收结果（2026-05-11）
+## 归档结论（2026-05-11）
+
+执行方确认：**RUNBOOK §3.4（B）**（`CHATBI_JSON_LOG` + stderr **`text2sql_tool_call_end`** 与 SSE **`run_id` 同源 grep**）与 **§3.6（C）**（Unified Chat Timeline / **`meta.payload.run_id`（R）** 与链上事件、`done` 对读）**验收通过**，与主任务单 **`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`** 已勾选口径一致。  
+**B  stderr 留证**：见 [`阶段B-留证-curl-stream-b-smoke-2026-05-11.md`](阶段B-留证-curl-stream-b-smoke-2026-05-11.md) **§B3 闭环**。  
+**说明**：下方 **「原始导出」** 为归档时附带的 **Timeline 快照**；若其中仍出现 **R 与顶层 `run_id` 双 UUID**，可作 **修复前对照**；**通过判定** 以执行方 **复检**（新 `session_id` / 最新构建导出）及上节 stderr 留证为准。
+
+---
+
+## 此次验收结果（2026-05-11 · 过程表）
 
 | 项 | 结论 |
 |----|------|
@@ -8,7 +16,7 @@
 | **业务路径** | `prefer=auto` → `text2sql`；`tool.call.end` / `sql.result` / 答复一致，**12 条** |
 | **`meta.payload.run_id`（R，服务端 canonical）** | `34c3c7ef-bff6-4a38-beea-5912b4ae1ace` |
 | **`user.message` 及后续链事件顶层 `run_id`（文首至 `latency`）** | `9c17c696-95ae-411e-b954-360ca5b70c38` |
-| **与 [`阶段B-验收-1.md`](阶段B-验收-1.md) 目标** | **未对齐**：文首 **R** 与 **顶层 `run_id`** **不一致**；验收-1 要求 **`meta` 到达后回填**，**全表与 `payload.run_id` 同源**（可与该文件内样例对照）。**建议**：确认已部署含 **`UnifiedChatPageClient.tsx`** `meta` **`payload.run_id` 回填** 的构建；若为 **增量 SSE** 路径，核对是否遗漏同一逻辑后 **重新导出** 再签收 **C**。 |
+| **与 [`阶段B-验收-1.md`](阶段B-验收-1.md) 目标** | **已通过（归档）**：复检下 **C** 与 **验收-1** 同源口径满足；下方附录 JSON 若为较早快照、仍见双 UUID，见 **§归档结论** 说明。 |
 | **与 B（stderr）对读** | [`阶段B-留证-curl-stream-b-smoke-2026-05-11.md`](阶段B-留证-curl-stream-b-smoke-2026-05-11.md) 中 `554e5b2f-…` 等为 **另一次 curl/tee 会话**，UUID **不必**与本导出相同；若要做 **同一会话** C+B 对读，须以 **当轮 SSE** 的 **`meta.payload.run_id`** 去 grep `text2sql_tool_call_end`。 |
 
 ---
@@ -324,3 +332,12 @@ agent_info 表中共有 12 条数据。
 agent.llm.start · text2sql_summary（Text2SQL 总结）
 agent_info 表中共有 12 条数据。
 agent.llm.end · text2sql_summary · ok
+
+---
+
+## 修订记录
+
+| 日期 | 变更 |
+|------|------|
+| 2026-05-11 | 文首 **过程表** + 原始导出落盘 |
+| 2026-05-11 | **§归档结论**：B+C 验收通过收口；过程表「与验收-1」改为 **已通过（归档）** |

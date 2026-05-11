@@ -121,6 +121,7 @@
 | 2026-05-11 | **阶段 B（P0-2）**：`CHATBI_JSON_LOG` → `api/chatbi_json_log.py` 单行 JSON；`text2sql_phase_end` / `text2sql_tool_call_end` 带 **`request_id`/`run_id`/`session_id`** 与 **`text2sql_phases_ms`**；`pytest tests/test_chatbi_json_log.py`；`PROJECT_CONFIG` + `.env.example` | `stage_b_done` |
 | 2026-05-11 | **§3.4 增补**：B 真请求须 **带鉴权**；`unified_chat` 批 JSON + **非增量** SSE 向 **`agent.run` 补传 `run_id`**，与增量路径一致，保证 **`text2sql_tool_call_end`** 可 grep | 验收留证缺口 / 实现对齐 |
 | 2026-05-11 | **阶段 B 正式验收归档**：人工留档 `docs/spec/v3-agent/P0/阶段B-验收.md`、`…/阶段B-验收-1.md`（run_id 对齐说明）；前端 `UnifiedChatPageClient` meta 回填；**§2.3 + C1/C2** 收口；任务单与 RUNBOOK **`git mv` → `docs/tasks/done/`** | `stage_b_archived` → `ready_for_close` |
+| 2026-05-11 | **B+C 执行验收收口**：`P0/阶段B-留证-curl-stream-b-smoke-2026-05-11.md`（tee + `text2sql_tool_call_end`）；`P0/阶段B-前端输出.md` **§归档结论**（C 签收）；与 Ink `content/tasks/done/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md` 对齐 | `b_c_evidence_signed` |
 
 ---
 
@@ -132,6 +133,7 @@
 | 2026-05-11 | 阶段 A 中间验收归档：`stage_a_done`、A1–A6 与 §2.1 勾选；§3.3 增补 Supabase/外网抽检说明；§4 归档行 |
 | 2026-05-11 | 阶段 B：`stage_b_done`、B1–B3 与 §2.2 勾选；§3.4 增补 `CHATBI_JSON_LOG` 验收步骤；§4 P0-2 行 |
 | 2026-05-11 | 阶段 B 归档与关单：`P0/README` 扩至 A+B；§2.3 与 C1/C2 勾选；§3.4 增补 Ink meta 对齐；任务单 **done** 并迁入 **`docs/tasks/done/`** |
+| 2026-05-11 | **§4**：B+C 执行方留证收口行（tee grep + `阶段B-前端输出` 归档结论） |
 
 ---
 
