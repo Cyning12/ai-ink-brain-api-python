@@ -2,7 +2,7 @@
 
 ## 元信息
 
-- **状态**：backlog（V3 开工时纳入迭代）
+- **状态**：**done**（2026-05-11；本单与 RUNBOOK 已归档至 **`docs/tasks/done/`**）
 - **与 SPEC §2.1 批次对应**：本单承载 **P0-1** + **P0-2** + **P0-3**（见 **§拍板**）；允许 **分阶段 commit**（先 **P0-1+3** 中间验收，再 **P0-2**），**总规 P0 最终验收** 须在 **§验收勾选** 四项一并满足后再对外宣称完成。
 - **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§2.1 P0**、**§3** 任务归拢）  
 - **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`；日志协同见 `SPEC-ChatBI-V3-Logging-Trace.md`
@@ -10,7 +10,7 @@
 - **背景会话**：多轮追问下 `text2sql_query` 的 `tool.call.start` → `tool.call.end` 间隔可达百秒级，期间无 SSE，体感「卡在 step5→step6」
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）
-- **执行计划 · Checklist · 验收流程**（过程文档，随迭代同步更新）：[`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md)
+- **执行计划 · Checklist · 验收流程**（与主任务同目录归档）：[`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](./task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md)
 - **前端对接**（Timeline / SSE 消费 `text2sql.phase.*` 与 `tool.call.end` 内 `text2sql_phases_ms`）：Ink-Brain 仓 `content/tasks/active/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md`（**v1 关单 / 数据源策略** 已拍板；后端 L1 摘要：`SPEC-ChatBI-V3-Observability-Text2SQL.md` §5.1）
 
 ## 拍板（2026-05-11 · 产品 / 架构）
@@ -68,18 +68,19 @@
 ## 验收标准（V3 开工时勾选）
 
 > **节奏**：**阶段 A（P0-1+3）** 可先勾选下列 **A** 项做中间验收；**阶段 B（P0-2）** 完成后勾选 **B** 项；**最终** 须 **A+B** 全勾满再宣称总规 P0 本单验收完成。  
-> **验收流程细则**（角色、门禁顺序、阶段入口/出口、留档建议）：见 [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) **§3**。
+> **验收流程细则**（角色、门禁顺序、阶段入口/出口、留档建议）：见 [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](./task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) **§3**。
 
 - [x] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
 - [x] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）
 - [x] **（B · 最终）** JSON 日志贯通 **`request_id` + `run_id`**；含 **`text2sql_phases_ms`** 的日志行与 **同一 `run_id`** 的 SSE/会话可对齐；子阶段日志可带 **`subphase_id` = `text2sql.phase.<phase_id>`**（见 L1 Logging-Trace；开关 **`CHATBI_JSON_LOG`**，`api/chatbi_json_log.py`）
-- [ ] **（最终）** `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
-- [ ] **（最终）** `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
+- [x] **（最终）** `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
+- [x] **（最终）** `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
 
 ## 实现备忘（回填）
 
 - 由 V3 负责 Agent 回填：涉及文件列表、SSE manifest、环境变量表（`PROJECT_CONFIG`）
 - P0-2 日志：`api/chatbi_json_log.py`；`api/tools.py::text2sql_execute`（`json_log_ctx` + `text2sql_phase_end`）；`api/agent.py`（`text2sql_tool_call_end`）；`tests/test_chatbi_json_log.py`
+- 阶段 B 前后端对齐：Ink `components/unified-chat/UnifiedChatPageClient.tsx` — 收到 **`meta`** 即采用 **`payload.run_id`** 并回填 **`user.message`**，使 Timeline **`tool.call.end`** 等与 **`CHATBI_JSON_LOG`** / **`done`** 同源；留档 `docs/spec/v3-agent/P0/阶段B-验收-1.md`
 
 ---
 

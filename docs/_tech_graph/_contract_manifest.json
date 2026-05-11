@@ -31,7 +31,9 @@
         "phaseId",
         "phaseKind",
         "text2sqlPhasesMs",
-        "text2sql_phases_ms"
+        "text2sql_phases_ms",
+        "name",
+        "target"
       ],
       "type_values": [
         "meta",

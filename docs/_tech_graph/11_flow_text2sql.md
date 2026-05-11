@@ -56,3 +56,4 @@ Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sy
 - **超时**：`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` → 回退 `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` → 默认 `120` 秒；`asyncio.wait_for` 包裹 LLM 线程调用。
 - **总结模型**：`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` 未设时与 `INTENT_LLM_MODEL` 默认一致。
 - **对话块预算**：`TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断 `history_to_rewrite_block` 再注入 `build_sql_prompt`。
+- **P0-2 结构化日志**：`CHATBI_JSON_LOG` 开启时 `api/chatbi_json_log.py` 输出单行 JSON（`text2sql_phase_end` / `text2sql_tool_call_end`；根字段 **`request_id`/`run_id`** 与 Unified SSE **`meta`/`done`** 同源）。

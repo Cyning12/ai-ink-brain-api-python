@@ -39,7 +39,7 @@
 
 | 支柱 | 初版目标 | 说明 | **L1 子规** |
 |------|----------|------|----------------|
-| **可观测（Text2SQL）** | 子阶段耗时或子阶段事件、聚合快路径复用、LLM `timeout`、上下文预算复核 | 任务：`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`；事件扩展须与 `SPEC-ChatBI-V2-Events.md` 及 `_contract_manifest.json` 变更流程一致 | [`SPEC-ChatBI-V3-Observability-Text2SQL.md`](SPEC-ChatBI-V3-Observability-Text2SQL.md) |
+| **可观测（Text2SQL）** | 子阶段耗时或子阶段事件、聚合快路径复用、LLM `timeout`、上下文预算复核 | 任务（**done**）：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`；事件扩展须与 `SPEC-ChatBI-V2-Events.md` 及 `_contract_manifest.json` 变更流程一致 | [`SPEC-ChatBI-V3-Observability-Text2SQL.md`](SPEC-ChatBI-V3-Observability-Text2SQL.md) |
 | **多轮技术债** | 低置信澄清 §4.3、同义词 / 枚举边界、可选漂移 CI、图谱与现网对齐 | 任务：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`；规格交叉：`SPEC-ChatBI-V2-Multiturn-Semantics.md` | [`SPEC-ChatBI-V3-Multiturn-Debt.md`](SPEC-ChatBI-V3-Multiturn-Debt.md) |
 | **安全** | SQL：语法树 / 只读策略；Prompt：输入过滤 + 输出侧校验 | Gap **§4.2** P0；待拆独立任务与验收 | [`SPEC-ChatBI-V3-Security.md`](SPEC-ChatBI-V3-Security.md) |
 | **权限** | RBAC + 数据域隔离；与现 Token 迁移策略 | Gap P0；待拆 | [`SPEC-ChatBI-V3-Identity-Access.md`](SPEC-ChatBI-V3-Identity-Access.md) |
@@ -59,11 +59,11 @@
 
 ### P0 — 首包（立即开工）
 
-> **首包形态（2026-05-11）**：Text2SQL 可观测 **SSE 子阶段 + `text2sql_phases_ms` 结构化并存**（避免仅 end 瞬间拆分后再改契约）。**Commit 节奏**：可先 **P0-1+3** 中间验收，再 **P0-2**，**最终 P0 验收** 须四项齐（见 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` **§拍板 #2**、**§验收标准**）。
+> **首包形态（2026-05-11）**：Text2SQL 可观测 **SSE 子阶段 + `text2sql_phases_ms` 结构化并存**（避免仅 end 瞬间拆分后再改契约）。**Commit 节奏**：可先 **P0-1+3** 中间验收，再 **P0-2**，**最终 P0 验收** 须四项齐（见 **`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`** **§拍板 #2**、**§验收标准**；本单 **2026-05-11 已归档**）。
 
 | 排序 | 任务 | 任务单 / 来源 | 理由 |
 |------|------|---------------|------|
-| **P0-1** | **可观测：Text2SQL 子阶段耗时** | `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | 已有独立任务单，代码路径清晰；解决「百秒级黑盒」痛点；面试可演示「从 print 到结构化耗时」 |
+| **P0-1** | **可观测：Text2SQL 子阶段耗时** | `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（**done**） | 已有独立任务单，代码路径清晰；解决「百秒级黑盒」痛点；面试可演示「从 print 到结构化耗时」 |
 | **P0-2** | **结构化日志 + Trace ID** | Gap §3.3.3 / §4.2 P1 | 与 P0-1 天然协同（耗时数据需要结构化载体）；为所有后续 V3 能力提供可观测地基 |
 | **P0-3** | **LLM 调用超时与降级** | obs 任务单 §4 | 同 P0-1 代码路径；解决「无限挂起」生产级问题；改动小、价值高 |
 
@@ -92,14 +92,14 @@
 
 ---
 
-## 3. `docs/tasks/active` — V3 任务归拢（权威列表）
+## 3. V3 任务归拢（权威列表）
 
-> 路径相对本仓库根 `ai-ink-brain-api-python/`。
+> 路径相对本仓库根 `ai-ink-brain-api-python/`。**已归档**任务见 `docs/tasks/done/`（下表 **active** 与 **done** 分列）。
 
 | 任务文件 | 元状态（以任务单头部为准） | 职责摘要 |
 |----------|---------------------------|----------|
 | `docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V2 收口后的 **规划入口**、迭代顺序、从 Gap 抽切片 |
-| `docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `backlog` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
+| `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `done` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算、**P0-2 JSON 日志**；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 已交付之外的 **多轮 / 值域** 欠债（澄清、同义词、DISTINCT 节能可选、图谱） |
 
 **不在上表但可能并行**：V2 **增量 SSE vNext**（`docs/spec/v2-agent/SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`）属 **交互契约升级**，排期可与 V3 支柱 **并行**；若实现触碰 `chain.type` 扩展，仍须满足 `tools/tech_graph_contract_check.py` 与「manifest 同 PR」规则。

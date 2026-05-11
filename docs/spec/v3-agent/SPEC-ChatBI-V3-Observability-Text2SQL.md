@@ -2,7 +2,7 @@
 
 > **状态**：`draft`  
 > **父规**：[`SPEC-ChatBI-V3-Overview.md`](SPEC-ChatBI-V3-Overview.md) **§2** 支柱一、**§2.1** P0-1 / P0-3  
-> **任务单**：`docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（验收勾选以任务单为准）
+> **任务单**：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（验收勾选以任务单为准；**done**）
 
 ---
 

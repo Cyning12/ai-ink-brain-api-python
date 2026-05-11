@@ -12,10 +12,12 @@
 ```
 docs/spec/v3-agent/
 ├── README.md                                    # 本文件
-├── P0/                                          # 阶段 A 中间验收留档（见 P0/README.md）
+├── P0/                                          # 阶段 A/B 验收留档（见 P0/README.md）
 │   ├── README.md
 │   ├── 阶段A-中间验收.md
-│   └── 阶段A-中间验收-超时.md
+│   ├── 阶段A-中间验收-超时.md
+│   ├── 阶段B-验收.md
+│   └── 阶段B-验收-1.md
 ├── SPEC-ChatBI-V3-Overview.md                   # L0 总览
 ├── SPEC-ChatBI-V3-Observability-Text2SQL.md     # L1 可观测 · Text2SQL
 ├── SPEC-ChatBI-V3-Logging-Trace.md              # L1 日志 · Trace
@@ -44,7 +46,7 @@ docs/spec/v3-agent/
 | 任务文件 | 角色 | 主要 L1 子规 |
 |----------|------|----------------|
 | `task_chatbi_v3_planning_after_resume_v1.md` | 规划入口、迭代顺序 | Overview §2.1 |
-| `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | Text2SQL 延迟与可观测 | **Observability-Text2SQL**、Logging（协同）；执行/验收见 [`../../tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
+| `task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（**done · `docs/tasks/done/`**） | Text2SQL 延迟与可观测 | **Observability-Text2SQL**、Logging（协同）；执行/验收见 [`../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | 多轮 / 值域欠债 | **Multiturn-Debt** |
 
 新增 V3 任务时：**更新本 README 上表** + `SPEC-ChatBI-V3-Overview.md` **§3**；若新域无 L1 文件，**先补子规再挂任务**。

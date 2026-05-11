@@ -15,7 +15,7 @@
 | **SPEC 目录** `docs/spec/v2-agent/` | **已对齐实现**：总规 §7.4/§7.5、子规、vNext 分层可读；详见 **`README.md`** 阅读顺序 |
 | **Runner** `task_chatbi_v2_acceptance_runner_v1.md` | **L0–L7 本机/生产证据已回填 §2.9**；L0 等价 **GitHub Actions** 跑绿即可 |
 | **缺口快照** `SPEC-ChatBI-V2-Gap-Checklist.md` | **仍为主规互补**；总规 §7.1 未勾项以 Gap + 简历 §七 为准 |
-| **企业级路线图** | **`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`**（非 v2-agent 子路径；V3/P1 已链 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md`） |
+| **企业级路线图** | **`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`**（非 v2-agent 子路径；V3/P1 已链 `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`） |
 
 **仍标「补强 / 未在本文宣告 100%」**（与简历一致）：总规 **§7.1** 多步双工具 **产品级 E2E 黄金用例 + 压测**；纸面 **§7.2 P50/P95** 与真实延迟差距（见 L2 归档）。
 
@@ -60,7 +60,7 @@
 | `task_chatbi_v2_acceptance_runner_v1.md` | **L0–L7 执行引导 + §2.9 勾选** |
 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | **V3 欠债**：承接 multiturn 未纳入 V2 的项（澄清 §4.3 等） |
 | `task_chatbi_v3_planning_after_resume_v1.md` | V3 规划入口 |
-| `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | V3 Text2SQL 延迟与可观测 |
+| `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | V3 Text2SQL 延迟与可观测（**done**） |
 
 **说明**：任务单物理目录以 **`active/` vs `done/`** 为准；本页 §3.1 为 **2026-05-11** 快照。
 

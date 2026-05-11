@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` 结构化日志；同日 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
+> **最后校准**：2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` 结构化日志；同日 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。

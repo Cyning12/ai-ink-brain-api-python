@@ -1,9 +1,9 @@
 # Text2SQL 可观测（V3）— 执行计划 · Checklist · 验收流程
 
-> **关联任务（真值：拍板 / 改进点 / 主验收勾选）**：[`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1.md)  
+> **关联任务（真值：拍板 / 改进点 / 主验收勾选）**：[`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](./task_chatbi_v3_text2sql_tool_latency_obs_v1.md)  
 > **维护约定**：本文件为 **过程文档**；实现推进中 **随 PR / 会议结论同步改**（执行步骤打勾、环境键名、事件名、pytest 路径等）。**架构拍板** 仍以任务单 **§拍板** 为准；若与本 runbook 冲突，**以任务单为准**并修正本文件。  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`、`SPEC-ChatBI-V3-Logging-Trace.md`  
-> **状态占位**（执行中回填）：`planning` → `in_progress` → **`stage_a_done`（2026-05-11，见 §4）** → **`stage_b_done`（2026-05-11：P0-2 `CHATBI_JSON_LOG`，见 §4）** → `ready_for_close`
+> **状态占位**（执行中回填）：`planning` → `in_progress` → **`stage_a_done`（2026-05-11）** → **`stage_b_done`（2026-05-11）** → **`ready_for_close`（2026-05-11：阶段 C 收口，见 §4）**
 
 ---
 
@@ -32,14 +32,14 @@
 
 | 序号 | 步骤 | 说明 | 状态 |
 |------|------|------|------|
-| C1 | 图谱 | `_tech_graph/11_flow_text2sql.md` + `.ai.md` 与实现一致 | [ ] |
-| C2 | 主任务勾选 | 任务单 **§验收标准** 全部勾选；**禁止**在缺 B 时宣称总规 P0 最终验收 | [ ] |
+| C1 | 图谱 | `_tech_graph/11_flow_text2sql.md` + `.ai.md` 与实现一致 | [x] |
+| C2 | 主任务勾选 | 任务单 **§验收标准** 全部勾选；**禁止**在缺 B 时宣称总规 P0 最终验收 | [x] |
 
 ---
 
 ## 2. Checklist（与主任务对齐）
 
-> **对外宣称**：以任务单 [`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1.md) **§验收标准** 勾选为准。下表用于 **过程分解**；完成后 **回抄** 到主任务单对应 `- [ ]`。
+> **对外宣称**：以任务单 [`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](./task_chatbi_v3_text2sql_tool_latency_obs_v1.md) **§验收标准** 勾选为准。下表用于 **过程分解**；完成后 **回抄** 到主任务单对应 `- [ ]`。
 
 ### 2.1 阶段 A（中间验收）
 
@@ -54,9 +54,9 @@
 
 ### 2.3 最终（A+B 后）
 
-- [ ] **`text2sql_execute`** 聚合路径 **确定性总结**（典型 COUNT/单值用例）
-- [ ] **`_tech_graph/11_flow_text2sql.md`** / **`.ai.md`** 已更新
-- [ ] 新增 env 已写入 **`PROJECT_CONFIG`** + **`.env.example`**
+- [x] **`text2sql_execute`** 聚合路径 **确定性总结**（典型 COUNT/单值用例）
+- [x] **`_tech_graph/11_flow_text2sql.md`** / **`.ai.md`** 已更新（含 V3 P0-2 **`CHATBI_JSON_LOG`** 一行摘要）
+- [x] 新增 env 已写入 **`PROJECT_CONFIG`** + **`.env.example`**
 
 ---
 
@@ -92,7 +92,7 @@
 
 0. **开关**：`.env` 设 **`CHATBI_JSON_LOG=true`**（或 `1`/`yes`/`on`）；默认关闭以免刷屏。  
 1. **日志格式**：确认结构化日志为 **JSON**，根级含 **`request_id`、`run_id`**（当前 Agent 路径与 SSE **`run_id` 同值**，与 `done.request_id` 对齐）。  
-2. **归因**：同一次 Agent Text2SQL 请求，从 SSE **`meta`/`done`** 或客户端记录取得 **`run_id`**，在 stderr / 采集侧 grep **同 `run_id`**，确认存在 **`text2sql_tool_call_end`**（整段）及可选 **`text2sql_phase_end`**（**`subphase_id`** = `text2sql.phase.<phase_id>`，**`text2sql_phases_ms`** 为阶段累计快照）。  
+2. **归因**：同一次 Agent Text2SQL 请求，从 SSE **`meta`/`done`** 或客户端记录取得 **`run_id`**，在 stderr / 采集侧 grep **同 `run_id`**，确认存在 **`text2sql_tool_call_end`**（整段）及可选 **`text2sql_phase_end`**（**`subphase_id`** = `text2sql.phase.<phase_id>`，**`text2sql_phases_ms`** 为阶段累计快照）。**Ink-Brain**：`UnifiedChatPageClient` 于 **`meta`** 帧采用 **`payload.run_id`** 并回填本轮 **`user.message`**，使导出的 Timeline 与上述 **`run_id`** 一致（留档 `P0/阶段B-验收-1.md`）。  
 3. **门禁**：§2.2 完成 → **stage_b_done**；主任务单勾选 **（B）** 项。
 
 ### 3.5 最终验收与关单
@@ -118,6 +118,7 @@
 | 2026-05-11 | 阶段 A 实现：`text2sql_phases_ms`、`text2sql.phase.*` SSE、分阶段 timeout、确定性总结迁入 `text2sql_core`；manifest + contract_check 纳入 `tools.py` | 本 PR |
 | 2026-05-11 | **阶段 A 中间验收归档**：§1 A1–A6、§2.1 已勾选；留档见 `docs/spec/v3-agent/P0/阶段A-中间验收.md`（成功路径）、`…/阶段A-中间验收-超时.md`（抽检；文首注明 **Supabase/外网易超时**）；自动化：`tools/tech_graph_contract_check.py` 绿、`pytest` 本单相关子集绿（命令与摘要见实现 PR / 团队笔记） | `stage_a_done` |
 | 2026-05-11 | **阶段 B（P0-2）**：`CHATBI_JSON_LOG` → `api/chatbi_json_log.py` 单行 JSON；`text2sql_phase_end` / `text2sql_tool_call_end` 带 **`request_id`/`run_id`/`session_id`** 与 **`text2sql_phases_ms`**；`pytest tests/test_chatbi_json_log.py`；`PROJECT_CONFIG` + `.env.example` | `stage_b_done` |
+| 2026-05-11 | **阶段 B 正式验收归档**：人工留档 `docs/spec/v3-agent/P0/阶段B-验收.md`、`…/阶段B-验收-1.md`（run_id 对齐说明）；前端 `UnifiedChatPageClient` meta 回填；**§2.3 + C1/C2** 收口；任务单与 RUNBOOK **`git mv` → `docs/tasks/done/`** | `stage_b_archived` → `ready_for_close` |
 
 ---
 
@@ -128,6 +129,7 @@
 | 2026-05-11 | 初版 |
 | 2026-05-11 | 阶段 A 中间验收归档：`stage_a_done`、A1–A6 与 §2.1 勾选；§3.3 增补 Supabase/外网抽检说明；§4 归档行 |
 | 2026-05-11 | 阶段 B：`stage_b_done`、B1–B3 与 §2.2 勾选；§3.4 增补 `CHATBI_JSON_LOG` 验收步骤；§4 P0-2 行 |
+| 2026-05-11 | 阶段 B 归档与关单：`P0/README` 扩至 A+B；§2.3 与 C1/C2 勾选；§3.4 增补 Ink meta 对齐；任务单 **done** 并迁入 **`docs/tasks/done/`** |
 
 ---
 
