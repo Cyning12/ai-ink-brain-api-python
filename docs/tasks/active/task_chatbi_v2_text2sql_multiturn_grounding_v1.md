@@ -1,6 +1,6 @@
 # Task：ChatBI V2 — Text2SQL 多轮语义承接（已实现基线 + 值域锚点后续）
 
-> **状态**：`in_progress`（**A / C 基线已落地**；**B-PR1 已于 2026-05-09 验收通过**；**B-PR2（DISTINCT 探针）未做**，仍记为后续迭代；本子任务「PR1 范围」可视为交付闭环，全任务闭环待 PR2）  
+> **状态**：`in_progress`（**A / C 基线已落地**；**B-PR1** 2026-05-09 验收；**B-PR2（DISTINCT 探针）** 已于 2026-05-11 代码落地：`api/text2sql_value_hints.py` + `execute_select_sql(statement_timeout_ms)` + `PROJECT_CONFIG` / `docs/text2sql/v1/VALUE_HINTS_DISTINCT.md`；**集成 / 人工对真库跑通**仍可按 §验收勾选抽检）  
 > **范围**：仅后端 `ai-ink-brain-api-python`（Text2SQL 工具链、会话记忆形状；不涉及前端 transcript UI）  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（L1–L4 分层、§3 指代与 rewrite、§4 结构化上下文）  
 > **父任务索引**：`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，**已归档**；本子任务可视为其下「多轮 + Text2SQL 真值」专项）  
@@ -16,7 +16,7 @@
 本子任务落盘 **A / B / C** 三块（可分期验收）：
 
 1. **A（已实现）**：在 Text2SQL 路径注入会话历史，用于 DDL 检索与 SQL 生成提示（基线修复）。  
-2. **B（分阶段）**：**PR1 已完成**可版本化字典 + `build_sql_prompt` 注入；**PR2 仍待** DISTINCT 采样与防漂移并集。与规格 §4 对齐。  
+2. **B（分阶段）**：**PR1 已完成**可版本化字典 + `build_sql_prompt` 注入；**PR2 已实现** DISTINCT 采样与 YAML 并集防漂移（默认 `TEXT2SQL_DISTINCT_PROBE` 关闭）。与规格 §4 对齐。  
 3. **C（已实现基线）**：上轮结构化锚点（表/SQL 摘要）；澄清策略 P1+ 另单。
 
 ---
@@ -32,10 +32,11 @@
 
 ### B. 枚举 / 同义词 / 列值域提示（PR1 已落地；PR2 待做）
 
-- [x] **PR1**：可版本化 **YAML**（`docs/text2sql/v1/value_hints.yaml`：当前 `agent_info.gender` + `commission_structure`，`values` 与 `docs/text2sql/v1/sql/supabase_init.sql` 对齐），经 `api/text2sql_value_hints.py` 注入 `build_sql_prompt(..., value_hints_block=)`；**DISTINCT 探针**按方案留 **PR2**。  
+- [x] **PR1**：可版本化 **YAML**（`docs/text2sql/v1/value_hints.yaml`：当前 `agent_info.gender` + `commission_structure`，`values` 与 `docs/text2sql/v1/sql/supabase_init.sql` 对齐），经 `api/text2sql_value_hints.py` 注入 `build_sql_prompt(..., value_hints_block=)`。  
+- [x] **PR2**：allowlist DISTINCT + 与 YAML `values` 并集（不 YAML 短路）；探针失败列降级仅 YAML；说明文案见 `build_value_hints_block_for_text2sql`。  
 - [x] 与 DDL 边界：prompt 内固定为「业务术语与库内取值」+ 不替代表结构说明（见代码拼装）。  
-- [x] **PR1 env**：`TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED` 已写入 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`。  
-- [ ] **PR2 env**：`TEXT2SQL_DISTINCT_PROBE` / `TEXT2SQL_DISTINCT_MAX` / `TEXT2SQL_DISTINCT_COLUMNS` 等（随 DISTINCT 实现一并增补 `PROJECT_CONFIG`）。
+- [x] **PR1 env**：`TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED` 已写入 `PROJECT_CONFIG`。  
+- [x] **PR2 env**：`TEXT2SQL_DISTINCT_PROBE` / `TEXT2SQL_DISTINCT_MAX` / `TEXT2SQL_DISTINCT_COLUMNS` / `TEXT2SQL_DISTINCT_MAX_PROBES` / `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` 已写入 `PROJECT_CONFIG` 与 `.env.example`。
 
 ### C. 上轮结构化锚点（已实现基线；澄清策略仍为 P1+）
 
@@ -156,7 +157,7 @@ tables:
 
 - [x] **PR1 自动化**：`tests/test_text2sql_value_hints.py` 断言 prompt 含性别/佣金 **库内取值与同义词映射**（不依赖外呼 LLM）。  
 - [ ] **集成 / 人工**：对「男性 / commission 口语」等，**实际生成 SQL** 的 `WHERE` 字面量与库一致（`temperature=0` + 日志或 `CHATBI_V2_DEBUG_LLM_PROMPTS` 核对；审核 Agent 建议抽 1～2 条跑通）。  
-- [ ] **漂移说明**：PR2 DISTINCT 落地后，在 `docs/text2sql/` 或本任务实现备忘补「YAML ∪ DISTINCT 并集 + 同义词仍人工」；当前仅 YAML 与 `supabase_init.sql` 人工对齐（**审核可记为已知缺口**）。
+- [x] **漂移说明**：`docs/text2sql/v1/VALUE_HINTS_DISTINCT.md`；**集成 / 人工**对真库生成 SQL 仍可按需勾选 §验收。
 
 ### C（已实现基线）
 
@@ -172,9 +173,11 @@ tables:
 | **A 已涉及文件** | `api/tools.py`（`_text2sql_retrieve_query`、`text2sql_execute`）、`api/text2sql_core.py`（`build_sql_prompt(..., dialogue_context=)`）、`api/agent_memory.py`（`save` 缓存形状） |
 | **A 新增 env** | `TEXT2SQL_RETRIEVE_QUERY_MAX_LEN`（默认 `1200`，可选） |
 | **C 已涉及文件** | `api/text2sql_grounding.py`（新建）、`api/unified_chat.py`（`_text2sql_grounding_from_agent_result` / 落库）、`api/agent_memory.py`（load 合并）、`api/query_rewrite.py`、`api/agent.py`、`tests/test_text2sql_grounding.py` |
-| **B-PR1 已涉及文件** | `docs/text2sql/v1/value_hints.yaml`、`api/text2sql_value_hints.py`、`api/text2sql_core.py`（`value_hints_block`）、`api/tools.py`、`api/unified_chat.py`、`api/chain_chat.py`、`api/text2sql_api.py`、`tests/test_text2sql_value_hints.py`、`requirements.txt`（`pyyaml`） |
-| **B-PR1 新增 env** | `TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED`（真值表 §C） |
-| **B 待拆 PR** | **PR2**：DISTINCT allowlist + 与 YAML 并集防漂移 + 超时降级 + `PROJECT_CONFIG` 增补 DISTINCT 相关 env |
+| **B-PR1 已涉及文件** | `docs/text2sql/v1/value_hints.yaml`、`api/text2sql_value_hints.py`、`api/text2sql_core.py`（`value_hints_block`）、`api/tools.py`、`api/unified_chat.py`、`api/chain_chat.py`、`api/text2sql_api.py`、`tests/test_text2sql_value_hints.py`、`requirements.txt`（`pyyaml`） |  
+| **B-PR1 新增 env** | `TEXT2SQL_VALUE_HINTS_PATH`、`TEXT2SQL_VALUE_HINTS_ENABLED`（真值表 §C） |  
+| **B-PR2 已涉及文件** | `api/text2sql_value_hints.py`（`merge_hints_with_distinct_probes`、`parse_distinct_allowlist`、`run_distinct_probe_values`）、`api/text2sql_core.py`（`execute_select_sql(..., statement_timeout_ms=)`）、`api/tools.py`（`asyncio.to_thread` 构建 value hints）、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`、`.env.example`、`docs/text2sql/v1/VALUE_HINTS_DISTINCT.md`、`tests/test_text2sql_value_hints.py` |  
+| **B-PR2 新增 env** | `TEXT2SQL_DISTINCT_PROBE`、`TEXT2SQL_DISTINCT_MAX`、`TEXT2SQL_DISTINCT_COLUMNS`、`TEXT2SQL_DISTINCT_MAX_PROBES`、`TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` |  
+| **B 待拆 PR** | 无（PR2 已合入本仓）；可选后续：「YAML 命中短路 DISTINCT」节能模式（默认关，见任务 B.0-5） |
 | **图谱** | 若流程变更跨请求锚点，同步 `_tech_graph/` 中 Text2SQL / Agent 子流程（遵守双轨与 Mermaid 协议）；**B-PR1 未改跨请求契约，图谱非强制，审核可选查** |
 
 ---

@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-09（`task_chatbi_v2_text2sql_multiturn_grounding_v1.md` · **B-PR1**：`TEXT2SQL_VALUE_HINTS_PATH` / `TEXT2SQL_VALUE_HINTS_ENABLED`）；此前 2026-05-07（P1-D：`task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md`）；再前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
+> **最后校准**：2026-05-11（`CHATBI_SSE_EMIT_QUEUE_MAX`：G2 增量 emit 队列上限 / 背压 truncated）；同日前（`task_chatbi_v2_text2sql_multiturn_grounding_v1.md` · **B-PR2**：`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1：`TEXT2SQL_VALUE_HINTS_*`）；再前 2026-05-07（P1-D）；再前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -48,6 +48,8 @@
 | `SUPABASE_URL` | Supabase URL 别名 | **可选（二选一）** | `api/rag_env.py:pick_supabase_url()` | 留空则使用 `NEXT_PUBLIC_SUPABASE_URL` | 与项目无关 |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key（服务端写库） | **必填（二选一）** | `api/rag_env.py:pick_supabase_service_key()` | 留空会导致无法创建 Supabase client | 与项目无关 |
 | `SUPABASE_SERVICE_KEY` | service key 别名 | **可选（二选一）** | `api/rag_env.py:pick_supabase_service_key()` | 留空则使用 `SUPABASE_SERVICE_ROLE_KEY` | 与项目无关 |
+| `SUPABASE_HTTP_RETRIES` | PostgREST 请求（`rag_conversation_logs` 等 insert/select）遇 **瞬时网络错误**（如 `Connection reset by peer` / 超时）时的最大尝试次数 | 可选 | `api/rag_env.py:_supabase_http_retry_params()`、`supabase_execute_with_retry`、`supabase_table_insert_with_retry`；`api/unified_chat.py`、`api/agent_memory.py`、`api/database_manager.py` | 默认 `4`；未设时可读别名 **`SUPABASE_INSERT_RETRIES`**；范围 clamp `1`～`12` | 与项目无关 |
+| `SUPABASE_HTTP_RETRY_BASE_DELAY_S` | 上述重试的指数退避 **初始间隔**（秒） | 可选 | 同上 | 默认 `0.25`；别名 **`SUPABASE_INSERT_RETRY_BASE_DELAY_S`** | 与项目无关 |
 | `SILICONFLOW_API_KEY` | SiliconFlow API Key | **必填** | `api/index.py`（chat）；`api/rag_env.py:must_siliconflow_api_key()`（ingest） | 留空：chat 直接 500；ingest 抛 `RuntimeError` | 与项目无关 |
 | `SILICONFLOW_BASE_URL` | OpenAI 兼容 Base URL | 可选 | `api/index.py`（`SILICONFLOW_BASE`）；`api/rag_env.py:siliconflow_base()` | 默认 `https://api.siliconflow.cn/v1` | 与项目无关 |
 | `SILICONFLOW_EMBEDDING_MODEL` | Embedding 模型名 | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_model()` | **空字符串会被视为未设置**：回退默认 `Qwen/Qwen3-Embedding-0.6B`（避免 CI/环境变量显式空值导致上游 400） | 影响向量空间；需与入库一致 |
@@ -57,6 +59,7 @@
 | `CHAT_API_SECRET` | Admin secret 别名 | **可选（二选一）** | `api/rag_env.py:admin_secret()` | 留空则使用 `NEXT_PUBLIC_ADMIN_SECRET` | 与项目无关 |
 | `CHATBI_USE_AGENT` | Unified Chat 是否走 V2 Agent（ReAct）路径 | 可选 | `api/unified_chat.py` | 默认 `false`；`1/true/yes/on` 开启 V2 | 与项目无关 |
 | `CHATBI_SSE_INCREMENTAL` | Unified Agent 流式是否 **边执行边 emit**（vNext） | 可选 | `api/unified_chat.py`（规划） | 默认 **`true`**（vNext 落地后）；`false` 时 **强制** `await run` 后批量 replay，**忽略** `X-ChatBI-Sse-Contract: 2` 的增量语义（仍须安全）；组合真值见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` **§9** | 与项目无关 |
+| `CHATBI_SSE_EMIT_QUEUE_MAX` | G2 路径 `emit → asyncio.Queue` 的 **maxsize**（有界缓冲）；队列满时先发 **`agent.llm.truncated`**（`reason=backpressure`）再阻塞入队（vNext §4.3） | 可选 | `api/unified_chat.py` | 默认 **`512`**；合法范围 clamp 为 **`8`～`8192`**；单测可调低以验证背压 | 与项目无关 |
 | `CHATBI_V2_DEBUG_LLM_PROMPTS` | V2 Unified：SSE/JSON 是否附带完整 LLM messages（`agent.debug.llm_prompts` 等） | 可选 | `api/unified_chat.py:_debug_llm_prompts_enabled()` | `1`/`true`/`yes`/`on` 开启；与请求体 **`debug_llm_prompts: true`** 任一满足即生效；含 system 指令，生产慎用 | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
@@ -80,6 +83,11 @@
 | `SILICONFLOW_EMBEDDING_DIM` | `EMBEDDING_DIM` 兼容别名 | 可选 | `api/rag_env.py:expected_embedding_dim()` | 留空则看 `EMBEDDING_DIM` | **必须与** `vector(N)` **一致** |
 | `TEXT2SQL_VALUE_HINTS_PATH` | Text2SQL 列值域 / 同义词 YAML 路径 | 可选 | `api/text2sql_value_hints.py:_resolve_hints_path()` | 留空则使用仓库内 `docs/text2sql/v1/value_hints.yaml`（存在则加载） | 与 Text2SQL 样例库枚举一致 |
 | `TEXT2SQL_VALUE_HINTS_ENABLED` | 是否注入值域块 | 可选 | `api/text2sql_value_hints.py:_resolve_hints_path()` | `0`/`false`/`no`/`off` 关闭；未设时默认开启（仍受路径与文件是否存在约束） | 与项目无关 |
+| `TEXT2SQL_DISTINCT_PROBE` | 是否对 allowlist 列执行 DISTINCT 并与 YAML `values` 并集 | 可选 | `api/text2sql_value_hints.py:_is_distinct_probe_enabled()` | `1`/`true` 开启；未设或 `0`/`false` 等为关闭 | 依赖 `TEXT2SQL_DATABASE_URL`；失败列降级为仅 YAML |
+| `TEXT2SQL_DISTINCT_MAX` | 每条 DISTINCT 的 `LIMIT` 上限 | 可选 | `api/text2sql_value_hints.py:_distinct_row_limit()` | 默认 `64`； clamp 至 `1..500` | 与项目无关 |
+| `TEXT2SQL_DISTINCT_COLUMNS` | allowlist：`schema.table.column`，英文逗号分隔 | 可选 | `api/text2sql_value_hints.py:parse_distinct_allowlist()` | 例：`public.agent_info.gender`；仅 `[A-Za-z0-9_]` 段接受 | 与样例库表一致 |
+| `TEXT2SQL_DISTINCT_MAX_PROBES` | 单次请求最多执行的探针次数 | 可选 | `api/text2sql_value_hints.py:_distinct_max_probes()` | 默认 `8`； clamp `1..32` | 与项目无关 |
+| `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` | 单条探针 SQL 的 `statement_timeout`（毫秒） | 可选 | `api/text2sql_value_hints.py:_distinct_statement_timeout_ms()` | 留空则不设置；有值时经 `execute_select_sql(..., statement_timeout_ms=)` 注入 `SET LOCAL` | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 

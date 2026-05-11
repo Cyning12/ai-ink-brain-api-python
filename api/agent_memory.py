@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from .rag_env import supabase_client
+from .rag_env import supabase_client, supabase_execute_with_retry
 
 
 def _memory_debug() -> bool:
@@ -43,17 +43,20 @@ class AgentMemoryStore:
             return self._cache[sid]
 
         def _sync_fetch() -> list[dict[str, Any]]:
-            sb = supabase_client()
-            res = (
-                sb.table("rag_conversation_logs")
-                .select("query, response, created_at, agent_steps, tool_results")
-                .eq("session_id", sid)
-                .order("created_at", desc=True)
-                .limit(5)
-                .execute()
-            )
-            rows = res.data if isinstance(res.data, list) else []
-            return [r for r in rows if isinstance(r, dict)]
+            def _once() -> list[dict[str, Any]]:
+                sb = supabase_client()
+                res = (
+                    sb.table("rag_conversation_logs")
+                    .select("query, response, created_at, agent_steps, tool_results")
+                    .eq("session_id", sid)
+                    .order("created_at", desc=True)
+                    .limit(5)
+                    .execute()
+                )
+                rows = res.data if isinstance(res.data, list) else []
+                return [r for r in rows if isinstance(r, dict)]
+
+            return supabase_execute_with_retry(_once)
 
         try:
             rows_desc = await asyncio.to_thread(_sync_fetch)

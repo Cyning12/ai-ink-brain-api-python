@@ -1,16 +1,21 @@
-"""Text2SQL 列值域与口语映射（YAML）；供 build_sql_prompt 注入。"""
+"""Text2SQL 列值域与口语映射（YAML）；供 build_sql_prompt 注入；可选 DISTINCT 探针与 YAML 并集防漂移。"""
 
 from __future__ import annotations
 
+import copy
 import os
 import re
 from pathlib import Path
 from typing import Any
 
+from .text2sql_core import execute_select_sql, validate_sql_readonly
+
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _DEFAULT_HINTS_REL = Path("docs/text2sql/v1/value_hints.yaml")
 
 _loaded: dict[str, tuple[float, dict[str, Any]]] = {}
+
+_RE_SAFE_IDENT = re.compile(r"^[a-zA-Z0-9_]+$")
 
 
 def _truthy_env(name: str, default: bool = True) -> bool:
@@ -113,6 +118,152 @@ def tables_for_value_hints(ddl_names: set[str], primary_table: str | None) -> se
     return set(ddl_names)
 
 
+def parse_distinct_allowlist() -> list[tuple[str, str, str]]:
+    """解析 `TEXT2SQL_DISTINCT_COLUMNS`，返回 [(schema, table, column), ...]（小写表名、列名，用于与 YAML 对齐）。"""
+    raw = (os.getenv("TEXT2SQL_DISTINCT_COLUMNS") or "").strip()
+    if not raw:
+        return []
+    out: list[tuple[str, str, str]] = []
+    for part in raw.split(","):
+        p = part.strip()
+        if not p:
+            continue
+        bits = p.split(".")
+        if len(bits) != 3:
+            continue
+        sch, tbl, col = bits[0], bits[1], bits[2]
+        if not (_RE_SAFE_IDENT.match(sch) and _RE_SAFE_IDENT.match(tbl) and _RE_SAFE_IDENT.match(col)):
+            continue
+        out.append((sch.lower(), tbl.lower(), col.lower()))
+    return out
+
+
+def _is_distinct_probe_enabled() -> bool:
+    return _truthy_env("TEXT2SQL_DISTINCT_PROBE", default=False)
+
+
+def _distinct_row_limit() -> int:
+    try:
+        return max(1, min(int(os.getenv("TEXT2SQL_DISTINCT_MAX", "64")), 500))
+    except ValueError:
+        return 64
+
+
+def _distinct_max_probes() -> int:
+    try:
+        return max(1, min(int(os.getenv("TEXT2SQL_DISTINCT_MAX_PROBES", "8")), 32))
+    except ValueError:
+        return 8
+
+
+def _distinct_statement_timeout_ms() -> int | None:
+    raw = (os.getenv("TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS") or "").strip()
+    if not raw:
+        return None
+    try:
+        return max(1, min(int(raw), 600_000))
+    except ValueError:
+        return None
+
+
+def _quote_ident(ident: str) -> str:
+    return '"' + ident.replace('"', '""') + '"'
+
+
+def _distinct_values_from_execute(cols: list[str], rows: list[dict[str, Any]]) -> list[str]:
+    if not cols:
+        return []
+    key = cols[0]
+    out: list[str] = []
+    for r in rows:
+        v = r.get(key)
+        if v is None:
+            continue
+        out.append(str(v).strip())
+    return [x for x in out if x]
+
+
+def run_distinct_probe_values(schema: str, table: str, column: str, *, limit_n: int) -> list[str] | None:
+    """执行只读 DISTINCT；成功返回字符串列表，失败返回 None（调用方降级为仅 YAML）。"""
+    sql_raw = (
+        f"SELECT DISTINCT {_quote_ident(column)} "
+        f"FROM {_quote_ident(schema)}.{_quote_ident(table)} "
+        f"LIMIT {int(limit_n)}"
+    )
+    try:
+        sql_ok = validate_sql_readonly(sql_raw)
+    except Exception:
+        return None
+    try:
+        cols, rows = execute_select_sql(
+            sql_ok,
+            limit_rows=limit_n,
+            statement_timeout_ms=_distinct_statement_timeout_ms(),
+        )
+    except Exception:
+        return None
+    return _distinct_values_from_execute(cols, rows)
+
+
+def merge_hints_with_distinct_probes(hints: dict[str, Any], target_tables: set[str]) -> dict[str, Any]:
+    """在 allowlist 与 YAML 列匹配且表在 target_tables 内时，执行 DISTINCT 并与 values 并集；失败列保留 YAML。"""
+    if not _is_distinct_probe_enabled():
+        return hints
+    allow = parse_distinct_allowlist()
+    if not allow:
+        return hints
+    max_calls = _distinct_max_probes()
+    candidates: list[tuple[str, str, str]] = []
+    for tri in allow:
+        if tri[1] in target_tables:
+            candidates.append(tri)
+        if len(candidates) >= max_calls:
+            break
+    if not candidates:
+        return hints
+
+    merged = copy.deepcopy(hints)
+    tables = merged.get("tables")
+    if not isinstance(tables, dict):
+        return hints
+
+    limit_n = _distinct_row_limit()
+    for sch, tbl, col in candidates:
+        tcfg = tables.get(tbl)
+        if not isinstance(tcfg, dict):
+            continue
+        for _logical, coldef in tcfg.items():
+            if not isinstance(coldef, dict):
+                continue
+            cn = coldef.get("column")
+            if not isinstance(cn, str) or cn.strip().lower() != col:
+                continue
+            raw_vals = coldef.get("values")
+            yaml_strs: list[str] = []
+            if isinstance(raw_vals, list):
+                yaml_strs = [str(v) for v in raw_vals if isinstance(v, (str, int, float))]
+            # 防漂移：即使 YAML 已配置仍执行 DISTINCT（任务 B.0-5）
+            sampled = run_distinct_probe_values(sch, tbl, col, limit_n=limit_n)
+            if sampled is None:
+                continue
+            merged_set = set(yaml_strs) | set(sampled)
+            coldef["values"] = sorted(merged_set, key=lambda x: str(x))
+            break
+
+    return merged
+
+
+def _distinct_merge_disclaimer() -> str | None:
+    if not _is_distinct_probe_enabled():
+        return None
+    if not parse_distinct_allowlist():
+        return None
+    return (
+        "以下为库内 DISTINCT 采样与业务字典「库内取值」的并集（LIMIT 条件下非全量闭集）；"
+        "口语映射以同义词表为准。"
+    )
+
+
 def format_hints_for_prompt(hints: dict[str, Any], table_names: set[str]) -> str:
     """将命中的表/列格式化为 prompt 正文（不含外层标题）。"""
     tables = hints.get("tables")
@@ -159,14 +310,17 @@ def build_value_hints_block_for_text2sql(
     ddl_names = ddl_table_names_from_retrieved(retrieved)
     primary = _last_primary_table_from_history(history)
     target_tables = tables_for_value_hints(ddl_names, primary)
-    body = format_hints_for_prompt(hints, target_tables)
+    hints_for_body = merge_hints_with_distinct_probes(hints, target_tables)
+    body = format_hints_for_prompt(hints_for_body, target_tables)
     if not body.strip():
         return None
-    header = "\n".join(
-        [
-            "【业务术语与库内取值】",
-            "以下为业务字典补充，不替代上方 DDL；WHERE / CASE / GROUP BY 中的枚举字面量须与下列「库内取值」一致。",
-            "【值域与口语映射】",
-        ]
-    )
+    dis = _distinct_merge_disclaimer()
+    header_lines = [
+        "【业务术语与库内取值】",
+        "以下为业务字典补充，不替代上方 DDL；WHERE / CASE / GROUP BY 中的枚举字面量须与下列「库内取值」一致。",
+    ]
+    if dis:
+        header_lines.append(dis)
+    header_lines.append("【值域与口语映射】")
+    header = "\n".join(header_lines)
     return f"{header}\n{body}".strip()

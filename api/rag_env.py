@@ -4,8 +4,13 @@
 
 from __future__ import annotations
 
+import errno
 import os
+import time
 from pathlib import Path
+from typing import Any, Callable, TypeVar
+
+T = TypeVar("T")
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -88,6 +93,91 @@ def supabase_client():
             "SUPABASE_SERVICE_ROLE_KEY 或 SUPABASE_SERVICE_KEY"
         )
     return create_client(url, key)
+
+
+def transient_supabase_network_error(exc: BaseException) -> bool:
+    """判断是否为可重试的网络 / 连接层错误（PostgREST 经 httpx 常见 TCP 复位、超时等）。"""
+    depth = 0
+    e: BaseException | None = exc
+    while e is not None and depth < 8:
+        if isinstance(e, OSError):
+            en = e.errno
+            if en is not None and en in (
+                errno.ECONNRESET,
+                errno.ECONNABORTED,
+                errno.ETIMEDOUT,
+                errno.EPIPE,
+                errno.ECONNREFUSED,
+            ):
+                return True
+            # 部分平台对「Connection reset by peer」使用非标准 errno（如 macOS 54）
+            if en == 54:
+                return True
+        msg = (str(e) or "").lower()
+        needles = (
+            "connection reset",
+            "connection aborted",
+            "broken pipe",
+            "remote protocol",
+            "timed out",
+            "timeout",
+            "temporarily unavailable",
+            "connection refused",
+            "ssl",
+            "tls",
+            "readerror",
+            "writeerror",
+        )
+        if any(n in msg for n in needles):
+            return True
+        nxt = getattr(e, "__cause__", None) or getattr(e, "__context__", None)
+        if nxt is e:
+            break
+        e = nxt
+        depth += 1
+    return False
+
+
+def _supabase_http_retry_params() -> tuple[int, float]:
+    raw_r = (os.getenv("SUPABASE_HTTP_RETRIES") or os.getenv("SUPABASE_INSERT_RETRIES", "") or "").strip()
+    try:
+        retries = int(raw_r) if raw_r else 4
+    except ValueError:
+        retries = 4
+    retries = max(1, min(retries, 12))
+    raw_d = (
+        os.getenv("SUPABASE_HTTP_RETRY_BASE_DELAY_S") or os.getenv("SUPABASE_INSERT_RETRY_BASE_DELAY_S", "") or ""
+    ).strip()
+    try:
+        delay_base = float(raw_d) if raw_d else 0.25
+    except ValueError:
+        delay_base = 0.25
+    delay_base = max(0.05, min(delay_base, 5.0))
+    return retries, delay_base
+
+
+def supabase_execute_with_retry(fn: Callable[[], T]) -> T:
+    """对任意同步 Supabase（PostgREST）调用做有限次重试；每次调用 fn() 内宜新建 client。"""
+    retries, delay_base = _supabase_http_retry_params()
+    last: BaseException | None = None
+    for attempt in range(retries):
+        try:
+            return fn()
+        except BaseException as exc:
+            last = exc
+            if attempt >= retries - 1 or not transient_supabase_network_error(exc):
+                raise
+            time.sleep(min(3.0, delay_base * (2**attempt)))
+    raise RuntimeError("supabase_execute_with_retry: exhausted") from last
+
+
+def supabase_table_insert_with_retry(table: str, row: dict[str, Any]) -> None:
+    """对单条 insert 做有限次重试；每次新建 client，减轻半开连接复用导致的复位问题。"""
+
+    def _once() -> None:
+        supabase_client().table(table).insert(row).execute()
+
+    supabase_execute_with_retry(_once)
 
 
 def admin_secret() -> str | None:

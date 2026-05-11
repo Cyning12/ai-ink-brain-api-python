@@ -84,7 +84,12 @@ def _rows_to_dicts(cur) -> tuple[list[str], list[dict[str, Any]]]:
     return cols, out
 
 
-def execute_select_sql(sql: str, *, limit_rows: int = 200) -> tuple[list[str], list[dict[str, Any]]]:
+def execute_select_sql(
+    sql: str,
+    *,
+    limit_rows: int = 200,
+    statement_timeout_ms: int | None = None,
+) -> tuple[list[str], list[dict[str, Any]]]:
     dsn = (os.getenv("TEXT2SQL_DATABASE_URL") or "").strip()
     if not dsn:
         raise RuntimeError("Missing env: TEXT2SQL_DATABASE_URL")
@@ -100,6 +105,9 @@ def execute_select_sql(sql: str, *, limit_rows: int = 200) -> tuple[list[str], l
     timeout_s = float(os.getenv("TEXT2SQL_DB_CONNECT_TIMEOUT_S", "8"))
     with psycopg.connect(dsn, connect_timeout=timeout_s) as conn:
         with conn.cursor() as cur:
+            if statement_timeout_ms is not None:
+                st = max(1, min(int(statement_timeout_ms), 600_000))
+                cur.execute(f"SET LOCAL statement_timeout = '{st}ms'")
             cur.execute(limited_sql)
             return _rows_to_dicts(cur)
 

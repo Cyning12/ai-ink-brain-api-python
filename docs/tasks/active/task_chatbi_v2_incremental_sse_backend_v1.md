@@ -107,9 +107,9 @@
 
 - **DB（可选）**：若 `conversation_id` / `message_id` 与 SSE `step_id` 须落库关联 — 对照 **`PROJECT_CONFIG`** 与 SQL **另补一行** 文档或 migration 说明；**是否必选**见上文「开工前」表（合规/产品）。  
 - **`_contract_manifest.json`（门禁口径）**：`tools/tech_graph_contract_check.py` 会校验 manifest 结构，并将 **`unified_chat.py` + `agent.py`** 中出现的 `chain.type` / payload 键与 **`type_values`、`payload_min_keys_by_type`** 对齐。**规则**：凡 PR **已**在上述源码中 emit **新的** `chain.type`（含 `agent.llm.*`），**同一 PR** 必须更新 manifest 至 **CI 通过** — **禁止**依赖长期「仅 `_note`、无枚举」糊弄门禁。独立「仅文档 / `_note` 预告」PR 仅在不引入新 `chain` 类型、且不导致 checker 失败的前提下允许。  
-- 实际选型（若偏离 G2）：______  
-- 修改文件列表：______  
-- `assistant.message` 失败路径用例（**空** / **部分** / **错误全文** 中本轮选定的 **fixture 组合**）：______（对齐 vNext **§8.3** + Events §8，写入 pytest 名称或文件路径）  
+- 实际选型（若偏离 G2）：**G2**（`ChatBIAgent.run(..., emit=)` → `asyncio.Queue`，`unified_chat` 消费队列边 `yield`；背压见 `CHATBI_SSE_EMIT_QUEUE_MAX`）  
+- 修改文件列表：`api/unified_chat.py`、`tests/test_unified_chat_sse_incremental_vnext.py`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（`CHATBI_SSE_EMIT_QUEUE_MAX`）  
+- `assistant.message` 失败路径用例（**空** / **部分** / **错误全文** 中本轮选定的 **fixture 组合**）：**空（无 `assistant.message` 帧）** — `tests/test_unified_chat_sse_incremental_vnext.py::test_sse_incremental_agent_run_raises_error_without_assistant_message`（`run` 抛错 → `error` chain + `done.ok=false`）；背压：`::test_sse_incremental_queue_backpressure_emits_truncated`  
 
 ---
 
