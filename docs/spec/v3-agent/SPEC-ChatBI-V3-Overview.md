@@ -40,7 +40,7 @@
 | 支柱 | 初版目标 | 说明 | **L1 子规** |
 |------|----------|------|----------------|
 | **可观测（Text2SQL）** | 子阶段耗时或子阶段事件、聚合快路径复用、LLM `timeout`、上下文预算复核 | 任务（**done**）：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`；事件扩展须与 `SPEC-ChatBI-V2-Events.md` 及 `_contract_manifest.json` 变更流程一致 | [`SPEC-ChatBI-V3-Observability-Text2SQL.md`](SPEC-ChatBI-V3-Observability-Text2SQL.md) |
-| **多轮技术债** | 低置信澄清 §4.3、同义词 / 枚举边界、可选漂移 CI、图谱与现网对齐 | 任务：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`；规格交叉：`SPEC-ChatBI-V2-Multiturn-Semantics.md` | [`SPEC-ChatBI-V3-Multiturn-Debt.md`](SPEC-ChatBI-V3-Multiturn-Debt.md) |
+| **多轮技术债** | 低置信澄清 §4.3、同义词 / 枚举边界、可选漂移 CI、图谱与现网对齐 | 母单：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`；**P1-4 implementation**：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`；规格交叉：`SPEC-ChatBI-V2-Multiturn-Semantics.md` | [`SPEC-ChatBI-V3-Multiturn-Debt.md`](SPEC-ChatBI-V3-Multiturn-Debt.md) |
 | **安全** | SQL：语法树 / 只读策略；Prompt：输入过滤 + 输出侧校验 | Gap **§4.2** P0；待拆独立任务与验收 | [`SPEC-ChatBI-V3-Security.md`](SPEC-ChatBI-V3-Security.md) |
 | **权限** | RBAC + 数据域隔离；与现 Token 迁移策略 | Gap P0；待拆 | [`SPEC-ChatBI-V3-Identity-Access.md`](SPEC-ChatBI-V3-Identity-Access.md) |
 | **高可用与运维** | 限流熔断、`/health` / `/ready`、监控挂钩 | Gap P1；待拆 | [`SPEC-ChatBI-V3-Resilience-Ops.md`](SPEC-ChatBI-V3-Resilience-Ops.md) |
@@ -76,7 +76,7 @@
 | **P1-1** | **安全：SQL 语法树分析** | Gap §3.2.1 P0 | 简历 §四明确标注「V3 升级」；依赖 P0-2 日志验证防护效果 |
 | **P1-2** | **安全：Prompt 注入检测 PoC** | Gap §3.2.2 P0 | 与 SQL 安全可并行；输入过滤逻辑独立 |
 | **P1-3** | **权限：RBAC 设计文档 + API 门面** | Gap §3.1 P0 | 涉及数据模型变更，需设计先行；可与安全并行设计 |
-| **P1-4** | **多轮技术债：低置信澄清 §4.3** | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` §1 | 产品体验提升；需与 RBAC 设计协调 SSE 事件形状 |
+| **P1-4** | **多轮技术债：低置信澄清 §4.3** | 母单 `task_chatbi_v3_debt_from_v2_multiturn_v1.md` **§1**；implementation：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | 产品体验提升；需与 RBAC 设计协调 SSE 事件形状 |
 
 **P1 验收标志**：SQL 注入从关键字升级到语法树 + Prompt 注入有输入过滤 + RBAC 设计文档评审通过 + 澄清策略有 SSE 事件定义。
 
@@ -101,6 +101,7 @@
 | `docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V2 收口后的 **规划入口**、迭代顺序、从 Gap 抽切片 |
 | `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `done` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算、**P0-2 JSON 日志**；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 已交付之外的 **多轮 / 值域** 欠债（澄清、同义词、DISTINCT 节能可选、图谱） |
+| `docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | `todo` | **P1-4**：低置信指代 **澄清**（V2 Multiturn **§4 第 3 点** / 惯称 §4.3）；SSE / 编排 / RBAC 表名展示交叉 |
 
 **不在上表但可能并行**：V2 **增量 SSE vNext**（`docs/spec/v2-agent/SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`）属 **交互契约升级**，排期可与 V3 支柱 **并行**；若实现触碰 `chain.type` 扩展，仍须满足 `tools/tech_graph_contract_check.py` 与「manifest 同 PR」规则。
 
@@ -134,6 +135,7 @@
 | 2026-05-11 | **§0 规格层级**：拆 L1 子规 7 份（Observability / Logging / Security / Identity / Resilience / Multiturn-Debt / Evaluation）；§2 增「子规」列；§4 阅读顺序更新 |
 | 2026-05-11 | **§2.1 P0**：首包 Text2SQL **SSE + `text2sql_phases_ms` 并存**；指向任务单 **§拍板** |
 | 2026-05-11 | **§2.1 P0** 旁注：允许 **先 1+3 再 2** 的阶段 commit，**最终验收** 仍须四项齐 |
+| 2026-05-11 | **§2** 多轮支柱、**§2.1 P1-4**、**§3**：登记 **§4.3 澄清** implementation 子任务 `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` |
 
 ---
 

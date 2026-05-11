@@ -47,7 +47,8 @@ docs/spec/v3-agent/
 |----------|------|----------------|
 | `task_chatbi_v3_planning_after_resume_v1.md` | 规划入口、迭代顺序 | Overview §2.1 |
 | `task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（**done · `docs/tasks/done/`**） | Text2SQL 延迟与可观测 | **Observability-Text2SQL**、Logging（协同）；执行/验收见 [`../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
-| `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | 多轮 / 值域欠债 | **Multiturn-Debt** |
+| `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | 多轮 / 值域欠债（母单） | **Multiturn-Debt** |
+| `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | P1-4：低置信指代澄清（§4.3 / V2 §4 第 3 点） | **Multiturn-Debt**、V2 Multiturn Semantics、**Identity-Access**（表名展示） |
 
 新增 V3 任务时：**更新本 README 上表** + `SPEC-ChatBI-V3-Overview.md` **§3**；若新域无 L1 文件，**先补子规再挂任务**。
 

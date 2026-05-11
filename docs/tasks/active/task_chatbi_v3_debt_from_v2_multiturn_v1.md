@@ -13,7 +13,7 @@
 
 | 本文件章节 | 总规批次 | 说明 |
 |------------|----------|------|
-| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期，可拆独立 implementation task。 |
+| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期；**implementation 子任务**：[`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）。 |
 | **§1** 末行「集成抽检扩展」 | **P2-2** 协同 | 与 **评估 / 烟测集**（`SPEC-ChatBI-V3-Evaluation`）同批更省重复建设。 |
 | **§2**（同义词、DISTINCT 节能、漂移 CI、图谱） | **P2-3** | 优化与非阻塞项；可多条小 PR，**不必**与 §1 同发布火车。 |
 
@@ -21,7 +21,7 @@
 
 ### 0.1 建议首包（P1-4 入口）
 
-**§1 低置信澄清** 开干前：确认 **P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证优先复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**，再拆独立 implementation task（命名示例：`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`，**待建**）。
+**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：[`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）。
 
 ---
 

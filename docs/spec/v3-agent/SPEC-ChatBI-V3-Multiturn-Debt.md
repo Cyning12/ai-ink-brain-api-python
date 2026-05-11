@@ -2,7 +2,8 @@
 
 > **状态**：`draft`  
 > **父规**：[`SPEC-ChatBI-V3-Overview.md`](SPEC-ChatBI-V3-Overview.md) **§2** 支柱二、**§2.1** P1-4 / P2-3  
-> **任务单**：`docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`  
+> **任务单（母单）**：`docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`  
+> **P1-4 implementation**：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`  
 > **V2 规格交叉**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（尤其 **§4.3**）
 
 ---
