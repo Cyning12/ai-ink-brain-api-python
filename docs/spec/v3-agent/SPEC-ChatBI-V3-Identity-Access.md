@@ -33,7 +33,7 @@
 | # | 决议 | 说明 |
 |---|------|------|
 | **1** | **前端注册延后** | **首迭代** 不设公开注册；**注册用户 / 超管 / 临时管理员** 均由 **运维在 Supabase 中手工插入**（或 Dashboard 操作）直至注册功能另立任务。 |
-| **2** | **超管 key 生成不对外开放** | 仅 **本地可调用** 的生成能力（CLI / `tools/*.py`），使用 **env 配置的根物料**（命名由实现 PR 定，例：`CHATBI_ROOT_KEY_MATERIAL`）参与 **随机 opaque token** 的派生与 **入库哈希**；**禁止**暴露「任意人可调用的 HTTP 生成接口」。**与临时管理员校验必须可区分**：推荐 **分表**（`super_admin_api_keys` vs `temp_admin_keys`）或 **同表强制 `key_kind` 枚举 + 独立校验分支**；可选更强方案见 **§3.7**。 |
+| **2** | **超管 + 临时：个人项目简化** | **超管**：与现网一致，**`NEXT_PUBLIC_ADMIN_SECRET`（及后端对齐的 admin secret）** 即 **Bearer 超管**（细见 **§5.1**）。**额外表内超管 key**（§3.7 CLI）为 **可选**，非首期强制。**临时管理员**：**新增 env**（建议名 **`CHATBI_TEMP_ADMIN_SECRET`**，用途 **§5.1** 二选一）+ **`temp_admin_keys` 表**（管理页 / CLI 写入）；**与超管 env 校验分支分离**。 |
 | **3** | **临时管理员 key 由超管在页内生成** | **超管**在 **当前管理页** 点击 **生成** → **每次** 写入 DB（哈希）→ **当页一次性展示** 明文（离开页面不再展示）；**有效期暂定 12 小时**（`expires_at = now() + 12h`，实现可用常量或 env 覆盖）。 |
 
 ### 3.1 设计顺序（建议）
@@ -47,7 +47,7 @@
 
 | 用户类型 | 建议 slug | 创建 / 发放入口 | 凭证与存储 | 初版模块范围 |
 |----------|-------------|-----------------|-------------|--------------|
-| **超管** | `super_admin` | **首期**：与注册用户一致，由 **运维在 Supabase 手工维护**；**根级 API key** 的 **批量/轮换生成** 走 **§3.7 本地 CLI**（不开放公网接口） | **根级密钥**：表内存 **哈希 + 审计**；派生依赖 **env 根物料**（仅本机/CI 持有）；**禁止**把根物料写入前端 bundle | **全部**（含 **Unified Chat**、学习日志、学习资源、任务及未来管理模块） |
+| **超管** | `super_admin` | **首期**：与注册用户一致 **手工 Supabase**；**日常 Bearer** 使用 **`NEXT_PUBLIC_ADMIN_SECRET`**（与现 BFF/Python 一致）。**可选**：本地 CLI 向 **`super_admin_api_keys`** 追加行（§3.7），与 env **并存** 时优先级见 **§5.3** | **主路径**：env secret（**勿**进仓库）。**可选表**：仅存哈希 | **全部** |
 | **注册用户** | `registered_user` | **首期**：**无**前端注册 — **全部由本人在 Supabase 插入**（或等价后台操作）；**公开注册** 延后至独立任务 | 与超管/临时区分：**Auth 用户行** 或 **profile 表 `user_kind=registered`** + 后续会话方案（实现 PR 定） | **浏览为主**：**学习日志**、**学习资源**、**任务**；**默认不含** Unified Chat |
 | **临时管理员** | `temp_admin` | **超管**在 **管理页** 点击生成（**§3.0 #3**）；**无**自助注册 | **12h TTL** API key：仅存 **哈希**；明文 **仅当页一次展示**；详见 **§3.4** | 三学习模块 **+** **Unified Chat** |
 | **未登录** | `anonymous` | — | 无有效凭证 | **仅**注册、登录与公开静态资源；**无**上述业务模块入口 |
@@ -80,9 +80,9 @@
 
 | 阶段 | 行为 |
 |------|------|
-| **现状** | `API_KEY`、`NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET` 等 — 适合 **开发 / 单操作者**；与 **多角色、审计、临时用户** 不兼容。 |
-| **过渡** | 可保留 **单根 bootstrap** 用于紧急运维；**新**超管 / 临时管理员以 **Supabase 表** 为准。 |
-| **目标** | 注册用户 **仅** Auth；**临时 / 超管** **不**依赖浏览器长期持有明文 env；**对外表述** 在迁移完成前仍遵守 Gap / 简历分层。 |
+| **现状** | `API_KEY`、`NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET` 等 — 适合 **开发 / 单操作者**。 |
+| **个人项目过渡（§5）** | **超管** 继续 **`NEXT_PUBLIC_ADMIN_SECRET`**；**临时** = **`temp_admin_keys` 表** + 可选 **`CHATBI_TEMP_ADMIN_SECRET`**（用途见 **§5.1**）；**不强制**首期 `super_admin_api_keys`。 |
+| **目标（远期）** | 注册用户 **仅** Auth；高权限 **减少** 对长期 env 明文依赖；**对外表述** 仍遵守 Gap / 简历分层。 |
 
 ### 3.6 用户与密钥 — 逻辑模型（非最终 DDL）
 
@@ -100,8 +100,9 @@
 
 | 主题 | 要求 |
 |------|------|
-| **暴露面** | **无**公网可调用「生成超管 key」API；仅 **开发者本机**（或受控 CI）运行 **本地命令**，读取 **env 根物料** 完成 **随机 token 生成 + bcrypt/scrypt/argon2 类哈希** 后，由操作者 **手动粘贴 SQL** 或使用 **Supabase service role 脚本** 写入 **`super_admin_api_keys`**。 |
-| **根物料** | env 中 **单一高熵 secret**（实现 PR 命名并写入 `PROJECT_CONFIG` / `.env.example`）；**不得**提交到 git；**不得**进入 Next `NEXT_PUBLIC_*`。 |
+| **个人项目默认** | **超管** 以 **`NEXT_PUBLIC_ADMIN_SECRET`**（及后端对齐变量）为主；**不强制**首期上线 **`super_admin_api_keys`** 表。 |
+| **暴露面（可选表路径）** | **无**公网「生成超管 key」API；若启用表：仅 **本机 CLI** 读取 **env 根物料**（可与超管 secret **不同**的 `CHATBI_ROOT_KEY_MATERIAL`）生成 opaque → 哈希 → **INSERT `super_admin_api_keys`**。 |
+| **根物料（可选表路径）** | 与 **`NEXT_PUBLIC_ADMIN_SECRET`** 分离命名，**不得**提交 git；**不得** `NEXT_PUBLIC_*` 泄露根物料。 |
 | **与临时 key 区分（必选其一）** | **A 分表**（推荐）：`super_admin_api_keys` vs `temp_admin_keys`，鉴权中间件 **先解析 token 形态或前缀**（实现 PR 定义，如 `sk_super_` / `tk_temp_`）再查对应表。**B 同表**：必须 `key_kind ∈ {super_admin, temp_admin}` + **两段独立校验函数**，临时 **强制** `expires_at` 与 **12h** 策略；超管可走不同 TTL 或无 TTL。 |
 | **更安全演进（可选）** | 根物料仅用于 **KMS 包装** 或 **Supabase Vault**；bearer 为 **短期交换票据**；或临时访问改为 **Edge Function 代发 JWT**。首迭代 **不强制**，在任务单记录 **技术债**。 |
 | **请求校验顺序（建议）** | `Authorization` Bearer →（可选前缀路由）→ 查 **temp** 表且校验 TTL → 未命中再查 **super** 表 → 均失败则 401；**禁止**两表同一哈希算法却共用同一查找入口导致 **类型混淆**。 |
@@ -188,6 +189,24 @@
 | `POST /api/py/auth/login` | 消费 exchange + 建立会话 |
 | `POST /api/py/auth/logout` | 吊销会话 |
 
+#### 3.9.6 个人项目选型（2026-05-11 拍板）
+
+- **仅实施 §3.9 A 管道**（TLS + `exchange` + cookie / 短 JWT）；**不**做 RSA/WebCrypto **B 管道**。  
+- **威胁模型**：个人 / 小团队 **「较为安全即可」**；仍以 **HTTPS + httpOnly + 限流** 为基线。
+
+### 3.10 遗漏清单（实现任务单须逐项勾掉）
+
+| # | 项 | 说明 |
+|---|-----|------|
+| 1 | **`exchange` 表** | 字段：`exchange_hash`、`expires_at`、`consumed_at`、可选 `ip`；migration 路径。 |
+| 2 | **Ink BFF** | `/auth/exchange`、`/auth/login` **转发**、**Set-Cookie** 域、`SameSite`、与 Python **base URL** 对齐。 |
+| 3 | **middleware 白名单** | 未登录可访问：`/login`、`/register`（占位）、`/api/.../auth/*`；**勿**把 Unified Chat 误放行。 |
+| 4 | **多 secret 优先级** | **`temp_admin_keys` 命中** → **`NEXT_PUBLIC_ADMIN_SECRET`** → **`CHATBI_TEMP_ADMIN_SECRET`（若用途 I）** → **`API_KEY`** → 401；见 **§5.3**，代码与文档 **一致**。 |
+| 5 | **ChatBI `unified_chat`** | 与 cookie 会话 **并存** 时的 Header 顺序；**401** 与 Ink **登出** 联动。 |
+| 6 | **`PROJECT_CONFIG` + `.env.example`** | 新增 env 名、默认值、**禁止**示例真密钥。 |
+| 7 | **Ink 仓任务单** | 前端路由守卫、登录页、`input` UX；与本子规 **交叉链接**。 |
+| 8 | **审计 / 日志** | 登录失败计数、**无**口令明文；是否与 `CHATBI_JSON_LOG` 对齐 **可选**。 |
+
 ---
 
 ## 4. 与 ChatBI 链路的接合点（须在设计文档中画清）
@@ -200,13 +219,36 @@
 
 ---
 
-## 5. 迁移策略（待决）
+## 5. 迁移策略（个人项目 · 拍板 2026-05-11）
 
-- **现有 env 明文 key** 如何映射到 **§3.2** 中的 `super_admin` / `temp_admin` / bootstrap？是否保留 **单 env 紧急入口**？  
-- **首个** 超管用户行与 **首条** `super_admin_api_keys`（**§3.6**）由 **§3.7 本地 CLI** 还是纯 SQL seed 生成、谁保管根物料？  
-- 是否允许「无角色 = 仅 **anonymous**（§3.2）」直至开放注册？  
+### 5.1 目标姿态（简化 · 与产品对齐）
 
-**结论**：**§3** 矩阵与 **§3.6** 表结构须在 **implementation 任务单** 中拍板（含验收 `- [ ]`）后，再将本规相关段落标为 `stable` 子段；**不与** Security AST **同一 PR 混验收** 亦可，但 **模块闸门** 应先于或并行于 **SQL 深度防护** 以免产品越权。
+| 主题 | 拍板 |
+|------|------|
+| **登录 / 会话** | **仅**实施 **§3.9 A 管道**（TLS + 一次性 `exchange` + **httpOnly cookie** 或短 TTL JWT）；**不做** §3.9 B（RSA/WebCrypto）。 |
+| **超管** | **`NEXT_PUBLIC_ADMIN_SECRET`**（及后端与之对齐的 **`CHAT_API_SECRET` / `admin_secret()`** 等，以 **`PROJECT_CONFIG`** 为准）即 **Bearer 超管**；与 **现网 Ink → Python** 行为 **一致**。 |
+| **临时管理员 · 新增 env** | 新增 **`CHATBI_TEMP_ADMIN_SECRET`**（名可微调，须写入 **`PROJECT_CONFIG` + `.env.example`**），**用途二选一**（实现 PR **必须写死其一**）：**用途 I** — 开发期 **单一共享 Bearer** 映射 `temp_admin`（生产建议关闭或仅内网）；**用途 II** — **仅服务端/CLI** 用作向 **`temp_admin_keys`** 写行的 **派生材料**（**不**作为浏览器长期 Bearer）。**管理页生成** 仍写入 **`temp_admin_keys`**，**TTL 默认 12h**（`TEMP_ADMIN_KEY_TTL_HOURS`）。 |
+| **公开注册** | **延后**（§3.0 #1）；用户 **仅 Supabase 手工插入**。 |
+
+### 5.2 本地重新生成（忘记密钥）
+
+| 场景 | 动作 |
+|------|------|
+| **忘记 `temp_admin_keys` 中某条明文** | **无法再取出**；超管 **管理页重新生成** 或本机 **CLI INSERT 新行**，旧行 **`revoked_at`** 或依赖自然到期。 |
+| **忘记可选 `super_admin_api_keys` 表内 key** | 本机 **CLI 再生成** → **UPDATE/INSERT 哈希**；旧行 **`revoked_at`**；**不影响** `NEXT_PUBLIC_ADMIN_SECRET` 仍可用。 |
+| **忘记 `NEXT_PUBLIC_ADMIN_SECRET` 本身** | **运维旋转** env 并同步 **Ink / BFF / Python**；**无**应用内自助找回。 |
+
+### 5.3 鉴权优先级建议（实现 PR 与代码一致）
+
+**Bearer 校验**建议顺序：**`temp_admin_keys` 命中且未过期** → **`NEXT_PUBLIC_ADMIN_SECRET` / admin_secret 等价**（超管）→ **`CHATBI_TEMP_ADMIN_SECRET`（仅当采用 §5.1 用途 I）** → **（若保留）`API_KEY`** → **401**。临时路径 **必须** 校验 `expires_at`。
+
+### 5.4 仍为待决 / 须进任务单
+
+- **`CHATBI_TEMP_ADMIN_SECRET`** 最终 **用途 I vs II**；生产是否 **禁用用途 I**。  
+- **`super_admin_api_keys` 是否首期必建**：个人项目可 **仅 env 超管 + 表只存 temp**。  
+- **`login_exchange` 表**、**cookie Domain**、**CSRF**、**Ink `middleware` 白名单**（见 **§3.10**）。  
+
+**结论**：**§3**、**§5** 与 **§3.10** 须在 **implementation 任务单** 拆验收 `- [ ]`；**不与** Security AST 同 PR 亦可，但 **模块闸门** 与 **unified 鉴权** 建议先于复杂 SQL AST。
 
 ---
 
@@ -233,3 +275,4 @@
 | 2026-05-11 | **§3.0 拍板**：注册延后全手工插入；超管 key 仅本地生成 + **§3.7** 与临时校验隔离；临时 key 超管页生成、当页展示、**TTL 12h**；**§3.6** 分表建议 |
 | 2026-05-11 | **§3.8**：正式环境服务端校验 Bearer；前端 `input` 仅作一次性录入 + 优先 httpOnly 会话，避免长期 localStorage |
 | 2026-05-11 | **§3.9**：登录 exchange + 会话 token 草案；纠偏 MD5/SHA；**A/B** 两档（TLS+单次码 vs RSA+AES-GCM）；端点名草稿 |
+| 2026-05-11 | **§3.0#2 / §3.7 / §3.5** 与 **§5** 对齐：`NEXT_PUBLIC_ADMIN_SECRET` 超管、**`CHATBI_TEMP_ADMIN_SECRET`**、本地再生；**§3.9.6** 个人项目仅 A 管道；**§3.10** 遗漏清单 |
