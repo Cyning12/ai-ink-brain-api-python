@@ -43,6 +43,22 @@ grep '0e1ba483-72e3-45b9-9a69-43538c9055a6' /tmp/chatbi-api.log | grep text2sql_
 
 将 **脱敏后** 的匹配行（单行 JSON）粘贴至本节下方即可与 RUNBOOK **B3** 闭环。
 
+### B3 闭环节录（tee：`/tmp/chatbi-api.log`）
+
+> 与 **§元信息** 表内第一次 curl 摘录的 `run_id`（`0e1ba483-…`）为 **另一次请求**；下列为 **`CHATBI_JSON_LOG=true`** + **`2>&1 | tee /tmp/chatbi-api.log`** 后，对 **当次** SSE `meta`/`done` 同源 id 的 grep 原文。
+
+**命令**：
+
+```bash
+grep '554e5b2f-f984-4cbd-9db8-1b3d3847dc7f' /tmp/chatbi-api.log | grep text2sql_tool_call_end
+```
+
+**匹配行（单行 JSON）**：
+
+```json
+{"timestamp": "2026-05-11T08:49:55.049085+00:00", "level": "INFO", "message": "text2sql_tool_call_end", "service": "chatbi-api", "request_id": "554e5b2f-f984-4cbd-9db8-1b3d3847dc7f", "run_id": "554e5b2f-f984-4cbd-9db8-1b3d3847dc7f", "session_id": "b-smoke", "route": "agent", "mode": "text2sql", "tool": "text2sql_query", "latency_ms": 16191, "text2sql_phases_ms": {"retrieve": 3550, "llm_sql": 11025, "validate": 0, "db": 1614}, "step_number": 1}
+```
+
 ---
 
 ## SSE 原始输出
@@ -103,3 +119,4 @@ data: {"ok":true,"mode":"text2sql","run_id":"0e1ba483-72e3-45b9-9a69-43538c9055a
 |------|------|
 | 2026-05-11 | 初版：手工 curl SSE 落盘；`agent.debug.llm_prompts` 长正文折叠 |
 | 2026-05-11 | **§stderr**：注明勿 grep 本 md；示例改为具体日志路径占位 |
+| 2026-05-11 | **§B3 闭环**：补 `554e5b2f-…` + `text2sql_tool_call_end` tee 留证一行（与当次 SSE `run_id` 同源） |
