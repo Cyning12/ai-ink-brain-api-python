@@ -56,6 +56,14 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 - LLM 调用在超时后返回 **结构化错误**（`LLM_API_TIMEOUT` + 可区分 phase），连接不无限挂起。  
 - `_tech_graph/11_flow_text2sql.md`（及 `.ai.md`）与实现一致。
 
+### 5.1 前端消费真值（跨仓协同 · 摘要）
+
+> **详述与 UI 默认真值**（v1 关单定义、进行中 vs 终态数据源、`X-ChatBI-Sse-Contract`）：**Ink-Brain** 仓 `content/tasks/active/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md`（§V1 交付与排期、§数据源与 UI 策略、§ChainEvent / Reducer）。**本 L1 不复制**前端验收勾选，避免双处漂移。
+
+- **进行中**：`text2sql.phase.start` / `text2sql.phase.end`，用 `phase_kind` 区分 **llm** 与 **db/io**；单段展示用 `phase.end.latency_ms`。  
+- **终态**：`tool.call.end` 的 **`output.text2sql_phases_ms`** 为 **唯一**「分段 ms」汇总真值（与后端 `ToolResult.data` 一致透出）。  
+- **契约头**：前后端 v1 对齐 **`X-ChatBI-Sse-Contract: 2`**；升 `3` 须另任务 + vNext 矩阵。
+
 ---
 
 ## 6. 关联
@@ -73,3 +81,4 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 | 2026-05-11 | 从总规拆出子规初版 |
 | 2026-05-11 | 首包改为 **SSE + `text2sql_phases_ms` 并存**；P0 验收与 timeout / step_id 与任务单 **§拍板** 对齐 |
 | 2026-05-11 | 契约/manifest 与 **引入语义的合并批次** 对齐；允许 **先 1+3 再 2**（见任务单 §拍板 #2） |
+| 2026-05-11 | **§5.1** 前端消费真值摘要 + Ink-Brain 任务单链接（避免与前端任务重复维护） |

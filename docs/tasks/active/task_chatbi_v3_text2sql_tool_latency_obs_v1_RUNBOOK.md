@@ -78,6 +78,8 @@
 | **契约 / 前端** | Timeline / `text2sql.phase.*` 与 `text2sql_phases_ms` 展示见 **Ink-Brain** `content/tasks/active/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md`；`X-ChatBI-Sse-Contract` 变更须与 vNext 矩阵一致，避免静默破坏旧客户端 |
 | **验收执行** | 按 §3.3–§3.5 跑通并留证（日志片段、pytest 输出、必要时录屏） |
 
+**与 Ink-Brain 任务对齐的摘要（避免双文档各写一套）**：进行中 UI 靠 **`text2sql.phase.*`**；**终态分段 ms 以 `tool.call.end.output.text2sql_phases_ms` 为准**；**v1 维持 Contract `2`**；前端 v1 **须满足其任务单全部验收项** 方可宣称该前端任务 done —— 详见该文件 **§V1 交付与排期**、**§数据源与 UI 策略**。L1 总规摘要见 `SPEC-ChatBI-V3-Observability-Text2SQL.md` **§5.1**。
+
 ### 3.3 阶段 A — 中间验收流程
 
 1. **环境**：检出含阶段 A 的 commit；`.env` / `PROJECT_CONFIG` 中 **timeout 与可选模型** 与 PR 说明一致。  
