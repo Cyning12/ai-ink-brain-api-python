@@ -27,7 +27,11 @@
         "persist",
         "persistHint",
         "toolError",
-        "user"
+        "user",
+        "phaseId",
+        "phaseKind",
+        "text2sqlPhasesMs",
+        "text2sql_phases_ms"
       ],
       "type_values": [
         "meta",
