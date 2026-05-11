@@ -16,7 +16,7 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 
 | 类型 | 内容 |
 |------|------|
-| **范围** | `api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/agent.py` 工具事件边界；分段计时写入 `ToolResult.data` 或等价结构化字段；**可选** SSE 子阶段事件（须评估 `X-ChatBI-Sse-Contract` 版本）；`llm_generate_sql` / `llm_summarize` 的 **timeout** 与既有 `error_code` 对齐；复用 `text2sql_api.py` 确定性总结（`_try_summarize_aggregate` 等）；`dialogue_context` / `_text2sql_retrieve_query` **预算复核** |
+| **范围** | `api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/agent.py` 工具事件边界；**首包须并存**：**SSE 子阶段事件** + **`ToolResult.data.text2sql_phases_ms`**（与任务单 **§拍板** 一致）；契约走 **`X-ChatBI-Sse-Contract`** + manifest + `tech_graph_contract_check`；`llm_generate_sql` / `llm_summarize` 的 **分阶段 timeout**（env 见 `PROJECT_CONFIG` 与任务单 §拍板 #5）与既有 **`LLM_API_TIMEOUT`** 对齐；复用 `text2sql_api.py` 确定性总结（`_try_summarize_aggregate` 等）；`dialogue_context` / `_text2sql_retrieve_query` **预算复核** |
 | **非范围** | 替换 SiliconFlow、重写 Text2SQL 算法；非 Agent 聚合 API 的 UX 改版 |
 
 ---
@@ -33,10 +33,10 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 | `db` | 执行查询 | DB RTT |
 | `llm_summary` | 自然语言总结 LLM | 上游 LLM |
 
-**产出形态（二选一或并存）**：
+**产出形态（首包强制并存）**：
 
-1. **结构化耗时**：写入 `ToolResult.data`（或 `debug` 命名空间），键名与单位（**ms**）在 `PROJECT_CONFIG` 与任务单回填中固定。  
-2. **SSE 子阶段事件**：若引入 `tool.subphase.*` 或等价 `chain.type`，须同步 **`SPEC-ChatBI-V2-Events.md`**、**`_contract_manifest.json`**，且与 **`tools/tech_graph_contract_check.py`** 同 PR 绿。
+1. **结构化耗时**：`ToolResult.data`（或任务单回填的最终路径）内 **`text2sql_phases_ms`**：`{ retrieve, llm_sql, validate, db, llm_summary }` → 非负整数 **ms**（未经历阶段省略或 `0`，与实现 PR 一致）。  
+2. **SSE 子阶段事件**：进行中 emit，使前端无需等 `tool.call.end` 才拆分；新 `chain.type` / 事件名须同步 **`SPEC-ChatBI-V2-Events.md`**、**`_contract_manifest.json`**，且与 **`tools/tech_graph_contract_check.py`** 在 **引入该契约的合并批次** 内绿（可与任务单 **阶段 A（P0-1+3）** 对齐，**不必**与 P0-2 日志同一 commit）。子阶段 **`step_id` / `subphase_id` 建议** `text2sql.phase.<phase_id>`（见 Logging-Trace L1）。
 
 ---
 
@@ -50,9 +50,10 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 
 ## 5. 验收方向（数值进任务单 / pytest）
 
-- 多轮场景下可区分「等模型」与「查库」之一（**结构化耗时或子阶段事件**）。  
+- 多轮场景 **进行中** 可区分「等模型」与「查库」（**SSE**）；`tool.call.end` 仍带 **`text2sql_phases_ms`**。  
+- **P95 可归因**（P0）：以 **pytest** + **单次请求 JSON 日志**可人工拆解各阶段 ms 为足；不要求现网 metrics 管道。  
 - 典型「COUNT / 单值」路径：**不**无谓触发第二次 LLM（与任务单验收一致）。  
-- LLM 调用在超时后返回 **结构化错误**，连接不无限挂起。  
+- LLM 调用在超时后返回 **结构化错误**（`LLM_API_TIMEOUT` + 可区分 phase），连接不无限挂起。  
 - `_tech_graph/11_flow_text2sql.md`（及 `.ai.md`）与实现一致。
 
 ---
@@ -70,3 +71,5 @@ Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** �
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 从总规拆出子规初版 |
+| 2026-05-11 | 首包改为 **SSE + `text2sql_phases_ms` 并存**；P0 验收与 timeout / step_id 与任务单 **§拍板** 对齐 |
+| 2026-05-11 | 契约/manifest 与 **引入语义的合并批次** 对齐；允许 **先 1+3 再 2**（见任务单 §拍板 #2） |

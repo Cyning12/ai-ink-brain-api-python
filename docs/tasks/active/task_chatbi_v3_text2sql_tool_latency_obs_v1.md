@@ -3,13 +3,29 @@
 ## 元信息
 
 - **状态**：backlog（V3 开工时纳入迭代）
-- **与 SPEC §2.1 批次对应**：本单承载 **P0-1**（子阶段可观测）+ **P0-3**（LLM `timeout` / 降级，见下文 §改进点 4）；**P0-2**（结构化日志 + Trace ID）当前真值在 **Enterprise Gap**，建议 **与 P0 同迭代验收**（可并入本单 PR 范围或另立短任务单，但总规 **P0 验收标志** 四项一起满足）。
+- **与 SPEC §2.1 批次对应**：本单承载 **P0-1** + **P0-2** + **P0-3**（见 **§拍板**）；允许 **分阶段 commit**（先 **P0-1+3** 中间验收，再 **P0-2**），**总规 P0 最终验收** 须在 **§验收勾选** 四项一并满足后再对外宣称完成。
 - **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§2.1 P0**、**§3** 任务归拢）  
 - **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`；日志协同见 `SPEC-ChatBI-V3-Logging-Trace.md`
-- **是否建议单独关单**：**不建议**仅本单无日志就宣称 P0 完成；与 **P0-2** 合并里程碑或连续 PR 更贴合总规。
+- **是否建议单独关单**：**禁止**在缺少 P0-2 时宣称 **总规 P0 已验收**；允许先合 **仅 1+3** 做 **中间验收**，见 **§拍板 #2**。
 - **背景会话**：多轮追问下 `text2sql_query` 的 `tool.call.start` → `tool.call.end` 间隔可达百秒级，期间无 SSE，体感「卡在 step5→step6」
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）
+
+## 拍板（2026-05-11 · 产品 / 架构）
+
+以下取代前文「二选一 / PR 未定」的开放问题，作为本单实现与验收真值。
+
+| # | 主题 | 决议 |
+|---|------|------|
+| 1 | **首包是否含 SSE** | **含**。交付形态须含 **SSE 子阶段事件** + **`ToolResult.data`（或等价）结构化分段 ms**；契约变更走 `X-ChatBI-Sse-Contract`、`_contract_manifest.json`、`tech_graph_contract_check`，与 **引入该契约的代码变更同批次合并**（可与 **§拍板 #2 阶段 A** 对齐，不必与 P0-2 同一 commit）。 |
+| 2 | **P0-2 与 P0-1/3 的 commit / 验收节奏** | **允许阶段 commit**。**阶段 A**：**P0-1 + P0-3**（SSE + `text2sql_phases_ms` + LLM 分阶段 timeout）可先合并，并用于 **中间验收**（pytest / SSE+ToolResult 手工或自动化验证）。**阶段 B**：**P0-2**（JSON 日志 + `request_id`/`run_id` 贯通）。**最终**：阶段 A 与 B 均上主线后，**一并勾选** 下文 **§验收标准** 与总规 **P0 验收标志**。**禁止**在缺少 P0-2 时宣称总规 P0 已最终验收。 |
+| 3 | **分段耗时键名与单位** | 结构化字段与日志共用 **`text2sql_phases_ms`**：`{ retrieve, llm_sql, validate, db, llm_summary }` → 非负 **整数 ms**；未经历的阶段可省略或 `0`（实现 PR 选一种并写死）。 |
+| 4 | **「P95 可归因」验收层级** | P0 **不要求**现网 metrics 管道。**阶段 A**：**pytest** + SSE / `ToolResult` 上 `text2sql_phases_ms` 即可支撑中间验收。**最终**：**pytest** + **单次请求** JSON 日志中 `text2sql_phases_ms` + `run_id` **人工归因**；指标管道为后续增强。 |
+| 5 | **LLM 超时 T 与错误码** | **分设**：`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S`、`CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`（秒）；各自未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`**；再未设则代码默认 **120.0**（实现 PR 可微调并回填 `PROJECT_CONFIG`）。两阶段超时对用户可见错误沿用既有 **`LLM_API_TIMEOUT`** 语义；若已有 `stage` / `detail.phase` 字段，填 `llm_sql` / `llm_summary` 以区分。 |
+| 6 | **`step_id` 与 `agent.step.*`** | 子阶段 SSE / 日志使用稳定 **`text2sql.phase.<phase_id>`**（`phase_id` 同 L1：`retrieve` \| `llm_sql` \| …），**不与**现有 Agent step 序号强行一一合并；排障以 `run_id` + `text2sql.phase.*` 为主键。 |
+| 7 | **（改进点 5）总结用模型 env** | 新增 **`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL`**（可选）：**未设置或仅空白**时，总结阶段 chat 模型名与 **Intent 生效模型一致**（即 `INTENT_LLM_MODEL` 经 `api/intent_agent.py` 解析后的同一套默认/读取逻辑，实现时抽复用或同值读取，避免漂移）。 |
+
+> **关于「P0-2 与 P0-1/3」**：总规 **P0 最终验收** 仍要求 **可观测（含 SSE + phases_ms）+ 日志 Trace + timeout** 全齐。「阶段策略」：**可先 1+3 合并并做中间验收，再 2，最后总验收**；与「四条必须最终都成立」不矛盾——矛盾的是 **未做 2 就宣称 P0 已验收**。
 
 ## 背景与目标
 
@@ -22,9 +38,9 @@
 
 ## 改进点（V3 实施清单）
 
-1. **子阶段 SSE 或结构化耗时**
-   - 在 `text2sql_execute` 内分段计时（retrieve / llm_sql / validate / db / llm_summary），写入 `ToolResult.data` 或专用 debug 事件；或在 `emit` 路径增加 `tool.subphase.*`（需评估契约版本 `X-ChatBI-Sse-Contract`）。
-   - **验收**：多轮场景下前端可区分「在等模型」还是「在查库」，P95 可归因。
+1. **子阶段 SSE + 结构化耗时（首包并存）**
+   - 在 `text2sql_execute` 内分段计时（retrieve / llm_sql / validate / db / llm_summary），写入 **`ToolResult.data.text2sql_phases_ms`**（或任务回填的最终挂载点），并 **emit SSE 子阶段事件**（进行中可区分「等模型」vs「查库」）；契约版本 **`X-ChatBI-Sse-Contract`**、manifest、contract_check 同 PR。
+   - **验收**：多轮场景下前端 **进行中** 可区分等模型 / 查库；**P95** 按 **§拍板 #4**（pytest + 单次日志人工归因）验收。
 
 2. **Agent 路径复用确定性总结（跳第二次 LLM）**
    - `text2sql_api.py` 已有 `_try_summarize_aggregate`；`tools.text2sql_execute` 在「单行/单值数值」等条件下应走同一逻辑，避免简单 COUNT 仍调 `llm_summarize`。
@@ -39,8 +55,8 @@
    - **验收**：下游慢时用户在 T 秒内收到失败/降级事件，而非仅长等待。
 
 5. **（可选）模型分级**
-   - 总结阶段使用更小/更快模型（与 `SPEC-ChatBI-V2-Intent.md` 中「Intent 用 Turbo」思路一致），由 env 开关控制。
-   - **验收**：配置项文档化；默认行为与 V2 兼容。
+   - 总结阶段模型由 **`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL`** 控制；**未设或空白 = 与 Intent 生效模型相同**（见 **§拍板 #7**）。若需「更小模型」显式写入该 env。
+   - **验收**：配置项写入 `PROJECT_CONFIG` + `.env.example`；默认与 V2 行为一致（未设 env 时不改变现网模型选择）。
 
 ## 依赖与引用
 
@@ -49,10 +65,13 @@
 
 ## 验收标准（V3 开工时勾选）
 
-- [ ] 多轮 Text2SQL 至少具备 **分阶段耗时** 或 **子阶段事件** 之一（可观测）
-- [ ] `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
-- [ ] LLM 调用具备 **timeout** 与结构化错误码
-- [ ] `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
+> **节奏**：**阶段 A（P0-1+3）** 可先勾选下列 **A** 项做中间验收；**阶段 B（P0-2）** 完成后勾选 **B** 项；**最终** 须 **A+B** 全勾满再宣称总规 P0 本单验收完成。
+
+- [ ] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
+- [ ] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）
+- [ ] **（B · 最终）** JSON 日志贯通 **`request_id` + `run_id`**；含 **`text2sql_phases_ms`** 的日志行与 **同一 `run_id`** 的 SSE/会话可对齐；子阶段日志可带 **`subphase_id` = `text2sql.phase.<phase_id>`**（见 L1 Logging-Trace）
+- [ ] **（最终）** `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
+- [ ] **（最终）** `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
 
 ## 实现备忘（回填）
 
