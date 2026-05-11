@@ -47,7 +47,7 @@ docs/spec/v2-agent/
 | P0 归档 | `docs/tasks/done/task_chatbi_v2_agent_p0_backend.md` | 骨架与契约 |
 | P1 总览 | `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md` | Eval / 缓存 / P1-D 等子链入口（**已归档**） |
 | **V2 文档验收归档** | `docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md` | SPEC 目录 + 任务索引 + L0–L7 收口（**已归档**） |
-| **V3 总规（初版）** | `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` | 范围、任务归拢、与 Gap §4.2 对齐 |
+| **V3 总规（初版）** | `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` | 范围、任务归拢、与 Gap §4.2 对齐；**§0** 索引 **L1** 子规（Observability / Logging / Security / Identity / Resilience / Multiturn-Debt / Evaluation） |
 | **V3 规划入口** | `docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md` | 依 `简历评估意见-2026-5-9.md`、V3 总规与 Enterprise Gap 排期 |
 | 技术图谱 | `docs/_tech_graph/10_flow_rag.md` | RAG 流程 |
 | 技术图谱 | `docs/_tech_graph/11_flow_text2sql.md` | Text2SQL 流程 |

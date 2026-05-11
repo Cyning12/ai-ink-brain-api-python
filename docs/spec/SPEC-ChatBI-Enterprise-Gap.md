@@ -599,6 +599,6 @@ class ModelRouter:
 ## 7. 关联文档
 
 - V2 SPEC 目录：`docs/spec/v2-agent/`
-- **V3 初版总规**（范围、任务归拢、与 §4.2 对齐）：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（目录 `docs/spec/v3-agent/README.md`）
+- **V3 初版总规**（范围、任务归拢、与 §4.2 对齐）：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（目录 `docs/spec/v3-agent/README.md`；**L1 子规**见该目录内 `SPEC-ChatBI-V3-*.md` 除 Overview 外诸文件）
 - 技术图谱：`docs/_tech_graph/`
 - 项目配置：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
