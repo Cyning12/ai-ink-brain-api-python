@@ -11,6 +11,7 @@
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）
 - **执行计划 · Checklist · 验收流程**（过程文档，随迭代同步更新）：[`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md)
+- **前端对接**（Timeline / SSE 消费 `text2sql.phase.*` 与 `tool.call.end` 内 `text2sql_phases_ms`）：Ink-Brain 仓 `content/tasks/active/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md`
 
 ## 拍板（2026-05-11 · 产品 / 架构）
 

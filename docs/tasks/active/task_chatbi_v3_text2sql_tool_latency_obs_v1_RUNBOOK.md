@@ -75,7 +75,7 @@
 | 角色 | 职责 |
 |------|------|
 | **实现** | 代码、manifest、contract_check、pytest、图谱、配置表回填 |
-| **契约 / 前端** | 新 `X-ChatBI-Sse-Contract` 消费、Timeline/卡片展示；避免静默破坏旧客户端 |
+| **契约 / 前端** | Timeline / `text2sql.phase.*` 与 `text2sql_phases_ms` 展示见 **Ink-Brain** `content/tasks/active/task_chatbi_v3_text2sql_phase_sse_timeline_frontend_v1.md`；`X-ChatBI-Sse-Contract` 变更须与 vNext 矩阵一致，避免静默破坏旧客户端 |
 | **验收执行** | 按 §3.3–§3.5 跑通并留证（日志片段、pytest 输出、必要时录屏） |
 
 ### 3.3 阶段 A — 中间验收流程
