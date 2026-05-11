@@ -6,7 +6,12 @@ from typing import Any
 
 from supabase import create_client
 
-from .rag_env import pick_supabase_service_key, pick_supabase_url
+from .rag_env import (
+    pick_supabase_service_key,
+    pick_supabase_url,
+    supabase_execute_with_retry,
+    supabase_table_insert_with_retry,
+)
 
 
 @dataclass(frozen=True)
@@ -35,8 +40,7 @@ class SupabaseManager:
         """异步写入 rag_conversation_logs（避免阻塞请求主流程）。"""
 
         def _sync_insert() -> None:
-            sb = self._client()
-            sb.table("rag_conversation_logs").insert(data).execute()
+            supabase_table_insert_with_retry("rag_conversation_logs", data)
 
         await asyncio.to_thread(_sync_insert)
 
@@ -48,17 +52,20 @@ class SupabaseManager:
             return []
 
         def _sync_fetch() -> list[dict[str, Any]]:
-            sb = self._client()
-            res = (
-                sb.table("rag_conversation_logs")
-                .select("query, response, created_at")
-                .eq("session_id", sid)
-                .order("created_at", desc=True)
-                .limit(limit)
-                .execute()
-            )
-            rows = res.data if isinstance(res.data, list) else []
-            return [r for r in rows if isinstance(r, dict)]
+            def _once() -> list[dict[str, Any]]:
+                sb = self._client()
+                res = (
+                    sb.table("rag_conversation_logs")
+                    .select("query, response, created_at")
+                    .eq("session_id", sid)
+                    .order("created_at", desc=True)
+                    .limit(limit)
+                    .execute()
+                )
+                rows = res.data if isinstance(res.data, list) else []
+                return [r for r in rows if isinstance(r, dict)]
+
+            return supabase_execute_with_retry(_once)
 
         rows_desc = await asyncio.to_thread(_sync_fetch)
         return list(reversed(rows_desc))
@@ -75,17 +82,20 @@ class SupabaseManager:
         cap = max(1, min(int(limit), 200))
 
         def _sync_fetch() -> list[dict[str, Any]]:
-            sb = self._client()
-            res = (
-                sb.table("rag_conversation_logs")
-                .select("query, response, created_at")
-                .eq("session_id", sid)
-                .order("created_at", desc=True)
-                .limit(cap)
-                .execute()
-            )
-            rows = res.data if isinstance(res.data, list) else []
-            return [r for r in rows if isinstance(r, dict)]
+            def _once() -> list[dict[str, Any]]:
+                sb = self._client()
+                res = (
+                    sb.table("rag_conversation_logs")
+                    .select("query, response, created_at")
+                    .eq("session_id", sid)
+                    .order("created_at", desc=True)
+                    .limit(cap)
+                    .execute()
+                )
+                rows = res.data if isinstance(res.data, list) else []
+                return [r for r in rows if isinstance(r, dict)]
+
+            return supabase_execute_with_retry(_once)
 
         rows_desc = await asyncio.to_thread(_sync_fetch)
         return list(reversed(rows_desc))

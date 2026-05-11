@@ -1,0 +1,61 @@
+i,query,expected,predicted,ok,category,note,confidence,latency_ms,reasoning
+1,昨天销售额是多少,text2sql_query,text2sql_query,True,时间+金额,口语化,0.95,876,用户需要查询本库业务数据的具体数值，应由数据库查询给出答案
+2,这个月有多少订单,text2sql_query,text2sql_query,True,数量,口语化,0.95,7297,用户询问本月订单数量，需要查询业务数据库获取具体数值
+3,最近7天收入多少,text2sql_query,text2sql_query,True,时间范围,自然语言,0.95,5458,用户询问最近7天的收入，需要查询业务数据库获取具体数值
+4,按月统计销售额,text2sql_query,text2sql_query,True,分组+时间,聚合,0.95,8483,用户要求按月统计销售额，需要查询数据库中的业务数据并聚合计算，属于结构化数据查询。
+5,Top10产品销售额,text2sql_query,text2sql_query,True,排名,英文+数字,0.95,1221,用户需要查询本库业务数据中Top10产品的具体销售额，应由数据库查询给出数值结果。
+6,平均客单价,text2sql_query,text2sql_query,True,平均,业务术语,0.95,1340,平均客单价是业务数据指标，需要查询数据库中的订单或交易表进行聚合计算。
+7,各渠道转化率,text2sql_query,text2sql_query,True,分组,无统计词但强业务指标,0.95,7827,用户询问各渠道转化率，需要从数据库中查询具体业务数据并计算聚合统计。
+8,同比去年增长了多少,text2sql_query,text2sql_query,True,对比,同比,0.95,13186,用户询问同比去年增长的具体数值，需要查询本库业务数据才能得出结果
+9,环比上月增长多少,text2sql_query,text2sql_query,True,对比,环比,0.95,1365,用户询问环比上月增长，需要查询本库业务数据的具体数值和趋势，应由数据库查询给出答案。
+10,本周每日新增用户数,text2sql_query,text2sql_query,True,趋势,时间序列,0.95,7567,需要查询本库业务数据中本周每日新增用户数的具体数值
+11,上周退款金额,text2sql_query,text2sql_query,True,金额,退款,0.95,8180,用户询问上周退款金额，需要查询业务数据库获取具体数值
+12,昨天的订单量和销售额,text2sql_query,text2sql_query,True,多指标,组合指标,0.95,7222,用户需要查询本库业务数据的具体数值（订单量和销售额），应由数据库查询给出答案。
+13,近30天复购率,text2sql_query,text2sql_query,True,比率,业务指标,0.95,1010,用户询问近30天复购率，需要查询业务数据库中的订单或用户行为数据来计算该指标。
+14,哪个产品卖得最好,text2sql_query,text2sql_query,True,排名,口语化,0.95,1095,用户询问哪个产品卖得最好，需要查询业务数据库中的销售数据来获取具体排名和数值。
+15,哪个渠道贡献最大,text2sql_query,text2sql_query,True,排名,口语化,0.92,1168,用户询问哪个渠道贡献最大，需要查询业务数据中的渠道贡献度或排名，应由数据库查询给出具体数值结果。
+16,本季度销售额趋势,text2sql_query,text2sql_query,True,趋势,季度,0.95,12681,用户询问本季度销售额趋势，需要从数据库中查询具体数值和趋势数据
+17,看一下昨天的数据,text2sql_query,text2sql_query,True,模糊-数据,模糊表达,0.95,7527,用户要求查看昨天的数据，需要从数据库查询具体数值
+18,过去一年每月订单数,text2sql_query,text2sql_query,True,趋势,长时间跨度,0.95,10432,用户需要查询过去一年每月订单数的具体数值，属于结构化数据聚合统计，应由数据库查询给出结果。
+19,按城市分组统计订单数,text2sql_query,text2sql_query,True,分组,明确分组,0.95,1152,用户要求按城市分组统计订单数，需要查询数据库获取具体数值结果
+20,用户增长趋势,text2sql_query,text2sql_query,True,趋势,无关键词但强统计倾向,0.92,2705,用户询问用户增长趋势，需要查询本库业务数据中的用户数量随时间变化情况，应由数据库查询给出具体数值和趋势结果。
+21,什么是RAG,rag_search,rag_search,True,概念,标准概念,0.92,10684,用户询问RAG概念，在本产品中RAG是核心功能之一，需要检索项目内部文档来准确回答其定义、原理及在本仓库中的实现方式。
+22,MCP 是什么,rag_search,rag_search,True,概念,新术语,0.85,8270,MCP 可能是项目内部文档中定义的术语或规范，需要检索知识库确认其含义。
+23,ReAct 和 Plan-and-Execute 区别,rag_search,rag_search,True,对比,技术对比,0.85,827,ReAct 和 Plan-and-Execute 是项目内可能涉及的架构/方法对比，需检索内部文档或知识库获取准确说明。
+24,怎么优化向量检索,rag_search,rag_search,True,如何,技术操作,0.9,691,向量检索优化涉及项目内文档、实现细节和最佳实践，需检索内部知识库
+25,为什么检索不准,rag_search,rag_search,True,为什么,原因分析,0.85,4508,用户询问检索不准的原因，属于项目内文档/知识库的检索效果问题，需要查阅内部文档说明。
+26,Text2SQL 的原理是什么,rag_search,rag_search,True,概念,技术原理,0.92,4599,用户询问 Text2SQL 的原理，属于项目内文档/知识库应涵盖的概念说明，需检索内部资料以对齐口径。
+27,怎么部署这个项目,rag_search,rag_search,True,如何,操作文档,0.95,4577,用户询问如何部署本项目，需要检索项目内文档中的部署说明、环境配置等具体步骤。
+28,这个项目的目录结构是怎样的,rag_search,rag_search,True,文档,项目约定,0.95,6785,用户询问项目目录结构，需要检索项目内部文档来回答
+29,如何写一份 _tech_graph 的流程图,rag_search,rag_search,True,规范,项目内规范,0.95,10114,用户询问如何写 _tech_graph 的流程图，这属于项目内文档/规范，需要检索仓库中的相关说明。
+30,Supabase 失败时应该返回什么错误码,rag_search,rag_search,True,规范,错误处理约定,0.92,8248,用户询问 Supabase 在本项目中的错误码约定，属于项目内部文档规范，需检索知识库。
+31,如何做意图缓存（LRU+TTL）,rag_search,rag_search,True,方法,实现建议,0.92,9667,意图缓存（LRU+TTL）属于项目内实现细节/架构设计，需检索内部文档或知识库获取具体方案。
+32,什么是 macro-F1,rag_search,rag_search,True,概念,指标解释,0.9,10780,macro-F1 属于评测指标，在本产品中需检索项目内文档对齐口径与实现细节
+33,如何计算 confusion matrix,rag_search,rag_search,True,概念,指标解释,0.9,7474,用户询问如何计算 confusion matrix，属于评测指标，应检索项目内文档或知识库中的相关说明。
+34,这份任务单的 P1 目标是什么,rag_search,rag_search,True,文档,指向任务说明,0.92,7946,用户询问任务单的 P1 目标，需要检索项目内部文档/任务单来回答
+35,为什么 CI 默认要走 stub,rag_search,rag_search,True,原因,工程约束,0.92,1150,用户询问 CI 默认走 stub 的原因，属于项目内工程约束/规范，需检索内部文档说明
+36,如何做性能基准的 P50/P95,rag_search,rag_search,True,方法,性能指标口径,0.92,8078,P50/P95 属于工程约束中的性能基准写法，需要检索项目内文档或规范说明
+37,RAG 检索的 topk 该怎么选,rag_search,rag_search,True,选型,参数选择,0.92,1949,RAG 检索的 topk 参数选择属于项目内文档/知识库的配置说明，需要检索内部资料来回答。
+38,为什么要区分 direct_answer 和 rag_search,rag_search,rag_search,True,设计,路由边界,0.92,9911,用户询问本产品中两个工具的设计原因，属于项目内部文档/规范说明，需检索仓库文档回答
+39,LangChain 的 long-term memory 是什么,rag_search,rag_search,True,概念,内部学习资料,0.9,2832,用户询问 LangChain 的 long-term memory，属于项目内文档/知识库概念，需检索内部说明
+40,这个仓库的 intent_router 做了什么,rag_search,rag_search,True,代码,查文档/代码解释,0.95,3071,用户询问仓库内intent_router组件的功能，属于项目内部文档/代码说明，需检索知识库回答。
+41,翻译：Hello,direct_answer,direct_answer,True,翻译,明确翻译,0.95,9770,翻译任务不依赖内部数据或文档，可直接完成。
+42,把这段英文翻译成中文：How are you?,direct_answer,direct_answer,True,翻译,语言转换,0.95,7101,翻译任务不依赖内部数据或文档，可直接完成
+43,润色这段话：今天工作很忙,direct_answer,direct_answer,True,润色,文本处理,0.95,7435,润色任务不依赖内部数据或文档，属于通用语言处理
+44,帮我写周报，包含本周进展和下周计划,direct_answer,direct_answer,True,写作,内容生成,0.95,24645,写周报属于文本创作任务，不依赖内部数据或文档，可直接完成。
+45,写一封请假邮件，语气正式,direct_answer,direct_answer,True,写作,商务写作,0.95,1212,用户需要撰写一封正式请假邮件，属于写作任务，不依赖内部数据或文档。
+46,用 Python 写快排,direct_answer,direct_answer,True,代码,代码生成,0.95,4667,用户要求编写快速排序算法，属于通用编程任务，不依赖项目内部数据或文档。
+47,解释一下量子计算，用通俗语言,direct_answer,direct_answer,True,解释,通用知识,0.88,7745,用户要求用通俗语言解释量子计算，与项目内部文档无关，属于通用知识科普。
+48,头脑风暴：新产品 idea 5 个,direct_answer,direct_answer,True,创意,发散,0.95,8057,头脑风暴属于创意生成，不依赖内部数据或文档，可直接完成。
+49,总结下面这段话：……,direct_answer,direct_answer,True,总结,文本处理,0.95,11144,用户要求总结一段文本，属于文本处理任务，不依赖内部数据或文档。
+50,给这段代码加注释：print('hi'),direct_answer,direct_answer,True,代码,代码辅助,0.95,8311,用户要求给一段简单的 Python 代码加注释，属于代码辅助任务，不依赖内部数据或文档。
+51,它有什么缺点,rag_search,rag_search,True,多轮-指代,指代消解（它=RAG）,0.9,14157,用户问RAG的缺点，结合历史对话，应检索项目内文档中关于RAG的说明
+52,那怎么优化,rag_search,rag_search,True,多轮-省略,省略主语（那=向量检索）,0.92,8762,用户问如何优化向量检索，属于项目内文档/知识库中的方法、原理、操作步骤问题，需要检索内部资料。
+53,改成更正式一点,direct_answer,direct_answer,True,多轮-改写,对上文内容改写,0.95,1034,用户要求改写语气，属于文本润色任务，不依赖内部数据或文档
+54,再给我 3 个点子,direct_answer,direct_answer,True,多轮-续写,延续创意生成,0.9,658,延续上文头脑风暴，继续生成创意点子，无需查库或文档
+55,把第 2 个展开说说,direct_answer,direct_answer,True,多轮-扩写,基于上轮列点扩写,0.9,1225,用户要求展开上一条回复中的第2条学习建议，属于续写/扩展，不依赖内部数据或文档。
+56,那需要查数据库吗,rag_search,rag_search,True,多轮-澄清,问路由边界/方法,0.86,13758,用户在上文讨论查数路由，当前问题属于产品能力/路由说明，应检索项目内文档确认是否走数据库
+57,那你给个 SQL 示例,direct_answer,direct_answer,True,多轮-示例,请求示例而非实际查询,0.92,10054,用户要求给出SQL示例，属于代码生成任务，不依赖内部数据或文档
+58,那份文档在哪,rag_search,rag_search,True,多轮-定位,定位项目内文档,0.95,7290,用户询问部署文档的位置，需要检索项目内部文档来回答。
+59,顺便给我一个性能压测脚本,direct_answer,direct_answer,True,多轮-生成,请求代码生成,0.9,19641,用户要求生成性能压测脚本，属于代码生成任务，不依赖内部文档或数据。
+60,再补 10 条测试用例,direct_answer,direct_answer,True,多轮-生成,请求生成测试数据,0.9,7913,用户要求补充测试用例，属于创作/生成任务，不依赖内部文档或数据

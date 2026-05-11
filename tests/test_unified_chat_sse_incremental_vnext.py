@@ -8,6 +8,7 @@ from typing import Any, Callable
 import pytest
 from fastapi.testclient import TestClient
 
+from api.agent import AgentFinalView, AgentRunView
 from api.intent_agent import IntentDecision, StructuredSignals
 from api.tools import Tool, ToolName, ToolResult
 
@@ -259,3 +260,143 @@ def test_sse_incremental_disabled_env_forces_batch(monkeypatch: pytest.MonkeyPat
     chains = _parse_chain_objects(text)
     assert chains[0]["type"] == "meta"
     assert chains[1]["type"] == "router.decision"
+
+
+def test_sse_incremental_agent_run_raises_error_without_assistant_message(monkeypatch: pytest.MonkeyPatch) -> None:
+    """vNext §8.3：异常路径无 assistant.message，仍到达 done（本仓固定为「空」策略 + error chain）。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_SSE_INCREMENTAL", "true")
+
+    index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
+
+    async def _boom(self: Any, **kwargs: Any) -> AgentRunView:
+        _ = self
+        _ = kwargs
+        raise RuntimeError("forced agent failure for pytest")
+
+    monkeypatch.setattr(agent_module.ChatBIAgent, "run", _boom)
+
+    client = TestClient(index.app)
+    text = ""
+    with client.stream(
+        "POST",
+        "/api/py/unified/chat/stream",
+        headers={
+            "Authorization": "Bearer api-key-123",
+            "X-ChatBI-Sse-Contract": "2",
+        },
+        json={"session_id": "s1", "query": "hello"},
+    ) as res:
+        assert res.status_code == 200
+        for chunk in res.iter_text():
+            text += chunk
+            if "event: done" in text:
+                break
+
+    chains = _parse_chain_objects(text)
+    types = [c.get("type") for c in chains]
+    assert types[0] == "meta"
+    assert "error" in types
+    assert "assistant.message" not in types
+    assert "event: done" in text
+    done_ok: bool | None = None
+    for block in text.split("\n\n"):
+        if "event: done" not in block:
+            continue
+        for line in block.split("\n"):
+            if line.startswith("data: "):
+                try:
+                    done_ok = bool(json.loads(line[6:].strip()).get("ok"))
+                except json.JSONDecodeError:
+                    continue
+    assert done_ok is False
+
+
+def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.MonkeyPatch) -> None:
+    """vNext §4.3：emit 队列触顶时须出现 reason=backpressure 的 agent.llm.truncated。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_SSE_INCREMENTAL", "true")
+    monkeypatch.setenv("CHATBI_SSE_EMIT_QUEUE_MAX", "6")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    async def _persist_ok(**kwargs: Any) -> dict[str, Any]:
+        _ = kwargs
+        return {"ok": True}
+
+    monkeypatch.setattr(unified_chat, "_await_persist_chatbi_v2_agent_log", _persist_ok)
+
+    async def _spam_emit_run(
+        self: Any,
+        *,
+        query: str,
+        session_id: str | None,
+        prefer: str,
+        sse_started_at: float | None = None,
+        run_id: str | None = None,
+        emit: Any = None,
+        debug_router: bool = False,
+        debug_llm_prompts: bool = False,
+        intent_obs_payload_fn: Any = None,
+    ) -> AgentRunView:
+        _ = (
+            self,
+            query,
+            session_id,
+            prefer,
+            sse_started_at,
+            run_id,
+            debug_router,
+            debug_llm_prompts,
+            intent_obs_payload_fn,
+        )
+        if emit is None:
+            raise AssertionError("emit required")
+        for i in range(40):
+            await emit(
+                {
+                    "type": "agent.llm.delta",
+                    "ts": i,
+                    "step_id": "spam_bp",
+                    "payload": {"text": str(i), "part_index": i},
+                }
+            )
+        return AgentRunView(
+            intent_decision=None,
+            steps=[],
+            final=AgentFinalView(
+                answer="spam-done",
+                mode="rag",
+                total_steps=1,
+                tools_used=["rag_search"],
+                modes=["rag"],
+                fallback_used=False,
+            ),
+        )
+
+    monkeypatch.setattr(agent_module.ChatBIAgent, "run", _spam_emit_run)
+
+    client = TestClient(index.app)
+    text = ""
+    with client.stream(
+        "POST",
+        "/api/py/unified/chat/stream",
+        headers={
+            "Authorization": "Bearer api-key-123",
+            "X-ChatBI-Sse-Contract": "2",
+        },
+        json={"session_id": "s1", "query": "hello"},
+    ) as res:
+        assert res.status_code == 200
+        for chunk in res.iter_text():
+            text += chunk
+            if "event: done" in text:
+                break
+
+    chains = _parse_chain_objects(text)
+    truncated = [c for c in chains if c.get("type") == "agent.llm.truncated"]
+    assert truncated, "expected at least one agent.llm.truncated under small queue + spam emit"
+    assert any((t.get("payload") or {}).get("reason") == "backpressure" for t in truncated)

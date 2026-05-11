@@ -4,8 +4,8 @@
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P1-P0 已具备评测闭环脚本（accuracy/latency/agent-e2e）  
 关联：
-- `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览）
-- `docs/tasks/active/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`（P1-Eval：评测/基准主线；与本任务并行时共享「CI 不调外部 LLM」约束）
+- `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览）
+- `docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md`（P1-Eval：评测/基准主线；与本任务并行时共享「CI 不调外部 LLM」约束）
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Intent.md`（缓存策略：key=query+history_hash）
 
 ---

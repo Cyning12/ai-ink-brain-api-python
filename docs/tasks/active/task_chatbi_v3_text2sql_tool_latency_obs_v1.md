@@ -3,6 +3,10 @@
 ## 元信息
 
 - **状态**：backlog（V3 开工时纳入迭代）
+- **与 SPEC §2.1 批次对应**：本单承载 **P0-1**（子阶段可观测）+ **P0-3**（LLM `timeout` / 降级，见下文 §改进点 4）；**P0-2**（结构化日志 + Trace ID）当前真值在 **Enterprise Gap**，建议 **与 P0 同迭代验收**（可并入本单 PR 范围或另立短任务单，但总规 **P0 验收标志** 四项一起满足）。
+- **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§2.1 P0**、**§3** 任务归拢）  
+- **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`；日志协同见 `SPEC-ChatBI-V3-Logging-Trace.md`
+- **是否建议单独关单**：**不建议**仅本单无日志就宣称 P0 完成；与 **P0-2** 合并里程碑或连续 PR 更贴合总规。
 - **背景会话**：多轮追问下 `text2sql_query` 的 `tool.call.start` → `tool.call.end` 间隔可达百秒级，期间无 SSE，体感「卡在 step5→step6」
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）

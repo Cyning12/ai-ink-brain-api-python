@@ -1,0 +1,72 @@
+# ChatBI V3 — 可观测性：Text2SQL 工具链
+
+> **状态**：`draft`  
+> **父规**：[`SPEC-ChatBI-V3-Overview.md`](SPEC-ChatBI-V3-Overview.md) **§2** 支柱一、**§2.1** P0-1 / P0-3  
+> **任务单**：`docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（验收勾选以任务单为准）
+
+---
+
+## 1. 问题陈述
+
+Agent 路径下 `text2sql_execute` 被 **`tool.call.start` / `tool.call.end`** 整段包裹，墙时钟可达百秒级；内含 **DDL 检索 → SQL 生成 → 校验/执行 → 总结** 等串行阶段，用户侧易误判「挂死」。V3 本规约束：**可观测、可预算、可超时退出**。
+
+---
+
+## 2. 范围 / 非范围
+
+| 类型 | 内容 |
+|------|------|
+| **范围** | `api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/agent.py` 工具事件边界；分段计时写入 `ToolResult.data` 或等价结构化字段；**可选** SSE 子阶段事件（须评估 `X-ChatBI-Sse-Contract` 版本）；`llm_generate_sql` / `llm_summarize` 的 **timeout** 与既有 `error_code` 对齐；复用 `text2sql_api.py` 确定性总结（`_try_summarize_aggregate` 等）；`dialogue_context` / `_text2sql_retrieve_query` **预算复核** |
+| **非范围** | 替换 SiliconFlow、重写 Text2SQL 算法；非 Agent 聚合 API 的 UX 改版 |
+
+---
+
+## 3. 子阶段模型（逻辑真值 — 实现可命名微调）
+
+建议在实现中至少区分以下 **逻辑阶段**（与任务单 §改进点一致）：
+
+| 阶段 ID（建议） | 含义 | 计时归属 |
+|-----------------|------|----------|
+| `retrieve` | DDL / 向量检索合并串 | I/O + 嵌入 |
+| `llm_sql` | 生成 SQL 的 LLM 调用 | 上游 LLM |
+| `validate` | SQL 校验（语法/策略） | 本地 CPU |
+| `db` | 执行查询 | DB RTT |
+| `llm_summary` | 自然语言总结 LLM | 上游 LLM |
+
+**产出形态（二选一或并存）**：
+
+1. **结构化耗时**：写入 `ToolResult.data`（或 `debug` 命名空间），键名与单位（**ms**）在 `PROJECT_CONFIG` 与任务单回填中固定。  
+2. **SSE 子阶段事件**：若引入 `tool.subphase.*` 或等价 `chain.type`，须同步 **`SPEC-ChatBI-V2-Events.md`**、**`_contract_manifest.json`**，且与 **`tools/tech_graph_contract_check.py`** 同 PR 绿。
+
+---
+
+## 4. 与 V2 契约的边界
+
+- **不**使用顶层 `event: token` 传递 Text2SQL 子步（与 vNext **chain-only** 叙事一致）。  
+- 若仅扩展 **`tool.call.end` 的 payload** 而不新增 `chain.type`，须评估前端 **`ChainEventCard`** 是否需展示折叠子耗时。  
+- **版本协商**：若必须新 SSE 语义，优先走 **`X-ChatBI-Sse-Contract`** 递增与 vNext SPEC 对齐，**禁止**静默改旧客户端解析假设。
+
+---
+
+## 5. 验收方向（数值进任务单 / pytest）
+
+- 多轮场景下可区分「等模型」与「查库」之一（**结构化耗时或子阶段事件**）。  
+- 典型「COUNT / 单值」路径：**不**无谓触发第二次 LLM（与任务单验收一致）。  
+- LLM 调用在超时后返回 **结构化错误**，连接不无限挂起。  
+- `_tech_graph/11_flow_text2sql.md`（及 `.ai.md`）与实现一致。
+
+---
+
+## 6. 关联
+
+- `docs/spec/v2-agent/SPEC-ChatBI-V2-Tool-Design.md`  
+- `docs/spec/v2-agent/SPEC-ChatBI-V2-Events.md`  
+- `docs/_tech_graph/11_flow_text2sql.md`
+
+---
+
+## 7. 修订记录
+
+| 日期 | 变更 |
+|------|------|
+| 2026-05-11 | 从总规拆出子规初版 |

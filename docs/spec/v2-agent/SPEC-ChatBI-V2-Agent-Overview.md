@@ -4,7 +4,7 @@
 > **版本**：v2（已按审查意见修订）  
 > **日期**：2026-04-27（**文档对齐**：2026-05-07 — §7 验收勾选、任务索引、§7.4 / §7.5；**2026-05-09** — §2.6 多轮契约、§7.5.5 L6、子规 `SPEC-ChatBI-V2-Multiturn-Semantics.md`（多轮语义承接））  
 > **负责人**：cyning  
-> **关联任务（真值）**：`docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`（P0 归档）· `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，含 Eval/C/D）· `SPEC-ChatBI-V2-Gap-Checklist.md`（缺口快照）
+> **关联任务（真值）**：`docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`（P0 归档）· `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，含 Eval/C/D；**已归档**）· `SPEC-ChatBI-V2-Gap-Checklist.md`（缺口快照）
 
 ---
 
@@ -349,7 +349,7 @@ rag_tool = Tool(
 
 ## 7. 验收标准
 
-> **说明**：下列 `[x]` / `[ ]` 表示**相对本总规条文**的当前达成度；**不以「是否合并某张任务单」为口径**。细粒度证据见 `task_chatbi_v2_agent_p1_behavior.md`、P1-Eval 子任务、diary、`tests/_out/` 归档与 §7.4。
+> **说明**：下列 `[x]` / `[ ]` 表示**相对本总规条文**的当前达成度；**不以「是否合并某张任务单」为口径**。细粒度证据见 **`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`**（已归档）、P1-Eval 子任务、diary、`tests/_out/` 归档与 §7.4。
 
 ### 7.1 功能验收
 
@@ -594,7 +594,7 @@ rag_tool = Tool(
   - `docs/_tech_graph/_manifest.json` · `_contract_manifest.json`（SSE 真值）
 - 任务单：
   - `docs/tasks/done/task_chatbi_v2_agent_p0_backend.md`
-  - `docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（及子链 P1-Eval / P1-C / P1-D）
+  - `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（及子链 P1-Eval / P1-C / P1-D；**已归档至** `docs/tasks/done/`）
 - 回归归档：
   - `docs/diary/2026-05-07-l0-l3-regression-acceptance.md` — **L0–L3** 本轮验收表（**入库需** `git add -f`，`docs/*` 默认 ignore）
   - `docs/diary/2026-05-07-l4-sse-acceptance.md` — **L4**（curl SSE 样本 + 前端 Timeline；**Intent 超时 / v1_fallback 不记 L4 失败**）

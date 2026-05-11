@@ -2,7 +2,7 @@
 
 > **状态**：**已吸收**（2026-05-08 二稿）。本文件为 **回溯索引**：原「未锁定」项均已落盘到主 SPEC / Events / 任务单 / manifest 注释；**实现真值**以 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`** + **`SPEC-ChatBI-V2-Events.md` §8** + **`docs/_tech_graph/_contract_manifest.json`**（与代码 **同 PR** 更新枚举）为准。  
 > **日期**：2026-05-08  
-> **依赖**：`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`、`SPEC-ChatBI-V2-Events.md`、`docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`、`ai-ink-brain/content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`  
+> **依赖**：`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`、`SPEC-ChatBI-V2-Events.md`、`docs/tasks/done/task_chatbi_v2_incremental_sse_backend_v1.md`（已归档）、`ai-ink-brain/content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`  
 > **用途**：给审阅者 **10 分钟内** 对照「原七类问题 + §8 补充」与 **主文档节号**；**实现前优先读主 SPEC §0**，本简报 **仅作索引**。剩余主要是 **§8.8 DB 关联**（非阻断）、**manifest 与代码同 PR**、以及任务单 **实现备忘** 中的落地填空。**前端布局**：`single_panel`/LS 与 **§6.1** 实现差异见主 SPEC **§6.1** 与前端任务单 **「与 SPEC §6 差异」**；**右栏 UX** 以主 SPEC **§3.2「执行链路」** 为准（**非**全量 delta 一锅端、**非**第二份 Timeline）。
 
 ---
@@ -108,7 +108,7 @@
 | `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` | **已终稿**：§0–§9、§5.4 JSON、§7 可测化、§8.1–8.7 |
 | `SPEC-ChatBI-V2-Events.md` | **已终稿**：**§8** vNext；§2.2 增补 `agent.llm.*`；§6 规则同 PR |
 | `docs/_tech_graph/_contract_manifest.json` | **`_note` 已更新**；`type_values` **待实现 PR** |
-| `docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md` | **契约与流程已填**（G2、§9 矩阵、mock/LLM、门槛）；**实现备忘** 仍为落地 PR 填空（见该节说明） |
+| `docs/tasks/done/task_chatbi_v2_incremental_sse_backend_v1.md` | **已验收归档**（2026-05-11）；原 active 路径已迁移 |
 | `ai-ink-brain/content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md` | **同上**（协商头、聚合 v1 不做）；**`single_panel`/LS** 见任务单 **与 SPEC §6 差异**；**实现备忘** 为落地 PR 填空 |
 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | **已增** `CHATBI_SSE_INCREMENTAL` |
 

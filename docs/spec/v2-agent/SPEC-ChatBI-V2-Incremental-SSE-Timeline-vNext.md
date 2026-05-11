@@ -277,7 +277,7 @@ Intent 若单独走 LLM：**在 Intent 完成前** 须出现 **`agent.llm.start`
 
 | 仓库 | 任务单路径 |
 |------|------------|
-| `ai-ink-brain-api-python` | `docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md` |
+| `ai-ink-brain-api-python` | `docs/tasks/done/task_chatbi_v2_incremental_sse_backend_v1.md`（已归档） |
 | `ai-ink-brain` | `content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`（前置：`task_frontend_unified_chat_streaming_sse_v1.md`） |
 | `PROJECT_CONFIG` | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` — `CHATBI_SSE_INCREMENTAL` 真值（不复制 `.env`） |
 

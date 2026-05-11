@@ -14,6 +14,8 @@ from api.text2sql_value_hints import (
     ddl_table_names_from_retrieved,
     format_hints_for_prompt,
     load_hints,
+    merge_hints_with_distinct_probes,
+    parse_distinct_allowlist,
     tables_for_value_hints,
 )
 
@@ -159,3 +161,105 @@ def test_build_value_hints_disabled(monkeypatch) -> None:
         }
     ]
     assert build_value_hints_block_for_text2sql(retrieved, history=None) is None
+
+
+def test_parse_distinct_allowlist_filters_invalid(monkeypatch) -> None:
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_COLUMNS", "public.agent_info.gender,bad,public.x.y")
+    got = parse_distinct_allowlist()
+    assert got == [("public", "agent_info", "gender"), ("public", "x", "y")]
+
+
+def test_merge_hints_distinct_off_returns_same_ref(monkeypatch) -> None:
+    monkeypatch.delenv("TEXT2SQL_DISTINCT_PROBE", raising=False)
+    h = _sample_hints()
+    out = merge_hints_with_distinct_probes(h, {"agent_info"})
+    assert out is h
+
+
+def test_merge_hints_distinct_unions_yaml_and_db(monkeypatch) -> None:
+    calls: list[str] = []
+
+    def fake_execute(
+        sql: str,
+        *,
+        limit_rows: int = 200,
+        statement_timeout_ms: int | None = None,
+    ) -> tuple[list[str], list[dict]]:
+        calls.append(sql)
+        assert "DISTINCT" in sql.upper()
+        assert "LIMIT" in sql.upper()
+        return (["gender"], [{"gender": "库内新枚举"}])
+
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_PROBE", "true")
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_COLUMNS", "public.agent_info.gender")
+    monkeypatch.setattr("api.text2sql_value_hints.execute_select_sql", fake_execute)
+    h = _sample_hints()
+    out = merge_hints_with_distinct_probes(h, {"agent_info"})
+    assert out is not h
+    body = format_hints_for_prompt(out, {"agent_info"})
+    assert "男" in body and "女" in body and "库内新枚举" in body
+    assert len(calls) == 1
+
+
+def test_merge_hints_distinct_failure_keeps_yaml_only(monkeypatch) -> None:
+    def boom(
+        sql: str,
+        *,
+        limit_rows: int = 200,
+        statement_timeout_ms: int | None = None,
+    ) -> tuple[list[str], list[dict]]:
+        raise RuntimeError("db down")
+
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_PROBE", "true")
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_COLUMNS", "public.agent_info.gender")
+    monkeypatch.setattr("api.text2sql_value_hints.execute_select_sql", boom)
+    h = _sample_hints()
+    out = merge_hints_with_distinct_probes(h, {"agent_info"})
+    body_yaml = format_hints_for_prompt(h, {"agent_info"})
+    body_out = format_hints_for_prompt(out, {"agent_info"})
+    assert body_out == body_yaml
+
+
+def test_build_value_hints_includes_merge_disclaimer_when_probe_on(monkeypatch, tmp_path: Path) -> None:
+    import api.text2sql_value_hints as vh_mod
+
+    vh_mod._loaded.clear()
+    p = tmp_path / "hints.yaml"
+    p.write_text(
+        """
+version: 1
+tables:
+  agent_info:
+    gender:
+      column: gender
+      values: ["男", "女"]
+      synonyms:
+        男性: 男
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("TEXT2SQL_VALUE_HINTS_PATH", str(p))
+    monkeypatch.setenv("TEXT2SQL_VALUE_HINTS_ENABLED", "true")
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_PROBE", "true")
+    monkeypatch.setenv("TEXT2SQL_DISTINCT_COLUMNS", "public.agent_info.gender")
+
+    def fake_execute(
+        sql: str,
+        *,
+        limit_rows: int = 200,
+        statement_timeout_ms: int | None = None,
+    ) -> tuple[list[str], list[dict]]:
+        return (["gender"], [{"gender": "男"}])
+
+    monkeypatch.setattr("api.text2sql_value_hints.execute_select_sql", fake_execute)
+    retrieved = [
+        {
+            "doc_type": "ddl",
+            "title": "DDL: agent_info",
+            "content": "create table public.agent_info (\n  gender text\n);",
+        }
+    ]
+    block = build_value_hints_block_for_text2sql(retrieved, history=None)
+    assert block
+    assert "DISTINCT 采样" in block
+    assert "非全量闭集" in block

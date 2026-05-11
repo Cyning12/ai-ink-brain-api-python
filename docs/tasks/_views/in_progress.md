@@ -4,7 +4,7 @@
 
 ## 进行中
 
-- [ChatBI V2 · Text2SQL 多轮承接 + 值域/锚点后续](../active/task_chatbi_v2_text2sql_multiturn_grounding_v1.md) — `in_progress`（A 已代码落地，B/C 待办）
+- 无（原 **Text2SQL 多轮 grounding** 已归档：`../done/task_chatbi_v2_text2sql_multiturn_grounding_v1.md`；**V2 未交付项**记入 V3 欠债单：`../active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`）
 
 ## 缺少状态字段（请补齐后再归类）
 

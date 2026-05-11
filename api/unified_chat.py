@@ -23,6 +23,7 @@ from .rag_env import (
     openai_siliconflow_client,
     siliconflow_base,
     supabase_client,
+    supabase_table_insert_with_retry,
 )
 from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
@@ -389,8 +390,7 @@ def _async_save_rag_log(payload: dict[str, Any]) -> None:
     """异步写入 rag_conversation_logs（best-effort，不阻塞主流程）。"""
     try:
         def _sync_insert() -> None:
-            sb = supabase_client()
-            sb.table("rag_conversation_logs").insert(payload).execute()
+            supabase_table_insert_with_retry("rag_conversation_logs", payload)
 
         asyncio.create_task(asyncio.to_thread(_sync_insert))
     except Exception:
@@ -411,7 +411,6 @@ def _sync_persist_chatbi_v2_agent_log(
     if not session_id:
         return {"ok": True, "skipped": True, "reason": "no_session_id"}
     try:
-        sb = supabase_client()
         agent_steps_json: dict[str, Any] = {
             "total_steps": agent_result.final.total_steps,
             "tools_used": agent_result.final.tools_used,
@@ -480,7 +479,7 @@ def _sync_persist_chatbi_v2_agent_log(
             "tool_results": tool_results_json,
         }
         try:
-            sb.table("rag_conversation_logs").insert(payload_full).execute()
+            supabase_table_insert_with_retry("rag_conversation_logs", payload_full)
             return {"ok": True, "path": "full"}
         except Exception as exc:  # noqa: BLE001
             if _debug_agent_db_log_enabled():
@@ -500,7 +499,7 @@ def _sync_persist_chatbi_v2_agent_log(
                 },
             }
             try:
-                sb.table("rag_conversation_logs").insert(payload_fallback).execute()
+                supabase_table_insert_with_retry("rag_conversation_logs", payload_fallback)
                 return {
                     "ok": True,
                     "path": "fallback",
@@ -593,6 +592,23 @@ def _request_sse_contract_v2(request: Request) -> bool:
 
 def _unified_agent_sse_incremental(request: Request) -> bool:
     return _env_chatbi_sse_incremental_enabled() and _request_sse_contract_v2(request)
+
+
+def _sse_emit_queue_maxsize() -> int:
+    """G2 增量 emit 队列上限（有界缓冲）；触顶时先发 `agent.llm.truncated`（vNext §4.3）。可调低便于单测。"""
+    raw = (os.getenv("CHATBI_SSE_EMIT_QUEUE_MAX", "512") or "").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        n = 512
+    return max(8, min(n, 8192))
+
+
+def _sse_emit_queue_event_estimate_chars(ev: dict[str, Any]) -> int:
+    try:
+        return len(json.dumps(ev, ensure_ascii=False))
+    except (TypeError, ValueError):
+        return len(str(ev))
 
 
 def _parse_prefer(raw: object) -> PreferMode:
@@ -1845,10 +1861,27 @@ async def handle_unified_chat_stream(
 
                 if sse_incremental:
                     # G2：Agent 内 emit → 队列 → 本生成器边收边 yield（vNext 协商头 + CHATBI_SSE_INCREMENTAL）
-                    q: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=512)
+                    q: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=_sse_emit_queue_maxsize())
                     holder: dict[str, Any] = {}
+                    overflow_pending: list[dict[str, Any]] = []
 
                     async def forward(ev: dict[str, Any]) -> None:
+                        try:
+                            q.put_nowait(ev)
+                            return
+                        except asyncio.QueueFull:
+                            sid = ev.get("step_id") if isinstance(ev.get("step_id"), str) else "bp1"
+                            overflow_pending.append(
+                                _event(
+                                    typ="agent.llm.truncated",
+                                    started_at=started_at,
+                                    step_id=sid,
+                                    payload={
+                                        "dropped_chars": _sse_emit_queue_event_estimate_chars(ev),
+                                        "reason": "backpressure",
+                                    },
+                                )
+                            )
                         await q.put(ev)
 
                     async def runner() -> None:
@@ -1876,6 +1909,8 @@ async def handle_unified_chat_stream(
                         _iv = 15.0
                     _iv = max(5.0, min(_iv, 60.0))
                     while True:
+                        while overflow_pending:
+                            yield _sse("chain", overflow_pending.pop(0))
                         try:
                             item = await asyncio.wait_for(q.get(), timeout=_iv)
                         except asyncio.TimeoutError:
@@ -1887,6 +1922,8 @@ async def handle_unified_chat_stream(
                             break
                         yield _sse("chain", item)
                     await run_task
+                    while overflow_pending:
+                        yield _sse("chain", overflow_pending.pop(0))
                     while True:
                         try:
                             tail = q.get_nowait()

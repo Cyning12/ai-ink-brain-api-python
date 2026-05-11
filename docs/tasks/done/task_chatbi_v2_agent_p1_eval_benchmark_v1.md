@@ -10,8 +10,8 @@
 
 编排关系：
 - **本任务**：主线 **A（真实 LLM 意图评测闭环）+ B（性能基准与回归门禁）** 的唯一落盘与验收文档。
-- **总览**：`docs/tasks/active/task_chatbi_v2_agent_p1_behavior.md`（P1 全量目标与 C/D 编排）。
-- **缓存子线**：`docs/tasks/active/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md`（与本任务并行时，仍以 CI 不依赖外部 LLM 为共同约束）。
+- **总览**：`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 全量目标与 C/D 编排）。
+- **缓存子线**：`docs/tasks/done/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md`（与本任务并行时，仍以 CI 不依赖外部 LLM 为共同约束）。
 
 ---
 
@@ -84,7 +84,7 @@ P0 后 V2 路径仍以 **stub / mock 意图** 为主流自动化测试，**缺�
 
 ### 1) 准确率（真实 LLM、手动/夜间跑批）
 
-与总任务 `task_chatbi_v2_agent_p1_behavior.md` 对齐的数值门槛（达成或文档中明确「未达标 + 后续 P1-D 跟踪」）：
+与总任务 **`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`** 对齐的数值门槛（达成或文档中明确「未达标 + 后续 P1-D 跟踪」）：
 
 - [x] 60 条全部跑完并有导出文件（**冻结轮（复跑五）**：`tests/_out/intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.jsonl` / `.csv`；**前冻结轮（复跑三）**：`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`；历史：`intent_llm_latest_20260506_171351_v1fb15_acc0817.*`。**归档后**仓库内可无无后缀 `intent_llm_latest.*`，下次跑批请显式设置 `CHATBI_V2_INTENT_EVAL_OUT`）
 - [x] macro-F1 > 90%（**冻结轮（复跑五）≈0.948** 达标；首轮/复跑二/复跑三见 diary）

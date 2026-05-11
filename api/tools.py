@@ -339,7 +339,9 @@ async def text2sql_execute(
         oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
         chat_model = _pick_chat_model()
 
-        vh_block = build_value_hints_block_for_text2sql(retrieved, history=hist)
+        vh_block = await asyncio.to_thread(
+            build_value_hints_block_for_text2sql, retrieved, history=hist
+        )
         sql_prompt = build_sql_prompt(
             query,
             retrieved,
