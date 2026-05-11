@@ -32,10 +32,13 @@ curl -sS -N --max-time 300 -H "Authorization: Bearer XXXX" -H "Content-Type: app
 
 ## stderr JSON 对齐（执行人可补）
 
-在同一次请求、**`CHATBI_JSON_LOG=true`** 的前提下，于运行 API 的终端或日志文件中：
+在同一次请求、**`CHATBI_JSON_LOG=true`** 的前提下，于 **运行 FastAPI/uvicorn 的进程** 的 **stderr** 或其 **tee 出来的日志文件** 里 grep。
+
+**勿对本 Markdown 文件 grep**：本文表格与下文 SSE 摘录里 **写死了同一 `run_id`**，对 `阶段B-留证-curl-stream-b-smoke-2026-05-11.md` 执行 `grep` 只会命中这些字面量，**不会出现** `"message":"text2sql_tool_call_end"` 的 **服务端 JSON 行**（与终端里你看到的「grep md 只有 meta/done」现象一致）。
 
 ```bash
-grep '0e1ba483-72e3-45b9-9a69-43538c9055a6' <你的-api-stderr-或日志文件> | grep text2sql_tool_call_end
+# 占位符须换成真实路径：例如启动 API 时 `2>&1 | tee /tmp/chatbi-api.log`
+grep '0e1ba483-72e3-45b9-9a69-43538c9055a6' /tmp/chatbi-api.log | grep text2sql_tool_call_end
 ```
 
 将 **脱敏后** 的匹配行（单行 JSON）粘贴至本节下方即可与 RUNBOOK **B3** 闭环。
@@ -99,3 +102,4 @@ data: {"ok":true,"mode":"text2sql","run_id":"0e1ba483-72e3-45b9-9a69-43538c9055a
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 初版：手工 curl SSE 落盘；`agent.debug.llm_prompts` 长正文折叠 |
+| 2026-05-11 | **§stderr**：注明勿 grep 本 md；示例改为具体日志路径占位 |
