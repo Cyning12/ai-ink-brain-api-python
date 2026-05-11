@@ -35,6 +35,7 @@ def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
         *,
         history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
+        **_: Any,
     ) -> ToolResult:  # noqa: ANN001
         return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 

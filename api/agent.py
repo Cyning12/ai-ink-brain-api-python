@@ -630,11 +630,20 @@ class ChatBIAgent:
                         )
                     )
             # tool.call.end 在 emit 路径下由本处与 execute 结果一并下发
-            current_tool_result = await tool.execute(  # type: ignore[call-arg]
-                query,
-                history=call_history,
-                debug_llm_prompts=debug_llm_prompts,
-            )
+            if current_tool == "text2sql_query":
+                current_tool_result = await tool.execute(  # type: ignore[call-arg]
+                    query,
+                    history=call_history,
+                    debug_llm_prompts=debug_llm_prompts,
+                    chain_emit=emit,
+                    chain_started_at=ts_ref if emit is not None else None,
+                )
+            else:
+                current_tool_result = await tool.execute(  # type: ignore[call-arg]
+                    query,
+                    history=call_history,
+                    debug_llm_prompts=debug_llm_prompts,
+                )
 
             tools_used.append(current_tool)
 
@@ -671,6 +680,8 @@ class ChatBIAgent:
                     _out_payload["answer"] = _out_ans0
                 if current_tool == "rag_search" and isinstance(_data.get("rewritten"), str):
                     _out_payload["rewritten_query"] = _data["rewritten"]
+                if current_tool == "text2sql_query" and isinstance(_data.get("text2sql_phases_ms"), dict):
+                    _out_payload["text2sql_phases_ms"] = _data["text2sql_phases_ms"]
                 await emit(
                     _agent_chain(
                         typ="tool.call.end",

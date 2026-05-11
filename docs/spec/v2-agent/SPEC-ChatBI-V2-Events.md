@@ -372,6 +372,8 @@ CHATBI_USE_AGENT=false  # 降级到 V1
 | `agent.llm.delta` | 文本增量；**多条兄弟 `chain`**，`payload.text` + `part_index`。 |
 | `agent.llm.end` | 子阶段结束；`payload.ok`。 |
 | `agent.llm.truncated` | 背压 / 截断可观测信号。 |
+| `text2sql.phase.start` | **V3（Agent `text2sql_execute`）**：子阶段开始；`payload.subphase_id` 形如 `text2sql.phase.<phase_id>`，`phase_id ∈ { retrieve, llm_sql, validate, db, llm_summary }`；`phase_kind` 为 `llm` / `db` / `io`。见 `docs/spec/v3-agent/SPEC-ChatBI-V3-Observability-Text2SQL.md`。 |
+| `text2sql.phase.end` | 同上子阶段结束；`payload.latency_ms` 为该段墙时钟毫秒。 |
 
 ### 8.3 「首条有意义 chain」白名单（验收用）
 

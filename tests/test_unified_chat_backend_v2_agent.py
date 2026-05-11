@@ -48,6 +48,7 @@ def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
         *,
         history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
+        **_: Any,
     ) -> ToolResult:  # noqa: ANN001
         return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 
@@ -237,6 +238,7 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
+    import api.rag_env as rag_env_module
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
@@ -313,7 +315,8 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
             assert name == "rag_conversation_logs"
             return _Table()
 
-    monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+    # 落库走 rag_env.supabase_table_insert_with_retry → rag_env.supabase_client（非 unified_chat 命名空间）
+    monkeypatch.setattr(rag_env_module, "supabase_client", lambda: _Sb())
 
     client = TestClient(index.app)
     res = client.post(

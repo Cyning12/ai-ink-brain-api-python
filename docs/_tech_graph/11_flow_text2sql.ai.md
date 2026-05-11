@@ -45,7 +45,7 @@ flowchart TD
   // → api/text2sql_core.py#L88
   ERR_DSN --"->"--> OUT1
 
-  DB --"rows==1&1 numeric"--> DET[[_try_summarize_aggregate()]]
+  DB --"rows==1&1 numeric"--> DET[[try_summarize_aggregate()]]
   DB --"rows>0"--> SUM[[async def llm_summarize]]
   DB --"rows==0"--> OUT2[[未查到数据]]
 
@@ -75,3 +75,5 @@ flowchart TD
 ```
 
 **V2 多轮锚点（2026-05-09）**：`tool_results.text2sql_grounding` → `agent_memory.load` → `history_to_rewrite_block` / Intent assistant 前缀；实现见 `api/text2sql_grounding.py`、`api/unified_chat.py::_text2sql_grounding_from_agent_result`。
+
+**V3 P0 Agent（2026-05-11）**：`api/tools.text2sql_execute` 产出 `text2sql_phases_ms`、可选增量 `text2sql.phase.start|end`（`api/agent.py` 注入 `chain_emit`）、LLM 分阶段 `wait_for` 超时；人类版说明见同目录 `11_flow_text2sql.md` §V3 P0。

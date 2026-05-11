@@ -88,10 +88,11 @@
 | `TEXT2SQL_DISTINCT_COLUMNS` | allowlist：`schema.table.column`，英文逗号分隔 | 可选 | `api/text2sql_value_hints.py:parse_distinct_allowlist()` | 例：`public.agent_info.gender`；仅 `[A-Za-z0-9_]` 段接受 | 与样例库表一致 |
 | `TEXT2SQL_DISTINCT_MAX_PROBES` | 单次请求最多执行的探针次数 | 可选 | `api/text2sql_value_hints.py:_distinct_max_probes()` | 默认 `8`； clamp `1..32` | 与项目无关 |
 | `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` | 单条探针 SQL 的 `statement_timeout`（毫秒） | 可选 | `api/text2sql_value_hints.py:_distinct_statement_timeout_ms()` | 留空则不设置；有值时经 `execute_select_sql(..., statement_timeout_ms=)` 注入 `SET LOCAL` | 与项目无关 |
-| `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` | Text2SQL **两段 LLM**（生成 SQL / 总结）共用的 **HTTP 超时秒数**兜底 | 可选 | `api/text2sql_core.py` 等（V3 实现 PR 回填精确调用点） | **未设**时代码默认 **`120.0`**；当 **`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`** 已分别设置时，本变量仅作二者缺省时的回退 | 与项目无关 |
-| `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` | `llm_generate_sql` 上游 **timeout**（秒） | 可选 | 同上 | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
-| `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 上游 **timeout**（秒） | 可选 | 同上 | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
-| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py` / `api/text2sql_core.py`（V3 实现 PR 回填） | **未设置或仅空白**时，与 **Intent** 生效模型一致（即 `INTENT_LLM_MODEL` 的读取与默认 `Qwen/Qwen2.5-7B-Instruct`，以 `api/intent_agent.py` 为准，实现须复用同一解析避免漂移） | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` | Text2SQL **两段 LLM**（生成 SQL / 总结）共用的 **超时秒数**兜底 | 可选 | `api/tools.py::text2sql_execute`（`asyncio.wait_for`） | **未设**时代码默认 **`120.0`**；当 **`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`** 已分别设置时，本变量仅作二者缺省时的回退 | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` | `llm_generate_sql` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py::text2sql_execute` | **未设置或仅空白**时，与 **Intent** 默认一致（`INTENT_LLM_MODEL` 默认 `Qwen/Qwen2.5-7B-Instruct`，与 `api/intent_agent.py` 对齐） | 与项目无关 |
+| `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN` | 多轮 `history_to_rewrite_block` 注入 `build_sql_prompt` 前的 **最大字符数**（超出保留尾部） | 可选 | `api/tools.py::text2sql_execute` | 默认 **`8000`**；`<=0` 表示不截断 | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 

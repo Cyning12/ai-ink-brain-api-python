@@ -50,7 +50,9 @@
         "agent.llm.start",
         "agent.llm.delta",
         "agent.llm.end",
-        "agent.llm.truncated"
+        "agent.llm.truncated",
+        "text2sql.phase.start",
+        "text2sql.phase.end"
       ],
       "payload_min_keys_by_type": {
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
@@ -79,7 +81,9 @@
         "agent.llm.start": ["phase", "step_id"],
         "agent.llm.delta": ["text", "part_index"],
         "agent.llm.end": ["ok", "phase", "step_id"],
-        "agent.llm.truncated": ["dropped_chars", "reason"]
+        "agent.llm.truncated": ["dropped_chars", "reason"],
+        "text2sql.phase.start": ["subphase_id", "phase_id", "phase_kind"],
+        "text2sql.phase.end": ["subphase_id", "phase_id", "latency_ms"]
       }
     },
     "done": {

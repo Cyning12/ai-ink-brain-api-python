@@ -167,6 +167,33 @@ def build_sql_prompt(
     return "\n\n".join(parts).strip()
 
 
+def try_summarize_aggregate(query: str, columns: list[str], rows: list[dict[str, Any]]) -> str | None:
+    """对 count/sum 等聚合结果做确定性总结，避免 LLM 把 0 行误判成「未查到数据」。
+
+    仅在结果形态极明确时生效：单行 + 单列数字。
+    """
+    if len(rows) != 1:
+        return None
+    if not rows[0] or len(rows[0]) != 1:
+        return None
+    (col, val), = rows[0].items()
+    if val is None:
+        return None
+    if isinstance(val, bool):
+        return None
+    try:
+        val_f = float(val)
+        val_i = int(val)
+    except Exception:  # noqa: BLE001
+        return None
+    name = (col or "").lower()
+    if name in ("count", "cnt", "total", "sum", "avg", "min", "max"):
+        if name in ("count", "cnt"):
+            return f"共有 {val_i} 条。"
+        return f"结果为 {val_f:g}。"
+    return None
+
+
 def build_summary_prompt(query: str, sql: str, columns: list[str], rows: list[dict[str, Any]]) -> str:
     preview = rows[:20]
     return "\n\n".join(

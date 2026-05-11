@@ -112,6 +112,7 @@
 | 日期 | 变更摘要 | PR / 备注 |
 |------|----------|-----------|
 | 2026-05-11 | 初版：执行计划、checklist、验收流程落盘 | — |
+| 2026-05-11 | 阶段 A 实现：`text2sql_phases_ms`、`text2sql.phase.*` SSE、分阶段 timeout、确定性总结迁入 `text2sql_core`；manifest + contract_check 纳入 `tools.py` | 本 PR |
 
 ---
 
