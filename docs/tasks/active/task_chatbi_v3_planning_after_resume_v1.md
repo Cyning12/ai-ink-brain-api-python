@@ -8,6 +8,16 @@
 
 ---
 
+## 0. 本单性质（与「批次实施单」区分）
+
+| 项 | 说明 |
+|----|------|
+| **本单** | **统筹 / 索引**：对齐简历话术、Gap 切片、V4 边界；**不设**独立代码验收勾选。 |
+| **批次真值** | `SPEC-ChatBI-V3-Overview.md` **§2.1**（P0 / P1 / P2）；实施与 PR 以各 **子任务单** + 将来拆出的 Gap 子单为准。 |
+| **是否单独「完成」** | 不要求结项为 `done` 的代码交付；随 V3 演进更新本节链接即可。 |
+
+---
+
 ## 1. 规划顺序（与简历评估一致）
 
 1. **对齐简历话术**：V1 已完成 / V2 主线已落地 + 简历中仍标「补强」的项（§7.1 多步 E2E、§7.2 延迟纸面）**不夸大**为已交付。  
@@ -17,17 +27,12 @@
 
 ---
 
-## 2. 规划要点
+> **优先级排序与批次交付策略**见 SPEC 总规 **`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §2.1**（P0/P1/P2 三批）。
 
-- **对齐简历话术**：V1 已完成 / V2 主线已落地 + 简历中仍标「补强」的项（§7.1 多步 E2E、§7.2 延迟纸面）**不夸大**为已交付。  
-- **从 Enterprise Gap 抽 V3 切片**：权限（RBAC+数据权限）、安全（SQL 语法树 + Prompt 注入）、高可用（限流熔断+监控）、评估体系、结构化日志+Trace ID（见 Gap 表 **P1** 行）。  
-- **技术债与可观测先行**：已单独立单 **`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`**（多轮下工具阶段 SSE/耗时归因）；V2 multiturn **收口欠债**见 **`task_chatbi_v3_debt_from_v2_multiturn_v1.md`**。  
-- **V4 边界**：多租户、模型路由、A/B —— **仅排期**，不与 V3 首迭代混写同一验收口径。
-
-> **优先级排序与批次交付策略**见 SPEC 总规 **`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §2.1**（P0/P1/P2 三批）。本任务单不再重复，避免漂移。
+**规划要点（与 §1 同义摘要）**：对齐简历话术；从 Gap 抽切片；可观测与 multiturn 欠债见对应子单；V4 仅排期。
 
 ---
 
-## 4. 给 Cursor 的稳定关键词
+## 2. 给 Cursor 的稳定关键词
 
 `task_chatbi_v3_planning_after_resume_v1`、`SPEC-ChatBI-V3-Overview`、`docs/spec/v3-agent`、简历评估、Enterprise Gap、V3 排期
