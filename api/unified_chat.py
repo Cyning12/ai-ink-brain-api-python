@@ -766,6 +766,8 @@ async def handle_unified_chat(
             query=query,
             session_id=session_id,
             prefer=prefer,
+            sse_started_at=started_at,
+            run_id=run_id,
             debug_llm_prompts=debug_llm_prompts,
         )
 
@@ -1986,6 +1988,8 @@ async def handle_unified_chat_stream(
                             query=query,
                             session_id=session_id,
                             prefer=prefer,
+                            sse_started_at=started_at,
+                            run_id=run_id,
                             debug_llm_prompts=debug_llm_prompts,
                         )
                     )

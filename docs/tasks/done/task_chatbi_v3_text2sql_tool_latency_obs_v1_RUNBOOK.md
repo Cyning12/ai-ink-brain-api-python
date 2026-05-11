@@ -92,7 +92,7 @@
 
 0. **开关**：`.env` 设 **`CHATBI_JSON_LOG=true`**（或 `1`/`yes`/`on`）；默认关闭以免刷屏。  
 1. **日志格式**：确认结构化日志为 **JSON**，根级含 **`request_id`、`run_id`**（当前 Agent 路径与 SSE **`run_id` 同值**，与 `done.request_id` 对齐）。  
-2. **归因**：同一次 Agent Text2SQL 请求，从 SSE **`meta`/`done`** 或客户端记录取得 **`run_id`**，在 stderr / 采集侧 grep **同 `run_id`**，确认存在 **`text2sql_tool_call_end`**（整段）及可选 **`text2sql_phase_end`**（**`subphase_id`** = `text2sql.phase.<phase_id>`，**`text2sql_phases_ms`** 为阶段累计快照）。**Ink-Brain**：`UnifiedChatPageClient` 于 **`meta`** 帧采用 **`payload.run_id`** 并回填本轮 **`user.message`**，使导出的 Timeline 与上述 **`run_id`** 一致（留档 `P0/阶段B-验收-1.md`）。  
+2. **归因**（**须带鉴权**）：对 **`/api/py/unified/chat/stream`**（或批 JSON **`/api/py/unified/chat`**）发 **会走 `text2sql_query`** 的 Agent 请求时，**必须**携带与现网一致的 **`Authorization` / `X-Admin-*`**（与 `NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY` 等配置对齐）；无 Bearer 的 `curl` 只会得到 **401**，不能作为 B 留证。从 SSE **`meta`/`done`**（或客户端）取得 **`run_id`**，在运行 API 进程的 **stderr** grep **同 `run_id`**，确认存在 **`text2sql_tool_call_end`**（整段）及可选 **`text2sql_phase_end`**（**`subphase_id`** = `text2sql.phase.<phase_id>`，**`text2sql_phases_ms`** 为阶段累计快照）。**实现注意**：`handle_unified_chat` 与 **非增量** SSE（未协商 `CHATBI_SSE_INCREMENTAL`）路径须向 **`agent.run(..., run_id=...)`** 传入与响应体/SSE 首包相同的 **`run_id`**，否则 **`CHATBI_JSON_LOG`** 不会在 Text2SQL 末行打点。**Ink-Brain**：`UnifiedChatPageClient` 于 **`meta`** 帧采用 **`payload.run_id`** 并回填本轮 **`user.message`**，使导出的 Timeline 与上述 **`run_id`** 一致（留档 `P0/阶段B-验收-1.md`）。  
 3. **门禁**：§2.2 完成 → **stage_b_done**；主任务单勾选 **（B）** 项。
 
 ### 3.5 最终验收与关单
@@ -106,6 +106,7 @@
 
 - pytest 命令与通过摘要  
 - 一段脱敏 JSON 日志（含 `run_id` + `text2sql_phases_ms`）  
+- **C 留证（可选但与验收 agent 口径一致）**：浏览器 Unified Chat **导出 Timeline**，与 **§3.4** 同一会话的 **`meta`/`done`/`tool.call.end`** 及文首 **R** 对读 `run_id`（及 v1 下 `request_id`），口径见 **`docs/spec/v3-agent/P0/阶段B-验收-1.md`**  
 - 契约版本号与 PR 链接（可选）
 
 ---
@@ -118,6 +119,7 @@
 | 2026-05-11 | 阶段 A 实现：`text2sql_phases_ms`、`text2sql.phase.*` SSE、分阶段 timeout、确定性总结迁入 `text2sql_core`；manifest + contract_check 纳入 `tools.py` | 本 PR |
 | 2026-05-11 | **阶段 A 中间验收归档**：§1 A1–A6、§2.1 已勾选；留档见 `docs/spec/v3-agent/P0/阶段A-中间验收.md`（成功路径）、`…/阶段A-中间验收-超时.md`（抽检；文首注明 **Supabase/外网易超时**）；自动化：`tools/tech_graph_contract_check.py` 绿、`pytest` 本单相关子集绿（命令与摘要见实现 PR / 团队笔记） | `stage_a_done` |
 | 2026-05-11 | **阶段 B（P0-2）**：`CHATBI_JSON_LOG` → `api/chatbi_json_log.py` 单行 JSON；`text2sql_phase_end` / `text2sql_tool_call_end` 带 **`request_id`/`run_id`/`session_id`** 与 **`text2sql_phases_ms`**；`pytest tests/test_chatbi_json_log.py`；`PROJECT_CONFIG` + `.env.example` | `stage_b_done` |
+| 2026-05-11 | **§3.4 增补**：B 真请求须 **带鉴权**；`unified_chat` 批 JSON + **非增量** SSE 向 **`agent.run` 补传 `run_id`**，与增量路径一致，保证 **`text2sql_tool_call_end`** 可 grep | 验收留证缺口 / 实现对齐 |
 | 2026-05-11 | **阶段 B 正式验收归档**：人工留档 `docs/spec/v3-agent/P0/阶段B-验收.md`、`…/阶段B-验收-1.md`（run_id 对齐说明）；前端 `UnifiedChatPageClient` meta 回填；**§2.3 + C1/C2** 收口；任务单与 RUNBOOK **`git mv` → `docs/tasks/done/`** | `stage_b_archived` → `ready_for_close` |
 
 ---
