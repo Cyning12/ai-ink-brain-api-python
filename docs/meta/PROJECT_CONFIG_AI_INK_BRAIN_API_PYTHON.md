@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-11（V3 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
+> **最后校准**：2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` 结构化日志；同日 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -61,6 +61,7 @@
 | `CHATBI_SSE_INCREMENTAL` | Unified Agent 流式是否 **边执行边 emit**（vNext） | 可选 | `api/unified_chat.py`（规划） | 默认 **`true`**（vNext 落地后）；`false` 时 **强制** `await run` 后批量 replay，**忽略** `X-ChatBI-Sse-Contract: 2` 的增量语义（仍须安全）；组合真值见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` **§9** | 与项目无关 |
 | `CHATBI_SSE_EMIT_QUEUE_MAX` | G2 路径 `emit → asyncio.Queue` 的 **maxsize**（有界缓冲）；队列满时先发 **`agent.llm.truncated`**（`reason=backpressure`）再阻塞入队（vNext §4.3） | 可选 | `api/unified_chat.py` | 默认 **`512`**；合法范围 clamp 为 **`8`～`8192`**；单测可调低以验证背压 | 与项目无关 |
 | `CHATBI_V2_DEBUG_LLM_PROMPTS` | V2 Unified：SSE/JSON 是否附带完整 LLM messages（`agent.debug.llm_prompts` 等） | 可选 | `api/unified_chat.py:_debug_llm_prompts_enabled()` | `1`/`true`/`yes`/`on` 开启；与请求体 **`debug_llm_prompts: true`** 任一满足即生效；含 system 指令，生产慎用 | 与项目无关 |
+| `CHATBI_JSON_LOG` | V3 P0-2：是否输出 **单行 JSON** 结构化日志（`chatbi.obs`：`text2sql_phase_end` / `text2sql_tool_call_end`；根字段含 **`request_id`/`run_id`**，与 SSE `meta.run_id` 对齐；**`text2sql_phases_ms`** 与 `ToolResult.data` 同形） | 可选 | `api/chatbi_json_log.py`、`api/tools.py::text2sql_execute`、`api/agent.py`（`ChatBIAgent`） | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启；见 `SPEC-ChatBI-V3-Logging-Trace.md` | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
 | `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `Qwen/Qwen2.5-7B-Instruct` | 与项目无关 |

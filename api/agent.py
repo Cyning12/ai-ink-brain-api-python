@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
+from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
 from .intent_agent import IntentDecision, decide_intent_v2
 from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
@@ -630,6 +631,9 @@ class ChatBIAgent:
                         )
                     )
             # tool.call.end 在 emit 路径下由本处与 execute 结果一并下发
+            _t2s_json_ctx: dict[str, Any] | None = None
+            if run_id:
+                _t2s_json_ctx = {"request_id": run_id, "run_id": run_id, "session_id": session_id}
             if current_tool == "text2sql_query":
                 current_tool_result = await tool.execute(  # type: ignore[call-arg]
                     query,
@@ -637,6 +641,7 @@ class ChatBIAgent:
                     debug_llm_prompts=debug_llm_prompts,
                     chain_emit=emit,
                     chain_started_at=ts_ref if emit is not None else None,
+                    json_log_ctx=_t2s_json_ctx,
                 )
             else:
                 current_tool_result = await tool.execute(  # type: ignore[call-arg]
@@ -646,6 +651,23 @@ class ChatBIAgent:
                 )
 
             tools_used.append(current_tool)
+
+            if current_tool == "text2sql_query" and chatbi_json_log_enabled() and run_id:
+                _dlog = current_tool_result.data if isinstance(current_tool_result.data, dict) else {}
+                _phlog = _dlog.get("text2sql_phases_ms") if isinstance(_dlog.get("text2sql_phases_ms"), dict) else None
+                log_chatbi_record(
+                    message="text2sql_tool_call_end",
+                    request_id=run_id,
+                    run_id=run_id,
+                    session_id=session_id,
+                    route="agent",
+                    mode="text2sql",
+                    tool="text2sql_query",
+                    latency_ms=current_tool_result.latency_ms,
+                    text2sql_phases_ms=_phlog,
+                    error_code=current_tool_result.error_code,
+                    step_number=step_idx,
+                )
 
             if emit is not None:
                 _out_ans0: str | None = None

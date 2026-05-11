@@ -72,13 +72,14 @@
 
 - [x] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
 - [x] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）
-- [ ] **（B · 最终）** JSON 日志贯通 **`request_id` + `run_id`**；含 **`text2sql_phases_ms`** 的日志行与 **同一 `run_id`** 的 SSE/会话可对齐；子阶段日志可带 **`subphase_id` = `text2sql.phase.<phase_id>`**（见 L1 Logging-Trace）
+- [x] **（B · 最终）** JSON 日志贯通 **`request_id` + `run_id`**；含 **`text2sql_phases_ms`** 的日志行与 **同一 `run_id`** 的 SSE/会话可对齐；子阶段日志可带 **`subphase_id` = `text2sql.phase.<phase_id>`**（见 L1 Logging-Trace；开关 **`CHATBI_JSON_LOG`**，`api/chatbi_json_log.py`）
 - [ ] **（最终）** `text2sql_execute` 对可判定聚合结果走 **确定性总结**，减少无谓 `llm_summarize`
 - [ ] **（最终）** `_tech_graph/11_flow_text2sql.md` / `.ai.md` 与实现一致
 
 ## 实现备忘（回填）
 
 - 由 V3 负责 Agent 回填：涉及文件列表、SSE manifest、环境变量表（`PROJECT_CONFIG`）
+- P0-2 日志：`api/chatbi_json_log.py`；`api/tools.py::text2sql_execute`（`json_log_ctx` + `text2sql_phase_end`）；`api/agent.py`（`text2sql_tool_call_end`）；`tests/test_chatbi_json_log.py`
 
 ---
 

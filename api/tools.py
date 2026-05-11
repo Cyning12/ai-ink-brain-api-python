@@ -393,6 +393,7 @@ async def text2sql_execute(
     debug_llm_prompts: bool = False,
     chain_emit: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
     chain_started_at: float | None = None,
+    json_log_ctx: dict[str, Any] | None = None,
 ) -> ToolResult:
     started_at = time.perf_counter()
     phases_ms: dict[str, int] = {}
@@ -429,9 +430,25 @@ async def text2sql_execute(
     async def _emit_phase_end(phase_id: str, t0: float) -> None:
         ms = max(0, int((time.perf_counter() - t0) * 1000))
         phases_ms[phase_id] = ms
+        sid = f"text2sql.phase.{phase_id}"
+        if json_log_ctx:
+            from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
+
+            if chatbi_json_log_enabled():
+                log_chatbi_record(
+                    message="text2sql_phase_end",
+                    request_id=json_log_ctx.get("request_id"),
+                    run_id=json_log_ctx.get("run_id"),
+                    session_id=json_log_ctx.get("session_id"),
+                    route="agent",
+                    mode="text2sql",
+                    tool="text2sql_query",
+                    subphase_id=sid,
+                    phase_id=phase_id,
+                    text2sql_phases_ms=dict(phases_ms),
+                )
         if chain_emit is None or chain_started_at is None:
             return
-        sid = f"text2sql.phase.{phase_id}"
         await chain_emit(
             _t2sql_chain_dict(
                 "text2sql.phase.end",
