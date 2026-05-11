@@ -10,6 +10,7 @@
 - **背景会话**：多轮追问下 `text2sql_query` 的 `tool.call.start` → `tool.call.end` 间隔可达百秒级，期间无 SSE，体感「卡在 step5→step6」
 - **关联代码**：`api/agent.py`（工具事件边界）、`api/tools.py::text2sql_execute`、`api/text2sql_core.py`、`api/text2sql_api.py`（聚合快路径参考）
 - **图谱**：`_tech_graph/11_flow_text2sql.md`（确定性总结分支与 Agent 路径对齐）
+- **执行计划 · Checklist · 验收流程**（过程文档，随迭代同步更新）：[`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md)
 
 ## 拍板（2026-05-11 · 产品 / 架构）
 
@@ -65,7 +66,8 @@
 
 ## 验收标准（V3 开工时勾选）
 
-> **节奏**：**阶段 A（P0-1+3）** 可先勾选下列 **A** 项做中间验收；**阶段 B（P0-2）** 完成后勾选 **B** 项；**最终** 须 **A+B** 全勾满再宣称总规 P0 本单验收完成。
+> **节奏**：**阶段 A（P0-1+3）** 可先勾选下列 **A** 项做中间验收；**阶段 B（P0-2）** 完成后勾选 **B** 项；**最终** 须 **A+B** 全勾满再宣称总规 P0 本单验收完成。  
+> **验收流程细则**（角色、门禁顺序、阶段入口/出口、留档建议）：见 [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) **§3**。
 
 - [ ] **（A · 中间）** 多轮 Text2SQL 具备 **SSE 子阶段事件** + **`ToolResult`（或等价）上 `text2sql_phases_ms`**，进行中可区分等模型 / 查库
 - [ ] **（A · 中间）** LLM 调用具备 **分阶段 timeout**（env 见 **§拍板 #5**）与 **`LLM_API_TIMEOUT`**（及可区分 `detail.phase` 若已有）

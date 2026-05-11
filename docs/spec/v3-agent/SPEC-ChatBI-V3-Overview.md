@@ -99,7 +99,7 @@
 | 任务文件 | 元状态（以任务单头部为准） | 职责摘要 |
 |----------|---------------------------|----------|
 | `docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V2 收口后的 **规划入口**、迭代顺序、从 Gap 抽切片 |
-| `docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `backlog` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算 |
+| `docs/tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `backlog` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/active/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 已交付之外的 **多轮 / 值域** 欠债（澄清、同义词、DISTINCT 节能可选、图谱） |
 
 **不在上表但可能并行**：V2 **增量 SSE vNext**（`docs/spec/v2-agent/SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`）属 **交互契约升级**，排期可与 V3 支柱 **并行**；若实现触碰 `chain.type` 扩展，仍须满足 `tools/tech_graph_contract_check.py` 与「manifest 同 PR」规则。

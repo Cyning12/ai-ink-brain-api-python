@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-11（`CHATBI_SSE_EMIT_QUEUE_MAX`：G2 增量 emit 队列上限 / 背压 truncated）；同日前（`task_chatbi_v2_text2sql_multiturn_grounding_v1.md` · **B-PR2**：`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1：`TEXT2SQL_VALUE_HINTS_*`）；再前 2026-05-07（P1-D）；再前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
+> **最后校准**：2026-05-11（V3 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -88,6 +88,10 @@
 | `TEXT2SQL_DISTINCT_COLUMNS` | allowlist：`schema.table.column`，英文逗号分隔 | 可选 | `api/text2sql_value_hints.py:parse_distinct_allowlist()` | 例：`public.agent_info.gender`；仅 `[A-Za-z0-9_]` 段接受 | 与样例库表一致 |
 | `TEXT2SQL_DISTINCT_MAX_PROBES` | 单次请求最多执行的探针次数 | 可选 | `api/text2sql_value_hints.py:_distinct_max_probes()` | 默认 `8`； clamp `1..32` | 与项目无关 |
 | `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` | 单条探针 SQL 的 `statement_timeout`（毫秒） | 可选 | `api/text2sql_value_hints.py:_distinct_statement_timeout_ms()` | 留空则不设置；有值时经 `execute_select_sql(..., statement_timeout_ms=)` 注入 `SET LOCAL` | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` | Text2SQL **两段 LLM**（生成 SQL / 总结）共用的 **HTTP 超时秒数**兜底 | 可选 | `api/text2sql_core.py` 等（V3 实现 PR 回填精确调用点） | **未设**时代码默认 **`120.0`**；当 **`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`** 已分别设置时，本变量仅作二者缺省时的回退 | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` | `llm_generate_sql` 上游 **timeout**（秒） | 可选 | 同上 | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 上游 **timeout**（秒） | 可选 | 同上 | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py` / `api/text2sql_core.py`（V3 实现 PR 回填） | **未设置或仅空白**时，与 **Intent** 生效模型一致（即 `INTENT_LLM_MODEL` 的读取与默认 `Qwen/Qwen2.5-7B-Instruct`，以 `api/intent_agent.py` 为准，实现须复用同一解析避免漂移） | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 
