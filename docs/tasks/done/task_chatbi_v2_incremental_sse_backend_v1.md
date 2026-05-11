@@ -1,6 +1,7 @@
 # 实现 ChatBI V2 执行期增量 SSE 与 LLM 子步流式（后端 v1）
 
-**状态**：待排期（契约与验收以 **`SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` 终稿** + **`SPEC-ChatBI-V2-Events.md` §8** 为准）  
+**状态**：**已验收归档**（2026-05-11；`pytest` / `tech_graph_contract_check`、前后端联调通过）  
+**归档自**：`docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`  
 **范围**：仅 `ai-ink-brain-api-python`（`api/unified_chat.py`、`api/agent.py` 及 LLM 调用链；契约与 CI）  
 **关联图谱**：`docs/_tech_graph/` 中与 unified chat 相关条目（落地后增量更新）  
 **关联 SPEC / 真值**：
@@ -8,9 +9,9 @@
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` — §0 执行顺序、§5 契约、§7 验收、§9 矩阵  
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Events.md` — **§8**（Legacy 与 `agent.llm.*`）  
 - `docs/_tech_graph/_contract_manifest.json` — **须与 `unified_chat.py` 同一 PR** 追加 `agent.llm.*`（见 manifest `_note`）  
-- `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` — `CHATBI_SSE_INCREMENTAL`、`CHATBI_V2_DEBUG_LLM_PROMPTS`（与增量契约**独立**：前者控「边跑边 emit」，后者控 **LLM messages** 调试事件；delta 全文日志见 vNext **§8.6**）
+- `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` — `CHATBI_SSE_INCREMENTAL`、`CHATBI_V2_DEBUG_LLM_PROMPTS`、`CHATBI_SSE_EMIT_QUEUE_MAX`（与增量契约**独立**：前者控「边跑边 emit」，后者控 **LLM messages** 调试事件；delta 全文日志见 vNext **§8.6**）
 
-**配对前端任务**：`ai-ink-brain/content/tasks/active/task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`
+**配对前端任务**：`ai-ink-brain/content/tasks/done/task_frontend_unified_chat_streaming_sse_v1.md`（及 `task_chatbi_v2_incremental_sse_timeline_frontend_v1.md`）
 
 > **真值层级**：本单是**索引 + 后端落点**；**payload 最小键、§7.1 首条有意义 `chain` 白名单、背压字段、失败路径、§9.2 矩阵**以 vNext / Events **现行终稿**为准。若开工后发现 SPEC 与代码冲突，**走 SPEC 修订 PR**，不在本任务单内「口头改契约」。
 
@@ -32,7 +33,7 @@
 
 ## 开工门槛（前置）
 
-- **最小子集**：前端仓 **`ai-ink-brain/content/tasks/active/task_frontend_unified_chat_streaming_sse_v1.md`** — **BFF `/api/py/unified/chat/stream` body 透传** + 前端能 **分帧解析** `chain`/`done` 即可并行设计后端；**合并 vNext 行为**前须 E2E 可联调。  
+- **最小子集**：前端仓 **`ai-ink-brain/content/tasks/done/task_frontend_unified_chat_streaming_sse_v1.md`** — **BFF `/api/py/unified/chat/stream` body 透传** + 前端能 **分帧解析** `chain`/`done` 即可并行设计后端；**合并 vNext 行为**前须 E2E 可联调。  
 - **契约头**：前端须发 **`X-ChatBI-Sse-Contract: 2`**（见 vNext §11）；本任务实现 **读取该头** 分支增量 vs 批量 replay。
 
 ---
@@ -64,7 +65,7 @@
 |----|------|
 | `unified_chat` | 增量 emit；`X-ChatBI-Sse-Contract` 非 `2` 或缺省 → **批量 replay**；`CHATBI_SSE_INCREMENTAL=false` → 批量。 |
 | `ChatBIAgent` | 接入 **G2 emit**；凡走 **chat/completion 类**且影响 Timeline 的 Intent / RAG / Text2SQL / Direct 等 LLM 步，须产出 **`agent.llm.*`**（**不**含仅 embedding、无 SSE `chain` 的内部调用；边界以 **Events §8** + vNext **§5.2** 为准）。 |
-| 背压 | 触顶发 **`agent.llm.truncated`**（字段 vNext §5.2 / §4.3）。 |
+| 背压 | 触顶发 **`agent.llm.truncated`**（字段 vNext §5.2 / §4.3）；队列满 **`reason=backpressure`**（见 `CHATBI_SSE_EMIT_QUEUE_MAX`）。 |
 | 日志 | **默认**不落 delta 全文（vNext **§8.6**）；与 **`CHATBI_V2_DEBUG_LLM_PROMPTS`** 无关，后者见 `PROJECT_CONFIG` 表。 |
 
 ### 非范围
@@ -94,10 +95,10 @@
 
 ## 验收标准（可勾选）
 
-- [ ] 满足 vNext **§7.1**（mock）+ **§7.5**（契约 + 至少一条 mock delta 路径）。  
-- [ ] **§9 矩阵** 单元或集成测试覆盖 **≥2 个** 代表格，且**须包含** vNext **§9.2** 两格：**`CHATBI_SSE_INCREMENTAL=true` + 头 `2` → 增量**；**同 env + 无/`0`/`1` 头 → 批量**。若将来 SPEC 为矩阵加维，以 vNext 修订为准扩测；本子任务**不**强制 `CHATBI_USE_AGENT=false` 格。  
-- [ ] **`_contract_manifest.json`** 与 Events **§8**、实现 **同一 PR**；`python tools/tech_graph_contract_check.py` **通过**。  
-- [ ] **pytest** 与既有 CI 通过。
+- [x] 满足 vNext **§7.1**（mock）+ **§7.5**（契约 + 至少一条 mock delta 路径）。  
+- [x] **§9 矩阵** 单元或集成测试覆盖 **≥2 个** 代表格，且**须包含** vNext **§9.2** 两格：**`CHATBI_SSE_INCREMENTAL=true` + 头 `2` → 增量**；**同 env + 无/`0`/`1` 头 → 批量**。若将来 SPEC 为矩阵加维，以 vNext 修订为准扩测；本子任务**不**强制 `CHATBI_USE_AGENT=false` 格。  
+- [x] **`_contract_manifest.json`** 与 Events **§8**、实现 **同一 PR**；`python tools/tech_graph_contract_check.py` **通过**。  
+- [x] **pytest** 与既有 CI 通过。
 
 ---
 
@@ -110,6 +111,15 @@
 - 实际选型（若偏离 G2）：**G2**（`ChatBIAgent.run(..., emit=)` → `asyncio.Queue`，`unified_chat` 消费队列边 `yield`；背压见 `CHATBI_SSE_EMIT_QUEUE_MAX`）  
 - 修改文件列表：`api/unified_chat.py`、`tests/test_unified_chat_sse_incremental_vnext.py`、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（`CHATBI_SSE_EMIT_QUEUE_MAX`）  
 - `assistant.message` 失败路径用例（**空** / **部分** / **错误全文** 中本轮选定的 **fixture 组合**）：**空（无 `assistant.message` 帧）** — `tests/test_unified_chat_sse_incremental_vnext.py::test_sse_incremental_agent_run_raises_error_without_assistant_message`（`run` 抛错 → `error` chain + `done.ok=false`）；背压：`::test_sse_incremental_queue_backpressure_emits_truncated`  
+
+---
+
+## 归档记录（验收收口）
+
+| 项 | 说明 |
+|----|------|
+| 归档日 | 2026-05-11 |
+| 前端联调 | Unified Chat 非一次性 SSE、Text2SQL 等路径人测通过（见前端 `content/tasks/done/task_frontend_unified_chat_streaming_sse_v1.md`） |
 
 ---
 
