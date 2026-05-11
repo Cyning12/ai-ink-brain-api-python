@@ -5,7 +5,7 @@
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（L1–L4 分层、§3 指代与 rewrite、§4 结构化上下文）  
 > **父任务索引**：`docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 总览，**已归档**；本子任务可视为其下「多轮 + Text2SQL 真值」专项）  
 > **真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（环境变量与路由以该文件为准，本文不复制）  
-> **关联（V2 可观测 / RAG 改写 / LLM Prompt）**：`docs/tasks/active/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`
+> **关联（V2 可观测 / RAG 改写 / LLM Prompt）**：`docs/tasks/done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`
 
 ---
 

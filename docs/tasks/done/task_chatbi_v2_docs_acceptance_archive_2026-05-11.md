@@ -49,6 +49,7 @@
 | `docs/tasks/done/task_chatbi_v2_agent_p1_eval_benchmark_v1.md` | P1-Eval |
 | `docs/tasks/done/task_chatbi_v2_agent_p1c_intent_cache_observability_v1.md` | P1-C |
 | `docs/tasks/done/task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` | P1-D |
+| `docs/tasks/done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md` | RAG 改写上链 + LLM Prompt 可观测（2026-05-11 归档） |
 
 ### 3.2 仍位于 **`docs/tasks/active/`**（推进中 / 排期 / V3）
 
@@ -56,7 +57,6 @@
 |------|------|
 | `task_chatbi_v2_acceptance_runner_v1.md` | **L0–L7 执行引导 + §2.9 勾选** |
 | `task_chatbi_v2_incremental_sse_backend_v1.md` | 增量 SSE 后端（待排期） |
-| `task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md` | Timeline / prompt 捕获 |
 | `task_chatbi_v2_text2sql_multiturn_grounding_v1.md` | Text2SQL 多轮 grounding |
 | `task_chatbi_v3_planning_after_resume_v1.md` | V3 规划入口 |
 | `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | V3 Text2SQL 延迟与可观测 |
