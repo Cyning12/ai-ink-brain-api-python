@@ -21,7 +21,7 @@
 
 ### 0.1 建议首包（P1-4 入口）
 
-**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：[`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）。
+**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：后端 [`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](./task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)（`todo`）；前端 **Ink-Brain** `content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`（`pending`，**新 `chain.type` 须前后端同 PR + manifest**）。
 
 ---
 
