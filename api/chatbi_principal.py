@@ -191,6 +191,14 @@ def _resolve_principal_sync(authorization: str | None, *, request_id: str | None
     return principal
 
 
+def resolve_chatbi_from_plain_token(plain: str, *, request_id: str | None = None) -> ChatBiPrincipal:
+    """非 Depends 场景（如 RAG history 双轨鉴权）：明文 token → 与 Unified 相同的 DB 校验链。"""
+    t = plain.strip()
+    if t.lower().startswith("bearer "):
+        t = t[7:].strip()
+    return _resolve_principal_sync(f"Bearer {t}" if t else None, request_id=request_id)
+
+
 async def require_chatbi_principal(
     authorization: str | None = Header(default=None),
     x_request_id: str | None = Header(default=None, alias="x-request-id"),

@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` 结构化日志；同日 P0 Text2SQL：`CHATBI_TEXT2SQL_*` timeout / summary 模型，见 `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` §拍板）；同日前（`CHATBI_SSE_EMIT_QUEUE_MAX` …）；同日前（`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1）；再前 2026-05-07（P1-D）；再前 2026-04-28（T1）
+> **最后校准**：2026-05-12（`GET /api/py/chatbi/access/verify` 探活；`GET /api/py/chat/history` 支持 **`X-ChatBI-Access-Token`** 与 `_require_rag_history_auth`；`resolve_chatbi_from_plain_token`）；此前 2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` …）；再前见下文历史行
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -136,7 +136,8 @@
 |---|---|
 | `GET /api/py/health` | 健康检查 |
 | `POST /api/py/chat` | **流式** `text/plain`；检索 hybrid；失败降级策略见下 |
-| `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs` |
+| `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs`；**鉴权**：Ink admin（`_require_auth`）**或**请求头 **`X-ChatBI-Access-Token`**（DB 明文，与 Next BFF 对齐；实现见 `api/index.py::_require_rag_history_auth`） |
+| `GET /api/py/chatbi/access/verify` | ChatBI 明文 token **探活**（JSON：`ok` / `access_level` / `principal_kind` / `token_id`）；**鉴权**：与 Unified 相同，**仅** `Authorization: Bearer <明文>` → `require_chatbi_principal` |
 | `POST /api/py/admin/ingest` | 同步扫描内容并写入 `documents`（重删再插策略） |
 | `POST /api/py/admin/sync` + `GET /api/py/admin/sync?jobId=` | 异步任务（内存队列，serverless 不保证持久） |
 | `POST /api/py/unified/chat` | Unified 非流式：`events[]` JSON；字段与锚点以 **`docs/_tech_graph/_contract_manifest.json`** 为准；**鉴权**：仅 **`Authorization: Bearer`** + `public.chatbi_access_tokens`（见 `api/chatbi_principal.py`），**不再**接受与 Legacy 相同的 `API_KEY` 明文并行校验 |

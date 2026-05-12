@@ -4,7 +4,7 @@
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access.md`、`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md`（**§一、§五**）  
 > **关联安全子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md`（AST / 表白名单）  
 > **关联真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`  
-> **前端依赖**：无（首期仅后端 Bearer；Ink 仅透传 Header 即可）
+> **前端依赖**：Next BFF 已可对 Unified / verify / `chat/history` **不再绑 Ink env secret**，仅透传 **`X-ChatBI-Access-Token`**（详见姊妹仓任务与 `PROJECT_CONFIG` §F）；**Python 本任务**仍只需保证 Bearer / header 与 `chatbi_access_tokens` 一致。
 
 > 落盘规则：验收通过后状态改为 `done` 并 `git mv` 至 `docs/tasks/done/`（与仓库既有任务规范一致）。
 
@@ -46,6 +46,7 @@
 | 依赖项 | 路径/说明 |
 |--------|-----------|
 | 姊妹规（等级语义 + P0–P5） | `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` |
+| HTTP 探活（联调 / 假登录） | `GET /api/py/chatbi/access/verify`（`api/index.py::chatbi_access_verify`）；RAG 历史双轨见 `api/index.py::_require_rag_history_auth` |
 | SQL 脚本（Supabase 可复制） | `docs/text2sql/v1/sql/chatbi_01_access_tokens.sql` |
 | | `docs/text2sql/v1/sql/chatbi_02_sql_table_policy.sql` |
 | | `docs/text2sql/v1/sql/chatbi_03_seed_table_policy_demo.sql`（**可选**，演示种子） |
