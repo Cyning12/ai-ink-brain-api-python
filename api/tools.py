@@ -465,15 +465,19 @@ async def text2sql_execute(
                 )
         if chain_emit is None or chain_started_at is None:
             return
-        payload: dict[str, Any] = {"subphase_id": sid, "phase_id": phase_id, "latency_ms": ms}
-        if chain_extra:
-            payload.update(chain_extra)
+        # 第四参数须为字面量 `{...}`：`tech_graph_contract_check` 用「type 串后首个 `{`」扫 payload 键；
+        # 若传变量名，会误扫到下方 `chain_pf = {` 的 schema_* 键并漏掉 latency/phase 键。
         await chain_emit(
             _t2sql_chain_dict(
                 "text2sql.phase.end",
                 chain_started_at,
                 sid,
-                payload,
+                {
+                    "subphase_id": sid,
+                    "phase_id": phase_id,
+                    "latency_ms": ms,
+                    **(chain_extra or {}),
+                },
             )
         )
 

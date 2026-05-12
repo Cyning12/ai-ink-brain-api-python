@@ -149,6 +149,7 @@ def build_sql_prompt(
     *,
     dialogue_context: str | None = None,
     value_hints_block: str | None = None,
+    prefetched_schema_block: str | None = None,
     chatbi_access_level: int | None = None,
     chatbi_subject_user_id: str | None = None,
 ) -> str:
@@ -167,6 +168,18 @@ def build_sql_prompt(
         if ctx
         else ""
     )
+    pfb = (prefetched_schema_block or "").strip()
+    pref_block = ""
+    if pfb:
+        pref_block = "\n\n".join(
+            [
+                "【系统预取表结构（列名以数据库为准）】",
+                "以下列名由系统只读查询 information_schema 拉取，**须逐列使用**；不得臆造未列出的字段。",
+                "若与上方 DDL 片段冲突，以本段为准。",
+                pfb,
+            ]
+        ).strip()
+
     parts: list[str] = [
         "你是 Text2SQL 生成器。请根据用户问题生成可在 Postgres(Supabase) 执行的 SQL。",
         "硬性约束：",
@@ -176,8 +189,10 @@ def build_sql_prompt(
         "- 尽量使用 snake_case 小写表/字段名。",
         "",
         f"【可用表结构(DDL)】\n{ddl}".strip(),
-        f"【示例问答与SQL】\n{examples}".strip(),
     ]
+    if pref_block:
+        parts.append(pref_block)
+    parts.append(f"【示例问答与SQL】\n{examples}".strip())
     if vh:
         parts.append(vh)
     if ctx_block:

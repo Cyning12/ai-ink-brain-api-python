@@ -19,8 +19,14 @@ flowchart TD
   INT --"[text2sql]"--> RET[[text2sql_store.search()]]
   // → api/text2sql_store.py
 
-  RET --"->"--> PROMPT[[build_sql_prompt()]]
-  // → api/text2sql_core.py
+  RET --"->"--> PF[[run_text2sql_schema_prefetch_sync]]
+  // → api/text2sql_schema_prefetch.py
+
+  PF --"?>[ok|skip]"--> PROMPT[[build_sql_prompt()]]
+  PF --"?>[err]"--> ERR_PF[>TEXT2SQL_SCHEMA_PREFETCH_FAILED]
+  // → api/tools.py::text2sql_execute / api/unified_chat.py
+
+  ERR_PF --"->"--> OUT1[[errors.generate_sql]]
 
   PROMPT --"->"--> GEN[[async def llm_generate_sql]]
   // → api/text2sql_core.py
@@ -68,12 +74,14 @@ flowchart TD
   classDef milestone fill:#fff8e1,stroke:#e65100,stroke-width:2px;
   classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 
-  class IN,AUTH,INT,RET,PROMPT,GEN,VAL,EXEC,DET,SUM,OUT,OUT0,OUT1,OUT2 phase
+  class IN,AUTH,INT,RET,PF,PROMPT,GEN,VAL,EXEC,DET,SUM,OUT,OUT0,OUT1,OUT2 phase
   class DB,LOG data
   class SPEC milestone
-  class ERR_AUTH,OUT1,ERR_VALIDATE,ERR_EXEC,ERR_DSN err
+  class ERR_AUTH,OUT1,ERR_PF,ERR_VALIDATE,ERR_EXEC,ERR_DSN err
 ```
 
 **V2 多轮锚点（2026-05-09）**：`tool_results.text2sql_grounding` → `agent_memory.load` → `history_to_rewrite_block` / Intent assistant 前缀；实现见 `api/text2sql_grounding.py`、`api/unified_chat.py::_text2sql_grounding_from_agent_result`。
 
 **V3 P0 Agent（2026-05-11）**：`api/tools.text2sql_execute` 产出 `text2sql_phases_ms`、可选增量 `text2sql.phase.start|end`（`api/agent.py` 注入 `chain_emit`）、LLM 分阶段 `wait_for` 超时；**P0-2**：`CHATBI_JSON_LOG` → `api/chatbi_json_log.py` 单行 JSON（与 SSE **`run_id`** 同源）；人类版说明见同目录 `11_flow_text2sql.md` §V3 P0。
+
+**V3 P0-3 结构预取（2026-05-12）**：写入/更新意图且检索 DDL 列锚点不足时，`run_text2sql_schema_prefetch_sync` 只读查询 `information_schema.columns`（`TEXT2SQL_SCHEMA_PREFETCH` 可关），结果注入 `build_sql_prompt`；失败码 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`；SSE `text2sql.phase.schema_prefetch` / `tool`=`text2sql.schema_prefetch`；见 `api/text2sql_schema_prefetch.py`。

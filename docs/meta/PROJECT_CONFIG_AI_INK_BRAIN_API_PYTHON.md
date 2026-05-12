@@ -95,6 +95,9 @@
 | `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
 | `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py::text2sql_execute` | **未设置或仅空白**时，与 **Intent** 默认一致（`INTENT_LLM_MODEL` 默认 `Qwen/Qwen2.5-7B-Instruct`，与 `api/intent_agent.py` 对齐） | 与项目无关 |
 | `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN` | 多轮 `history_to_rewrite_block` 注入 `build_sql_prompt` 前的 **最大字符数**（超出保留尾部） | 可选 | `api/tools.py::text2sql_execute` | 默认 **`8000`**；`<=0` 表示不截断 | 与项目无关 |
+| `TEXT2SQL_SCHEMA_PREFETCH` | 写入/更新意图下是否在 LLM 生成前 **只读预取** `information_schema.columns` | 可选 | `api/text2sql_schema_prefetch.py::schema_prefetch_enabled()` | `0`/`false`/`no`/`off` 关闭；`1`/`true` 强制开启；**未设**时若已配置 **`TEXT2SQL_DATABASE_URL`** 则默认开启 | 依赖 `TEXT2SQL_DATABASE_URL` |
+| `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS` | 预取查询 `SET LOCAL statement_timeout`（毫秒） | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`8000`**；clamp `200..60000` | 与项目无关 |
+| `TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS` | 预取结果 `LIMIT` 上限 | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`2000`**；clamp `10..20000` | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 

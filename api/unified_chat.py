@@ -37,6 +37,7 @@ from .text2sql_core import (
 )
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .text2sql_grounding import build_text2sql_grounding_dict
+from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
 from .intent_agent import IntentDecision
 from .intent_router import decide_intent
@@ -1323,11 +1324,61 @@ async def handle_unified_chat(
         oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
         chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
 
+        events.append(
+            _event(
+                typ="tool.call.start",
+                started_at=started_at,
+                step_id="t_schema_prefetch",
+                payload={"tool": "text2sql.schema_prefetch", "input": {"query": query}},
+            )
+        )
+        t_pf0 = time.perf_counter()
+        pf_block, pf_err, pf_meta = await asyncio.to_thread(
+            run_text2sql_schema_prefetch_sync,
+            user_query=query,
+            retrieved=retrieved,
+            principal=principal,
+            policies=pols,
+        )
+        t_pf_ms = int((time.perf_counter() - t_pf0) * 1000)
+        events.append(
+            _event(
+                typ="tool.call.end",
+                started_at=started_at,
+                step_id="t_schema_prefetch",
+                payload={
+                    "output": pf_meta,
+                    "error": pf_err,
+                    "latency_ms": t_pf_ms,
+                    "tool": "text2sql.schema_prefetch",
+                },
+            )
+        )
+        if pf_err:
+            events.append(
+                _event(
+                    typ="error",
+                    started_at=started_at,
+                    step_id="e_schema_prefetch",
+                    payload={"stage": "text2sql.schema_prefetch", "message": pf_err},
+                )
+            )
+            events.append(
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
+            )
+            return finish(ok=False, mode=mode)
+
         # generate sql
         sql_prompt = build_sql_prompt(
             query,
             retrieved,
             value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+            prefetched_schema_block=pf_block,
             chatbi_access_level=principal.access_level,
             chatbi_subject_user_id=principal.subject_user_id,
         )
@@ -2592,11 +2643,52 @@ async def handle_unified_chat_stream(
                 oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
                 chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
 
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="tool.call.start",
+                        started_at=started_at,
+                        step_id="t_schema_prefetch",
+                        payload={"tool": "text2sql.schema_prefetch", "input": {"query": query}},
+                    ),
+                )
+                t_pf0 = time.perf_counter()
+                pf_block, pf_err, pf_meta = await asyncio.to_thread(
+                    run_text2sql_schema_prefetch_sync,
+                    user_query=query,
+                    retrieved=retrieved,
+                    principal=principal,
+                    policies=pols,
+                )
+                t_pf_ms = int((time.perf_counter() - t_pf0) * 1000)
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="tool.call.end",
+                        started_at=started_at,
+                        step_id="t_schema_prefetch",
+                        payload={"output": pf_meta, "error": pf_err, "latency_ms": t_pf_ms},
+                    ),
+                )
+                if pf_err:
+                    ok = False
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="error",
+                            started_at=started_at,
+                            step_id="e_schema_prefetch",
+                            payload={"stage": "text2sql.schema_prefetch", "message": pf_err},
+                        ),
+                    )
+                    return
+
                 # generate sql
                 sql_prompt = build_sql_prompt(
                     query,
                     retrieved,
                     value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+                    prefetched_schema_block=pf_block,
                     chatbi_access_level=principal.access_level,
                     chatbi_subject_user_id=principal.subject_user_id,
                 )

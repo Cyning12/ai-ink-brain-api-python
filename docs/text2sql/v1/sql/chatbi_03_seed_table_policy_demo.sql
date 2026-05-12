@@ -9,7 +9,8 @@
 -- - 下列策略仅为 **示例**，上线前按真实业务改 `min_*_level` / `owner_column`。
 -- - `public.agent_info`（supabase_init）**无** `user_id`，仅有 `agent_id`；本演示将 `owner_column` 设为 `agent_id`，
 --   表示「L2 时 subject_user_id 与 agent_id::text 对齐」——**仅演示**，真实业务请改为 `user_id` 等统一归属列。
--- - 使用 `ON CONFLICT DO UPDATE` 便于重复执行幂等。
+-- - 使用 `ON CONFLICT (schema_name, table_name) DO UPDATE` 便于重复执行幂等；
+--   **前提**：已执行 `chatbi_02_sql_table_policy.sql`，表上存在 `unique (schema_name, table_name)`。
 -- =============================================================================
 
 begin;
@@ -31,6 +32,8 @@ on conflict (schema_name, table_name) do update set
   min_update_level = excluded.min_update_level,
   min_delete_level = excluded.min_delete_level,
   owner_column = excluded.owner_column,
+  notes = excluded.notes;
+
 -- 肖像表：L2 可读可 UPDATE（INSERT 对全员关闭）；DELETE 关闭
 insert into public.chatbi_sql_table_policy (
   schema_name, table_name,
