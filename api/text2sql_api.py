@@ -16,6 +16,7 @@ from .text2sql_core import (
     is_text2sql_intent,
     llm_generate_sql,
     llm_summarize,
+    try_summarize_aggregate,
     validate_sql_readonly,
 )
 from .text2sql_store import get_text2sql_store
@@ -52,36 +53,6 @@ def _require_text2sql_auth(authorization: str | None, x_blog_admin_token: str | 
 def _t2s_debug(msg: str) -> None:
     if (os.getenv("TEXT2SQL_DEBUG") or "").strip().lower() in ("1", "true", "yes", "on"):
         print(f"[text2sql] {msg}", flush=True)
-
-
-def _try_summarize_aggregate(query: str, columns: list[str], rows: list[dict[str, Any]]) -> str | None:
-    """对 count/sum 等聚合结果做确定性总结，避免 LLM 把 0 行误判成“未查到数据”。
-
-    仅在结果形态极明确时生效：单行 + 单列数字。
-    """
-    if len(rows) != 1:
-        return None
-    if not rows[0] or len(rows[0]) != 1:
-        return None
-    (col, val), = rows[0].items()
-    if val is None:
-        return None
-    # psycopg 可能返回 Decimal/numpy 标量等，这里做宽松数值化
-    if isinstance(val, bool):
-        return None
-    try:
-        val_f = float(val)
-        val_i = int(val)
-    except Exception:  # noqa: BLE001
-        return None
-    name = (col or "").lower()
-    if name in ("count", "cnt", "total", "sum", "avg", "min", "max"):
-        # v1 先覆盖最常见 count 口径
-        if name in ("count", "cnt"):
-            return f"共有 {val_i} 条。"
-        # 其他聚合先保持简洁
-        return f"结果为 {val_f:g}。"
-    return None
 
 
 async def handle_text2sql_chat(
@@ -163,7 +134,7 @@ async def handle_text2sql_chat(
     answer = ""
     sum_err: str | None = None
     try:
-        agg = _try_summarize_aggregate(query, columns, rows) if rows else None
+        agg = try_summarize_aggregate(query, columns, rows) if rows else None
         if agg:
             answer = agg
         elif rows:

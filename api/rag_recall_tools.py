@@ -479,12 +479,23 @@ class StructuredRecallResult:
     date_norms: list[str]
 
 
-def structured_recall_by_date(sb: Any, *, query: str, rewritten: str, limit_rows: int = 6) -> StructuredRecallResult:
+def structured_recall_by_date(
+    sb: Any,
+    *,
+    query: str,
+    rewritten: str,
+    limit_rows: int = 6,
+    principal_kind: str | None = None,
+    access_level: int | None = None,
+    subject_user_id: str | None = None,
+) -> StructuredRecallResult:
     """
     结构化召回：优先按 metadata.date_norm / filename / slug / relativePath 精确匹配。
     - 不依赖 FTS 分词
     - 不依赖向量 embedding
+    - ChatBI P4：`principal_kind` / `access_level` / `subject_user_id` 仅占位，默认不改变召回结果。
     """
+    _ = (principal_kind, access_level, subject_user_id)
     date_norms = date_norm_candidates_for_structured(query) or date_norm_candidates_for_structured(rewritten)
     if not date_norms:
         return StructuredRecallResult(hits=[], date_norms=[])

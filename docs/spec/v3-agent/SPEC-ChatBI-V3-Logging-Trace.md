@@ -24,17 +24,17 @@
 
 ---
 
-## 3. JSON 日志形态（初版 — 实现 PR 填具体键名）
+## 3. JSON 日志形态（初版）
 
 - **根级**：`timestamp`（ISO8601）、`level`、`message`、`request_id`、`run_id`（可选）、`session_id`（可选）、`service`（固定如 `chatbi-api`）。  
-- **业务扩展**：`route`、`mode`（rag/text2sql/agent）、`tool`、`latency_ms`（整段或子阶段引用 P0-1 数据）、`error_code`（结构化错误时）。  
+- **业务扩展**：`route`、`mode`（rag/text2sql/agent）、`tool`、`latency_ms`（整段工具墙钟）、**`text2sql_phases_ms`**（与 `ToolResult.data` **同结构**的对象，单位 **ms**，键为 `retrieve` \| `llm_sql` \| `validate` \| `db` \| `llm_summary`）、**`subphase_id`**（可选，形如 `text2sql.phase.llm_sql`，与 SSE 子阶段对齐）、`error_code`（结构化错误时）。  
 - **隐私**：默认 **不落** LLM delta 全文、不落完整 SQL 参数值（与 vNext **§8.6** 及运维约定一致）；调试开关见 `PROJECT_CONFIG`。
 
 ---
 
 ## 4. 与 Text2SQL 可观测的协同
 
-P0-1 子阶段耗时 **写入** 日志时，须带同一 `run_id` / `step_id`（若 SSE 已发 `agent.step.*`），便于从 Timeline 跳到日志。
+P0-1 子阶段耗时 **写入** 日志时，须带同一 **`run_id`**；**`subphase_id` 建议** `text2sql.phase.<phase_id>`（与 Observability L1 一致），**不强制**与现有 `agent.step.*` 序号合并；排障以 `run_id` + `text2sql.phase.*` 为主键，避免与 Agent step 粒度不完全一一对应时的歧义。
 
 ---
 
@@ -50,3 +50,4 @@ P0-1 子阶段耗时 **写入** 日志时，须带同一 `run_id` / `step_id`（
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 初版子规 |
+| 2026-05-11 | 固定 **`text2sql_phases_ms` / `subphase_id`** 与 Text2SQL 可观测、任务单 **§拍板** 对齐 |

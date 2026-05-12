@@ -156,7 +156,7 @@
 2. ~~**L4** `curl` 与样本归档~~（**2026-05-10** 已回填 **§2.9**，diary 见 **`docs/diary/2026-05-10-l4-sse-acceptance-archive.md`**，SSE 文件在 **`tests/_out/`**）。  
 3. ~~**L5** / **L6** 按层验收~~（L5 见 **§2.6**；L6 见 **§2.7** 与 **`2026-05-10-l6-multiturn-ui-acceptance.md`**）。  
 4. ~~**L7** 运维 / 生产烟测~~（**2026-05-10** 已回填 **§2.9**，见 **`docs/diary/2026-05-10-l7-prod-acceptance.md`**）。  
-5. 后续：总规 **`SPEC-ChatBI-V2-Agent-Overview.md` §7** 正文勾选、Gap 清单与 **V3** 排期（如 **`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`**）。
+5. 后续：总规 **`SPEC-ChatBI-V2-Agent-Overview.md` §7** 正文勾选、Gap 清单与 **V3** 排期（如 **`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`**）。
 
 ---
 

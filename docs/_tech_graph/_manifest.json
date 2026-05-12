@@ -114,10 +114,21 @@
         "path": "api/index.py",
         "symbol": "unified_chat_stream_route"
       }
+    },
+    {
+      "method": "GET",
+      "path": "/api/py/chatbi/access/verify",
+      "handler": "chatbi_access_verify",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "chatbi_access_verify"
+      }
     }
   ],
   "supabase": {
     "tables": [
+      "chatbi_access_tokens",
+      "chatbi_sql_table_policy",
       "code_chunks",
       "documents",
       "rag_conversation_logs"
@@ -163,20 +174,42 @@
     "SILICONFLOW_EMBEDDING_DIMENSIONS",
     "SILICONFLOW_EMBEDDING_MODEL",
     "SSE_KEEPALIVE_INTERVAL_S",
+    "SUPABASE_HTTP_RETRIES",
+    "SUPABASE_HTTP_RETRY_BASE_DELAY_S",
+    "SUPABASE_INSERT_RETRIES",
+    "SUPABASE_INSERT_RETRY_BASE_DELAY_S",
     "SUPABASE_SERVICE_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL",
     "TEXT2SQL_DATABASE_URL",
     "TEXT2SQL_DB_CONNECT_TIMEOUT_S",
     "TEXT2SQL_DEBUG",
+    "TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN",
+    "TEXT2SQL_DISTINCT_COLUMNS",
+    "TEXT2SQL_DISTINCT_MAX",
+    "TEXT2SQL_DISTINCT_MAX_PROBES",
+    "TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS",
     "TEXT2SQL_FAISS_DIM",
     "TEXT2SQL_MAX_ROWS",
-    "TEXT2SQL_RETRIEVE_TOPK"
+    "TEXT2SQL_RETRIEVE_QUERY_MAX_LEN",
+    "TEXT2SQL_RETRIEVE_TOPK",
+    "TEXT2SQL_SCHEMA_PREFETCH",
+    "TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS",
+    "TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS",
+    "TEXT2SQL_VALUE_HINTS_PATH"
   ],
   "anchors": [
     {
       "path": "api/index.py",
       "symbol": "_require_auth"
+    },
+    {
+      "path": "api/index.py",
+      "symbol": "_require_rag_history_auth"
+    },
+    {
+      "path": "api/chatbi_principal.py",
+      "symbol": "resolve_chatbi_from_plain_token"
     },
     {
       "path": "api/rag_env.py",

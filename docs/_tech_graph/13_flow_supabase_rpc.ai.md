@@ -10,7 +10,7 @@ flowchart LR
   AUTH --"[ok]"--> POOL[(连接池)]
   AUTH --"[err]"--> ERR_AUTH[>Unauthorized/401]
   // → api/index.py::_require_auth
-  // → api/unified_chat.py::_require_unified_auth
+  // → api/index.py::unified_chat_route Depends(require_chatbi_principal)
   // → api/code_retrieval.py::_require_code_api_auth
 
   POOL --"[err]"--> ERR_NET[>Network/Timeout]

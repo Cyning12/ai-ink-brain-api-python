@@ -30,7 +30,10 @@ flowchart TD
   // → api/index.py#L434 health
 
   E --"GET /api/py/chat/history"--> H1[[Chat History]]
-  // → api/index.py#L439 chat_history
+  // → api/index.py chat_history
+
+  E --"GET /api/py/chatbi/access/verify"--> CV[[ChatBI Access Verify]]
+  // → api/index.py chatbi_access_verify
 
   E --"POST /api/py/chain/chat"--> CH[[Chain Timeline]]
   // → api/index.py#L546 chain_chat_route → api/chain_chat.py::handle_chain_chat
@@ -87,6 +90,7 @@ flowchart TD
 - `POST /api/py/chain/chat` → `chain_chat_route`  // → `api/index.py::chain_chat_route`
 - `POST /api/py/chat` → `chat`  // → `api/index.py::chat`
 - `GET /api/py/chat/history` → `chat_history`  // → `api/index.py::chat_history`
+- `GET /api/py/chatbi/access/verify` → `chatbi_access_verify`  // → `api/index.py::chatbi_access_verify`
 - `POST /api/py/code/query` → `code_query`  // → `api/index.py::code_query`
 - `POST /api/py/code/search` → `code_search`  // → `api/index.py::code_search`
 - `GET /api/py/health` → `health`  // → `api/index.py::health`
@@ -95,8 +99,10 @@ flowchart TD
 - `POST /api/py/unified/chat/stream` → `unified_chat_stream_route`  // → `api/index.py::unified_chat_stream_route`
 
 #### Anchors（from manifest）
+- `api/chatbi_principal.py::resolve_chatbi_from_plain_token`
 - `api/database_manager.py::SupabaseManager`
 - `api/index.py::_require_auth`
+- `api/index.py::_require_rag_history_auth`
 - `api/ingest_pipeline.py::process_markdown_files`
 - `api/rag_env.py::admin_secret`
 - `api/rag_env.py::pick_supabase_service_key`

@@ -1,6 +1,12 @@
 /*
  Navicat MySQL Data Transfer
 
+ **Postgres 注意**：本文件为 **MySQL 8** 方言（反引号、`datetime` 等），用于归档/迁移参考。
+ 若在 **Supabase/Postgres** 上建样例表与数据，请使用 **`supabase_init.sql`**（`public.agent_info` snake_case）。
+ 若要对 `agent_info` 使用 **`INSERT ... ON CONFLICT (agent_id)`**，须先有唯一约束，见：
+ **`docs/text2sql/v1/sql/agent_info_postgres_upsert_prereq.sql`**。
+ **做法一（单 TEXT2SQL_DATABASE_URL）**：若实际库与本文结构一致且 Text2SQL 需读写，在 Postgres 上为连接串对应角色授权，见 **文件末尾「Postgres 附录」**（勿在 MySQL 上执行该段）。
+
  Source Server         : 阿里云
  Source Server Type    : MySQL
  Source Server Version : 80025 (8.0.25)
@@ -1040,3 +1046,31 @@ INSERT INTO `agentinfo` VALUES (505104, '萧兰英', '男', '1973-03-17 00:00:00
 INSERT INTO `agentinfo` VALUES (251036, '岳洁', '女', '1958-11-11 00:00:00', '河北省丽丽市友好武汉街v座 338251', 15982839338, 'duxia@example.net', 70453730, '2017-08-04 00:00:00', '2025-06-13 00:00:00', '底薪加提成');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
+-- Postgres / Supabase 附录 · 做法一（单 TEXT2SQL_DATABASE_URL）
+-- 用途：为「应用实际用于 Text2SQL 的数据库登录角色」授予 public 下经纪人表的读写，避免 permission denied。
+-- 执行：仅在 **PostgreSQL**（如 Supabase Dashboard → SQL Editor）执行；**勿在 MySQL** 上执行本附录。
+-- 步骤：
+--   1) 用与 TEXT2SQL_DATABASE_URL 相同的账号在 psql / SQL Editor 执行：select current_user;
+--   2) 将下方 YOUR_DB_LOGIN_ROLE 替换为该查询结果（或你专门创建的受限 role 名）。
+--   3) 表名与仓库 Text2SQL 样例一致时用 public.agent_info；若线上表名仍为 agentinfo，用注释中的 agentinfo 行并注释掉 agent_info 行。
+-- 说明：若表已启用 RLS，除 GRANT 外还须配置 policy，否则仍可能被策略拦截。
+-- =============================================================================
+
+-- grant usage on schema public to YOUR_DB_LOGIN_ROLE;
+
+-- grant select, insert, update, delete on table public.agent_info to YOUR_DB_LOGIN_ROLE;
+
+-- 若实际 Postgres 表名为 agentinfo（与上文 MySQL 表名一致、未迁移为 agent_info），改用：
+-- grant select, insert, update, delete on table public.agentinfo to YOUR_DB_LOGIN_ROLE;
+
+-- 若 agent_id 使用 serial/identity 等序列，按需增加（当前 bigint 无表级序列可忽略）：
+-- grant usage, select on all sequences in schema public to YOUR_DB_LOGIN_ROLE;
+
+-- ---------------------------------------------------------------------------
+-- 示例（仅当 TEXT2SQL_DATABASE_URL 的数据库用户确为 postgres 时可取消注释试跑；
+-- 若使用自建 role，须改为该 role 名，勿盲目对 postgres 授权。）
+-- ---------------------------------------------------------------------------
+-- grant usage on schema public to postgres;
+-- grant select, insert, update, delete on table public.agent_info to postgres;

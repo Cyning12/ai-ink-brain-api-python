@@ -35,11 +35,16 @@ def _reload_api_index() -> Any:  # noqa: ANN401
 
     importlib.reload(unified_chat)
     importlib.reload(index)
+    from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+    install_unified_chat_auth_override(index.app)
     return index
 
 
 def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
-    async def _exec(query: str, *, history: list[dict[str, Any]] | None = None) -> ToolResult:  # noqa: ANN001
+    async def _exec(
+        query: str, *, history: list[dict[str, Any]] | None = None, **_: Any
+    ) -> ToolResult:  # noqa: ANN001
         return await execute(query=query, history=history)
 
     return Tool(name=name, description=f"dummy-{name}", parameters={}, execute=_exec)

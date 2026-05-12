@@ -13,7 +13,7 @@ from api.intent_agent import IntentDecision, StructuredSignals
 from api.tools import Tool, ToolName, ToolResult
 
 
-def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
+def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = True) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.setenv("API_KEY", "api-key-123")
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
@@ -26,6 +26,14 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
 
     importlib.reload(unified_chat)
     importlib.reload(index)
+    if auth_override:
+        from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+        install_unified_chat_auth_override(index.app)
+    else:
+        from tests._chatbi_auth_overrides import clear_unified_chat_auth_override
+
+        clear_unified_chat_auth_override(index.app)
     return index
 
 
@@ -35,6 +43,7 @@ def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
         *,
         history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
+        **_: Any,
     ) -> ToolResult:  # noqa: ANN001
         return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 

@@ -4,7 +4,7 @@
 **V3 规格真值（初版）**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§0 L1 子规索引**）；目录 `docs/spec/v3-agent/README.md`；L1 文件含 `SPEC-ChatBI-V3-Observability-Text2SQL.md`、`SPEC-ChatBI-V3-Logging-Trace.md`、`SPEC-ChatBI-V3-Security.md`、`SPEC-ChatBI-V3-Identity-Access.md`、`SPEC-ChatBI-V3-Resilience-Ops.md`、`SPEC-ChatBI-V3-Multiturn-Debt.md`、`SPEC-ChatBI-V3-Evaluation.md`  
 **权威叙述边界**：`docs/diary/简历评估意见-2026-5-9.md`（**§三 状态分层**、**§四 技术表述**、**§五 时间线**、**§七 文档结构**）  
 **企业路线图**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`  
-**已存在 V3 子单**：`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（Text2SQL 工具链延迟与可观测）；**V2 多轮/值域未纳入交付的欠债**：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`（澄清 §4.3、同义词语义等，**V3 再考虑**）
+**已存在 V3 子单**：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（Text2SQL 工具链延迟与可观测，**done 2026-05-11**；**B+C 留证收口** 见 `docs/spec/v3-agent/P0/阶段B-留证-curl-stream-b-smoke-2026-05-11.md`、`…/阶段B-前端输出.md` **§归档结论**）；**V2 多轮/值域未纳入交付的欠债**：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`（澄清 §4.3、同义词语义等，**V3 再考虑**）
 
 ---
 
@@ -22,7 +22,7 @@
 
 1. **对齐简历话术**：V1 已完成 / V2 主线已落地 + 简历中仍标「补强」的项（§7.1 多步 E2E、§7.2 延迟纸面）**不夸大**为已交付。  
 2. **从 Enterprise Gap 抽 V3 切片**：权限（RBAC+数据权限）、安全（SQL 语法树 + Prompt 注入）、高可用（限流熔断+监控）、评估体系、结构化日志+Trace ID（见 Gap 表 **P1** 行）。  
-3. **技术债与可观测先行**：已单独立单 **`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`**（多轮下工具阶段 SSE/耗时归因）；V2 multiturn **收口欠债**见 **`task_chatbi_v3_debt_from_v2_multiturn_v1.md`**。  
+3. **技术债与可观测先行**：已单独立单并归档 **`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`**（多轮下工具阶段 SSE/耗时归因）；V2 multiturn **收口欠债**见 **`task_chatbi_v3_debt_from_v2_multiturn_v1.md`**。  
 4. **V4 边界**：多租户、模型路由、A/B —— **仅排期**，不与 V3 首迭代混写同一验收口径。
 
 ---

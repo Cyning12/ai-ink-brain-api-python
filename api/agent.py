@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
+from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
 from .intent_agent import IntentDecision, decide_intent_v2
 from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
@@ -197,6 +198,15 @@ class FailureTypeHandler:
     SPEC-ChatBI-V2-Agent-Overview.md §7.5.4。
     """
 
+    #: Text2SQL 权限/策略拒绝类 error_code；Agent 直接终态回答，不再尝试 RAG。
+    TEXT2SQL_DENY_FINAL_ANSWER_CODES: frozenset[str] = frozenset(
+        {
+            "SQL_EXEC_PERMISSION_DENIED",
+            "CHATBI_SQL_DENIED",
+            "CHATBI_SQL_WRITE_DENIED",
+        }
+    )
+
     @staticmethod
     def _allow_sql_fallback(*, intent: IntentDecision) -> bool:
         # gating：满足任一即可
@@ -241,10 +251,20 @@ class FailureTypeHandler:
             next_tool = "rag_search"
             next_mode = "rag"
             next_thought = f"SQL 生成仍失败，改用文档检索兜底。{sfx}"
-        elif code in ("SQL_EXEC_TABLE_NOT_FOUND", "SQL_EXEC_PERMISSION_DENIED"):
+        elif code in ("SQL_EXEC_TABLE_NOT_FOUND",):
             next_tool = "rag_search"
             next_mode = "rag"
-            next_thought = f"查库失败可能是表/权限问题，改用文档检索定位信息。{sfx}"
+            next_thought = f"查库失败可能是表不存在或名称不匹配，改用文档检索定位信息。{sfx}"
+        elif code in (
+            "SQL_EXEC_PERMISSION_DENIED",
+            "CHATBI_SQL_DENIED",
+            "CHATBI_SQL_WRITE_DENIED",
+        ):
+            # 权限 / RLS / 表级策略：直接对用户说明，不再走 RAG（查库意图下文档检索通常无补）
+            next_tool = "direct_answer"
+            next_mode = "no_data"
+            next_thought = f"数据库访问受权限或策略限制，直接输出说明并结束本回合。{sfx}"
+            stop_now = True
         elif code in ("SQL_EXEC_NO_DATA",):
             # 不换工具：直接回答“未查到数据”
             next_tool = "text2sql_query"
@@ -511,7 +531,9 @@ class ChatBIAgent:
                         payload=_build_rag_sources_event(hits2, top_k=10),
                     )
                 )
-            if tr.success and (answer_text_for_llm or "").strip():
+            # 成功：走总结模拟流；终态短路（无权限 / SQL 无数据等）：工具失败但已有对用户可见的 answer_text 时仍 emit，避免仅见 error 而无 agent.llm / 增量正文
+            _ans_for_stream = (answer_text_for_llm or "").strip()
+            if _ans_for_stream and (tr.success or next_action_val == "final_answer"):
                 llm_phase: LlmPhase = (
                     "rag_generate"
                     if tool_used == "rag_search"
@@ -565,6 +587,48 @@ class ChatBIAgent:
                     payload={"role": "assistant", "content": answer},
                 )
             )
+
+        # P1-4 §4.3：低置信 + SQL 候选时可选「澄清短路」（默认关，避免改变现网行为）
+        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
+        if (
+            clarify_gate
+            and emit is not None
+            and prefer == "auto"
+            and intent is not None
+            and intent.tool == "text2sql_query"
+            and intent.confidence < self._min_confidence
+        ):
+            _cl_msg = "待您澄清（低置信度）"
+            _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
+            _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
+            if not _cl_prompt:
+                _cl_prompt = "当前对您的问题与可用数据表的对应关系不够确定；请补充业务语境、时间范围或具体指标后再试。"
+            await emit(
+                _agent_chain(
+                    typ="agent.clarify",
+                    started_at=ts_ref,
+                    step_id="a1_clarify",
+                    payload={
+                        "step_number": 1,
+                        "message": _cl_msg,
+                        "prompt_for_user": _cl_prompt,
+                    },
+                )
+            )
+            _final_answer = (
+                "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；"
+                "也可改用 prefer=text2sql 强制路径或改写问题后重试。"
+            )
+            final_cl = AgentFinalView(
+                answer=_final_answer,
+                mode="text2sql",
+                total_steps=0,
+                tools_used=[],
+                modes=["text2sql"],
+                fallback_used=False,
+            )
+            await _emit_final_chains(final_cl, final_cl.answer)
+            return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
@@ -630,13 +694,43 @@ class ChatBIAgent:
                         )
                     )
             # tool.call.end 在 emit 路径下由本处与 execute 结果一并下发
-            current_tool_result = await tool.execute(  # type: ignore[call-arg]
-                query,
-                history=call_history,
-                debug_llm_prompts=debug_llm_prompts,
-            )
+            _t2s_json_ctx: dict[str, Any] | None = None
+            if run_id:
+                _t2s_json_ctx = {"request_id": run_id, "run_id": run_id, "session_id": session_id}
+            if current_tool == "text2sql_query":
+                current_tool_result = await tool.execute(  # type: ignore[call-arg]
+                    query,
+                    history=call_history,
+                    debug_llm_prompts=debug_llm_prompts,
+                    chain_emit=emit,
+                    chain_started_at=ts_ref if emit is not None else None,
+                    json_log_ctx=_t2s_json_ctx,
+                )
+            else:
+                current_tool_result = await tool.execute(  # type: ignore[call-arg]
+                    query,
+                    history=call_history,
+                    debug_llm_prompts=debug_llm_prompts,
+                )
 
             tools_used.append(current_tool)
+
+            if current_tool == "text2sql_query" and chatbi_json_log_enabled() and run_id:
+                _dlog = current_tool_result.data if isinstance(current_tool_result.data, dict) else {}
+                _phlog = _dlog.get("text2sql_phases_ms") if isinstance(_dlog.get("text2sql_phases_ms"), dict) else None
+                log_chatbi_record(
+                    message="text2sql_tool_call_end",
+                    request_id=run_id,
+                    run_id=run_id,
+                    session_id=session_id,
+                    route="agent",
+                    mode="text2sql",
+                    tool="text2sql_query",
+                    latency_ms=current_tool_result.latency_ms,
+                    text2sql_phases_ms=_phlog,
+                    error_code=current_tool_result.error_code,
+                    step_number=step_idx,
+                )
 
             if emit is not None:
                 _out_ans0: str | None = None
@@ -671,6 +765,8 @@ class ChatBIAgent:
                     _out_payload["answer"] = _out_ans0
                 if current_tool == "rag_search" and isinstance(_data.get("rewritten"), str):
                     _out_payload["rewritten_query"] = _data["rewritten"]
+                if current_tool == "text2sql_query" and isinstance(_data.get("text2sql_phases_ms"), dict):
+                    _out_payload["text2sql_phases_ms"] = _data["text2sql_phases_ms"]
                 await emit(
                     _agent_chain(
                         typ="tool.call.end",
@@ -892,8 +988,14 @@ class ChatBIAgent:
             )
 
             if stop_now:
-                # SQL 无数据：直接回答，不换工具
-                ans3 = "未查到数据。"
+                trf = current_tool_result
+                ec_f = (trf.error_code or "").strip()
+                if ec_f == "SQL_EXEC_NO_DATA":
+                    ans3 = "未查到数据。"
+                elif ec_f in FailureTypeHandler.TEXT2SQL_DENY_FINAL_ANSWER_CODES:
+                    ans3 = (trf.error or "").strip() or "当前账号无权执行该数据库操作。"
+                else:
+                    ans3 = (trf.error or "").strip() or "未查到数据。"
                 steps.append(
                     AgentStepView(
                         step_number=step_idx,

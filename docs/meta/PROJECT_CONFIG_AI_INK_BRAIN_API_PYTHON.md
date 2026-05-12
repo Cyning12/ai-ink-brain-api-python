@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-11（`CHATBI_SSE_EMIT_QUEUE_MAX`：G2 增量 emit 队列上限 / 背压 truncated）；同日前（`task_chatbi_v2_text2sql_multiturn_grounding_v1.md` · **B-PR2**：`TEXT2SQL_DISTINCT_*`）；此前 2026-05-09（B-PR1：`TEXT2SQL_VALUE_HINTS_*`）；再前 2026-05-07（P1-D）；再前 2026-04-28（`task_docs_truth_and_rag_unify_v1.md` · T1）
+> **最后校准**：2026-05-12（`GET /api/py/chatbi/access/verify` 探活；`GET /api/py/chat/history` 支持 **`X-ChatBI-Access-Token`** 与 `_require_rag_history_auth`；`resolve_chatbi_from_plain_token`）；此前 2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` …）；再前见下文历史行
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -61,6 +61,8 @@
 | `CHATBI_SSE_INCREMENTAL` | Unified Agent 流式是否 **边执行边 emit**（vNext） | 可选 | `api/unified_chat.py`（规划） | 默认 **`true`**（vNext 落地后）；`false` 时 **强制** `await run` 后批量 replay，**忽略** `X-ChatBI-Sse-Contract: 2` 的增量语义（仍须安全）；组合真值见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` **§9** | 与项目无关 |
 | `CHATBI_SSE_EMIT_QUEUE_MAX` | G2 路径 `emit → asyncio.Queue` 的 **maxsize**（有界缓冲）；队列满时先发 **`agent.llm.truncated`**（`reason=backpressure`）再阻塞入队（vNext §4.3） | 可选 | `api/unified_chat.py` | 默认 **`512`**；合法范围 clamp 为 **`8`～`8192`**；单测可调低以验证背压 | 与项目无关 |
 | `CHATBI_V2_DEBUG_LLM_PROMPTS` | V2 Unified：SSE/JSON 是否附带完整 LLM messages（`agent.debug.llm_prompts` 等） | 可选 | `api/unified_chat.py:_debug_llm_prompts_enabled()` | `1`/`true`/`yes`/`on` 开启；与请求体 **`debug_llm_prompts: true`** 任一满足即生效；含 system 指令，生产慎用 | 与项目无关 |
+| `CHATBI_JSON_LOG` | V3 P0-2：是否输出 **单行 JSON** 结构化日志（`chatbi.obs`：`text2sql_phase_end` / `text2sql_tool_call_end`；根字段含 **`request_id`/`run_id`**，与 SSE `meta.run_id` 对齐；**`text2sql_phases_ms`** 与 `ToolResult.data` 同形） | 可选 | `api/chatbi_json_log.py`、`api/tools.py::text2sql_execute`、`api/agent.py`（`ChatBIAgent`） | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启；见 `SPEC-ChatBI-V3-Logging-Trace.md` | 与项目无关 |
+| `CHATBI_ACCESS_TOKEN_PEPPER` | 可选全局 pepper：参与 `SHA256(pepper_bytes + 明文 token)`，须与运维本地脚本 `docs/diary/local_chatbi_access_token_gen.py` 及 Supabase 插入的 `key_hash` **一致** | 可选 | `api/chatbi_access_hash.py`、`api/chatbi_principal.py`；本地脚本 `docs/diary/local_chatbi_access_token_gen.py` | 留空则 pepper 为空字节串；**勿**把 pepper 提交进 Git | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
 | `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `Qwen/Qwen2.5-7B-Instruct` | 与项目无关 |
@@ -88,6 +90,14 @@
 | `TEXT2SQL_DISTINCT_COLUMNS` | allowlist：`schema.table.column`，英文逗号分隔 | 可选 | `api/text2sql_value_hints.py:parse_distinct_allowlist()` | 例：`public.agent_info.gender`；仅 `[A-Za-z0-9_]` 段接受 | 与样例库表一致 |
 | `TEXT2SQL_DISTINCT_MAX_PROBES` | 单次请求最多执行的探针次数 | 可选 | `api/text2sql_value_hints.py:_distinct_max_probes()` | 默认 `8`； clamp `1..32` | 与项目无关 |
 | `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` | 单条探针 SQL 的 `statement_timeout`（毫秒） | 可选 | `api/text2sql_value_hints.py:_distinct_statement_timeout_ms()` | 留空则不设置；有值时经 `execute_select_sql(..., statement_timeout_ms=)` 注入 `SET LOCAL` | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` | Text2SQL **两段 LLM**（生成 SQL / 总结）共用的 **超时秒数**兜底 | 可选 | `api/tools.py::text2sql_execute`（`asyncio.wait_for`） | **未设**时代码默认 **`120.0`**；当 **`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`** 已分别设置时，本变量仅作二者缺省时的回退 | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` | `llm_generate_sql` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
+| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py::text2sql_execute` | **未设置或仅空白**时，与 **Intent** 默认一致（`INTENT_LLM_MODEL` 默认 `Qwen/Qwen2.5-7B-Instruct`，与 `api/intent_agent.py` 对齐） | 与项目无关 |
+| `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN` | 多轮 `history_to_rewrite_block` 注入 `build_sql_prompt` 前的 **最大字符数**（超出保留尾部） | 可选 | `api/tools.py::text2sql_execute` | 默认 **`8000`**；`<=0` 表示不截断 | 与项目无关 |
+| `TEXT2SQL_SCHEMA_PREFETCH` | 写入/更新意图下是否在 LLM 生成前 **只读预取** `information_schema.columns` | 可选 | `api/text2sql_schema_prefetch.py::schema_prefetch_enabled()` | `0`/`false`/`no`/`off` 关闭；`1`/`true` 强制开启；**未设**时若已配置 **`TEXT2SQL_DATABASE_URL`** 则默认开启 | 依赖 `TEXT2SQL_DATABASE_URL` |
+| `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS` | 预取查询 `SET LOCAL statement_timeout`（毫秒） | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`8000`**；clamp `200..60000` | 与项目无关 |
+| `TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS` | 预取结果 `LIMIT` 上限 | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`2000`**；clamp `10..20000` | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 
@@ -129,11 +139,12 @@
 |---|---|
 | `GET /api/py/health` | 健康检查 |
 | `POST /api/py/chat` | **流式** `text/plain`；检索 hybrid；失败降级策略见下 |
-| `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs` |
+| `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs`；**鉴权**：Ink admin（`_require_auth`）**或**请求头 **`X-ChatBI-Access-Token`**（DB 明文，与 Next BFF 对齐；实现见 `api/index.py::_require_rag_history_auth`） |
+| `GET /api/py/chatbi/access/verify` | ChatBI 明文 token **探活**（JSON：`ok` / `access_level` / `principal_kind` / `token_id`）；**鉴权**：与 Unified 相同，**仅** `Authorization: Bearer <明文>` → `require_chatbi_principal` |
 | `POST /api/py/admin/ingest` | 同步扫描内容并写入 `documents`（重删再插策略） |
 | `POST /api/py/admin/sync` + `GET /api/py/admin/sync?jobId=` | 异步任务（内存队列，serverless 不保证持久） |
-| `POST /api/py/unified/chat` | Unified 非流式：`events[]` JSON；字段与锚点以 **`docs/_tech_graph/_contract_manifest.json`** 为准 |
-| `POST /api/py/unified/chat/stream` | Unified SSE：链式事件流；契约同上 |
+| `POST /api/py/unified/chat` | Unified 非流式：`events[]` JSON；字段与锚点以 **`docs/_tech_graph/_contract_manifest.json`** 为准；**鉴权**：仅 **`Authorization: Bearer`** + `public.chatbi_access_tokens`（见 `api/chatbi_principal.py`），**不再**接受与 Legacy 相同的 `API_KEY` 明文并行校验 |
+| `POST /api/py/unified/chat/stream` | Unified SSE：链式事件流；契约同上；**鉴权**同上 |
 
 ### F.1 流式回答 + 证据链（Task04）
 
@@ -175,6 +186,9 @@
 
 | 对象 | 说明 |
 |---|---|
+| `public.chatbi_access_tokens` | ChatBI V3：`key_hash` + `access_level` + `subject_user_id`（L2 必填）；Unified `Depends(require_chatbi_principal)` 查询 |
+| `public.chatbi_sql_table_policy` | Text2SQL 表级 `min_*_level`；NULL=该操作类型关闭 |
+| `public.chatbi_user_portrait` | L2 肖像/长久 Prompt；写路径列白名单见任务单 |
 | `public.documents` | 向量列默认 `vector(1024)`（见 `supabase/sql/init.sql`） |
 | `public.match_documents(...)` | Vector Top-k + threshold |
 | `public.keyword_documents(...)` | FTS keyword 路（见 `supabase/sql/hybrid_search.sql`） |

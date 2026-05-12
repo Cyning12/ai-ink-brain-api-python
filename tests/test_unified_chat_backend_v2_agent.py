@@ -26,7 +26,7 @@ from api.tools import Tool, ToolResult, ToolName
 RAG_FIRST_DIARY_QUERY = "2026-04-28日记的大致内容"
 
 
-def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
+def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = True) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.setenv("API_KEY", "api-key-123")
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
@@ -39,6 +39,14 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
 
     importlib.reload(unified_chat)
     importlib.reload(index)
+    if auth_override:
+        from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+        install_unified_chat_auth_override(index.app)
+    else:
+        from tests._chatbi_auth_overrides import clear_unified_chat_auth_override
+
+        clear_unified_chat_auth_override(index.app)
     return index
 
 
@@ -48,6 +56,7 @@ def _make_tool(name: ToolName, execute: Callable[..., Any]) -> Tool:
         *,
         history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
+        **_: Any,
     ) -> ToolResult:  # noqa: ANN001
         return await execute(query=query, history=history, debug_llm_prompts=debug_llm_prompts)
 
@@ -237,6 +246,7 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
+    import api.rag_env as rag_env_module
     import api.unified_chat as unified_chat
     import api.agent as agent_module
 
@@ -313,7 +323,8 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
             assert name == "rag_conversation_logs"
             return _Table()
 
-    monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+    # 落库走 rag_env.supabase_table_insert_with_retry → rag_env.supabase_client（非 unified_chat 命名空间）
+    monkeypatch.setattr(rag_env_module, "supabase_client", lambda: _Sb())
 
     client = TestClient(index.app)
     res = client.post(
@@ -603,6 +614,96 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     assert final_evt["payload"]["total_steps"] == 2
     assert final_evt["payload"]["tools_used"][0] == "rag_search"
     assert "text2sql_query" in final_evt["payload"]["tools_used"]
+
+
+def test_v2_text2sql_write_denied_stops_without_rag(monkeypatch: pytest.MonkeyPatch):
+    """CHATBI_SQL_WRITE_DENIED：直接终态回答，不调用 rag_search。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    t2s_calls = {"n": 0}
+
+    async def _t2s_fail(
+        *,
+        query: str,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+        **kwargs: Any,
+    ) -> ToolResult:
+        _ = (query, history, debug_llm_prompts, kwargs)
+        t2s_calls["n"] += 1
+        return ToolResult(
+            success=False,
+            data={"text2sql_phases_ms": {"retrieve": 1}},
+            error="当前账号无权对该表执行写入或更新（表级安全策略限制）。",
+            error_code="CHATBI_SQL_WRITE_DENIED",
+            error_stage="text2sql.schema_prefetch",
+            latency_ms=3,
+        )
+
+    async def _rag_must_not_run(
+        *,
+        query: str,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:
+        raise AssertionError("无权限 Text2SQL 后不应再尝试 RAG")
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("text2sql_query", _t2s_fail),
+        _make_tool("rag_search", _rag_must_not_run),
+        _make_tool("direct_answer", _rag_must_not_run),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_intent(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ) -> IntentDecision:
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="写库",
+            reasoning_full="写库",
+            confidence=0.95,
+            fallback=None,
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=True),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_intent)
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "插入 agent_info 一行数据"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    final_evt = next(e for e in data["events"] if e.get("type") == "agent.final")
+    assert t2s_calls["n"] == 1
+    assert final_evt["payload"]["tools_used"] == ["text2sql_query"]
+    ans_evt = next(e for e in data["events"] if e.get("type") == "assistant.message")
+    assert "无权" in ans_evt["payload"]["content"]
+    assert "问题太复杂" not in ans_evt["payload"]["content"]
 
 
 def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest.MonkeyPatch):

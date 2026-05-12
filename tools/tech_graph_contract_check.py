@@ -13,6 +13,7 @@ CONTRACT_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_contract_manifest.json"
 BACKEND_CONTRACT_SOURCES = [
     REPO_ROOT / "api" / "unified_chat.py",
     REPO_ROOT / "api" / "agent.py",
+    REPO_ROOT / "api" / "tools.py",
 ]
 
 
@@ -82,21 +83,32 @@ def _backend_truth_from_unified_chat(py_text: str) -> dict[str, Any]:
     # 2) chain.type values from _event(typ="...") + meta first packet
     chain_types = set(re.findall(r'typ="([A-Za-z0-9_.-]+)"', py_text))
     chain_types |= set(re.findall(r'"type"\s*:\s*"([A-Za-z0-9_.-]+)"', py_text))
+    # Text2SQL V3：api/tools.py 使用 _t2sql_chain_dict("chain.type", ...)
+    chain_types |= set(re.findall(r'_t2sql_chain_dict\(\s*"([A-Za-z0-9_.-]+)"', py_text))
 
     # 3) per-type payload keys（_event 与 api/agent.py 的 _agent_chain 同形）
     payload_keys_by_type: dict[str, set[str]] = {}
-    event_starts = [m.start() for m in re.finditer(r"(?:_event|_agent_chain)\(", py_text)]
+    event_starts = [m.start() for m in re.finditer(r"(?:_event|_agent_chain|_t2sql_chain_dict)\(", py_text)]
     event_starts.append(len(py_text))
     for i in range(len(event_starts) - 1):
         seg = py_text[event_starts[i] : event_starts[i + 1]]
         tm = re.search(r'typ="([A-Za-z0-9_.-]+)"', seg)
-        if not tm:
-            continue
-        typ = tm.group(1)
-        pm = re.search(r"payload\s*=\s*\{", seg)
-        if not pm:
-            continue
-        brace_pos = seg.find("{", pm.start())
+        if tm:
+            typ = tm.group(1)
+            pm = re.search(r"payload\s*=\s*\{", seg)
+            if not pm:
+                continue
+            brace_pos = seg.find("{", pm.start())
+        else:
+            tm2 = re.search(r'_t2sql_chain_dict\(\s*"([A-Za-z0-9_.-]+)"', seg)
+            if not tm2:
+                continue
+            typ = tm2.group(1)
+            rest_from_typ = seg[tm2.end() :]
+            rel_brace = rest_from_typ.find("{")
+            if rel_brace < 0:
+                continue
+            brace_pos = tm2.end() + rel_brace
         block = _slice_balanced_braces(seg, start_idx=brace_pos) if brace_pos >= 0 else None
         if not block:
             continue

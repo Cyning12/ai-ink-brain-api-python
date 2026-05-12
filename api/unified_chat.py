@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import hmac
 import math
 import os
 import re
@@ -14,20 +13,31 @@ from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
 
+from .chatbi_principal import ChatBiPrincipal
+from .chatbi_policies import load_chatbi_table_policies_sync
+from .chatbi_request_ctx import set_chatbi_log_ctx, set_chatbi_principal
+from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .query_rewrite import rewrite_query_with_history
 from .rag_recall_tools import keyword_query_text_with_i18n_meta, rpc_execute_with_retry, structured_recall_by_date
 from .rag_env import (
-    admin_secret,
     embedding_kwargs_for_inputs,
     openai_siliconflow_client,
     siliconflow_base,
     supabase_client,
     supabase_table_insert_with_retry,
 )
-from .text2sql_core import build_sql_prompt, build_summary_prompt, execute_select_sql, llm_generate_sql, llm_summarize, validate_sql_readonly
+from .text2sql_core import (
+    build_sql_prompt,
+    build_summary_prompt,
+    execute_mutating_sql,
+    execute_select_sql,
+    llm_generate_sql,
+    llm_summarize,
+)
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .text2sql_grounding import build_text2sql_grounding_dict
+from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
 from .intent_agent import IntentDecision
 from .intent_router import decide_intent
@@ -40,31 +50,8 @@ from .tools import get_tool_registry
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
 
 
-def _require_unified_auth(authorization: str | None, x_blog_admin_token: str | None, x_admin_token: str | None) -> None:
-    expected_admin = (admin_secret() or "").strip() or None
-    expected_api = (os.getenv("API_KEY") or "").strip() or None
-    if not expected_admin and not expected_api:
-        raise HTTPException(status_code=500, detail="未配置 NEXT_PUBLIC_ADMIN_SECRET / CHAT_API_SECRET 或 API_KEY")
-
-    token = ""
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-    elif x_blog_admin_token:
-        token = x_blog_admin_token.strip()
-    elif x_admin_token:
-        token = x_admin_token.strip()
-
-    def _match(expected: str | None) -> bool:
-        if not expected:
-            return False
-        if len(token) != len(expected):
-            return False
-        return hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8"))
-
-    if not (_match(expected_admin) or _match(expected_api)):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-
+def _chatbi_log_ctx(request: Request) -> dict[str, Any]:
+    return {"request_id": (request.headers.get("x-request-id") or "").strip() or None}
 def _now_ms(started_at: float) -> int:
     return int((time.perf_counter() - started_at) * 1000)
 
@@ -700,12 +687,11 @@ def _rag_generate_answer(*, oai: OpenAI, chat_model: str, query: str, hits: list
 async def handle_unified_chat(
     request: Request,
     *,
-    authorization: str | None,
-    x_blog_admin_token: str | None,
-    x_admin_token: str | None,
+    principal: ChatBiPrincipal,
 ) -> JSONResponse:
-    _require_unified_auth(authorization, x_blog_admin_token, x_admin_token)
-
+    ctx_log = _chatbi_log_ctx(request)
+    set_chatbi_principal(principal)
+    set_chatbi_log_ctx(ctx_log)
     try:
         body = await request.json()
     except Exception as exc:  # noqa: BLE001
@@ -721,6 +707,7 @@ async def handle_unified_chat(
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
+    ctx_log["run_id"] = run_id
     events: list[dict[str, Any]] = []
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
     debug_llm_prompts = _debug_llm_prompts_enabled(body)
@@ -766,6 +753,8 @@ async def handle_unified_chat(
             query=query,
             session_id=session_id,
             prefer=prefer,
+            sse_started_at=started_at,
+            run_id=run_id,
             debug_llm_prompts=debug_llm_prompts,
         )
 
@@ -1329,14 +1318,69 @@ async def handle_unified_chat(
             )
             return finish(ok=False, mode=mode)
 
+        pols = await asyncio.to_thread(load_chatbi_table_policies_sync)
+        retrieved = filter_text2sql_retrieved(retrieved, principal=principal, policies=pols)
+
         oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
         chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+
+        events.append(
+            _event(
+                typ="tool.call.start",
+                started_at=started_at,
+                step_id="t_schema_prefetch",
+                payload={"tool": "text2sql.schema_prefetch", "input": {"query": query}},
+            )
+        )
+        t_pf0 = time.perf_counter()
+        pf_block, pf_err, pf_meta = await asyncio.to_thread(
+            run_text2sql_schema_prefetch_sync,
+            user_query=query,
+            retrieved=retrieved,
+            principal=principal,
+            policies=pols,
+        )
+        t_pf_ms = int((time.perf_counter() - t_pf0) * 1000)
+        events.append(
+            _event(
+                typ="tool.call.end",
+                started_at=started_at,
+                step_id="t_schema_prefetch",
+                payload={
+                    "output": pf_meta,
+                    "error": pf_err,
+                    "latency_ms": t_pf_ms,
+                    "tool": "text2sql.schema_prefetch",
+                },
+            )
+        )
+        if pf_err:
+            events.append(
+                _event(
+                    typ="error",
+                    started_at=started_at,
+                    step_id="e_schema_prefetch",
+                    payload={"stage": "text2sql.schema_prefetch", "message": pf_err},
+                )
+            )
+            events.append(
+                _event(
+                    typ="latency",
+                    started_at=started_at,
+                    step_id="l1",
+                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                )
+            )
+            return finish(ok=False, mode=mode)
 
         # generate sql
         sql_prompt = build_sql_prompt(
             query,
             retrieved,
             value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+            prefetched_schema_block=pf_block,
+            chatbi_access_level=principal.access_level,
+            chatbi_subject_user_id=principal.subject_user_id,
         )
         events.append(
             _event(
@@ -1349,10 +1393,19 @@ async def handle_unified_chat(
         t1 = time.perf_counter()
         sql_raw = ""
         sql = ""
+        sql_kind = "select"
         gen_err: str | None = None
         try:
             sql_raw = llm_generate_sql(oai=oai, model=chat_model, prompt=sql_prompt)
-            sql = validate_sql_readonly(sql_raw)
+            sql, sql_kind = apply_chatbi_sql_gate(
+                sql_raw,
+                principal=principal,
+                policies=pols,
+                run_id=ctx_log.get("run_id"),
+                request_id=ctx_log.get("request_id"),
+            )
+        except ChatBiSqlGateDenied as exc:
+            gen_err = exc.message_zh
         except Exception as exc:  # noqa: BLE001
             gen_err = str(exc)
         t_gen_ms = int((time.perf_counter() - t1) * 1000)
@@ -1397,7 +1450,12 @@ async def handle_unified_chat(
         rows: list[dict[str, Any]] = []
         exec_err: str | None = None
         try:
-            columns, rows = execute_select_sql(sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200")))
+            if sql_kind == "select":
+                columns, rows = execute_select_sql(sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200")))
+            else:
+                rowcount = execute_mutating_sql(sql)
+                columns = ["affected_rows"]
+                rows = [{"affected_rows": rowcount}]
         except Exception as exc:  # noqa: BLE001
             exec_err = str(exc)
         t_exec_ms = int((time.perf_counter() - t2) * 1000)
@@ -1585,7 +1643,15 @@ async def handle_unified_chat(
     try:
         sb = supabase_client()
         # structured recall（日期类确定性召回）
-        structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
+        structured_hits = structured_recall_by_date(
+            sb,
+            query=query,
+            rewritten=rewritten,
+            limit_rows=6,
+            principal_kind=principal.principal_kind,
+            access_level=principal.access_level,
+            subject_user_id=principal.subject_user_id,
+        ).hits
         match_threshold = parse_match_threshold()
         match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
         if vec is not None:
@@ -1769,12 +1835,12 @@ def _sse(event: str, data: dict[str, Any]) -> str:
 async def handle_unified_chat_stream(
     request: Request,
     *,
-    authorization: str | None,
-    x_blog_admin_token: str | None,
-    x_admin_token: str | None,
+    principal: ChatBiPrincipal,
 ) -> StreamingResponse:
     """SSE：实时输出 chain 事件，最终输出 done。v1 不强制 token 级文本流。"""
-    _require_unified_auth(authorization, x_blog_admin_token, x_admin_token)
+    ctx_log = _chatbi_log_ctx(request)
+    set_chatbi_principal(principal)
+    set_chatbi_log_ctx(ctx_log)
 
     try:
         body = await request.json()
@@ -1791,6 +1857,7 @@ async def handle_unified_chat_stream(
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
+    ctx_log["run_id"] = run_id
     debug_router = _debug_router_evidence_enabled() or bool(body.get("debug_router") is True)
     debug_llm_prompts = _debug_llm_prompts_enabled(body)
     db_log_router = _router_evidence_db_log_enabled() or bool(body.get("debug_router") is True)
@@ -1986,6 +2053,8 @@ async def handle_unified_chat_stream(
                             query=query,
                             session_id=session_id,
                             prefer=prefer,
+                            sse_started_at=started_at,
+                            run_id=run_id,
                             debug_llm_prompts=debug_llm_prompts,
                         )
                     )
@@ -2568,23 +2637,78 @@ async def handle_unified_chat_stream(
                     yield _sse("chain", _event(typ="error", started_at=started_at, step_id="e_retrieve", payload={"stage": "text2sql.retrieve", "message": retrieve_err}))
                     return
 
+                pols = await asyncio.to_thread(load_chatbi_table_policies_sync)
+                retrieved = filter_text2sql_retrieved(retrieved, principal=principal, policies=pols)
+
                 oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
                 chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="tool.call.start",
+                        started_at=started_at,
+                        step_id="t_schema_prefetch",
+                        payload={"tool": "text2sql.schema_prefetch", "input": {"query": query}},
+                    ),
+                )
+                t_pf0 = time.perf_counter()
+                pf_block, pf_err, pf_meta = await asyncio.to_thread(
+                    run_text2sql_schema_prefetch_sync,
+                    user_query=query,
+                    retrieved=retrieved,
+                    principal=principal,
+                    policies=pols,
+                )
+                t_pf_ms = int((time.perf_counter() - t_pf0) * 1000)
+                yield _sse(
+                    "chain",
+                    _event(
+                        typ="tool.call.end",
+                        started_at=started_at,
+                        step_id="t_schema_prefetch",
+                        payload={"output": pf_meta, "error": pf_err, "latency_ms": t_pf_ms},
+                    ),
+                )
+                if pf_err:
+                    ok = False
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="error",
+                            started_at=started_at,
+                            step_id="e_schema_prefetch",
+                            payload={"stage": "text2sql.schema_prefetch", "message": pf_err},
+                        ),
+                    )
+                    return
 
                 # generate sql
                 sql_prompt = build_sql_prompt(
                     query,
                     retrieved,
                     value_hints_block=build_value_hints_block_for_text2sql(retrieved, history=None),
+                    prefetched_schema_block=pf_block,
+                    chatbi_access_level=principal.access_level,
+                    chatbi_subject_user_id=principal.subject_user_id,
                 )
                 yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_generate_sql", payload={"tool": "text2sql.generate_sql", "input": {"query": query}}))
                 t1 = time.perf_counter()
                 sql_raw = ""
                 sql = ""
+                sql_kind = "select"
                 gen_err: str | None = None
                 try:
                     sql_raw = llm_generate_sql(oai=oai, model=chat_model, prompt=sql_prompt)
-                    sql = validate_sql_readonly(sql_raw)
+                    sql, sql_kind = apply_chatbi_sql_gate(
+                        sql_raw,
+                        principal=principal,
+                        policies=pols,
+                        run_id=ctx_log.get("run_id"),
+                        request_id=ctx_log.get("request_id"),
+                    )
+                except ChatBiSqlGateDenied as exc:
+                    gen_err = exc.message_zh
                 except Exception as exc:  # noqa: BLE001
                     gen_err = str(exc)
                 t_gen_ms = int((time.perf_counter() - t1) * 1000)
@@ -2601,7 +2725,12 @@ async def handle_unified_chat_stream(
                 rows: list[dict[str, Any]] = []
                 exec_err: str | None = None
                 try:
-                    columns, rows = execute_select_sql(sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200")))
+                    if sql_kind == "select":
+                        columns, rows = execute_select_sql(sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200")))
+                    else:
+                        rowcount = execute_mutating_sql(sql)
+                        columns = ["affected_rows"]
+                        rows = [{"affected_rows": rowcount}]
                 except Exception as exc:  # noqa: BLE001
                     exec_err = str(exc)
                 t_exec_ms = int((time.perf_counter() - t2) * 1000)
@@ -2679,7 +2808,15 @@ async def handle_unified_chat_stream(
             retry_count = 0
             try:
                 sb = supabase_client()
-                structured_hits = structured_recall_by_date(sb, query=query, rewritten=rewritten, limit_rows=6).hits
+                structured_hits = structured_recall_by_date(
+                    sb,
+                    query=query,
+                    rewritten=rewritten,
+                    limit_rows=6,
+                    principal_kind=principal.principal_kind,
+                    access_level=principal.access_level,
+                    subject_user_id=principal.subject_user_id,
+                ).hits
                 match_threshold = parse_match_threshold()
                 match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
                 if vec is not None:

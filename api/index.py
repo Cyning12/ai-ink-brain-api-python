@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.parse import quote
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
 from supabase import create_client
@@ -29,6 +29,7 @@ from . import code_retrieval
 from . import text2sql_api
 from . import chain_chat
 from . import unified_chat
+from .chatbi_principal import ChatBiPrincipal, require_chatbi_principal, resolve_chatbi_from_plain_token
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
 from .ingest_pipeline import (
@@ -187,6 +188,45 @@ def _require_auth(
 
     if not (_match(expected_admin) or _match(expected_api)):
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+def _try_chatbi_bearer_plain(plain: str) -> bool:
+    """尝试将明文当作 ChatBI DB token 校验。成功返回 True；`bad_hash` 返回 False（回退 Ink）；其它 401 原样抛出。"""
+    t = plain.strip()
+    if not t:
+        return False
+    try:
+        resolve_chatbi_from_plain_token(t)
+        return True
+    except HTTPException as e:
+        if e.status_code != 401:
+            raise
+        det = e.detail if isinstance(e.detail, dict) else {}
+        if det.get("reason") == "bad_hash":
+            return False
+        raise
+
+
+async def _require_rag_history_auth(
+    *,
+    authorization: str | None,
+    x_blog_admin_token: str | None,
+    x_admin_token: str | None,
+    x_chatbi_access_token: str | None,
+) -> None:
+    """ChatBI：`X-ChatBI-Access-Token` 或 `Authorization: Bearer <明文>`；否则 Ink admin / API_KEY。"""
+    if (x_chatbi_access_token or "").strip():
+        await asyncio.to_thread(resolve_chatbi_from_plain_token, (x_chatbi_access_token or "").strip())
+        return
+    auth = (authorization or "").strip()
+    bearer_plain = ""
+    if auth.lower().startswith("bearer "):
+        bearer_plain = auth[7:].strip()
+    if bearer_plain:
+        ok = await asyncio.to_thread(_try_chatbi_bearer_plain, bearer_plain)
+        if ok:
+            return
+    _require_auth(authorization, x_blog_admin_token, x_admin_token)
 
 
 code_retrieval.bind_index_symbols(
@@ -401,9 +441,15 @@ async def chat_history(
     authorization: str | None = Header(default=None),
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+    x_chatbi_access_token: str | None = Header(default=None, alias="x-chatbi-access-token"),
 ) -> dict[str, Any]:
     """按 session 从 rag_conversation_logs 拉取历史，供前端刷新后还原对话。"""
-    _require_auth(authorization, x_blog_admin_token, x_admin_token)
+    await _require_rag_history_auth(
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+        x_chatbi_access_token=x_chatbi_access_token,
+    )
 
     sid = session_id.strip()
     if not sid:
@@ -519,30 +565,31 @@ async def chain_chat_route(
 @app.post("/api/py/unified/chat")
 async def unified_chat_route(
     request: Request,
-    authorization: str | None = Header(default=None),
-    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
-    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
 ) -> JSONResponse:
-    return await unified_chat.handle_unified_chat(
-        request,
-        authorization=authorization,
-        x_blog_admin_token=x_blog_admin_token,
-        x_admin_token=x_admin_token,
-    )
+    return await unified_chat.handle_unified_chat(request, principal=principal)
 
 
 @app.post("/api/py/unified/chat/stream")
 async def unified_chat_stream_route(
     request: Request,
-    authorization: str | None = Header(default=None),
-    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
-    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
 ):
-    return await unified_chat.handle_unified_chat_stream(
-        request,
-        authorization=authorization,
-        x_blog_admin_token=x_blog_admin_token,
-        x_admin_token=x_admin_token,
+    return await unified_chat.handle_unified_chat_stream(request, principal=principal)
+
+
+@app.get("/api/py/chatbi/access/verify")
+async def chatbi_access_verify(
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
+) -> JSONResponse:
+    """轻量探活：仅校验 Bearer 与 `chatbi_access_tokens`，供 Ink BFF 解锁前置。"""
+    return JSONResponse(
+        {
+            "ok": True,
+            "access_level": principal.access_level,
+            "principal_kind": principal.principal_kind,
+            "token_id": str(principal.token_id),
+        }
     )
 
 

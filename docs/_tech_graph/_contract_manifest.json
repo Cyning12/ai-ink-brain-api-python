@@ -27,7 +27,13 @@
         "persist",
         "persistHint",
         "toolError",
-        "user"
+        "user",
+        "phaseId",
+        "phaseKind",
+        "text2sqlPhasesMs",
+        "text2sql_phases_ms",
+        "name",
+        "target"
       ],
       "type_values": [
         "meta",
@@ -44,13 +50,16 @@
         "error",
         "agent.step.start",
         "agent.think",
+        "agent.clarify",
         "agent.intent",
         "agent.step.end",
         "agent.final",
         "agent.llm.start",
         "agent.llm.delta",
         "agent.llm.end",
-        "agent.llm.truncated"
+        "agent.llm.truncated",
+        "text2sql.phase.start",
+        "text2sql.phase.end"
       ],
       "payload_min_keys_by_type": {
         "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
@@ -73,13 +82,16 @@
         "error": ["stage", "message"],
         "agent.step.start": ["step_number", "max_steps"],
         "agent.think": ["step_number", "thought", "selected_tool", "mode", "confidence"],
+        "agent.clarify": ["step_number", "message", "prompt_for_user"],
         "agent.intent": ["tool", "mode", "reasoning", "confidence", "fallback", "cache", "cache_key_hash", "latency_ms"],
         "agent.step.end": ["step_number", "tool_used", "mode", "success", "next_action"],
         "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"],
         "agent.llm.start": ["phase", "step_id"],
         "agent.llm.delta": ["text", "part_index"],
         "agent.llm.end": ["ok", "phase", "step_id"],
-        "agent.llm.truncated": ["dropped_chars", "reason"]
+        "agent.llm.truncated": ["dropped_chars", "reason"],
+        "text2sql.phase.start": ["subphase_id", "phase_id", "phase_kind"],
+        "text2sql.phase.end": ["subphase_id", "phase_id", "latency_ms"]
       }
     },
     "done": {
