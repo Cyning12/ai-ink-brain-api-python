@@ -35,6 +35,7 @@ from .text2sql_core import (
 from .chatbi_policies import load_chatbi_table_policies_sync
 from .chatbi_request_ctx import get_chatbi_log_ctx, get_chatbi_principal
 from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
+from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
 
@@ -96,11 +97,20 @@ def _sql_error_code_from_message(msg: str) -> str:
         return "SQL_GEN_SYNTAX"
     if "does not exist" in m or "relation" in m or "undefined table" in m or "表" in msg:
         return "SQL_EXEC_TABLE_NOT_FOUND"
+    if "row-level security" in m or "violates row-level security" in m:
+        return "SQL_EXEC_PERMISSION_DENIED"
     if "permission" in m or "denied" in m or "权限" in msg:
         return "SQL_EXEC_PERMISSION_DENIED"
     if "no data" in m or "empty" in m:
         return "SQL_EXEC_NO_DATA"
     return "UNKNOWN"
+
+
+def _sql_exec_user_facing_error(raw: str, *, code: str) -> str:
+    """DB 执行层错误：对用户可见的短中文（与 agent FailureTypeHandler 终态一致）。"""
+    if code == "SQL_EXEC_PERMISSION_DENIED":
+        return "数据库拒绝执行该语句：当前连接账号无足够权限，或触发了行级安全策略（RLS）。请联系管理员配置 GRANT / RLS policy。"
+    return (raw or "").strip()
 
 
 def _rag_should_treat_as_uncertain(answer: str) -> bool:
@@ -431,7 +441,7 @@ async def text2sql_execute(
             )
         )
 
-    async def _emit_phase_end(phase_id: str, t0: float) -> None:
+    async def _emit_phase_end(phase_id: str, t0: float, *, chain_extra: dict[str, Any] | None = None) -> None:
         ms = max(0, int((time.perf_counter() - t0) * 1000))
         phases_ms[phase_id] = ms
         sid = f"text2sql.phase.{phase_id}"
@@ -450,15 +460,20 @@ async def text2sql_execute(
                     subphase_id=sid,
                     phase_id=phase_id,
                     text2sql_phases_ms=dict(phases_ms),
+                    schema_prefetch_source=(chain_extra or {}).get("schema_prefetch_source"),
+                    schema_prefetch_tables=(chain_extra or {}).get("schema_prefetch_tables"),
                 )
         if chain_emit is None or chain_started_at is None:
             return
+        payload: dict[str, Any] = {"subphase_id": sid, "phase_id": phase_id, "latency_ms": ms}
+        if chain_extra:
+            payload.update(chain_extra)
         await chain_emit(
             _t2sql_chain_dict(
                 "text2sql.phase.end",
                 chain_started_at,
                 sid,
-                {"subphase_id": sid, "phase_id": phase_id, "latency_ms": ms},
+                payload,
             )
         )
 
@@ -482,15 +497,57 @@ async def text2sql_execute(
         vh_block = await asyncio.to_thread(
             build_value_hints_block_for_text2sql, retrieved, history=hist
         )
+        await _emit_phase_end("retrieve", t_retrieve)
+
+        await _emit_phase_start("schema_prefetch")
+        t_pf = time.perf_counter()
+        prefetch_block, pf_err, pf_meta = await asyncio.to_thread(
+            run_text2sql_schema_prefetch_sync,
+            user_query=query,
+            retrieved=retrieved,
+            principal=principal,
+            policies=pols_loaded,
+        )
+        chain_pf: dict[str, Any] = {
+            "schema_prefetch_source": pf_meta.get("schema_prefetch_source"),
+            "schema_prefetch_tables": pf_meta.get("schema_prefetch_tables") or [],
+        }
+        if pf_meta.get("schema_prefetch_candidates") is not None:
+            chain_pf["schema_prefetch_candidates"] = pf_meta.get("schema_prefetch_candidates")
+        await _emit_phase_end("schema_prefetch", t_pf, chain_extra=chain_pf)
+        if pf_err:
+            policy = pf_meta.get("schema_prefetch_source") == "error_policy"
+            if policy:
+                user_msg = (
+                    "当前账号无权对该表执行写入或更新（表级安全策略限制）。"
+                    "如需开通，请联系管理员在 chatbi_sql_table_policy 中配置权限或提升访问等级。"
+                )
+                return ToolResult(
+                    success=False,
+                    data=_data_with_phases({"schema_prefetch": pf_meta, "technical_message": pf_err}),
+                    error=user_msg,
+                    error_code="CHATBI_SQL_WRITE_DENIED",
+                    error_stage="text2sql.schema_prefetch",
+                    latency_ms=_elapsed_ms(started_at),
+                )
+            return ToolResult(
+                success=False,
+                data=_data_with_phases({"schema_prefetch": pf_meta}),
+                error=pf_err,
+                error_code="TEXT2SQL_SCHEMA_PREFETCH_FAILED",
+                error_stage="text2sql.schema_prefetch",
+                latency_ms=_elapsed_ms(started_at),
+            )
+
         sql_prompt = build_sql_prompt(
             query,
             retrieved,
             dialogue_context=dialogue_ctx or None,
             value_hints_block=vh_block,
+            prefetched_schema_block=prefetch_block,
             chatbi_access_level=principal.access_level if principal else None,
             chatbi_subject_user_id=principal.subject_user_id if principal else None,
         )
-        await _emit_phase_end("retrieve", t_retrieve)
 
         if debug_llm_prompts:
             llm_prompts.append(
@@ -616,11 +673,12 @@ async def text2sql_execute(
         except Exception as exc:  # noqa: BLE001
             await _emit_phase_end("db", t_db)
             msg = str(exc)
+            ec = _sql_error_code_from_message(msg)
             return ToolResult(
                 success=False,
                 data=_data_with_phases(None),
-                error=msg,
-                error_code=_sql_error_code_from_message(msg),
+                error=_sql_exec_user_facing_error(msg, code=ec),
+                error_code=ec,
                 error_stage="text2sql.execute",
                 latency_ms=_elapsed_ms(started_at),
             )
@@ -689,6 +747,7 @@ async def text2sql_execute(
                 answer = f"查询返回 {len(rows)} 行结果。"
 
         out: dict[str, Any] = {"answer": answer, "sql": sql, "columns": columns, "rows": rows}
+        out["schema_prefetch"] = pf_meta
         out["text2sql_phases_ms"] = dict(phases_ms)
         if debug_llm_prompts and llm_prompts:
             out["llm_prompts"] = llm_prompts

@@ -25,7 +25,10 @@ docs/spec/v3-agent/
 ├── SPEC-ChatBI-V3-Identity-Access.md              # L1 RBAC · 数据域
 ├── SPEC-ChatBI-V3-Resilience-Ops.md               # L1 限流 · 熔断 · 健康检查
 ├── SPEC-ChatBI-V3-Multiturn-Debt.md              # L1 多轮 / 值域技术债
-└── SPEC-ChatBI-V3-Evaluation.md                  # L1 评估 · 回归
+├── SPEC-ChatBI-V3-Evaluation.md                  # L1 评估 · 回归
+└── text2sql/                                     # 场景留档（迭代稿 + 归档）
+    ├── archive/README.md                         # 无权限等归档索引（验收真值见该目录）
+    └── …                                         # 见目录内文件
 ```
 
 ---
@@ -51,6 +54,8 @@ docs/spec/v3-agent/
 | `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | P1-4：低置信指代澄清（§4.3 / V2 §4 第 3 点） | **Multiturn-Debt**、V2 Multiturn Semantics、**Identity-Access**（表名展示） |
 
 新增 V3 任务时：**更新本 README 上表** + `SPEC-ChatBI-V3-Overview.md` **§3**；若新域无 L1 文件，**先补子规再挂任务**。
+
+**Text2SQL 无权限场景（已验收）**：留档与真值索引见 [`text2sql/archive/README.md`](text2sql/archive/README.md)。
 
 ---
 

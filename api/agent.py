@@ -198,6 +198,15 @@ class FailureTypeHandler:
     SPEC-ChatBI-V2-Agent-Overview.md §7.5.4。
     """
 
+    #: Text2SQL 权限/策略拒绝类 error_code；Agent 直接终态回答，不再尝试 RAG。
+    TEXT2SQL_DENY_FINAL_ANSWER_CODES: frozenset[str] = frozenset(
+        {
+            "SQL_EXEC_PERMISSION_DENIED",
+            "CHATBI_SQL_DENIED",
+            "CHATBI_SQL_WRITE_DENIED",
+        }
+    )
+
     @staticmethod
     def _allow_sql_fallback(*, intent: IntentDecision) -> bool:
         # gating：满足任一即可
@@ -242,10 +251,20 @@ class FailureTypeHandler:
             next_tool = "rag_search"
             next_mode = "rag"
             next_thought = f"SQL 生成仍失败，改用文档检索兜底。{sfx}"
-        elif code in ("SQL_EXEC_TABLE_NOT_FOUND", "SQL_EXEC_PERMISSION_DENIED"):
+        elif code in ("SQL_EXEC_TABLE_NOT_FOUND",):
             next_tool = "rag_search"
             next_mode = "rag"
-            next_thought = f"查库失败可能是表/权限问题，改用文档检索定位信息。{sfx}"
+            next_thought = f"查库失败可能是表不存在或名称不匹配，改用文档检索定位信息。{sfx}"
+        elif code in (
+            "SQL_EXEC_PERMISSION_DENIED",
+            "CHATBI_SQL_DENIED",
+            "CHATBI_SQL_WRITE_DENIED",
+        ):
+            # 权限 / RLS / 表级策略：直接对用户说明，不再走 RAG（查库意图下文档检索通常无补）
+            next_tool = "direct_answer"
+            next_mode = "no_data"
+            next_thought = f"数据库访问受权限或策略限制，直接输出说明并结束本回合。{sfx}"
+            stop_now = True
         elif code in ("SQL_EXEC_NO_DATA",):
             # 不换工具：直接回答“未查到数据”
             next_tool = "text2sql_query"
@@ -512,7 +531,9 @@ class ChatBIAgent:
                         payload=_build_rag_sources_event(hits2, top_k=10),
                     )
                 )
-            if tr.success and (answer_text_for_llm or "").strip():
+            # 成功：走总结模拟流；终态短路（无权限 / SQL 无数据等）：工具失败但已有对用户可见的 answer_text 时仍 emit，避免仅见 error 而无 agent.llm / 增量正文
+            _ans_for_stream = (answer_text_for_llm or "").strip()
+            if _ans_for_stream and (tr.success or next_action_val == "final_answer"):
                 llm_phase: LlmPhase = (
                     "rag_generate"
                     if tool_used == "rag_search"
@@ -967,8 +988,14 @@ class ChatBIAgent:
             )
 
             if stop_now:
-                # SQL 无数据：直接回答，不换工具
-                ans3 = "未查到数据。"
+                trf = current_tool_result
+                ec_f = (trf.error_code or "").strip()
+                if ec_f == "SQL_EXEC_NO_DATA":
+                    ans3 = "未查到数据。"
+                elif ec_f in FailureTypeHandler.TEXT2SQL_DENY_FINAL_ANSWER_CODES:
+                    ans3 = (trf.error or "").strip() or "当前账号无权执行该数据库操作。"
+                else:
+                    ans3 = (trf.error or "").strip() or "未查到数据。"
                 steps.append(
                     AgentStepView(
                         step_number=step_idx,
