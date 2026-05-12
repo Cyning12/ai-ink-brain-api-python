@@ -25,12 +25,16 @@ from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
 from .text2sql_core import (
     build_sql_prompt,
     build_summary_prompt,
+    execute_mutating_sql,
     execute_select_sql,
     llm_generate_sql,
     llm_summarize,
     try_summarize_aggregate,
     validate_sql_readonly,
 )
+from .chatbi_policies import load_chatbi_table_policies_sync
+from .chatbi_request_ctx import get_chatbi_log_ctx, get_chatbi_principal
+from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
 from .text2sql_store import get_text2sql_store
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
 
@@ -465,6 +469,11 @@ async def text2sql_execute(
         topk = int(os.getenv("TEXT2SQL_RETRIEVE_TOPK", "6"))
         retrieve_q = _text2sql_retrieve_query(query, hist)
         retrieved = store.search(retrieve_q, top_k=topk)
+        principal = get_chatbi_principal()
+        pols_loaded = None
+        if principal is not None:
+            pols_loaded = await asyncio.to_thread(load_chatbi_table_policies_sync)
+            retrieved = filter_text2sql_retrieved(retrieved, principal=principal, policies=pols_loaded)
 
         api_key = os.getenv("SILICONFLOW_API_KEY", "").strip()
         oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
@@ -478,6 +487,8 @@ async def text2sql_execute(
             retrieved,
             dialogue_context=dialogue_ctx or None,
             value_hints_block=vh_block,
+            chatbi_access_level=principal.access_level if principal else None,
+            chatbi_subject_user_id=principal.subject_user_id if principal else None,
         )
         await _emit_phase_end("retrieve", t_retrieve)
 
@@ -546,8 +557,36 @@ async def text2sql_execute(
 
         await _emit_phase_start("validate")
         t_validate = time.perf_counter()
+        sql = ""
+        sql_kind = "select"
         try:
-            sql = validate_sql_readonly(sql_raw)
+            principal2 = get_chatbi_principal()
+            merged = {**(get_chatbi_log_ctx() or {}), **(json_log_ctx or {})}
+            if principal2 is None:
+                sql = validate_sql_readonly(sql_raw)
+                sql_kind = "select"
+            else:
+                pols = pols_loaded
+                if pols is None:
+                    pols = await asyncio.to_thread(load_chatbi_table_policies_sync)
+                sql, sk = apply_chatbi_sql_gate(
+                    sql_raw,
+                    principal=principal2,
+                    policies=pols,
+                    run_id=merged.get("run_id"),
+                    request_id=merged.get("request_id"),
+                )
+                sql_kind = sk
+        except ChatBiSqlGateDenied as exc:
+            await _emit_phase_end("validate", t_validate)
+            return ToolResult(
+                success=False,
+                data=_data_with_phases(None),
+                error=exc.message_zh,
+                error_code=exc.deny_code,
+                error_stage="text2sql.validate",
+                latency_ms=_elapsed_ms(started_at),
+            )
         except Exception as exc:  # noqa: BLE001
             await _emit_phase_end("validate", t_validate)
             msg = str(exc)
@@ -564,11 +603,16 @@ async def text2sql_execute(
         await _emit_phase_start("db")
         t_db = time.perf_counter()
         try:
-            columns, rows = await asyncio.to_thread(
-                lambda: execute_select_sql(
-                    sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200"))
+            if sql_kind == "select":
+                columns, rows = await asyncio.to_thread(
+                    lambda: execute_select_sql(
+                        sql, limit_rows=int(os.getenv("TEXT2SQL_MAX_ROWS", "200"))
+                    )
                 )
-            )
+            else:
+                rowcount = await asyncio.to_thread(lambda: execute_mutating_sql(sql))
+                columns = ["affected_rows"]
+                rows = [{"affected_rows": rowcount}]
         except Exception as exc:  # noqa: BLE001
             await _emit_phase_end("db", t_db)
             msg = str(exc)
@@ -582,7 +626,7 @@ async def text2sql_execute(
             )
         await _emit_phase_end("db", t_db)
 
-        if not rows:
+        if sql_kind == "select" and not rows:
             return ToolResult(
                 success=False,
                 data=_data_with_phases(None),

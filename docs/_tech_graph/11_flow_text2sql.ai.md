@@ -6,7 +6,7 @@ flowchart TD
   %% === Query 阶段 ===
   IN[[入口 Query]] --"->"--> AUTH[[鉴权]]
   // → api/index.py::_require_auth
-  // → api/unified_chat.py::_require_unified_auth
+  // → api/index.py::unified_chat_route Depends(require_chatbi_principal)
 
   AUTH --"[ok]"--> INT[[Intent Check]]
   AUTH --"[err]"--> ERR_AUTH[>Auth Failed]

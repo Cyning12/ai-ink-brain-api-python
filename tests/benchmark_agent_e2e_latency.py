@@ -35,6 +35,9 @@ def _reload_api_index() -> Any:  # noqa: ANN401
 
     importlib.reload(unified_chat)
     importlib.reload(index)
+    from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+    install_unified_chat_auth_override(index.app)
     return index
 
 

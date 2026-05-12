@@ -84,6 +84,28 @@ def _rows_to_dicts(cur) -> tuple[list[str], list[dict[str, Any]]]:
     return cols, out
 
 
+def execute_mutating_sql(
+    sql: str,
+    *,
+    statement_timeout_ms: int | None = None,
+) -> int:
+    """执行单条 INSERT/UPDATE（已通过闸门）；返回 rowcount。"""
+    dsn = (os.getenv("TEXT2SQL_DATABASE_URL") or "").strip()
+    if not dsn:
+        raise RuntimeError("Missing env: TEXT2SQL_DATABASE_URL")
+
+    import psycopg  # type: ignore[import-not-found]
+
+    timeout_s = float(os.getenv("TEXT2SQL_DB_CONNECT_TIMEOUT_S", "8"))
+    with psycopg.connect(dsn, connect_timeout=timeout_s) as conn:
+        with conn.cursor() as cur:
+            if statement_timeout_ms is not None:
+                st = max(1, min(int(statement_timeout_ms), 600_000))
+                cur.execute(f"SET LOCAL statement_timeout = '{st}ms'")
+            cur.execute(sql)
+            return int(cur.rowcount or 0)
+
+
 def execute_select_sql(
     sql: str,
     *,
@@ -127,6 +149,8 @@ def build_sql_prompt(
     *,
     dialogue_context: str | None = None,
     value_hints_block: str | None = None,
+    chatbi_access_level: int | None = None,
+    chatbi_subject_user_id: str | None = None,
 ) -> str:
     ddl = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "ddl"][:4])
     examples = "\n\n".join([r["content"] for r in retrieved if r.get("doc_type") == "example"][:3])
@@ -146,7 +170,8 @@ def build_sql_prompt(
     parts: list[str] = [
         "你是 Text2SQL 生成器。请根据用户问题生成可在 Postgres(Supabase) 执行的 SQL。",
         "硬性约束：",
-        "- 只输出一条 SQL；只允许 SELECT（或 WITH ... SELECT）；不要包含解释文字；",
+        "- 只输出一条 SQL；不要包含解释文字；默认使用 SELECT（或 WITH ... SELECT）；",
+        "- 若下方「当前主体权限」允许 UPDATE/INSERT，方可输出对应单条语句；",
         "- 只能使用下方提供的表与字段；不要编造不存在的表/字段；",
         "- 尽量使用 snake_case 小写表/字段名。",
         "",
@@ -164,6 +189,43 @@ def build_sql_prompt(
             "只输出 SQL：",
         ]
     )
+    if chatbi_access_level is not None:
+        if chatbi_access_level >= 2:
+            sid = (chatbi_subject_user_id or "").strip()
+            parts.insert(
+                -2,
+                "\n".join(
+                    [
+                        "【当前主体权限：终端用户 L2】",
+                        "- 仅允许一条 SELECT 或（在明确要求修改个人肖像/长久习惯时）单条 UPDATE；",
+                        "- SELECT：单表、禁止 JOIN；WHERE 必须包含你本人归属键（与 subject_user_id 一致）的字面量过滤；",
+                        "- 禁止 INSERT；禁止 DELETE/TRUNCATE；",
+                        "- UPDATE 仅允许 `public.chatbi_user_portrait`，且只能 SET `long_term_prompt` / `updated_at`，WHERE 必须 `user_id = '<你的subject_user_id>'`；",
+                        *(["", f"- 你的 subject_user_id 为：`{sid}`（须在 SQL 中显式出现）。"] if sid else []),
+                    ]
+                ),
+            )
+        elif chatbi_access_level == 1:
+            parts.insert(
+                -2,
+                "\n".join(
+                    [
+                        "【当前主体权限：Admin】",
+                        "- 默认输出 SELECT；若用户明确要求软删/置失效，可使用 UPDATE 修改标志位或 deleted_at；",
+                        "- 禁止使用 DELETE 与 TRUNCATE；禁止 DDL。",
+                    ]
+                ),
+            )
+        else:
+            parts.insert(
+                -2,
+                "\n".join(
+                    [
+                        "【当前主体权限：Super】",
+                        "- 默认 SELECT；写操作须符合表级策略；本工具链不执行物理 DELETE/TRUNCATE（请用运维迁移）。",
+                    ]
+                ),
+            )
     return "\n\n".join(parts).strip()
 
 

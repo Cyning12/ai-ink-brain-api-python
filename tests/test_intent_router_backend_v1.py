@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
+def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = True) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.setenv("API_KEY", "api-key-123")
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
@@ -25,6 +25,14 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     importlib.reload(intent_router)
     importlib.reload(unified_chat)
     importlib.reload(index)
+    if auth_override:
+        from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+        install_unified_chat_auth_override(index.app)
+    else:
+        from tests._chatbi_auth_overrides import clear_unified_chat_auth_override
+
+        clear_unified_chat_auth_override(index.app)
     return index
 
 

@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
+def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = True) -> Any:
     monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.setenv("API_KEY", "api-key-123")
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
@@ -22,15 +22,24 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch) -> Any:
 
     importlib.reload(unified_chat)
     importlib.reload(index)
+    if auth_override:
+        from tests._chatbi_auth_overrides import install_unified_chat_auth_override
+
+        install_unified_chat_auth_override(index.app)
+    else:
+        from tests._chatbi_auth_overrides import clear_unified_chat_auth_override
+
+        clear_unified_chat_auth_override(index.app)
     return index
 
 
 def test_unified_unauthorized(monkeypatch: pytest.MonkeyPatch):
-    index = _reload_api_index(monkeypatch)
+    index = _reload_api_index(monkeypatch, auth_override=False)
     client = TestClient(index.app)
     res = client.post("/api/py/unified/chat", json={"session_id": "s", "query": "hi"})
     assert res.status_code == 401
-    assert res.json() == {"detail": "Unauthorized"}
+    body = res.json()
+    assert body["detail"]["code"] == "CHATBI_UNAUTHORIZED"
 
 
 def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
@@ -51,8 +60,12 @@ def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
         return _S()
 
     monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
-    monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: "select 1 as count")  # noqa: ARG005
-    monkeypatch.setattr(unified_chat, "validate_sql_readonly", lambda s: s)
+    monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: "select 1 as count from public.agent_info")  # noqa: ARG005
+    monkeypatch.setattr(
+        unified_chat,
+        "apply_chatbi_sql_gate",
+        lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
+    )
     monkeypatch.setattr(unified_chat, "execute_select_sql", lambda sql, limit_rows=200: (["count"], [{"count": 0}]))  # noqa: ARG005
     monkeypatch.setattr(unified_chat, "llm_summarize", lambda *, oai, model, prompt: "共有 0 条。")  # noqa: ARG005
 
@@ -221,7 +234,11 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
 
     long_sql = "select '" + ("x" * 2100) + "' as big"
     monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: long_sql)  # noqa: ARG005
-    monkeypatch.setattr(unified_chat, "validate_sql_readonly", lambda s: s)
+    monkeypatch.setattr(
+        unified_chat,
+        "apply_chatbi_sql_gate",
+        lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
+    )
 
     cols = [f"c{i}" for i in range(25)]
     rows = [{c: ("y" * 200 if c == "c0" else i) for c in cols} for i in range(12)]

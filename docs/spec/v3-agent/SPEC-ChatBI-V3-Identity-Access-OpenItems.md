@@ -151,8 +151,14 @@
 | # | 问题 | 结论 |
 |---|------|------|
 | **1** | 第一步是否要先确认需要多少表？ | **是。** 先产出 **逻辑表清单 + 每表一句职责**（见 **§5.1**），再写 migration。业务实体表若尚未存在，须在 Text2SQL **表白名单** 中 **暂缓暴露** 或先建 **最小演示表**，否则闸门无的放矢。 |
-| **2** | 分级优先、登录先极简 | **同意。** 首期登录 = **`Authorization: Bearer` + DB 存 `key_hash` 的常量时间比对**；token 行携带 **`access_level`（0=Super / 1=Admin / 2=终端用户）**；**L2 须** `subject_user_id`（与 `chatbi_user_portrait.user_id` 对齐）。**「对称」**指共享秘密型 API key + `hmac.compare_digest`。**管道 A** 可后置 **P5**；**P1～P4 可不建 `login_exchange`**。 |
+| **2** | 分级优先、登录先极简 | **同意。** **Unified Chat** 首期鉴权 = **仅** `Authorization: Bearer` + 查库 `chatbi_access_tokens.key_hash`（与可选 `CHATBI_ACCESS_TOKEN_PEPPER` 的 SHA-256 小写 hex 一致）；**不再**与 `API_KEY` / `NEXT_PUBLIC_ADMIN_SECRET` 并行校验。token 行携带 **`access_level`（0=Super / 1=Admin / 2=终端用户）**；**L2 须** `subject_user_id`（与 `chatbi_user_portrait.user_id` 对齐）。**管道 A** 可后置 **P5**；**P1～P4 可不建 `login_exchange`**。 |
 | **3** | 在最高优先级 SPEC 下任务怎么排 | 以 **§5.2 分阶段** 为执行序；**先落地能阻断越权的最小表（P1）+ Bearer 鉴权（P2），立刻接 Text2SQL 闸门（P3）**。 |
+
+### 5.0.2 本地生成访问令牌（运维 / 开发）
+
+- **脚本路径**：`docs/diary/local_chatbi_access_token_gen.py`（与运行时 `api/chatbi_access_hash.py` 共用哈希算法）。  
+- **Git 策略**：本仓库根 `.gitignore` 对 `docs/*` 的默认忽略已覆盖 `docs/diary/`（与 `docs/tasks/`、`docs/spec/` 等白名单并列）；**请勿**将含真实明文 token 的终端输出或 `git add -f` 的日记文件推送到 GitHub。  
+- **INSERT 模板**：脚本标准输出含 `insert into public.chatbi_access_tokens ...` 片段，人工复制到 Supabase SQL Editor 执行即可。
 
 ### 5.1 最小逻辑表清单（草 · 表名实现可改）
 

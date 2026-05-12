@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.parse import quote
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
 from supabase import create_client
@@ -29,6 +29,7 @@ from . import code_retrieval
 from . import text2sql_api
 from . import chain_chat
 from . import unified_chat
+from .chatbi_principal import ChatBiPrincipal, require_chatbi_principal
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
 from .ingest_pipeline import (
@@ -519,31 +520,17 @@ async def chain_chat_route(
 @app.post("/api/py/unified/chat")
 async def unified_chat_route(
     request: Request,
-    authorization: str | None = Header(default=None),
-    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
-    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
 ) -> JSONResponse:
-    return await unified_chat.handle_unified_chat(
-        request,
-        authorization=authorization,
-        x_blog_admin_token=x_blog_admin_token,
-        x_admin_token=x_admin_token,
-    )
+    return await unified_chat.handle_unified_chat(request, principal=principal)
 
 
 @app.post("/api/py/unified/chat/stream")
 async def unified_chat_stream_route(
     request: Request,
-    authorization: str | None = Header(default=None),
-    x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
-    x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
 ):
-    return await unified_chat.handle_unified_chat_stream(
-        request,
-        authorization=authorization,
-        x_blog_admin_token=x_blog_admin_token,
-        x_admin_token=x_admin_token,
-    )
+    return await unified_chat.handle_unified_chat_stream(request, principal=principal)
 
 
 @app.post("/api/py/chat")

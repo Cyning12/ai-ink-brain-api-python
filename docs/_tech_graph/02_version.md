@@ -28,5 +28,6 @@ timeline
   2026-05-09 : multiturn Text2SQL grounding tool_results + memory load
   2026-05-10 : e67ab5b auto: api/text2sql_value_hints.py
   2026-05-11 : 4fc0555 auto: api/agent_memory.py
+  2026-05-12 : 8b8d6cc auto: api/chatbi_access_hash.py
 ```
 

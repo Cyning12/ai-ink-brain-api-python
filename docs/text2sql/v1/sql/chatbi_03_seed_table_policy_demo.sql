@@ -31,6 +31,23 @@ on conflict (schema_name, table_name) do update set
   min_update_level = excluded.min_update_level,
   min_delete_level = excluded.min_delete_level,
   owner_column = excluded.owner_column,
+-- 肖像表：L2 可读可 UPDATE（INSERT 对全员关闭）；DELETE 关闭
+insert into public.chatbi_sql_table_policy (
+  schema_name, table_name,
+  min_select_level, min_insert_level, min_update_level, min_delete_level,
+  owner_column, notes
+) values (
+  'public', 'chatbi_user_portrait',
+  2, null, 2, null,
+  'user_id',
+  'L2：SELECT/UPDATE 自身行；INSERT 关闭；DELETE 关闭'
+)
+on conflict (schema_name, table_name) do update set
+  min_select_level = excluded.min_select_level,
+  min_insert_level = excluded.min_insert_level,
+  min_update_level = excluded.min_update_level,
+  min_delete_level = excluded.min_delete_level,
+  owner_column = excluded.owner_column,
   notes = excluded.notes;
 
 commit;
