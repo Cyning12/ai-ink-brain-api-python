@@ -13,13 +13,13 @@ jobs:
     steps:
       # Checkout backend (this repo) into a fixed folder
       - name: Checkout backend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: ai-ink-brain-api-python
 
       # Checkout frontend repo as sibling folder so ../ai-ink-brain/... paths resolve
       - name: Checkout frontend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: Cyning12/ai-ink-brain
           # 默认校验 production 分支（与线上一致）；如需改为 main，替换为 ref: main
@@ -27,7 +27,7 @@ jobs:
           path: ai-ink-brain
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
