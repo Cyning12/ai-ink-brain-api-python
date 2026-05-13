@@ -14,7 +14,7 @@
     "envelope_keys": ["event", "data"],
     "allowed_events": ["chain", "done"],
     "chain": {
-      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。frontend_ts_ignore_payload_like_keys：TS 里 ExecSection / transcript.map(row) 等 UI 字段及 done 上可选 persist，易被 contract_check 的 obj.* 与 .map 启发式误扫；其中 persist 亦为后端 done 可选字段，全量进 done.data_keys 会与静态扫描不一致，故暂列于此。",
+      "_note": "chain 事件：data 是统一结构，type 决定 payload 形态。frontend_optional_chain_data_keys 是允许前端额外读取但不要求后端必出（用于兼容字段）。frontend_ts_ignore_payload_like_keys：TS 里 ExecSection / transcript.map(row) 等 UI 字段及 done 上可选 persist，易被 contract_check 的 obj.* 与 .map 启发式误扫；其中 persist 亦为后端 done 可选字段，全量进 done.data_keys 会与静态扫描不一致，故暂列于此。另：`].map((s)=>` 与 ExecSection 变量同名时会把全文件 `s.*` 误并入 rag item 键；`w.slice(...)` 会把 `slice` 误扫为键，故将 slice / warningsLines 列入忽略。",
       "data_keys": ["type", "ts", "step_id", "payload"],
       "frontend_optional_chain_data_keys": ["step"],
       "frontend_ts_ignore_payload_like_keys": [
@@ -33,7 +33,9 @@
         "text2sqlPhasesMs",
         "text2sql_phases_ms",
         "name",
-        "target"
+        "target",
+        "slice",
+        "warningsLines"
       ],
       "type_values": [
         "meta",
