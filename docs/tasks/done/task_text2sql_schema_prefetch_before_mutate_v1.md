@@ -1,6 +1,6 @@
 # Task：Text2SQL — 变更类 SQL 前强制表结构预取（防臆造列名）
 
-> **状态**：`done`  
+> **状态**：`done`（**2026-05-13** 自 `docs/tasks/active/` 迁入 `docs/tasks/done/`）  
 > **关联实录**：`docs/spec/v3-agent/text2sql/1.md`（`tool.call.end` 报错：`column "id" of relation "agent_info" does not exist`，INSERT 列名与真实表结构不一致）  
 > **关联实现入口**：`api/tools.py::text2sql_execute`、`api/text2sql_core.py::build_sql_prompt`、`api/text2sql_store.py`（检索 DDL）、`api/unified_chat.py`（非 Agent 路径若仍调 Text2SQL 需对齐）  
 > **关联图谱**：`docs/_tech_graph/11_flow_text2sql.md` / `.ai.md`（流程增加「结构预取」分支后须双轨更新）  

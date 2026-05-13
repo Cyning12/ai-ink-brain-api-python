@@ -1,6 +1,6 @@
 # Task：Intent Router（后端 v1）— Unified Chat 路由增强（rag/text2sql/no_data/tool）
 
-状态：**done（核心已落地；2026-05-08 回补 `rag_rule_hits` 与 no_data 门控验收）**  
+状态：**done（核心已落地；2026-05-08 回补 `rag_rule_hits` 与 no_data 门控验收；2026-05-13 自 `docs/tasks/active/` 迁入 `docs/tasks/done/`）**  
 范围：仅后端 `ai-ink-brain-api-python`  
 设计：`docs/UI/v1/UI-04-intent-router-v1.md`  
 实现真值：`api/intent_router.py`
