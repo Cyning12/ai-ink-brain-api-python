@@ -1,9 +1,10 @@
 # ChatBI V3 — 多轮与值域技术债（承接 V2）
 
 > **状态**：`draft`  
-> **父规**：[`SPEC-ChatBI-V3-Overview.md`](SPEC-ChatBI-V3-Overview.md) **§2** 支柱二、**§2.1** P1-4 / P2-3  
+> **父规**：[`SPEC-ChatBI-V3-Overview.md`](SPEC-ChatBI-V3-Overview.md) **§2** 支柱二、**§2.1** P1-4 / P2-3 / **P2 延伸（低置信方案确认）**  
 > **任务单（母单）**：`docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`  
-> **P1-4 implementation**：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`  
+> **P1-4 implementation**：`docs/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`  
+> **P2 延伸（需求）**：[`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`](SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md)（方案 B、预览、确认、门控升格）  
 > **P1-4 前端（Ink-Brain）**：`ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`  
 > **V2 规格交叉**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（尤其 **§4.3**）
 
@@ -27,6 +28,7 @@ V2 已交付：`text2sql_grounding`、历史注入、`value_hints` YAML、DISTIN
 | 主题 | 规格/产品要点 | V3 动作方向 |
 |------|---------------|-------------|
 | **低置信指代澄清** | `SPEC-ChatBI-V2-Multiturn-Semantics.md` **§4.3** | 触发阈值、澄清话术模板、**SSE `chain` 形状** 与 Intent/Agent 编排合单 |
+| **低置信方案预览与确认（后 P1-4）** | P1-4 已能短路澄清，但缺少「将执行方案」可审阅性与 **编排 B** | 见 L1 [`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`](SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md)；任务 **`task_chatbi_v3_low_confidence_plan_preview_confirm_v1`**（`backlog`） |
 | **`commission_structure` 同义与字面量** | YAML `logical_key` 与库枚举字面量易混 | 拆键名、改措辞或文档化「产品与解析」双真值 |
 | **集成抽检扩展** | 性别口语、提成口语等 | 固定烟测集或可选 CI fixture |
 
@@ -63,3 +65,4 @@ V2 已交付：`text2sql_grounding`、历史注入、`value_hints` YAML、DISTIN
 | 2026-05-11 | 初版子规（由总规拆分） |
 | 2026-05-11 | **§0.1**：与 P0 Text2SQL 可观测单、`CHATBI_JSON_LOG`、Ink `run_id` 对齐留档衔接 |
 | 2026-05-11 | 元信息：增加 **P1-4 前端** 任务路径（Ink `task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1`） |
+| 2026-05-12 | **§2** 功能债表：登记 **低置信方案预览与确认**（交叉 **`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm`**）；元信息增加 **P2 延伸** 链接 |

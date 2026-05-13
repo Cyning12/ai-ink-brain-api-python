@@ -10,7 +10,7 @@
 -- - `access_level`（与 OpenItems §1.2 对齐）：**0 = Super**，**1 = Admin**，**2 = L2 终端用户**。
 --   Super：目标态仅管理台签发；Admin = 合并原 temp_admin 与 admin 同档；L2 须配合肖像表与闸门策略。
 -- - `subject_user_id`：**L2 必填**（与 `chatbi_user_portrait.user_id` 等对齐）；Super/Admin 可留空。
--- - 插入/轮换 token 的 **明文** 不落库；手工造哈希见任务单 `task_chatbi_level_gate_v1.md` §「RUNBOOK：生成 key_hash」。
+-- - 插入/轮换 token 的 **明文** 不落库；手工造哈希见任务单 `docs/tasks/done/task_chatbi_level_gate_v1.md` §「RUNBOOK：生成 key_hash」。
 -- =============================================================================
 
 begin;

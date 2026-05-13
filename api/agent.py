@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -46,6 +47,28 @@ def _failure_context_suffix(tr: ToolResult) -> str:
 def _agent_chain(typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     """与 unified_chat._event 同形，供 SSE chain 帧序列化。"""
     return {"type": typ, "ts": int((time.perf_counter() - started_at) * 1000), "step_id": step_id, "payload": payload}
+
+
+# 契约静态扫描锚点：`tools/tech_graph_contract_check.py` 须能解析 `typ="agent.clarify"` 与 payload 字面量键
+_CONTRACT_ANCHOR_AGENT_CLARIFY = _agent_chain(
+    typ="agent.clarify",
+    started_at=0.0,
+    step_id="__contract_anchor_clarify__",
+    payload={"step_number": 1, "message": "", "prompt_for_user": ""},
+)
+_CONTRACT_ANCHOR_AGENT_PLAN_PREVIEW = _agent_chain(
+    typ="agent.plan.preview",
+    started_at=0.0,
+    step_id="__contract_anchor_plan_preview__",
+    payload={
+        "plan_id": "",
+        "tool": "text2sql_query",
+        "sql_draft": "",
+        "warnings": [],
+        "plan_execution_token": "",
+        "expires_in_sec": 120,
+    },
+)
 
 
 async def _emit_simulated_llm(
@@ -181,6 +204,11 @@ class AgentRunView:
     intent_decision: IntentDecision | None
     steps: list[AgentStepView]
     final: AgentFinalView
+    # P1-4 §4.3：无 emit 时（JSON / SSE 批量 replay）由 unified_chat 补发 agent.* 帧
+    clarify_short_circuit: bool = False
+    clarify_user_payload: dict[str, Any] | None = None
+    # 低置信预览放行：无 emit 时与 `agent.clarify` 一并由 unified_chat 补发 `agent.plan.preview`
+    clarify_plan_preview_payload: dict[str, Any] | None = None
 
 
 def _make_tool_call_input(query: str) -> dict[str, Any]:
@@ -342,6 +370,7 @@ class ChatBIAgent:
         debug_router: bool = False,
         debug_llm_prompts: bool = False,
         intent_obs_payload_fn: Callable[[IntentDecision], dict[str, Any]] | None = None,
+        plan_execution_token: str | None = None,
     ) -> AgentRunView:
         loop_started = time.perf_counter()
         ts_ref = sse_started_at if sse_started_at is not None else loop_started
@@ -413,6 +442,33 @@ class ChatBIAgent:
             step1_reasoning = intent.reasoning
             step1_fallback = intent.fallback
 
+        # P2 延伸 / 方案 B：即将走 P1-4 澄清短路时，G2 的 router.decision.final_mode 须与意图候选一致，
+        # 不得沿用「已切到 fallback 工具」的 step1_mode（常见 rag），否则 Timeline 像已转 RAG 却无任何工具执行。
+        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
+        from .chatbi_plan_token import (
+            mint_clarify_text2sql_bypass_token,
+            plan_preview_confirm_enabled,
+            plan_token_ttl_s,
+            verify_clarify_text2sql_bypass_token,
+        )
+
+        _plan_bypass = plan_preview_confirm_enabled() and verify_clarify_text2sql_bypass_token(
+            plan_execution_token, session_id=session_id, query=query
+        )
+        _clarify_eligible = (
+            clarify_gate
+            and prefer == "auto"
+            and intent is not None
+            and intent.tool == "text2sql_query"
+            and intent.confidence < self._min_confidence
+            and not _plan_bypass
+        )
+        # 用户已持有效 plan_execution_token：本轮回放首步须回到意图候选 text2sql，而非低置信 fallback 的 rag。
+        if _plan_bypass:
+            step1_tool = "text2sql_query"
+            step1_mode = self._tool_to_mode(step1_tool)
+            step1_reasoning = "已校验 plan_execution_token，按用户确认放行执行 Text2SQL。"
+
         # Step 循环：必须多步（允许成功在 2 步内结束，但失败应触发继续）
         current_tool: ToolName = step1_tool
         current_mode: V1Mode = self._tool_to_mode(current_tool)
@@ -457,7 +513,7 @@ class ChatBIAgent:
                 )
             )
             _cand_mode = intent.mode
-            _final_mode = step1_mode
+            _final_mode = intent.mode if _clarify_eligible else step1_mode
             await emit(
                 _agent_chain(
                     typ="router.decision",
@@ -589,32 +645,102 @@ class ChatBIAgent:
             )
 
         # P1-4 §4.3：低置信 + SQL 候选时可选「澄清短路」（默认关，避免改变现网行为）
-        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
-        if (
-            clarify_gate
-            and emit is not None
-            and prefer == "auto"
-            and intent is not None
-            and intent.tool == "text2sql_query"
-            and intent.confidence < self._min_confidence
-        ):
+        if _clarify_eligible:
             _cl_msg = "待您澄清（低置信度）"
-            _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
-            _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
-            if not _cl_prompt:
-                _cl_prompt = "当前对您的问题与可用数据表的对应关系不够确定；请补充业务语境、时间范围或具体指标后再试。"
-            await emit(
-                _agent_chain(
-                    typ="agent.clarify",
-                    started_at=ts_ref,
-                    step_id="a1_clarify",
-                    payload={
-                        "step_number": 1,
-                        "message": _cl_msg,
-                        "prompt_for_user": _cl_prompt,
-                    },
-                )
+            plan_preview_payload: dict[str, Any] | None = None
+            plan_ttl_s = plan_token_ttl_s()
+            ttl_notice = (
+                f"若确认按预览 SQL 继续查数：请在 {plan_ttl_s} 秒内在**下一轮同一问题**的请求 JSON 中带 "
+                f"`\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。"
+                "若未及时附带令牌，本预览 SQL 与该令牌均失效，须**重新发起本问题**才能再次预览。"
             )
+            use_reasoning = (os.getenv("CHATBI_V3_CLARIFY_PROMPT_USE_REASONING", "") or "").strip().lower() in (
+                "1",
+                "true",
+                "yes",
+                "on",
+            )
+            _generic = (
+                "请补充您关心的指标、时间范围或具体业务对象。"
+                " 若涉及具体表/字段，请在确认权限与口径后再发起查数。"
+            )
+            if use_reasoning:
+                _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
+                _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
+                if not _cl_prompt:
+                    _cl_prompt = _generic
+            else:
+                _cl_prompt = _generic
+            if plan_preview_confirm_enabled():
+                _cl_prompt = (_cl_prompt.rstrip() + "\n\n" + ttl_notice).strip()
+                from .tools import text2sql_execute as _t2s_preview  # noqa: PLC0415
+
+                _prev_hist: list[dict[str, Any]] = turn_history[-6:]
+                _t2s_json_ctx: dict[str, Any] | None = None
+                if run_id:
+                    _t2s_json_ctx = {"request_id": run_id, "run_id": run_id, "session_id": session_id}
+                _pr = await _t2s_preview(
+                    query,
+                    history=_prev_hist,
+                    debug_llm_prompts=debug_llm_prompts,
+                    chain_emit=emit,
+                    chain_started_at=ts_ref,
+                    json_log_ctx=_t2s_json_ctx,
+                    preview_only=True,
+                )
+                sql_pv = ""
+                if _pr.success and isinstance(_pr.data, dict) and isinstance(_pr.data.get("sql"), str):
+                    sql_pv = (_pr.data.get("sql") or "").strip()
+                if sql_pv:
+                    exec_tok = mint_clarify_text2sql_bypass_token(session_id=session_id, query=query)
+                    plan_prev_id = str(uuid.uuid4()).replace("-", "")[:20]
+                    plan_preview_payload = {
+                        "plan_id": plan_prev_id,
+                        "tool": "text2sql_query",
+                        "sql_draft": sql_pv,
+                        "warnings": [ttl_notice],
+                        "plan_execution_token": exec_tok,
+                        "expires_in_sec": plan_ttl_s,
+                    }
+                    if emit is not None:
+                        await emit(
+                            _agent_chain(
+                                typ="agent.plan.preview",
+                                started_at=ts_ref,
+                                step_id="a1_plan_prev",
+                                payload=plan_preview_payload,
+                            )
+                        )
+                    if chatbi_json_log_enabled() and run_id:
+                        log_chatbi_record(
+                            message="agent_plan_preview_minted",
+                            request_id=run_id,
+                            run_id=run_id,
+                            session_id=session_id,
+                            route="agent",
+                            mode="text2sql",
+                            plan_id=plan_prev_id,
+                            gate_bypass_reason="plan_preview_token_minted",
+                        )
+                else:
+                    _cl_prompt = (
+                        _cl_prompt.rstrip()
+                        + "\n\n（本轮未能生成可放行的 SQL 预览，无法签发 plan_execution_token；请改问或使用 prefer=text2sql。）"
+                    ).strip()
+
+            clarify_pl: dict[str, Any] = {"step_number": 1, "message": _cl_msg, "prompt_for_user": _cl_prompt}
+            if chatbi_json_log_enabled() and run_id:
+                log_chatbi_record(
+                    message="agent_clarify_short_circuit",
+                    request_id=run_id,
+                    run_id=run_id,
+                    session_id=session_id,
+                    route="agent",
+                    mode="text2sql",
+                    intent_tool="text2sql_query",
+                    intent_confidence=float(intent.confidence),
+                    clarify_gate=True,
+                )
             _final_answer = (
                 "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；"
                 "也可改用 prefer=text2sql 强制路径或改写问题后重试。"
@@ -627,8 +753,25 @@ class ChatBIAgent:
                 modes=["text2sql"],
                 fallback_used=False,
             )
-            await _emit_final_chains(final_cl, final_cl.answer)
-            return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
+            if emit is not None:
+                await emit(
+                    _agent_chain(
+                        typ="agent.clarify",
+                        started_at=ts_ref,
+                        step_id="a1_clarify",
+                        payload=clarify_pl,
+                    )
+                )
+                await _emit_final_chains(final_cl, final_cl.answer)
+                return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
+            return AgentRunView(
+                intent_decision=intent,
+                steps=[],
+                final=final_cl,
+                clarify_short_circuit=True,
+                clarify_user_payload=clarify_pl,
+                clarify_plan_preview_payload=plan_preview_payload,
+            )
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)

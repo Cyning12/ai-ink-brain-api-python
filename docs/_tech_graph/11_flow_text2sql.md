@@ -57,3 +57,7 @@ Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sy
 - **总结模型**：`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` 未设时与 `INTENT_LLM_MODEL` 默认一致。
 - **对话块预算**：`TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断 `history_to_rewrite_block` 再注入 `build_sql_prompt`。
 - **P0-3 结构预取（2026-05-12）**：当用户问题含 **INSERT/UPDATE 类语义** 且向量检索 DDL **列锚点不足** 时，在调用 LLM 生成 SQL 之前执行 **只读** `information_schema.columns` 预取（与 `chatbi_sql_table_policy` 可见写权限对齐），将列清单注入 `build_sql_prompt`；失败返回 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`，不盲写。环境变量：`TEXT2SQL_SCHEMA_PREFETCH`（默认随 `TEXT2SQL_DATABASE_URL` 启用）、`TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS`、`TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS`。协议版图见 `11_flow_text2sql.ai.md`（`PF` 节点）。
+
+## V3 P1-4（2026-05-13）· 低置信澄清短路（`agent.clarify`）
+
+当 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 Unified Agent 判定「SQL 候选 + 低置信」时，`api/agent.py` 在首轮 `text2sql_execute` 之前短路并下发 `agent.clarify`；`CHATBI_JSON_LOG=1` 时额外输出 `message=agent_clarify_short_circuit`（`run_id` 与 SSE `meta` 同源）。JSON 与 SSE 批量 replay 路径由 `api/unified_chat.py` 与 emit 增量路径对齐补帧。

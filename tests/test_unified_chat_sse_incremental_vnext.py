@@ -350,6 +350,7 @@ def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.
         debug_router: bool = False,
         debug_llm_prompts: bool = False,
         intent_obs_payload_fn: Any = None,
+        plan_execution_token: str | None = None,
     ) -> AgentRunView:
         _ = (
             self,
@@ -361,6 +362,7 @@ def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.
             debug_router,
             debug_llm_prompts,
             intent_obs_payload_fn,
+            plan_execution_token,
         )
         if emit is None:
             raise AssertionError("emit required")
@@ -389,7 +391,9 @@ def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.
     monkeypatch.setattr(agent_module.ChatBIAgent, "run", _spam_emit_run)
 
     client = TestClient(index.app)
-    text = ""
+    # 读完全部 SSE 再解析：勿在出现子串 `event: done` 时提前 break，否则可能截断在
+    # `event: chain` 块中间，漏掉后续 `agent.llm.truncated`（与 iter_text 分块边界有关）。
+    raw = b""
     with client.stream(
         "POST",
         "/api/py/unified/chat/stream",
@@ -400,10 +404,9 @@ def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.
         json={"session_id": "s1", "query": "hello"},
     ) as res:
         assert res.status_code == 200
-        for chunk in res.iter_text():
-            text += chunk
-            if "event: done" in text:
-                break
+        for chunk in res.iter_bytes():
+            raw += chunk
+    text = raw.decode("utf-8")
 
     chains = _parse_chain_objects(text)
     truncated = [c for c in chains if c.get("type") == "agent.llm.truncated"]

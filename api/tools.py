@@ -408,6 +408,7 @@ async def text2sql_execute(
     chain_emit: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
     chain_started_at: float | None = None,
     json_log_ctx: dict[str, Any] | None = None,
+    preview_only: bool = False,
 ) -> ToolResult:
     started_at = time.perf_counter()
     phases_ms: dict[str, int] = {}
@@ -660,6 +661,23 @@ async def text2sql_execute(
                 latency_ms=_elapsed_ms(started_at),
             )
         await _emit_phase_end("validate", t_validate)
+
+        if preview_only:
+            return ToolResult(
+                success=True,
+                data=_data_with_phases(
+                    {
+                        "sql": sql,
+                        "sql_kind": sql_kind,
+                        "preview_only": True,
+                        "answer": "（预览）已通过只读校验的 SQL 草案，尚未连接数据库执行。",
+                    }
+                ),
+                error=None,
+                error_code=None,
+                error_stage=None,
+                latency_ms=_elapsed_ms(started_at),
+            )
 
         await _emit_phase_start("db")
         t_db = time.perf_counter()

@@ -83,6 +83,67 @@ def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: 
     }
 
 
+def _clarify_short_circuit_events(
+    *,
+    agent_result: AgentRunView,
+    started_at: float,
+    max_steps: int,
+    debug_router: bool,
+    debug_llm_prompts: bool,
+) -> list[dict[str, Any]]:
+    """P1-4：emit 关闭时由本模块补发与 SSE 增量路径一致的 agent.* 前缀帧。"""
+    if not agent_result.clarify_short_circuit or agent_result.clarify_user_payload is None:
+        return []
+    intent_decision = agent_result.intent_decision
+    out: list[dict[str, Any]] = [
+        _event(
+            typ="agent.step.start",
+            started_at=started_at,
+            step_id="a1",
+            payload={"step_number": 1, "max_steps": max_steps},
+        )
+    ]
+    if intent_decision is not None:
+        out.append(
+            _event(
+                typ="agent.intent",
+                started_at=started_at,
+                step_id="intent_1",
+                payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
+            )
+        )
+        if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
+            _ilp = intent_decision.raw_response.get("llm_prompts")
+            if isinstance(_ilp, list) and _ilp:
+                out.append(
+                    _event(
+                        typ="agent.debug.llm_prompts",
+                        started_at=started_at,
+                        step_id="intent_llm_json",
+                        payload={"scope": "intent", "items": _ilp},
+                    )
+                )
+    _pp = agent_result.clarify_plan_preview_payload
+    if isinstance(_pp, dict) and _pp:
+        out.append(
+            _event(
+                typ="agent.plan.preview",
+                started_at=started_at,
+                step_id="a1_plan_prev",
+                payload=_pp,
+            )
+        )
+    out.append(
+        _event(
+            typ="agent.clarify",
+            started_at=started_at,
+            step_id="a1_clarify",
+            payload=agent_result.clarify_user_payload,
+        )
+    )
+    return out
+
+
 # 契约静态扫描锚点：与 _agent_intent_obs_payload 键集合一致（勿删改键名）
 _CONTRACT_ANCHOR_AGENT_INTENT_KEYS = _event(
     typ="agent.intent",
@@ -588,7 +649,8 @@ def _sse_emit_queue_maxsize() -> int:
         n = int(raw)
     except ValueError:
         n = 512
-    return max(8, min(n, 8192))
+    # 下限取 1：允许单测用极小队列触发 backpressure（勿强制 ≥8，否则 CHATBI_SSE_EMIT_QUEUE_MAX=6 无效）
+    return max(1, min(n, 8192))
 
 
 def _sse_emit_queue_event_estimate_chars(ev: dict[str, Any]) -> int:
@@ -704,6 +766,10 @@ async def handle_unified_chat(
         raise HTTPException(status_code=400, detail="Missing required field: query")
     session_id = body.get("session_id") if isinstance(body.get("session_id"), str) else None
     prefer = _parse_prefer(body.get("prefer"))
+    _pet_raw = body.get("plan_execution_token")
+    plan_execution_token: str | None = None
+    if isinstance(_pet_raw, str) and _pet_raw.strip():
+        plan_execution_token = _pet_raw.strip()
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
@@ -756,6 +822,7 @@ async def handle_unified_chat(
             sse_started_at=started_at,
             run_id=run_id,
             debug_llm_prompts=debug_llm_prompts,
+            plan_execution_token=plan_execution_token,
         )
 
         mode = agent_result.final.mode
@@ -781,6 +848,16 @@ async def handle_unified_chat(
                     "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
                     "fallback": intent_decision.fallback if intent_decision else None,
                 },
+            )
+        )
+
+        events.extend(
+            _clarify_short_circuit_events(
+                agent_result=agent_result,
+                started_at=started_at,
+                max_steps=max_steps,
+                debug_router=debug_router,
+                debug_llm_prompts=debug_llm_prompts,
             )
         )
 
@@ -1854,6 +1931,10 @@ async def handle_unified_chat_stream(
         raise HTTPException(status_code=400, detail="Missing required field: query")
     session_id = body.get("session_id") if isinstance(body.get("session_id"), str) else None
     prefer = _parse_prefer(body.get("prefer"))
+    _pet_raw = body.get("plan_execution_token")
+    plan_execution_token: str | None = None
+    if isinstance(_pet_raw, str) and _pet_raw.strip():
+        plan_execution_token = _pet_raw.strip()
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
@@ -1963,6 +2044,7 @@ async def handle_unified_chat_stream(
                                 debug_router=debug_router,
                                 debug_llm_prompts=debug_llm_prompts,
                                 intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
+                                plan_execution_token=plan_execution_token,
                             )
                         except Exception as exc:  # noqa: BLE001
                             holder["exc"] = exc
@@ -2056,6 +2138,7 @@ async def handle_unified_chat_stream(
                             sse_started_at=started_at,
                             run_id=run_id,
                             debug_llm_prompts=debug_llm_prompts,
+                            plan_execution_token=plan_execution_token,
                         )
                     )
                     try:
@@ -2095,6 +2178,15 @@ async def handle_unified_chat_stream(
                             },
                         ),
                     )
+
+                    for ev in _clarify_short_circuit_events(
+                        agent_result=agent_result,
+                        started_at=started_at,
+                        max_steps=max_steps,
+                        debug_router=debug_router,
+                        debug_llm_prompts=debug_llm_prompts,
+                    ):
+                        yield _sse("chain", ev)
 
                     for step in agent_result.steps:
                         step_id = f"a{step.step_number}"

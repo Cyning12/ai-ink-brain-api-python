@@ -85,3 +85,5 @@ flowchart TD
 **V3 P0 Agent（2026-05-11）**：`api/tools.text2sql_execute` 产出 `text2sql_phases_ms`、可选增量 `text2sql.phase.start|end`（`api/agent.py` 注入 `chain_emit`）、LLM 分阶段 `wait_for` 超时；**P0-2**：`CHATBI_JSON_LOG` → `api/chatbi_json_log.py` 单行 JSON（与 SSE **`run_id`** 同源）；人类版说明见同目录 `11_flow_text2sql.md` §V3 P0。
 
 **V3 P0-3 结构预取（2026-05-12）**：写入/更新意图且检索 DDL 列锚点不足时，`run_text2sql_schema_prefetch_sync` 只读查询 `information_schema.columns`（`TEXT2SQL_SCHEMA_PREFETCH` 可关），结果注入 `build_sql_prompt`；失败码 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`；SSE `text2sql.phase.schema_prefetch` / `tool`=`text2sql.schema_prefetch`；见 `api/text2sql_schema_prefetch.py`。
+
+**V3 P1-4 澄清短路（2026-05-13）**：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 时 `api/agent.py` 在首轮 `text2sql_execute` 前可短路并下发 `agent.clarify`；`CHATBI_JSON_LOG` 行 `agent_clarify_short_circuit`；JSON/SSE 批量路径补帧见 `api/unified_chat.py::_clarify_short_circuit_events`；人类版 `11_flow_text2sql.md` §V3 P1-4。

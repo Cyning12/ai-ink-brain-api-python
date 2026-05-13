@@ -189,7 +189,7 @@
 
 ### 5.3 实施任务单与图谱落盘（建议）
 
-- 在 `ai-ink-brain-api-python/docs/tasks/` 新建任务单（例：[`docs/tasks/active/task_chatbi_level_gate_v1.md`](../../tasks/active/task_chatbi_level_gate_v1.md)）：验收 `- [ ]` **按 P0～P4 拆分**。  
+- **实施任务单**：[`docs/tasks/done/task_chatbi_level_gate_v1.md`](../../tasks/done/task_chatbi_level_gate_v1.md)（验收 **P0～P4** 已勾选；**2026-05-13** RUNBOOK + Supabase 已执行）。  
 - `docs/text2sql/v1/sql/chatbi_01_*.sql`～`chatbi_04_*.sql`：Supabase **可复制执行**（见任务单 **§Supabase SQL 执行顺序**）。  
 - `_tech_graph/` 增量：**鉴权依赖 → Text2SQL 闸门** 子流程（与主仓图谱规范一致即可）。
 
@@ -209,5 +209,5 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-05-12 | 初版：收录 **一** 数据域 + L0–L2 Text2SQL 草案及待补全；**二** 企业命名映射；**三** 个人项目不做注册、管道 A + Bearer 拍板及与主规差异表；**四** 占位 |
-| 2026-05-12 | **§五.3**：落实任务单 [`docs/tasks/active/task_chatbi_level_gate_v1.md`](../../tasks/active/task_chatbi_level_gate_v1.md) 与 `docs/text2sql/v1/sql/chatbi_0*.sql` |
-| 2026-05-12 | **§一** 大补：Super/Admin/L2、`chatbi_user_portrait`、软删、L2 禁 JOIN/INSERT、双闸 **§1.5**、日志 **§1.6**；**§二** slug 映射；**§五** T1～T3 与 P0～P3 措辞；**chatbi_04** DDL |
+| 2026-05-12 | **§一** 大补：Super/Admin/L2、`chatbi_user_portrait`、软删、L2 禁 JOIN/INSERT、双闸 **§1.5**、日志 **§1.6**；**§二** slug 映射；**§五** T1～T3 与 P0～P3 措辞；**chatbi_04** DDL；**§五.3** 落实任务单 `task_chatbi_level_gate_v1` 与 `chatbi_0*.sql` |
+| 2026-05-13 | **§五.3**：**`task_chatbi_level_gate_v1`** **done** 归档至 **`docs/tasks/done/`**；**§5.3** 实施单链接与文案同步 |

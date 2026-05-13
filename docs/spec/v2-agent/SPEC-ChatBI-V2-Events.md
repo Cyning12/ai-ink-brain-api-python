@@ -2,7 +2,7 @@
 
 > **状态**：draft  
 > **版本**：v2 + vNext §8（增量 LLM：`agent.llm.*`，chain-only）  
-> **日期**：2026-04-27（vNext 终稿修订：2026-05-08）  
+> **日期**：2026-04-27（vNext 终稿修订：2026-05-08；**§3.2.1** JSON/replay 与 RBAC 默认追问：2026-05-13）  
 > **父文档**：`SPEC-ChatBI-V2-Agent-Overview.md`
 
 ---
@@ -87,7 +87,9 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 ### 3.2.1 agent.clarify（多轮低置信澄清 · V3 §4.3）
 
 > **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.clarify` 的 `payload_min_keys_by_type`。  
-> **触发**：由 `api/agent.py` 实现；当前可选环境变量 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 `prefer=auto`、Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE` 时短路并发此帧（**不执行**首轮 `text2sql_query`），再以 `assistant.message` 给出操作指引。
+> **触发**：由 `api/agent.py` 实现；环境变量 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 `prefer=auto`、Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE` 时短路并发此帧（**不执行**首轮 `text2sql_query`），再以 `assistant.message` 给出操作指引。  
+> **JSON / SSE 批量 replay**：无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 补发同源 `agent.step.start` / `agent.intent` / `agent.clarify`。  
+> **`prompt_for_user`**：默认使用**泛化追问**（避免 Intent reasoning 中物理表名经 SSE 外泄）；若显式开启 `CHATBI_V3_CLARIFY_PROMPT_USE_REASONING=1`，则拼接截断后的 `reasoning`（须自行评估 RBAC / 脱敏）。
 
 ```json
 {
@@ -97,12 +99,34 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
   "payload": {
     "step_number": 1,
     "message": "待您澄清（低置信度）",
-    "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。"
+    "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。 若涉及具体表/字段，请在确认权限与口径后再发起查数。"
   }
 }
 ```
 
 **与 `assistant.message` 边界**：`agent.clarify` **仅**承载追问与对齐语义的过程文案；**最终答案全文**仍以 **`assistant.message`** 为准（澄清短路路径下紧随 `agent.final` 后的 `assistant.message`）。
+
+### 3.2.2 agent.plan.preview（低置信预览 SQL + 放行令牌 · V3 P2）
+
+> **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.plan.preview` 的 `payload_min_keys_by_type`。  
+> **触发**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM` **未显式关闭**（默认开；`0`/`false`/`no`/`off` 关）且与 `agent.clarify` 同轮、在短路前对 Text2SQL 管线执行 **`preview_only`** 成功得到 `sql` 时，由 `api/agent.py` emit（SSE 增量）；JSON / SSE 批量 replay 无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 在 `agent.clarify` **之前**补发同源帧。  
+> **消费**：用户须在 `expires_in_sec` 内在**下一轮同一 `query`** 的请求体中带 `plan_execution_token`（与 `CHATBI_PLAN_TOKEN_TTL_S` 一致）；否则令牌与预览 SQL 意图均作废，须重新发起问题以再次预览。`prompt_for_user` 中已含相同时效说明。
+
+```json
+{
+  "type": "agent.plan.preview",
+  "ts": 350,
+  "step_id": "a1_plan_prev",
+  "payload": {
+    "plan_id": "abc123",
+    "tool": "text2sql_query",
+    "sql_draft": "SELECT 1",
+    "warnings": ["若未及时附带令牌…"],
+    "plan_execution_token": "…",
+    "expires_in_sec": 120
+  }
+}
+```
 
 ### 3.3 agent.intent
 
