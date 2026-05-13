@@ -1,0 +1,45 @@
+# Harness V2 · P2 可选：独立 Verification（pytest 与 pytest.yml 同 marker / env）
+# 真值与计费说明：见工作区 docs/harness/VERIFICATION_CI_PATTERN.md
+name: verify-fast
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - production
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CHATBI_V2_INTENT_EVAL: "false"
+      CHATBI_V2_INTENT_BENCH_RUN: "false"
+      CHATBI_V2_INTENT_LLM: "false"
+      CHATBI_V3_LOW_CONFIDENCE_CLARIFY: "false"
+      CHATBI_PYTEST_KEEP_INTENT_ENV: "0"
+      SILICONFLOW_API_KEY: "sf-dummy-ci"
+      OPENAI_API_KEY: ""
+      NEXT_PUBLIC_SUPABASE_URL: "http://supabase.test"
+      SUPABASE_SERVICE_ROLE_KEY: "service-role-dummy"
+      NEXT_PUBLIC_ADMIN_SECRET: "secret-token-1234567890"
+      API_KEY: "api-key-123"
+      TEXT2SQL_DATABASE_URL: "postgresql://u:p@localhost:5432/postgres"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short
