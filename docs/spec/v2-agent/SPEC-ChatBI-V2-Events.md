@@ -106,6 +106,28 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 
 **与 `assistant.message` 边界**：`agent.clarify` **仅**承载追问与对齐语义的过程文案；**最终答案全文**仍以 **`assistant.message`** 为准（澄清短路路径下紧随 `agent.final` 后的 `assistant.message`）。
 
+### 3.2.2 agent.plan.preview（低置信预览 SQL + 放行令牌 · V3 P2）
+
+> **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.plan.preview` 的 `payload_min_keys_by_type`。  
+> **触发**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM=1` 且与 `agent.clarify` 同轮、在短路前对 Text2SQL 管线执行 **`preview_only`** 成功得到 `sql` 时，由 `api/agent.py` emit（SSE 增量）；JSON / SSE 批量 replay 无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 在 `agent.clarify` **之前**补发同源帧。  
+> **消费**：用户须在 `expires_in_sec` 内在**下一轮同一 `query`** 的请求体中带 `plan_execution_token`（与 `CHATBI_PLAN_TOKEN_TTL_S` 一致）；否则令牌与预览 SQL 意图均作废，须重新发起问题以再次预览。`prompt_for_user` 中已含相同时效说明。
+
+```json
+{
+  "type": "agent.plan.preview",
+  "ts": 350,
+  "step_id": "a1_plan_prev",
+  "payload": {
+    "plan_id": "abc123",
+    "tool": "text2sql_query",
+    "sql_draft": "SELECT 1",
+    "warnings": ["若未及时附带令牌…"],
+    "plan_execution_token": "…",
+    "expires_in_sec": 120
+  }
+}
+```
+
 ### 3.3 agent.intent
 
 ```json

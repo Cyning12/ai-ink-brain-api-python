@@ -123,6 +123,16 @@ def _clarify_short_circuit_events(
                         payload={"scope": "intent", "items": _ilp},
                     )
                 )
+    _pp = agent_result.clarify_plan_preview_payload
+    if isinstance(_pp, dict) and _pp:
+        out.append(
+            _event(
+                typ="agent.plan.preview",
+                started_at=started_at,
+                step_id="a1_plan_prev",
+                payload=_pp,
+            )
+        )
     out.append(
         _event(
             typ="agent.clarify",
@@ -755,6 +765,10 @@ async def handle_unified_chat(
         raise HTTPException(status_code=400, detail="Missing required field: query")
     session_id = body.get("session_id") if isinstance(body.get("session_id"), str) else None
     prefer = _parse_prefer(body.get("prefer"))
+    _pet_raw = body.get("plan_execution_token")
+    plan_execution_token: str | None = None
+    if isinstance(_pet_raw, str) and _pet_raw.strip():
+        plan_execution_token = _pet_raw.strip()
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
@@ -807,6 +821,7 @@ async def handle_unified_chat(
             sse_started_at=started_at,
             run_id=run_id,
             debug_llm_prompts=debug_llm_prompts,
+            plan_execution_token=plan_execution_token,
         )
 
         mode = agent_result.final.mode
@@ -1915,6 +1930,10 @@ async def handle_unified_chat_stream(
         raise HTTPException(status_code=400, detail="Missing required field: query")
     session_id = body.get("session_id") if isinstance(body.get("session_id"), str) else None
     prefer = _parse_prefer(body.get("prefer"))
+    _pet_raw = body.get("plan_execution_token")
+    plan_execution_token: str | None = None
+    if isinstance(_pet_raw, str) and _pet_raw.strip():
+        plan_execution_token = _pet_raw.strip()
 
     started_at = time.perf_counter()
     run_id = str(uuid.uuid4())
@@ -2024,6 +2043,7 @@ async def handle_unified_chat_stream(
                                 debug_router=debug_router,
                                 debug_llm_prompts=debug_llm_prompts,
                                 intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
+                                plan_execution_token=plan_execution_token,
                             )
                         except Exception as exc:  # noqa: BLE001
                             holder["exc"] = exc
@@ -2117,6 +2137,7 @@ async def handle_unified_chat_stream(
                             sse_started_at=started_at,
                             run_id=run_id,
                             debug_llm_prompts=debug_llm_prompts,
+                            plan_execution_token=plan_execution_token,
                         )
                     )
                     try:
