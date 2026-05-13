@@ -6,8 +6,9 @@
 > **企业参考**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§3.2.2**  
 > **交叉（可选）**：`api/intent_agent.py`（用户消息进 LLM 前）、`api/tools.py` / `api/text2sql_core.py`（rewrite / 历史块拼接处）— 具体落点由实现 PR 在 **§实现备忘** 写死  
 > **test_strategy**：`required`  
-> **test_strategy_note**：PoC 须 pytest 钉住 **规则命中 / 正例不误拦 / warn|block|off**；合并前须满足本仓 CI 默认 pytest 门禁。  
-> **freeze_id**：以 `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§3**（修订表至 **2026-05-14**）+ 本单 **§4～§5** 为契约基准。
+> **test_strategy_note**：PoC 须 pytest 钉住 **规则命中 / 正例不误拦 / warn|block|off**；合并前须满足本仓 CI 默认 pytest 门禁。合并 PR 须符合 `docs/harness/HARNESS_V2_PLAN.md` **§5.1** `required`：关键用例可被 **`pytest` 失败复现**（或与 CI 等价本地命令）。  
+> **freeze_id**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§6** 行 **`SPEC-SEC-2026-05-13-§3`** + 本单 **§4～§5**。若 FP-1 引入新 HTTP 码或对外字段名，须同步 **`_contract_manifest.json`**（若适用）与本字段及 SPEC §6。  
+> **gates_before_code**：`["failure_paths", "freeze_id", "§给执行帽的必读列表"]`
 
 ---
 
@@ -17,10 +18,10 @@
 
 | ID | 触发条件 | 系统行为（须可测） | 可重试 | 用户可见类型 |
 |----|-----------|-------------------|--------|----------------|
-| FP-1 | **`CHATBI_PROMPT_GUARD_MODE=block`** 且 `scan()` 命中规则 | **不调用**下游 LLM（或短路统一错误路径）；HTTP 状态码与 body **须与现网 Unified/Agent 错误 envelope 一致**（实现 PR 在 **§实现备忘** 写死 **状态码 + 字段名**）；`CHATBI_JSON_LOG=1` 打 **`prompt_guard_deny`**，含 **`request_id`/`run_id`**、`matched_rule_id` | 否（同文本策略不变则仍拦） | 短拒绝文案（**不**暴露规则细节与内部路径） |
-| FP-2 | **`mode=warn`** 且命中 | **仅日志**（同上 message 键名），请求 **继续** 下游 | 适用下游可重试语义 | 用户 **无额外**阻断提示（PoC 默认） |
+| FP-1 | **`CHATBI_PROMPT_GUARD_MODE=block`** 且 `scan()` 命中规则 | **不调用**下游 LLM（或短路统一错误路径）；HTTP 状态码与 body **须与现网 Unified/Agent 错误 envelope 一致**；实现 PR 在 **§实现备忘** 写死 **状态码 + 字段名**，并在 **`tests/`** 内提供 **golden JSON**（fixture 或快照路径写死在备忘）。`CHATBI_JSON_LOG=1` 打 **`prompt_guard_deny`**，含 **`request_id`/`run_id`**、`matched_rule_id` | 否（同文本策略不变则仍拦） | 短拒绝文案（**不**暴露规则细节与内部路径） |
+| FP-2 | **`mode=warn`** 且命中 | **仅日志**：使用固定日志/结构化键名 **`prompt_guard_warn`**（与 `prompt_guard_deny` 并列），请求 **继续** 下游；pytest 断言该键在命中时出现 **一次** 且不阻断下游 | 适用下游可重试语义 | 用户 **无额外**阻断提示（PoC 默认） |
 | FP-3 | **`mode=off`** | 跳过扫描 | 适用下游 | 无 |
-| FP-4 | Guard 模块自身异常（导入失败、规则表损坏等） | **fail-open 或 fail-closed 须在实现备忘二选一并文档化**；推荐 **fail-closed + block**（偏保守，与本单背景一致）；须 pytest 覆盖该分支 | 视 HTTP 而定 | 通用错误或拒绝类（与所选策略一致） |
+| FP-4 | Guard 模块自身异常（导入失败、规则表损坏等） | **fail-open 或 fail-closed 须在 §实现备忘二选一并文档化**；推荐 **fail-closed**；须 pytest 覆盖该分支。**若备忘未落笔，实现阶段默认 fail-closed**（合入前须回填备忘为显式选择） | 视 HTTP 而定 | 通用错误或拒绝类（与所选策略一致） |
 
 ### 给执行帽的必读列表（开工前）
 
@@ -33,12 +34,11 @@
 
 | 观察 | 处理 |
 |------|------|
-| 子规 **§3.2 输出侧** 提及对模型输出校验；本单 **非范围**未展开输出侧实现 | **本 PoC 验收以 §4 勾选为准**（输入/拼接侧 + 日志）；若 PR 仅做输入侧，须在 `SPEC-ChatBI-V3-Security.md` **§3 修订记录** 一行注明「输出侧留后续 task」，**不**将 §3.2 全文标为已交付。 |
+| 子规 **§3.2 输出侧** 与 PoC 范围 | **以 SPEC §3 引用块 + 本子规 §4 勾选** 为准；SPEC §6 行 **`SPEC-SEC-2026-05-13-§3`** 已钉边界。 |
 
 ### 待确认问题（缺答则执行帽输出阻塞清单）
 
-- **FP-4** 选定 fail-open 还是 fail-closed（若未在 §实现备忘拍板，**不得**静默默认）。  
-- **FP-1** 与现网错误 body 对齐时引用字段名（是否与 `deny_code` 同命名空间分离）须在 PR 描述给出一例 JSON。
+- **FP-1**：golden JSON 的 **`tests/`** 路径须在 §实现备忘写死；与现网 body 字段命名是否独立于 `deny_code` 须在 PR 描述附 **一例 JSON**。
 
 ### 拒开工条件（执行帽）
 
@@ -82,8 +82,9 @@
 
 - [ ] **规则**：至少 **5** 条可命名规则（中英文混合样例均可），覆盖：**忽略前文指令覆盖**、**假 system 标记**、**要求透出密钥/ env`**、**要求删除审计日志类话术**（实现 PR 列标题）。  
 - [ ] **pytest**：`block` 模式下恶意样例 **被拦**；正常业务问句 **不误拦**（至少 **5** 条正例，含短中文问数 / 表名）。  
+- [ ] **warn 路径**：`CHATBI_PROMPT_GUARD_MODE=warn` 且命中规则时，pytest 断言 **`prompt_guard_warn`** 出现 **一次** 且不阻断下游（mock / spy 可证）。  
 - [ ] **集成路径**：至少 **1** 条 e2e 风格测试（mock LLM 或仅测 guard 调用栈）证明 **拦在 LLM 调用之前**。  
-- [ ] **日志**：`CHATBI_JSON_LOG=1` 下 **1** 次拒绝可 grep **`run_id`**（贴 PR 或路径）。  
+- [ ] **日志**：`CHATBI_JSON_LOG=1` 下 **1** 次拒绝：在 **`tests/`** 中断言 JSON 日志结构（含 **`run_id`**）；grep 仅作 PR 附录。  
 - [ ] **配置文档**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 或子规 **§修订记录** 二选一更新，避免 env 漂移。  
 - [ ] **子规**：`SPEC-ChatBI-V3-Security.md` §3 标注 **PoC 已合并** 与范围边界。
 
@@ -96,9 +97,11 @@
 | 接入函数 / 文件 | |
 | 新 env 键名 | |
 | 与 Intent / rewrite 的先后关系 | |
+| **FP-4**（fail-open / fail-closed） | 默认 **fail-closed** 直至显式填写；须与 pytest 异常分支一致 |
+| **FP-1** golden JSON | `tests/` 内 fixture 或快照的**相对路径**（与现网 Unified/Agent 错误 envelope 之一对齐） |
 
 ---
 
 ## 6. 给 Cursor 的稳定关键词
 
-`P1-2`、`prompt injection`、`prompt_guard`、`CHATBI_PROMPT_GUARD`、`Enterprise Gap` §3.2.2、`task_chatbi_v3_prompt_injection_guard_poc_v1`、`test_strategy`、`failure_paths`、`freeze_id`、`拒开工`
+`P1-2`、`prompt injection`、`prompt_guard`、`CHATBI_PROMPT_GUARD`、`Enterprise Gap` §3.2.2、`task_chatbi_v3_prompt_injection_guard_poc_v1`、`test_strategy`、`failure_paths`、`freeze_id`、`拒开工`、`gates_before_code`、`prompt_guard_warn`

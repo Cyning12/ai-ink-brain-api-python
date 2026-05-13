@@ -24,7 +24,7 @@
 |------|------|
 | **解析** | 对 **最终执行前** 的 SQL 做 AST 或等价结构化解析（方言与 Supabase 对齐）。 |
 | **策略** | **只读**：禁止多语句、禁止 DML/DDL（除非产品明确开放 — **默认禁止**）、参数化或白名单表/列。 |
-| **失败** | 结构化 `error_code` + 用户可读短文案；日志带 `request_id`（见 Logging 子规）。 |
+| **失败** | HTTP 与响应 body 以 **`ChatBiSqlGateDenied`**、结构化 **`deny_code`**、用户可读短文案为准（与 `docs/tasks/done/task_chatbi_level_gate_v1.md` 及 **P1-1** `docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md` 现网真值一致）；日志带 `request_id` / `run_id`（见 Logging 子规）。**本节不再使用 `error_code` 指代对外 JSON 字段**，避免与实现漂移。 |
 
 ### 2.3 非范围（初版）
 
@@ -33,6 +33,8 @@
 ---
 
 ## 3. Prompt 注入
+
+> **首期 PoC 边界**：V3 首期 Prompt 防护的**可执行交付范围**以 `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` **§4 验收**为准；**§3.2 输出侧**未在该 task 验收勾选并合并代码前，**不得**在对外叙述或简历中将本子规「输出侧」标为已交付。
 
 ### 3.1 输入侧
 
@@ -46,6 +48,7 @@
 
 ## 4. 验收方向
 
+- **可执行验收**：以关联 **implementation task** 正文 **「验收标准」** 小节（如 P1-1 / P1-2 task 的 §5 / §4）中的 **`- [ ]` 勾选** 与 pytest 门禁为准；本节不替代 task 的可观测断言。  
 - **负例用例集**：至少覆盖「多语句」「禁止关键字」「越权表名」之一类，CI 或本地脚本可跑。  
 - **简历对齐**：未合并代码前，对外表述仍为「V3 规划中」。
 
@@ -65,4 +68,6 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 初版子规 |
+| 2026-05-13 | **§2.2**：「失败」行用语与现网 **`deny_code` / `ChatBiSqlGateDenied`** 对齐；废止以 `error_code` 指代对外字段的叙述。**freeze_id**：`SPEC-SEC-2026-05-13-§2`（P1-1 task `freeze_id` 引用本行）。 |
+| 2026-05-13 | **§3 / §4**：明确 PoC 与 §3.2 输出侧边界；可执行验收以关联 task 勾选为准。**freeze_id**：`SPEC-SEC-2026-05-13-§3`（P1-2 task `freeze_id` 引用本行）。 |
 | 2026-05-14 | **§5**：登记 **P1-1 / P1-2** implementation 任务单路径（`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`task_chatbi_v3_prompt_injection_guard_poc_v1`） |
