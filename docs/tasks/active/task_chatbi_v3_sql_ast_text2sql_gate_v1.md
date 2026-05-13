@@ -4,7 +4,40 @@
 > **与总规批次对应**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§2.1 P1-1**  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2**（SQL 解析 / 策略 / 失败形态）  
 > **企业参考**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§3.2.1**  
-> **前置（已关单）**：`docs/tasks/done/task_chatbi_level_gate_v1.md`（**P1-3** 后闸顺序：**AST → 表白名单 → 档位策略** — 本单在 **不破坏** 该顺序前提下增强 **AST 真值**）
+> **前置（已关单）**：`docs/tasks/done/task_chatbi_level_gate_v1.md`（**P1-3** 后闸顺序：**AST → 表白名单 → 档位策略** — 本单在 **不破坏** 该顺序前提下增强 **AST 真值**）  
+> **test_strategy**：`required`  
+> **test_strategy_note**：安全后闸语义须由 pytest **负例 / 正例 / 顺序**钉住；合并前须满足本仓 CI 默认命令（见 **§给执行帽的必读列表**）。  
+> **freeze_id**：以 `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2**（修订表至 **2026-05-14**）+ 本单 **§4～§5** 为契约基准；与代码字段命名不一致处以 **§文档对齐** 为准。
+
+---
+
+## Harness（需求帽落盘）
+
+### failure_paths
+
+| ID | 触发条件 | 系统行为（须可测） | 可重试 | 用户可见类型 |
+|----|-----------|-------------------|--------|----------------|
+| FP-A | AST / 结构化规则命中（多语句、禁止 DDL/DML 形态等） | 抛出 **`ChatBiSqlGateDenied`**（或已约定子类）；HTTP **403**；body 含结构化 **`deny_code`**（与现网及 level_gate 一致）；`CHATBI_JSON_LOG=1` 时 **`sql_gate_deny`** 带 **`ast_rule_id`/`rule`**（与 §5 验收一致） | 否（同 SQL 文本不重试无意义） | 短拒绝文案（与现网一致，**不**回显完整 SQL） |
+| FP-B | 解析失败或 AST 路径无法稳定分类（含恶意混淆语法） | **默认更严格**：按 **拒绝执行** 处理（与 §4 一致），语义与 FP-A 对齐或单独 `deny_code`；**禁止**静默放行到执行器 | 否 | 与安全拒绝同类或「无法处理该查询」类短文案（执行 PR 在实现备忘 **锁死** 与 FP-A 是否共用 code） |
+| FP-C | 配置/依赖异常（如 gate 内部未捕获错误） | HTTP **5xx**；**不**执行 SQL；日志可关联 `request_id`/`run_id` | 是（客户端可重试） | 通用服务器错误（无内部栈暴露） |
+
+### 给执行帽的必读列表（开工前）
+
+1. `docs/tasks/done/task_chatbi_level_gate_v1.md` — 后闸顺序与 **`deny_code`/`ChatBiSqlGateDenied`** 现行为。  
+2. `api/chatbi_sql_gate.py` — 当前 normalize / classify / deny 日志字段。  
+3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2** + `docs/spec/v3-agent/SPEC-ChatBI-V3-Logging-Trace.md`（日志字段不与 OpenItems **§1.6** 冲突）。  
+4. 合并前本地/CI：`pytest tests -m "not intent_eval and not intent_benchmark"`（与 `ai-ink-brain-api-python/.github/workflows/pytest.yml` 一致）。
+
+### 文档对齐（子规 vs 代码）
+
+| 观察 | 处理 |
+|------|------|
+| `SPEC-ChatBI-V3-Security.md` **§2.2** 摘要使用 **`error_code`**，本仓 level_gate 已落地字段多为 **`deny_code`** / `CHATBI_SQL_DENIED` | **以代码与 level_gate 任务单为真值**；本子规合并 PR 中将 **§2.2** 用语对齐到实际字段名（单行修订即可），**不**在不明示迁移策略时改动对外 JSON 契约。 |
+
+### 拒开工条件（执行帽）
+
+- **`failure_paths`** 中 FP-A/FP-B 的 HTTP、`deny_code`、日志字段名未能在实现 PR 中 **同时**满足 §5 勾选与 pytest 断言说明。  
+- 未读 **level_gate** 关单说明即改动 **`apply_chatbi_sql_gate`** 整体顺序或 `ChatBiPrincipal` 语义。
 
 ---
 
@@ -73,4 +106,4 @@
 
 ## 7. 给 Cursor 的稳定关键词
 
-`P1-1`、`chatbi_sql_gate`、`sqlparse`、`AST`、`CHATBI_SQL_DENIED`、`sql_gate_deny`、`apply_chatbi_sql_gate`、`Enterprise Gap` §3.2.1、`task_chatbi_v3_sql_ast_text2sql_gate_v1`
+`P1-1`、`chatbi_sql_gate`、`sqlparse`、`AST`、`CHATBI_SQL_DENIED`、`sql_gate_deny`、`apply_chatbi_sql_gate`、`Enterprise Gap` §3.2.1、`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`test_strategy`、`failure_paths`、`freeze_id`、`拒开工`
