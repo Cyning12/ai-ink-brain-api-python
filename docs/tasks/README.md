@@ -4,6 +4,17 @@
 
 ---
 
+## 工作区 Harness 任务（不在本目录）
+
+与 **跨子仓流程 / CI 门禁对齐 / 帽子 prompts / 根级验收** 相关的任务单统一在工作区：
+
+- **`../../../docs/harness/tasks/active/`**、**`../../../docs/harness/tasks/done/`**  
+- 规则与索引：**[`../../../docs/harness/tasks/README.md`](../../../docs/harness/tasks/README.md)**
+
+本目录 **`docs/tasks/`** 仅承载 **本后端仓** 任务。
+
+---
+
 ## 目录结构（以当前仓为准）
 
 ```
@@ -15,7 +26,16 @@ docs/tasks/
   specs/                   # 规格文档（SPEC-*.md）
   templates/               # 模板（TASK_TEMPLATE.md）
   legacy/                  # 历史命名/缺少状态/待补齐字段
+  review_results/          # 审查帽输出归档（见该目录 README）；可交需求帽回填 task/SPEC
+  reinspect_results/       # 独立复检帽输出归档（见该目录 README）；必要时交需求帽回填
 ```
+
+### 审查与复检产出（非 task 单）
+
+- **`review_results/`**：规格/任务 **审查帽** 结论归档；详见 [`review_results/README.md`](review_results/README.md)。  
+- **`reinspect_results/`**：**独立复检帽** 结论归档；详见 [`reinspect_results/README.md`](reinspect_results/README.md)。  
+
+二者均可将「回填清单」交给工作区 **需求帽**（[`../../../docs/harness/prompts/10-requirements.md`](../../../docs/harness/prompts/10-requirements.md)）以更新本仓 `docs/tasks/`、`docs/spec/`（按清单内路径执行）。
 
 ---
 
@@ -68,8 +88,16 @@ docs/tasks/
 
 ---
 
+## Harness V2 · 任务单扩展字段
+
+与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐（路径相对工作区根 `Projects/`；复制到 task 正文或元信息区即可）：
+
+- **`test_strategy`**：`required | recommended | not_applicable`（`not_applicable` 须一行理由）。
+- **`failure_paths`**：建议独立小节（触发条件、行为/错误码、可重试、用户可见类型）。
+- 可选 **`freeze_id`**、**`gates_before_code`**：见规划 §5.2–§5.4。
+
 ## 常见坑（强制避免）
 
 - 不要把已完成任务留在 `active/`（会误导新 Agent 判断“还在做”）
 - 不要在任务文件里写“已完成但状态还是 pending”（状态必须与事实一致）
-- 不要在 `docs/tasks/` 顶层混放 task/spec/template（统一按目录归类）
+- 不要在 `docs/tasks/` **顶层**混放零散 `task_*.md` / `SPEC-*.md` / 模板（须进 `active/`、`done/`、`specs/`、`templates/`）；**`review_results/`、`reinspect_results/`** 为帽子产出专用子目录，见上节

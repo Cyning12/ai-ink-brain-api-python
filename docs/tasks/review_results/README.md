@@ -19,7 +19,7 @@
 **现有归档**：
 
 - [`review_chatbi_v3_security_p1_p2_20260513_v1.md`](review_chatbi_v3_security_p1_p2_20260513_v1.md) — ChatBI V3 Security，P1-1 / P1-2 + SPEC（**R1**，2026-05-13）  
-- [`review_chatbi_v3_security_p1_p2_20260513_v2.md`](review_chatbi_v3_security_p1_p2_20260513_v2.md) — 同上主题 **R2**（回填后再审，**零阻塞** + 执行门闸，2026-05-13）
+- [`review_chatbi_v3_security_p1_p2_20260513_v2.md`](review_chatbi_v3_security_p1_p2_20260513_v2.md) — 同上主题 **R2**（回填后再审，**零阻塞** + 执行门闸，2026-05-13）；文末 **§七 R3**（2026-05-14 复核追加）
 
 ---
 

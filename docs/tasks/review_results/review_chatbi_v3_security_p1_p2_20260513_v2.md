@@ -69,6 +69,16 @@
 
 ---
 
+## 七、R3 复核（2026-05-14 · 回填后再审 / 对话触发）
+
+- **阻塞项**：仍为 **无**（对照当前 task / SPEC HEAD）。  
+- **相对 R2 的增量观测**：P1-2 **§4** 已显式增加 **`warn` 路径** pytest 验收行，与 `failure_paths` **FP-2** 一致，**可测性**较 R2 撰稿时更完整。  
+- **非阻塞（可选润色）**：`gates_before_code` 可追加 **`"test_strategy"`** 与 HARNESS **§5.4** 示例对齐；SPEC 文首 **`draft`** 可加一句「章节冻结以 §6 `SPEC-SEC-*` 行为准」；**FP-3 `off`** 可加 1 条轻量「不调 scan」测试；**SPEC §3.1** 与 `_tech_graph` 交点是否在 P1-2 关单强制，若否可在 SPEC §6 或 P1-2 验收补一句免责。
+
+**结论（R3）**：维持 **§五** — **审查通过，可按 task 执行**；门闸同 **§五**。
+
+---
+
 ## 给 Cursor 的稳定关键词
 
 `Harness`、`审查帽`、`R2`、`review_results`、`ChatBI`、`P1-1`、`P1-2`、`审查通过`、`failure_paths`、`freeze_id`、`SPEC-SEC-2026-05-13`
