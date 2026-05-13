@@ -649,7 +649,8 @@ def _sse_emit_queue_maxsize() -> int:
         n = int(raw)
     except ValueError:
         n = 512
-    return max(8, min(n, 8192))
+    # 下限取 1：允许单测用极小队列触发 backpressure（勿强制 ≥8，否则 CHATBI_SSE_EMIT_QUEUE_MAX=6 无效）
+    return max(1, min(n, 8192))
 
 
 def _sse_emit_queue_event_estimate_chars(ev: dict[str, Any]) -> int:
