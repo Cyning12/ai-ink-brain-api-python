@@ -713,6 +713,8 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
     """
     monkeypatch.setenv("CHATBI_USE_AGENT", "true")
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    # 与启发式 rag 置信度（约 0.68）对齐，避免开发者 .env 提高 INTENT_MIN_CONFIDENCE 后首步误切 fallback
+    monkeypatch.setenv("INTENT_MIN_CONFIDENCE", "0.6")
 
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat
@@ -874,4 +876,110 @@ def test_v2_agent_disabled_regression(monkeypatch: pytest.MonkeyPatch):
     data = res.json()
     types = [e.get("type") for e in data["events"]]
     assert all(not str(t).startswith("agent.") for t in types)
+
+
+def test_v3_low_confidence_clarify_json_skips_text2sql(monkeypatch: pytest.MonkeyPatch):
+    """P1-4 §4.3：CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1 时须下发 agent.clarify 且不执行 text2sql_query。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "1")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    t2s_calls = {"n": 0}
+
+    async def _text2sql_forbidden(
+        *,
+        query: str,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+        **_: Any,
+    ) -> ToolResult:  # noqa: ANN401
+        _ = (query, history, debug_llm_prompts)
+        t2s_calls["n"] += 1
+        raise AssertionError("text2sql must not run under clarify short-circuit")
+
+    async def _rag_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "rag ok", "hits": []},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=2,
+        )
+
+    async def _direct_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "direct"},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("direct_answer", _direct_ok_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("text2sql_query", _text2sql_forbidden),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ):  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="stub reasoning for test",
+            reasoning_full="stub reasoning for test",
+            confidence=0.35,
+            fallback="rag_search",
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=False),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "低置信查数探针", "prefer": "auto"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    types = [e.get("type") for e in data["events"]]
+    assert "agent.clarify" in types
+    assert t2s_calls["n"] == 0
+    clarify_evt = next(e for e in data["events"] if e.get("type") == "agent.clarify")
+    assert clarify_evt["payload"]["message"] == "待您澄清（低置信度）"
+    assert "请补充您关心" in clarify_evt["payload"]["prompt_for_user"]
+
+    rd = next(e for e in data["events"] if e.get("type") == "router.decision")
+    assert rd["payload"]["candidate_mode"] == "text2sql"
+    assert rd["payload"]["final_mode"] == "text2sql"
 

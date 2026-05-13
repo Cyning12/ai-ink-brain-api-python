@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-12（`GET /api/py/chatbi/access/verify` 探活；`GET /api/py/chat/history` 支持 **`X-ChatBI-Access-Token`** 与 `_require_rag_history_auth`；`resolve_chatbi_from_plain_token`）；此前 2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` …）；再前见下文历史行
+> **最后校准**：2026-05-12（**P2 延伸**：低置信方案预览 / 确认 / 编排 B — `SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md` + `task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`，**§C 占位说明**）；此前 2026-05-13（P1-4：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY` / `CHATBI_V3_CLARIFY_PROMPT_USE_REASONING`）；此前 2026-05-12（`GET /api/py/chatbi/access/verify` 探活；`GET /api/py/chat/history` 支持 **`X-ChatBI-Access-Token`** 与 `_require_rag_history_auth`；`resolve_chatbi_from_plain_token`）；此前 2026-05-11（V3 P0-2：`CHATBI_JSON_LOG` …）；再前见下文历史行
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -74,6 +74,11 @@
 | `DEBUG_INTENT_CACHE` | Intent 缓存诊断日志（仅 `key_hash` + `latency_ms`，不打印完整 query） | 可选 | `api/intent_agent.py` | `1/true/...` 开启 | 与项目无关 |
 | `CHATBI_V2_INTENT_TIMEOUT_S` | Intent LLM 单次等待上限（秒），`asyncio.wait_for` 包住上游 `chat.completions`；超时后 `raw_response.used=v1_fallback`，走 V1 规则路由 | 可选 | `api/intent_agent.py`（`decide_intent_v2`）、`tests/benchmark_intent_latency.py` | 未设时沿用调用方默认 `3.0`；SiliconFlow 较慢时建议 `15`～`30`；**60 条 intent_eval 冻结验收**见 `docs/diary/2026-05-06-p1-intent-benchmark.md`（复跑五使用 `60`） | 与项目无关 |
 | `INTENT_MIN_CONFIDENCE` | V2 Agent 传入 `decide_intent_v2` 的最低置信度；低于则填 `fallback`（映射见 `api/intent_agent.py:_fallback_tool_by_low_confidence`） | 可选 | `api/agent.py`（`ChatBIAgent`） | 默认 `0.6` | 与项目无关 |
+| `CHATBI_V3_LOW_CONFIDENCE_CLARIFY` | P1-4 §4.3：Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE`、`prefer=auto` 时，**先发 `agent.clarify` 并短路首轮 text2sql**（JSON / SSE 全路径；SSE 增量路径见 `api/agent.py` emit） | 可选 | `api/agent.py` | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启；与 `SPEC-ChatBI-V2-Events.md` §3.2.1 对齐 | 与项目无关 |
+| `CHATBI_V3_CLARIFY_PROMPT_USE_REASONING` | 澄清帧 `prompt_for_user` 是否拼接 Intent LLM `reasoning`（**可能含表名/列名**，生产慎用；默认关走泛化追问文案） | 可选 | `api/agent.py` | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启 | 与 RBAC 展示策略相关 |
+
+> **P2 延伸（规划中 · 代码尚未读取下列能力）**：**低置信方案预览、用户确认、编排方案 B、门控升格（令牌 / effective_confidence）** 的需求真值见 `docs/spec/v3-agent/SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`，任务单见 `docs/tasks/active/task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`。**实现 PR 合并后**须在本 **§C** 表增补实际 **`env` 键名**、**谁读取**、默认行为，并更新 `.env.example` 注释块。
+
 | `CHATBI_V2_INTENT_BENCH_RUN` | 是否执行 pytest 中 B1 延迟基准（`intent_benchmark`） | 可选 | `tests/benchmark_intent_latency.py` | 默认不跑；`true` 时依赖外网与 `SILICONFLOW_API_KEY` | 与项目无关 |
 | `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/rag_shared.py:parse_match_threshold()`；由 `api/index.py`（Legacy chat）、`api/unified_chat.py`、`api/code_retrieval.py`（注入）调用 | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值或 `<0` 回退默认；`>1` 视为关闭过滤（`None`） | 与项目无关 |
 | `DEBUG_RAG` / `RAG_DEBUG` | RAG 调试日志开关 | 可选 | `api/index.py` | `1/true/yes/on` 或 `NODE_ENV=development` | 与项目无关 |

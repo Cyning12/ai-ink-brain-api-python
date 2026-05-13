@@ -83,6 +83,57 @@ def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: 
     }
 
 
+def _clarify_short_circuit_events(
+    *,
+    agent_result: AgentRunView,
+    started_at: float,
+    max_steps: int,
+    debug_router: bool,
+    debug_llm_prompts: bool,
+) -> list[dict[str, Any]]:
+    """P1-4：emit 关闭时由本模块补发与 SSE 增量路径一致的 agent.* 前缀帧。"""
+    if not agent_result.clarify_short_circuit or agent_result.clarify_user_payload is None:
+        return []
+    intent_decision = agent_result.intent_decision
+    out: list[dict[str, Any]] = [
+        _event(
+            typ="agent.step.start",
+            started_at=started_at,
+            step_id="a1",
+            payload={"step_number": 1, "max_steps": max_steps},
+        )
+    ]
+    if intent_decision is not None:
+        out.append(
+            _event(
+                typ="agent.intent",
+                started_at=started_at,
+                step_id="intent_1",
+                payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
+            )
+        )
+        if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
+            _ilp = intent_decision.raw_response.get("llm_prompts")
+            if isinstance(_ilp, list) and _ilp:
+                out.append(
+                    _event(
+                        typ="agent.debug.llm_prompts",
+                        started_at=started_at,
+                        step_id="intent_llm_json",
+                        payload={"scope": "intent", "items": _ilp},
+                    )
+                )
+    out.append(
+        _event(
+            typ="agent.clarify",
+            started_at=started_at,
+            step_id="a1_clarify",
+            payload=agent_result.clarify_user_payload,
+        )
+    )
+    return out
+
+
 # 契约静态扫描锚点：与 _agent_intent_obs_payload 键集合一致（勿删改键名）
 _CONTRACT_ANCHOR_AGENT_INTENT_KEYS = _event(
     typ="agent.intent",
@@ -781,6 +832,16 @@ async def handle_unified_chat(
                     "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
                     "fallback": intent_decision.fallback if intent_decision else None,
                 },
+            )
+        )
+
+        events.extend(
+            _clarify_short_circuit_events(
+                agent_result=agent_result,
+                started_at=started_at,
+                max_steps=max_steps,
+                debug_router=debug_router,
+                debug_llm_prompts=debug_llm_prompts,
             )
         )
 
@@ -2095,6 +2156,15 @@ async def handle_unified_chat_stream(
                             },
                         ),
                     )
+
+                    for ev in _clarify_short_circuit_events(
+                        agent_result=agent_result,
+                        started_at=started_at,
+                        max_steps=max_steps,
+                        debug_router=debug_router,
+                        debug_llm_prompts=debug_llm_prompts,
+                    ):
+                        yield _sse("chain", ev)
 
                     for step in agent_result.steps:
                         step_id = f"a{step.step_number}"

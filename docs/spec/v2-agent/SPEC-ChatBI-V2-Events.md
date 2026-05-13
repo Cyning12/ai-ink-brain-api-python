@@ -2,7 +2,7 @@
 
 > **状态**：draft  
 > **版本**：v2 + vNext §8（增量 LLM：`agent.llm.*`，chain-only）  
-> **日期**：2026-04-27（vNext 终稿修订：2026-05-08）  
+> **日期**：2026-04-27（vNext 终稿修订：2026-05-08；**§3.2.1** JSON/replay 与 RBAC 默认追问：2026-05-13）  
 > **父文档**：`SPEC-ChatBI-V2-Agent-Overview.md`
 
 ---
@@ -87,7 +87,9 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 ### 3.2.1 agent.clarify（多轮低置信澄清 · V3 §4.3）
 
 > **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.clarify` 的 `payload_min_keys_by_type`。  
-> **触发**：由 `api/agent.py` 实现；当前可选环境变量 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 `prefer=auto`、Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE` 时短路并发此帧（**不执行**首轮 `text2sql_query`），再以 `assistant.message` 给出操作指引。
+> **触发**：由 `api/agent.py` 实现；环境变量 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 `prefer=auto`、Intent 候选为 `text2sql_query` 且 `confidence < INTENT_MIN_CONFIDENCE` 时短路并发此帧（**不执行**首轮 `text2sql_query`），再以 `assistant.message` 给出操作指引。  
+> **JSON / SSE 批量 replay**：无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 补发同源 `agent.step.start` / `agent.intent` / `agent.clarify`。  
+> **`prompt_for_user`**：默认使用**泛化追问**（避免 Intent reasoning 中物理表名经 SSE 外泄）；若显式开启 `CHATBI_V3_CLARIFY_PROMPT_USE_REASONING=1`，则拼接截断后的 `reasoning`（须自行评估 RBAC / 脱敏）。
 
 ```json
 {
@@ -97,7 +99,7 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
   "payload": {
     "step_number": 1,
     "message": "待您澄清（低置信度）",
-    "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。"
+    "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。 若涉及具体表/字段，请在确认权限与口径后再发起查数。"
   }
 }
 ```

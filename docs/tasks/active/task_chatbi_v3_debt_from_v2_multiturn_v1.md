@@ -13,7 +13,7 @@
 
 | 本文件章节 | 总规批次 | 说明 |
 |------------|----------|------|
-| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期；**implementation 子任务**：`Projects/ai-ink-brain-api-python/docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（`todo`）。 |
+| **§1**（澄清 §4.3、编排、SSE 形状） | **P1-4** | 与 **RBAC / 事件形状**（Overview **P1-3**）可能交叉，宜在 P1 内排期；**implementation 子任务**：`Projects/ai-ink-brain-api-python/docs/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（**done**）。 |
 | **§1** 末行「集成抽检扩展」 | **P2-2** 协同 | 与 **评估 / 烟测集**（`SPEC-ChatBI-V3-Evaluation`）同批更省重复建设。 |
 | **§2**（同义词、DISTINCT 节能、漂移 CI、图谱） | **P2-3** | 优化与非阻塞项；可多条小 PR，**不必**与 §1 同发布火车。 |
 
@@ -21,9 +21,11 @@
 
 **意图识别（独立 backlog）**：**单标签 intent**、**Prompt 边界表** 与 **复合句（表结构 + DML）** 等路由语义，记在 **`task_chatbi_v3_intent_classification_debt_v1.md`**（预留 **Intent vNext** 版本升级，**不**与本母单 §1/§2 混排验收）。
 
+**低置信方案预览与确认（P2 延伸）**：见 **`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`** 与 **`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`**（与 P1-4 澄清 **递进**，单独立项）。
+
 ### 0.1 建议首包（P1-4 入口）
 
-**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：后端 `Projects/ai-ink-brain-api-python/docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（`todo`）；前端 **Ink-Brain** `Projects/ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`（`pending`，**新 `chain.type` 须前后端同 PR + manifest**；前端 **开工闸门** 见该文件 **§开工闸门与前后端节奏**）。
+**§1 低置信澄清**：**P0 Text2SQL 可观测** 已归档（`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`）；排障与 E2E 留证复用 **`CHATBI_JSON_LOG`** + Timeline **`run_id`**。**implementation 子任务** 已登记：后端 `Projects/ai-ink-brain-api-python/docs/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（**done**）；前端 **Ink-Brain** `Projects/ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`（`pending`，**新 `chain.type` 须前后端同 PR + manifest**；前端 **开工闸门** 见该文件 **§开工闸门与前后端节奏**）。
 
 ---
 
@@ -32,6 +34,7 @@
 | 欠债项 | 说明 | 建议 V3 动作 |
 |--------|------|----------------|
 | **低置信指代澄清** | 规格 **§4.3**：表/列指代模糊或 Intent 置信不足时，向用户澄清而非硬猜。V2 仅 grounding + 值域提示，**无主动澄清轮**。 | 与 Intent / Agent 编排合单；定义触发阈值与 SSE 事件形状。 |
+| **低置信方案预览与用户确认（后 P1-4）** | P1-4 已交付 **澄清短路**；尚需 **方案 B** 编排、**text2sql/rag 草案** 可见、**显式确认** 后 **门控升格**（令牌 / effective_confidence，禁止纯改模型 JSON）。 | **L1 需求**：`docs/spec/v3-agent/SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`；**任务**：`docs/tasks/active/task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`（`backlog`）；前端须另单或与 Ink P1-4 前端协同。 |
 | **意图分类 / 复合路由（Intent vNext）** | **单标签** intent 与 **Prompt 边界表**（如「表有哪些字段」→ RAG）在 **复合句**（表结构 + DML）下易偏航；与 **schema 预取 / text2sql** 产品语义需总规对齐。 | **独立母单**：`task_chatbi_v3_intent_classification_debt_v1.md`（`backlog`）；实施时勿与 §4.3 澄清混为同一验收。 |
 | **`commission_structure` 同义词与库内字面量** | YAML 同义词「提成结构→底薪加提成」与库内枚举字面量「提成结构」**同名**，易产生产品/解析歧义。 | 拆 `logical_key`、改措辞或 DISTINCT+字典分工说明。 |
 | **集成抽检扩展** | V2 已抽检 `gender=保密` 等；「男性 / commission 口语」等仍可加抽。 | V3 建立固定烟测集或 CI 对真库 fixture（可选）。 |
@@ -51,4 +54,4 @@
 ## 3. 验收与关键词
 
 - **本文件**：不要求单独 CI；**被 V3 子任务引用时**再写验收 `- [ ]`。  
-- **关键词**：V3、技术债、多轮澄清、§4.3、value_hints、DISTINCT、提成结构、`_tech_graph`、**Intent vNext**、`task_chatbi_v3_intent_classification_debt_v1`
+- **关键词**：V3、技术债、多轮澄清、§4.3、value_hints、DISTINCT、提成结构、`_tech_graph`、**Intent vNext**、`task_chatbi_v3_intent_classification_debt_v1`、低置信方案预览、`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm`、`task_chatbi_v3_low_confidence_plan_preview_confirm_v1`

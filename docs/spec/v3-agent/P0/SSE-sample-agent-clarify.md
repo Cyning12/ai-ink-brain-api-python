@@ -9,7 +9,7 @@
 {"type":"meta","ts":1,"step_id":"m1","payload":{"run_id":"run-demo-clarify","mode":"text2sql","session_id":"sess-1"}}
 {"type":"agent.step.start","ts":2,"step_id":"a1","payload":{"step_number":1,"max_steps":5}}
 {"type":"agent.intent","ts":100,"step_id":"intent_1","payload":{"tool":"text2sql_query","mode":"text2sql","reasoning":"候选表意不够确定","confidence":0.35,"fallback":"rag_search","cache":"miss","cache_key_hash":"","latency_ms":12}}
-{"type":"agent.clarify","ts":200,"step_id":"a1_clarify","payload":{"step_number":1,"message":"待您澄清（低置信度）","prompt_for_user":"请补充指标与时间范围。"}}
+{"type":"agent.clarify","ts":200,"step_id":"a1_clarify","payload":{"step_number":1,"message":"待您澄清（低置信度）","prompt_for_user":"请补充您关心的指标、时间范围或具体业务对象。 若涉及具体表/字段，请在确认权限与口径后再发起查数。"}}
 {"type":"agent.final","ts":300,"step_id":"a_final","payload":{"total_steps":0,"tools_used":[],"modes":["text2sql"],"fallback_used":false}}
 {"type":"assistant.message","ts":310,"step_id":"s_answer","payload":{"role":"assistant","content":"系统在继续查数前需要先与您对齐语义…"}}
 ```

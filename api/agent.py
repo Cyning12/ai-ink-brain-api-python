@@ -48,6 +48,15 @@ def _agent_chain(typ: str, started_at: float, step_id: str, payload: dict[str, A
     return {"type": typ, "ts": int((time.perf_counter() - started_at) * 1000), "step_id": step_id, "payload": payload}
 
 
+# 契约静态扫描锚点：`tools/tech_graph_contract_check.py` 须能解析 `typ="agent.clarify"` 与 payload 字面量键
+_CONTRACT_ANCHOR_AGENT_CLARIFY = _agent_chain(
+    typ="agent.clarify",
+    started_at=0.0,
+    step_id="__contract_anchor_clarify__",
+    payload={"step_number": 1, "message": "", "prompt_for_user": ""},
+)
+
+
 async def _emit_simulated_llm(
     emit: Callable[[dict[str, Any]], Awaitable[None]],
     *,
@@ -181,6 +190,9 @@ class AgentRunView:
     intent_decision: IntentDecision | None
     steps: list[AgentStepView]
     final: AgentFinalView
+    # P1-4 §4.3：无 emit 时（JSON / SSE 批量 replay）由 unified_chat 补发 agent.* 帧
+    clarify_short_circuit: bool = False
+    clarify_user_payload: dict[str, Any] | None = None
 
 
 def _make_tool_call_input(query: str) -> dict[str, Any]:
@@ -413,6 +425,17 @@ class ChatBIAgent:
             step1_reasoning = intent.reasoning
             step1_fallback = intent.fallback
 
+        # P2 延伸 / 方案 B：即将走 P1-4 澄清短路时，G2 的 router.decision.final_mode 须与意图候选一致，
+        # 不得沿用「已切到 fallback 工具」的 step1_mode（常见 rag），否则 Timeline 像已转 RAG 却无任何工具执行。
+        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
+        _clarify_eligible = (
+            clarify_gate
+            and prefer == "auto"
+            and intent is not None
+            and intent.tool == "text2sql_query"
+            and intent.confidence < self._min_confidence
+        )
+
         # Step 循环：必须多步（允许成功在 2 步内结束，但失败应触发继续）
         current_tool: ToolName = step1_tool
         current_mode: V1Mode = self._tool_to_mode(current_tool)
@@ -457,7 +480,7 @@ class ChatBIAgent:
                 )
             )
             _cand_mode = intent.mode
-            _final_mode = step1_mode
+            _final_mode = intent.mode if _clarify_eligible else step1_mode
             await emit(
                 _agent_chain(
                     typ="router.decision",
@@ -589,32 +612,38 @@ class ChatBIAgent:
             )
 
         # P1-4 §4.3：低置信 + SQL 候选时可选「澄清短路」（默认关，避免改变现网行为）
-        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
-        if (
-            clarify_gate
-            and emit is not None
-            and prefer == "auto"
-            and intent is not None
-            and intent.tool == "text2sql_query"
-            and intent.confidence < self._min_confidence
-        ):
+        if _clarify_eligible:
             _cl_msg = "待您澄清（低置信度）"
-            _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
-            _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
-            if not _cl_prompt:
-                _cl_prompt = "当前对您的问题与可用数据表的对应关系不够确定；请补充业务语境、时间范围或具体指标后再试。"
-            await emit(
-                _agent_chain(
-                    typ="agent.clarify",
-                    started_at=ts_ref,
-                    step_id="a1_clarify",
-                    payload={
-                        "step_number": 1,
-                        "message": _cl_msg,
-                        "prompt_for_user": _cl_prompt,
-                    },
-                )
+            use_reasoning = (os.getenv("CHATBI_V3_CLARIFY_PROMPT_USE_REASONING", "") or "").strip().lower() in (
+                "1",
+                "true",
+                "yes",
+                "on",
             )
+            _generic = (
+                "请补充您关心的指标、时间范围或具体业务对象。"
+                " 若涉及具体表/字段，请在确认权限与口径后再发起查数。"
+            )
+            if use_reasoning:
+                _raw_prompt = (intent.reasoning or intent.reasoning_full or "").strip()
+                _cl_prompt = (_raw_prompt[:900] + "…") if len(_raw_prompt) > 900 else _raw_prompt
+                if not _cl_prompt:
+                    _cl_prompt = _generic
+            else:
+                _cl_prompt = _generic
+            clarify_pl: dict[str, Any] = {"step_number": 1, "message": _cl_msg, "prompt_for_user": _cl_prompt}
+            if chatbi_json_log_enabled() and run_id:
+                log_chatbi_record(
+                    message="agent_clarify_short_circuit",
+                    request_id=run_id,
+                    run_id=run_id,
+                    session_id=session_id,
+                    route="agent",
+                    mode="text2sql",
+                    intent_tool="text2sql_query",
+                    intent_confidence=float(intent.confidence),
+                    clarify_gate=True,
+                )
             _final_answer = (
                 "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；"
                 "也可改用 prefer=text2sql 强制路径或改写问题后重试。"
@@ -627,8 +656,24 @@ class ChatBIAgent:
                 modes=["text2sql"],
                 fallback_used=False,
             )
-            await _emit_final_chains(final_cl, final_cl.answer)
-            return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
+            if emit is not None:
+                await emit(
+                    _agent_chain(
+                        typ="agent.clarify",
+                        started_at=ts_ref,
+                        step_id="a1_clarify",
+                        payload=clarify_pl,
+                    )
+                )
+                await _emit_final_chains(final_cl, final_cl.answer)
+                return AgentRunView(intent_decision=intent, steps=[], final=final_cl)
+            return AgentRunView(
+                intent_decision=intent,
+                steps=[],
+                final=final_cl,
+                clarify_short_circuit=True,
+                clarify_user_payload=clarify_pl,
+            )
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)

@@ -2,7 +2,7 @@
 
 ## 元信息
 
-- **状态**：`todo`（**P1-4** 首包 **implementation**；不阻塞母单其它 §2 条目另拆 PR）
+- **状态**：`done`（**P1-4** 首包 **implementation**；不阻塞母单其它 §2 条目另拆 PR）
 - **与总规批次对应**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§2.1 P1-4**
 - **母单（欠债清单）**：`docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`（**§1**、**§0.1**）
 - **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Multiturn-Debt.md`（**§0.1** P0 衔接、**§2**、**§4** RBAC 交叉、**§5** 验收方向）
@@ -109,20 +109,23 @@ V2 已交付 grounding、`value_hints`、历史注入等，**未**实现「低�
 
 ## 验收标准（实现 PR 勾选）
 
-- [ ] **语义**：至少 **1** 条用例（pytest 或 RUNBOOK 级手工步骤）演示：在 **触发条件满足** 时走 **澄清** 分支，**不**在无确认时执行主路径 Text2SQL（或与「用户确认后继续」的明确状态机一致并在任务单描述）。
-- [ ] **可观测**：在开启 **`CHATBI_JSON_LOG`** 的 staging 或测试中，澄清相关日志可与 **同一次请求的 `run_id`**（SSE `meta` / `done`）对齐检索。
-- [ ] **契约**：若新增或变更对外 SSE / `chain` 形状，**`SPEC-ChatBI-V2-Events.md`**、**`_contract_manifest.json`** 已更新，且 **`python tools/tech_graph_contract_check.py`** 通过（无契约变更则本项改为：在任务单「实现备忘」注明 **未改契约** 并跳过 manifest）。
-- [ ] **RBAC 交叉**：澄清话术若含表名/列名，已实现 **脱敏或白名单** 之一（引用 Identity-Access 段落或任务单 ADR）；否则验收用例 **仅使用** 无敏感争议的 fixture 表名并在任务单声明 **产品展示待 P1-3**。
-- [ ] **图谱**：若改动 Agent 主路径或 SSE 边，**`_tech_graph/`** 双轨增量与代码一致（以本仓协议为准）。
+- [x] **语义**：至少 **1** 条用例（pytest 或 RUNBOOK 级手工步骤）演示：在 **触发条件满足** 时走 **澄清** 分支，**不**在无确认时执行主路径 Text2SQL（或与「用户确认后继续」的明确状态机一致并在任务单描述）。
+- [x] **可观测**：在开启 **`CHATBI_JSON_LOG`** 的 staging 或测试中，澄清相关日志可与 **同一次请求的 `run_id`**（SSE `meta` / `done`）对齐检索。
+- [x] **契约**：若新增或变更对外 SSE / `chain` 形状，**`SPEC-ChatBI-V2-Events.md`**、**`_contract_manifest.json`** 已更新，且 **`python tools/tech_graph_contract_check.py`** 通过（无契约变更则本项改为：在任务单「实现备忘」注明 **未改契约** 并跳过 manifest）。
+- [x] **RBAC 交叉**：澄清话术若含表名/列名，已实现 **脱敏或白名单** 之一（引用 Identity-Access 段落或任务单 ADR）；否则验收用例 **仅使用** 无敏感争议的 fixture 表名并在任务单声明 **产品展示待 P1-3**。
+- [x] **图谱**：若改动 Agent 主路径或 SSE 边，**`_tech_graph/`** 双轨增量与代码一致（以本仓协议为准）。
 
 ## 实现备忘（由实现 Agent 回填）
 
-- 涉及文件：`api/agent.py`、…（待填）
-- 新增 env（若有）：同步 **`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`**、**`.env.example`**
-- 与 P1-3 RBAC 文档的评审结论链接：…
-- **开工闸门（前端）**：二选一贴 PR — **(A)** manifest+Events 同 PR 绿；**(B)** 无契约变更 + **payload 键白名单** 两行。**勿**让前端在无 A/B 时开工（见 Ink 前端任务 §开工闸门）。
-- **SSE 脱敏样例路径**（供前端 mock / 单测）：…（可放在 `docs/spec/v3-agent/P0/` 或 PR 附件）
-- **Ink BFF**：`BFF：无需变更（Ink）` 或 `需新增：…`（见元信息）
+- 涉及文件：`api/agent.py`（澄清门控、`CHATBI_V3_CLARIFY_PROMPT_USE_REASONING`、`agent_clarify_short_circuit` JSON 日志）、`api/unified_chat.py`（`_clarify_short_circuit_events`、`router.final_mode` 与 fallback 对齐、JSON + SSE 批量 replay 补帧）、`tests/test_unified_chat_backend_v2_agent.py::test_v3_low_confidence_clarify_json_skips_text2sql`、`docs/spec/v2-agent/SPEC-ChatBI-V2-Events.md` §3.2.1、`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`、`.env.example`、`docs/spec/v3-agent/P0/SSE-sample-agent-clarify.md`、`docs/_tech_graph/11_flow_text2sql.md`
+- 新增 env：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY`（已有）、**`CHATBI_V3_CLARIFY_PROMPT_USE_REASONING`**（默认关；开启则 `prompt_for_user` 拼接 Intent reasoning，RBAC 自负）
+- 与 P1-3 RBAC：`prompt_for_user` **默认泛化文案**，不露物理表名；细粒度脱敏矩阵仍待 Identity-Access 定稿
+- **开工闸门（前端）**：**（B）契约未改** — `agent.clarify` 已在 `_contract_manifest.json`；本 PR 仅补全 JSON/SSE replay 与 RBAC 默认追问文案
+- **SSE 脱敏样例**：`docs/spec/v3-agent/P0/SSE-sample-agent-clarify.md`
+- **Ink BFF**：`BFF：无需变更（Ink）`
+- **契约**：未改 manifest（`type_values` / `payload_min_keys_by_type` 无变更）；`api/agent.py` 增加 **`_CONTRACT_ANCHOR_AGENT_CLARIFY`** 以满足 `tech_graph_contract_check` 对 `agent.clarify` payload 字面量扫描；`python tools/tech_graph_contract_check.py` **OK**
+- **pytest**：`pytest tests/test_unified_chat_backend_v2_agent.py::test_v3_low_confidence_clarify_json_skips_text2sql -q`
+- **可观测留证**：`CHATBI_JSON_LOG=1` 时检索 `message":"agent_clarify_short_circuit"` 与同一 `run_id`（与 `SPEC-ChatBI-V3-Logging-Trace` / P0 RUNBOOK 同类 grep）
 
 ## 给 Cursor
 
@@ -134,5 +137,5 @@ V2 已交付 grounding、`value_hints`、历史注入等，**未**实现「低�
 |------|------|
 | 2026-05-11 | 首版：P1-4 implementation 子任务自母单 §0.1 拆出 |
 | 2026-05-11 | 元信息：Ink 配对路径 `Projects/…`、BFF 默认无变更、实现备忘补开工闸门 / SSE 样例 / BFF 回填 |
-| 2026-05-11 | **§验收标准是否要全跑** + **§执行流程**（阶段 0–5、关单浓缩核对）；与五项验收逐项对齐 |
+| 2026-05-13 | **关单**：JSON/SSE 批量路径补 `agent.clarify` 同源帧；`agent_clarify_short_circuit` JSON 日志；`CHATBI_V3_CLARIFY_PROMPT_USE_REASONING`；pytest `test_v3_low_confidence_clarify_json_skips_text2sql`；Events §3.2.1 / PROJECT_CONFIG / `11_flow_text2sql` 增量 |
 | 2026-05-11 | **§执行流程**：补「0–4 不必每 PR 重跑」说明；**阶段 5** 展开为 `_tech_graph` 架构图 vs 日志/manifest 区分 + 5.1/5.2 判定 |
