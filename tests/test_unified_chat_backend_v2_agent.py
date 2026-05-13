@@ -883,6 +883,8 @@ def test_v3_low_confidence_clarify_json_skips_text2sql(monkeypatch: pytest.Monke
     monkeypatch.setenv("CHATBI_USE_AGENT", "true")
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
     monkeypatch.setenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "1")
+    # 本测只验「纯澄清短路」：关闭预览以免调用真实 text2sql_execute（registry mock 管不到预览路径）
+    monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "0")
 
     index = _reload_api_index(monkeypatch)
     import api.unified_chat as unified_chat

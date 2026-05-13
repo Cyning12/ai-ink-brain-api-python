@@ -82,4 +82,12 @@ def verify_clarify_text2sql_bypass_token(token: str | None, *, session_id: str |
 
 
 def plan_preview_confirm_enabled() -> bool:
-    return (os.getenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "") or "").strip().lower() in ("1", "true", "yes", "on")
+    """低置信澄清时是否走 SQL 预览 + plan_execution_token。
+
+    默认 **开启**（未设置或空字符串视为开）；显式 ``0``/``false``/``no``/``off`` 关闭。
+    仍须 ``CHATBI_V3_LOW_CONFIDENCE_CLARIFY`` 开启且命中澄清分支才会实际预览。
+    """
+    raw = (os.getenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM") or "").strip().lower()
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return True

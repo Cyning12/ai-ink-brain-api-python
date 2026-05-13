@@ -109,7 +109,7 @@ V2 Agent 架构保留 V1 的 SSE 事件流格式，对外 mode 语义不变，�
 ### 3.2.2 agent.plan.preview（低置信预览 SQL + 放行令牌 · V3 P2）
 
 > **契约真值**：`docs/_tech_graph/_contract_manifest.json` 中 `agent.plan.preview` 的 `payload_min_keys_by_type`。  
-> **触发**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM=1` 且与 `agent.clarify` 同轮、在短路前对 Text2SQL 管线执行 **`preview_only`** 成功得到 `sql` 时，由 `api/agent.py` emit（SSE 增量）；JSON / SSE 批量 replay 无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 在 `agent.clarify` **之前**补发同源帧。  
+> **触发**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM` **未显式关闭**（默认开；`0`/`false`/`no`/`off` 关）且与 `agent.clarify` 同轮、在短路前对 Text2SQL 管线执行 **`preview_only`** 成功得到 `sql` 时，由 `api/agent.py` emit（SSE 增量）；JSON / SSE 批量 replay 无 `emit` 时由 `api/unified_chat.py::_clarify_short_circuit_events` 在 `agent.clarify` **之前**补发同源帧。  
 > **消费**：用户须在 `expires_in_sec` 内在**下一轮同一 `query`** 的请求体中带 `plan_execution_token`（与 `CHATBI_PLAN_TOKEN_TTL_S` 一致）；否则令牌与预览 SQL 意图均作废，须重新发起问题以再次预览。`prompt_for_user` 中已含相同时效说明。
 
 ```json
