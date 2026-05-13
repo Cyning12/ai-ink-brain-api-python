@@ -53,6 +53,8 @@
 
 ## 5. 关联
 
+- `docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（**P1-1** implementation）  
+- `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（**P1-2** implementation）  
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Tool-Design.md`  
 - [`SPEC-ChatBI-V3-Logging-Trace.md`](SPEC-ChatBI-V3-Logging-Trace.md)
 
@@ -63,3 +65,4 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-05-11 | 初版子规 |
+| 2026-05-14 | **§5**：登记 **P1-1 / P1-2** implementation 任务单路径（`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`task_chatbi_v3_prompt_injection_guard_poc_v1`） |

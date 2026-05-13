@@ -53,6 +53,8 @@ docs/spec/v3-agent/
 | `task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（**done · `docs/tasks/done/`**） | Text2SQL 延迟与可观测 | **Observability-Text2SQL**、Logging（协同）；执行/验收见 [`../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | 多轮 / 值域欠债（母单） | **Multiturn-Debt** |
 | `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | P1-4：低置信指代澄清（§4.3 / V2 §4 第 3 点） | **Multiturn-Debt**、V2 Multiturn Semantics、**Identity-Access**（表名展示） |
+| `task_chatbi_v3_sql_ast_text2sql_gate_v1.md` | **P1-1**：`chatbi_sql_gate` **SQL AST 硬化**、负例 pytest、`sql_gate_deny` | **Security** §2、**Logging**；前置 **P1-3 done** |
+| `task_chatbi_v3_prompt_injection_guard_poc_v1.md` | **P1-2**：Prompt 注入 **PoC**（扫描、env、JSON 日志） | **Security** §3；与 **P1-1** 可并行不同文件 |
 | `task_chatbi_level_gate_v1.md`（**done · `docs/tasks/done/`**） | **P1-3**：Bearer、`chatbi_access_tokens`、表策略、双闸、`CHATBI_JSON_LOG` | **Identity-Access**、**OpenItems**、**Security**；SQL `docs/text2sql/v1/sql/chatbi_0*.sql` |
 | `task_chatbi_v3_intent_classification_debt_v1.md` | **backlog**：意图识别欠债（复合句、表结构 vs RAG/Text2SQL 边界）；预留 **Intent vNext** | 与 `api/intent_agent.py` 对齐；总规 **§3** 已登记 |
 

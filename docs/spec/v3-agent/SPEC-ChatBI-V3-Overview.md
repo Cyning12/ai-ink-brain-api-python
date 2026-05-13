@@ -73,8 +73,8 @@
 
 | 排序 | 任务 | 任务单 / 来源 | 理由 |
 |------|------|---------------|------|
-| **P1-1** | **安全：SQL 语法树分析** | Gap §3.2.1 P0 | 简历 §四明确标注「V3 升级」；依赖 P0-2 日志验证防护效果 |
-| **P1-2** | **安全：Prompt 注入检测 PoC** | Gap §3.2.2 P0 | 与 SQL 安全可并行；输入过滤逻辑独立 |
+| **P1-1** | **安全：SQL 语法树分析** | Gap §3.2.1 P0；**implementation**：[`docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`](../../tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md) | 简历 §四明确标注「V3 升级」；依赖 P0-2 日志验证防护效果 |
+| **P1-2** | **安全：Prompt 注入检测 PoC** | Gap §3.2.2 P0；**implementation**：[`docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md`](../../tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md) | 与 SQL 安全可并行；输入过滤逻辑独立 |
 | **P1-3** | **权限：RBAC + Text2SQL 分级闸门（实现）** | Gap §3.1 P0；姊妹规 **§一～§五**；任务单 **`task_chatbi_level_gate_v1.md`**（**done**，`docs/tasks/done/`；P0～P4 + P3b 日志） | 设计见 **OpenItems**；**P1-1 SQL AST 与 P1-3 闸门须对表**（后闸顺序：AST → 表白名单 → 档位策略）；可与 **P1-2** 并行编码阶段不同文件 |
 | **P1-4** | **多轮技术债：低置信澄清 §4.3** | 母单 `task_chatbi_v3_debt_from_v2_multiturn_v1.md` **§1**；implementation：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | 产品体验提升；需与 RBAC 设计协调 SSE 事件形状 |
 
@@ -102,6 +102,8 @@
 | `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `done` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算、**P0-2 JSON 日志**；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 已交付之外的 **多轮 / 值域** 欠债（澄清、同义词、DISTINCT 节能可选、图谱） |
 | `docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | `todo` | **P1-4**：低置信指代 **澄清**（V2 Multiturn **§4 第 3 点** / 惯称 §4.3）；SSE / 编排 / RBAC 表名展示交叉 |
+| `docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md` | `todo` | **P1-1**：Text2SQL **后闸 SQL AST 硬化**（`chatbi_sql_gate`、负例集、日志 `sql_gate_deny`） |
+| `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` | `todo` | **P1-2**：**Prompt 注入** PoC（输入侧扫描、可配置 block/warn、JSON 日志） |
 | `docs/tasks/done/task_chatbi_level_gate_v1.md` | `done` | **P1-3**：Bearer → `chatbi_access_tokens`、表策略、`chatbi_user_portrait`、Text2SQL **前/后闸**、`CHATBI_JSON_LOG`；**2026-05-13** Supabase DDL + RUNBOOK 已在目标库执行并验收 |
 | `docs/tasks/done/task_text2sql_schema_prefetch_before_mutate_v1.md` | `done` | Text2SQL **变更前 schema 预取**（防臆造列名）；实现 `api/text2sql_schema_prefetch.py` + `text2sql_execute` 接入 |
 | `docs/tasks/active/task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | **意图识别欠债**：单标签与 Prompt 边界下的 **复合意图**、表结构语义与 **Intent vNext** 升级母索引（与 multiturn 母单分列） |
@@ -141,7 +143,10 @@
 | 2026-05-11 | **§2** 多轮支柱、**§2.1 P1-4**、**§3**：登记 **§4.3 澄清** implementation 子任务 `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` |
 | 2026-05-12 | **§0**：身份子规增加 **OpenItems** 姊妹篇索引；**§2** 权限支柱、**§2.1 P1-3**、**§3** 登记 **`task_chatbi_level_gate_v1`** 与 DDL 路径；**§4** 阅读顺序；**§7** 关键词 |
 | 2026-05-13 | **§3**：**schema 预取** 任务单迁入 **`docs/tasks/done/`**；**分级闸门** **`task_chatbi_level_gate_v1`** 验收闭环（RUNBOOK + Supabase）后 **迁入 `docs/tasks/done/`**；**§2** 权限支柱链接改 **done**；**text2sql/** 增补 [`text2sql/README.md`](text2sql/README.md)（有/无权限执行结果对照） |
+| 2026-05-14 | **§2.1 / §3**：新增 **P1-1**、**P1-2** implementation 任务单：`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`task_chatbi_v3_prompt_injection_guard_poc_v1` |
+
+---
 
 ## 7. 给 Cursor 的稳定关键词
 
-`SPEC-ChatBI-V3-Overview`、`SPEC-ChatBI-V3-Observability-Text2SQL`、`SPEC-ChatBI-V3-Logging-Trace`、`SPEC-ChatBI-V3-Security`、`SPEC-ChatBI-V3-Identity-Access`、`SPEC-ChatBI-V3-Identity-Access-OpenItems`、`SPEC-ChatBI-V3-Resilience-Ops`、`SPEC-ChatBI-V3-Multiturn-Debt`、`SPEC-ChatBI-V3-Evaluation`、`v3-agent`、`task_chatbi_v3_*`、`task_chatbi_level_gate_v1`、`chatbi_access_tokens`、`Enterprise Gap` §4.2
+`SPEC-ChatBI-V3-Overview`、`SPEC-ChatBI-V3-Observability-Text2SQL`、`SPEC-ChatBI-V3-Logging-Trace`、`SPEC-ChatBI-V3-Security`、`SPEC-ChatBI-V3-Identity-Access`、`SPEC-ChatBI-V3-Identity-Access-OpenItems`、`SPEC-ChatBI-V3-Resilience-Ops`、`SPEC-ChatBI-V3-Multiturn-Debt`、`SPEC-ChatBI-V3-Evaluation`、`v3-agent`、`task_chatbi_v3_*`、`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`task_chatbi_v3_prompt_injection_guard_poc_v1`、`task_chatbi_level_gate_v1`、`chatbi_access_tokens`、`Enterprise Gap` §4.2
