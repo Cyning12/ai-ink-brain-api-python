@@ -27,8 +27,9 @@ docs/spec/v3-agent/
 ├── SPEC-ChatBI-V3-Multiturn-Debt.md              # L1 多轮 / 值域技术债
 ├── SPEC-ChatBI-V3-Evaluation.md                  # L1 评估 · 回归
 └── text2sql/                                     # 场景留档（迭代稿 + 归档）
+    ├── README.md                                 # 目录索引 + **有/无权限执行结果** 对照
     ├── archive/README.md                         # 无权限等归档索引（验收真值见该目录）
-    └── …                                         # 见目录内文件
+    └── …                                         # 见 `1.md` / `2.md` 等
 ```
 
 ---
@@ -52,11 +53,12 @@ docs/spec/v3-agent/
 | `task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（**done · `docs/tasks/done/`**） | Text2SQL 延迟与可观测 | **Observability-Text2SQL**、Logging（协同）；执行/验收见 [`../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | 多轮 / 值域欠债（母单） | **Multiturn-Debt** |
 | `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | P1-4：低置信指代澄清（§4.3 / V2 §4 第 3 点） | **Multiturn-Debt**、V2 Multiturn Semantics、**Identity-Access**（表名展示） |
+| `task_chatbi_level_gate_v1.md`（**done · `docs/tasks/done/`**） | **P1-3**：Bearer、`chatbi_access_tokens`、表策略、双闸、`CHATBI_JSON_LOG` | **Identity-Access**、**OpenItems**、**Security**；SQL `docs/text2sql/v1/sql/chatbi_0*.sql` |
 | `task_chatbi_v3_intent_classification_debt_v1.md` | **backlog**：意图识别欠债（复合句、表结构 vs RAG/Text2SQL 边界）；预留 **Intent vNext** | 与 `api/intent_agent.py` 对齐；总规 **§3** 已登记 |
 
 新增 V3 任务时：**更新本 README 上表** + `SPEC-ChatBI-V3-Overview.md` **§3**；若新域无 L1 文件，**先补子规再挂任务**。
 
-**Text2SQL 无权限场景（已验收）**：留档与真值索引见 [`text2sql/archive/README.md`](text2sql/archive/README.md)。
+**Text2SQL 无权限场景（已验收）**：留档与真值索引见 [`text2sql/archive/README.md`](text2sql/archive/README.md)；**有/无权限终态输出对照**见 [`text2sql/README.md`](text2sql/README.md)。
 
 ---
 

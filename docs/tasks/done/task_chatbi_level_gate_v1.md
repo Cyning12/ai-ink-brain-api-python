@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 分级权限闸门（Bearer + 表策略 + Text2SQL）
 
-> **状态**：`in_progress`（编码已落地；Supabase DDL/INSERT 由运维在目标环境执行后可将验收打勾并移至 `done/`）  
+> **状态**：`done`（**2026-05-13** 归档至 **`docs/tasks/done/`**；**§P1** Supabase DDL + RUNBOOK 令牌已在目标库执行并完成验收勾选）  
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access.md`、`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md`（**§一、§五**）  
 > **关联安全子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md`（AST / 表白名单）  
 > **关联真值表**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`  
@@ -21,7 +21,7 @@
 ## 范围
 
 - [x] **P0**：将 OpenItems **§1.4 已拍板**（软删、L2 禁 JOIN/INSERT、肖像表、Super 非 env 长期真值、双闸、日志）写入代码 / YAML 注释  
-- [ ] **P1**：在 Supabase 按序执行 **§Supabase SQL 执行顺序**（含 **`chatbi_04_user_portrait`**）；`PROJECT_CONFIG` 补充表名与可选 `CHATBI_ACCESS_TOKEN_PEPPER`（真值表已补 env/表清单；**DDL 执行**仍须运维自检）  
+- [x] **P1**：在 Supabase 按序执行 **§Supabase SQL 执行顺序**（含 **`chatbi_04_user_portrait`**）；`PROJECT_CONFIG` 补充表名与可选 `CHATBI_ACCESS_TOKEN_PEPPER`（真值表已补 env/表清单；**2026-05-13** 目标库已执行 + RUNBOOK 令牌写入）
 - [x] **P2**：FastAPI `Depends`：Bearer → `chatbi_access_tokens` → **`ChatBiPrincipal`**（`principal_kind`：`super`/`admin`/`end_user`，`access_level`，`subject_user_id`，`token_id`）；**L2 行须含 `subject_user_id`**  
 - [x] **P3**：**前闸**（schema/表字典裁剪）+ **后闸**（`sqlparse` + 表白名单 + 等级）：Admin **禁物理 `DELETE`/`TRUNCATE`**、**允许软删 `UPDATE`**；L2 **禁 JOIN**、**禁 INSERT**、**仅 `chatbi_user_portrait` 且列白名单 `UPDATE`**（**不可改 `user_id`**）；拒绝 **4xx + 结构化 body**（Unified 闸门走事件链错误文案 + `CHATBI_SQL_DENIED`）  
 - [x] **P3b**（可与 P3 同 PR）：`CHATBI_JSON_LOG` 按 OpenItems **§1.6** 写 `auth_ok` / `auth_fail` / `sql_gate_deny`（等）字段  
@@ -69,6 +69,11 @@
 
 **插入访问令牌行**：**不要**在 SQL 里写明文 token；在本地生成 `key_hash` 后只执行 `INSERT`（见下节 RUNBOOK）。
 
+### 执行状态（运维留证 · 2026-05-13）
+
+- [x] 已在 **目标 Supabase** 按序执行 **`chatbi_01` → `chatbi_02` →（可选）`chatbi_03` → `chatbi_04`**，与 `docs/text2sql/v1/sql/chatbi_0*.sql` 一致。  
+- [x] **RUNBOOK**（`local_chatbi_access_token_gen.py` / 等价 `key_hash`）已执行，**`chatbi_access_tokens`** 已写入有效 **`key_hash`** 行（无明文入库）。
+
 ---
 
 ## RUNBOOK：生成 `key_hash`（推荐：本地脚本）
@@ -104,31 +109,31 @@ values ('<上一步输出的hex>', 0, null, 'Super-demo');
 
 ### P0 口径
 
-- [ ] 实现与 OpenItems **§1.4** 一致：**软删允许**；L2 **禁 INSERT**、**禁 JOIN**；**肖像表**写模型；Super **目标态**不依赖 env 长期真值（过渡期须在 `PROJECT_CONFIG` 说明）
+- [x] 实现与 OpenItems **§1.4** 一致：**软删允许**；L2 **禁 INSERT**、**禁 JOIN**；**肖像表**写模型；Super **目标态**不依赖 env 长期真值（过渡期须在 `PROJECT_CONFIG` 说明）
 
 ### P1 数据面
 
-- [ ] Supabase 上存在 `chatbi_access_tokens`、`chatbi_sql_table_policy`、`chatbi_user_portrait`（及可选 policy 种子），与 `docs/text2sql/v1/sql/chatbi_0*.sql` 一致
+- [x] Supabase 上存在 `chatbi_access_tokens`、`chatbi_sql_table_policy`、`chatbi_user_portrait`（及可选 policy 种子），与 `docs/text2sql/v1/sql/chatbi_0*.sql` 一致
 
 ### P2 鉴权
 
-- [ ] 无 `Authorization: Bearer` 或哈希不匹配 → **401**（或与现网统一错误模型）  
-- [ ] `revoked_at is not null` 或 `expires_at < now()` → 视为无效  
+- [x] 无 `Authorization: Bearer` 或哈希不匹配 → **401**（或与现网统一错误模型）  
+- [x] `revoked_at is not null` 或 `expires_at < now()` → 视为无效  
 
 ### P3 Text2SQL 闸门（含前/后双闸）
 
-- [ ] **前闸**：进入模型的 schema / 表字典与 OpenItems **§1.5** 一致（缩小暴露面）  
-- [ ] **后闸**：AST + 表白名单 + `access_level`；**Admin**：物理 `DELETE`/`TRUNCATE` 拒绝、软删类 `UPDATE` 允许  
-- [ ] **L2**：拒绝 **JOIN**、**INSERT**；**UPDATE** 仅 **`chatbi_user_portrait`** 且 **不得 SET `user_id`**，列须在白名单（首期 `long_term_prompt`）  
-- [ ] 越权：用户可见「您无此权限」+ 结构化 `code`（如 `CHATBI_SQL_DENIED`）  
+- [x] **前闸**：进入模型的 schema / 表字典与 OpenItems **§1.5** 一致（缩小暴露面）  
+- [x] **后闸**：AST + 表白名单 + `access_level`；**Admin**：物理 `DELETE`/`TRUNCATE` 拒绝、软删类 `UPDATE` 允许  
+- [x] **L2**：拒绝 **JOIN**、**INSERT**；**UPDATE** 仅 **`chatbi_user_portrait`** 且 **不得 SET `user_id`**，列须在白名单（首期 `long_term_prompt`）  
+- [x] 越权：用户可见「您无此权限」+ 结构化 `code`（如 `CHATBI_SQL_DENIED`）  
 
 ### P3b 日志（可与 P3 同 PR）
 
-- [ ] 开启 `CHATBI_JSON_LOG` 时，按 OpenItems **§1.6** 写入 `auth_*` / `sql_gate_*` 事件（无 Bearer 明文、无完整 SQL 或已脱敏）
+- [x] 开启 `CHATBI_JSON_LOG` 时，按 OpenItems **§1.6** 写入 `auth_*` / `sql_gate_*` 事件（无 Bearer 明文、无完整 SQL 或已脱敏）
 
 ### P4 RAG 预留
 
-- [ ] 检索函数签名或上下文 dataclass 含 `principal_kind` / `access_level` / `subject_user_id`，默认不改变检索结果  
+- [x] 检索函数签名或上下文 dataclass 含 `principal_kind` / `access_level` / `subject_user_id`，默认不改变检索结果  
 
 ---
 
@@ -141,9 +146,7 @@ values ('<上一步输出的hex>', 0, null, 'Super-demo');
 | 关键 env | `CHATBI_ACCESS_TOKEN_PEPPER`（可选）；`CHATBI_JSON_LOG`（P3b） |
 | SQL 执行顺序 | `chatbi_01` → `chatbi_02` →（可选）`chatbi_03` → `chatbi_04` |
 | 接口变更 | `POST /api/py/unified/chat`、`POST /api/py/unified/chat/stream` 挂载 `Depends(require_chatbi_principal)`；401 `detail.code=CHATBI_UNAUTHORIZED` |
-| 图谱变更点 | `docs/_tech_graph/10_flow_rag.ai.md`、`11_flow_text2sql.ai.md`、`13_flow_supabase_rpc.ai.md`：鉴权锚点改为 `require_chatbi_principal` |
-
----
+| 运维留证（2026-05-13） | Supabase 按序执行 + RUNBOOK 令牌 INSERT；与本单 **§执行状态** 一致 |
 
 ## 给 Cursor 的稳定关键词
 

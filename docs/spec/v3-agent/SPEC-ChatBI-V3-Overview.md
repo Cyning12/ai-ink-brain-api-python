@@ -1,6 +1,6 @@
 # ChatBI V3 — 总览（初版 SPEC）
 
-> **状态**：`draft`（初版 2026-05-11；**2026-05-12** 增补权限姊妹篇与实施任务索引）  
+> **状态**：`draft`（初版 2026-05-11；**2026-05-12** 增补权限姊妹篇与实施任务索引；**2026-05-13** **`task_chatbi_level_gate_v1`** 已 **done** 归档，`text2sql/README.md` 增补有/无权限执行结果对照）  
 > **仓库**：`ai-ink-brain-api-python`  
 > **真值层级**：本文件定义 **V3 边界、优先级叙事与任务索引**；**各支柱细则**见 **§0 子规**（同级文件）；**环境变量与路径**以 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 为准；**运行时流程**以 `docs/_tech_graph/` 与代码为准；**企业级 P0/P1 能力表**与面试叙事对齐 `docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§4.2**，本总规不复制长表以免漂移。
 
@@ -42,7 +42,7 @@
 | **可观测（Text2SQL）** | 子阶段耗时或子阶段事件、聚合快路径复用、LLM `timeout`、上下文预算复核 | 任务（**done**）：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`；事件扩展须与 `SPEC-ChatBI-V2-Events.md` 及 `_contract_manifest.json` 变更流程一致 | [`SPEC-ChatBI-V3-Observability-Text2SQL.md`](SPEC-ChatBI-V3-Observability-Text2SQL.md) |
 | **多轮技术债** | 低置信澄清 §4.3、同义词 / 枚举边界、可选漂移 CI、图谱与现网对齐 | 母单：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`；**P1-4 implementation**：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`；规格交叉：`SPEC-ChatBI-V2-Multiturn-Semantics.md` | [`SPEC-ChatBI-V3-Multiturn-Debt.md`](SPEC-ChatBI-V3-Multiturn-Debt.md) |
 | **安全** | SQL：语法树 / 只读策略；Prompt：输入过滤 + 输出侧校验 | Gap **§4.2** P0；待拆独立任务与验收 | [`SPEC-ChatBI-V3-Security.md`](SPEC-ChatBI-V3-Security.md) |
-| **权限** | **分级闸门**：`access_level`（Super/Admin/L2）、`chatbi_sql_table_policy`、**前/后双闸**（OpenItems **§1.5**）、`chatbi_user_portrait`（L2 写路径）；Bearer + 哈希首期；与 Security AST / Logging 对表 | Gap P0；**实施单**：[`docs/tasks/active/task_chatbi_level_gate_v1.md`](../../tasks/active/task_chatbi_level_gate_v1.md)；**Supabase DDL**：`docs/text2sql/v1/sql/chatbi_01*.sql`～`chatbi_04*.sql` | [`SPEC-ChatBI-V3-Identity-Access.md`](SPEC-ChatBI-V3-Identity-Access.md) + [`SPEC-ChatBI-V3-Identity-Access-OpenItems.md`](SPEC-ChatBI-V3-Identity-Access-OpenItems.md) |
+| **权限** | **分级闸门**：`access_level`（Super/Admin/L2）、`chatbi_sql_table_policy`、**前/后双闸**（OpenItems **§1.5**）、`chatbi_user_portrait`（L2 写路径）；Bearer + 哈希首期；与 Security AST / Logging 对表 | Gap P0；**实施单（done）**：[`docs/tasks/done/task_chatbi_level_gate_v1.md`](../../tasks/done/task_chatbi_level_gate_v1.md)；**Supabase DDL**：`docs/text2sql/v1/sql/chatbi_01*.sql`～`chatbi_04*.sql` | [`SPEC-ChatBI-V3-Identity-Access.md`](SPEC-ChatBI-V3-Identity-Access.md) + [`SPEC-ChatBI-V3-Identity-Access-OpenItems.md`](SPEC-ChatBI-V3-Identity-Access-OpenItems.md) |
 | **高可用与运维** | 限流熔断、`/health` / `/ready`、监控挂钩 | Gap P1；待拆 | [`SPEC-ChatBI-V3-Resilience-Ops.md`](SPEC-ChatBI-V3-Resilience-Ops.md) |
 | **结构化日志与 Trace** | JSON 日志、`request_id` / `run_id` 贯通 | Gap P1；与 P0 可观测协同 | [`SPEC-ChatBI-V3-Logging-Trace.md`](SPEC-ChatBI-V3-Logging-Trace.md) |
 | **评估** | 烟测集 / 标注回归 | Gap P1；待拆 | [`SPEC-ChatBI-V3-Evaluation.md`](SPEC-ChatBI-V3-Evaluation.md) |
@@ -75,7 +75,7 @@
 |------|------|---------------|------|
 | **P1-1** | **安全：SQL 语法树分析** | Gap §3.2.1 P0 | 简历 §四明确标注「V3 升级」；依赖 P0-2 日志验证防护效果 |
 | **P1-2** | **安全：Prompt 注入检测 PoC** | Gap §3.2.2 P0 | 与 SQL 安全可并行；输入过滤逻辑独立 |
-| **P1-3** | **权限：RBAC + Text2SQL 分级闸门（实现）** | Gap §3.1 P0；姊妹规 **§一～§五**；任务单 **`task_chatbi_level_gate_v1.md`**（P0～P4 + P3b 日志） | 设计见 **OpenItems**；**P1-1 SQL AST 与 P1-3 闸门须对表**（后闸顺序：AST → 表白名单 → 档位策略）；可与 **P1-2** 并行编码阶段不同文件 |
+| **P1-3** | **权限：RBAC + Text2SQL 分级闸门（实现）** | Gap §3.1 P0；姊妹规 **§一～§五**；任务单 **`task_chatbi_level_gate_v1.md`**（**done**，`docs/tasks/done/`；P0～P4 + P3b 日志） | 设计见 **OpenItems**；**P1-1 SQL AST 与 P1-3 闸门须对表**（后闸顺序：AST → 表白名单 → 档位策略）；可与 **P1-2** 并行编码阶段不同文件 |
 | **P1-4** | **多轮技术债：低置信澄清 §4.3** | 母单 `task_chatbi_v3_debt_from_v2_multiturn_v1.md` **§1**；implementation：`docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | 产品体验提升；需与 RBAC 设计协调 SSE 事件形状 |
 
 **P1 验收标志**：SQL 注入从关键字升级到语法树 + Prompt 注入有输入过滤 + **分级权限闸门按 `task_chatbi_level_gate_v1.md` 验收项闭环**（含前/后双闸与 OpenItems **§1.4** 拍板）+ 澄清策略有 SSE 事件定义。
@@ -102,7 +102,7 @@
 | `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md` | `done` | Text2SQL **长窗口**体感治理：子阶段可观测、确定性总结、timeout、预算、**P0-2 JSON 日志**；**执行计划 / 验收流程** [`task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`](../../tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md) |
 | `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 已交付之外的 **多轮 / 值域** 欠债（澄清、同义词、DISTINCT 节能可选、图谱） |
 | `docs/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` | `todo` | **P1-4**：低置信指代 **澄清**（V2 Multiturn **§4 第 3 点** / 惯称 §4.3）；SSE / 编排 / RBAC 表名展示交叉 |
-| `docs/tasks/active/task_chatbi_level_gate_v1.md` | `in_progress` | **P1-3**：Bearer → `chatbi_access_tokens`、表策略、`chatbi_user_portrait`、Text2SQL **前/后闸**、`CHATBI_JSON_LOG`（OpenItems **§1.6**）；**运维侧** Supabase DDL（任务单 **§P1**）未勾前不单结项；SQL 见 `docs/text2sql/v1/sql/chatbi_0*.sql` |
+| `docs/tasks/done/task_chatbi_level_gate_v1.md` | `done` | **P1-3**：Bearer → `chatbi_access_tokens`、表策略、`chatbi_user_portrait`、Text2SQL **前/后闸**、`CHATBI_JSON_LOG`；**2026-05-13** Supabase DDL + RUNBOOK 已在目标库执行并验收 |
 | `docs/tasks/done/task_text2sql_schema_prefetch_before_mutate_v1.md` | `done` | Text2SQL **变更前 schema 预取**（防臆造列名）；实现 `api/text2sql_schema_prefetch.py` + `text2sql_execute` 接入 |
 | `docs/tasks/active/task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | **意图识别欠债**：单标签与 Prompt 边界下的 **复合意图**、表结构语义与 **Intent vNext** 升级母索引（与 multiturn 母单分列） |
 
@@ -140,9 +140,7 @@
 | 2026-05-11 | **§2.1 P0** 旁注：允许 **先 1+3 再 2** 的阶段 commit，**最终验收** 仍须四项齐 |
 | 2026-05-11 | **§2** 多轮支柱、**§2.1 P1-4**、**§3**：登记 **§4.3 澄清** implementation 子任务 `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` |
 | 2026-05-12 | **§0**：身份子规增加 **OpenItems** 姊妹篇索引；**§2** 权限支柱、**§2.1 P1-3**、**§3** 登记 **`task_chatbi_level_gate_v1`** 与 DDL 路径；**§4** 阅读顺序；**§7** 关键词 |
-| 2026-05-13 | **§3**：`task_chatbi_level_gate_v1` 元状态与任务单对齐为 **`in_progress`**；**schema 预取** 任务单迁入 **`docs/tasks/done/`** 并补表行 |
-
----
+| 2026-05-13 | **§3**：**schema 预取** 任务单迁入 **`docs/tasks/done/`**；**分级闸门** **`task_chatbi_level_gate_v1`** 验收闭环（RUNBOOK + Supabase）后 **迁入 `docs/tasks/done/`**；**§2** 权限支柱链接改 **done**；**text2sql/** 增补 [`text2sql/README.md`](text2sql/README.md)（有/无权限执行结果对照） |
 
 ## 7. 给 Cursor 的稳定关键词
 
