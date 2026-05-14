@@ -1,0 +1,1223 @@
+{
+  "edges": [
+    {
+      "from": "A1",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "A2",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "ALIAS",
+      "sync": true,
+      "to": "TSV",
+      "type": "depends_on"
+    },
+    {
+      "from": "AM",
+      "sync": true,
+      "to": "LOG",
+      "type": "archives"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "HIS",
+      "type": "depends_on"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "INT",
+      "type": "depends_on"
+    },
+    {
+      "from": "AUTH",
+      "sync": true,
+      "to": "POOL",
+      "type": "depends_on"
+    },
+    {
+      "from": "B1",
+      "sync": true,
+      "to": "FUSE",
+      "type": "depends_on"
+    },
+    {
+      "from": "B1",
+      "sync": true,
+      "to": "FUSE",
+      "type": "depends_on"
+    },
+    {
+      "from": "BE",
+      "sync": true,
+      "to": "SB_TRUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "BFF",
+      "sync": true,
+      "to": "PY_SSE",
+      "type": "depends_on"
+    },
+    {
+      "from": "C1",
+      "sync": true,
+      "to": "RAG",
+      "type": "depends_on"
+    },
+    {
+      "from": "CHAT",
+      "sync": true,
+      "to": "L",
+      "type": "archives"
+    },
+    {
+      "from": "CHAT",
+      "sync": true,
+      "to": "L",
+      "type": "depends_on"
+    },
+    {
+      "from": "CLEAN",
+      "sync": true,
+      "to": "ORQ",
+      "type": "depends_on"
+    },
+    {
+      "from": "CONTENT",
+      "sync": true,
+      "to": "CONTENT_ROOT",
+      "type": "depends_on"
+    },
+    {
+      "from": "CONTENT_ROOT",
+      "sync": true,
+      "to": "BE",
+      "type": "depends_on"
+    },
+    {
+      "from": "CR1",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "CR2",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "CTX",
+      "sync": true,
+      "to": "LLM",
+      "type": "depends_on"
+    },
+    {
+      "from": "DB",
+      "sync": true,
+      "to": "DET",
+      "type": "depends_on"
+    },
+    {
+      "from": "DB",
+      "sync": true,
+      "to": "ERR_DSN",
+      "type": "depends_on"
+    },
+    {
+      "from": "DB",
+      "sync": true,
+      "to": "OUT2",
+      "type": "depends_on"
+    },
+    {
+      "from": "DB",
+      "sync": true,
+      "to": "SUM",
+      "type": "depends_on"
+    },
+    {
+      "from": "DET",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "A1",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "A2",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "C1",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "CH",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "CR1",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "CR2",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "CV",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "E2E_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "H1",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "HL",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "OBS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "U1",
+      "type": "depends_on"
+    },
+    {
+      "from": "E",
+      "sync": true,
+      "to": "U2",
+      "type": "depends_on"
+    },
+    {
+      "from": "EMB",
+      "sync": true,
+      "to": "EMB_FAIL",
+      "type": "depends_on"
+    },
+    {
+      "from": "EMB",
+      "sync": false,
+      "to": "VEC",
+      "type": "async_calls"
+    },
+    {
+      "from": "EMB_FAIL",
+      "sync": true,
+      "to": "KEYWORD_ONLY",
+      "type": "depends_on"
+    },
+    {
+      "from": "ENV",
+      "sync": true,
+      "to": "ENV_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR",
+      "sync": true,
+      "to": "E_EMB",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR",
+      "sync": true,
+      "to": "E_EXECSQL",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR",
+      "sync": true,
+      "to": "E_GENSQL",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR",
+      "sync": true,
+      "to": "E_ROUTER",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR",
+      "sync": true,
+      "to": "E_RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR_DSN",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR_EXEC",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR_PF",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "from": "ERR_VALIDATE",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "AM",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "ERR",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "LAT",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "QX",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "R1",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "RS",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "SQLR",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "TCE",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV",
+      "sync": true,
+      "to": "TCS",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV_TYPES",
+      "sync": true,
+      "to": "RS_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "EV_TYPES",
+      "sync": true,
+      "to": "SQL_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "EXEC",
+      "sync": false,
+      "to": "DB",
+      "type": "async_calls"
+    },
+    {
+      "from": "EXEC",
+      "sync": true,
+      "to": "ERR_EXEC",
+      "type": "depends_on"
+    },
+    {
+      "from": "FE",
+      "sync": true,
+      "to": "FE_STREAM",
+      "type": "depends_on"
+    },
+    {
+      "from": "FE_STREAM",
+      "sync": true,
+      "to": "BFF",
+      "type": "depends_on"
+    },
+    {
+      "from": "FE_STREAM",
+      "sync": false,
+      "to": "FE_PARSE",
+      "type": "async_calls"
+    },
+    {
+      "from": "FTS",
+      "sync": true,
+      "to": "FTS",
+      "type": "depends_on"
+    },
+    {
+      "from": "FTS",
+      "sync": true,
+      "to": "FTS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "FTS",
+      "sync": true,
+      "to": "FTS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "FTS",
+      "sync": true,
+      "to": "FUSE",
+      "type": "merges"
+    },
+    {
+      "from": "FTS",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "FTS_NULL",
+      "sync": true,
+      "to": "RANK",
+      "type": "depends_on"
+    },
+    {
+      "from": "FTS_NULL",
+      "sync": true,
+      "to": "REFRESH",
+      "type": "depends_on"
+    },
+    {
+      "from": "FUSE",
+      "sync": true,
+      "to": "CTX",
+      "type": "depends_on"
+    },
+    {
+      "from": "FUSE",
+      "sync": true,
+      "to": "HIT0",
+      "type": "condition"
+    },
+    {
+      "from": "GEN",
+      "sync": false,
+      "to": "VAL",
+      "type": "async_calls"
+    },
+    {
+      "from": "GLOSS",
+      "sync": true,
+      "to": "CLEAN",
+      "type": "depends_on"
+    },
+    {
+      "from": "HIS",
+      "sync": true,
+      "to": "RW",
+      "type": "depends_on"
+    },
+    {
+      "from": "HIS",
+      "sync": true,
+      "to": "RW",
+      "type": "depends_on"
+    },
+    {
+      "from": "HIT0",
+      "sync": true,
+      "to": "CTX",
+      "type": "depends_on"
+    },
+    {
+      "from": "HIT0",
+      "sync": true,
+      "to": "OUT_NO_DATA",
+      "type": "depends_on"
+    },
+    {
+      "from": "I18N",
+      "sync": true,
+      "to": "GLOSS",
+      "type": "depends_on"
+    },
+    {
+      "from": "I18N",
+      "sync": true,
+      "to": "NOX",
+      "type": "depends_on"
+    },
+    {
+      "from": "IN",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "IN",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "IN",
+      "sync": true,
+      "to": "B1",
+      "type": "condition"
+    },
+    {
+      "from": "ING",
+      "sync": true,
+      "to": "C",
+      "type": "triggers"
+    },
+    {
+      "from": "ING",
+      "sync": true,
+      "to": "D",
+      "type": "triggers"
+    },
+    {
+      "from": "ING",
+      "sync": true,
+      "to": "RC",
+      "type": "triggers"
+    },
+    {
+      "from": "ING",
+      "sync": true,
+      "to": "RD",
+      "type": "triggers"
+    },
+    {
+      "from": "INT",
+      "sync": true,
+      "to": "OUT0",
+      "type": "depends_on"
+    },
+    {
+      "from": "INT",
+      "sync": true,
+      "to": "RET",
+      "type": "depends_on"
+    },
+    {
+      "from": "KC",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "KD",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "KEYWORD_ONLY",
+      "sync": true,
+      "to": "FUSE",
+      "type": "merges"
+    },
+    {
+      "from": "KQ",
+      "sync": true,
+      "to": "FTS",
+      "type": "depends_on"
+    },
+    {
+      "from": "LLM",
+      "sync": true,
+      "to": "SRC",
+      "type": "yields"
+    },
+    {
+      "from": "LOG",
+      "sync": false,
+      "to": "DB",
+      "type": "async_calls"
+    },
+    {
+      "from": "LOG",
+      "sync": true,
+      "to": "DB",
+      "type": "depends_on"
+    },
+    {
+      "from": "LOG",
+      "sync": true,
+      "to": "RPC_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "MATCH",
+      "sync": true,
+      "to": "FTS_NULL",
+      "type": "condition"
+    },
+    {
+      "from": "MATCH",
+      "sync": true,
+      "to": "RANK",
+      "type": "depends_on"
+    },
+    {
+      "from": "MC",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "MD",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "NOX",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "ORQ",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "OUT",
+      "sync": true,
+      "to": "LOG",
+      "type": "archives"
+    },
+    {
+      "from": "OUT",
+      "sync": true,
+      "to": "LOG",
+      "type": "archives"
+    },
+    {
+      "from": "OUT",
+      "sync": true,
+      "to": "OBS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "OUT1",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "from": "OUT2",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "from": "OUT_NO_DATA",
+      "sync": true,
+      "to": "CTX",
+      "type": "depends_on"
+    },
+    {
+      "from": "PF",
+      "sync": true,
+      "to": "ERR_PF",
+      "type": "condition"
+    },
+    {
+      "from": "PF",
+      "sync": true,
+      "to": "PROMPT",
+      "type": "condition"
+    },
+    {
+      "from": "POOL",
+      "sync": true,
+      "to": "C",
+      "type": "depends_on"
+    },
+    {
+      "from": "POOL",
+      "sync": true,
+      "to": "D",
+      "type": "depends_on"
+    },
+    {
+      "from": "POOL",
+      "sync": true,
+      "to": "ERR_NET",
+      "type": "depends_on"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "KC",
+      "type": "async_calls"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "KD",
+      "type": "async_calls"
+    },
+    {
+      "from": "POOL",
+      "sync": true,
+      "to": "L",
+      "type": "depends_on"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "MC",
+      "type": "async_calls"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "MD",
+      "type": "async_calls"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "RC",
+      "type": "async_calls"
+    },
+    {
+      "from": "POOL",
+      "sync": false,
+      "to": "RD",
+      "type": "async_calls"
+    },
+    {
+      "from": "PROMPT",
+      "sync": true,
+      "to": "GEN",
+      "type": "depends_on"
+    },
+    {
+      "from": "PY_SSE",
+      "sync": false,
+      "to": "BE",
+      "type": "async_calls"
+    },
+    {
+      "from": "PY_SSE",
+      "sync": true,
+      "to": "SSE_EVENTS",
+      "type": "yields"
+    },
+    {
+      "from": "Q",
+      "sync": true,
+      "to": "E",
+      "type": "depends_on"
+    },
+    {
+      "from": "Q",
+      "sync": true,
+      "to": "QS",
+      "type": "depends_on"
+    },
+    {
+      "from": "QS",
+      "sync": true,
+      "to": "I18N",
+      "type": "condition"
+    },
+    {
+      "from": "QS",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "RAG",
+      "sync": true,
+      "to": "FTS",
+      "type": "depends_on"
+    },
+    {
+      "from": "RAG",
+      "sync": true,
+      "to": "RAG_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "RANK",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "from": "RC",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "RD",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "from": "REFRESH",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "REQ",
+      "sync": true,
+      "to": "SSE",
+      "type": "depends_on"
+    },
+    {
+      "from": "RET",
+      "sync": true,
+      "to": "PF",
+      "type": "depends_on"
+    },
+    {
+      "from": "RET",
+      "sync": true,
+      "to": "SPEC",
+      "type": "depends_on"
+    },
+    {
+      "from": "RPC",
+      "sync": true,
+      "to": "RPC_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "RPC",
+      "sync": false,
+      "to": "TSQ",
+      "type": "async_calls"
+    },
+    {
+      "from": "RS",
+      "sync": true,
+      "to": "SRC_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "RW",
+      "sync": true,
+      "to": "EMB",
+      "type": "branches"
+    },
+    {
+      "from": "RW",
+      "sync": true,
+      "to": "KQ",
+      "type": "branches"
+    },
+    {
+      "from": "SB",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "from": "SB_TRUTH",
+      "sync": true,
+      "to": "SB",
+      "type": "depends_on"
+    },
+    {
+      "from": "SB_TRUTH",
+      "sync": true,
+      "to": "SB_MATCH_DOCS",
+      "type": "depends_on"
+    },
+    {
+      "from": "SQLR",
+      "sync": true,
+      "to": "SQL_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "SRC",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE",
+      "sync": true,
+      "to": "DONE",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE",
+      "sync": true,
+      "to": "EV",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE",
+      "sync": true,
+      "to": "JSON",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE_EVENTS",
+      "sync": true,
+      "to": "CHAIN_SHAPE",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE_EVENTS",
+      "sync": true,
+      "to": "DONE_SHAPE",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE_EVENTS",
+      "sync": true,
+      "to": "EV_TYPES",
+      "type": "depends_on"
+    },
+    {
+      "from": "SSE_EVENTS",
+      "sync": true,
+      "to": "SSE_ENV",
+      "type": "depends_on"
+    },
+    {
+      "from": "SUM",
+      "sync": false,
+      "to": "OUT",
+      "type": "async_calls"
+    },
+    {
+      "from": "T2S",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "from": "T2S",
+      "sync": true,
+      "to": "T2S_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "TCE",
+      "sync": true,
+      "to": "TCE_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "TCS",
+      "sync": true,
+      "to": "TCS_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "TEND",
+      "sync": true,
+      "to": "TEND_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "from": "TRG",
+      "sync": true,
+      "to": "ALIAS",
+      "type": "depends_on"
+    },
+    {
+      "from": "TSQ",
+      "sync": true,
+      "to": "MATCH",
+      "type": "depends_on"
+    },
+    {
+      "from": "TSV",
+      "sync": true,
+      "to": "IDX",
+      "type": "depends_on"
+    },
+    {
+      "from": "U1",
+      "sync": true,
+      "to": "RAG",
+      "type": "branches"
+    },
+    {
+      "from": "U1",
+      "sync": true,
+      "to": "T2S",
+      "type": "branches"
+    },
+    {
+      "from": "U2",
+      "sync": true,
+      "to": "RAG",
+      "type": "branches"
+    },
+    {
+      "from": "U2",
+      "sync": true,
+      "to": "T2S",
+      "type": "branches"
+    },
+    {
+      "from": "VAL",
+      "sync": true,
+      "to": "ERR_VALIDATE",
+      "type": "depends_on"
+    },
+    {
+      "from": "VAL",
+      "sync": true,
+      "to": "EXEC",
+      "type": "depends_on"
+    },
+    {
+      "from": "VEC",
+      "sync": true,
+      "to": "FUSE",
+      "type": "merges"
+    },
+    {
+      "from": "VEC",
+      "sync": true,
+      "to": "RPC_DOC",
+      "type": "depends_on"
+    },
+    {
+      "from": "VEC",
+      "sync": true,
+      "to": "VEC",
+      "type": "depends_on"
+    },
+    {
+      "from": "W",
+      "sync": true,
+      "to": "TRG",
+      "type": "triggers"
+    }
+  ],
+  "freeze_id": "TECH_GRAPH_S1_FREEZE_20260514_V1_1_3",
+  "generated_at": "2026-05-14T12:56:04Z",
+  "nodes": [
+    "A1",
+    "A2",
+    "ALIAS",
+    "AM",
+    "AUTH",
+    "B1",
+    "BE",
+    "BFF",
+    "C",
+    "C1",
+    "CH",
+    "CHAIN_SHAPE",
+    "CHAT",
+    "CLEAN",
+    "CONTENT",
+    "CONTENT_ROOT",
+    "CR1",
+    "CR2",
+    "CTX",
+    "CV",
+    "D",
+    "DB",
+    "DET",
+    "DONE",
+    "DONE_SHAPE",
+    "E",
+    "E2E_DOC",
+    "EMB",
+    "EMB_FAIL",
+    "ENV",
+    "ENV_KEYS",
+    "ERR",
+    "ERR_AUTH",
+    "ERR_DSN",
+    "ERR_EXEC",
+    "ERR_NET",
+    "ERR_PF",
+    "ERR_RPC_MISSING",
+    "ERR_VALIDATE",
+    "EV",
+    "EV_TYPES",
+    "EXEC",
+    "E_EMB",
+    "E_EXECSQL",
+    "E_GENSQL",
+    "E_ROUTER",
+    "E_RPC",
+    "FE",
+    "FE_PARSE",
+    "FE_STREAM",
+    "FTS",
+    "FTS_DOC",
+    "FTS_NULL",
+    "FUSE",
+    "GEN",
+    "GLOSS",
+    "H1",
+    "HIS",
+    "HIT0",
+    "HL",
+    "I18N",
+    "IDX",
+    "IN",
+    "ING",
+    "INT",
+    "JSON",
+    "KC",
+    "KD",
+    "KEYWORD_ONLY",
+    "KQ",
+    "L",
+    "LAT",
+    "LLM",
+    "LOG",
+    "MATCH",
+    "MC",
+    "MD",
+    "NOX",
+    "OBS_DOC",
+    "ORQ",
+    "OUT",
+    "OUT0",
+    "OUT1",
+    "OUT2",
+    "OUT_NO_DATA",
+    "PF",
+    "POOL",
+    "PROMPT",
+    "PY_SSE",
+    "Q",
+    "QS",
+    "QX",
+    "R1",
+    "RAG",
+    "RAG_DOC",
+    "RANK",
+    "RC",
+    "RD",
+    "REFRESH",
+    "REQ",
+    "RET",
+    "RPC",
+    "RPC_DOC",
+    "RS",
+    "RS_KEYS",
+    "RW",
+    "SB",
+    "SB_MATCH_DOCS",
+    "SB_TRUTH",
+    "SPEC",
+    "SQLR",
+    "SQL_KEYS",
+    "SRC",
+    "SRC_KEYS",
+    "SSE",
+    "SSE_ENV",
+    "SSE_EVENTS",
+    "SUM",
+    "T2S",
+    "T2S_DOC",
+    "TCE",
+    "TCE_KEYS",
+    "TCS",
+    "TCS_KEYS",
+    "TEND",
+    "TEND_KEYS",
+    "TRG",
+    "TSQ",
+    "TSV",
+    "U1",
+    "U2",
+    "VAL",
+    "VEC",
+    "W"
+  ],
+  "schema_version": "graph_v1"
+}
