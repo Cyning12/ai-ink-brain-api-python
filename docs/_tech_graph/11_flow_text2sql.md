@@ -62,7 +62,7 @@ Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sy
 
 - **实现**：`api/chatbi_sql_gate.py` 中 `apply_chatbi_sql_gate`：**AST（sqlparse）→ 表策略 `chatbi_sql_table_policy`（min_* / 无行拒绝）→ 档位与 L2 收窄**；`CHATBI_JSON_LOG=1` 时 `sql_gate_deny` 可含 **`ast_rule_id`**。  
 - **单测**：`tests/test_chatbi_sql_ast_gate_v1.py`（负例 / 正例 / 阶段顺序 / JSON 字段）。  
-- **子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2.1**；任务：`docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`。
+- **子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2.1**；任务：`docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（已归档）。
 
 ## V3 P1-4（2026-05-13）· 低置信澄清短路（`agent.clarify`）
 

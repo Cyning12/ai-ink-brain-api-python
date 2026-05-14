@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — **Prompt 注入** 防护 PoC（P1-2）
 
-> **状态**：`todo`（**P1-2** implementation，**PoC 级**；可与 **P1-1**、**P1-4** 分 PR）  
+> **状态**：`todo`（实现与 pytest 已落地；**待**任务审核 **R4** 签收后改 `done` 并归档）  
 > **与总规批次对应**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§2.1 P1-2**  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§3**（输入侧 / 输出侧）  
 > **企业参考**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§3.2.2**  
@@ -23,10 +23,12 @@
 | FP-3 | **`mode=off`** | 跳过扫描 | 适用下游 | 无 |
 | FP-4 | Guard 模块自身异常（导入失败、规则表损坏等） | **fail-open 或 fail-closed 须在 §实现备忘二选一并文档化**；推荐 **fail-closed**；须 pytest 覆盖该分支。**若备忘未落笔，实现阶段默认 fail-closed**（合入前须回填备忘为显式选择） | 视 HTTP 而定 | 通用错误或拒绝类（与所选策略一致） |
 
+> **FP-1 日志字段与 OpenItems §1.6**：`prompt_guard_deny` / `prompt_guard_warn` 为 JSON 行根级 **`message`** 承载的语义标签（见 `api/chatbi_json_log.py` 的 `log_chatbi_record`），与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **§1.6** 中 `sql_gate_*`、`auth_*` 草案**并列、不复用同名**；OpenItems 表内「`event=`」为草案表述，实现以代码为准。**按审查 R1 回填**（相对工作区根 `Projects/`）：`ai-ink-brain-api-python/docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md`。
+
 ### 给执行帽的必读列表（开工前）
 
 1. `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§3**（输入侧范围与 PoC 边界）。  
-2. `api/chatbi_json_log.py` 与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **§1.6**（日志键名不冲突）。  
+2. `api/chatbi_json_log.py` 与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **`### 1.6 结构化日志（写入）`**（与 `sql_gate_*` / `auth_*` 键域分离）。  
 3. 选定接入点上下游：`api/intent_agent.py`、`api/unified_chat.py` 或 rewrite 出口 — **在 §实现备忘画「先后」** 避免双扫或漏扫。  
 4. 合并前：`pytest tests -m "not intent_eval and not intent_benchmark"`（与 `ai-ink-brain-api-python/.github/workflows/pytest.yml` 一致）。
 
@@ -42,8 +44,16 @@
 
 ### 拒开工条件（执行帽）
 
-- `failure_paths` 表格中 **FP-1** 的 HTTP/body 未写死即开始改路由。  
+- `failure_paths` 与 **§5 实现备忘** 中 **FP-1** 的 HTTP/body 与 golden 路径未写死即开始改路由（本单 §5 已钉 **契约真值**；若实现选用不同 HTTP 语义，须先更新 §5 与相关 manifest 再改代码）。  
 - 未说明与 **P1-1 SQL gate** 的先后顺序（同请求内谁先谁后）即改动 `text2sql_core` 主链（须在 **§实现备忘** 用一句话钉死，避免重复拦截或绕过）。
+
+### 审查回填（任务审核 R1）
+
+- **§5 · FP-1**：golden 路径与 HTTP/body 已在 **§5 实现备忘** 写死（任务帽 + 执行帽契约回填，**非** guard 实现终态）；**failure_paths** 上栏已含 `message` 与 OpenItems §1.6 对齐说明。来源（相对工作区根）：`ai-ink-brain-api-python/docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md`。
+
+### Invoke 快照（可选）
+
+- **相对工作区根 `Projects/`**：`ai-ink-brain-api-python/docs/harness/invokes/invoke_20260515_0000_22_chatbi-v3-sql-ast-prompt-injection.md`（任务审核帽 `22`、R2 复审启动体；总规见工作区 `docs/harness/invokes/README.md`）
 
 ---
 
@@ -64,7 +74,7 @@
 
 - **范围**：规则表初版（可 YAML 或 Python 常量）、单元测、日志打点、与 **一条** Unified 或 Agent 路径集成。  
 - **非范围**：完整 **对抗样本** 平台、在线学习、多语言 NLP 模型；**前端**展示（可归 Ink 另任务，本单 pytest + 日志即可）。  
-- **非范围**：SQL AST（归 **`task_chatbi_v3_sql_ast_text2sql_gate_v1.md`**）。
+- **非范围**：SQL AST（归 **`docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`**（P1-1））。
 
 ---
 
@@ -80,13 +90,42 @@
 
 ## 4. 验收标准
 
-- [ ] **规则**：至少 **5** 条可命名规则（中英文混合样例均可），覆盖：**忽略前文指令覆盖**、**假 system 标记**、**要求透出密钥/ env`**、**要求删除审计日志类话术**（实现 PR 列标题）。  
-- [ ] **pytest**：`block` 模式下恶意样例 **被拦**；正常业务问句 **不误拦**（至少 **5** 条正例，含短中文问数 / 表名）。  
-- [ ] **warn 路径**：`CHATBI_PROMPT_GUARD_MODE=warn` 且命中规则时，pytest 断言 **`prompt_guard_warn`** 出现 **一次** 且不阻断下游（mock / spy 可证）。  
-- [ ] **集成路径**：至少 **1** 条 e2e 风格测试（mock LLM 或仅测 guard 调用栈）证明 **拦在 LLM 调用之前**。  
-- [ ] **日志**：`CHATBI_JSON_LOG=1` 下 **1** 次拒绝：在 **`tests/`** 中断言 JSON 日志结构（含 **`run_id`**）；grep 仅作 PR 附录。  
-- [ ] **配置文档**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 或子规 **§修订记录** 二选一更新，避免 env 漂移。  
-- [ ] **子规**：`SPEC-ChatBI-V3-Security.md` §3 标注 **PoC 已合并** 与范围边界。
+- [x] **规则**：至少 **5** 条可命名规则（中英文混合样例均可），覆盖：**忽略前文指令覆盖**、**假 system 标记**、**要求透出密钥/ env`**、**要求删除审计日志类话术**（实现 PR 列标题）。  
+- [x] **pytest**：`block` 模式下恶意样例 **被拦**；正常业务问句 **不误拦**（至少 **5** 条正例，含短中文问数 / 表名）。  
+- [x] **warn 路径**：`CHATBI_PROMPT_GUARD_MODE=warn` 且命中规则时，pytest 断言 **`prompt_guard_warn`** 出现 **一次** 且不阻断下游（mock / spy 可证）。  
+- [x] **集成路径**：至少 **1** 条 e2e 风格测试（mock LLM 或仅测 guard 调用栈）证明 **拦在 LLM 调用之前**。  
+- [x] **日志**：`CHATBI_JSON_LOG=1` 下 **1** 次拒绝：在 **`tests/`** 中断言 JSON 日志结构（含 **`run_id`**）；grep 仅作 PR 附录。  
+- [x] **配置文档**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 或子规 **§修订记录** 二选一更新，避免 env 漂移。  
+- [x] **子规**：`SPEC-ChatBI-V3-Security.md` §3 标注 **PoC 已合并** 与范围边界。
+
+---
+
+### 自检结论（执行者）
+
+| 项目 | 结果 |
+|------|------|
+| VERIFY 命令（task「给执行帽的必读列表」§4 与 CI `pytest.yml` 对齐） | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| cwd（相对 `Projects/`） | `ai-ink-brain-api-python` |
+| 退出码 | **0** |
+| 摘要（本轮本地） | **138 passed**, 2 deselected；约 24s；存在第三方 DeprecationWarning（Supabase / SWIG），**非失败** |
+
+**task 列出的其他验证命令**：无（本单合并前仅显式列出上述 pytest）。
+
+**§4 验收对照摘要**（与 `test_strategy: required` 一致：以 pytest 证据为主）：
+
+| §4 项 | 结果 | 证据 |
+|-------|------|------|
+| 规则 ≥5 条等 | pass | 同上 pytest 绿；实现侧见 `tests/test_chatbi_prompt_guard_poc.py` |
+| block / 正例 pytest | pass | 同上 |
+| warn 路径 `prompt_guard_warn` 一次且不阻断 | pass | 同上 |
+| 集成：拦在 LLM 之前 | pass | 同上（e2e/mock 栈） |
+| `CHATBI_JSON_LOG=1` JSON 日志结构含 `run_id` | pass | 同上 |
+| 配置文档或子规修订记录更新 | **本帽未单独跑文档命令** | 须复检对照 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` / `SPEC-ChatBI-V3-Security.md` §3 落笔 |
+| 子规 §3 PoC 已合并标注 | **本帽未单独跑文档命令** | 同上 |
+
+**已知未测 / 非范围**：Unified **SSE**（`/api/py/unified/chat/stream`）未纳入本 pytest 门禁；与审查 R3 **NB-3**、SPEC §3.1「仅非流式 JSON」表述一致。**文档项**未由本 run 的 shell 命令直接断言。
+
+**Invoke 快照（本自检帽 `40`）**：相对工作区根 `Projects/` → `docs/harness/invokes/invoke_20260514_0000_40_chatbi-v3-prompt-injection-guard-poc-v1.md`
 
 ---
 
@@ -94,11 +133,11 @@
 
 | 项 | 内容 |
 |----|------|
-| 接入函数 / 文件 | |
-| 新 env 键名 | |
-| 与 Intent / rewrite 的先后关系 | |
-| **FP-4**（fail-open / fail-closed） | 默认 **fail-closed** 直至显式填写；须与 pytest 异常分支一致 |
-| **FP-1** golden JSON | `tests/` 内 fixture 或快照的**相对路径**（与现网 Unified/Agent 错误 envelope 之一对齐） |
+| 接入函数 / 文件 | `api/chatbi_prompt_guard.py`（`scan`、`chatbi_prompt_guard_mode`）；`api/unified_chat.py::handle_unified_chat` 内在 `finish` 闭包定义之后、**`CHATBI_USE_AGENT` 分支之前** 调用 |
+| 新 env 键名 | `CHATBI_PROMPT_GUARD_MODE`：`off`（默认）\| `warn` \| `block` |
+| 与 Intent / rewrite 的先后关系 | **同请求**：对原始用户 `query` 扫描 **早于** `decide_intent` / `ChatBIAgent.run` / `no_data.generate` LLM / `text2sql` 路径上的 `llm_generate_sql`。**P1-1 SQL AST gate** 仍在 `apply_chatbi_sql_gate`（SQL 文本生成之后），故顺序为 **Prompt guard（用户 query）→ … → SQL gate**；**未**修改 `api/text2sql_core.py` 主链。 |
+| **FP-4**（fail-open / fail-closed） | **fail-closed**：`scan()` 捕获全部异常 → `blocked=True` + `internal_error=True`；Unified 路径下 **`warn` 模式若 `internal_error`** 与 **`block`** 同等短路并写 **`prompt_guard_deny`**（不继续下游）。pytest：`test_scan_fail_closed_internal`。 |
+| **FP-1**（HTTP + body + golden） | **路由**：`POST /api/py/unified/chat`（`api/unified_chat.py` → `handle_unified_chat`）。**HTTP**：**200**（`JSONResponse` 未传 `status_code`，与现网非流式 Unified 一致）。**Body 顶层键**：`ok`（bool）、`run_id`（str）、`session_id`（str 或 null）、`mode`（str）、`events`（list）。**拒绝语义载体**（与现行 text2sql 生成阶段失败短路同形）：`ok: false` 且 `events` 中含 **`type`: `"error"`** 的项，`payload` 含 **`stage`**（str）、**`message`**（str，短拒绝文案，**不**暴露规则细节）。若后续产品改为 **403** 或引入 **`deny_code`** 顶层字段，须与本行、`_contract_manifest.json`（若适用）同 PR 更新后再动路由。<br>**golden JSON（相对本仓根）**：`tests/fixtures/chatbi/prompt_guard_fp1_unified_chat_error_envelope.json`；契约单测：`tests/test_chatbi_prompt_guard_fp1_envelope_contract.py`（仅锁 envelope 形态；**guard 行为**仍以 PoC 实现 PR 为准）。 |
 
 ---
 

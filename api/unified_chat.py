@@ -16,6 +16,8 @@ from openai import OpenAI
 from .chatbi_principal import ChatBiPrincipal
 from .chatbi_policies import load_chatbi_table_policies_sync
 from .chatbi_request_ctx import set_chatbi_log_ctx, set_chatbi_principal
+from .chatbi_json_log import log_chatbi_record
+from .chatbi_prompt_guard import chatbi_prompt_guard_mode, scan as prompt_guard_scan
 from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .query_rewrite import rewrite_query_with_history
@@ -789,6 +791,50 @@ async def handle_unified_chat(
         if persist is not None:
             body["persist"] = persist
         return JSONResponse(content=body)
+
+    # P1-2：Prompt guard 扫描用户 query，早于任何上游 LLM（Intent / Text2SQL / no_data / Agent）。
+    # P1-1 SQL AST gate 仍在 text2sql SQL 生成之后（apply_chatbi_sql_gate）；同请求内顺序：本守卫 → … → SQL gate。
+    _pg_mode = chatbi_prompt_guard_mode()
+    if _pg_mode != "off":
+        _pg_res = prompt_guard_scan(query)
+        if _pg_res.blocked:
+            if _pg_mode == "warn" and not _pg_res.internal_error:
+                log_chatbi_record(
+                    message="prompt_guard_warn",
+                    request_id=ctx_log.get("request_id"),
+                    run_id=run_id,
+                    session_id=session_id,
+                    matched_rule_id=_pg_res.matched_rule_id,
+                    reason_code=_pg_res.reason_code,
+                    route="unified_chat",
+                )
+            else:
+                log_chatbi_record(
+                    message="prompt_guard_deny",
+                    request_id=ctx_log.get("request_id"),
+                    run_id=run_id,
+                    session_id=session_id,
+                    matched_rule_id=_pg_res.matched_rule_id,
+                    reason_code=_pg_res.reason_code,
+                    route="unified_chat",
+                )
+                events.append(
+                    _event(
+                        typ="error",
+                        started_at=started_at,
+                        step_id="e_prompt_guard",
+                        payload={"stage": "prompt_guard", "message": "请求无法处理。"},
+                    )
+                )
+                events.append(
+                    _event(
+                        typ="latency",
+                        started_at=started_at,
+                        step_id="l1",
+                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                    )
+                )
+                return finish(ok=False, mode=str(prefer))
 
     # CHATBI v2（Agent）主路径：开关开启时，输出 agent.* 事件
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
