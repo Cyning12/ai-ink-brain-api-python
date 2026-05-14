@@ -1,11 +1,11 @@
 # Task：技术图谱 — 方案1 静态 `graph.json` 导出与 CI 门禁（后端仓）
 
 > **状态**：`draft`  
-> **关联规划**：`docs/tech_graph/改进方向.md` v1.1（方案1）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
-> **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`  
+> **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**（方案1 + **R1** + 前端 graph CI 消歧）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
+> **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`；`docs/harness/invokes/invoke_20260514_0031_10_tech-graph-scheme1-exec-converge.md`（链上一节：`docs/harness/invokes/invoke_20260514_20_tech-graph-scheme1-review-hat20.md`）  
 > **test_strategy**：`required`  
 > **test_strategy_note**：方案1 核心是 **确定性解析 + 无漂移门禁**；若无 pytest 锁解析与 `--check` 行为，PR 易静默破坏图语义，违背 Harness §5 与 SPEC「CI 门禁」。  
-> **freeze_id（建议）**：`docs/tech_graph/改进方向.md` **v1.1（2026-05-14）** + `docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；实现 PR 合并后可在本段下一行回填 **短 commit hash**。
+> **freeze_id**：`TECH_GRAPH_S1_FREEZE_20260514_V1_1_3`
 
 ---
 
@@ -103,6 +103,7 @@
 | pytest 路径 | `<待回填>` |
 | CI workflow / job | `<待回填>` |
 | 闸口 A 结论文档 | `<待回填>` |
+| 契约变更后 freeze_id | 若 bump 规划 / SPEC，须与前端 task **同一行**更新 **freeze_id**；实现 PR 可将 **短 commit hash** 记入 PR 描述（**不**写入本行 `freeze_id`，以免破坏机械比对） |
 
 ---
 
