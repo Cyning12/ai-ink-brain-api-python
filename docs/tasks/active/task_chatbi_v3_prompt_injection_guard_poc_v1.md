@@ -104,16 +104,28 @@
 
 | 项目 | 结果 |
 |------|------|
-| VERIFY 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| VERIFY 命令（task「给执行帽的必读列表」§4 与 CI `pytest.yml` 对齐） | `pytest tests -m "not intent_eval and not intent_benchmark"` |
 | cwd（相对 `Projects/`） | `ai-ink-brain-api-python` |
 | 退出码 | **0** |
-| 摘要 | **138 passed**, 2 deselected（2026-05-14 本地执行） |
+| 摘要（本轮本地） | **138 passed**, 2 deselected；约 24s；存在第三方 DeprecationWarning（Supabase / SWIG），**非失败** |
 
-**验收对照**：§4 勾选与 `tests/test_chatbi_prompt_guard_poc.py`、`tests/test_chatbi_prompt_guard_fp1_envelope_contract.py` 断言一致。
+**task 列出的其他验证命令**：无（本单合并前仅显式列出上述 pytest）。
 
-**已知未测 / 非范围**：Unified **SSE**（`/api/py/unified/chat/stream`）未接入同一 guard；与审查 R3 **NB-3**、SPEC §3.1「仅非流式 JSON」表述一致。
+**§4 验收对照摘要**（与 `test_strategy: required` 一致：以 pytest 证据为主）：
 
-**Invoke 快照（本执行帽）**：相对工作区根 `Projects/` → `docs/harness/invokes/invoke_20260514_0000_30_chatbi-v3-prompt-injection-guard-poc-v1.md`
+| §4 项 | 结果 | 证据 |
+|-------|------|------|
+| 规则 ≥5 条等 | pass | 同上 pytest 绿；实现侧见 `tests/test_chatbi_prompt_guard_poc.py` |
+| block / 正例 pytest | pass | 同上 |
+| warn 路径 `prompt_guard_warn` 一次且不阻断 | pass | 同上 |
+| 集成：拦在 LLM 之前 | pass | 同上（e2e/mock 栈） |
+| `CHATBI_JSON_LOG=1` JSON 日志结构含 `run_id` | pass | 同上 |
+| 配置文档或子规修订记录更新 | **本帽未单独跑文档命令** | 须复检对照 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` / `SPEC-ChatBI-V3-Security.md` §3 落笔 |
+| 子规 §3 PoC 已合并标注 | **本帽未单独跑文档命令** | 同上 |
+
+**已知未测 / 非范围**：Unified **SSE**（`/api/py/unified/chat/stream`）未纳入本 pytest 门禁；与审查 R3 **NB-3**、SPEC §3.1「仅非流式 JSON」表述一致。**文档项**未由本 run 的 shell 命令直接断言。
+
+**Invoke 快照（本自检帽 `40`）**：相对工作区根 `Projects/` → `docs/harness/invokes/invoke_20260514_0000_40_chatbi-v3-prompt-injection-guard-poc-v1.md`
 
 ---
 
