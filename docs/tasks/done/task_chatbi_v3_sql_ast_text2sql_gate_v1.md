@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — Text2SQL 后闸 **SQL AST 硬化**（P1-1）
 
-> **状态**：`todo`（**P1-1** implementation；可与 **P1-2**、**P1-4** 分 PR，但 **关单** 须满足本单 **§验收标准**）  
+> **状态**：`done（2026-05-14 验收通过）`  
 > **与总规批次对应**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§2.1 P1-1**  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2**（SQL 解析 / 策略 / 失败形态）  
 > **企业参考**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§3.2.1**  
@@ -122,7 +122,7 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 
 | 项 | 内容 |
 |----|------|
-| PR / 分支 | （待 PR 号回填） |
+| PR / 分支 | 已合入并通过本仓 CI；主线以远端 `agent-v3` / `main` 为准（2026-05-14 关单） |
 | 选用库 / API | `sqlparse.parse` / `Statement.get_type()`；未新增第二套 parser 依赖 |
 | 变更函数列表 | `apply_chatbi_sql_gate` 拆为 `_phase_ast`、`_phase_table_policy_allowlist`、`_phase_access_level_rules`；`normalize_single_sql` 多语句改由 AST；`_log_deny` / `ChatBiSqlGateDenied` 增 `ast_rule_id` |
 | 新增 `rule` / `deny_code` 枚举 | `rule`：`ast_multi_statement`、`ast_forbidden_ddl`、`ast_parse_unstable`；`UNKNOWN` 非回退类用 `unsupported_stmt` + **`ast_rule_id=AST_UNSUPPORTED`**；对外 **`deny_code` 仍为 `CHATBI_SQL_DENIED`** |

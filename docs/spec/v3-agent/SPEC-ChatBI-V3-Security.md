@@ -16,7 +16,7 @@
 
 ### 2.1 现状（V2 真值）
 
-- **已合并 P1-1（本仓）**：`api/chatbi_sql_gate.py` 在 `normalize_single_sql` 之后以 **sqlparse 结构化路径** 判定 **多语句**、**顶语句禁止类 DDL/DML 形态**（与 `ast_forbidden_ddl` / `ast_multi_statement` 等 `rule` + 可选 `ast_rule_id` 对齐），再进入 **`chatbi_sql_table_policy`（min_*）** 与 **档位/L2 收窄**；详见 `docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md` **§5** 与 pytest `tests/test_chatbi_sql_ast_gate_v1.py`。  
+- **已合并 P1-1（本仓）**：`api/chatbi_sql_gate.py` 在 `normalize_single_sql` 之后以 **sqlparse 结构化路径** 判定 **多语句**、**顶语句禁止类 DDL/DML 形态**（与 `ast_forbidden_ddl` / `ast_multi_statement` 等 `rule` + 可选 `ast_rule_id` 对齐），再进入 **`chatbi_sql_table_policy`（min_*）** 与 **档位/L2 收窄**；详见 `docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md` **§5** 与 pytest `tests/test_chatbi_sql_ast_gate_v1.py`。  
 - 历史说明：早期简历若写「纯关键字过滤」须以本节 **现状** 为准更新。
 
 ### 2.2 V3 目标形态（初版 — 待实现 PR 选型）
@@ -57,7 +57,7 @@
 
 ## 5. 关联
 
-- `docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（**P1-1** implementation）  
+- `docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（**P1-1** implementation · 已归档）  
 - `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（**P1-2** implementation）  
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Tool-Design.md`  
 - [`SPEC-ChatBI-V3-Logging-Trace.md`](SPEC-ChatBI-V3-Logging-Trace.md)
@@ -72,4 +72,4 @@
 | 2026-05-13 | **§2.2**：「失败」行用语与现网 **`deny_code` / `ChatBiSqlGateDenied`** 对齐；废止以 `error_code` 指代对外字段的叙述。**freeze_id**：`SPEC-SEC-2026-05-13-§2`（P1-1 task `freeze_id` 引用本行）。 |
 | 2026-05-13 | **§3 / §4**：明确 PoC 与 §3.2 输出侧边界；可执行验收以关联 task 勾选为准。**freeze_id**：`SPEC-SEC-2026-05-13-§3`（P1-2 task `freeze_id` 引用本行）。 |
 | 2026-05-14 | **§2.1**：登记 **P1-1 AST 硬化已合并**（`chatbi_sql_gate` + `tests/test_chatbi_sql_ast_gate_v1.py`）；`sql_gate_deny` 可带 **`ast_rule_id`**（与 `rule` 并存）。**freeze_id**：沿用 `SPEC-SEC-2026-05-13-§2`（对外 `deny_code` / `ChatBiSqlGateDenied` 未变）。 |
-| 2026-05-14 | **§5**：登记 **P1-1 / P1-2** implementation 任务单路径（`task_chatbi_v3_sql_ast_text2sql_gate_v1`、`task_chatbi_v3_prompt_injection_guard_poc_v1`）。 |
+| 2026-05-14 | **§5**：登记 **P1-1 / P1-2** implementation 任务单路径（`task_chatbi_v3_sql_ast_text2sql_gate_v1` → **`docs/tasks/done/`** 已归档、`task_chatbi_v3_prompt_injection_guard_poc_v1`）。 |
