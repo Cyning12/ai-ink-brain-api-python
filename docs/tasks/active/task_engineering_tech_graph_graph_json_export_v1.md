@@ -99,10 +99,10 @@
 
 | 项 | 内容 |
 |----|------|
-| 导出脚本路径 | `<待回填>` |
-| pytest 路径 | `<待回填>` |
-| CI workflow / job | `<待回填>` |
-| 闸口 A 结论文档 | `<待回填>` |
+| 导出脚本路径 | `tools/tech_graph_graph_export.py` |
+| pytest 路径 | `tests/test_tech_graph_graph_export.py` |
+| CI workflow / job | `.github/workflows/tech-graph.yml` → job `manifest_check`（步骤顺序：`tech_graph_manifest_check.py` → `tech_graph_graph_export.py --check`）；契约门禁仍为 `.github/workflows/tech-graph-contract.yml` → `contract_check`（**与 graph 并行、独立脚本**） |
+| 闸口 A 结论文档 | `docs/tech_graph/gate_a_scheme1_backend.md` |
 | 契约变更后 freeze_id | 若 bump 规划 / SPEC，须与前端 task **同一行**更新 **freeze_id**；实现 PR 可将 **短 commit hash** 记入 PR 描述（**不**写入本行 `freeze_id`，以免破坏机械比对） |
 
 ---
