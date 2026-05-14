@@ -54,12 +54,69 @@ PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
 
 def _chatbi_log_ctx(request: Request) -> dict[str, Any]:
     return {"request_id": (request.headers.get("x-request-id") or "").strip() or None}
+
+
 def _now_ms(started_at: float) -> int:
     return int((time.perf_counter() - started_at) * 1000)
 
 
 def _event(*, typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     return {"type": typ, "ts": _now_ms(started_at), "step_id": step_id, "payload": payload}
+
+
+def _unified_prompt_guard_short_circuit_events(
+    query: str,
+    *,
+    ctx_log: dict[str, Any],
+    run_id: str,
+    session_id: str | None,
+    started_at: float,
+    route: str = "unified_chat",
+) -> tuple[bool, list[dict[str, Any]]]:
+    """P1-2：早于任何上游 LLM；与 JSON / SSE 共用。返回 (应短路, [error, latency] 或 [])。"""
+    mode = chatbi_prompt_guard_mode()
+    if mode == "off":
+        return (False, [])
+    res = prompt_guard_scan(query)
+    if not res.blocked:
+        return (False, [])
+    if mode == "warn" and not res.internal_error:
+        log_chatbi_record(
+            message="prompt_guard_warn",
+            request_id=ctx_log.get("request_id"),
+            run_id=run_id,
+            session_id=session_id,
+            matched_rule_id=res.matched_rule_id,
+            reason_code=res.reason_code,
+            route=route,
+        )
+        return (False, [])
+    log_chatbi_record(
+        message="prompt_guard_deny",
+        request_id=ctx_log.get("request_id"),
+        run_id=run_id,
+        session_id=session_id,
+        matched_rule_id=res.matched_rule_id,
+        reason_code=res.reason_code,
+        route=route,
+    )
+    return (
+        True,
+        [
+            _event(
+                typ="error",
+                started_at=started_at,
+                step_id="e_prompt_guard",
+                payload={"stage": "prompt_guard", "message": "请求无法处理。"},
+            ),
+            _event(
+                typ="latency",
+                started_at=started_at,
+                step_id="l1",
+                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+            ),
+        ],
+    )
 
 
 def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: bool) -> dict[str, Any]:
@@ -793,48 +850,13 @@ async def handle_unified_chat(
         return JSONResponse(content=body)
 
     # P1-2：Prompt guard 扫描用户 query，早于任何上游 LLM（Intent / Text2SQL / no_data / Agent）。
-    # P1-1 SQL AST gate 仍在 text2sql SQL 生成之后（apply_chatbi_sql_gate）；同请求内顺序：本守卫 → … → SQL gate。
-    _pg_mode = chatbi_prompt_guard_mode()
-    if _pg_mode != "off":
-        _pg_res = prompt_guard_scan(query)
-        if _pg_res.blocked:
-            if _pg_mode == "warn" and not _pg_res.internal_error:
-                log_chatbi_record(
-                    message="prompt_guard_warn",
-                    request_id=ctx_log.get("request_id"),
-                    run_id=run_id,
-                    session_id=session_id,
-                    matched_rule_id=_pg_res.matched_rule_id,
-                    reason_code=_pg_res.reason_code,
-                    route="unified_chat",
-                )
-            else:
-                log_chatbi_record(
-                    message="prompt_guard_deny",
-                    request_id=ctx_log.get("request_id"),
-                    run_id=run_id,
-                    session_id=session_id,
-                    matched_rule_id=_pg_res.matched_rule_id,
-                    reason_code=_pg_res.reason_code,
-                    route="unified_chat",
-                )
-                events.append(
-                    _event(
-                        typ="error",
-                        started_at=started_at,
-                        step_id="e_prompt_guard",
-                        payload={"stage": "prompt_guard", "message": "请求无法处理。"},
-                    )
-                )
-                events.append(
-                    _event(
-                        typ="latency",
-                        started_at=started_at,
-                        step_id="l1",
-                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
-                    )
-                )
-                return finish(ok=False, mode=str(prefer))
+    # P1-1 SQL AST gate 仍在 text2sql SQL 生成之后；同请求内顺序：本守卫 → … → SQL gate。
+    _pg_abort, _pg_events = _unified_prompt_guard_short_circuit_events(
+        query, ctx_log=ctx_log, run_id=run_id, session_id=session_id, started_at=started_at, route="unified_chat"
+    )
+    if _pg_abort:
+        events.extend(_pg_events)
+        return finish(ok=False, mode=str(prefer))
 
     # CHATBI v2（Agent）主路径：开关开启时，输出 agent.* 事件
     use_agent = (os.getenv("CHATBI_USE_AGENT", "false") or "").strip().lower() in ("1", "true", "yes", "on")
@@ -2003,15 +2025,27 @@ async def handle_unified_chat_stream(
                         "chain",
                         {"type": "meta", "ts": _now_ms(started_at), "step_id": "m1", "payload": {"run_id": run_id, "mode": mode, "session_id": session_id}},
                     )
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="error",
-                            started_at=started_at,
-                            step_id="e_agent",
-                            payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
-                        ),
+                    _pg_tool_ab, _pg_tool_evs = _unified_prompt_guard_short_circuit_events(
+                        query,
+                        ctx_log=ctx_log,
+                        run_id=run_id,
+                        session_id=session_id,
+                        started_at=started_at,
+                        route="unified_chat_sse",
                     )
+                    if _pg_tool_ab:
+                        for _gev in _pg_tool_evs:
+                            yield _sse("chain", _gev)
+                    else:
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="error",
+                                started_at=started_at,
+                                step_id="e_agent",
+                                payload={"stage": "agent", "message": f"未实现的工具路由：{prefer}"},
+                            ),
+                        )
                 except GeneratorExit:
                     return
                 except Exception as exc:  # noqa: BLE001
@@ -2053,432 +2087,445 @@ async def handle_unified_chat_stream(
                     },
                 )
 
-                if sse_incremental:
-                    # G2：Agent 内 emit → 队列 → 本生成器边收边 yield（vNext 协商头 + CHATBI_SSE_INCREMENTAL）
-                    q: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=_sse_emit_queue_maxsize())
-                    holder: dict[str, Any] = {}
-                    overflow_pending: list[dict[str, Any]] = []
-
-                    async def forward(ev: dict[str, Any]) -> None:
-                        try:
-                            q.put_nowait(ev)
-                            return
-                        except asyncio.QueueFull:
-                            sid = ev.get("step_id") if isinstance(ev.get("step_id"), str) else "bp1"
-                            overflow_pending.append(
-                                _event(
-                                    typ="agent.llm.truncated",
-                                    started_at=started_at,
-                                    step_id=sid,
-                                    payload={
-                                        "dropped_chars": _sse_emit_queue_event_estimate_chars(ev),
-                                        "reason": "backpressure",
-                                    },
+                _pg_ab, _pg_evs = _unified_prompt_guard_short_circuit_events(
+                    query,
+                    ctx_log=ctx_log,
+                    run_id=run_id,
+                    session_id=session_id,
+                    started_at=started_at,
+                    route="unified_chat_sse",
+                )
+                if _pg_ab:
+                    for _gev in _pg_evs:
+                        yield _sse("chain", _gev)
+                    ok_local = False
+                if not _pg_ab:
+                    if sse_incremental:
+                        # G2：Agent 内 emit → 队列 → 本生成器边收边 yield（vNext 协商头 + CHATBI_SSE_INCREMENTAL）
+                        q: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=_sse_emit_queue_maxsize())
+                        holder: dict[str, Any] = {}
+                        overflow_pending: list[dict[str, Any]] = []
+    
+                        async def forward(ev: dict[str, Any]) -> None:
+                            try:
+                                q.put_nowait(ev)
+                                return
+                            except asyncio.QueueFull:
+                                sid = ev.get("step_id") if isinstance(ev.get("step_id"), str) else "bp1"
+                                overflow_pending.append(
+                                    _event(
+                                        typ="agent.llm.truncated",
+                                        started_at=started_at,
+                                        step_id=sid,
+                                        payload={
+                                            "dropped_chars": _sse_emit_queue_event_estimate_chars(ev),
+                                            "reason": "backpressure",
+                                        },
+                                    )
                                 )
-                            )
-                        await q.put(ev)
-
-                    async def runner() -> None:
+                            await q.put(ev)
+    
+                        async def runner() -> None:
+                            try:
+                                holder["agent_result"] = await agent.run(
+                                    query=query,
+                                    session_id=session_id,
+                                    prefer=prefer,
+                                    sse_started_at=started_at,
+                                    run_id=run_id,
+                                    emit=forward,
+                                    debug_router=debug_router,
+                                    debug_llm_prompts=debug_llm_prompts,
+                                    intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
+                                    plan_execution_token=plan_execution_token,
+                                )
+                            except Exception as exc:  # noqa: BLE001
+                                holder["exc"] = exc
+                            finally:
+                                await q.put(None)
+    
+                        run_task = asyncio.create_task(runner())
                         try:
-                            holder["agent_result"] = await agent.run(
+                            _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
+                        except Exception:  # noqa: BLE001
+                            _iv = 15.0
+                        _iv = max(5.0, min(_iv, 60.0))
+                        while True:
+                            while overflow_pending:
+                                yield _sse("chain", overflow_pending.pop(0))
+                            try:
+                                item = await asyncio.wait_for(q.get(), timeout=_iv)
+                            except asyncio.TimeoutError:
+                                if run_task.done():
+                                    break
+                                yield ": sse-keepalive\n\n"
+                                continue
+                            if item is None:
+                                break
+                            yield _sse("chain", item)
+                        await run_task
+                        while overflow_pending:
+                            yield _sse("chain", overflow_pending.pop(0))
+                        while True:
+                            try:
+                                tail = q.get_nowait()
+                            except asyncio.QueueEmpty:
+                                break
+                            if tail is not None:
+                                yield _sse("chain", tail)
+                        exc_run = holder.get("exc")
+                        if exc_run is not None:
+                            ok_local = False
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="error",
+                                    started_at=started_at,
+                                    step_id="e_agent_run",
+                                    payload={"stage": "agent", "message": str(exc_run)[:500]},
+                                ),
+                            )
+                        else:
+                            agent_result = holder.get("agent_result")
+                            if agent_result is not None:
+                                ok_local = True
+                                mode_local = agent_result.final.mode
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="latency",
+                                        started_at=started_at,
+                                        step_id="l1",
+                                        payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                                    ),
+                                )
+                                persist_result = await _await_persist_chatbi_v2_agent_log(
+                                    session_id=session_id,
+                                    query=query,
+                                    run_id=run_id,
+                                    prefer=prefer,
+                                    started_at=started_at,
+                                    agent_result=agent_result,
+                                )
+                                if not persist_result.get("ok"):
+                                    yield _sse(
+                                        "chain",
+                                        _event(
+                                            typ="error",
+                                            started_at=started_at,
+                                            step_id="e_agent_db",
+                                            payload={
+                                                "stage": "agent_db",
+                                                "message": (str(persist_result.get("error") or "persist_failed"))[:500],
+                                                "persist": persist_result,
+                                            },
+                                        ),
+                                    )
+                    else:
+                        # 批量 replay：await run 结束后再按旧顺序 yield（兼容缺省协商头）
+                        _run_task = asyncio.create_task(
+                            agent.run(
                                 query=query,
                                 session_id=session_id,
                                 prefer=prefer,
                                 sse_started_at=started_at,
                                 run_id=run_id,
-                                emit=forward,
-                                debug_router=debug_router,
                                 debug_llm_prompts=debug_llm_prompts,
-                                intent_obs_payload_fn=lambda d: _agent_intent_obs_payload(d, debug_router=debug_router),
                                 plan_execution_token=plan_execution_token,
                             )
-                        except Exception as exc:  # noqa: BLE001
-                            holder["exc"] = exc
-                        finally:
-                            await q.put(None)
-
-                    run_task = asyncio.create_task(runner())
-                    try:
-                        _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
-                    except Exception:  # noqa: BLE001
-                        _iv = 15.0
-                    _iv = max(5.0, min(_iv, 60.0))
-                    while True:
-                        while overflow_pending:
-                            yield _sse("chain", overflow_pending.pop(0))
+                        )
                         try:
-                            item = await asyncio.wait_for(q.get(), timeout=_iv)
-                        except asyncio.TimeoutError:
-                            if run_task.done():
+                            _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
+                        except Exception:  # noqa: BLE001
+                            _iv = 15.0
+                        _iv = max(5.0, min(_iv, 60.0))
+                        while not _run_task.done():
+                            await asyncio.wait({_run_task}, timeout=_iv)
+                            if _run_task.done():
                                 break
                             yield ": sse-keepalive\n\n"
-                            continue
-                        if item is None:
-                            break
-                        yield _sse("chain", item)
-                    await run_task
-                    while overflow_pending:
-                        yield _sse("chain", overflow_pending.pop(0))
-                    while True:
-                        try:
-                            tail = q.get_nowait()
-                        except asyncio.QueueEmpty:
-                            break
-                        if tail is not None:
-                            yield _sse("chain", tail)
-                    exc_run = holder.get("exc")
-                    if exc_run is not None:
-                        ok_local = False
+                        agent_result = await _run_task
+                        mode_local = agent_result.final.mode
+                        ok_local = True
+    
+                    if not sse_incremental:
+                        intent_decision = agent_result.intent_decision
+                        step1 = agent_result.steps[0] if agent_result.steps else None
+                        step1_mode = step1.mode if step1 else mode_local
+                        candidate_mode = intent_decision.mode if intent_decision else step1_mode
+                        final_mode = step1_mode
+    
                         yield _sse(
                             "chain",
                             _event(
-                                typ="error",
+                                typ="router.decision",
                                 started_at=started_at,
-                                step_id="e_agent_run",
-                                payload={"stage": "agent", "message": str(exc_run)[:500]},
-                            ),
-                        )
-                    else:
-                        agent_result = holder.get("agent_result")
-                        if agent_result is not None:
-                            ok_local = True
-                            mode_local = agent_result.final.mode
-                            yield _sse(
-                                "chain",
-                                _event(
-                                    typ="latency",
-                                    started_at=started_at,
-                                    step_id="l1",
-                                    payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
-                                ),
-                            )
-                            persist_result = await _await_persist_chatbi_v2_agent_log(
-                                session_id=session_id,
-                                query=query,
-                                run_id=run_id,
-                                prefer=prefer,
-                                started_at=started_at,
-                                agent_result=agent_result,
-                            )
-                            if not persist_result.get("ok"):
-                                yield _sse(
-                                    "chain",
-                                    _event(
-                                        typ="error",
-                                        started_at=started_at,
-                                        step_id="e_agent_db",
-                                        payload={
-                                            "stage": "agent_db",
-                                            "message": (str(persist_result.get("error") or "persist_failed"))[:500],
-                                            "persist": persist_result,
-                                        },
-                                    ),
-                                )
-                else:
-                    # 批量 replay：await run 结束后再按旧顺序 yield（兼容缺省协商头）
-                    _run_task = asyncio.create_task(
-                        agent.run(
-                            query=query,
-                            session_id=session_id,
-                            prefer=prefer,
-                            sse_started_at=started_at,
-                            run_id=run_id,
-                            debug_llm_prompts=debug_llm_prompts,
-                            plan_execution_token=plan_execution_token,
-                        )
-                    )
-                    try:
-                        _iv = float((os.getenv("SSE_KEEPALIVE_INTERVAL_S") or "15").strip() or "15")
-                    except Exception:  # noqa: BLE001
-                        _iv = 15.0
-                    _iv = max(5.0, min(_iv, 60.0))
-                    while not _run_task.done():
-                        await asyncio.wait({_run_task}, timeout=_iv)
-                        if _run_task.done():
-                            break
-                        yield ": sse-keepalive\n\n"
-                    agent_result = await _run_task
-                    mode_local = agent_result.final.mode
-                    ok_local = True
-
-                if not sse_incremental:
-                    intent_decision = agent_result.intent_decision
-                    step1 = agent_result.steps[0] if agent_result.steps else None
-                    step1_mode = step1.mode if step1 else mode_local
-                    candidate_mode = intent_decision.mode if intent_decision else step1_mode
-                    final_mode = step1_mode
-
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="router.decision",
-                            started_at=started_at,
-                            step_id="r1",
-                            payload={
-                                "prefer": "auto" if prefer == "auto" else prefer,
-                                "candidate_mode": candidate_mode,
-                                "final_mode": final_mode,
-                                "rule_hits": [],
-                                "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
-                                "fallback": intent_decision.fallback if intent_decision else None,
-                            },
-                        ),
-                    )
-
-                    for ev in _clarify_short_circuit_events(
-                        agent_result=agent_result,
-                        started_at=started_at,
-                        max_steps=max_steps,
-                        debug_router=debug_router,
-                        debug_llm_prompts=debug_llm_prompts,
-                    ):
-                        yield _sse("chain", ev)
-
-                    for step in agent_result.steps:
-                        step_id = f"a{step.step_number}"
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="agent.step.start",
-                                started_at=started_at,
-                                step_id=step_id,
-                                payload={"step_number": step.step_number, "max_steps": max_steps},
-                            ),
-                        )
-
-                        if step.step_number == 1 and intent_decision is not None:
-                            yield _sse(
-                                "chain",
-                                _event(
-                                    typ="agent.intent",
-                                    started_at=started_at,
-                                    step_id="intent_1",
-                                    payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
-                                ),
-                            )
-                            if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
-                                _ilp2 = intent_decision.raw_response.get("llm_prompts")
-                                if isinstance(_ilp2, list) and _ilp2:
-                                    yield _sse(
-                                        "chain",
-                                        _event(
-                                            typ="agent.debug.llm_prompts",
-                                            started_at=started_at,
-                                            step_id="intent_llm_replay",
-                                            payload={"scope": "intent", "items": _ilp2},
-                                        ),
-                                    )
-
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="agent.think",
-                                started_at=started_at,
-                                step_id=f"{step_id}_think",
+                                step_id="r1",
                                 payload={
-                                    "step_number": step.step_number,
-                                    "thought": step.think_payload["thought"],
-                                    "selected_tool": step.think_payload["selected_tool"],
-                                    "mode": step.think_payload["mode"],
-                                    "confidence": step.think_payload["confidence"],
+                                    "prefer": "auto" if prefer == "auto" else prefer,
+                                    "candidate_mode": candidate_mode,
+                                    "final_mode": final_mode,
+                                    "rule_hits": [],
+                                    "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                                    "fallback": intent_decision.fallback if intent_decision else None,
                                 },
                             ),
                         )
-
-                        td2 = step.tool_result.data if isinstance(step.tool_result.data, dict) else {}
-                        if step.tool_used == "rag_search":
-                            _rw2 = td2.get("rewritten") if isinstance(td2.get("rewritten"), str) else ""
-                            _rw_ms2 = int(td2.get("rewrite_latency_ms") or 0)
+    
+                        for ev in _clarify_short_circuit_events(
+                            agent_result=agent_result,
+                            started_at=started_at,
+                            max_steps=max_steps,
+                            debug_router=debug_router,
+                            debug_llm_prompts=debug_llm_prompts,
+                        ):
+                            yield _sse("chain", ev)
+    
+                        for step in agent_result.steps:
+                            step_id = f"a{step.step_number}"
                             yield _sse(
                                 "chain",
                                 _event(
-                                    typ="tool.call.start",
+                                    typ="agent.step.start",
                                     started_at=started_at,
-                                    step_id=f"t_step{step.step_number}_rewrite",
-                                    payload={"tool": "rag.rewrite", "input": {"query": query}},
+                                    step_id=step_id,
+                                    payload={"step_number": step.step_number, "max_steps": max_steps},
                                 ),
                             )
+    
+                            if step.step_number == 1 and intent_decision is not None:
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="agent.intent",
+                                        started_at=started_at,
+                                        step_id="intent_1",
+                                        payload=_agent_intent_obs_payload(intent_decision, debug_router=debug_router),
+                                    ),
+                                )
+                                if debug_llm_prompts and isinstance(intent_decision.raw_response, dict):
+                                    _ilp2 = intent_decision.raw_response.get("llm_prompts")
+                                    if isinstance(_ilp2, list) and _ilp2:
+                                        yield _sse(
+                                            "chain",
+                                            _event(
+                                                typ="agent.debug.llm_prompts",
+                                                started_at=started_at,
+                                                step_id="intent_llm_replay",
+                                                payload={"scope": "intent", "items": _ilp2},
+                                            ),
+                                        )
+    
+                            yield _sse(
+                                "chain",
+                                _event(
+                                    typ="agent.think",
+                                    started_at=started_at,
+                                    step_id=f"{step_id}_think",
+                                    payload={
+                                        "step_number": step.step_number,
+                                        "thought": step.think_payload["thought"],
+                                        "selected_tool": step.think_payload["selected_tool"],
+                                        "mode": step.think_payload["mode"],
+                                        "confidence": step.think_payload["confidence"],
+                                    },
+                                ),
+                            )
+    
+                            td2 = step.tool_result.data if isinstance(step.tool_result.data, dict) else {}
+                            if step.tool_used == "rag_search":
+                                _rw2 = td2.get("rewritten") if isinstance(td2.get("rewritten"), str) else ""
+                                _rw_ms2 = int(td2.get("rewrite_latency_ms") or 0)
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="tool.call.start",
+                                        started_at=started_at,
+                                        step_id=f"t_step{step.step_number}_rewrite",
+                                        payload={"tool": "rag.rewrite", "input": {"query": query}},
+                                    ),
+                                )
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="tool.call.end",
+                                        started_at=started_at,
+                                        step_id=f"t_step{step.step_number}_rewrite",
+                                        payload={
+                                            "output": {"rewritten_query": _rw2 or query},
+                                            "error": None,
+                                            "latency_ms": _rw_ms2,
+                                        },
+                                    ),
+                                )
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="tool.call.start",
+                                        started_at=started_at,
+                                        step_id=f"t_step{step.step_number}",
+                                        payload={"tool": "rag_search", "input": {"query": query, "rewritten_query": _rw2 or query}},
+                                    ),
+                                )
+                            else:
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="tool.call.start",
+                                        started_at=started_at,
+                                        step_id=f"t_step{step.step_number}",
+                                        payload={"tool": step.tool_used, "input": {"query": query}},
+                                    ),
+                                )
+    
+                            err = step.tool_result.error
+                            out_answer: str | None = None
+                            if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
+                                out_answer = step.tool_result.data.get("answer")
+    
+                            _out_payload_replay: dict[str, Any] = {}
+                            if out_answer is not None:
+                                _out_payload_replay["answer"] = out_answer
+                            if step.tool_used == "rag_search" and isinstance(td2.get("rewritten"), str):
+                                _out_payload_replay["rewritten_query"] = td2["rewritten"]
+    
                             yield _sse(
                                 "chain",
                                 _event(
                                     typ="tool.call.end",
                                     started_at=started_at,
-                                    step_id=f"t_step{step.step_number}_rewrite",
+                                    step_id=f"t_step{step.step_number}",
                                     payload={
-                                        "output": {"rewritten_query": _rw2 or query},
-                                        "error": None,
-                                        "latency_ms": _rw_ms2,
+                                        "output": _out_payload_replay,
+                                        "error": err,
+                                        "latency_ms": step.tool_result.latency_ms,
                                     },
                                 ),
                             )
+                            if debug_llm_prompts and isinstance(td2.get("llm_prompts"), list) and td2.get("llm_prompts"):
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="agent.debug.llm_prompts",
+                                        started_at=started_at,
+                                        step_id=f"tool_llm_replay_{step.step_number}",
+                                        payload={
+                                            "scope": "tool",
+                                            "tool": step.tool_used,
+                                            "step_number": step.step_number,
+                                            "items": td2["llm_prompts"],
+                                        },
+                                    ),
+                                )
+    
+                            if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
+                                data = step.tool_result.data
+                                columns_any = data.get("columns")
+                                columns = columns_any if isinstance(columns_any, list) else []
+                                rows_any = data.get("rows")
+                                rows_any2 = rows_any if isinstance(rows_any, list) else []
+                                rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
+                                truncated = len(rows) > 20
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="sql.result",
+                                        started_at=started_at,
+                                        step_id=f"q_step{step.step_number}",
+                                        payload={
+                                            "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
+                                            "columns": [c for c in columns if isinstance(c, str)],
+                                            "rows": rows[:20],
+                                            "truncated": truncated,
+                                        },
+                                    ),
+                                )
+                            elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
+                                data = step.tool_result.data
+                                hits_any = data.get("hits")
+                                hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
+                                yield _sse(
+                                    "chain",
+                                    _event(
+                                        typ="rag.sources",
+                                        started_at=started_at,
+                                        step_id=f"s_step{step.step_number}",
+                                        payload=_build_rag_sources_event(hits, top_k=10),
+                                    ),
+                                )
+    
                             yield _sse(
                                 "chain",
                                 _event(
-                                    typ="tool.call.start",
+                                    typ="agent.step.end",
                                     started_at=started_at,
-                                    step_id=f"t_step{step.step_number}",
-                                    payload={"tool": "rag_search", "input": {"query": query, "rewritten_query": _rw2 or query}},
-                                ),
-                            )
-                        else:
-                            yield _sse(
-                                "chain",
-                                _event(
-                                    typ="tool.call.start",
-                                    started_at=started_at,
-                                    step_id=f"t_step{step.step_number}",
-                                    payload={"tool": step.tool_used, "input": {"query": query}},
-                                ),
-                            )
-
-                        err = step.tool_result.error
-                        out_answer: str | None = None
-                        if step.tool_result.data and isinstance(step.tool_result.data.get("answer"), str):
-                            out_answer = step.tool_result.data.get("answer")
-
-                        _out_payload_replay: dict[str, Any] = {}
-                        if out_answer is not None:
-                            _out_payload_replay["answer"] = out_answer
-                        if step.tool_used == "rag_search" and isinstance(td2.get("rewritten"), str):
-                            _out_payload_replay["rewritten_query"] = td2["rewritten"]
-
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="tool.call.end",
-                                started_at=started_at,
-                                step_id=f"t_step{step.step_number}",
-                                payload={
-                                    "output": _out_payload_replay,
-                                    "error": err,
-                                    "latency_ms": step.tool_result.latency_ms,
-                                },
-                            ),
-                        )
-                        if debug_llm_prompts and isinstance(td2.get("llm_prompts"), list) and td2.get("llm_prompts"):
-                            yield _sse(
-                                "chain",
-                                _event(
-                                    typ="agent.debug.llm_prompts",
-                                    started_at=started_at,
-                                    step_id=f"tool_llm_replay_{step.step_number}",
+                                    step_id=f"{step_id}_end",
                                     payload={
-                                        "scope": "tool",
-                                        "tool": step.tool_used,
                                         "step_number": step.step_number,
-                                        "items": td2["llm_prompts"],
+                                        "tool_used": step.tool_used,
+                                        "mode": step.mode,
+                                        "success": step.success,
+                                        "next_action": step.next_action,
                                     },
                                 ),
                             )
-
-                        if step.tool_used == "text2sql_query" and step.tool_result.success and step.tool_result.data:
-                            data = step.tool_result.data
-                            columns_any = data.get("columns")
-                            columns = columns_any if isinstance(columns_any, list) else []
-                            rows_any = data.get("rows")
-                            rows_any2 = rows_any if isinstance(rows_any, list) else []
-                            rows: list[dict[str, Any]] = [r for r in rows_any2 if isinstance(r, dict)]
-                            truncated = len(rows) > 20
+    
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="agent.final",
+                                started_at=started_at,
+                                step_id="a_final",
+                                payload={
+                                    "total_steps": agent_result.final.total_steps,
+                                    "tools_used": agent_result.final.tools_used,
+                                    "modes": agent_result.final.modes,
+                                    "fallback_used": agent_result.final.fallback_used,
+                                },
+                            ),
+                        )
+    
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="assistant.message",
+                                started_at=started_at,
+                                step_id="s_answer",
+                                payload={"role": "assistant", "content": agent_result.final.answer},
+                            ),
+                        )
+    
+                        yield _sse(
+                            "chain",
+                            _event(
+                                typ="latency",
+                                started_at=started_at,
+                                step_id="l1",
+                                payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
+                            ),
+                        )
+                        persist_result = await _await_persist_chatbi_v2_agent_log(
+                            session_id=session_id,
+                            query=query,
+                            run_id=run_id,
+                            prefer=prefer,
+                            started_at=started_at,
+                            agent_result=agent_result,
+                        )
+                        if not persist_result.get("ok"):
                             yield _sse(
                                 "chain",
                                 _event(
-                                    typ="sql.result",
+                                    typ="error",
                                     started_at=started_at,
-                                    step_id=f"q_step{step.step_number}",
+                                    step_id="e_agent_db",
                                     payload={
-                                        "sql": data.get("sql") if isinstance(data.get("sql"), str) else "",
-                                        "columns": [c for c in columns if isinstance(c, str)],
-                                        "rows": rows[:20],
-                                        "truncated": truncated,
+                                        "stage": "agent_db",
+                                        "message": (str(persist_result.get("error") or "persist_failed"))[:500],
+                                        "persist": persist_result,
                                     },
                                 ),
                             )
-                        elif step.tool_used == "rag_search" and step.tool_result.success and step.tool_result.data:
-                            data = step.tool_result.data
-                            hits_any = data.get("hits")
-                            hits: list[dict[str, Any]] = hits_any if isinstance(hits_any, list) else []
-                            yield _sse(
-                                "chain",
-                                _event(
-                                    typ="rag.sources",
-                                    started_at=started_at,
-                                    step_id=f"s_step{step.step_number}",
-                                    payload=_build_rag_sources_event(hits, top_k=10),
-                                ),
-                            )
-
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="agent.step.end",
-                                started_at=started_at,
-                                step_id=f"{step_id}_end",
-                                payload={
-                                    "step_number": step.step_number,
-                                    "tool_used": step.tool_used,
-                                    "mode": step.mode,
-                                    "success": step.success,
-                                    "next_action": step.next_action,
-                                },
-                            ),
-                        )
-
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="agent.final",
-                            started_at=started_at,
-                            step_id="a_final",
-                            payload={
-                                "total_steps": agent_result.final.total_steps,
-                                "tools_used": agent_result.final.tools_used,
-                                "modes": agent_result.final.modes,
-                                "fallback_used": agent_result.final.fallback_used,
-                            },
-                        ),
-                    )
-
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="assistant.message",
-                            started_at=started_at,
-                            step_id="s_answer",
-                            payload={"role": "assistant", "content": agent_result.final.answer},
-                        ),
-                    )
-
-                    yield _sse(
-                        "chain",
-                        _event(
-                            typ="latency",
-                            started_at=started_at,
-                            step_id="l1",
-                            payload={"total_ms": _now_ms(started_at), "stages_ms": {}},
-                        ),
-                    )
-                    persist_result = await _await_persist_chatbi_v2_agent_log(
-                        session_id=session_id,
-                        query=query,
-                        run_id=run_id,
-                        prefer=prefer,
-                        started_at=started_at,
-                        agent_result=agent_result,
-                    )
-                    if not persist_result.get("ok"):
-                        yield _sse(
-                            "chain",
-                            _event(
-                                typ="error",
-                                started_at=started_at,
-                                step_id="e_agent_db",
-                                payload={
-                                    "stage": "agent_db",
-                                    "message": (str(persist_result.get("error") or "persist_failed"))[:500],
-                                    "persist": persist_result,
-                                },
-                            ),
-                        )
             except GeneratorExit:
                 return
             except Exception:  # noqa: BLE001
@@ -2498,6 +2545,46 @@ async def handle_unified_chat_stream(
 
         headers = {"Cache-Control": "no-cache"}
         return StreamingResponse(event_stream(), media_type="text/event-stream; charset=utf-8", headers=headers)
+
+    _pg_sse_v1_abort, _pg_sse_v1_events = _unified_prompt_guard_short_circuit_events(
+        query,
+        ctx_log=ctx_log,
+        run_id=run_id,
+        session_id=session_id,
+        started_at=started_at,
+        route="unified_chat_sse",
+    )
+    if _pg_sse_v1_abort:
+        _sse_short_mode = str(prefer) if prefer != "auto" else "auto"
+
+        async def event_stream_prompt_guard_only() -> None:
+            yield _sse(
+                "chain",
+                {
+                    "type": "meta",
+                    "ts": _now_ms(started_at),
+                    "step_id": "m1",
+                    "payload": {"run_id": run_id, "mode": _sse_short_mode, "session_id": session_id},
+                },
+            )
+            for _gev in _pg_sse_v1_events:
+                yield _sse("chain", _gev)
+            yield _sse(
+                "done",
+                {
+                    "ok": False,
+                    "mode": _sse_short_mode,
+                    "run_id": run_id,
+                    "request_id": run_id,
+                    "session_id": session_id,
+                },
+            )
+
+        return StreamingResponse(
+            event_stream_prompt_guard_only(),
+            media_type="text/event-stream; charset=utf-8",
+            headers={"Cache-Control": "no-cache"},
+        )
 
     t_router0 = time.perf_counter()
     decision = decide_intent(query=query, prefer=prefer)

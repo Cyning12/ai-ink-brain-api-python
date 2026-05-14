@@ -84,7 +84,7 @@
 |----|------|
 | 安全子规 | `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` §3 |
 | 日志 | `api/chatbi_json_log.py` |
-| 契约 | 若新增 SSE `chain.type`，须 **`_contract_manifest.json` + `tech_graph_contract_check` + Ink 消费** 同 PR；**PoC 默认**仅 HTTP/日志侧可不扩展 SSE |
+| 契约 | 若新增 SSE `chain.type`，须 **`_contract_manifest.json` + `tech_graph_contract_check` + Ink 消费** 同 PR；本 PoC 复用既有 **`error`/`latency`/`done`**，**不**新增 `chain.type`。 |
 
 ---
 
@@ -94,6 +94,7 @@
 - [x] **pytest**：`block` 模式下恶意样例 **被拦**；正常业务问句 **不误拦**（至少 **5** 条正例，含短中文问数 / 表名）。  
 - [x] **warn 路径**：`CHATBI_PROMPT_GUARD_MODE=warn` 且命中规则时，pytest 断言 **`prompt_guard_warn`** 出现 **一次** 且不阻断下游（mock / spy 可证）。  
 - [x] **集成路径**：至少 **1** 条 e2e 风格测试（mock LLM 或仅测 guard 调用栈）证明 **拦在 LLM 调用之前**。  
+- [x] **SSE**：`CHATBI_USE_AGENT=false` 时 **`POST /api/py/unified/chat/stream`** 在 `block` 下 **不调用** `decide_intent`，响应流含 **`stage=prompt_guard`**（`tests/test_chatbi_prompt_guard_poc.py::test_sse_v1_prompt_guard_short_circuits_before_decide_intent`）。  
 - [x] **日志**：`CHATBI_JSON_LOG=1` 下 **1** 次拒绝：在 **`tests/`** 中断言 JSON 日志结构（含 **`run_id`**）；grep 仅作 PR 附录。  
 - [x] **配置文档**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` 或子规 **§修订记录** 二选一更新，避免 env 漂移。  
 - [x] **子规**：`SPEC-ChatBI-V3-Security.md` §3 标注 **PoC 已合并** 与范围边界。
@@ -107,7 +108,7 @@
 | VERIFY 命令（task「给执行帽的必读列表」§4 与 CI `pytest.yml` 对齐） | `pytest tests -m "not intent_eval and not intent_benchmark"` |
 | cwd（相对 `Projects/`） | `ai-ink-brain-api-python` |
 | 退出码 | **0** |
-| 摘要（本轮本地） | **138 passed**, 2 deselected；约 24s；存在第三方 DeprecationWarning（Supabase / SWIG），**非失败** |
+| 摘要（本轮本地） | **139 passed**, 2 deselected；约 24s；存在第三方 DeprecationWarning（Supabase / SWIG），**非失败** |
 
 **task 列出的其他验证命令**：无（本单合并前仅显式列出上述 pytest）。
 
@@ -118,12 +119,12 @@
 | 规则 ≥5 条等 | pass | 同上 pytest 绿；实现侧见 `tests/test_chatbi_prompt_guard_poc.py` |
 | block / 正例 pytest | pass | 同上 |
 | warn 路径 `prompt_guard_warn` 一次且不阻断 | pass | 同上 |
-| 集成：拦在 LLM 之前 | pass | 同上（e2e/mock 栈） |
+| 集成：拦在 LLM 之前 | pass | 同上（JSON + **SSE v1** `test_sse_v1_prompt_guard_short_circuits_before_decide_intent`） |
 | `CHATBI_JSON_LOG=1` JSON 日志结构含 `run_id` | pass | 同上 |
 | 配置文档或子规修订记录更新 | **本帽未单独跑文档命令** | 须复检对照 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` / `SPEC-ChatBI-V3-Security.md` §3 落笔 |
 | 子规 §3 PoC 已合并标注 | **本帽未单独跑文档命令** | 同上 |
 
-**已知未测 / 非范围**：Unified **SSE**（`/api/py/unified/chat/stream`）未纳入本 pytest 门禁；与审查 R3 **NB-3**、SPEC §3.1「仅非流式 JSON」表述一致。**文档项**未由本 run 的 shell 命令直接断言。
+**已知未测 / 非范围**：**历史块 / rewrite 出口** 仍仅扫 **原始用户 `query`**（与 SPEC §3.1 非范围一致）。**SSE Agent** 路径已接入同一短路 helper，与 JSON 共用规则；若需单独 Agent 流式 pytest 可后续补。**文档项**未由本 run 的 shell 命令直接断言。
 
 **Invoke 快照（本自检帽 `40`）**：相对工作区根 `Projects/` → `docs/harness/invokes/invoke_20260514_0000_40_chatbi-v3-prompt-injection-guard-poc-v1.md`
 
@@ -133,7 +134,8 @@
 
 | 项 | 内容 |
 |----|------|
-| 接入函数 / 文件 | `api/chatbi_prompt_guard.py`（`scan`、`chatbi_prompt_guard_mode`）；`api/unified_chat.py::handle_unified_chat` 内在 `finish` 闭包定义之后、**`CHATBI_USE_AGENT` 分支之前** 调用 |
+| 接入函数 / 文件 | `api/chatbi_prompt_guard.py`（`scan`、`chatbi_prompt_guard_mode`）；`api/unified_chat.py`：**`handle_unified_chat`**（`finish` 之后、**`CHATBI_USE_AGENT` 分支之前**）；**`handle_unified_chat_stream`**（`meta` 之后：`CHATBI_USE_AGENT` 的 Agent 主路径用 `if not _pg_ab` 包裹 **incremental / batch**；**v1 非 Agent** 在 **`decide_intent` 之前** 整段短路；**`prefer=tool:*`** 在 meta 后短路）。共用 **`_unified_prompt_guard_short_circuit_events`**；SSE 日志 `route` 字段为 **`unified_chat_sse`**（JSON 为 **`unified_chat`**）。 |
+| **SSE · FP-1** | **HTTP 200** + `text/event-stream`；**`chain`**：`error`（`payload.stage=prompt_guard`）+ **`latency`**；**`done`**：`ok: false`。不新增 `chain.type`。 |
 | 新 env 键名 | `CHATBI_PROMPT_GUARD_MODE`：`off`（默认）\| `warn` \| `block` |
 | 与 Intent / rewrite 的先后关系 | **同请求**：对原始用户 `query` 扫描 **早于** `decide_intent` / `ChatBIAgent.run` / `no_data.generate` LLM / `text2sql` 路径上的 `llm_generate_sql`。**P1-1 SQL AST gate** 仍在 `apply_chatbi_sql_gate`（SQL 文本生成之后），故顺序为 **Prompt guard（用户 query）→ … → SQL gate**；**未**修改 `api/text2sql_core.py` 主链。 |
 | **FP-4**（fail-open / fail-closed） | **fail-closed**：`scan()` 捕获全部异常 → `blocked=True` + `internal_error=True`；Unified 路径下 **`warn` 模式若 `internal_error`** 与 **`block`** 同等短路并写 **`prompt_guard_deny`**（不继续下游）。pytest：`test_scan_fail_closed_internal`。 |
