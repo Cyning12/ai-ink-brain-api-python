@@ -1,0 +1,23 @@
+{
+  "ok": false,
+  "run_id": "00000000-0000-4000-8000-000000000001",
+  "session_id": null,
+  "mode": "text2sql",
+  "events": [
+    {
+      "type": "error",
+      "ts": 0,
+      "step_id": "e_prompt_guard_contract",
+      "payload": {
+        "stage": "prompt_guard",
+        "message": "（契约样例）请求无法处理"
+      }
+    },
+    {
+      "type": "latency",
+      "ts": 1,
+      "step_id": "l1",
+      "payload": { "total_ms": 1, "stages_ms": {} }
+    }
+  ]
+}

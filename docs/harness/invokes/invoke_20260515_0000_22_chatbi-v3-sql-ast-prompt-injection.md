@@ -7,7 +7,7 @@
 | task_paths | ai-ink-brain-api-python/docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md<br>ai-ink-brain-api-python/docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md |
 | related_review_or_none | ai-ink-brain-api-python/docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md |
 | created_utc_or_local | 2026-05-15（约定落盘；开帽时人填精确时刻） |
-| notes | Harness 流程 v1.7 invokes 约定后首份子仓快照；落盘 R2 任务审核启动体。审查产出路径：`task_chatbi_v3_sql_ast_and_prompt_injection_audit_R2_20260515.md`（待本轮审查写入）。 |
+| notes | Harness 流程 v1.7 invokes 约定后首份子仓快照；R2 启动体。审查链：**R2** `.../reviews/..._R2_20260515.md` → **R3** `.../reviews/..._R3_20260515.md`（任务帽/执行帽契约回填后）。task 内 invoke 路径约定：**相对工作区根** `ai-ink-brain-api-python/docs/harness/invokes/本文件`。 |
 
 ## 可复制 Prompt 快照（与对话首条 user 一致）
 
