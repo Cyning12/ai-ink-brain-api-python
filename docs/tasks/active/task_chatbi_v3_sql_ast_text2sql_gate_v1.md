@@ -97,21 +97,24 @@
 
 | 验收项 | 结论 | 证据 |
 |--------|------|------|
-| 负例 / 正例 / 顺序 / JSON 日志 | pass | `tests/test_chatbi_sql_ast_gate_v1.py` |
-| 全仓 pytest（CI 对齐） | pass | 见下「验证命令」 |
-| SPEC §2 / 图谱 | pass | `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` §2.1、§6；`docs/_tech_graph/11_flow_text2sql.md` / `.ai.md` §V3 P1-1 |
+| 负例 / 正例 / 顺序 / JSON 日志 | pass | `tests/test_chatbi_sql_ast_gate_v1.py`（本轮全仓 pytest 中 **7** 条该文件用例均绿） |
+| 全仓 pytest（CI 对齐） | pass | 见下「验证命令」；摘要行 `121 passed, 2 deselected` |
+| SPEC §2 / 图谱 | pass | 提交 `5e6cfdc` 含 `SPEC-ChatBI-V3-Security.md`、`docs/_tech_graph/11_flow_text2sql.md` / `.ai.md`；本帽以 **命令** 为主未二次 diff 审 SPEC 正文 |
+| §5「`python -m pytest`」表述 | pass（等价） | 与 CI 真值同为 **pytest 入口**；本轮未再单独跑 `python -m` 前缀以免与下列命令重复耗时；若 PR 需字面截图可补跑一条 |
+| `tools/tech_graph_contract_check.py` | **未跑（N/A）** | `git show 5e6cfdc --stat` **未**含 `_contract_manifest.json`；与 §3「仅当改 manifest」一致 |
 
-**验证命令**（cwd：`ai-ink-brain-api-python`）：
+**验证命令**（cwd 相对工作区根：`ai-ink-brain-api-python`）：
 
 ```bash
 pytest tests -m "not intent_eval and not intent_benchmark"
 ```
 
 - **退出码**：`0`  
-- **要点**：`121 passed, 2 deselected`；`tests/conftest.py` 在 `CHATBI_PYTEST_KEEP_INTENT_ENV` 未开启时将 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY` 置空，避免本地 shell 误开 clarify 导致 `test_unified_chat_backend_v2_agent` 短路（与既有 Intent 环境固定策略一致）。  
-- **FP-B**：解析不稳定统一 **`deny_code=CHATBI_SQL_DENIED`**、`rule=ast_parse_unstable`、**`ast_rule_id=AST_PARSE`**（与 FP-A 共用对外码；未新增 manifest 字段）。
+- **要点（原始日志摘录）**：`collected 123 items / 2 deselected / 121 selected`；**`=============== 121 passed, 2 deselected, 49 warnings in 37.85s ===============`**；`rootdir: .../ai-ink-brain-api-python`，`configfile: pytest.ini`。警告含 SWIG / supabase `timeout`·`verify` DeprecationWarning，**无失败**。  
+- **可重试性**：全绿、非 flaky 迹象；失败时可重跑同命令（环境一致时预期稳定）。  
+- **FP-B（文档对齐本 task 既有结论）**：解析不稳定统一 **`deny_code=CHATBI_SQL_DENIED`**、`rule=ast_parse_unstable`、**`ast_rule_id=AST_PARSE`**（与 FP-A 共用对外码；未新增 manifest 字段）。`conftest` 对 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY` 的处理与既有 Intent 环境固定策略一致（见当次 pytest 全绿）。
 
-**已知未测项**：无（FP-C 5xx 专测未纳入本 task 验收表，与审查 R1 非阻塞建议一致）。
+**已知未测项**：未单独执行 `python -m pytest` 字面命令（与上列等价）；**FP-C** 5xx 专测未纳入本 task 验收表（与审查 R1 非阻塞建议一致）。
 
 ---
 
