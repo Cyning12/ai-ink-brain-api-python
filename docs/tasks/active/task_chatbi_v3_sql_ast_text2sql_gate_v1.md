@@ -83,13 +83,35 @@
 
 ## 5. 验收标准
 
-- [ ] **负例集**：pytest 覆盖至少 **3** 类：**多语句**、**明确禁止的 DDL/DML 形态**、**绕过朴素前缀检测的等价恶意样例**（由实现 Agent 在 PR 中列出具体 SQL 片段标题）。  
-- [ ] **正例集**：至少 **2** 条「应通过」的 SELECT / 允许的 UPDATE（与 **L2 肖像表** 或 Admin 软删策略一致，fixture 可控）。  
-- [ ] **顺序断言**：**必须**以 **`tests/` 内 pytest**（或 CI 内等价的可失败断言）固定 **`apply_chatbi_sql_gate`** 检查顺序为 **AST → 表白名单 → access_level**；**不得**仅以注释替代。  
-- [ ] **`python -m pytest`**：本任务相关路径 **全绿**（在 PR 描述贴命令摘要）。  
-- [ ] **日志**：`CHATBI_JSON_LOG=1` 下，至少 **1** 条 AST 拒绝的 JSON 日志结构在 **`tests/`** 中断言（含 **`run_id`** 维度的关键字段）；**grep 样例**仅作 PR 说明附录。  
-- [ ] **子规**：`SPEC-ChatBI-V3-Security.md` **§2** 更新「现状 / 目标」一句，标明 **已合并 AST 硬化** 与 PR 链接（或修订记录表）。  
-- [ ] **图谱**：若流程边有变，增量 `docs/_tech_graph/` 中与 Text2SQL 后闸相关边（双轨 `.md` + `.ai.md` 按仓库协议）。
+- [x] **负例集**：pytest 覆盖至少 **3** 类：**多语句**、**明确禁止的 DDL/DML 形态**、**绕过朴素前缀检测的等价恶意样例**（由实现 Agent 在 PR 中列出具体 SQL 片段标题）。  
+- [x] **正例集**：至少 **2** 条「应通过」的 SELECT / 允许的 UPDATE（与 **L2 肖像表** 或 Admin 软删策略一致，fixture 可控）。  
+- [x] **顺序断言**：**必须**以 **`tests/` 内 pytest**（或 CI 内等价的可失败断言）固定 **`apply_chatbi_sql_gate`** 检查顺序为 **AST → 表白名单 → access_level**；**不得**仅以注释替代。  
+- [x] **`python -m pytest`**：本任务相关路径 **全绿**（在 PR 描述贴命令摘要）。  
+- [x] **日志**：`CHATBI_JSON_LOG=1` 下，至少 **1** 条 AST 拒绝的 JSON 日志结构在 **`tests/`** 中断言（含 **`run_id`** 维度的关键字段）；**grep 样例**仅作 PR 说明附录。  
+- [x] **子规**：`SPEC-ChatBI-V3-Security.md` **§2** 更新「现状 / 目标」一句，标明 **已合并 AST 硬化** 与 PR 链接（或修订记录表）。  
+- [x] **图谱**：若流程边有变，增量 `docs/_tech_graph/` 中与 Text2SQL 后闸相关边（双轨 `.md` + `.ai.md` 按仓库协议）。
+
+---
+
+### 自检结论（执行者）
+
+| 验收项 | 结论 | 证据 |
+|--------|------|------|
+| 负例 / 正例 / 顺序 / JSON 日志 | pass | `tests/test_chatbi_sql_ast_gate_v1.py` |
+| 全仓 pytest（CI 对齐） | pass | 见下「验证命令」 |
+| SPEC §2 / 图谱 | pass | `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` §2.1、§6；`docs/_tech_graph/11_flow_text2sql.md` / `.ai.md` §V3 P1-1 |
+
+**验证命令**（cwd：`ai-ink-brain-api-python`）：
+
+```bash
+pytest tests -m "not intent_eval and not intent_benchmark"
+```
+
+- **退出码**：`0`  
+- **要点**：`121 passed, 2 deselected`；`tests/conftest.py` 在 `CHATBI_PYTEST_KEEP_INTENT_ENV` 未开启时将 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY` 置空，避免本地 shell 误开 clarify 导致 `test_unified_chat_backend_v2_agent` 短路（与既有 Intent 环境固定策略一致）。  
+- **FP-B**：解析不稳定统一 **`deny_code=CHATBI_SQL_DENIED`**、`rule=ast_parse_unstable`、**`ast_rule_id=AST_PARSE`**（与 FP-A 共用对外码；未新增 manifest 字段）。
+
+**已知未测项**：无（FP-C 5xx 专测未纳入本 task 验收表，与审查 R1 非阻塞建议一致）。
 
 ---
 
@@ -97,12 +119,12 @@
 
 | 项 | 内容 |
 |----|------|
-| PR / 分支 | |
-| 选用库 / API | `sqlparse` 深化或补充；**禁止**在无评审下引入第二套完整 SQL parser 依赖，除非子规修订 |
-| 变更函数列表 | |
-| 新增 `rule` / `deny_code` 枚举 | |
-| FP-B 若单独 `deny_code` | 与 `_contract_manifest.json`（若适用）+ pytest 负例同步登记 |
-| 与 level_gate 差异说明 | |
+| PR / 分支 | （待 PR 号回填） |
+| 选用库 / API | `sqlparse.parse` / `Statement.get_type()`；未新增第二套 parser 依赖 |
+| 变更函数列表 | `apply_chatbi_sql_gate` 拆为 `_phase_ast`、`_phase_table_policy_allowlist`、`_phase_access_level_rules`；`normalize_single_sql` 多语句改由 AST；`_log_deny` / `ChatBiSqlGateDenied` 增 `ast_rule_id` |
+| 新增 `rule` / `deny_code` 枚举 | `rule`：`ast_multi_statement`、`ast_forbidden_ddl`、`ast_parse_unstable`；`UNKNOWN` 非回退类用 `unsupported_stmt` + **`ast_rule_id=AST_UNSUPPORTED`**；对外 **`deny_code` 仍为 `CHATBI_SQL_DENIED`** |
+| FP-B 若单独 `deny_code` | 与 FP-A **共用** `CHATBI_SQL_DENIED`；以 `rule` + `ast_rule_id` 区分 |
+| 与 level_gate 差异说明 | 后闸顺序调整为 **AST → 表策略（min_*）→ 档位/L2**；`test_gate_l2_join_denied` 为两表均补 policy 行以钉死 JOIN 拒绝（原「先 JOIN 后策略」下无策略表会先 `no_policy_row`） |
 
 ---
 

@@ -27,6 +27,7 @@ class ChatBiSqlGateDenied(Exception):
         access_level: int | None = None,
         target_table: str | None = None,
         stmt_class: str | None = None,
+        ast_rule_id: str | None = None,
     ) -> None:
         super().__init__(message_zh)
         self.deny_code = deny_code
@@ -35,6 +36,7 @@ class ChatBiSqlGateDenied(Exception):
         self.access_level = access_level
         self.target_table = target_table
         self.stmt_class = stmt_class
+        self.ast_rule_id = ast_rule_id
 
 
 def _strip_md_fences(sql_raw: str) -> str:
@@ -46,12 +48,10 @@ def _strip_md_fences(sql_raw: str) -> str:
 
 
 def normalize_single_sql(sql_raw: str) -> str:
-    """去围栏、单语句、去尾分号。"""
+    """去围栏、去尾分号；多语句统一由 _phase_ast（sqlparse）判定，避免仅靠分号计数漏检。"""
     s = _strip_md_fences(sql_raw)
     if not s:
         raise ChatBiSqlGateDenied(deny_code="CHATBI_SQL_DENIED", rule="empty_sql", stmt_class="other")
-    if s.count(";") > 1:
-        raise ChatBiSqlGateDenied(deny_code="CHATBI_SQL_DENIED", rule="multi_statement", stmt_class="other")
     s = s.rstrip(";").strip()
     return s
 
@@ -69,23 +69,6 @@ def _classify_stmt(sql: str) -> StmtKind:
     if low.startswith("truncate"):
         return "truncate"
     return "other"
-
-
-def _forbidden_ddl_dml(sql: str) -> str | None:
-    low = re.sub(r"\s+", " ", sql.lower())
-    for kw in (
-        "create ",
-        "alter ",
-        "drop ",
-        "grant ",
-        "revoke ",
-        "merge ",
-        "call ",
-        "execute ",
-    ):
-        if kw in low:
-            return kw.strip()
-    return None
 
 
 def _has_join(sql: str) -> bool:
@@ -160,6 +143,7 @@ def _log_deny(
         target_table=deny.target_table,
         stmt_class=deny.stmt_class,
         rule=deny.rule,
+        ast_rule_id=deny.ast_rule_id,
         request_id=request_id,
         run_id=run_id,
         sql_fp=_sql_fingerprint(sql),
@@ -251,49 +235,218 @@ def _l2_portrait_update_ok(sql: str, principal: ChatBiPrincipal) -> bool:
     return True
 
 
-def apply_chatbi_sql_gate(
-    sql_raw: str,
+_FORBIDDEN_TOP_STMT_TYPES = frozenset(
+    {"CREATE", "ALTER", "DROP", "TRUNCATE", "GRANT", "REVOKE", "MERGE", "CALL", "EXECUTE"}
+)
+
+
+def _non_empty_sqlparse_statements(sql: str) -> list:
+    return [st for st in sqlparse.parse(sql) if str(st).strip()]
+
+
+def _phase_ast(
+    sql: str,
     *,
     principal: ChatBiPrincipal,
-    policies: dict[tuple[str, str], ChatBiTablePolicyRow],
-    run_id: str | None = None,
-    request_id: str | None = None,
-) -> tuple[str, Literal["select", "update", "insert"]]:
-    """返回 (规范化 SQL, 语句类)；拒绝时抛 ChatBiSqlGateDenied 并写 JSON 日志。"""
-    sql = normalize_single_sql(sql_raw)
-    bad = _forbidden_ddl_dml(sql)
-    if bad:
+    run_id: str | None,
+    request_id: str | None,
+) -> StmtKind:
+    """AST 硬化：多语句、禁止类顶语句、解析稳定分类（含块注释前缀 SELECT）。"""
+    try:
+        stmts = _non_empty_sqlparse_statements(sql)
+    except Exception:
         d = ChatBiSqlGateDenied(
             deny_code="CHATBI_SQL_DENIED",
-            rule="ddl_forbidden",
+            rule="ast_parse_unstable",
             stmt_class="other",
             access_level=principal.access_level,
+            ast_rule_id="AST_PARSE",
         )
         _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
         raise d
 
-    kind = _classify_stmt(sql)
-    if kind == "other":
+    if not stmts:
+        d = ChatBiSqlGateDenied(
+            deny_code="CHATBI_SQL_DENIED",
+            rule="ast_parse_unstable",
+            stmt_class="other",
+            access_level=principal.access_level,
+            ast_rule_id="AST_PARSE",
+        )
+        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+        raise d
+
+    if len(stmts) > 1:
+        d = ChatBiSqlGateDenied(
+            deny_code="CHATBI_SQL_DENIED",
+            rule="ast_multi_statement",
+            stmt_class="other",
+            access_level=principal.access_level,
+            ast_rule_id="AST_MULTI",
+        )
+        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+        raise d
+
+    stmt = stmts[0]
+    raw_t = (stmt.get_type() or "").strip().upper()
+
+    if raw_t in _FORBIDDEN_TOP_STMT_TYPES:
+        d = ChatBiSqlGateDenied(
+            deny_code="CHATBI_SQL_DENIED",
+            rule="ast_forbidden_ddl",
+            stmt_class="other",
+            access_level=principal.access_level,
+            ast_rule_id="AST_FORBIDDEN_DDL",
+        )
+        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+        raise d
+
+    if raw_t in ("SELECT", "WITH"):
+        return "select"
+    if raw_t == "UPDATE":
+        return "update"
+    if raw_t == "INSERT":
+        return "insert"
+    if raw_t == "DELETE":
+        return "delete"
+    if raw_t == "TRUNCATE":
+        return "truncate"
+
+    if raw_t and raw_t != "UNKNOWN":
         d = ChatBiSqlGateDenied(
             deny_code="CHATBI_SQL_DENIED",
             rule="unsupported_stmt",
             stmt_class="other",
             access_level=principal.access_level,
+            ast_rule_id="AST_UNSUPPORTED",
         )
         _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
         raise d
 
-    tables = _iter_physical_tables(sql)
-    if not tables:
-        d = ChatBiSqlGateDenied(
-            deny_code="CHATBI_SQL_DENIED",
-            rule="no_table_resolved",
-            stmt_class=kind,
-            access_level=principal.access_level,
-        )
-        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-        raise d
+    cleaned = sqlparse.format(sql, strip_comments=True).strip()
+    fb = _classify_stmt(cleaned)
+    if fb != "other":
+        return fb
 
+    d = ChatBiSqlGateDenied(
+        deny_code="CHATBI_SQL_DENIED",
+        rule="ast_parse_unstable",
+        stmt_class="other",
+        access_level=principal.access_level,
+        ast_rule_id="AST_PARSE",
+    )
+    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+    raise d
+
+
+def _policy_row(policies: dict[tuple[str, str], ChatBiTablePolicyRow], t: tuple[str, str]) -> ChatBiTablePolicyRow | None:
+    return policies.get(t) or policies.get(("public", t[1]))
+
+
+def _phase_table_policy_allowlist(
+    sql: str,
+    kind: StmtKind,
+    *,
+    principal: ChatBiPrincipal,
+    policies: dict[tuple[str, str], ChatBiTablePolicyRow],
+    tables: list[tuple[str, str]],
+    run_id: str | None,
+    request_id: str | None,
+) -> None:
+    """表策略行（min_*）与无行禁止：AST 之后、档位/L2 收窄之前。"""
+    if kind == "select":
+        if not policies:
+            return
+        for sch, tbl in tables:
+            pol = _policy_row(policies, (sch, tbl))
+            if pol is None:
+                if principal.access_level > 0:
+                    d = ChatBiSqlGateDenied(
+                        deny_code="CHATBI_SQL_DENIED",
+                        rule="no_policy_row",
+                        stmt_class="select",
+                        access_level=principal.access_level,
+                        target_table=tbl,
+                    )
+                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                    raise d
+                continue
+            if not allowed_op(access_level=principal.access_level, min_level=pol.min_select_level):
+                d = ChatBiSqlGateDenied(
+                    deny_code="CHATBI_SQL_DENIED",
+                    rule="below_min_level",
+                    stmt_class="select",
+                    access_level=principal.access_level,
+                    target_table=tbl,
+                )
+                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                raise d
+        return
+
+    if kind == "insert":
+        if not policies:
+            return
+        for sch, tbl in tables:
+            pol = _policy_row(policies, (sch, tbl))
+            if pol is None and principal.access_level > 0:
+                d = ChatBiSqlGateDenied(
+                    deny_code="CHATBI_SQL_DENIED",
+                    rule="no_policy_row",
+                    stmt_class="insert",
+                    target_table=tbl,
+                    access_level=principal.access_level,
+                )
+                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                raise d
+            if pol and not allowed_op(access_level=principal.access_level, min_level=pol.min_insert_level):
+                d = ChatBiSqlGateDenied(
+                    deny_code="CHATBI_SQL_DENIED",
+                    rule="below_min_level",
+                    stmt_class="insert",
+                    target_table=tbl,
+                    access_level=principal.access_level,
+                )
+                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                raise d
+        return
+
+    if kind == "update":
+        if not policies:
+            return
+        for sch, tbl in tables:
+            pol = _policy_row(policies, (sch, tbl))
+            if pol is None and principal.access_level > 0:
+                d = ChatBiSqlGateDenied(
+                    deny_code="CHATBI_SQL_DENIED",
+                    rule="no_policy_row",
+                    stmt_class="update",
+                    target_table=tbl,
+                    access_level=principal.access_level,
+                )
+                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                raise d
+            if pol and not allowed_op(access_level=principal.access_level, min_level=pol.min_update_level):
+                d = ChatBiSqlGateDenied(
+                    deny_code="CHATBI_SQL_DENIED",
+                    rule="below_min_level",
+                    stmt_class="update",
+                    target_table=tbl,
+                    access_level=principal.access_level,
+                )
+                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+                raise d
+
+
+def _phase_access_level_rules(
+    sql: str,
+    kind: StmtKind,
+    *,
+    principal: ChatBiPrincipal,
+    tables: list[tuple[str, str]],
+    run_id: str | None,
+    request_id: str | None,
+) -> None:
+    """档位与 L2 形态收窄：须跑在表策略之后。"""
     if principal.access_level == 2 and _has_join(sql):
         d = ChatBiSqlGateDenied(
             deny_code="CHATBI_SQL_DENIED",
@@ -304,7 +457,6 @@ def apply_chatbi_sql_gate(
         _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
         raise d
 
-    # Text2SQL 本路径不执行物理 DELETE/TRUNCATE（Admin 禁令 + 执行面收口）
     if kind in ("delete", "truncate"):
         d = ChatBiSqlGateDenied(
             deny_code="CHATBI_SQL_DENIED",
@@ -338,97 +490,57 @@ def apply_chatbi_sql_gate(
             _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
             raise d
 
-    # 策略：有行则按 min_*；无行时仅 Super 放行写类；Admin/L2 对无策略表禁止 DML
-    def _policy_pair(t: tuple[str, str]) -> ChatBiTablePolicyRow | None:
-        return policies.get(t) or policies.get(("public", t[1]))
+    if kind == "select" and principal.access_level == 2:
+        sid = (principal.subject_user_id or "").strip()
+        if sid and sid not in sql:
+            d = ChatBiSqlGateDenied(
+                deny_code="CHATBI_SQL_DENIED",
+                rule="l2_subject_predicate_required",
+                stmt_class="select",
+                access_level=2,
+            )
+            _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+            raise d
 
-    if kind == "select":
-        if policies:
-            for sch, tbl in tables:
-                pol = _policy_pair((sch, tbl))
-                if pol is None:
-                    if principal.access_level > 0:
-                        d = ChatBiSqlGateDenied(
-                            deny_code="CHATBI_SQL_DENIED",
-                            rule="no_policy_row",
-                            stmt_class="select",
-                            access_level=principal.access_level,
-                            target_table=tbl,
-                        )
-                        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                        raise d
-                    continue
-                if not allowed_op(access_level=principal.access_level, min_level=pol.min_select_level):
-                    d = ChatBiSqlGateDenied(
-                        deny_code="CHATBI_SQL_DENIED",
-                        rule="below_min_level",
-                        stmt_class="select",
-                        access_level=principal.access_level,
-                        target_table=tbl,
-                    )
-                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                    raise d
-        if principal.access_level == 2:
-            sid = (principal.subject_user_id or "").strip()
-            if sid and sid not in sql:
-                d = ChatBiSqlGateDenied(
-                    deny_code="CHATBI_SQL_DENIED",
-                    rule="l2_subject_predicate_required",
-                    stmt_class="select",
-                    access_level=2,
-                )
-                _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                raise d
 
-    elif kind == "insert":
-        if policies:
-            for sch, tbl in tables:
-                pol = _policy_pair((sch, tbl))
-                if pol is None and principal.access_level > 0:
-                    d = ChatBiSqlGateDenied(
-                        deny_code="CHATBI_SQL_DENIED",
-                        rule="no_policy_row",
-                        stmt_class="insert",
-                        target_table=tbl,
-                        access_level=principal.access_level,
-                    )
-                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                    raise d
-                if pol and not allowed_op(access_level=principal.access_level, min_level=pol.min_insert_level):
-                    d = ChatBiSqlGateDenied(
-                        deny_code="CHATBI_SQL_DENIED",
-                        rule="below_min_level",
-                        stmt_class="insert",
-                        target_table=tbl,
-                        access_level=principal.access_level,
-                    )
-                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                    raise d
+def apply_chatbi_sql_gate(
+    sql_raw: str,
+    *,
+    principal: ChatBiPrincipal,
+    policies: dict[tuple[str, str], ChatBiTablePolicyRow],
+    run_id: str | None = None,
+    request_id: str | None = None,
+    _phase_trace: list[str] | None = None,
+) -> tuple[str, Literal["select", "update", "insert"]]:
+    """返回 (规范化 SQL, 语句类)；顺序：AST → 表策略（min_*）→ 档位/L2 收窄。"""
+    sql = normalize_single_sql(sql_raw)
 
-    elif kind == "update":
-        if policies:
-            for sch, tbl in tables:
-                pol = _policy_pair((sch, tbl))
-                if pol is None and principal.access_level > 0:
-                    d = ChatBiSqlGateDenied(
-                        deny_code="CHATBI_SQL_DENIED",
-                        rule="no_policy_row",
-                        stmt_class="update",
-                        target_table=tbl,
-                        access_level=principal.access_level,
-                    )
-                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                    raise d
-                if pol and not allowed_op(access_level=principal.access_level, min_level=pol.min_update_level):
-                    d = ChatBiSqlGateDenied(
-                        deny_code="CHATBI_SQL_DENIED",
-                        rule="below_min_level",
-                        stmt_class="update",
-                        target_table=tbl,
-                        access_level=principal.access_level,
-                    )
-                    _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-                    raise d
+    if _phase_trace is not None:
+        _phase_trace.append("ast")
+    kind = _phase_ast(sql, principal=principal, run_id=run_id, request_id=request_id)
+
+    tables = _iter_physical_tables(sql)
+    if not tables:
+        d = ChatBiSqlGateDenied(
+            deny_code="CHATBI_SQL_DENIED",
+            rule="no_table_resolved",
+            stmt_class=kind,
+            access_level=principal.access_level,
+        )
+        _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
+        raise d
+
+    if _phase_trace is not None:
+        _phase_trace.append("table_allowlist")
+    _phase_table_policy_allowlist(
+        sql, kind, principal=principal, policies=policies, tables=tables, run_id=run_id, request_id=request_id
+    )
+
+    if _phase_trace is not None:
+        _phase_trace.append("access_level")
+    _phase_access_level_rules(
+        sql, kind, principal=principal, tables=tables, run_id=run_id, request_id=request_id
+    )
 
     if kind == "select":
         if chatbi_json_log_enabled():
