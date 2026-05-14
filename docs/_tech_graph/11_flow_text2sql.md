@@ -58,6 +58,12 @@ Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sy
 - **对话块预算**：`TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断 `history_to_rewrite_block` 再注入 `build_sql_prompt`。
 - **P0-3 结构预取（2026-05-12）**：当用户问题含 **INSERT/UPDATE 类语义** 且向量检索 DDL **列锚点不足** 时，在调用 LLM 生成 SQL 之前执行 **只读** `information_schema.columns` 预取（与 `chatbi_sql_table_policy` 可见写权限对齐），将列清单注入 `build_sql_prompt`；失败返回 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`，不盲写。环境变量：`TEXT2SQL_SCHEMA_PREFETCH`（默认随 `TEXT2SQL_DATABASE_URL` 启用）、`TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS`、`TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS`。协议版图见 `11_flow_text2sql.ai.md`（`PF` 节点）。
 
+## V3 P1-1（2026-05-14）· Text2SQL 后闸 SQL AST 硬化
+
+- **实现**：`api/chatbi_sql_gate.py` 中 `apply_chatbi_sql_gate`：**AST（sqlparse）→ 表策略 `chatbi_sql_table_policy`（min_* / 无行拒绝）→ 档位与 L2 收窄**；`CHATBI_JSON_LOG=1` 时 `sql_gate_deny` 可含 **`ast_rule_id`**。  
+- **单测**：`tests/test_chatbi_sql_ast_gate_v1.py`（负例 / 正例 / 阶段顺序 / JSON 字段）。  
+- **子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2.1**；任务：`docs/tasks/active/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`。
+
 ## V3 P1-4（2026-05-13）· 低置信澄清短路（`agent.clarify`）
 
 当 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 Unified Agent 判定「SQL 候选 + 低置信」时，`api/agent.py` 在首轮 `text2sql_execute` 之前短路并下发 `agent.clarify`；`CHATBI_JSON_LOG=1` 时额外输出 `message=agent_clarify_short_circuit`（`run_id` 与 SSE `meta` 同源）。JSON 与 SSE 批量 replay 路径由 `api/unified_chat.py` 与 emit 增量路径对齐补帧。

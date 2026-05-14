@@ -34,9 +34,22 @@ def test_gate_l2_join_denied() -> None:
             min_delete_level=None,
             owner_column="user_id",
         ),
+        ("public", "b"): ChatBiTablePolicyRow(
+            "public",
+            "b",
+            min_select_level=2,
+            min_insert_level=None,
+            min_update_level=None,
+            min_delete_level=None,
+            owner_column="user_id",
+        ),
     }
     with pytest.raises(ChatBiSqlGateDenied) as ei:
-        apply_chatbi_sql_gate("select * from a join b on 1=1", principal=p, policies=pols)
+        apply_chatbi_sql_gate(
+            "select * from a join b on 1=1 where a.user_id = 'u1' and b.user_id = 'u1'",
+            principal=p,
+            policies=pols,
+        )
     assert ei.value.rule == "l2_join_forbidden"
 
 

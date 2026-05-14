@@ -32,10 +32,11 @@ docs/tasks/
 
 ### 审查与复检产出（非 task 单）
 
-- **`review_results/`**：规格/任务 **审查帽** 结论归档；详见 [`review_results/README.md`](review_results/README.md)。  
-- **`reinspect_results/`**：**独立复检帽** 结论归档；详见 [`reinspect_results/README.md`](reinspect_results/README.md)。  
+- **`review_results/`**：规格/任务 **审查帽**（`20`）结论归档；详见 [`review_results/README.md`](review_results/README.md)。  
+- **`../harness/reviews/`**：**任务审核帽**（工作区 `22-task-audit`）对 **`docs/tasks/`** 绑定 task 的 **书面审查**（`task_*_audit_R*_*.md`）；详见 [`../harness/reviews/README.md`](../harness/reviews/README.md)。  
+- **`reinspect_results/`**：**独立复检帽**结论归档；详见 [`reinspect_results/README.md`](reinspect_results/README.md)。  
 
-二者均可将「回填清单」交给工作区 **需求帽**（[`../../../docs/harness/prompts/10-requirements.md`](../../../docs/harness/prompts/10-requirements.md)）以更新本仓 `docs/tasks/`、`docs/spec/`（按清单内路径执行）。
+二者（及 `harness/reviews`）均可将「回填清单」交给工作区 **需求帽**（[`../../../docs/harness/prompts/10-requirements.md`](../../../docs/harness/prompts/10-requirements.md)）以更新本仓 `docs/tasks/`、`docs/spec/`（按清单内路径执行）。
 
 ---
 

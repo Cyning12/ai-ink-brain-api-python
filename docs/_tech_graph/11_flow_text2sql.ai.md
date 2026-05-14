@@ -86,4 +86,6 @@ flowchart TD
 
 **V3 P0-3 结构预取（2026-05-12）**：写入/更新意图且检索 DDL 列锚点不足时，`run_text2sql_schema_prefetch_sync` 只读查询 `information_schema.columns`（`TEXT2SQL_SCHEMA_PREFETCH` 可关），结果注入 `build_sql_prompt`；失败码 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`；SSE `text2sql.phase.schema_prefetch` / `tool`=`text2sql.schema_prefetch`；见 `api/text2sql_schema_prefetch.py`。
 
+**V3 P1-1（2026-05-14）· SQL 后闸 AST**：`api/chatbi_sql_gate.apply_chatbi_sql_gate`：**AST（sqlparse）→ 表策略 → 档位/L2**；`sql_gate_deny` 可带 `ast_rule_id`；单测 `tests/test_chatbi_sql_ast_gate_v1.py`；人类版 `11_flow_text2sql.md` §V3 P1-1。
+
 **V3 P1-4 澄清短路（2026-05-13）**：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 时 `api/agent.py` 在首轮 `text2sql_execute` 前可短路并下发 `agent.clarify`；`CHATBI_JSON_LOG` 行 `agent_clarify_short_circuit`；JSON/SSE 批量路径补帧见 `api/unified_chat.py::_clarify_short_circuit_events`；人类版 `11_flow_text2sql.md` §V3 P1-4。

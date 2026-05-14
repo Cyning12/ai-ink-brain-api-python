@@ -20,3 +20,5 @@ if not _KEEP:
     os.environ["CHATBI_V2_INTENT_EVAL"] = "false"
     os.environ["CHATBI_V2_INTENT_BENCH_RUN"] = "false"
     os.environ["CHATBI_V2_INTENT_LLM"] = "false"
+    # P1-4：避免 shell/.env 误开 clarify 导致未 monkeypatch 的 v2 agent 用例短路（仍可由单测 setenv 覆盖）
+    os.environ["CHATBI_V3_LOW_CONFIDENCE_CLARIFY"] = ""
