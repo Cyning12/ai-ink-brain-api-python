@@ -1,6 +1,6 @@
 # AI-Ink-Brain API（Python 后端）项目配置真值表（给总 Agent / 子 Agent）
 
-> **最后校准**：2026-05-13（**P2**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM` / `CHATBI_PLAN_TOKEN_TTL_S` / `CHATBI_PLAN_EXEC_TOKEN_SECRET` + `agent.plan.preview` 契约；此前 2026-05-12（**P2 延伸**占位删除）；此前 2026-05-13（P1-4：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY` …）
+> **最后校准**：2026-05-14（**P1-2**：`CHATBI_PROMPT_GUARD_MODE` + `api/chatbi_prompt_guard.py` / `handle_unified_chat`）；此前 2026-05-13（**P2**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM` …）
 
 > 目标：把本仓库的**边界、入口、环境变量、目录地图、对外契约、安全注意事项**整理成“可复制粘贴的真值表”。  
 > 说明：本文档只描述**本仓库实际读取/依赖**的内容；前端仓库的 `PY_API_URL`、Next BFF 等不在此展开（但会在边界里点名）。
@@ -62,6 +62,7 @@
 | `CHATBI_SSE_EMIT_QUEUE_MAX` | G2 路径 `emit → asyncio.Queue` 的 **maxsize**（有界缓冲）；队列满时先发 **`agent.llm.truncated`**（`reason=backpressure`）再阻塞入队（vNext §4.3） | 可选 | `api/unified_chat.py` | 默认 **`512`**；合法范围 clamp 为 **`8`～`8192`**；单测可调低以验证背压 | 与项目无关 |
 | `CHATBI_V2_DEBUG_LLM_PROMPTS` | V2 Unified：SSE/JSON 是否附带完整 LLM messages（`agent.debug.llm_prompts` 等） | 可选 | `api/unified_chat.py:_debug_llm_prompts_enabled()` | `1`/`true`/`yes`/`on` 开启；与请求体 **`debug_llm_prompts: true`** 任一满足即生效；含 system 指令，生产慎用 | 与项目无关 |
 | `CHATBI_JSON_LOG` | V3 P0-2：是否输出 **单行 JSON** 结构化日志（`chatbi.obs`：`text2sql_phase_end` / `text2sql_tool_call_end`；根字段含 **`request_id`/`run_id`**，与 SSE `meta.run_id` 对齐；**`text2sql_phases_ms`** 与 `ToolResult.data` 同形） | 可选 | `api/chatbi_json_log.py`、`api/tools.py::text2sql_execute`、`api/agent.py`（`ChatBIAgent`） | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启；见 `SPEC-ChatBI-V3-Logging-Trace.md` | 与项目无关 |
+| `CHATBI_PROMPT_GUARD_MODE` | V3 P1-2：Unified **非流式** JSON 路径上对用户 `query` 的 Prompt 注入 PoC | 可选 | `api/chatbi_prompt_guard.py`、`api/unified_chat.py::handle_unified_chat` | 默认 **`off`**；`warn` 命中时写 **`prompt_guard_warn`** 并继续下游；`block` 命中时写 **`prompt_guard_deny`** 并 **不调用**上游 LLM（HTTP 200，`events[].payload.stage=prompt_guard`）；见 `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` | 与项目无关 |
 | `CHATBI_ACCESS_TOKEN_PEPPER` | 可选全局 pepper：参与 `SHA256(pepper_bytes + 明文 token)`，须与运维本地脚本 `docs/diary/local_chatbi_access_token_gen.py` 及 Supabase 插入的 `key_hash` **一致** | 可选 | `api/chatbi_access_hash.py`、`api/chatbi_principal.py`；本地脚本 `docs/diary/local_chatbi_access_token_gen.py` | 留空则 pepper 为空字节串；**勿**把 pepper 提交进 Git | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
