@@ -26,7 +26,7 @@
 
 1. `docs/tasks/done/task_chatbi_level_gate_v1.md` — 后闸顺序与 **`deny_code`/`ChatBiSqlGateDenied`** 现行为。  
 2. `api/chatbi_sql_gate.py` — 当前 normalize / classify / deny 日志字段。  
-3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2** + `docs/spec/v3-agent/SPEC-ChatBI-V3-Logging-Trace.md`（日志字段不与 OpenItems **§1.6** 冲突）。  
+3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2** + `docs/spec/v3-agent/SPEC-ChatBI-V3-Logging-Trace.md` + `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **`### 1.6 结构化日志（写入）`**（`sql_gate_*` / `auth_*` 草案；实现以 `api/chatbi_json_log.py` 为准）。**按审查 R1 回填**：`docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md`。  
 4. 合并前本地/CI：`pytest tests -m "not intent_eval and not intent_benchmark"`（与 `ai-ink-brain-api-python/.github/workflows/pytest.yml` 一致）。
 
 ### 文档对齐（子规 vs 代码）

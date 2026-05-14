@@ -23,10 +23,12 @@
 | FP-3 | **`mode=off`** | 跳过扫描 | 适用下游 | 无 |
 | FP-4 | Guard 模块自身异常（导入失败、规则表损坏等） | **fail-open 或 fail-closed 须在 §实现备忘二选一并文档化**；推荐 **fail-closed**；须 pytest 覆盖该分支。**若备忘未落笔，实现阶段默认 fail-closed**（合入前须回填备忘为显式选择） | 视 HTTP 而定 | 通用错误或拒绝类（与所选策略一致） |
 
+> **FP-1 日志字段与 OpenItems §1.6**：`prompt_guard_deny` / `prompt_guard_warn` 为 JSON 行根级 **`message`** 承载的语义标签（见 `api/chatbi_json_log.py` 的 `log_chatbi_record`），与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **§1.6** 中 `sql_gate_*`、`auth_*` 草案**并列、不复用同名**；OpenItems 表内「`event=`」为草案表述，实现以代码为准。**按审查 R1 回填**：`docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md`。
+
 ### 给执行帽的必读列表（开工前）
 
 1. `docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§3**（输入侧范围与 PoC 边界）。  
-2. `api/chatbi_json_log.py` 与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **§1.6**（日志键名不冲突）。  
+2. `api/chatbi_json_log.py` 与 `docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md` **`### 1.6 结构化日志（写入）`**（与 `sql_gate_*` / `auth_*` 键域分离）。  
 3. 选定接入点上下游：`api/intent_agent.py`、`api/unified_chat.py` 或 rewrite 出口 — **在 §实现备忘画「先后」** 避免双扫或漏扫。  
 4. 合并前：`pytest tests -m "not intent_eval and not intent_benchmark"`（与 `ai-ink-brain-api-python/.github/workflows/pytest.yml` 一致）。
 
@@ -44,6 +46,14 @@
 
 - `failure_paths` 表格中 **FP-1** 的 HTTP/body 未写死即开始改路由。  
 - 未说明与 **P1-1 SQL gate** 的先后顺序（同请求内谁先谁后）即改动 `text2sql_core` 主链（须在 **§实现备忘** 用一句话钉死，避免重复拦截或绕过）。
+
+### 审查回填（任务审核 R1）
+
+- **§5 · FP-1 golden JSON** 行已留 **`TBD`** 占位，待实现 PR 写死 `tests/` 相对路径；**failure_paths** 上栏已补充 `message` 与 OpenItems §1.6 对齐说明。来源：`docs/harness/reviews/task_chatbi_v3_sql_ast_and_prompt_injection_audit_R1_20260514.md`（非阻塞建议）。
+
+### Invoke 快照（可选）
+
+- `docs/harness/invokes/invoke_20260515_0000_22_chatbi-v3-sql-ast-prompt-injection.md`（任务审核帽 `22`、R2 复审启动体；约定见工作区 `docs/harness/invokes/README.md`）
 
 ---
 
@@ -64,7 +74,7 @@
 
 - **范围**：规则表初版（可 YAML 或 Python 常量）、单元测、日志打点、与 **一条** Unified 或 Agent 路径集成。  
 - **非范围**：完整 **对抗样本** 平台、在线学习、多语言 NLP 模型；**前端**展示（可归 Ink 另任务，本单 pytest + 日志即可）。  
-- **非范围**：SQL AST（归 **`task_chatbi_v3_sql_ast_text2sql_gate_v1.md`**）。
+- **非范围**：SQL AST（归 **`docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`**（P1-1））。
 
 ---
 
@@ -98,7 +108,7 @@
 | 新 env 键名 | |
 | 与 Intent / rewrite 的先后关系 | |
 | **FP-4**（fail-open / fail-closed） | 默认 **fail-closed** 直至显式填写；须与 pytest 异常分支一致 |
-| **FP-1** golden JSON | `tests/` 内 fixture 或快照的**相对路径**（与现网 Unified/Agent 错误 envelope 之一对齐） |
+| **FP-1** golden JSON | **`TBD`**（实现 PR 写死 `tests/` 内 fixture 或快照**相对路径**；与现网 Unified/Agent 错误 envelope 之一对齐） |
 
 ---
 

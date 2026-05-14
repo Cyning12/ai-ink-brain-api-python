@@ -119,3 +119,6 @@ docs/*
 !docs/text2sql/
 # v2-agent SPEC（与 docs/* 例外并列；否则新文件需 git add -f）
 !docs/spec/
+
+# Harness：任务审核 reviews、invoke 快照（与工作区 harness/invokes 约定对齐）
+!docs/harness/
