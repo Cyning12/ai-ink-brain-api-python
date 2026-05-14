@@ -11,6 +11,7 @@ import time
 from typing import Any
 
 _PURPOSE = "clarify_text2sql_once"
+_SIG_LEN = 32  # HMAC-SHA256 digest size；签名字节中可出现 ``0x0a``，不得用 ``rsplit(b"\\n")`` 定界
 
 
 def _token_secret() -> bytes:
@@ -55,16 +56,27 @@ def mint_clarify_text2sql_bypass_token(*, session_id: str | None, query: str) ->
     return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
+def _b64url_decode_padded(token: str) -> bytes:
+    """urlsafe base64 无填充串的可靠解码（禁止固定追加 ``==``，否则部分长度会误解码/验签偶发失败）。"""
+    t = token.strip()
+    pad = (-len(t)) % 4
+    return base64.urlsafe_b64decode(t + ("=" * pad))
+
+
 def verify_clarify_text2sql_bypass_token(token: str | None, *, session_id: str | None, query: str) -> bool:
     if not isinstance(token, str) or not token.strip():
         return False
     try:
-        raw = base64.urlsafe_b64decode(token.strip() + "==")
+        raw = _b64url_decode_padded(token)
     except Exception:  # noqa: BLE001
         return False
-    if b"\n" not in raw:
+    if len(raw) < _SIG_LEN + 1:
         return False
-    body_b, sig_b = raw.rsplit(b"\n", 1)
+    sig_b = raw[-_SIG_LEN:]
+    rest = raw[:-_SIG_LEN]
+    if not rest.endswith(b"\n"):
+        return False
+    body_b = rest[:-1]
     expect = hmac.new(_token_secret(), body_b, hashlib.sha256).digest()
     if not hmac.compare_digest(expect, sig_b):
         return False
