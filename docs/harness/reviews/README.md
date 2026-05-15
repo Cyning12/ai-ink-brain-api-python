@@ -20,15 +20,27 @@
 
 ---
 
+## Rubric 自动化双人评审（补充）
+
+> **非**任务审核帽 `22-task-audit` 的法定产出；**不得**单独作为 task 签收真值。
+
+| 项 | 说明 |
+|----|------|
+| CLI | `python -m tools.rubric_review`（见 [`../../tools/rubric_review/README.md`](../../tools/rubric_review/README.md)） |
+| 默认输出 | 本目录下 `rubric_review_<slug>_<timestamp>.md` / `.json` |
+| 用途 | PR 正文 / 技术方案草稿的 **Rubric 结构化打分** + 可选 webhook 人工仲裁回调 |
+
+
 ## 修订记录
 
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-14 | v1：后端仓独立落盘任务审核；与根 `docs/harness/reviews` 分工 |
 | 2026-05-14 | v1.1：链 **Invoke 快照** [`../invokes/README.md`](../invokes/README.md) |
+| 2026-05-15 | v1.2：补充 **Rubric 双人评审 CLI** 落盘约定（`rubric_review_*.md`） |
 
 ---
 
 ## 给 Cursor
 
-`Harness`、`reviews`、`任务审核`、`audit`、`R1`、`签收`、`闭环`、`docs/tasks`
+`Harness`、`reviews`、`任务审核`、`audit`、`R1`、`签收`、`闭环`、`docs/tasks`、`rubric_review`
