@@ -30,6 +30,10 @@ docs/tasks/
   reinspect_results/       # 独立复检帽输出归档（见该目录 README）；必要时交需求帽回填
 ```
 
+### 工程纪律索引（防口头约定漂移）
+
+- **ChatBI：新功能以 SSE 优先（团队纪律 task）**：[`active/task_engineering_chatbi_sse_first_v1.md`](active/task_engineering_chatbi_sse_first_v1.md) — 书面审查 R1：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md)
+
 ### 审查与复检产出（非 task 单）
 
 - **`review_results/`**：规格/任务 **审查帽**（`20`）结论归档；详见 [`review_results/README.md`](review_results/README.md)。  
