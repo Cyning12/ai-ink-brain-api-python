@@ -1,10 +1,10 @@
 # Task：闸口 A — 静态 `graph.json` vs Mermaid 语料（代号 A/B）性能对比（后端主导 · v1）
 
-> **状态**：`draft`  
+> **状态**：`done（2026-05-15 验收通过）`  
 > **关联规划**：`docs/tech_graph/改进方向.md`（闸口 A / 极低 token 叙事）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
 > **父文档（真值口径）**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_backend.md` — **「下一阶段：静态 graph.json vs 旧 Mermaid — 初步对比方案（v0）」**（§2 代号 A/B、§3 指标表、§3.1 后端子表；**§3.2 浏览器**默认 **N/A** 于主结论，见父文档「结论」主口径）  
 > **SOP / 记录模板**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_perf_compare_backend_detail.md`（**已落盘**；与父文档 **二选一主真值**：本轮采用 **专文** 为总表 / §9 数字单一真值，见「实现备忘」）  
-> **invoke_snapshot**：`docs/harness/invokes/invoke_20260515_10_gate-a-scheme1-perf-compare-requirements.md`（需求帽 §0；审核帽首轮可追加第二行）  
+> **invoke_snapshot**：`docs/harness/invokes/invoke_20260515_10_gate-a-scheme1-perf-compare-requirements.md`（需求帽）；`docs/harness/invokes/invoke_20260515_22_gate-a-scheme1-perf-compare-task-audit-r2.md`（任务审核帽 R2）  
 > **test_strategy**：`recommended`  
 > **test_strategy_note**：对比以 **可复现命令 + 表格化数据** 为主；**P50/P95** 等统计可本地或 Agent 批跑；**不要求**为闸口 A 主结论先把对比写进 **失败即红** 的 pytest 断言（若后续要 CI 钉死再升 `required` 并另开子 task）。  
 > **freeze_id**：`TECH_GRAPH_S1_FREEZE_20260514_V1_1_3`  
@@ -74,8 +74,8 @@
 - [x] **指标最小集（后端子集）**：至少覆盖父文档 §3.1 表中 **导出 wall、`--check`、产物字节、`pytest tests/test_tech_graph_graph_export.py` 耗时** 的可测子集，并给出 **同一 commit / 日期**；**Agent/LM 向**：**粘贴或链** `python tools/tech_graph_token_estimate.py --json` 输出（与既有附录一致或说明 bump 理由）。  
 - [x] **计时消歧**：任何表格或正文若出现「A/B」计时，须标注为 **「§2 代号 A/B」** 或 **「计时 A / 计时 B（跑数环境）」**（父文档已有术语表；禁止混用两行指标）。  
 - [x] **`gate_a_scheme1_backend.md`**：**「结论」** 与 **§6** 与本轮数据 **一致**；若 §3.2 仍为 N/A，**不得**用浏览器表作主结论依据；**「仓库或 CI 快照引用」** 可按父文档约定追加本轮 **对比分支/commit、跑数环境、原始日志或表格路径**（与父文档 §47 说明一致）。  
-- [ ] **PR / CI**：合入 PR 描述含 **复现命令** 与（若适用）**Actions run id** 或短 hash；**不**把 run id 写入本 task 的 **`freeze_id`** 行。  
-- [ ] **归档**：验收后按 `docs/tasks/README.md` **`git mv` → `done/`** 并更新 **`docs/tasks/_views/done.md`**；若曾列入 **`_views/design.md`** / **`in_progress.md`** 则同步。
+- [x] **PR / CI**：合入 PR 描述含 **复现命令** 与（若适用）**Actions run id** 或短 hash；**不**把 run id 写入本 task 的 **`freeze_id`** 行。  
+- [x] **归档**：验收后按 `docs/tasks/README.md` **`git mv` → `done/`** 并更新 **`docs/tasks/_views/done.md`**；若曾列入 **`_views/design.md`** / **`in_progress.md`** 则同步。  
 
 ---
 
@@ -139,7 +139,7 @@
 
 | 项 | 内容 |
 |----|------|
-| PR / commit | （合入 PR 后回填短 hash；**勿**将 Actions run id 写入头部 `freeze_id` 行） |
+| PR / commit | **`PR #28`** 合入 `main`（merge **`2315937`**）；文档交付链 tip **`47a6f9e`**（**勿**将 Actions run id 写入头部 `freeze_id` 行） |
 | detail 路径 | `ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_perf_compare_backend_detail.md`（§4 `#sec4-master-table`、§9 `#sec9-perf-backend`） |
 | 父文档 §6 / 结论更新 commit | `gate_a_scheme1_backend.md`（§3 **3.0**、§6 `[x]`、专文互链、快照区 `--json` 迁至专文 §9） |
 
@@ -170,11 +170,12 @@ pytest tests/test_tech_graph_graph_export.py -q
 | 2026-05-15 | 执行帽：新建 `gate_a_scheme1_perf_compare_backend_detail.md`；父文档 §3 **3.0**、§6、`--json` 单一真值迁专文 §9；§8 **已选** 与 **§10 自检结论** 回填。 |
 | 2026-05-15 | 需求帽细化：§4.1 §6 对照、计时消歧验收、FP-E/FP-F、假设与待确认、§9 文档张力、§7 单一真值策略、§11 修订记录骨架。 |
 | 2026-05-15 | 需求帽补丁：§4.1 **§6 勾选门闸**；FP-G/FP-H/FP-I；§9 **T-3**（规划示例脚本名 vs 落地）；§7 必读第 6 条；头部 **invoke_snapshot**；完成态用语扩至 FP-A～I。 |
+| 2026-05-15 | 维护：`PR #28` 合入 `main`（merge `2315937`）；§4.2「PR / CI」「归档」勾选；§10 `PR / commit` 回填；头部 **`done（2026-05-15 验收通过）`**；`git mv` 至 `docs/tasks/done/` 并更新 `_views`；**按审查 R2 回填** 见 [`task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md`](../../harness/reviews/task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md)。 |
 
-> **按审查回填**：工作区 closeout **R4** 对 `task_engineering_tech_graph_gate_a_closeout_v1` **无硬性回填项**至本单；见 [`docs/harness/reviews/task_engineering_tech_graph_gate_a_closeout_v1_audit_R4_20260515.md`](../../../../docs/harness/reviews/task_engineering_tech_graph_gate_a_closeout_v1_audit_R4_20260515.md)（可选追溯）。**本 task** 若经 **`docs/harness/reviews/task_*_perf_compare*_audit_R*.md`** 驱动修订，在此行追加 **「按审查 R\<n\> 回填」** 并链该文件。
+> **按审查回填**：工作区 closeout **R4** 对 `task_engineering_tech_graph_gate_a_closeout_v1` **无硬性回填项**至本单；见 [`docs/harness/reviews/task_engineering_tech_graph_gate_a_closeout_v1_audit_R4_20260515.md`](../../../../docs/harness/reviews/task_engineering_tech_graph_gate_a_closeout_v1_audit_R4_20260515.md)（可选追溯）。**按审查 R2 回填**（§4.2 收尾、§10、`invoke_snapshot`、归档）：[`task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md`](../../harness/reviews/task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md)。
 
 ---
 
 ## 给 Cursor
 
-`gate_a`、`graph.json`、**代号 A/B**、`tech_graph_token_estimate`、`freeze_id`、`§3.1`、`§3.2`、`docs/tasks/active`、`failure_paths`、`§6`
+`gate_a`、`graph.json`、**代号 A/B**、`tech_graph_token_estimate`、`freeze_id`、`§3.1`、`§3.2`、`docs/tasks/done`、`failure_paths`、`§6`

@@ -5,7 +5,7 @@
 
 ## 设计中
 
-- [技术图谱 · 闸口 A — `graph.json` vs Mermaid（代号 A/B）性能对比（后端）](../active/task_engineering_tech_graph_gate_a_perf_compare_v1.md) — `draft`
+- 无（`task_engineering_tech_graph_gate_a_perf_compare_v1` 已归档：[`../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`](../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md)）
 
 ## 缺少状态字段（请补齐后再归类）
 
