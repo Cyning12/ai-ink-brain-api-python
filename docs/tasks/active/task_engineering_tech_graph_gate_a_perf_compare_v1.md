@@ -3,7 +3,7 @@
 > **状态**：`draft`  
 > **关联规划**：`docs/tech_graph/改进方向.md`（闸口 A / 极低 token 叙事）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
 > **父文档（真值口径）**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_backend.md` — **「下一阶段：静态 graph.json vs 旧 Mermaid — 初步对比方案（v0）」**（§2 代号 A/B、§3 指标表、§3.1 后端子表；**§3.2 浏览器**默认 **N/A** 于主结论，见父文档「结论」主口径）  
-> **SOP / 记录模板**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_perf_compare_backend_detail.md`（**当前仓库内通常尚未存在**；由本 task 首 PR **创建**，或与父文档自 **§116** 起 SOP 段落 **二选一对齐**不重复维护，并在「实现备忘」写清路径与取舍）  
+> **SOP / 记录模板**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_perf_compare_backend_detail.md`（**已落盘**；与父文档 **二选一主真值**：本轮采用 **专文** 为总表 / §9 数字单一真值，见「实现备忘」）  
 > **invoke_snapshot**：`docs/harness/invokes/invoke_20260515_10_gate-a-scheme1-perf-compare-requirements.md`（需求帽 §0；审核帽首轮可追加第二行）  
 > **test_strategy**：`recommended`  
 > **test_strategy_note**：对比以 **可复现命令 + 表格化数据** 为主；**P50/P95** 等统计可本地或 Agent 批跑；**不要求**为闸口 A 主结论先把对比写进 **失败即红** 的 pytest 断言（若后续要 CI 钉死再升 `required` 并另开子 task）。  
@@ -69,11 +69,11 @@
 
 ### 4.2 原子验收（勾选）
 
-- [ ] **`gate_a_scheme1_perf_compare_backend_detail.md`**：已存在且含 **（1）环境固定说明**（cwd、Python 版本建议、`freeze_id`）、**（2）逐步采集命令**、**（3）记录表头（建议含：指标名 / 代号或计时消歧 / 原始值 / N / commit / 备注）**、**（4）failure_paths 模板（可与 §5 同构）**；或经审查认可在「实现备忘」声明 **「与父文档 §116–§3.1 等价内嵌，不另文件」** 并指出锚点标题。  
-- [ ] **代号 A/B 声明**：对比文档（detail 或父文档增节）中 **显式**写出本轮 **A 输入**（`docs/_tech_graph/graph.json` 路径 + `wc -c` 或等价）与 **B 输入**（默认拼接规则引用 `tech_graph_token_estimate.py` 行为描述，或备选 B 另行列出）。  
-- [ ] **指标最小集（后端子集）**：至少覆盖父文档 §3.1 表中 **导出 wall、`--check`、产物字节、`pytest tests/test_tech_graph_graph_export.py` 耗时** 的可测子集，并给出 **同一 commit / 日期**；**Agent/LM 向**：**粘贴或链** `python tools/tech_graph_token_estimate.py --json` 输出（与既有附录一致或说明 bump 理由）。  
-- [ ] **计时消歧**：任何表格或正文若出现「A/B」计时，须标注为 **「§2 代号 A/B」** 或 **「计时 A / 计时 B（跑数环境）」**（父文档已有术语表；禁止混用两行指标）。  
-- [ ] **`gate_a_scheme1_backend.md`**：**「结论」** 与 **§6** 与本轮数据 **一致**；若 §3.2 仍为 N/A，**不得**用浏览器表作主结论依据；**「仓库或 CI 快照引用」** 可按父文档约定追加本轮 **对比分支/commit、跑数环境、原始日志或表格路径**（与父文档 §47 说明一致）。  
+- [x] **`gate_a_scheme1_perf_compare_backend_detail.md`**：已存在且含 **（1）环境固定说明**（cwd、Python 版本建议、`freeze_id`）、**（2）逐步采集命令**、**（3）记录表头（建议含：指标名 / 代号或计时消歧 / 原始值 / N / commit / 备注）**、**（4）failure_paths 模板（可与 §5 同构）**；或经审查认可在「实现备忘」声明 **「与父文档 §116–§3.1 等价内嵌，不另文件」** 并指出锚点标题。  
+- [x] **代号 A/B 声明**：对比文档（detail 或父文档增节）中 **显式**写出本轮 **A 输入**（`docs/_tech_graph/graph.json` 路径 + `wc -c` 或等价）与 **B 输入**（默认拼接规则引用 `tech_graph_token_estimate.py` 行为描述，或备选 B 另行列出）。  
+- [x] **指标最小集（后端子集）**：至少覆盖父文档 §3.1 表中 **导出 wall、`--check`、产物字节、`pytest tests/test_tech_graph_graph_export.py` 耗时** 的可测子集，并给出 **同一 commit / 日期**；**Agent/LM 向**：**粘贴或链** `python tools/tech_graph_token_estimate.py --json` 输出（与既有附录一致或说明 bump 理由）。  
+- [x] **计时消歧**：任何表格或正文若出现「A/B」计时，须标注为 **「§2 代号 A/B」** 或 **「计时 A / 计时 B（跑数环境）」**（父文档已有术语表；禁止混用两行指标）。  
+- [x] **`gate_a_scheme1_backend.md`**：**「结论」** 与 **§6** 与本轮数据 **一致**；若 §3.2 仍为 N/A，**不得**用浏览器表作主结论依据；**「仓库或 CI 快照引用」** 可按父文档约定追加本轮 **对比分支/commit、跑数环境、原始日志或表格路径**（与父文档 §47 说明一致）。  
 - [ ] **PR / CI**：合入 PR 描述含 **复现命令** 与（若适用）**Actions run id** 或短 hash；**不**把 run id 写入本 task 的 **`freeze_id`** 行。  
 - [ ] **归档**：验收后按 `docs/tasks/README.md` **`git mv` → `done/`** 并更新 **`docs/tasks/_views/done.md`**；若曾列入 **`_views/design.md`** / **`in_progress.md`** 则同步。
 
@@ -108,7 +108,7 @@
 2. **§2 代号 A/B** 与 **「计时 A/B」** 术语表，避免读错行。  
 3. **`tech_graph_token_estimate.py`** 与 **`tech_graph_graph_export.py`** 的 **输入根与跳过 `99_*`** 规则与导出 golden **一致**。  
 4. 若触达前端 §3.2：**先**有 **`ai-ink-brain`** task 与产品确认，**再**采数。  
-5. 首 PR 若 **新建** `gate_a_scheme1_perf_compare_backend_detail.md`：父文档已引用该路径与「§9」小节名 — **须**在新建文件中包含可导航的 **§9（或等价锚点）** 与父文档 **「后端 §3.1 采样记录」** 的 **单一真值策略**（只在一处维护数字，另一处引用），避免双轨漂移。  
+5. **`gate_a_scheme1_perf_compare_backend_detail.md`**（已落盘）：须含可导航 **§9（`#sec9-perf-backend`）** 与 **§4（`#sec4-master-table`）**；与父文档 **「后端 §3.1 采样记录」** 的 **单一真值策略**（只在一处维护数字，另一处引用），避免双轨漂移。  
 6. **`docs/tech_graph/改进方向.md` §1.4**：仍可能出现 **`export_graph_json.py`** 等历史示例名 — **不得**采为本 task 复现真值；触犯见 **FP-H**。
 
 ---
@@ -119,7 +119,7 @@
 |------|------|
 | **假设** | 本轮仍 **无**用户页大图谱 Mermaid；§3.2 保持 N/A。 |
 | **待确认** | 若产品侧变更需启用 §3.2：**停止**以本单名义合入浏览器主结论；另开前端 task 后再采。 |
-| **待确认** | 「总对比表」落盘在 **detail 专文** 还是 **父文档新小节**：二选一须在 PR 描述写一句，并遵守 **§7.5** 单一真值策略。 |
+| **已选** | 「总对比表」主真值落盘 **`gate_a_scheme1_perf_compare_backend_detail.md`**（§4 `#sec4-master-table` / §9 `#sec9-perf-backend`）；PR 描述须写一句，与父文档 `gate_a_scheme1_backend.md`「后端先行（SOP）」段一致。 |
 
 ---
 
@@ -130,7 +130,7 @@
 | ID | 陈述 A（出处） | 陈述 B（出处） | **执行口径（本 task）** |
 |----|----------------|----------------|-------------------------|
 | T-1 | 父文档 §164：性能对比主结论仍以 **§3 全表** 为准。 | 父文档「结论」：§3.2 **N/A** 时浏览器向 **不**入主结论。 | §3 全表在 §3.2 N/A 时 **浏览器相关格填 N/A + 理由**；**数值主结论**以 Agent 向 + §3.1 + token 附录支撑，**不**强行套用 §5 浏览器阈值。 |
-| T-2 | 父文档链至 `gate_a_scheme1_perf_compare_backend_detail.md` §9。 | 截至本 task `draft`，该文件 **常不存在**（首 PR 创建）。 | 首 PR **要么**创建该文件并含 §9（或等价标题），**要么**在父文档/审查中明确 **SOP 内嵌** 且更新父文档链接避免死链。 |
+| T-2 | 父文档链至 `gate_a_scheme1_perf_compare_backend_detail.md` §9。 | 历史 draft 阶段该文件 **常不存在**。 | **已创建**专文并含 §9（`#sec9-perf-backend`）与 §4（`#sec4-master-table`）；父文档 **§6** 与快照区已互链，死链消除。 |
 | T-3 | **`改进方向.md` §1.4** 规划示例：`tools/export_graph_json.py`。 | 本仓落地与 task 依赖为 **`tech_graph_graph_export.py`** / **`tech_graph_token_estimate.py`**。 | 本 task **书面证据与复现命令**以依赖表与父文档为准；误抄规划示例 → **FP-H**；规划文勘误可 **另开** 小单，**不**阻塞本单证据链若未引用错误脚本名。 |
 
 ---
@@ -139,10 +139,27 @@
 
 | 项 | 内容 |
 |----|------|
-| PR / commit | （回填） |
-| detail 路径 | （回填：若新建 `gate_a_scheme1_perf_compare_backend_detail.md`） |
-| 父文档 §6 / 结论更新 commit | （回填） |
-| 自检结论 | （回填：命令摘要 + 要点数据） |
+| PR / commit | （合入 PR 后回填短 hash；**勿**将 Actions run id 写入头部 `freeze_id` 行） |
+| detail 路径 | `ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_perf_compare_backend_detail.md`（§4 `#sec4-master-table`、§9 `#sec9-perf-backend`） |
+| 父文档 §6 / 结论更新 commit | `gate_a_scheme1_backend.md`（§3 **3.0**、§6 `[x]`、专文互链、快照区 `--json` 迁至专文 §9） |
+
+### 自检结论（`test_strategy: recommended`）
+
+**cwd**：`ai-ink-brain-api-python` 仓根。
+
+```bash
+python tools/tech_graph_token_estimate.py --json
+wc -c docs/_tech_graph/graph.json
+pytest tests/test_tech_graph_graph_export.py -q
+```
+
+**输出要点（本轮本地）**
+
+- `token_estimate --json`：`A.bytes_utf8` **20224**，`B.bytes_utf8` **20953**，`heuristic_tokens` **5056 / 5026**，`ratio_B_per_A.heuristic_tokens` **0.9941**；`rules` 明示 **非官方 tiktoken**。  
+- `wc -c docs/_tech_graph/graph.json`：**20224**（与 JSON 内 **A** 一致）。  
+- `pytest tests/test_tech_graph_graph_export.py -q`：**6 passed**（收集 + 执行约 **0.01s** 量级，以终端为准）。  
+
+**PR 描述一句（必选）**：**总对比表主真值在 `gate_a_scheme1_perf_compare_backend_detail.md` 专文（§4 / §9）**；父文档仅保留 **结论**、**§3.0** 导航行与 **§6** 勾选互链（单一真值策略）。
 
 ---
 
@@ -150,7 +167,7 @@
 
 | 日期 | 摘要 |
 |------|------|
-| （首 PR） | （回填） |
+| 2026-05-15 | 执行帽：新建 `gate_a_scheme1_perf_compare_backend_detail.md`；父文档 §3 **3.0**、§6、`--json` 单一真值迁专文 §9；§8 **已选** 与 **§10 自检结论** 回填。 |
 | 2026-05-15 | 需求帽细化：§4.1 §6 对照、计时消歧验收、FP-E/FP-F、假设与待确认、§9 文档张力、§7 单一真值策略、§11 修订记录骨架。 |
 | 2026-05-15 | 需求帽补丁：§4.1 **§6 勾选门闸**；FP-G/FP-H/FP-I；§9 **T-3**（规划示例脚本名 vs 落地）；§7 必读第 6 条；头部 **invoke_snapshot**；完成态用语扩至 FP-A～I。 |
 
