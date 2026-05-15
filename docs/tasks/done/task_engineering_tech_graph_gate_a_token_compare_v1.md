@@ -1,6 +1,6 @@
 # Task：闸口 A 附录 — `graph.json` vs Mermaid 拼接体 **token 粗估** 工具与 CI
 
-> **状态**：`draft`  
+> **状态**：`done（2026-05-15 验收通过）`  
 > **关联**：`docs/tech_graph/gate_a_scheme1_backend.md` §3「Agent / LM context（可选）」；[`gate_a_scheme1_perf_compare_backend_detail.md`](../../tech_graph/gate_a_scheme1_perf_compare_backend_detail.md)  
 > **test_strategy**：`required`  
 > **test_strategy_note**：输出为确定性 JSON；须有 pytest 锁 `measure` 与 CLI 冒烟，避免规则静默漂移。  
@@ -39,7 +39,7 @@
 | 项 | 说明 |
 |----|------|
 | 前端 | **不必**为附录单独写 tokenizer；在 **`ai-ink-brain`** 若需在 `quality` 中展示或归档，**调用本仓脚本**（工作区 `../ai-ink-brain-api-python/tools/tech_graph_token_estimate.py`，参数 `--input` / `--graph-json` 指向前端 `docs/_tech_graph`）即可。 |
-| 配对前端 task | `ai-ink-brain/content/tasks/active/task_engineering_tech_graph_graph_json_export_v1.md`（已增加「闸口附录」引用条） |
+| 配对前端 task | `ai-ink-brain/content/tasks/done/task_engineering_tech_graph_graph_json_export_v1.md`（已增加「闸口附录」引用条） |
 
 ---
 

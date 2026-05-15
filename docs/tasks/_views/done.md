@@ -24,4 +24,6 @@
 - `../done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`（2026-05-11 验收通过：RAG 改写上链 + LLM Prompt 可观测）
 - `../done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（2026-05-14 验收通过：P1-1 Text2SQL 后闸 SQL AST 硬化）
 - `../done/task_engineering_chatbi_sse_first_v1.md`（2026-05-15：ChatBI 工程纪律 SSE 优先；Harness R2 签收后归档）
+- `../done/task_engineering_tech_graph_graph_json_export_v1.md`（2026-05-15：方案1 `graph.json` 导出 / `--check` / pytest / `tech-graph` CI；闸口 A 收口归档）
+- `../done/task_engineering_tech_graph_gate_a_token_compare_v1.md`（2026-05-15：闸口 A token 粗估附录工具与 CI；与 graph 导出同批次验收归档）
 
