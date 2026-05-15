@@ -56,7 +56,7 @@
 ## 下一棒可复制 Prompt
 
 ```text
-（本单已终局签收）若后续发现 task 与仓库事实漂移（例如 §4.2 误勾、文件未在 `done/`、`_views` 双轨）：由任务帽按 `ai-ink-brain-api-python/docs/tasks/README.md` 修正，并在 task §11 追加一行 **「R4 打回原因」** 后，复制 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md` §3 发起 **任务审核帽 R4**（`{{PREV_REVIEW_PATH_OR_NONE}}` 填 `ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R3_20260515.md`；`{{TASK_PATHS}}` 填当前 task 真值路径）。
+（本单已终局签收）若后续发现 task 与仓库事实漂移（例如 §4.2 误勾、文件未在 `done/`、`_views` 双轨）：由任务帽按 `ai-ink-brain-api-python/docs/tasks/README.md` 修正，并在 task §11 追加一行 **「R4 打回原因」** 后，复制 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md` §3 发起 **任务审核帽 R4**；其中「上一轮审查文档路径」填 `ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R3_20260515.md`，「待审 task 路径」填当时仓库中的 task 真值路径（通常为 `ai-ink-brain-api-python/docs/tasks/done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`）。
 
 若产品确认需用户页大图谱 Mermaid 并启用父文档 §3.2：**勿**以本已关闭 task 名义扩写浏览器主结论；请 **另开** `ai-ink-brain` 前端 task + 产品确认链后，再更新父文档 **§3.2 N/A** 策略与采数 task。
 ```
