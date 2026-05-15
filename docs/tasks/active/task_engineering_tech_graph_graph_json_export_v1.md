@@ -58,7 +58,7 @@
 - [x] `python tools/tech_graph_graph_export.py --check`：与仓库内已提交 `graph.json` 一致则 **退出码 0**；不一致则 **非 0**，且 stderr 指明差异类型（文件缺失 / schema / 边集合等）。  
 - [x] **pytest**：`tests/test_tech_graph_graph_export.py`（解析失败、空图、flowchart / classDiagram golden、`--check` 路径）。  
 - [x] `python tools/tech_graph_contract_check.py` 仍可通过（与 graph 导出 **并行**，见 `tech-graph-contract.yml`）。  
-- [ ] PR 说明中写清：**contract 门禁** 与 **graph 门禁** 两条命令及顺序（模板见下「CI 命令摘要」）。
+- [x] PR 说明中写清：**contract 门禁** 与 **graph 门禁** 两条命令及顺序（模板见下「CI 命令摘要」）；PR #26 已附 Actions run 链接。
 
 **CI 命令摘要（可粘贴 PR）**
 
@@ -107,6 +107,9 @@
 | 导出脚本路径 | `tools/tech_graph_graph_export.py` |
 | pytest 路径 | `tests/test_tech_graph_graph_export.py` |
 | CI workflow / job | `.github/workflows/tech-graph.yml` → job `manifest_check`（`tech_graph_manifest_check.py` → `tech_graph_graph_export.py --check` → `tech_graph_token_estimate.py --json`）；契约门禁仍为 `.github/workflows/tech-graph-contract.yml` → `contract_check`（**与 graph 并行、独立脚本**） |
+| PR #26（agent-v3 → main） | https://github.com/Cyning12/ai-ink-brain-api-python/pull/26 |
+| Actions run · tech-graph | https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101651 |
+| Actions run · tech-graph-contract | https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101628 |
 | 闸口 A 结论文档 | `docs/tech_graph/gate_a_scheme1_backend.md` |
 | 契约变更后 freeze_id | 若 bump 规划 / SPEC，须与前端 task **同一行**更新 **freeze_id**；实现 PR 可将 **短 commit hash** 记入 PR 描述（**不**写入本行 `freeze_id`，以免破坏机械比对） |
 

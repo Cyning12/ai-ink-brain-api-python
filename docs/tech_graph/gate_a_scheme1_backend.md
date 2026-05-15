@@ -36,6 +36,7 @@ pytest tests/test_tech_graph_graph_export.py -q
 ## 仓库或 CI 快照引用
 
 - 合入 PR 请在 PR 描述中填写 **短 commit hash** 与 **Actions run id**（**不**写入各仓 task 的 `freeze_id` 行，以免机械比对漂移）。
+- **PR #26（open，`7536f38`）CI**：`tech-graph` [Actions run](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101651)（Summary Success，总时长约 7s）；`tech-graph-contract` [Actions run](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101628)（Summary Success，总时长约 10s）。
 - **tech-graph（CI）留痕**：workflow run（job `manifest_check`）— [GitHub Actions run / job](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25897412659/job/76113312774)（merge PR #25；日志头 **checkout `fb0b54c…`**；**job 总时长约 5s**；其中 step **「Tech graph graph.json drift check」** UI 约 **1s**、日志内脚本执行约 **0s～1s** 量级属正常取整）。Runner：`ubuntu-latest`，Python **3.11.15**（hostedtoolcache）。
 - **Token 附录工具（本地/CI）**：`python tools/tech_graph_token_estimate.py`（默认 Markdown；`--json` 一行）；与 `graph_export` **同输入根**；CI 见 `tech-graph` workflow step **「Tech graph token estimate (Gate A appendix)」**。
 - **Token 粗估 `--json` 快照（本地 cwd=本仓根，2026-05-15；与 `docs/_tech_graph/graph.json` 已提交版一致）**：
@@ -211,3 +212,4 @@ pnpm build
 | 2026-05-15 | 落地 `tools/tech_graph_token_estimate.py`、pytest、`tech-graph` CI step；快照区链命令 |
 | 2026-05-15 | 「仓库或 CI 快照引用」回填 `tech_graph_token_estimate.py --json` 一行（本地 2026-05-15） |
 | 2026-05-15 | §2：写明 `graph.json` 与 `*.ai.md` 母集合关系；**默认 B** 与 `tech_graph_token_estimate` 对齐 |
+| 2026-05-15 | PR #26 开 PR CI：`tech-graph` / `tech-graph-contract` Actions run URL 回填本小节 |
