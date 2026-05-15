@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+      # 当前集成开发分支；合并入 main 后可删
+      - agent-v3
 
 jobs:
   manifest_check:
@@ -24,3 +26,6 @@ jobs:
 
       - name: Tech graph graph.json drift check
         run: python tools/tech_graph_graph_export.py --check
+
+      - name: Tech graph token estimate (Gate A appendix)
+        run: python tools/tech_graph_token_estimate.py --json

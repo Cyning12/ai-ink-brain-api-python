@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - agent-v3
 
 jobs:
   contract_check:
