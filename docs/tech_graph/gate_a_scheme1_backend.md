@@ -49,6 +49,8 @@ pytest tests/test_tech_graph_graph_export.py -q
 
 > **边界**：**生成与校验成本** 在本仓（`ai-ink-brain-api-python`）完成；**页面首屏 / 交互 / 包体 / 浏览器内解析** 在 `ai-ink-brain` 完成（见 **§3.2**）。全链路书面结论仍只维护 **本文件一处**，前端 task 已链入本节；执行完毕后须在 **「仓库或 CI 快照引用」** 回链数据路径。
 
+**后端先行（SOP）**：§3.1 采集的逐步说明、**failure_paths** 与记录模板见 [`gate_a_scheme1_perf_compare_backend_detail.md`](./gate_a_scheme1_perf_compare_backend_detail.md)。前端 §3.2 建议复用该文档的统计口径与表格结构；全链路结论句仍只写回本文件 **「结论」** 与 **§6**。
+
 ### 1. 目标与问题陈述
 
 - **目标**：在同等内容规模下，对比 **消费静态 `graph.json`** 与 **消费 `.ai.md` 内 Mermaid 文本（旧链路）** 的关键性能指标，判断是否值得在方案2 继续加码「运行时图能力」或应优先做「静态分发 + 轻渲染」。  
