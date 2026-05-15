@@ -1,8 +1,8 @@
 # Task：技术图谱 — 方案1 静态 `graph.json` 导出与 CI 门禁（后端仓）
 
 > **状态**：`draft`  
-> **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**（方案1 + **R1** + 前端 graph CI 消歧）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
-> **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`；`docs/harness/invokes/invoke_20260514_0031_10_tech-graph-scheme1-exec-converge.md`（链上一节：`docs/harness/invokes/invoke_20260514_20_tech-graph-scheme1-review-hat20.md`）  
+> **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**（含 **2026-05-15** 勘误行：R1 与 scheme_1「PR 必绿」一致）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
+> **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`；`docs/harness/invokes/invoke_20260514_0031_10_tech-graph-scheme1-exec-converge.md`；`docs/harness/invokes/invoke_20260515_0000_10_tech-graph-scheme1-exec-converge-hat10.md`（链：`docs/harness/invokes/invoke_20260514_20_tech-graph-scheme1-review-hat20.md`）  
 > **test_strategy**：`required`  
 > **test_strategy_note**：方案1 核心是 **确定性解析 + 无漂移门禁**；若无 pytest 锁解析与 `--check` 行为，PR 易静默破坏图语义，违背 Harness §5 与 SPEC「CI 门禁」。  
 > **freeze_id**：`TECH_GRAPH_S1_FREEZE_20260514_V1_1_3`
