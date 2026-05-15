@@ -5,7 +5,7 @@
 
 ## 设计中
 
-- [技术图谱 · 方案1 `graph.json` 导出与 CI 门禁（后端）](../active/task_engineering_tech_graph_graph_json_export_v1.md) — `draft`
+- [技术图谱 · 闸口 A — `graph.json` vs Mermaid（代号 A/B）性能对比（后端）](../active/task_engineering_tech_graph_gate_a_perf_compare_v1.md) — `draft`
 
 ## 缺少状态字段（请补齐后再归类）
 
