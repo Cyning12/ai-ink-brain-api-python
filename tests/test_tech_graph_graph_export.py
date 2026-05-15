@@ -86,3 +86,23 @@ def test_run_check_json_matches(tmp_path: Path) -> None:
     p = build_graph_payload(d, generated_at="2026-05-14T12:00:00Z")
     out.write_text(json.dumps(p, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     assert run_check(input_root=d, output_path=out) == 0
+
+
+def test_class_diagram_golden_has_metadata(tmp_path: Path) -> None:
+    """golden：classDiagram --> 归一为 has_metadata。"""
+    d = tmp_path / "docs" / "_tech_graph"
+    d.mkdir(parents=True)
+    (d / "03_class.ai.md").write_text(
+        "```mermaid\n"
+        "classDiagram\n"
+        "  documents --> FileMeta : metadata\n"
+        "```\n",
+        encoding="utf-8",
+    )
+    raw = collect_raw_edges(d)
+    assert len(raw) == 1
+    assert raw[0].source == "documents" and raw[0].target == "FileMeta"
+    payload = build_graph_payload(d, generated_at="2026-05-15T00:00:00Z")
+    types = {(e["from"], e["to"], e["type"], e["sync"]) for e in payload["edges"]}
+    assert ("documents", "FileMeta", "has_metadata", True) in types
+    assert "documents" in payload["nodes"] and "FileMeta" in payload["nodes"]

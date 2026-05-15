@@ -183,6 +183,7 @@ python -c "import json; p='docs/_tech_graph/graph.json'; g=json.load(open(p,enco
 ## 12. 依赖链接（相对本仓根）
 
 - `tools/tech_graph_graph_export.py`  
+- `tools/tech_graph_token_estimate.py`（闸口 A §3 可选 **Agent/LM context** 附录；`--json`）  
 - `tools/tech_graph_contract_check.py`  
 - `tests/test_tech_graph_graph_export.py`  
 - `.github/workflows/tech-graph.yml`  
@@ -195,3 +196,4 @@ python -c "import json; p='docs/_tech_graph/graph.json'; g=json.load(open(p,enco
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-15 | v1：从 `gate_a_scheme1_backend.md` §48 起拆出后端 SOP、failure_paths 与记录模板 |
+| 2026-05-15 | §12：链入 `tools/tech_graph_token_estimate.py`（闸口 A token 附录） |

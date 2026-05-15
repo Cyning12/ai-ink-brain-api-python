@@ -1,6 +1,6 @@
 # Task：技术图谱 — 方案1 静态 `graph.json` 导出与 CI 门禁（后端仓）
 
-> **状态**：`draft`  
+> **状态**：`in_progress`（后端仓 `agent-v3`：导出脚本 / pytest / `tech-graph` CI 已落地；合并 `main` 后可改 `implemented` 并归档）  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**（含 **2026-05-15** 勘误行：R1 与 scheme_1「PR 必绿」一致）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
 > **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`；`docs/harness/invokes/invoke_20260514_0031_10_tech-graph-scheme1-exec-converge.md`；`docs/harness/invokes/invoke_20260515_0000_10_tech-graph-scheme1-exec-converge-hat10.md`（链：`docs/harness/invokes/invoke_20260514_20_tech-graph-scheme1-review-hat20.md`）  
 > **test_strategy**：`required`  
@@ -48,17 +48,22 @@
 | 契约门禁 | `ai-ink-brain-api-python/tools/tech_graph_contract_check.py` |
 | 契约真值 | `ai-ink-brain-api-python/docs/_tech_graph/_contract_manifest.json` |
 | 拓扑协议 | `ai-ink-brain-api-python/docs/_tech_graph/99_mermaid_protocol.md`（若存在） |
-| 工作区双轨 / 拓扑 | `AGENTS.md`（§7） |
+| 闸口 A · token 附录 | `ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_gate_a_token_compare_v1.md`；`tools/tech_graph_token_estimate.py` |
 
 ---
 
 ## 4. 验收标准（可勾选 / 可命令）
 
-- [ ] 在本仓根执行：`python tools/<export_script>.py` 生成/更新 `docs/_tech_graph/graph.json`（脚本名由实现 PR 定稿）。  
-- [ ] `python tools/<export_script>.py --check`：与仓库内已提交 `graph.json` 一致则 **退出码 0**；不一致则 **非 0**，且 stderr 指明差异类型（文件缺失 / schema / 边集合等）。  
-- [ ] **pytest** 子集（或新增文件）覆盖：解析失败、空图、至少一条 **golden** `.ai.md` 片段 → 期望 JSON 子集。  
-- [ ] `python tools/tech_graph_contract_check.py` 仍可通过（本 task 不改契约语义则保持绿）。  
-- [ ] PR 说明中写清：**contract 门禁** 与 **graph 门禁** 两条命令及顺序。
+- [x] 在本仓根执行：`python tools/tech_graph_graph_export.py` 生成/更新 `docs/_tech_graph/graph.json`。  
+- [x] `python tools/tech_graph_graph_export.py --check`：与仓库内已提交 `graph.json` 一致则 **退出码 0**；不一致则 **非 0**，且 stderr 指明差异类型（文件缺失 / schema / 边集合等）。  
+- [x] **pytest**：`tests/test_tech_graph_graph_export.py`（解析失败、空图、flowchart / classDiagram golden、`--check` 路径）。  
+- [x] `python tools/tech_graph_contract_check.py` 仍可通过（与 graph 导出 **并行**，见 `tech-graph-contract.yml`）。  
+- [x] PR 说明中写清：**contract 门禁** 与 **graph 门禁** 两条命令及顺序（模板见下「CI 命令摘要」）；PR #26 已附 Actions run 链接。
+
+**CI 命令摘要（可粘贴 PR）**
+
+1. Graph：`python tools/tech_graph_manifest_check.py` → `python tools/tech_graph_graph_export.py --check` → `python tools/tech_graph_token_estimate.py --json`（`.github/workflows/tech-graph.yml` · job `manifest_check`）。  
+2. Contract：`python tools/tech_graph_contract_check.py`（`.github/workflows/tech-graph-contract.yml`，双 checkout；与上并行、独立失败）。
 
 ---
 
@@ -101,7 +106,10 @@
 |----|------|
 | 导出脚本路径 | `tools/tech_graph_graph_export.py` |
 | pytest 路径 | `tests/test_tech_graph_graph_export.py` |
-| CI workflow / job | `.github/workflows/tech-graph.yml` → job `manifest_check`（步骤顺序：`tech_graph_manifest_check.py` → `tech_graph_graph_export.py --check`）；契约门禁仍为 `.github/workflows/tech-graph-contract.yml` → `contract_check`（**与 graph 并行、独立脚本**） |
+| CI workflow / job | `.github/workflows/tech-graph.yml` → job `manifest_check`（`tech_graph_manifest_check.py` → `tech_graph_graph_export.py --check` → `tech_graph_token_estimate.py --json`）；契约门禁仍为 `.github/workflows/tech-graph-contract.yml` → `contract_check`（**与 graph 并行、独立脚本**） |
+| PR #26（agent-v3 → main） | https://github.com/Cyning12/ai-ink-brain-api-python/pull/26 |
+| Actions run · tech-graph | https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101651 |
+| Actions run · tech-graph-contract | https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101628 |
 | 闸口 A 结论文档 | `docs/tech_graph/gate_a_scheme1_backend.md` |
 | 契约变更后 freeze_id | 若 bump 规划 / SPEC，须与前端 task **同一行**更新 **freeze_id**；实现 PR 可将 **短 commit hash** 记入 PR 描述（**不**写入本行 `freeze_id`，以免破坏机械比对） |
 

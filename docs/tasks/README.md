@@ -32,7 +32,7 @@ docs/tasks/
 
 ### 工程纪律索引（防口头约定漂移）
 
-- **ChatBI：新功能以 SSE 优先（团队纪律 task）**：[`active/task_engineering_chatbi_sse_first_v1.md`](active/task_engineering_chatbi_sse_first_v1.md) — 书面审查 R1：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md)
+- **ChatBI：新功能以 SSE 优先（团队纪律 task）**：[`done/task_engineering_chatbi_sse_first_v1.md`](done/task_engineering_chatbi_sse_first_v1.md) — 书面审查 R1：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md)；R2：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R2_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R2_20260515.md)
 
 ### 审查与复检产出（非 task 单）
 

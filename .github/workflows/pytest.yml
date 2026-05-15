@@ -7,6 +7,8 @@ on:
     branches:
       - main
       - production
+      # 与 tech-graph 对齐：本分支 push 也跑 pytest
+      - agent-v3
 
 jobs:
   pytest:
