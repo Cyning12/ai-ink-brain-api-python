@@ -1,6 +1,6 @@
 # Task：技术图谱 — 方案1 静态 `graph.json` 导出与 CI 门禁（后端仓）
 
-> **状态**：`in_progress`（后端仓 `agent-v3`：导出脚本 / pytest / `tech-graph` CI 已落地；合并 `main` 后可改 `implemented` 并归档）  
+> **状态**：`done（2026-05-15 验收通过）`  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**（含 **2026-05-15** 勘误行：R1 与 scheme_1「PR 必绿」一致）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
 > **invoke_snapshot**：`docs/tech_graph/invokes/invoke_20260514_0000_10_tech-graph-scheme1-dual-task-draft.md`；`docs/harness/invokes/invoke_20260514_0031_10_tech-graph-scheme1-exec-converge.md`；`docs/harness/invokes/invoke_20260515_0000_10_tech-graph-scheme1-exec-converge-hat10.md`（链：`docs/harness/invokes/invoke_20260514_20_tech-graph-scheme1-review-hat20.md`）  
 > **test_strategy**：`required`  
@@ -48,7 +48,7 @@
 | 契约门禁 | `ai-ink-brain-api-python/tools/tech_graph_contract_check.py` |
 | 契约真值 | `ai-ink-brain-api-python/docs/_tech_graph/_contract_manifest.json` |
 | 拓扑协议 | `ai-ink-brain-api-python/docs/_tech_graph/99_mermaid_protocol.md`（若存在） |
-| 闸口 A · token 附录 | `ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_gate_a_token_compare_v1.md`；`tools/tech_graph_token_estimate.py` |
+| 闸口 A · token 附录 | `ai-ink-brain-api-python/docs/tasks/done/task_engineering_tech_graph_gate_a_token_compare_v1.md`；`tools/tech_graph_token_estimate.py` |
 
 ---
 
