@@ -39,12 +39,8 @@ pytest tests/test_tech_graph_graph_export.py -q
 - **PR #26（已合并至 `main`，2026-05-15，merge commit `53bae076`）CI 留痕**：`tech-graph` [Actions run](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101651)（Summary Success，总时长约 7s）；`tech-graph-contract` [Actions run](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905101628)（Summary Success，总时长约 10s）；**pytest**（`.github/workflows/pytest.yml`，展示名 **`pytest`**）：[Actions run](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25905248066)（`push` / `888e86a`，Summary Success；R3 **pytest** 独立 URL 选用本 run）。
 - **tech-graph（CI）留痕**：workflow run（job `manifest_check`）— [GitHub Actions run / job](https://github.com/Cyning12/ai-ink-brain-api-python/actions/runs/25897412659/job/76113312774)（merge PR #25；日志头 **checkout `fb0b54c…`**；**job 总时长约 5s**；其中 step **「Tech graph graph.json drift check」** UI 约 **1s**、日志内脚本执行约 **0s～1s** 量级属正常取整）。Runner：`ubuntu-latest`，Python **3.11.15**（hostedtoolcache）。
 - **Token 附录工具（本地/CI）**：`python tools/tech_graph_token_estimate.py`（默认 Markdown；`--json` 一行）；与 `graph_export` **同输入根**；CI 见 `tech-graph` workflow step **「Tech graph token estimate (Gate A appendix)」**。
-- **Token 粗估 `--json` 快照（本地 cwd=本仓根，2026-05-15；与 `docs/_tech_graph/graph.json` 已提交版一致）**：
-
-```json
-{"schema": "tech_graph_token_estimate_v1", "input_root": "docs/_tech_graph", "graph_json": "docs/_tech_graph/graph.json", "A": {"bytes_utf8": 20224, "chars": 20224, "heuristic_tokens": 5056}, "B": {"bytes_utf8": 20953, "chars": 20105, "heuristic_tokens": 5026}, "ratio_B_per_A": {"bytes_utf8": 1.036, "heuristic_tokens": 0.9941}, "rules": {"heuristic_tokens": "chars//4, min 1; not official tiktoken"}}
-```
-- 性能对比验收完成后，在本小节追加 **对比分支/commit、跑数环境、原始日志或导出表格路径**（本小节已含 §3.1 首批后端采样，可继续叠代）。
+- **`--json` 全文与 §3.1 计时/字节主表（单一真值）**：见专文 [`gate_a_scheme1_perf_compare_backend_detail.md` §9（锚点 `#sec9-perf-backend`）](./gate_a_scheme1_perf_compare_backend_detail.md#sec9-perf-backend)；**勿**在父文档重复粘贴以免与 **FP-G** 类双轨漂移。
+- 性能对比验收完成后，可在本小节追加 **对比分支/commit、跑数环境、原始日志路径**；**表格数字**以专文 §4 / §9 为准并回链 PR。
 
 ### 术语消歧：**代号** A/B（对比对象）≠ **计时** A/B（跑数环境）
 
@@ -62,37 +58,13 @@ pytest tests/test_tech_graph_graph_export.py -q
 - **已满足（后端子集 / §3.1）**：「中档」= 与仓内 **`docs/_tech_graph/*.ai.md`**（解析器跳过 `99_*`）同拓扑；与已提交 **`docs/_tech_graph/graph.json`** 对齐（当前体量见下表 **字节 / nodes / edges**）。即：**在只评「导出/校验/pytest/CI 步」时，第三步要求的固定样本已成立**。
 - **尚未完成（全链路 A vs B · 浏览器）**：父文档 **§2** 中 **代号 B** 的 Mermaid 源与 **§3.2** 所列 **浏览器运行时**指标，仅在 **用户页需渲染大图谱 Mermaid** 时作为主结论必测项。若产品上 **无**该形态，则 **§3.2 标为 N/A**（见 **「结论」** 下 **主结论口径**），全表结论与 **§5** 的浏览器向阈值 **不**强行套用；**Agent / LM 向**证据仍以 §3.1、`tech_graph_token_estimate` 附录与 `改进方向.md` 叙事为准。
 
-### 后端 §3.1 采样记录（`gate_a_scheme1_perf_compare_backend_detail.md` §9）
+### 后端 §3.1 采样记录（单一真值：专文 §9）
 
-**产物体量（与仓内已提交 `graph.json` 一致；本地文档落盘时可随 bump 更新一行计数）**
-
-| 项 | 值 |
-| --- | --- |
-| `graph.json` 字节 | 20224 |
-| nodes / edges | 134 / 180 |
-| CI 对应 commit | `fb0b54c`（merge PR #25，见 Actions 日志） |
+**数字主表**（产物字节、nodes/edges、`--json`、**计时 A / 计时 B** 表）：见 [`gate_a_scheme1_perf_compare_backend_detail.md` §9（`#sec9-perf-backend`）](./gate_a_scheme1_perf_compare_backend_detail.md#sec9-perf-backend)。本节仅保留 **CI 链接** 与 **术语消歧**；**禁止**在此处另起一套不一致的秒级数字。
 
 **CI（已回填）**：见上节 **tech-graph** run 链接；merge **commit `fb0b54c`**（以 Actions checkout 为准）。同一 run 内 step **「Tech graph graph.json drift check」** 约 **1s**（与 UI 一致）。
 
-**计时 A — 维护者本机（终端粗测，N=1～2，cwd=本仓根）**
-
-| 指标 | real（s） | 备注 |
-| --- | --- | --- |
-| `python tools/tech_graph_graph_export.py` | ~0.12 | 单次 |
-| `python tools/tech_graph_graph_export.py --check` | ~0.12 / ~0.11 | 两次 |
-| `pytest tests/test_tech_graph_graph_export.py -q`（整进程 `/usr/bin/time`） | ~0.45 | pytest 内部约 0.01s 为收集内耗时 |
-
-**计时 B — N=10 批跑（Agent：`/usr/bin/time -p`；输入为 `docs/_tech_graph` 同内容 `.ai.md` 复制至临时目录，**不写仓内** `graph.json`；跑完目录已删）**
-
-| 指标 | P50 (s) | P95 (s) | min–max (s) |
-| --- | --- | --- | --- |
-| 导出（写临时 `graph.json`） | 0.030 | 0.035 | 0.030–0.040 |
-| `--check`（对临时产物） | 0.030 | 0.030 | 0.030–0.030 |
-| `pytest tests/test_tech_graph_graph_export.py`（整进程） | 0.390 | 0.400 | 0.390–0.400 |
-
-> 注：上表 N=10 在本地开发提交 **`42a6419`** 上跑数；与上表 **CI `fb0b54c`** 若不一致，以 **CI commit** 为线上真值，**P50/P95** 可在同 commit 上重跑覆盖。
-
-**说明**：「**计时 A**（本机粗测）」与「**计时 B**（Agent N=10）」两列的秒级差异来自机器负载、`time` 粒度与冷启动等，**与 §2 代号 A/B（JSON vs Mermaid）不是同一概念**。主结论应写清以哪列为主真值（建议：**本机同 commit 再跑 N≥7** 与 Agent 表并列）；Agent 批跑用于 **同口径 P50/P95** 的辅助记录。
+**说明**：「**计时 A**（本机粗测）」与「**计时 B**（Agent N=10）」**不是**「§2 代号 A / §2 代号 B（JSON vs Mermaid 消费链）」；主结论阅读见上文 **「结论句怎么读」**。
 
 ## 结论
 
@@ -117,7 +89,7 @@ pytest tests/test_tech_graph_graph_export.py -q
 
 > **边界**：**生成与校验成本** 在本仓（`ai-ink-brain-api-python`）完成。**本轮主结论以 Agent / LLM 消费为主**（见上文 **「结论」→ 主结论口径**）。**页面首屏 / 交互 / 包体 / 浏览器内解析**（§3.2）仅在 **`ai-ink-brain` 产品需在用户页渲染大图谱 Mermaid** 时作为主必测项；否则 §3.2 **N/A**，全链路书面结论仍只维护 **本文件一处**。`ai-ink-brain` 侧须在 task 中链回本节；若未来启用 §3.2，在 **「仓库或 CI 快照引用」** 回链数据路径（见 **链回要求**）。
 
-**后端先行（SOP）**：§3.1 采集的逐步说明、**failure_paths** 与记录模板见 [`gate_a_scheme1_perf_compare_backend_detail.md`](./gate_a_scheme1_perf_compare_backend_detail.md)。前端 §3.2 建议复用该文档的统计口径与表格结构；全链路结论句仍只写回本文件 **「结论」** 与 **§6**。  
+**后端先行（SOP）**：§3.1 采集的逐步说明、**failure_paths**、**签收总表（§4）** 与 **§9 主数字表** 见 [`gate_a_scheme1_perf_compare_backend_detail.md`](./gate_a_scheme1_perf_compare_backend_detail.md)。**PR 描述须写一句**：**总对比表主真值在 `gate_a_scheme1_perf_compare_backend_detail.md` 专文**（与 task §8 待确认对齐）。前端 §3.2 建议复用该文档的统计口径与表格结构；全链路结论句仍只写回本文件 **「结论」** 与 **§6**。  
 **链回要求**：`ai-ink-brain` 侧 graph.json / 闸口 A 任务须在正文或依赖表中 **显式链回** 本文件及上列 SOP（避免「父文档写了、子仓 task 未写」的双轨漂移）。
 
 ### 1. 目标与问题陈述
@@ -142,6 +114,18 @@ pytest tests/test_tech_graph_graph_export.py -q
 
 ### 3. 指标（建议最小集）
 
+#### 3.0 签收用总对比表（浏览器向 N/A + 主真值锚点）
+
+> **主真值**：[`gate_a_scheme1_perf_compare_backend_detail.md` §4（`#sec4-master-table`）](./gate_a_scheme1_perf_compare_backend_detail.md#sec4-master-table)（与下表语义一致；**§3.2 浏览器**整列 **N/A**，理由见 **[「结论」→ 与 §3.2 / §5 的关系](#结论)**，避免 **FP-D / FP-E**）。
+
+| §3 维度 | §2 代号 A（`graph.json`） | §2 代号 B（Mermaid 语料） | §3.2 浏览器向 | 备注 |
+| --- | --- | --- | --- | --- |
+| Agent / LM 载荷与启发式 token | 见专文 §9 `--json` **A** 字段 | 见专文 §9 **B** 字段 | **N/A** | 命令：`python tools/tech_graph_token_estimate.py --json` |
+| 冷解析 / 首帧 / 包体（浏览器） | — | — | **N/A** | 启用 §3.2 须 **`ai-ink-brain` 产品 task**；未启用前**不**采数入主结论 |
+| 后端生成 · 校验 · 单测 · CI（§3.1） | 见专文 §9 **计时 A / 计时 B**（**勿**与 §2 代号混读） | 同左（非消费链 B） | **N/A** | 命令真值：`tech_graph_graph_export.py`；**禁止** `export_graph_json.py`（**FP-H**） |
+
+#### 3.0b §3 主指标分解（与 3.0 签收总表互补 · 设计参考）
+
 | 维度 | A（JSON） | B（Mermaid） | 采集建议 |
 | --- | --- | --- | --- |
 | **载荷体积** | HTTP/磁盘字节数；gzip/br 后字节数 | 同上 | Network 面板或构建产物统计 |
@@ -161,7 +145,7 @@ pytest tests/test_tech_graph_graph_export.py -q
 | 单测成本 | 回归解析器与 golden 的耗时 | `time pytest tests/test_tech_graph_graph_export.py -q` |
 | CI 步耗时 | `tech-graph` workflow 中含 `--check` 的 step | GitHub Actions 日志中该 step 的 **Duration**；须记录 **runner 镜像标签** 与日期 |
 
-**说明**：上表与上文「指标（最低集）」互补；性能对比主结论仍以 **§3 全表** 为准，后端子表用于证明「生成侧不是瓶颈」或暴露需优化的导出热点。
+**说明**：上表与上文「指标（最低集）」互补。**§3 全表**在 **§3.2 为 N/A** 时：浏览器相关格 **允许且应当** 填 **N/A + 理由**（见 **[「结论」](#结论)**）；**数值主结论**以 **Agent 向 + §3.1 + token 附录**（专文 §9）为准，**不**强行套用 **§5** 浏览器向阈值（与 task §9 **T-1** 对齐）。后端子表用于证明「生成侧不是瓶颈」或暴露需优化的导出热点。
 
 ### 3.2 前端仓 `ai-ink-brain`（运行时消费 · 可选）
 
@@ -210,11 +194,11 @@ pnpm build
 
 ### 6. 交付物清单（性能验收完成定义）
 
-- [ ] **总对比表**（A/B、§3 各维度、小/中样本、P50/P95；**Agent 向**指标为必含项；**浏览器向**指标若 §3.2 为 N/A 则标注 N/A 与理由）。  
-- [ ] **后端子表**（§3.1：导出、`--check`、单测、CI step；附 run id 或本地 `time` 输出路径）。  
-- [ ] **前端子表**（§3.2：若 **N/A** 则一行声明「用户页无大图谱 Mermaid」并链至 **「结论」→ 主结论口径**；若启用则填包体、冷解析、首屏/LCP、quality 增量；注明页级或 micro-benchmark）。  
-- [ ] 等价性说明与差异声明（若有）。  
-- [ ] 书面结论一句：**可进入方案2 / 暂缓方案2 / 附条件进入**，并与本文件「结论」互链或同步改写。  
+- [x] **总对比表**（§3 **3.0** 行 + 专文 [`gate_a_scheme1_perf_compare_backend_detail.md` §4（`#sec4-master-table`）](./gate_a_scheme1_perf_compare_backend_detail.md#sec4-master-table)；**Agent 向**已含；**浏览器向** **N/A** 并链 **[「结论」](#结论)**）。  
+- [x] **后端子表**（§3.1：专文 **§9**；CI run 与 commit 见 **「仓库或 CI 快照引用」**）。  
+- [x] **前端子表**（§3.2：**N/A**；一行声明 + 链 **[「结论」→ 主结论口径](#结论)**）。  
+- [x] 等价性说明与差异声明（专文 **§5**；无拓扑不一致故未单列附录）。  
+- [x] 书面结论一句：与本文件 **「结论」** 中 **暂缓方案2** 互链一致。  
 
 ---
 
@@ -226,7 +210,8 @@ pnpm build
 | 2026-05-15 | 入库 CI run URL（tech-graph / `manifest_check` / merge `fb0b54c`）；增「术语消歧：代号 A/B vs 计时 A/B」 |
 | 2026-05-15 | §2 增补「B vs `docs/_tech_graph`」消歧；§3 增可选 **Agent/LM token** 维度（与规划、闸口 B 对齐） |
 | 2026-05-15 | 落地 `tools/tech_graph_token_estimate.py`、pytest、`tech-graph` CI step；快照区链命令 |
-| 2026-05-15 | 「仓库或 CI 快照引用」回填 `tech_graph_token_estimate.py --json` 一行（本地 2026-05-15） |
+| 2026-05-15 | 「仓库或 CI 快照引用」曾回填 `tech_graph_token_estimate.py --json` 一行（本地 2026-05-15）；**全文**后迁至专文 **§9**（见同日末条修订） |
 | 2026-05-15 | §2：写明 `graph.json` 与 `*.ai.md` 母集合关系；**默认 B** 与 `tech_graph_token_estimate` 对齐 |
 | 2026-05-15 | PR #26 开 PR CI：`tech-graph` / `tech-graph-contract` Actions run URL 回填本小节 |
 | 2026-05-15 | 「结论」增 **主结论口径**：用户页无大图谱 Mermaid；Agent/LLM 三目标；§3.2 标 N/A；§5§6§第三步联动修订 |
+| 2026-05-15 | 新建 `gate_a_scheme1_perf_compare_backend_detail.md`（§4 总表、§9 单一真值）；§3 **3.0** 签收总表；§6 勾选与专文互链；`--json` 主文迁至专文 §9 |
