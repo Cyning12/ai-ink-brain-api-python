@@ -39,15 +39,17 @@ Unified Chat 的 **观测与产品主路径** 已以 **`POST /api/py/unified/cha
 ## 4. 验收标准
 
 - [ ] 后续 **含 Unified 行为变更** 的 task 在 **§实现备忘** 或 **非范围** 中显式写明 **「SSE 与 JSON 是否同时交付」**；默认 **同时** 除非豁免理由一行。  
-- [ ] 总规或子规索引处（可选）链回本文件，避免口头约定漂移。
+- [x] 总规或子规索引处（可选）链回本文件，避免口头约定漂移。已落锚：本仓 [`docs/tasks/README.md`](../README.md) → **工程纪律索引**。
 
 ---
 
 ## 5. failure_paths
 
-| ID | 触发 | 行为 |
-|----|------|------|
-| FP-1 | 仅 JSON 合入、SSE 漏接且 task 未豁免 | **Code Review 打回** 或补 follow-up task |
+与 `docs/harness/HARNESS_V2_PLAN.md` §5.3 对齐：**触发条件** → **系统/流程行为** → **是否可重试** → **用户可见文案类型**（不适用列显式 `N/A`）。
+
+| ID | 触发 | 行为 | 是否可重试 | 用户可见文案类型 |
+|----|------|------|------------|------------------|
+| FP-1 | 仅 JSON 合入、SSE 漏接且 task 未豁免 | **Code Review 打回** 或补 follow-up task | 否（须修订实现或补充/豁免 task 后重新发起 MR） | `N/A`（流程/CR 闸门；无面向终端用户的可见文案类型） |
 
 ---
 
@@ -55,6 +57,14 @@ Unified Chat 的 **观测与产品主路径** 已以 **`POST /api/py/unified/cha
 
 1. 读本单 **§2**。  
 2. 改 `unified_chat` 时同时打开 **`handle_unified_chat`** 与 **`handle_unified_chat_stream`**  diff。
+
+---
+
+## 7. 修订记录
+
+| 日期 | 摘要 |
+|------|------|
+| 2026-05-15 | **按审查 R1 回填**：[`../../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md`](../../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md) — §5 `failure_paths` 增补 `HARNESS_V2_PLAN.md` §5.3 建议列（可重试性、用户可见类型；不适用处标 `N/A`）；§4 验收第 2 条在 [`../README.md`](../README.md)「工程纪律索引」回链。 |
 
 ---
 
