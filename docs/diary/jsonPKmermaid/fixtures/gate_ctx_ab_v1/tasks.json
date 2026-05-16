@@ -168,6 +168,95 @@
         },
         "verified_by": "rg 2026-05-16：index unified_chat_stream_route L574、unified_chat_route L566；unified_chat handle_unified_chat_stream L1980、handle_unified_chat L808、_event L63；chatbi require_chatbi_principal L202；agent.llm.* @ api/agent.py + unified_chat truncated 队列；_manifest.json / _contract_manifest.json"
       }
+    },
+    {
+      "task_id": "T003_ingest_admin_rpc",
+      "topic_id": "ingest_rpc",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整 **Admin Ingest** 链路：在 `POST /api/py/admin/ingest`（markdown/code）或同步任务 `POST /api/py/admin/sync` 中，变更向量写入、`documents` 表操作或 Supabase RPC（如 `refresh_documents_fts_tokens_for_paths`）的行为。请列出 HTTP 入口、ingest 实现函数、鉴权依赖，以及下游数据/RPC/检索/RAG 影响面；给出可核验 evidence（图谱节点 id 或 path+symbol）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/index.py",
+            "symbol": "py_admin_ingest",
+            "graph_id": "A2",
+            "note": "L1032；POST /api/py/admin/ingest → process_markdown_files | process_code_files"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "symbol": "process_markdown_files",
+            "graph_id": "A2",
+            "note": "L253；content markdown → chunk → embed → documents 表"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "py_admin_sync_post",
+            "graph_id": "A1",
+            "note": "L989；POST /api/py/admin/sync 202 + 后台 run_sync_job_sync"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "symbol": "run_sync_job_sync",
+            "graph_id": "A1",
+            "note": "L418；同步任务执行体"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "_require_auth",
+            "graph_id": "AUTH",
+            "note": "L165；admin ingest/sync 路由鉴权（x-admin-token 等）"
+          },
+          {
+            "path": "api/code_ingest.py",
+            "symbol": "process_code_files",
+            "graph_id": "A2",
+            "note": "L180；admin ingest type=code 分支"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "api/rag_env.py",
+            "kind": "data",
+            "graph_id": "ENV",
+            "note": "ingest 写入前校验 len(vec) 与 expected_embedding_dim()"
+          },
+          {
+            "path": "supabase/sql",
+            "kind": "data",
+            "graph_id": "VEC",
+            "note": "documents / code_chunks 表结构与 vector 维度"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "kind": "data",
+            "graph_id": "RPC",
+            "note": "sb.rpc refresh_documents_fts_tokens_for_paths 等 FTS 刷新"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "RAG",
+            "note": "入库内容变更影响后续 match_documents / 召回"
+          },
+          {
+            "path": "docs/_tech_graph/_manifest.json",
+            "kind": "contract",
+            "graph_id": "A2",
+            "note": "admin 端点与 RPC 清单；改路由须同步 manifest"
+          },
+          {
+            "path": "tools/tech_graph_manifest_check.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "端点/RPC 漂移门禁"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        },
+        "verified_by": "rg 2026-05-16：index py_admin_ingest L1032、py_admin_sync_post L989、_require_auth L165；ingest_pipeline process_markdown_files L253、run_sync_job_sync L418；code_ingest process_code_files L180；refresh_documents_fts_tokens_for_paths L303/L370；_manifest.json admin 端点"
+      }
     }
   ]
 }

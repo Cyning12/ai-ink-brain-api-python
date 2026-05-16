@@ -14,7 +14,7 @@
 | task_id 建议 | topic_id | 聚焦 |
 |--------------|----------|------|
 | `T002_unified_sse_chain_contract` | `unified_chat_sse` | **已写入 tasks.json**；rg 已核验符号（见 gold.verified_by） |
-| `T003_ingest_rpc` | `ingest_rpc` | admin ingest / RPC / 向量入库 |
+| `T003_ingest_admin_rpc` | `ingest_rpc` | **已写入 tasks.json**；rg 已核验（见 gold.verified_by） |
 | `T003_text2sql_route` | `text2sql_branch` | Text2SQL 路由与子流程 |
 | `T004_auth_chatbi` | `auth_chatbi` | 鉴权与 ChatBI verify |
 
