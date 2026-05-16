@@ -62,6 +62,8 @@ docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/
 
 ## Step 3 — 跑 S0 × 2 分支（各 1 次）
 
+**状态（2026-05-16）**：已跑通 → [`runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/`](./runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)（脚本 [`fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py`](./fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py)）。
+
 对 **同一 `task_id`**：
 
 1. System：固定 persona（写进 `protocol_version` 或单独 `system.md`）。  
@@ -89,6 +91,8 @@ docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/
 ---
 
 ## Step 5 — 写 1 页小结（再决定是否扩 S1/S2）
+
+**状态（2026-05-16）**：初版 → [`reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](./reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)
 
 `docs/diary/jsonPKmermaid/reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`：
 
