@@ -51,6 +51,23 @@ python …/run_s0_minimal.py --arms-order json,mermaid
 - 旧顺序：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)  
 - 异常：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_104123/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_104123/)
 
-## 5. 未覆盖
+## 5. 如何避免「谁先谁慢」（顺序偏差）
+
+| 方案 | 能否完全避免 | 说明 |
+|------|----------------|------|
+| **串行 + 调换 `--arms-order`** | 否 | 只能把冷启动换到指定 arm，仍不公平 |
+| **`--parallel` 同时发两请求** | **部分** | 两分支各自 `wall_total_s` 独立计时，**都不占「对方暖机后的第二条」**；网关仍可能排队，两路可能同时变慢 |
+| **丢弃首轮 + 重复 R 次取中位数** | 否（但可减弱） | 例如每 arm 连跑 2 次，只记第 2 次；成本 ×2 |
+| **统一 warmup** | 否（但可减弱） | 先发极小 prompt 不计入统计，再正式 S0 |
+
+**推荐（minimal 阶段）**：正式对比用
+
+```bash
+python …/run_s0_minimal.py --parallel
+```
+
+`index.json` 会写 `execution_mode: parallel` 与 `batch_wall_total_s`（两请求并发时的外层墙钟）。
+
+## 6. 未覆盖
 
 S1/S2、双人 Rubric、入口/影响 F1 对 gold 计分。

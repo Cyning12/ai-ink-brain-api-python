@@ -19,6 +19,9 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.p
 
 # 与旧 run 相同顺序（先 JSON）
 python …/run_s0_minimal.py --arms-order json,mermaid
+
+# 并行（削弱顺序偏差；推荐做 A/B 墙钟对比）
+python …/run_s0_minimal.py --parallel
 ```
 
 **Step 1 完成标准**：本目录四文件齐全；`tasks.json` 中 `gold` 路径可在仓内 `rg` 核验。

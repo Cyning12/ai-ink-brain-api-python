@@ -17,6 +17,7 @@ import argparse
 import json
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -244,7 +245,104 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--protocol", type=Path, default=PROTOCOL_PATH, help="protocol_version.yaml 路径")
     p.add_argument("--request-timeout", type=float, default=300.0, help="单次 HTTP 超时（秒）")
     p.add_argument("--task-id", default=None, help="tasks.json 中的 task_id，默认第一条")
+    p.add_argument(
+        "--parallel",
+        action="store_true",
+        help="两分支同时发起 HTTP 请求，削弱「串行时仅首轮吃冷启动」的顺序偏差",
+    )
     return p.parse_args()
+
+
+def _execute_arm(
+    *,
+    call_index: int,
+    arm: str,
+    main_label: str,
+    main_text: str,
+    manifest: str,
+    contract: str,
+    task_prompt: str,
+    system: str,
+    model: str,
+    api_key: str,
+    base_url: str,
+    max_tokens: int,
+    temperature: float,
+    request_timeout: float,
+    run_id: str,
+    arm_ids: list[str],
+    task_id: str,
+    protocol_version: str,
+    provider: str,
+    execution_mode: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """返回 (record, summary_row)。"""
+    user = _build_user_message(
+        arm=arm,
+        main_label=main_label,
+        main_text=main_text,
+        manifest=manifest,
+        contract=contract,
+        task_prompt=task_prompt,
+    )
+    returned_model: str | None = None
+    try:
+        response, usage_meta, returned_model = _call_chat_json(
+            system=system,
+            user=user,
+            model=model,
+            api_key=api_key,
+            base_url=base_url,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            request_timeout=request_timeout,
+        )
+        val_errs = _validate_response(response)
+        parse_ok = len(val_errs) == 0
+        status = "ok" if parse_ok else "invalid_schema"
+    except Exception as e:  # noqa: BLE001
+        response = {"error": str(e)}
+        usage_meta = {
+            "wall_total_s": None,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        val_errs = [f"api_error:{e}"]
+        parse_ok = False
+        status = "error"
+
+    record = {
+        "schema": "gate_ctx_ab_s0_record_v1",
+        "run_id": run_id,
+        "arm": arm,
+        "call_index": call_index,
+        "arms_order": arm_ids,
+        "execution_mode": execution_mode,
+        "task_id": task_id,
+        "segment": "S0",
+        "protocol_version": protocol_version,
+        "model_requested": model,
+        "model_returned": returned_model,
+        "provider": provider,
+        "status": status,
+        "parse_ok": parse_ok,
+        "validation_errors": val_errs,
+        "usage": usage_meta,
+        "response": response,
+    }
+    summary = {
+        "call_index": call_index,
+        "arm": arm,
+        "status": status,
+        "parse_ok": parse_ok,
+        "prompt_tokens": usage_meta.get("prompt_tokens"),
+        "completion_tokens": usage_meta.get("completion_tokens"),
+        "wall_total_s": usage_meta.get("wall_total_s"),
+        "model_returned": returned_model,
+        "file": f"{arm}_{task_id}_S0.jsonl",
+    }
+    return record, summary
 
 
 def main() -> int:
@@ -302,87 +400,87 @@ def main() -> int:
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"model={model} arms_order={','.join(arm_ids)} timeout={args.request_timeout}s", flush=True)
+    execution_mode = "parallel" if args.parallel else "sequential"
+    print(
+        f"model={model} mode={execution_mode} arms_order={','.join(arm_ids)} "
+        f"timeout={args.request_timeout}s",
+        flush=True,
+    )
+
+    arm_index = {arm_id: i + 1 for i, arm_id in enumerate(arm_ids)}
+    common_kw = {
+        "manifest": manifest,
+        "contract": contract,
+        "task_prompt": task["prompt_zh"],
+        "system": system,
+        "model": model,
+        "api_key": api_key,
+        "base_url": base_url,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "request_timeout": args.request_timeout,
+        "run_id": run_id,
+        "arm_ids": arm_ids,
+        "task_id": task_id,
+        "protocol_version": protocol_version,
+        "provider": cfg.backend,
+        "execution_mode": execution_mode,
+    }
+
+    results_by_arm: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
+    batch_wall_s: float | None = None
+
+    if args.parallel:
+        print(f"并行发起 {len(arms)} 个请求 …", flush=True)
+        batch_t0 = time.perf_counter()
+
+        def _job(item: tuple[str, str, str]) -> tuple[str, dict[str, Any], dict[str, Any]]:
+            arm, label, text = item
+            rec, summ = _execute_arm(
+                call_index=arm_index[arm],
+                arm=arm,
+                main_label=label,
+                main_text=text,
+                **common_kw,
+            )
+            return arm, rec, summ
+
+        with ThreadPoolExecutor(max_workers=len(arms)) as pool:
+            futures = [pool.submit(_job, item) for item in arms]
+            for fut in as_completed(futures):
+                arm, record, summary = fut.result()
+                results_by_arm[arm] = (record, summary)
+                print(
+                    f"  完成 {arm} -> {summary['status']} wall={summary['wall_total_s']}s",
+                    flush=True,
+                )
+        batch_wall_s = round(time.perf_counter() - batch_t0, 3)
+        print(f"并行批次总墙钟 batch_wall_total_s={batch_wall_s}", flush=True)
+    else:
+        for arm, main_label, main_text in arms:
+            idx = arm_index[arm]
+            print(f"[{idx}/{len(arms)}] 调用 {arm} …", flush=True)
+            record, summary = _execute_arm(
+                call_index=idx,
+                arm=arm,
+                main_label=main_label,
+                main_text=main_text,
+                **common_kw,
+            )
+            results_by_arm[arm] = (record, summary)
+            print(
+                f"  -> {summary['status']} model_returned={summary['model_returned']} "
+                f"tokens={(summary.get('prompt_tokens') or 0) + (summary.get('completion_tokens') or 0)} "
+                f"wall={summary['wall_total_s']}s",
+                flush=True,
+            )
 
     summary_rows: list[dict[str, Any]] = []
-    call_index = 0
-
-    for arm, main_label, main_text in arms:
-        call_index += 1
-        user = _build_user_message(
-            arm=arm,
-            main_label=main_label,
-            main_text=main_text,
-            manifest=manifest,
-            contract=contract,
-            task_prompt=task["prompt_zh"],
-        )
-        print(f"[{call_index}/{len(arms)}] 调用 {arm} …", flush=True)
-        returned_model: str | None = None
-        try:
-            response, usage_meta, returned_model = _call_chat_json(
-                system=system,
-                user=user,
-                model=model,
-                api_key=api_key,
-                base_url=base_url,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                request_timeout=args.request_timeout,
-            )
-            val_errs = _validate_response(response)
-            parse_ok = len(val_errs) == 0
-            status = "ok" if parse_ok else "invalid_schema"
-        except Exception as e:  # noqa: BLE001
-            response = {"error": str(e)}
-            usage_meta = {
-                "wall_total_s": None,
-                "prompt_tokens": 0,
-                "completion_tokens": 0,
-                "total_tokens": 0,
-            }
-            val_errs = [f"api_error:{e}"]
-            parse_ok = False
-            status = "error"
-
-        record = {
-            "schema": "gate_ctx_ab_s0_record_v1",
-            "run_id": run_id,
-            "arm": arm,
-            "call_index": call_index,
-            "arms_order": arm_ids,
-            "task_id": task_id,
-            "segment": "S0",
-            "protocol_version": protocol_version,
-            "model_requested": model,
-            "model_returned": returned_model,
-            "provider": cfg.backend,
-            "status": status,
-            "parse_ok": parse_ok,
-            "validation_errors": val_errs,
-            "usage": usage_meta,
-            "response": response,
-        }
-        out_path = raw_dir / f"{arm}_{task_id}_S0.jsonl"
+    for arm_id in arm_ids:
+        record, summary = results_by_arm[arm_id]
+        out_path = raw_dir / summary["file"]
         out_path.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
-        summary_rows.append(
-            {
-                "call_index": call_index,
-                "arm": arm,
-                "status": status,
-                "parse_ok": parse_ok,
-                "prompt_tokens": usage_meta.get("prompt_tokens"),
-                "completion_tokens": usage_meta.get("completion_tokens"),
-                "wall_total_s": usage_meta.get("wall_total_s"),
-                "model_returned": returned_model,
-                "file": out_path.name,
-            }
-        )
-        print(
-            f"  -> {status} model_returned={returned_model} "
-            f"tokens={usage_meta.get('total_tokens')} wall={usage_meta.get('wall_total_s')}s",
-            flush=True,
-        )
+        summary_rows.append(summary)
 
     index = {
         "schema": "gate_ctx_ab_run_index_v1",
@@ -392,6 +490,8 @@ def main() -> int:
         "protocol_version": protocol_version,
         "model_requested": model,
         "arms_order": arm_ids,
+        "execution_mode": execution_mode,
+        "batch_wall_total_s": batch_wall_s,
         "freeze_id": freeze_id,
         "request_timeout_s": args.request_timeout,
         "arms": summary_rows,
@@ -404,6 +504,8 @@ def main() -> int:
         "",
         f"- **model**：`{model}`",
         f"- **arms_order**：`{','.join(arm_ids)}`",
+        f"- **execution_mode**：`{execution_mode}`"
+        + (f" · batch_wall_total_s={batch_wall_s}" if batch_wall_s is not None else ""),
         "",
         "| # | arm | status | parse_ok | prompt | completion | wall_s | model_returned | raw |",
         "| ---:| --- | --- | --- | ---:| ---:| ---:| --- | --- |",
