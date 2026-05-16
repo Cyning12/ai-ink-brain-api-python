@@ -2,7 +2,7 @@
 
 > **位置**：`ai-ink-brain-api-python/tools/rubric_review/`  
 > **用途**：对 PR 正文、技术方案等 **文本工件** 按 JSON Rubric 做 **两次独立模型调用**，按 `adjudication_rules` 自动合并或 **LLM 仲裁** / **仅 webhook 待人工**。  
-> **默认 Rubric（与本项目对齐）**：`docs/diary/jsonPKmermaid/rubric_pr_and_design_v1.json`（与 `可复用 Rubric 模板.json` 内容一致）。
+> **默认 Rubric（暂存）**：`docs/_staging/jsonPKmermaid-rubric-demo/rubric_pr_and_design_v1.json`
 
 ## 依赖
 
@@ -31,7 +31,7 @@
 ```bash
 python -m tools.rubric_review \
   --artifact-file path/to/pr_body.md \
-  --rubric docs/diary/jsonPKmermaid/rubric_pr_and_design_v1.json \
+  --rubric docs/_staging/jsonPKmermaid-rubric-demo/rubric_pr_and_design_v1.json \
   --random-seed 42 \
   --webhook-url "https://example.com/hooks/rubric" \
   -v
@@ -54,6 +54,32 @@ python -m tools.rubric_review \
 
 **退出码**：`0` 正常；`2` 参数/文件错误；`3` `human_webhook` 待人工（终分含 `null`）。
 
+## 多轮批跑（合并总报告）
+
+一次命令按 manifest 顺序跑完 **S0/S1/…** 各轮，每轮生成独立 `rubric_review_*` 报告，并额外生成 **合并索引 + 终分矩阵**：
+
+- `rubric_multiround_<run_name>_<timestamp>.md`
+- `rubric_multiround_<run_name>_<timestamp>.json`
+
+多轮 **共用同一组** R1/R2/仲裁模型分配（便于横向对比）。默认 **不向 webhook 每轮推送**（避免刷屏），需要时加 `--webhook-per-round`。
+
+```bash
+python -m tools.rubric_review.multi_round \
+  --manifest tools/rubric_review/examples/multiround.example.json \
+  --random-seed 42
+```
+
+**manifest 字段**（JSON 或 YAML）：
+
+| 字段 | 说明 |
+|------|------|
+| `run_name` | 输出文件名前缀 |
+| `rubric` | Rubric 路径（相对 manifest 所在目录） |
+| `rounds` | 数组；每项含 `id`、`artifact_file`（相对 manifest 目录） |
+| `random_seed` | 可选；可被 CLI `--random-seed` 覆盖 |
+
+示例见 [`examples/`](./examples/) 目录。
+
 ## Webhook 载荷
 
 见 `webhook.build_generic_arbitration_payload`：
@@ -64,11 +90,17 @@ python -m tools.rubric_review \
 
 ## 输出
 
-- `docs/harness/reviews/rubric_review_<slug>_<timestamp>.md`（元信息表含 **R1/R2/仲裁模型** 与随机种子）
-- `docs/harness/reviews/rubric_review_<slug>_<timestamp>.json`
+默认目录 **`docs/_staging/jsonPKmermaid-rubric-demo/rubric_runs/`**（与 JSON/Mermaid 主实验及 `docs/harness/reviews` 分离）：
+
+- `rubric_review_<slug>_<timestamp>.md`（元信息表含 **R1/R2/仲裁模型** 与随机种子）
+- `rubric_review_<slug>_<timestamp>.json`
 
 **注意**：此类文件 **不等价** 于任务审核帽的 `task_*_audit_R*.md`。
 
+## 首轮结果元分析 Prompt
+
+见 [`../../docs/_staging/jsonPKmermaid-rubric-demo/prompt_analyze_first_round_rubric.md`](../../docs/_staging/jsonPKmermaid-rubric-demo/prompt_analyze_first_round_rubric.md)（复制 User 模板，粘贴首轮工件 + `rubric_runs` 下首轮 md/json）。
+
 ## 给 Cursor
 
-`rubric_review`、`SILICONFLOW_API_KEY`、`SILICONFLOW_REVIEWER_MODEL_POOL`、`DoubleBlindReviewer`、`docs/harness/reviews`
+`rubric_review`、`SILICONFLOW_API_KEY`、`SILICONFLOW_REVIEWER_MODEL_POOL`、`rubric_runs`、`jsonPKmermaid`

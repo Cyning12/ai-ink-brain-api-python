@@ -1,0 +1,185 @@
+{
+  "run_name": "examples_builtin",
+  "manifest": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/multiround.example.json",
+  "rubric": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+  "backend": "siliconflow",
+  "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+  "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "random_seed": 42,
+  "batch_stamp": "20260515_201818",
+  "rounds": [
+    {
+      "round_id": "S0",
+      "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S0_pr_body.md",
+      "stem": "rubric_review_examples_builtin_S0_20260515_201818_00",
+      "markdown": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S0_20260515_201818_00.md",
+      "json": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S0_20260515_201818_00.json",
+      "final_scores": {
+        "clarity": 2,
+        "risk": 1
+      },
+      "arbitration_needed": false,
+      "detail": {
+        "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+        "rubric_version": "0.1.0",
+        "review_a": {
+          "dimension_scores": {
+            "clarity": 3,
+            "risk": 1
+          },
+          "justification": "clarity：范围已说明（改 README 与一处配置），但目标与验收标准未显式阐述，存在少量含糊；risk：全文未提及回滚、失败影响或风险缓解，完全缺失。",
+          "model_used": "Pro/moonshotai/Kimi-K2.6"
+        },
+        "review_b": {
+          "dimension_scores": {
+            "clarity": 2,
+            "risk": 1
+          },
+          "justification": "清晰度：范围仅提到改README与一处配置，但未明确目标、验收标准，属于范围不清或目标发散，故给2分。风险意识：完全未提及回滚或失败影响，完全缺失，故给1分。",
+          "model_used": "deepseek-ai/DeepSeek-V4-Flash"
+        },
+        "final_scores": {
+          "clarity": 2,
+          "risk": 1
+        },
+        "arbitration_needed": false,
+        "arbitration_mode": "none",
+        "arbitration_justification": null,
+        "disputed_dimensions": [],
+        "meta": {
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42,
+          "effective_fallback": "llm_arbiter"
+        },
+        "run": {
+          "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S0_pr_body.md",
+          "rubric_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+          "backend": "siliconflow",
+          "slug": "rubric_review_examples_builtin_S0_20260515_201818_00",
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42
+        }
+      }
+    },
+    {
+      "round_id": "S1",
+      "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S1_followup.md",
+      "stem": "rubric_review_examples_builtin_S1_20260515_201818_01",
+      "markdown": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S1_20260515_201818_01.md",
+      "json": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S1_20260515_201818_01.json",
+      "final_scores": {
+        "clarity": 2,
+        "risk": 3
+      },
+      "arbitration_needed": false,
+      "detail": {
+        "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+        "rubric_version": "0.1.0",
+        "review_a": {
+          "dimension_scores": {
+            "clarity": 3,
+            "risk": 3
+          },
+          "justification": "clarity：目标（补充回滚策略与线上用户影响）明确，但缺少前一轮上下文且未定义验收标准，存在少量含糊。risk：明确点出需补充回滚及线上用户影响，体现风险意识，但工件本身未给出具体风险分析与缓解措施。",
+          "model_used": "Pro/moonshotai/Kimi-K2.6"
+        },
+        "review_b": {
+          "dimension_scores": {
+            "clarity": 2,
+            "risk": 3
+          },
+          "justification": "清晰度：工件本身是要求补充回滚策略和影响，但未给出前一轮内容，导致目标和范围不完整，属于范围不清。风险意识：明确要求补充回滚策略和影响，体现了对风险的关注，但未具体展开，属于有提及但不具体。",
+          "model_used": "deepseek-ai/DeepSeek-V4-Flash"
+        },
+        "final_scores": {
+          "clarity": 2,
+          "risk": 3
+        },
+        "arbitration_needed": false,
+        "arbitration_mode": "none",
+        "arbitration_justification": null,
+        "disputed_dimensions": [],
+        "meta": {
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42,
+          "effective_fallback": "llm_arbiter"
+        },
+        "run": {
+          "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S1_followup.md",
+          "rubric_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+          "backend": "siliconflow",
+          "slug": "rubric_review_examples_builtin_S1_20260515_201818_01",
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42
+        }
+      }
+    },
+    {
+      "round_id": "S2",
+      "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S2_low_overlap.md",
+      "stem": "rubric_review_examples_builtin_S2_20260515_201818_02",
+      "markdown": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S2_20260515_201818_02.md",
+      "json": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_review_examples_builtin_S2_20260515_201818_02.json",
+      "final_scores": {
+        "clarity": 4,
+        "risk": 1
+      },
+      "arbitration_needed": false,
+      "detail": {
+        "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+        "rubric_version": "0.1.0",
+        "review_a": {
+          "dimension_scores": {
+            "clarity": 4,
+            "risk": 1
+          },
+          "justification": "clarity：目标（增加--dry-run）、范围（内部工具）及验收标准（不影响默认行为、验证未写磁盘）一句话能说清；risk：全文完全未提及回滚或失败影响。",
+          "model_used": "Pro/moonshotai/Kimi-K2.6"
+        },
+        "review_b": {
+          "dimension_scores": {
+            "clarity": 4,
+            "risk": 1
+          },
+          "justification": "清晰度：一句话清晰说明了目标（增加--dry-run）、范围（内部工具）、验收条件（验证未写磁盘），完全符合4分标准。风险意识：完全未提及回滚、失败影响或任何风险缓解措施，因此给1分。",
+          "model_used": "deepseek-ai/DeepSeek-V4-Flash"
+        },
+        "final_scores": {
+          "clarity": 4,
+          "risk": 1
+        },
+        "arbitration_needed": false,
+        "arbitration_mode": "none",
+        "arbitration_justification": null,
+        "disputed_dimensions": [],
+        "meta": {
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42,
+          "effective_fallback": "llm_arbiter"
+        },
+        "run": {
+          "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S2_low_overlap.md",
+          "rubric_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+          "backend": "siliconflow",
+          "slug": "rubric_review_examples_builtin_S2_20260515_201818_02",
+          "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+          "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+          "random_seed": 42
+        }
+      }
+    }
+  ],
+  "summary_markdown": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/rubric_runs/rubric_multiround_examples_builtin_20260515_201818.md"
+}

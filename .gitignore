@@ -123,3 +123,9 @@ docs/*
 
 # Harness：任务审核 reviews、invoke 快照（与工作区 harness/invokes 约定对齐）
 !docs/harness/
+
+# Rubric 演示暂存 + jsonPKmermaid 主实验协议（与 task 审核 `docs/harness/reviews` 分离）
+!docs/diary/
+!docs/diary/jsonPKmermaid/
+!docs/_staging/
+!docs/_staging/jsonPKmermaid-rubric-demo/
