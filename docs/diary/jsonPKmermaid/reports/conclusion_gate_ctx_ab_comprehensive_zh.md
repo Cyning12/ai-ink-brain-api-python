@@ -87,18 +87,67 @@
 
 ---
 
-## 8. 建议的下一步（若进入 `01_experiment` 全协议）
+## 8. 定稿前的下一步（优先级 — 勿颠倒）
 
-1. **批跑**：`run_s0_batch.py --rounds 5` 提高 n，或固定时段连跑。  
-2. **题集**：`fixtures/gate_ctx_ab_v1/tasks.json` 增加 2–3 题 + gold，再谈 P1/P2。  
-3. **报告**：行为向与轴 II 分节；主表用 **clean 中位数 + 全量附录**。  
-4. **可选**：统一 **warmup** 请求（不计入统计）进一步压冷启动。
+> **未完成 P0 前，不得用「多跑几轮 S0」代替定稿。** 当前 minimal 仅完成 **单题 S0**；定稿须先扩协议段覆盖面。
+
+| 优先级 | 事项 | 说明 |
+|--------|------|------|
+| **P0** | **扩 `tasks.json`**（建议 **≥3 题**，`topic_id` 互异） | 每题附 **人工核验过的 gold**（见 §8.1） |
+| **P0** | 跑 **S1**（同题 K=3 追问，`user_scripts.yaml`） | 测收敛、证据是否收紧、token 累计 |
+| **P0** | 跑 **S2**（M=2 换题，不同 `topic_id`） | 测串题泄漏、上下文膨胀 |
+| **P1** | **P1/P2**：gold F1 或双人 Rubric | 不只「能吐 JSON」，还要可交接 / 可靠 |
+| **P2** | `run_s0_batch.py --rounds 5`（并行 + 剔除离群） | **仅**压低 S0 的 API 抖动，**不替代** S1/S2 |
+| **P2** | 可选 **warmup**（不计入统计） | 进一步削弱冷启动，仍不能替代扩题 |
+| **定稿** | 更新 `01_experiment` 正式报告 + 选型结论 | **P0 + P1 完成后** |
+
+---
+
+## 8.1 扩题集：是否必须人工？推荐方向
+
+### 是否必须人工？
+
+| 环节 | 谁来做 | 要求 |
+|------|--------|------|
+| **题面 `prompt_zh`** | AI 起草即可 | 清晰、可判、对应真实子系统 |
+| **gold（entrypoints / impacts）** | **必须人工核验** | 每条能在仓库或 `graph.json` / `*.ai.md` 锚点 **指到真值**；AI 起草仅作初稿 |
+| **`topic_id` 划分** | 人工定 | S2 禁止相邻同 tag，避免泄漏误判困难 |
+| **匹配规则** | 可沿用 T001 | path / graph_id 命中规则写死在 `matching_rules` |
+
+原因：T001 的 gold 也是 AI 初稿 + 图谱命名；若 **不经过人工对照** `rg` / `00_main.ai.md` / manifest，P1 的 F1 与「谁更好」会 **双重幻觉**。
+
+**推荐人机流程（每题约 30–60 分钟）**
+
+1. AI 根据下面「方向模板」生成题面 + 候选 gold。  
+2. 维护者用 `rg`、图谱锚点、manifest 端点表 **删假入口、补漏路径**。  
+3. 冻结到 `tasks.json` 的 commit（与 `freeze_id` 同批图谱）。  
+4. 再跑 S0→S1→S2（先单题打通脚本，再一次跑全题集）。
+
+### 推荐题目方向（至少覆盖 3 类，与 T001 错开 `topic_id`）
+
+选题原则：**图谱里真有边/锚点**、**改动后果可核验**、**不要纯运维口号**。
+
+| 方向 | `topic_id` 示例 | 题面意图（示例） | gold 宜含 |
+|------|-------------------|------------------|-----------|
+| **A. 统一对话 / SSE 契约** | `unified_chat_sse` | 改 `POST /api/py/unified/chat/stream` 的 chain 事件 时，入口与 contract 敏感点？ | `api/unified_chat.py`、`api/index.py` 路由、`SSE`/`EV_TYPES` 节点、`_contract_manifest.json` |
+| **B. Supabase RPC / ingest** | `ingest_rpc` | 调整 `ingest` / `match_documents` 链路时的入口与数据影响？ | `api/ingest_pipeline.py`、`ingest` 管理端点、`RPC`/`A1`/`A2`、相关 `supabase/sql` |
+| **C. Text2SQL 分支** | `text2sql_branch` | 用户走 Text2SQL 而非 RAG 时，从路由到 SQL 生成的入口？ | `api/text2sql_api.py`、`T2S`/`T2S_DOC`、manifest 中 text2sql 端点 |
+| **D. 鉴权 / ChatBI** | `auth_chatbi` | 变更 admin secret 或 ChatBI token 校验时的控制面入口？ | `api/chatbi_principal.py`、`AUTH`/`ERR_AUTH`、相关 GET 校验路由 |
+| **E. 图谱门禁（meta）** | `tech_graph_gate` | 仅改 `graph.json` 导出/contract check 失败时，应跑哪些命令？ | **仅** `tools/tech_graph_*`、CI workflow 名；**不宜**扯业务 RAG（与 A–D 错开） |
+
+**不建议**作为 early 题：过大而空的「重构整个 RAG」；无 manifest 端点的纯文档 typo；需要 **未在图谱出现** 的文件路径（除非标 `unknowns` 并降权）。
+
+### 与当前 T001 的关系
+
+- T001（`rag_env_embedding`）保留，作为 **env/向量维度** 基线。  
+- 新增 **2–4 题** 覆盖 A–E 中 **至少 3 个不同 `topic_id`**，再跑 S2 才有「换题」意义。  
+- 题集 v2 建议文件：`fixtures/gate_ctx_ab_v1/tasks.json`（同文件追加）+ 在 commit message 标明 `tasks_v2`。
 
 ---
 
 ## 9. 一句话综合结论
 
-**在静态载荷体积几乎相同的前提下，JSON 与 Mermaid 作为 LLM 主上下文均可完成 T001 结构化分析；剔除 API 离群与串行顺序偏差后，本终批（3 轮并行）显示 JSON 在墙钟与 token 中位数上略优于 Mermaid，但样本仍少、网关抖动大，尚不足以签收「生产环境一律选用 JSON」——需扩题集与 S1/S2 后再定稿。**
+**在静态载荷体积几乎相同的前提下，JSON 与 Mermaid 作为 LLM 主上下文均可完成 T001 结构化分析；剔除离群与并行顺序偏差后，本终批 S0 显示 JSON 在墙钟与 token 中位数上略优，但仅单题 S0、样本极少——定稿前必须先完成扩题集（人工核验 gold）、S1、S2 与质量计分，不可仅凭加跑 S0 轮次签收选型。**
 
 ---
 
