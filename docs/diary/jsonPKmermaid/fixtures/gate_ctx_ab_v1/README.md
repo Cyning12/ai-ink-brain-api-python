@@ -9,5 +9,9 @@
 | [`tasks.json`](./tasks.json) | 题集 + `gold`（Step 1 仅 **T001**） |
 | [`user_scripts.yaml`](./user_scripts.yaml) | S1 固定追问（Step 3 后再用） |
 | [`system.md`](./system.md) | S0 共用 system persona（Step 3） |
+| [`payloads/`](./payloads/) | Step 2 物化主载荷（`CTX_JSON` / `CTX_MERMAID` + 共享附件） |
+| [`scripts/materialize_payloads.py`](./scripts/materialize_payloads.py) | 重新生成 payloads |
 
 **Step 1 完成标准**：本目录四文件齐全；`tasks.json` 中 `gold` 路径可在仓内 `rg` 核验。
+
+**Step 2 完成标准**：`payloads/materialize_report.json` 中 A/B 字节与轴 II 专文一致；`forbidden_checks` 均为预期。

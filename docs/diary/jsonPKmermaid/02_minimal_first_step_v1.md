@@ -49,6 +49,8 @@ docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/
 
 ## Step 2 — 准备两分支主载荷（不调用 LLM）
 
+**状态（2026-05-16）**：已物化 → [`fixtures/gate_ctx_ab_v1/payloads/`](./fixtures/gate_ctx_ab_v1/payloads/)（`python …/scripts/materialize_payloads.py`）。
+
 | 分支 | 主载荷来源 | 附件（Patch 对齐） |
 |------|------------|-------------------|
 | `CTX_JSON` | 读入 `docs/_tech_graph/graph.json`（全文或协议上限） | `_manifest.json`、`_contract_manifest.json` |

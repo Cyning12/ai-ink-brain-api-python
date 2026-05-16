@@ -1,0 +1,566 @@
+flowchart TD
+  %% version: 2026-04-24 (main) — 拓扑协议 v2-Python 适配
+
+  %% === 入口阶段 ===
+  Q[[用户请求]] --"->"--> E{"@router.dispatch"}
+  // → api/index.py#L434
+
+  %% === Unified Chat 分支 ===
+  E --"POST /api/py/unified/chat"--> U1[[Unified JSON]]
+  // → api/index.py#L561 unified_chat_route → api/unified_chat.py::handle_unified_chat
+  E --"POST /api/py/unified/chat/stream"--> U2[[Unified SSE]]
+  // → api/index.py#L576 unified_chat_stream_route → api/unified_chat.py::handle_unified_chat_stream
+
+  U1 --"::branches"--> RAG[[RAG 子流程]]
+  U2 --"::branches"--> RAG
+  U1 --"::branches"--> T2S[[Text2SQL 子流程]]
+  U2 --"::branches"--> T2S
+
+  RAG --"加载"--> RAG_DOC[>10_flow_rag.md]
+  T2S --"加载"--> T2S_DOC[>11_flow_text2sql.md]
+
+  %% === Legacy Chat 分支 ===
+  E --"POST /api/py/chat"--> C1[[RAG Chat]]
+  // → api/index.py#L591 chat
+  C1 --"->"--> RAG
+
+  %% === Health/History/Chain ===
+  E --"GET /api/py/health"--> HL[[Health]]
+  // → api/index.py#L434 health
+
+  E --"GET /api/py/chat/history"--> H1[[Chat History]]
+  // → api/index.py chat_history
+
+  E --"GET /api/py/chatbi/access/verify"--> CV[[ChatBI Access Verify]]
+  // → api/index.py chatbi_access_verify
+
+  E --"POST /api/py/chain/chat"--> CH[[Chain Timeline]]
+  // → api/index.py#L546 chain_chat_route → api/chain_chat.py::handle_chain_chat
+
+  %% === Code RAG 分支 ===
+  E --"POST /api/py/code/query"--> CR1[[Code Query]]
+  // → api/index.py#L501 code_query → api/code_retrieval.py::handle_code_query
+  E --"POST /api/py/code/search"--> CR2[[Code Search]]
+  // → api/index.py#L516 code_search → api/code_retrieval.py::handle_code_search
+
+  CR1 --"->"--> RPC[[Supabase RPC 子流程]]
+  CR2 --"->"--> RPC
+  RPC --"加载"--> RPC_DOC[>13_flow_supabase_rpc.md]
+
+  %% === Runtime / Observability（按需加载）===
+  E --"加载"--> OBS_DOC[>14_runtime_observability.md]
+
+  %% === E2E Boundary / Contract（按需加载）===
+  E --"加载"--> E2E_DOC[>15_e2e_boundary.md]
+
+  %% === Admin Ingest 分支 ===
+  E --"POST /api/py/admin/sync"--> A1[[Sync Ingest]]
+  // → api/index.py#L983 admin_sync → api/ingest_pipeline.py::run_sync_job_sync
+  E --"POST /api/py/admin/ingest"--> A2[[Ingest]]
+  // → api/index.py#L1026 admin_ingest → api/ingest_pipeline.py::process_markdown_files
+
+  A1 --"->"--> RPC
+  A2 --"->"--> RPC
+
+  %% === 共享基础设施 ===
+  RAG --"->"--> FTS[[FTS 子流程]]
+  FTS --"加载"--> FTS_DOC[>12_flow_fts.md]
+  T2S --"->"--> RPC
+  FTS --"->"--> RPC
+
+  %% === 文档锚点 ===
+  classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef doc fill:#fff8e1,stroke:#ff6f00,stroke-width:1px;
+  classDef milestone fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+  class Q,E phase
+  class RAG,T2S,RPC,FTS phase
+  class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC doc
+  class RAG_DOC,T2S_DOC,RPC_DOC,FTS_DOC,OBS_DOC,E2E_DOC milestone
+
+flowchart TD
+  %% Entry: /api/py/chat | /api/py/unified/chat(.stream)
+  %% 拓扑协议 v2-Python 适配
+
+  %% === Query 阶段（软为主）===
+  IN[[入口 Query]] --"->"--> AUTH[[鉴权]]
+  // → api/index.py::_require_auth
+  // → api/index.py::unified_chat_route Depends(require_chatbi_principal)
+
+  AUTH --"[ok]"--> HIS[[历史轮次]]
+  AUTH --"[err]"--> ERR_AUTH[>Auth Failed]
+  // → api/index.py::_require_auth
+
+  HIS --"可选"--> RW[[Query Rewrite]]
+  // → api/query_rewrite.py::rewrite_query_with_history
+  HIS --"无历史"--> RW
+
+  %% === Work 阶段（硬为主）===
+  RW --"::branches"--> KQ[[keyword_query_text()]]
+  RW --"::branches"--> EMB[[async def embed]]
+  // → api/rag_recall_tools.py::keyword_query_text_with_i18n_meta
+  // → api/unified_chat.py::embedding_kwargs_for_inputs (via api/rag_env.py)
+
+  KQ --"->"--> FTS[[FTS RPC]]
+  EMB --"~>"--> VEC[[Vector RPC]]
+  // → api/index.py::fetch_keyword_hits
+  // → api/unified_chat.py::rpc_execute_with_retry
+
+  EMB --"[err]"--> EMB_FAIL[>Embedding Failed]
+  // → api/index.py#L669 (embedding failed -> keyword-only)
+  // → api/unified_chat.py#L527 (vec=None)
+  EMB_FAIL --"->"--> KEYWORD_ONLY[[keyword-only]]
+  KEYWORD_ONLY --"::merges"--> FUSE
+
+  %% === 结构化召回分支 ===
+  IN --"date-like ?>"--> B1[[Structured Recall]]
+  // → api/rag_recall_tools.py::structured_recall_by_date
+  B1 --"[ok]"--> FUSE
+  B1 --"[err]"--> FUSE
+
+  %% === RPC 可靠性 ===
+  VEC --"[retry=N]"--> VEC
+  FTS --"[retry=N]"--> FTS
+  // → api/rag_recall_tools.py::rpc_execute_with_retry
+  // → api/unified_chat.py#L571 (N = int(os.getenv('RAG_RPC_RETRIES','2')))
+
+  %% === Fusion 阶段 ===
+  VEC --"::merges"--> FUSE[[fuse_hits_rrf()]]
+  FTS --"::merges"--> FUSE
+  // → api/hybrid_fusion.py
+
+  FUSE --"?>"--> HIT0{hits == 0 ?}
+  HIT0 --"[yes]"--> OUT_NO_DATA[[no_data / 不确定回答]]
+  // → api/unified_chat.py#L664
+  // → api/index.py#L664
+  HIT0 --"[no]"--> CTX
+  OUT_NO_DATA --"->"--> CTX
+
+  %% === Answer 阶段 ===
+  FUSE --"->"--> CTX[[Context Build]]
+  // → api/unified_chat.py::build_context
+
+  CTX --"->"--> LLM[[async def llm_answer]]
+  // → api/unified_chat.py
+
+  LLM --"::yields"--> SRC[[sources payload]]
+  // → api/unified_chat.py::_build_rag_sources_event
+  // → api/index.py::build_sources_payload
+
+  %% tool.call.end payload（字段名，便于排障定位）
+  TEND[[tool.call.end payload.keys]]
+  TEND --"includes"--> TEND_KEYS["output.{vector_hits,structured_hits,keyword_hits_raw,keyword_hits_rewrite,hits,retry_count,embedding_error}<br/>error, latency_ms"]
+  // → api/unified_chat.py::_event + tool.call.end payload
+  // → api/index.py#L623 (save_debug_log payload.metadata.latency_ms / match.*)
+
+  SRC --"->"--> OUT[[返回 JSON / SSE]]
+
+  %% === 归档阶段 ===
+  OUT --"::archives"--> LOG[[async def save_debug_log]]
+  // → api/database_manager.py
+
+  LOG --"~>"--> DB[(DB: rag_conversation_logs)]
+
+  %% === 子流程链接 ===
+  FTS --"加载"--> FTS_DOC[>12_flow_fts.md]
+  VEC --"加载"--> RPC_DOC[>13_flow_supabase_rpc.md]
+  LOG --"加载"--> RPC_DOC
+  OUT --"加载"--> OBS_DOC[>14_runtime_observability.md]
+
+  %% === 样式 ===
+  classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef fn fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  classDef milestone fill:#fff8e1,stroke:#e65100,stroke-width:2px;
+  classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+
+  class IN,AUTH,HIS,RW,FUSE,CTX,LLM,SRC,OUT,LOG phase
+  class KQ,EMB,FTS,VEC,B1,KEYWORD_ONLY,TEND fn
+  class DB data
+  class FTS_DOC,RPC_DOC,OBS_DOC milestone
+  class ERR_AUTH err
+  class EMB_FAIL,OUT_NO_DATA err
+
+flowchart TD
+  %% Entry: /api/py/text2sql/chat | unified router → text2sql
+  %% 拓扑协议 v2-Python 适配
+
+  %% === Query 阶段 ===
+  IN[[入口 Query]] --"->"--> AUTH[[鉴权]]
+  // → api/index.py::_require_auth
+  // → api/index.py::unified_chat_route Depends(require_chatbi_principal)
+
+  AUTH --"[ok]"--> INT[[Intent Check]]
+  AUTH --"[err]"--> ERR_AUTH[>Auth Failed]
+  // → api/intent_router.py::is_text2sql_intent
+  // → api/intent_router.py::decide_intent
+
+  INT --"[non_text2sql]"--> OUT0[[返回 non_text2sql 提示]]
+
+  %% === Work 阶段 ===
+  INT --"[text2sql]"--> RET[[text2sql_store.search()]]
+  // → api/text2sql_store.py
+
+  RET --"->"--> PF[[run_text2sql_schema_prefetch_sync]]
+  // → api/text2sql_schema_prefetch.py
+
+  PF --"?>[ok|skip]"--> PROMPT[[build_sql_prompt()]]
+  PF --"?>[err]"--> ERR_PF[>TEXT2SQL_SCHEMA_PREFETCH_FAILED]
+  // → api/tools.py::text2sql_execute / api/unified_chat.py
+
+  ERR_PF --"->"--> OUT1[[errors.generate_sql]]
+
+  PROMPT --"->"--> GEN[[async def llm_generate_sql]]
+  // → api/text2sql_core.py
+
+  GEN --"~>"--> VAL[[validate_sql_readonly()]]
+  // → api/text2sql_core.py::validate_sql_readonly
+
+  %% === 执行分支 ===
+  VAL --"[ok]"--> EXEC[[execute_select_sql()]]
+  VAL --"[err]"--> ERR_VALIDATE[>validate_sql_readonly err]
+  // → api/text2sql_core.py::validate_sql_readonly
+  ERR_VALIDATE --"->"--> OUT1[[errors.generate_sql]]
+
+  EXEC --"~>"--> DB[(DB: TEXT2SQL_DATABASE_URL)]
+  // → api/text2sql_core.py::execute_select_sql
+
+  EXEC --"[err]"--> ERR_EXEC[>execute_select_sql err]
+  // → api/text2sql_core.py::execute_select_sql
+  ERR_EXEC --"->"--> OUT1
+
+  DB --"TEXT2SQL_DATABASE_URL missing"--> ERR_DSN[>Missing env]
+  // → api/text2sql_core.py#L88
+  ERR_DSN --"->"--> OUT1
+
+  DB --"rows==1&1 numeric"--> DET[[try_summarize_aggregate()]]
+  DB --"rows>0"--> SUM[[async def llm_summarize]]
+  DB --"rows==0"--> OUT2[[未查到数据]]
+
+  %% === Summarize 阶段 ===
+  DET --"->"--> OUT[[返回 JSON]]
+  SUM --"~>"--> OUT
+  OUT1 --"->"--> OUT
+  OUT2 --"->"--> OUT
+
+  OUT --"::archives"--> LOG[(DB: rag_conversation_logs)]
+  // → api/database_manager.py::save_debug_log
+
+  %% === 依赖锚点 ===
+  RET --"依赖语料"--> SPEC[>docs/text2sql/v1/sql/supabase_init.sql]
+
+  %% === 样式 ===
+  classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef fn fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  classDef milestone fill:#fff8e1,stroke:#e65100,stroke-width:2px;
+  classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+
+  class IN,AUTH,INT,RET,PF,PROMPT,GEN,VAL,EXEC,DET,SUM,OUT,OUT0,OUT1,OUT2 phase
+  class DB,LOG data
+  class SPEC milestone
+  class ERR_AUTH,OUT1,ERR_PF,ERR_VALIDATE,ERR_EXEC,ERR_DSN err
+
+flowchart TD
+  %% FTS: tsvector('simple', content + alias) + websearch_to_tsquery
+  %% 拓扑协议 v2-Python 适配
+
+  %% === 写入/更新流 ===
+  W[[Write/Update content]] --"::triggers"--> TRG[[trigger: documents_fts_tokens_update]]
+  // → supabase/sql/hybrid_search.sql::documents_fts_tokens_update
+
+  TRG --"->"--> ALIAS[[rag_fts_alias_text()]]
+  // → supabase/sql/hybrid_search.sql::rag_fts_alias_text
+
+  ALIAS --"->"--> TSV[[to_tsvector('simple', content + alias)]]
+  TSV --"->"--> IDX[(GIN: documents_fts_tokens_gin)]
+  // → supabase/sql/hybrid_search.sql#L16
+
+  %% === 查询流 ===
+  Q[[Query Text]] --"->"--> QS[[keyword_query_text()]]
+  // → api/rag_recall_tools.py
+
+  QS --"->"--> RPC[[RPC keyword_documents()]]
+  // → api/rag_recall_tools.py::keyword_query_text_with_i18n_meta
+  // → api/index.py::fetch_keyword_hits
+  // → api/unified_chat.py::rpc_execute_with_retry
+
+  RPC --"~>"--> TSQ[[websearch_to_tsquery('simple', query_text)]]
+  // → supabase/sql/hybrid_search.sql::keyword_documents
+
+  TSQ --"->"--> MATCH[[fts_tokens @@ tsquery]]
+  MATCH --"->"--> RANK[[ts_rank_cd score]]
+  RANK --"->"--> OUT[[TopK hits]]
+
+  %% === B2 变体覆盖 ===
+  subgraph B2_IndexSide["B2 (Index-side alias)"]
+    ALIAS
+  end
+
+  subgraph B2_QuerySide["B2.1 (Query-side expand)"]
+    QS
+  end
+
+  %% === 兜底：fts_tokens 为空/未迁移 ===
+  MATCH --"fts_tokens is null ?>"--> FTS_NULL{fts_tokens is null?}
+  FTS_NULL --"[yes]"--> REFRESH[[refresh_documents_fts_tokens_for_paths()]]
+  // → supabase/sql/hybrid_search.sql::refresh_documents_fts_tokens_for_paths
+  REFRESH --"->"--> RPC
+  FTS_NULL --"[no]"--> RANK
+
+  %% === I18N 跨语言召回 ===
+  QS --"?>"--> I18N{I18N_EXPAND_ENABLED?}
+  // → api/rag_recall_tools.py
+
+  I18N --"[on & mode=glossary]"--> GLOSS[[data/i18n_glossary.json]]
+  I18N --"[off / err]"--> NOX[[graceful fallback]]
+
+  GLOSS --"->"--> CLEAN[[candidate clean & limits]]
+  CLEAN --"->"--> ORQ[[OR compose]]
+  ORQ --"->"--> RPC
+
+  NOX --"->"--> RPC
+
+  %% === 样式 ===
+  classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef fn fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  classDef fallback fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+
+  class W,Q,TRG,QS,RPC,TSQ,MATCH,RANK,OUT phase
+  class ALIAS,ORQ,CLEAN,NOX fn
+  class IDX data
+  class GLOSS data
+  class NOX fallback
+
+flowchart LR
+  %% Supabase RPC + Tables (service_role)
+  %% 拓扑协议 v2-Python 适配
+
+  %% === 客户端 ===
+  SB[[Supabase Client]] --"service_role"--> AUTH{鉴权?}
+  // → api/rag_env.py::supabase_client
+
+  AUTH --"[ok]"--> POOL[(连接池)]
+  AUTH --"[err]"--> ERR_AUTH[>Unauthorized/401]
+  // → api/index.py::_require_auth
+  // → api/index.py::unified_chat_route Depends(require_chatbi_principal)
+  // → api/code_retrieval.py::_require_code_api_auth
+
+  POOL --"[err]"--> ERR_NET[>Network/Timeout]
+  // → api/rag_recall_tools.py::rpc_execute_with_retry
+
+  %% === documents 表与 RPC ===
+  POOL --"->"--> D[(DB: public.documents)]
+  POOL --"~>"--> MD[[rpc match_documents()]]
+  // → supabase/sql/init.sql::match_documents
+  POOL --"~>"--> KD[[rpc keyword_documents()]]
+  // → supabase/sql/hybrid_search.sql::keyword_documents
+  POOL --"~>"--> RD[[rpc refresh_documents_fts_tokens_for_paths()]]
+  // → supabase/sql/hybrid_search.sql::refresh_documents_fts_tokens_for_paths
+
+  MD --"[err]"--> ERR_RPC_MISSING[>RPC 不存在/函数名错误]
+  KD --"[err]"--> ERR_RPC_MISSING
+  RD --"[err]"--> ERR_RPC_MISSING
+
+  %% === code_chunks 表与 RPC ===
+  POOL --"->"--> C[(DB: public.code_chunks)]
+  POOL --"~>"--> MC[[rpc match_code_chunks()]]
+  // → supabase/sql/code_chunks.sql::match_code_chunks
+  POOL --"~>"--> KC[[rpc keyword_code_chunks()]]
+  // → supabase/sql/code_chunks.sql::keyword_code_chunks
+  POOL --"~>"--> RC[[rpc refresh_code_chunks_fts_tokens_for_paths()]]
+  // → supabase/sql/code_chunks.sql::refresh_code_chunks_fts_tokens_for_paths
+
+  MC --"[err]"--> ERR_RPC_MISSING
+  KC --"[err]"--> ERR_RPC_MISSING
+  RC --"[err]"--> ERR_RPC_MISSING
+
+  %% === logs 表 ===
+  POOL --"->"--> L[(DB: public.rag_conversation_logs)]
+  // → supabase/sql/create_rag_conversation_logs.sql
+
+  %% === Ingest 写入流 ===
+  ING[[Ingest Pipeline]] --"::triggers"--> D
+  ING --"::triggers"--> C
+  ING --"::triggers"--> RD
+  ING --"::triggers"--> RC
+  // → api/ingest_pipeline.py
+
+  %% === Chat 读写流 ===
+  CHAT[[RAG/Unified Chat]] --"::archives"--> L
+  CHAT --"select"--> L
+  // → api/database_manager.py
+
+  %% === 样式 ===
+  classDef client fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+  classDef rpc fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef table fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
+  classDef pipeline fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+  classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+
+  class SB,POOL client
+  class MD,KD,RD,MC,KC,RC rpc
+  class D,C,L table
+  class ING,CHAT pipeline
+  class ERR_AUTH,ERR_NET,ERR_RPC_MISSING err
+
+flowchart TD
+  %% Runtime / Observability View (SSE events + error branches)
+  %% 注意：仅运行/排障视角，不重复业务主链路
+
+  %% === SSE Envelope ===
+  REQ[[HTTP Request]] --"->"--> SSE{{SSE?}}
+  // → api/unified_chat.py::handle_unified_chat_stream
+
+  SSE --"[yes]"--> EV[[event: chain]]
+  SSE --"[yes]"--> DONE[[event: done]]
+  // → api/unified_chat.py::_sse
+
+  SSE --"[no]"--> JSON[[JSON response]]
+  // → api/unified_chat.py::handle_unified_chat
+
+  %% === Core event types (chain) ===
+  EV --"type=router.decision"--> R1[[router.decision]]
+  EV --"type=tool.call.start"--> TCS[[tool.call.start]]
+  EV --"type=tool.call.end"--> TCE[[tool.call.end]]
+  EV --"type=rag.query_expand"--> QX[[rag.query_expand]]
+  EV --"type=rag.sources"--> RS[[rag.sources]]
+  EV --"type=sql.result"--> SQLR[[sql.result]]
+  EV --"type=assistant.message"--> AM[[assistant.message]]
+  EV --"type=latency"--> LAT[[latency]]
+  EV --"type=error"--> ERR[[error]]
+  // → api/unified_chat.py::_event
+
+  %% === tool.call payload keys (用于排障最短链路) ===
+  TCS --"payload"--> TCS_KEYS["{tool, input}"]
+  TCE --"payload"--> TCE_KEYS["{output, error, latency_ms}"]
+  // → api/unified_chat.py::_event + tool.call.* payload
+
+  %% === rag.sources (证据链) ===
+  RS --"payload.sources[*]"--> SRC_KEYS["{id, content, filename, score, path, url}"]
+  // → api/unified_chat.py::_build_rag_sources_event
+  // → api/index.py::build_sources_payload
+
+  %% === sql.result (Text2SQL 结果) ===
+  SQLR --"payload"--> SQL_KEYS["{sql, columns, rows[0..20], truncated}"]
+  // → api/unified_chat.py#L425
+
+  %% === Error shortest paths ===
+  ERR --"stage=router"--> E_ROUTER[[未实现工具路由 / 参数错误]]
+  ERR --"stage=rag.embed"--> E_EMB[[Embedding error -> keyword-only]]
+  ERR --"stage=rag.retrieve"--> E_RPC[[RPC error / retries exhausted]]
+  ERR --"stage=text2sql.generate_sql"--> E_GENSQL[[validate_sql_readonly [err]]]
+  ERR --"stage=text2sql.execute_sql"--> E_EXECSQL[[TEXT2SQL_DATABASE_URL missing / DB error]]
+  // → api/unified_chat.py::handle_unified_chat(_stream)
+  // → api/text2sql_core.py::execute_select_sql
+
+  %% === Log sink ===
+  AM --"::archives"--> LOG[[save_debug_log]]
+  // → api/database_manager.py::save_debug_log
+  LOG --"->"--> DB[(DB: rag_conversation_logs)]
+
+  %% === Debug toggles (边界：只列变量名) ===
+  ENV[[Debug env toggles]] --"->"--> ENV_KEYS["DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB"]
+  // → api/index.py::_rag_debug_enabled
+  // → api/ingest_pipeline.py#L33
+
+  classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef payload fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+
+  class REQ,SSE,EV,DONE,JSON phase
+  class R1,TCS,TCE,QX,RS,SQLR,AM,LAT phase
+  class TCS_KEYS,TCE_KEYS,SRC_KEYS,SQL_KEYS,ENV_KEYS payload
+  class DB data
+  class ERR,E_ROUTER,E_EMB,E_RPC,E_GENSQL,E_EXECSQL err
+
+flowchart TD
+  %% 15_e2e_boundary: Cross-repo boundary + contracts (AI protocol)
+  %% version: 2026-04-27 (p3) — boundary/contract view
+
+  %% === Domains (required 4) ===
+  FE[[Frontend: UI SSE consumer]]
+  CONTENT[[Content repo: content/ markdown]]
+  BE[[Backend API: FastAPI (this repo)]]
+  SB[[Supabase: Postgres + RPC]]
+
+  %% === Frontend (SSE consumer / timeline renderer) ===
+  FE_STREAM[fetch POST /api/py/unified/chat/stream]
+  FE_PARSE[parseSSEBlocks + chainEventFromSse]
+  // → ../ai-ink-brain/components/unified-chat/UnifiedChatPageClient.tsx#L286-L352
+
+  FE --"->"--> FE_STREAM --"~>"--> FE_PARSE
+
+  %% === Frontend BFF (Next route proxy) ===
+  BFF[[Next BFF: /api/py/unified/chat/stream]]
+  // → ../ai-ink-brain/app/api/py/unified/chat/stream/route.ts#L9-L47
+
+  FE_STREAM --"->"--> BFF
+
+  %% === Backend HTTP boundary (endpoints from manifest) ===
+  PY_SSE[[POST /api/py/unified/chat/stream]]
+  // → docs/_tech_graph/_manifest.json#endpoints[path="/api/py/unified/chat/stream"]
+  // → api/index.py::unified_chat_stream_route
+
+  BFF --"->"--> PY_SSE --"~>"--> BE
+
+  %% === SSE contract: envelope + events ===
+  SSE_ENV["SSE envelope keys: {event, data}"]
+  SSE_EVENTS["SSE event: chain | done"]
+  // → api/unified_chat.py::_sse
+
+  PY_SSE --"::yields"--> SSE_EVENTS
+  SSE_EVENTS --"->"--> SSE_ENV
+
+  CHAIN_SHAPE["event: chain data keys: {type, ts, step_id, payload}"]
+  // → api/unified_chat.py::_event
+
+  DONE_SHAPE["event: done data keys: {ok, mode, run_id, session_id}"]
+  // → api/unified_chat.py#L1062-L1065
+
+  SSE_EVENTS --"->"--> CHAIN_SHAPE
+  SSE_EVENTS --"->"--> DONE_SHAPE
+
+  %% === Core event types (reference) ===
+  EV_TYPES["chain.type set: router.decision | tool.call.start | tool.call.end | rag.query_expand | rag.sources | sql.result | assistant.message | latency | error"]
+  // → docs/_tech_graph/14_runtime_observability.ai.md#L17-L27
+  SSE_EVENTS --"->"--> EV_TYPES
+
+  %% === Key payload keys (minimal, only list keys) ===
+  RS_KEYS["rag.sources.payload.sources[*] keys: {id, content, filename, score, path, url}"]
+  // → docs/_tech_graph/14_runtime_observability.ai.md#L34-L38
+  SQL_KEYS["sql.result.payload keys: {sql, columns, rows[0..20], truncated}"]
+  // → docs/_tech_graph/14_runtime_observability.ai.md#L39-L42
+
+  EV_TYPES --"->"--> RS_KEYS
+  EV_TYPES --"->"--> SQL_KEYS
+
+  %% === Content ingest boundary (CONTENT_ROOT) ===
+  CONTENT_ROOT[ENV: CONTENT_ROOT -> frontend content/]
+  // → api/ingest_pipeline.py#L102-L116 get_all_markdown_chunks
+  // → docs/_tech_graph/_manifest.json#env includes CONTENT_ROOT
+
+  CONTENT --"->"--> CONTENT_ROOT --"->"--> BE
+
+  %% === Backend ↔ Supabase boundary (tables/RPC as manifest truth) ===
+  SB_TRUTH["Supabase truth: tables+rpc list (manifest)"]
+  // → docs/_tech_graph/_manifest.json#supabase
+
+  BE --"->"--> SB_TRUTH --"->"--> SB
+
+  SB_MATCH_DOCS["RPC: public.match_documents(query_embedding, match_count, match_threshold)"]
+  // → supabase/sql/init.sql#L50-L76
+
+  SB_TRUTH --"->"--> SB_MATCH_DOCS
+
+  classDef domain fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+  classDef api fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+  classDef payload fill:#f3e5f5,stroke:#4a148c,stroke-width:1px;
+  classDef data fill:#fff8e1,stroke:#ff6f00,stroke-width:1px;
+
+  class FE,CONTENT,BE,SB domain
+  class BFF,PY_SSE,FE_STREAM,FE_PARSE api
+  class SSE_ENV,SSE_EVENTS,CHAIN_SHAPE,DONE_SHAPE,EV_TYPES,RS_KEYS,SQL_KEYS payload
+  class SB_TRUTH,SB_MATCH_DOCS,CONTENT_ROOT data

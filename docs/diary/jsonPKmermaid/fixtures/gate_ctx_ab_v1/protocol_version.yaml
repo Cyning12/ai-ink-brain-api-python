@@ -19,9 +19,12 @@ attachments:
 
 payload_paths:
   CTX_JSON:
-    main: docs/_tech_graph/graph.json
+    main: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/CTX_JSON/main.graph.json
   CTX_MERMAID:
-    main: tools/tech_graph_token_estimate.py # 同规则 collect_mermaid_corpus；Step 2 由脚本/materialize 生成语料
+    main: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/CTX_MERMAID/main.mermaid_corpus.txt
+  attachments_dir: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/_shared
+  materialize_script: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/materialize_payloads.py
+  materialize_report: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/materialize_report.json
 
 # Step 0 轴 II 基线（2026-05-16 本机复现，与 gate_a 专文 §9 一致）
 axis_ii_baseline:

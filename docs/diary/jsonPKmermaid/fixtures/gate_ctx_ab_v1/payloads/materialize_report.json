@@ -1,0 +1,28 @@
+{
+  "schema": "gate_ctx_ab_payload_materialize_v1",
+  "generated_at": "2026-05-16T10:37:42Z",
+  "repo_root": ".",
+  "freeze_id": "TECH_GRAPH_S1_FREEZE_20260514_V1_1_3",
+  "paths": {
+    "CTX_JSON_main": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/CTX_JSON/main.graph.json",
+    "CTX_MERMAID_main": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/CTX_MERMAID/main.mermaid_corpus.txt",
+    "attachments": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/_shared"
+  },
+  "forbidden_checks": {
+    "CTX_JSON_has_no_ai_md": true,
+    "CTX_MERMAID_has_no_graph_json": true
+  },
+  "stats": {
+    "A_graph_json": {
+      "bytes_utf8": 20224,
+      "chars": 20224,
+      "heuristic_tokens": 5056
+    },
+    "B_mermaid_corpus": {
+      "bytes_utf8": 20953,
+      "chars": 20105,
+      "heuristic_tokens": 5026
+    },
+    "source_ai_md_count": 7
+  }
+}

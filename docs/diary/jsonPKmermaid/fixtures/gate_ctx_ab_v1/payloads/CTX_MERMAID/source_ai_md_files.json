@@ -1,0 +1,11 @@
+{
+  "files": [
+    "docs/_tech_graph/00_main.ai.md",
+    "docs/_tech_graph/10_flow_rag.ai.md",
+    "docs/_tech_graph/11_flow_text2sql.ai.md",
+    "docs/_tech_graph/12_flow_fts.ai.md",
+    "docs/_tech_graph/13_flow_supabase_rpc.ai.md",
+    "docs/_tech_graph/14_runtime_observability.ai.md",
+    "docs/_tech_graph/15_e2e_boundary.ai.md"
+  ]
+}
