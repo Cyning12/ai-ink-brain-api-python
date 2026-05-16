@@ -1,0 +1,81 @@
+{
+  "schema_version": "gate_ctx_ab_tasks_v1",
+  "fixture_set": "gate_ctx_ab_v1",
+  "tool_allowlist": [
+    "docs/_tech_graph/graph.json",
+    "docs/_tech_graph/_manifest.json",
+    "docs/_tech_graph/_contract_manifest.json",
+    "api/rag_env.py",
+    "api/index.py",
+    "api/ingest_pipeline.py",
+    "api/code_ingest.py",
+    "api/unified_chat.py",
+    "supabase/sql"
+  ],
+  "tasks": [
+    {
+      "task_id": "T001_embedding_dim_default",
+      "topic_id": "rag_env_embedding",
+      "segment_scope": ["S0"],
+      "prompt_zh": "计划调整向量维度约定：将 `api/rag_env.py` 中 `expected_embedding_dim()` 的默认行为（无 `EMBEDDING_DIM` / `SILICONFLOW_EMBEDDING_DIM` 环境变量时）与全链路对齐。请列出主要代码入口、影响面，并给出可核验 evidence（图谱节点 id 或仓库相对路径）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/rag_env.py",
+            "symbol": "expected_embedding_dim",
+            "graph_id": "ENV",
+            "note": "维度真值函数；默认 1024"
+          },
+          {
+            "path": "api/rag_env.py",
+            "symbol": "siliconflow_embedding_dimensions",
+            "graph_id": "ENV_KEYS",
+            "note": "SILICONFLOW_EMBEDDING_DIMENSIONS 读取"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "chat",
+            "graph_id": "C1",
+            "note": "Legacy RAG Chat 入口；index 侧亦有 SILICONFLOW_EMBEDDING_DIMENSIONS 模块级常量"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "api/ingest_pipeline.py",
+            "kind": "data",
+            "graph_id": "A1",
+            "note": "ingest 校验 len(vec) 与 expected_embedding_dim()"
+          },
+          {
+            "path": "api/code_ingest.py",
+            "kind": "data",
+            "graph_id": "A2",
+            "note": "code ingest 同样校验维度"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "EMB",
+            "note": "RAG 召回 embedding 路径（见 10_flow_rag.ai.md）"
+          },
+          {
+            "path": "supabase/sql",
+            "kind": "data",
+            "graph_id": "VEC",
+            "note": "documents/code_chunks vector(N) 须与维度一致（见 01_struct.md）"
+          },
+          {
+            "path": ".github/workflows",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "变更维度假设须跑 graph export / contract / 相关 pytest"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        }
+      }
+    }
+  ]
+}

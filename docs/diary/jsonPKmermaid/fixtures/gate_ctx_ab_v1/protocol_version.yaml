@@ -1,0 +1,47 @@
+# gate_ctx_ab_v1 — 最小 S0 冻结表（Step 1）
+protocol_version: v1-minimal-s0
+status: draft
+created_at: "2026-05-16"
+
+repo: ai-ink-brain-api-python
+git_commit: "31715a6"
+freeze_id: TECH_GRAPH_S1_FREEZE_20260514_V1_1_3
+
+arms:
+  - CTX_JSON
+  - CTX_MERMAID
+
+context_strategy: alpha # 每轮 user 重贴全量主载荷 + manifest/contract
+
+attachments:
+  manifest: docs/_tech_graph/_manifest.json
+  contract: docs/_tech_graph/_contract_manifest.json
+
+payload_paths:
+  CTX_JSON:
+    main: docs/_tech_graph/graph.json
+  CTX_MERMAID:
+    main: tools/tech_graph_token_estimate.py # 同规则 collect_mermaid_corpus；Step 2 由脚本/materialize 生成语料
+
+# Step 0 轴 II 基线（2026-05-16 本机复现，与 gate_a 专文 §9 一致）
+axis_ii_baseline:
+  graph_json_bytes: 20224
+  A_heuristic_tokens: 5056
+  B_bytes_utf8: 20953
+  B_heuristic_tokens: 5026
+  ratio_heuristic_tokens: 0.9941
+  nodes: 134
+  edges: 180
+
+provider: siliconflow
+model: deepseek-ai/DeepSeek-V4-Flash # Step 3 S0 两分支共用；双人 Rubric 另议
+temperature: 0.2
+max_tokens: 4096
+
+tools_policy: read_file_whitelist # 与 01 §2 二选一写死；路径白名单见 tasks.json tool_allowlist
+
+segments_enabled:
+  - S0
+# S1/S2 在 minimal 跑通后再启用
+
+output_schema_ref: ../../01_experiment_json_vs_mermaid_kpi_v1.md#3-输出-schema每轮强制-json

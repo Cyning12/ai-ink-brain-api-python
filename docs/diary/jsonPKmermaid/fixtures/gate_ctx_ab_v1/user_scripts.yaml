@@ -1,0 +1,10 @@
+# S1 固定 user 脚本（Step 3 跑通 S0 后再启用；与 01 §4.3 对齐）
+schema_version: gate_ctx_ab_user_scripts_v1
+segment: S1
+rounds:
+  - id: S1_R1
+    prompt_zh: "把入口收敛到函数级，并说明每条 entrypoint 的理由（引用 evidence）。"
+  - id: S1_R2
+    prompt_zh: "列出对 CI / 契约（contract manifest）最敏感的影响点。"
+  - id: S1_R3
+    prompt_zh: "给出最小验证路径（命令级，cwd=仓根）；不得声称已执行 CI。"

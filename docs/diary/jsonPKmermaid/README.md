@@ -11,6 +11,7 @@
 | 1 | [`00_legacy_compare_summary.md`](./00_legacy_compare_summary.md) | 旧对比谱系（`docs/diary/test` + 闸口 A 专文） |
 | 2 | [`01_experiment_json_vs_mermaid_kpi_v1.md`](./01_experiment_json_vs_mermaid_kpi_v1.md) | 行为实验协议（`CTX_JSON` vs `CTX_MERMAID`，`draft`） |
 | 3 | [`02_minimal_first_step_v1.md`](./02_minimal_first_step_v1.md) | **最小可跑第一步**（从静态基线到 S0 单题双分支） |
+| — | [`fixtures/gate_ctx_ab_v1/`](./fixtures/gate_ctx_ab_v1/) | Step 1 题集与 `protocol_version`（**进行中**） |
 
 ## 与历史资产的关系
 

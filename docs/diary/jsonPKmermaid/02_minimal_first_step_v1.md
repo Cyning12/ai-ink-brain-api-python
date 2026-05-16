@@ -24,6 +24,8 @@ wc -c docs/_tech_graph/graph.json
 
 ## Step 1 — 冻结 `protocol_version`（fixtures 骨架）
 
+**状态（2026-05-16）**：骨架已落盘 → [`fixtures/gate_ctx_ab_v1/`](./fixtures/gate_ctx_ab_v1/)（`T001_embedding_dim_default`）。
+
 创建（路径可按 `01` §6，此处为最小集）：
 
 ```
