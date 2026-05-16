@@ -248,7 +248,6 @@ def _write_record(path: Path, record: dict[str, Any]) -> None:
 
 def _make_record(
     *,
-    schema_segment: str,
     run_id: str,
     arm: str,
     primary_task_id: str,
