@@ -71,7 +71,7 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 | 2026-05-16 | 入仓 T003 + rg 核验 | `d1ccf00` | ingest_rpc |
 | 2026-05-16 | `score_gold_f1.py` + T003 批跑 `144300` | `408409e` | **P0-A 完成** |
 | 2026-05-16 | 本日志 + 三题草案 | `c16adc1` | 防漂移 |
-| 2026-05-16 | P0-B：`run_s1_s2.py` + `user_scripts.json`；T001 启用 S1/S2 scope | （待 commit） | 未跑 API |
+| 2026-05-16 | P0-B：`run_s1_s2.py` + `user_scripts.json`；T001 启用 S1/S2 scope | `a9f52de` | 未跑 API |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
