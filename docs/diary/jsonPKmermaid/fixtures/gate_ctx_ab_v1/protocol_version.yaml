@@ -16,7 +16,7 @@ s0_arms_order:
   - CTX_MERMAID
   - CTX_JSON
 
-context_strategy: alpha # 每轮 user 重贴全量主载荷 + manifest/contract
+context_strategy: alpha # S0 批跑默认；S1/S2 脚本默认 beta（见 run_s1_s2.py --context-strategy）
 
 attachments:
   manifest: docs/_tech_graph/_manifest.json
@@ -50,6 +50,7 @@ tools_policy: read_file_whitelist # 与 01 §2 二选一写死；路径白名单
 
 segments_enabled:
   - S0
-# S1/S2 在 minimal 跑通后再启用
+  - S1
+  - S2
 
 output_schema_ref: ../../01_experiment_json_vs_mermaid_kpi_v1.md#3-输出-schema每轮强制-json

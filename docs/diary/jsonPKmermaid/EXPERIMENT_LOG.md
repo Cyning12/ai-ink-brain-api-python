@@ -70,7 +70,8 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 | 2026-05-16 | 规则双轨 `10/20-tech-graph.mdc` | `27554a2` | 与实验隔离说明 |
 | 2026-05-16 | 入仓 T003 + rg 核验 | `d1ccf00` | ingest_rpc |
 | 2026-05-16 | `score_gold_f1.py` + T003 批跑 `144300` | `408409e` | **P0-A 完成** |
-| 2026-05-16 | 本日志 + 三题草案 | （本次 commit） | 防漂移 |
+| 2026-05-16 | 本日志 + 三题草案 | `c16adc1` | 防漂移 |
+| 2026-05-16 | P0-B：`run_s1_s2.py` + `user_scripts.json`；T001 启用 S1/S2 scope | （待 commit） | 未跑 API |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -87,7 +88,8 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 
 ### 定稿前仍缺
 
-- [ ] **P0-B**：`user_scripts.yaml` + S1/S2 runner（至少 1 题跑通）
+- [x] **P0-B 脚本**：`user_scripts.json` + `run_s1_s2.py --all-tasks`（三题×两 arm）
+- [ ] **P0-B 跑数**：执行 S1/S2 并落盘（6 会话 × 6 轮 API，耗时长）
 - [ ] 三题总表 + S1/S2 后的 **修订结论文**（非 draft）
 - [ ] 可选：F1 规则收紧或 Rubric 抽样（P1）
 - [ ] 书面 **决策规则**（几胜才算倾向 JSON）
@@ -105,6 +107,7 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 | 用途 | 路径 |
 |------|------|
 | 跑 S0 批跑 | `fixtures/gate_ctx_ab_v1/scripts/run_s0_batch.py` |
+| 跑 S1/S2 | `fixtures/gate_ctx_ab_v1/scripts/run_s1_s2.py --all-tasks` |
 | gold F1 | `fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py` |
 | 题集 | `fixtures/gate_ctx_ab_v1/tasks.json` |
 | 全批 F1（勿用于 T001 定稿表） | `reports/gold_f1_all_batches.md` |

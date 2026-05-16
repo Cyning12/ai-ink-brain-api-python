@@ -19,7 +19,7 @@
     {
       "task_id": "T001_embedding_dim_default",
       "topic_id": "rag_env_embedding",
-      "segment_scope": ["S0"],
+      "segment_scope": ["S0", "S1", "S2"],
       "prompt_zh": "计划调整向量维度约定：将 `api/rag_env.py` 中 `expected_embedding_dim()` 的默认行为（无 `EMBEDDING_DIM` / `SILICONFLOW_EMBEDDING_DIM` 环境变量时）与全链路对齐。请列出主要代码入口、影响面，并给出可核验 evidence（图谱节点 id 或仓库相对路径）。",
       "gold": {
         "entrypoints": [
