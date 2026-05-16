@@ -1,15 +1,28 @@
-## 图谱自动增量更新规则（核心）
+---
+description: 图谱增量更新 — 改 .ai.md 后导出 graph.json 与 manifest/contract
+globs:
+  - docs/_tech_graph/**
+  - api/**
+---
+
+## 图谱自动增量更新规则
 
 ### 触发条件
-- 当代码、表结构、接口、页面、逻辑发生变动时：必须自动更新 `docs/_tech_graph/` 中对应图谱文件。
-- 禁止全量重新生成。
+
+- 代码、表结构、接口、Env、SSE/契约变更时：更新 `docs/_tech_graph/` 中**受影响**的 `.ai.md` / `_manifest.json` / `_contract_manifest.json`（及人类版 `.md` 若需同步）。
+- 禁止无差别全量重生成所有图谱文件。
 
 ### 更新原则
-- 只改受影响的节点/流程，不破坏其他内容。
-- 版本时间线 `02_version.md` 自动追加版本记录。
-- 保持图谱结构稳定，不随意变更文件名称。
+
+- 只改受影响节点/边/清单项；保持文件命名与双轨结构稳定。
+- `02_version.md` 在里程碑变更时追加记录。
+- 维护轨改完后**必须**再生机器轨：
+  - `python tools/tech_graph_graph_export.py`（或 CI 等价 `--check`）→ 更新 `graph.json`
+  - 端点/RPC/表/env 变更 → 跑 `python tools/tech_graph_manifest_check.py`
+  - 契约变更 → 跑 `python tools/tech_graph_contract_check.py`
 
 ### AI 必须遵守
-- 每次修改代码前，先读取对应 `_tech_graph` 子图。
-- 修改代码后，自动同步更新图谱；不允许代码与图谱不一致。
-- 不允许出现逻辑偏差。
+
+- 改代码前：影响分析优先读 `graph.json` + `_manifest.json`（+ 契约 JSON 若相关）。
+- 改代码后：同步维护轨与机器轨；**不允许**代码与 `graph.json` / manifest / contract 长期不一致。
+- **不允许**只改 `graph.json` 而不改源 `.ai.md`。
