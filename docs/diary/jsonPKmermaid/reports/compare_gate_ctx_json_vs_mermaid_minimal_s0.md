@@ -1,35 +1,56 @@
 # JSON vs Mermaid — minimal S0 对照（T001）
 
-> **run_id**：`gate_ctx_ab_v1_minimal_s0_20260516_105006`  
-> **题**：`T001_embedding_dim_default`（`expected_embedding_dim()` 默认维度）  
+> **题**：`T001_embedding_dim_default`  
 > **模型**：`deepseek-ai/DeepSeek-V4-Flash`（SiliconFlow）  
-> **轴 II 静态基线**：见 [`../fixtures/gate_ctx_ab_v1/payloads/materialize_report.json`](../fixtures/gate_ctx_ab_v1/payloads/materialize_report.json)（**不与下表混写为同一句结论**）
+> **轴 II 静态**：见 [`../fixtures/gate_ctx_ab_v1/payloads/materialize_report.json`](../fixtures/gate_ctx_ab_v1/payloads/materialize_report.json)（**不与**下表 LLM token/墙钟混写）
 
-## S0 行为向（LLM usage）
+## 1. 三轮 run 墙钟 / token（行为向）
 
-| arm | status | prompt_tokens | completion_tokens | total | wall_s |
-|-----|--------|---------------|-------------------|------:|-------:|
-| `CTX_JSON` | ok | 11039 | 842 | 11881 | 39.6 |
-| `CTX_MERMAID` | ok | 11425 | 937 | 12362 | 6.1 |
+| run_id | 调用顺序 | 首轮 arm | 首轮 wall_s | 次轮 arm | 次轮 wall_s | 说明 |
+|--------|----------|----------|------------:|----------|------------:|------|
+| `…_105006` | JSON → Mermaid | CTX_JSON | **39.6** | CTX_MERMAID | **6.1** | 改 runner 前；首轮冷启动落在 JSON |
+| `…_104123` | JSON → Mermaid | CTX_JSON | **612.9** | CTX_MERMAID | **77.6** | 异常偏长（疑似无/长超时等待）；**不宜**作主结论 |
+| `…_110007` | **Mermaid → JSON** | CTX_MERMAID | **10.9** | CTX_JSON | **13.7** | **推荐对照**；`s0_arms_order` 默认 |
 
-- **P3（省钱，粗）**：本 run 下 **JSON 分支 total 略低**（11881 vs 12362）。  
-- **P4（省时，粗）**：**Mermaid 分支墙钟明显更短**（6.1s vs 39.6s）；仅单次、未重复 R 次，不作签收。  
+**同 run 内 token（110007）**
 
-原始记录：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)
+| arm | prompt | completion | total |
+|-----|-------:|-----------:|------:|
+| CTX_MERMAID | 11425 | 774 | 12199 |
+| CTX_JSON | 11039 | 798 | 11837 |
 
-## 结构粗评（未跑 Rubric）
+**同 run 内 token（105006）**
 
-两分支均输出合法 JSON（含 `entrypoints` / `impacts` / `evidence` / `unknowns`）。  
-`CTX_JSON` 命中 `api/rag_env.py::expected_embedding_dim`；`CTX_MERMAID` 以图谱节点 `EMB`/`VEC`/`FUSE` 为主（与 gold 部分对齐，**未**做 F1 计分）。
+| arm | prompt | completion | total |
+|-----|-------:|-----------:|------:|
+| CTX_JSON | 11039 | 842 | 11881 |
+| CTX_MERMAID | 11425 | 937 | 12362 |
 
-## 本报告未覆盖
+## 2. 解读（粗）
 
-- S1 多轮、S2 换题、双人盲审  
-- 入口/影响 F1 对 gold 的定量对比  
+1. **模型名正确**；各 run `parse_ok` 均为 true。  
+2. **JSON 并非必然更慢**：`110007` 在 Mermaid 首轮之后，JSON 仅 **~14s**，与「JSON 载荷导致 40s+」不一致。  
+3. **首轮顺序强相关**：`105006` 首轮 JSON **39.6s** vs 次轮 Mermaid **6.1s**；调换顺序后首轮 Mermaid **10.9s**、次轮 JSON **13.7s** — 更符合 **API 冷启动/排队落在第一次请求**。  
+4. **P3（token）**：三轮内 JSON 分支 total 略低于或接近 Mermaid（~11.8k vs ~12.2k），差异不大。  
+5. **`104123`** 仅作异常样本保留，不纳入胜负判断。
 
-## 复现
+## 3. 复现
 
 ```bash
 cd ai-ink-brain-api-python
+# 默认：Mermaid → JSON（protocol s0_arms_order）
 python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py
+
+# 复现旧顺序 JSON → Mermaid
+python …/run_s0_minimal.py --arms-order json,mermaid
 ```
+
+## 4. 原始落盘
+
+- 推荐：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_110007/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_110007/)  
+- 旧顺序：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)  
+- 异常：[`../runs/gate_ctx_ab_v1_minimal_s0_20260516_104123/`](../runs/gate_ctx_ab_v1_minimal_s0_20260516_104123/)
+
+## 5. 未覆盖
+
+S1/S2、双人 Rubric、入口/影响 F1 对 gold 计分。

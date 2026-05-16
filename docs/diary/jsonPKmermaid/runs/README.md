@@ -9,6 +9,10 @@ runs/<run_id>/
   raw/{arm}_{task_id}_S0.jsonl
 ```
 
-示例：[`gate_ctx_ab_v1_minimal_s0_20260516_105006/`](./gate_ctx_ab_v1_minimal_s0_20260516_105006/)（首轮为 `CTX_JSON`，墙钟可能偏长）
+| run_id | arms_order | 备注 |
+|--------|------------|------|
+| [`…_110007`](./gate_ctx_ab_v1_minimal_s0_20260516_110007/) | Mermaid → JSON | **推荐对照**（2026-05-16 复跑） |
+| [`…_105006`](./gate_ctx_ab_v1_minimal_s0_20260516_105006/) | JSON → Mermaid | 首轮 JSON 39.6s |
+| [`…_104123`](./gate_ctx_ab_v1_minimal_s0_20260516_104123/) | JSON → Mermaid | 异常墙钟，勿作主结论 |
 
-复跑时建议用 `--arms-order mermaid,json` 或依赖 protocol 默认 `s0_arms_order`，并在 `index.json` 查看 `arms_order` / `call_index`。
+汇总：[`../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)

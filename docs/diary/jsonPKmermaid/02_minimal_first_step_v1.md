@@ -62,7 +62,7 @@ docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/
 
 ## Step 3 — 跑 S0 × 2 分支（各 1 次）
 
-**状态（2026-05-16）**：已跑通 → [`runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/`](./runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)（脚本 [`fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py`](./fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py)）。
+**状态（2026-05-16）**：推荐对照 run → [`runs/gate_ctx_ab_v1_minimal_s0_20260516_110007/`](./runs/gate_ctx_ab_v1_minimal_s0_20260516_110007/)（默认 **Mermaid → JSON**）；首轮 JSON 旧 run：[`…_105006/`](./runs/gate_ctx_ab_v1_minimal_s0_20260516_105006/)。脚本：[`run_s0_minimal.py`](./fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py)。
 
 对 **同一 `task_id`**：
 
