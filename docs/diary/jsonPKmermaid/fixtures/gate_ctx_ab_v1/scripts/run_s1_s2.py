@@ -291,6 +291,7 @@ def _make_record(
 def execute_s1_s2_session(
     *,
     run_dir: Path,
+    parent_run_id: str,
     primary_task: dict[str, Any],
     arm: str,
     s0: Any,
@@ -377,7 +378,7 @@ def execute_s1_s2_session(
 
         cumulative_tokens += int(usage.get("total_tokens") or 0)
         record = _make_record(
-            run_id=run_dir.name,
+            run_id=parent_run_id,
             arm=arm,
             primary_task_id=primary_task_id,
             topic_id=topic_id,
@@ -537,7 +538,8 @@ def execute_s1_s2_session(
 
     session_index = {
         "schema": "gate_ctx_ab_s1s2_session_v1",
-        "run_id": run_dir.name,
+        "run_id": parent_run_id,
+        "session_path": str(run_dir.relative_to(RUNS_ROOT)) if run_dir.is_relative_to(RUNS_ROOT) else str(run_dir),
         "primary_task_id": primary_task_id,
         "topic_id": topic_id,
         "arm": arm,
@@ -628,6 +630,7 @@ def main() -> int:
             try:
                 index, code = execute_s1_s2_session(
                     run_dir=session_dir,
+                    parent_run_id=parent.name,
                     primary_task=task,
                     arm=arm,
                     s0=s0,
