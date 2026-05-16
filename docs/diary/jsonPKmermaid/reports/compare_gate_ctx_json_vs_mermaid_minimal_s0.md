@@ -68,6 +68,31 @@ python …/run_s0_minimal.py --parallel
 
 `index.json` 会写 `execution_mode: parallel` 与 `batch_wall_total_s`（两请求并发时的外层墙钟）。
 
-## 6. 未覆盖
+## 6. 多轮批跑（推荐对照）
+
+**批次**：[`gate_ctx_ab_v1_batch_20260516_110751`](../runs/gate_ctx_ab_v1_batch_20260516_110751/)  
+**设定**：**3 轮** × 每轮 **`--parallel`**（最小可剔除 1 个离群；稳健可 `--rounds 5`）
+
+| round | CTX_JSON wall_s | CTX_MERMAID wall_s | 备注 |
+|------:|----------------:|-------------------:|------|
+| 1 | 72.45 | 22.33 | JSON **剔除**（>2.5×中位数） |
+| 2 | 21.25 | 35.59 | 均保留 |
+| 3 | 6.99 | 6.97 | 均保留 |
+
+**剔除后中位数（clean）**
+
+| 指标 | CTX_JSON | CTX_MERMAID |
+|------|--------:|------------:|
+| wall_median_s | **14.1** | **22.3** |
+| total_tokens_median | 11871 | 12333 |
+| n | 2 | 3 |
+
+**解读**：剔除首轮 JSON 尖峰后，两分支墙钟同量级（~7–22s），**无「JSON 形态必然更慢」**；token 中位数 JSON 略低。完整表见批次 [`aggregate.md`](../runs/gate_ctx_ab_v1_batch_20260516_110751/aggregate.md)。
+
+```bash
+python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/run_s0_batch.py --rounds 3
+```
+
+## 7. 未覆盖
 
 S1/S2、双人 Rubric、入口/影响 F1 对 gold 计分。

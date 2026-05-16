@@ -22,6 +22,9 @@ python …/run_s0_minimal.py --arms-order json,mermaid
 
 # 并行（削弱顺序偏差；推荐做 A/B 墙钟对比）
 python …/run_s0_minimal.py --parallel
+
+# 多轮批跑（默认 3 轮并行 + 剔除离群后汇总）
+python …/run_s0_batch.py --rounds 3
 ```
 
 **Step 1 完成标准**：本目录四文件齐全；`tasks.json` 中 `gold` 路径可在仓内 `rg` 核验。

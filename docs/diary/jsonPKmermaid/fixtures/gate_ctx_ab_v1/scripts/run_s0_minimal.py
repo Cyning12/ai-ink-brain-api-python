@@ -345,15 +345,26 @@ def _execute_arm(
     return record, summary
 
 
-def main() -> int:
+def execute_s0_round(
+    *,
+    run_dir: Path,
+    parallel: bool = False,
+    arms_order: str | None = None,
+    model: str | None = None,
+    protocol_path: Path = PROTOCOL_PATH,
+    request_timeout: float = 300.0,
+    task_id_arg: str | None = None,
+    batch_id: str | None = None,
+    batch_round: int | None = None,
+    quiet: bool = False,
+) -> tuple[Path, dict[str, Any], int]:
+    """执行一轮 S0，写入 run_dir，返回 (run_dir, index, exit_code)。"""
     from tools.rubric_review.config import ReviewRuntimeConfig
 
-    args = _parse_args()
-    protocol = load_protocol(args.protocol)
-
+    protocol = load_protocol(protocol_path)
     tasks_doc = json.loads((FIXTURE_ROOT / "tasks.json").read_text(encoding="utf-8"))
-    if args.task_id:
-        task = next(t for t in tasks_doc["tasks"] if t["task_id"] == args.task_id)
+    if task_id_arg:
+        task = next(t for t in tasks_doc["tasks"] if t["task_id"] == task_id_arg)
     else:
         task = tasks_doc["tasks"][0]
     task_id = task["task_id"]
@@ -361,28 +372,21 @@ def main() -> int:
 
     cfg = ReviewRuntimeConfig.from_env()
     if cfg.backend != "siliconflow":
-        print("本最小脚本仅验证 siliconflow；请设置 RUBRIC_REVIEW_BACKEND=siliconflow", file=sys.stderr)
-        return 2
+        raise RuntimeError("本最小脚本仅验证 siliconflow；请设置 RUBRIC_REVIEW_BACKEND=siliconflow")
     api_key = cfg.siliconflow_api_key
     if not api_key:
-        print("缺少 SILICONFLOW_API_KEY", file=sys.stderr)
-        return 2
+        raise RuntimeError("缺少 SILICONFLOW_API_KEY")
     base_url = cfg.siliconflow_base_url
 
-    model = (args.model or protocol.get("model") or "").strip()
-    if not model:
-        print("protocol 中缺少 model，请用 --model 指定", file=sys.stderr)
-        return 2
+    model_resolved = (model or protocol.get("model") or "").strip()
+    if not model_resolved:
+        raise RuntimeError("protocol 中缺少 model，请用 --model 指定")
     temperature = float(protocol.get("temperature") or 0.2)
     max_tokens = int(protocol.get("max_tokens") or 4096)
     protocol_version = str(protocol.get("protocol_version") or "unknown")
     freeze_id = str(protocol.get("freeze_id") or "")
 
-    try:
-        arm_ids = resolve_arms_order(args.arms_order, protocol)
-    except ValueError as e:
-        print(str(e), file=sys.stderr)
-        return 2
+    arm_ids = resolve_arms_order(arms_order, protocol)
 
     manifest = _load_text(PAYLOADS / "_shared" / "_manifest.json")
     contract = _load_text(PAYLOADS / "_shared" / "_contract_manifest.json")
@@ -390,22 +394,21 @@ def main() -> int:
     arms: list[tuple[str, str, str]] = []
     for arm_id in arm_ids:
         if arm_id not in ARM_SPECS:
-            print(f"未配置载荷：{arm_id}", file=sys.stderr)
-            return 2
+            raise RuntimeError(f"未配置载荷：{arm_id}")
         label, path = ARM_SPECS[arm_id]
         arms.append((arm_id, label, _load_text(path)))
 
-    run_id = f"gate_ctx_ab_v1_minimal_s0_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-    run_dir = RUNS_ROOT / run_id
+    run_id = run_dir.name
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    execution_mode = "parallel" if args.parallel else "sequential"
-    print(
-        f"model={model} mode={execution_mode} arms_order={','.join(arm_ids)} "
-        f"timeout={args.request_timeout}s",
-        flush=True,
-    )
+    execution_mode = "parallel" if parallel else "sequential"
+    if not quiet:
+        print(
+            f"model={model_resolved} mode={execution_mode} arms_order={','.join(arm_ids)} "
+            f"timeout={request_timeout}s -> {run_dir}",
+            flush=True,
+        )
 
     arm_index = {arm_id: i + 1 for i, arm_id in enumerate(arm_ids)}
     common_kw = {
@@ -413,12 +416,12 @@ def main() -> int:
         "contract": contract,
         "task_prompt": task["prompt_zh"],
         "system": system,
-        "model": model,
+        "model": model_resolved,
         "api_key": api_key,
         "base_url": base_url,
         "max_tokens": max_tokens,
         "temperature": temperature,
-        "request_timeout": args.request_timeout,
+        "request_timeout": request_timeout,
         "run_id": run_id,
         "arm_ids": arm_ids,
         "task_id": task_id,
@@ -430,8 +433,9 @@ def main() -> int:
     results_by_arm: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
     batch_wall_s: float | None = None
 
-    if args.parallel:
-        print(f"并行发起 {len(arms)} 个请求 …", flush=True)
+    if parallel:
+        if not quiet:
+            print(f"并行发起 {len(arms)} 个请求 …", flush=True)
         batch_t0 = time.perf_counter()
 
         def _job(item: tuple[str, str, str]) -> tuple[str, dict[str, Any], dict[str, Any]]:
@@ -450,16 +454,19 @@ def main() -> int:
             for fut in as_completed(futures):
                 arm, record, summary = fut.result()
                 results_by_arm[arm] = (record, summary)
-                print(
-                    f"  完成 {arm} -> {summary['status']} wall={summary['wall_total_s']}s",
-                    flush=True,
-                )
+                if not quiet:
+                    print(
+                        f"  完成 {arm} -> {summary['status']} wall={summary['wall_total_s']}s",
+                        flush=True,
+                    )
         batch_wall_s = round(time.perf_counter() - batch_t0, 3)
-        print(f"并行批次总墙钟 batch_wall_total_s={batch_wall_s}", flush=True)
+        if not quiet:
+            print(f"并行批次总墙钟 batch_wall_total_s={batch_wall_s}", flush=True)
     else:
         for arm, main_label, main_text in arms:
             idx = arm_index[arm]
-            print(f"[{idx}/{len(arms)}] 调用 {arm} …", flush=True)
+            if not quiet:
+                print(f"[{idx}/{len(arms)}] 调用 {arm} …", flush=True)
             record, summary = _execute_arm(
                 call_index=idx,
                 arm=arm,
@@ -468,12 +475,13 @@ def main() -> int:
                 **common_kw,
             )
             results_by_arm[arm] = (record, summary)
-            print(
-                f"  -> {summary['status']} model_returned={summary['model_returned']} "
-                f"tokens={(summary.get('prompt_tokens') or 0) + (summary.get('completion_tokens') or 0)} "
-                f"wall={summary['wall_total_s']}s",
-                flush=True,
-            )
+            if not quiet:
+                print(
+                    f"  -> {summary['status']} model_returned={summary['model_returned']} "
+                    f"tokens={(summary.get('prompt_tokens') or 0) + (summary.get('completion_tokens') or 0)} "
+                    f"wall={summary['wall_total_s']}s",
+                    flush=True,
+                )
 
     summary_rows: list[dict[str, Any]] = []
     for arm_id in arm_ids:
@@ -482,27 +490,32 @@ def main() -> int:
         out_path.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
         summary_rows.append(summary)
 
-    index = {
+    index: dict[str, Any] = {
         "schema": "gate_ctx_ab_run_index_v1",
         "run_id": run_id,
         "task_id": task_id,
         "segment": "S0",
         "protocol_version": protocol_version,
-        "model_requested": model,
+        "model_requested": model_resolved,
         "arms_order": arm_ids,
         "execution_mode": execution_mode,
         "batch_wall_total_s": batch_wall_s,
         "freeze_id": freeze_id,
-        "request_timeout_s": args.request_timeout,
+        "request_timeout_s": request_timeout,
         "arms": summary_rows,
         "note": "LLM 行为向 token；轴 II 静态字节见 payloads/materialize_report.json",
     }
+    if batch_id is not None:
+        index["parent_batch_id"] = batch_id
+    if batch_round is not None:
+        index["batch_round"] = batch_round
+
     (run_dir / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     md_lines = [
         f"# gate_ctx_ab_v1 minimal S0 — `{run_id}`",
         "",
-        f"- **model**：`{model}`",
+        f"- **model**：`{model_resolved}`",
         f"- **arms_order**：`{','.join(arm_ids)}`",
         f"- **execution_mode**：`{execution_mode}`"
         + (f" · batch_wall_total_s={batch_wall_s}" if batch_wall_s is not None else ""),
@@ -517,8 +530,30 @@ def main() -> int:
         )
     (run_dir / "README.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
 
-    print(f"OK: {run_dir}")
-    return 0 if all(r["parse_ok"] for r in summary_rows) else 1
+    if not quiet:
+        print(f"OK: {run_dir}")
+    code = 0 if all(r["parse_ok"] for r in summary_rows) else 1
+    return run_dir, index, code
+
+
+def main() -> int:
+    args = _parse_args()
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    run_dir = RUNS_ROOT / f"gate_ctx_ab_v1_minimal_s0_{ts}"
+    try:
+        _, _, code = execute_s0_round(
+            run_dir=run_dir,
+            parallel=args.parallel,
+            arms_order=args.arms_order,
+            model=args.model,
+            protocol_path=args.protocol,
+            request_timeout=args.request_timeout,
+            task_id_arg=args.task_id,
+        )
+        return code
+    except RuntimeError as e:
+        print(str(e), file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
