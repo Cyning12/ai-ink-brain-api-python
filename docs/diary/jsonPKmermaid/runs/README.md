@@ -15,6 +15,7 @@ runs/<run_id>/
 | [`…_105006`](./gate_ctx_ab_v1_minimal_s0_20260516_105006/) | JSON → Mermaid | 首轮 JSON 39.6s |
 | [`…_104123`](./gate_ctx_ab_v1_minimal_s0_20260516_104123/) | JSON → Mermaid | 异常墙钟，勿作主结论 |
 
-| [`…_batch_20260516_110751`](./gate_ctx_ab_v1_batch_20260516_110751/) | 3×parallel | **多轮剔除后对照**（见 `aggregate.md`） |
+| [`…_batch_20260516_111037`](./gate_ctx_ab_v1_batch_20260516_111037/) | 3×parallel | **终批综合结论依据**（见 `../reports/conclusion_gate_ctx_ab_comprehensive_zh.md`） |
+| [`…_batch_20260516_110751`](./gate_ctx_ab_v1_batch_20260516_110751/) | 3×parallel | 前一批对照 |
 
 汇总：[`../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)
