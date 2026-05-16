@@ -8,12 +8,14 @@
 
 | 顺序 | 文件 | 说明 |
 |------|------|------|
+| 0 | [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md) | **实验日志**（防漂移；每步更新） |
 | 1 | [`00_legacy_compare_summary.md`](./00_legacy_compare_summary.md) | 旧对比谱系（`docs/diary/test` + 闸口 A 专文） |
 | 2 | [`01_experiment_json_vs_mermaid_kpi_v1.md`](./01_experiment_json_vs_mermaid_kpi_v1.md) | 行为实验协议（`CTX_JSON` vs `CTX_MERMAID`，`draft`） |
 | 3 | [`02_minimal_first_step_v1.md`](./02_minimal_first_step_v1.md) | **最小可跑第一步**（从静态基线到 S0 单题双分支） |
 | — | [`fixtures/gate_ctx_ab_v1/`](./fixtures/gate_ctx_ab_v1/) | 题集、payloads、S0 runner |
 | — | [`runs/`](./runs/) | 行为实验落盘（含 `gate_ctx_ab_v1_minimal_s0_*`） |
-| — | [`reports/conclusion_gate_ctx_ab_comprehensive_zh.md`](./reports/conclusion_gate_ctx_ab_comprehensive_zh.md) | **综合结论（推荐阅读）** |
+| — | [`reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md`](./reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md) | **三题总表草案（P0-A）** |
+| — | [`reports/conclusion_gate_ctx_ab_comprehensive_zh.md`](./reports/conclusion_gate_ctx_ab_comprehensive_zh.md) | T001 综合结论 |
 | — | [`reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](./reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md) | 多轮/单轮对照过程表 |
 
 ## 与历史资产的关系

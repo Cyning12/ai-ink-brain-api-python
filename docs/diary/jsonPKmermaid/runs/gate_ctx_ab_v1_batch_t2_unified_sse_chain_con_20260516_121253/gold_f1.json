@@ -1,0 +1,223 @@
+{
+  "schema": "gate_ctx_ab_gold_f1_v1",
+  "source": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253",
+  "records": [
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_01/raw/CTX_JSON_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 3,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": [
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/chatbi_principal.py require_chatbi_principal #AUTH"
+        ]
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 4,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "f1": 0.3333333333333333
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_01/raw/CTX_MERMAID_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.8333333333333334,
+        "f1": 0.9090909090909091,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": [
+          "api/chatbi_principal.py require_chatbi_principal #AUTH"
+        ]
+      },
+      "impacts": {
+        "tp": 3,
+        "fp": 8,
+        "fn": 3,
+        "precision": 0.2727272727272727,
+        "recall": 0.5,
+        "f1": 0.3529411764705882
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_02/raw/CTX_JSON_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 3,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": [
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/chatbi_principal.py require_chatbi_principal #AUTH"
+        ]
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 6,
+        "fn": 4,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "f1": 0.28571428571428575
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_02/raw/CTX_MERMAID_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.8333333333333334,
+        "f1": 0.9090909090909091,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": [
+          "api/chatbi_principal.py require_chatbi_principal #AUTH"
+        ]
+      },
+      "impacts": {
+        "tp": 3,
+        "fp": 6,
+        "fn": 3,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "f1": 0.4
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_03/raw/CTX_JSON_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 3,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": [
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/chatbi_principal.py require_chatbi_principal #AUTH"
+        ]
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 5,
+        "fn": 4,
+        "precision": 0.2857142857142857,
+        "recall": 0.3333333333333333,
+        "f1": 0.30769230769230765
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/round_03/raw/CTX_MERMAID_T002_unified_sse_chain_contract_S0.jsonl",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "gold_hits": [
+          "api/index.py unified_chat_stream_route #U2",
+          "api/unified_chat.py handle_unified_chat_stream #U2",
+          "api/index.py unified_chat_route #U1",
+          "api/unified_chat.py handle_unified_chat #U1",
+          "api/chatbi_principal.py require_chatbi_principal #AUTH",
+          "api/unified_chat.py _event #EV_TYPES"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 7,
+        "fn": 4,
+        "precision": 0.2222222222222222,
+        "recall": 0.3333333333333333,
+        "f1": 0.26666666666666666
+      }
+    }
+  ],
+  "aggregate": {
+    "T002_unified_sse_chain_contract|CTX_JSON": {
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_JSON",
+      "n_records": 3,
+      "entrypoints_f1_mean": 0.6666666666666666,
+      "impacts_f1_mean": 0.3089133089133089,
+      "entrypoints_recall_mean": 0.5,
+      "impacts_recall_mean": 0.3333333333333333
+    },
+    "T002_unified_sse_chain_contract|CTX_MERMAID": {
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_MERMAID",
+      "n_records": 3,
+      "entrypoints_f1_mean": 0.9393939393939394,
+      "impacts_f1_mean": 0.3398692810457516,
+      "entrypoints_recall_mean": 0.888888888888889,
+      "impacts_recall_mean": 0.4444444444444444
+    }
+  }
+}

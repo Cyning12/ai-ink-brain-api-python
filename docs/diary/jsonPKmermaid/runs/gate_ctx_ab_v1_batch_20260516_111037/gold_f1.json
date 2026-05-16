@@ -1,0 +1,201 @@
+{
+  "schema": "gate_ctx_ab_gold_f1_v1",
+  "source": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037",
+  "records": [
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_01/raw/CTX_JSON_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS",
+          "api/index.py chat #C1"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 3,
+        "precision": 0.3333333333333333,
+        "recall": 0.4,
+        "f1": 0.3636363636363636
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_01/raw/CTX_MERMAID_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS",
+          "api/index.py chat #C1"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 3,
+        "precision": 0.3333333333333333,
+        "recall": 0.4,
+        "f1": 0.3636363636363636
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_02/raw/CTX_JSON_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS"
+        ],
+        "gold_misses": [
+          "api/index.py chat #C1"
+        ]
+      },
+      "impacts": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 3,
+        "precision": 0.3333333333333333,
+        "recall": 0.4,
+        "f1": 0.3636363636363636
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_02/raw/CTX_MERMAID_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 3,
+        "fn": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS",
+          "api/index.py chat #C1"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 3,
+        "fp": 6,
+        "fn": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.6,
+        "f1": 0.42857142857142855
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_03/raw/CTX_JSON_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_JSON",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 3,
+        "fn": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS",
+          "api/index.py chat #C1"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 3,
+        "fp": 5,
+        "fn": 2,
+        "precision": 0.375,
+        "recall": 0.6,
+        "f1": 0.4615384615384615
+      }
+    },
+    {
+      "file": "docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_batch_20260516_111037/round_03/raw/CTX_MERMAID_T001_embedding_dim_default_S0.jsonl",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_MERMAID",
+      "status": "ok",
+      "parse_ok": true,
+      "entrypoints": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "gold_hits": [
+          "api/rag_env.py expected_embedding_dim #ENV",
+          "api/rag_env.py siliconflow_embedding_dimensions #ENV_KEYS",
+          "api/index.py chat #C1"
+        ],
+        "gold_misses": []
+      },
+      "impacts": {
+        "tp": 1,
+        "fp": 5,
+        "fn": 4,
+        "precision": 0.16666666666666666,
+        "recall": 0.2,
+        "f1": 0.1818181818181818
+      }
+    }
+  ],
+  "aggregate": {
+    "T001_embedding_dim_default|CTX_JSON": {
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_JSON",
+      "n_records": 3,
+      "entrypoints_f1_mean": 0.8222222222222223,
+      "impacts_f1_mean": 0.39627039627039623,
+      "entrypoints_recall_mean": 0.8888888888888888,
+      "impacts_recall_mean": 0.4666666666666666
+    },
+    "T001_embedding_dim_default|CTX_MERMAID": {
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_MERMAID",
+      "n_records": 3,
+      "entrypoints_f1_mean": 0.7936507936507936,
+      "impacts_f1_mean": 0.3246753246753246,
+      "entrypoints_recall_mean": 1.0,
+      "impacts_recall_mean": 0.39999999999999997
+    }
+  }
+}
