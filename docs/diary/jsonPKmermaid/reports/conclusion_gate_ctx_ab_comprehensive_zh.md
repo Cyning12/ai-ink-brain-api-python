@@ -81,7 +81,8 @@
 
 ## 7. 质量与验收（本阶段）
 
-- **输出**：6/6 次合法 JSON；均命中 `api/rag_env.py` / 图谱节点类 evidence（未做 gold F1）。  
+- **T002 扩题**：[`conclusion_t002_s0_batch_zh.md`](./conclusion_t002_s0_batch_zh.md)（`…_121253`，3 轮并行；JSON 墙钟/token 中位数略优，n=3）。  
+- **输出（T001 终批）**：6/6 次合法 JSON；均命中 `api/rag_env.py` / 图谱节点类 evidence（未做 gold F1）。  
 - **未做**：S1 多轮追问、S2 换题、P1/P2 双人 Rubric、入口/影响 F1。  
 - **演示工件**：早期 `examples_builtin` Rubric 批跑已迁至 `_staging/`，**与**本实验无关。
 

@@ -108,6 +108,7 @@ def main() -> int:
     p.add_argument("--pause-between-rounds", type=float, default=3.0, help="轮间暂停秒数")
     p.add_argument("--request-timeout", type=float, default=300.0)
     p.add_argument("--model", default=None)
+    p.add_argument("--task-id", default=None, help="tasks.json 中的 task_id，默认第一条（T001）")
     args = p.parse_args()
 
     if args.rounds < 3:
@@ -115,11 +116,18 @@ def main() -> int:
         return 2
 
     s0 = _load_s0_module()
-    batch_id = f"gate_ctx_ab_v1_batch_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+    task_suffix = ""
+    if args.task_id:
+        short = args.task_id.replace("T002_", "t2_").replace("T001_", "t1_")[:24]
+        task_suffix = f"_{short}"
+    batch_id = f"gate_ctx_ab_v1_batch{task_suffix}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     batch_dir = RUNS_ROOT / batch_id
     batch_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"batch_id={batch_id} rounds={args.rounds} mode=parallel", flush=True)
+    print(
+        f"batch_id={batch_id} rounds={args.rounds} mode=parallel task_id={args.task_id or '(default first)'}",
+        flush=True,
+    )
 
     round_indexes: list[dict[str, Any]] = []
     all_rows: list[dict[str, Any]] = []
@@ -133,6 +141,7 @@ def main() -> int:
                 parallel=True,
                 model=args.model,
                 request_timeout=args.request_timeout,
+                task_id_arg=args.task_id,
                 batch_id=batch_id,
                 batch_round=r,
                 quiet=False,
@@ -165,6 +174,7 @@ def main() -> int:
     aggregate = {
         "schema": "gate_ctx_ab_batch_aggregate_v1",
         "batch_id": batch_id,
+        "task_id": args.task_id,
         "rounds_requested": args.rounds,
         "rounds_completed": len([i for i in round_indexes if "arms" in i]),
         "execution_mode": "parallel",
