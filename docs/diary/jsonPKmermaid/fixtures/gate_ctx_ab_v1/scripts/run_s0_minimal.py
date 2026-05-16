@@ -4,10 +4,16 @@
 Step 3：gate_ctx_ab_v1 最小 S0 — 对 T001 跑 CTX_JSON / CTX_MERMAID 各 1 次。
 
 落盘：docs/diary/jsonPKmermaid/runs/<run_id>/raw/{arm}_{task_id}_S0.jsonl
+
+用法：
+  python …/run_s0_minimal.py
+  python …/run_s0_minimal.py --arms-order mermaid,json
+  python …/run_s0_minimal.py --model deepseek-ai/DeepSeek-V4-Flash
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -19,6 +25,7 @@ _REPO = Path(__file__).resolve()
 REPO_ROOT = _REPO.parents[6]
 FIXTURE_ROOT = _REPO.parents[1]
 PAYLOADS = FIXTURE_ROOT / "payloads"
+PROTOCOL_PATH = FIXTURE_ROOT / "protocol_version.yaml"
 RUNS_ROOT = REPO_ROOT / "docs" / "diary" / "jsonPKmermaid" / "runs"
 
 if str(REPO_ROOT) not in sys.path:
@@ -28,9 +35,89 @@ from tools.rubric_review.llm_backends import _extract_json_object  # noqa: E402
 
 REQUIRED_KEYS = ("entrypoints", "impacts", "evidence", "unknowns")
 
+ARM_ALIASES: dict[str, str] = {
+    "json": "CTX_JSON",
+    "a": "CTX_JSON",
+    "ctx_json": "CTX_JSON",
+    "CTX_JSON": "CTX_JSON",
+    "mermaid": "CTX_MERMAID",
+    "b": "CTX_MERMAID",
+    "ctx_mermaid": "CTX_MERMAID",
+    "CTX_MERMAID": "CTX_MERMAID",
+}
+
+ARM_SPECS: dict[str, tuple[str, Path]] = {
+    "CTX_JSON": (
+        "graph.json（代号 A）",
+        PAYLOADS / "CTX_JSON" / "main.graph.json",
+    ),
+    "CTX_MERMAID": (
+        "Mermaid 语料总串（代号 B）",
+        PAYLOADS / "CTX_MERMAID" / "main.mermaid_corpus.txt",
+    ),
+}
+
 
 def _load_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _strip_yaml_comment(value: str) -> str:
+    if "#" in value:
+        value = value.split("#", 1)[0]
+    return value.strip().strip('"').strip("'")
+
+
+def load_protocol(path: Path) -> dict[str, Any]:
+    """轻量读取 protocol_version.yaml（不依赖 PyYAML）。"""
+    data: dict[str, Any] = {}
+    arms: list[str] = []
+    s0_arms_order: list[str] = []
+    mode: str | None = None
+
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line == "arms:":
+            mode = "arms"
+            continue
+        if line == "s0_arms_order:":
+            mode = "s0_arms_order"
+            continue
+        if line.startswith("- ") and mode in ("arms", "s0_arms_order"):
+            item = _strip_yaml_comment(line[2:].strip())
+            if mode == "arms":
+                arms.append(item)
+            else:
+                s0_arms_order.append(item)
+            continue
+        if ":" in line and not line.startswith("-"):
+            mode = None
+            key, val = line.split(":", 1)
+            data[key.strip()] = _strip_yaml_comment(val)
+
+    data["arms"] = arms
+    if s0_arms_order:
+        data["s0_arms_order"] = s0_arms_order
+    return data
+
+
+def resolve_arm_id(token: str) -> str:
+    key = token.strip()
+    if key not in ARM_ALIASES:
+        raise ValueError(f"未知 arm：{token!r}；可用：{', '.join(sorted(set(ARM_ALIASES)))}")
+    return ARM_ALIASES[key]
+
+
+def resolve_arms_order(order_arg: str | None, protocol: dict[str, Any]) -> list[str]:
+    if order_arg:
+        parts = [p.strip() for p in order_arg.split(",") if p.strip()]
+    elif protocol.get("s0_arms_order"):
+        parts = list(protocol["s0_arms_order"])
+    else:
+        parts = list(protocol.get("arms") or ["CTX_JSON", "CTX_MERMAID"])
+    return [resolve_arm_id(p) for p in parts]
 
 
 def _build_user_message(*, arm: str, main_label: str, main_text: str, manifest: str, contract: str, task_prompt: str) -> str:
@@ -64,12 +151,15 @@ def _call_chat_json(
     base_url: str,
     max_tokens: int,
     temperature: float,
+    request_timeout: float,
     max_retries: int = 5,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any], str | None]:
     from openai import OpenAI
 
-    client = OpenAI(api_key=api_key, base_url=base_url.rstrip("/"), timeout=300.0)
+    client = OpenAI(api_key=api_key, base_url=base_url.rstrip("/"), timeout=request_timeout)
     last_exc: BaseException | None = None
+    returned_model: str | None = None
+
     for attempt in range(max_retries):
         try:
             t0 = time.perf_counter()
@@ -84,6 +174,7 @@ def _call_chat_json(
                 response_format={"type": "json_object"},
             )
             wall = time.perf_counter() - t0
+            returned_model = getattr(resp, "model", None) or model
             raw = resp.choices[0].message.content or ""
             try:
                 parsed = json.loads(raw)
@@ -96,12 +187,11 @@ def _call_chat_json(
                 "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
                 "total_tokens": int(getattr(usage, "total_tokens", 0) or 0),
             }
-            return parsed, meta
+            return parsed, meta, returned_model
         except Exception as e:  # noqa: BLE001
             last_exc = e
             err = str(e).lower()
             if "response_format" in err or "json_object" in err:
-                # 降级：无 response_format 再试一次
                 t0 = time.perf_counter()
                 resp = client.chat.completions.create(
                     model=model,
@@ -113,6 +203,7 @@ def _call_chat_json(
                     max_tokens=max_tokens,
                 )
                 wall = time.perf_counter() - t0
+                returned_model = getattr(resp, "model", None) or model
                 raw = resp.choices[0].message.content or ""
                 parsed = _extract_json_object(raw)
                 usage = resp.usage
@@ -122,7 +213,7 @@ def _call_chat_json(
                     "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
                     "total_tokens": int(getattr(usage, "total_tokens", 0) or 0),
                 }
-                return parsed, meta
+                return parsed, meta, returned_model
             if attempt < max_retries - 1:
                 time.sleep(1.5 * (2**attempt))
             else:
@@ -142,11 +233,31 @@ def _validate_response(obj: dict[str, Any]) -> list[str]:
     return errs
 
 
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="gate_ctx_ab_v1 minimal S0 双分支调用")
+    p.add_argument(
+        "--arms-order",
+        default=None,
+        help="逗号分隔，如 mermaid,json 或 CTX_MERMAID,CTX_JSON；默认读 protocol s0_arms_order",
+    )
+    p.add_argument("--model", default=None, help="覆盖 protocol_version.yaml 中的 model")
+    p.add_argument("--protocol", type=Path, default=PROTOCOL_PATH, help="protocol_version.yaml 路径")
+    p.add_argument("--request-timeout", type=float, default=300.0, help="单次 HTTP 超时（秒）")
+    p.add_argument("--task-id", default=None, help="tasks.json 中的 task_id，默认第一条")
+    return p.parse_args()
+
+
 def main() -> int:
     from tools.rubric_review.config import ReviewRuntimeConfig
 
-    tasks = json.loads((FIXTURE_ROOT / "tasks.json").read_text(encoding="utf-8"))
-    task = tasks["tasks"][0]
+    args = _parse_args()
+    protocol = load_protocol(args.protocol)
+
+    tasks_doc = json.loads((FIXTURE_ROOT / "tasks.json").read_text(encoding="utf-8"))
+    if args.task_id:
+        task = next(t for t in tasks_doc["tasks"] if t["task_id"] == args.task_id)
+    else:
+        task = tasks_doc["tasks"][0]
     task_id = task["task_id"]
     system = _load_text(FIXTURE_ROOT / "system.md")
 
@@ -159,34 +270,45 @@ def main() -> int:
         print("缺少 SILICONFLOW_API_KEY", file=sys.stderr)
         return 2
     base_url = cfg.siliconflow_base_url
-    model = "deepseek-ai/DeepSeek-V4-Flash"
-    temperature = 0.2
-    max_tokens = 4096
+
+    model = (args.model or protocol.get("model") or "").strip()
+    if not model:
+        print("protocol 中缺少 model，请用 --model 指定", file=sys.stderr)
+        return 2
+    temperature = float(protocol.get("temperature") or 0.2)
+    max_tokens = int(protocol.get("max_tokens") or 4096)
+    protocol_version = str(protocol.get("protocol_version") or "unknown")
+    freeze_id = str(protocol.get("freeze_id") or "")
+
+    try:
+        arm_ids = resolve_arms_order(args.arms_order, protocol)
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        return 2
 
     manifest = _load_text(PAYLOADS / "_shared" / "_manifest.json")
     contract = _load_text(PAYLOADS / "_shared" / "_contract_manifest.json")
 
-    arms = [
-        (
-            "CTX_JSON",
-            "graph.json（代号 A）",
-            _load_text(PAYLOADS / "CTX_JSON" / "main.graph.json"),
-        ),
-        (
-            "CTX_MERMAID",
-            "Mermaid 语料总串（代号 B）",
-            _load_text(PAYLOADS / "CTX_MERMAID" / "main.mermaid_corpus.txt"),
-        ),
-    ]
+    arms: list[tuple[str, str, str]] = []
+    for arm_id in arm_ids:
+        if arm_id not in ARM_SPECS:
+            print(f"未配置载荷：{arm_id}", file=sys.stderr)
+            return 2
+        label, path = ARM_SPECS[arm_id]
+        arms.append((arm_id, label, _load_text(path)))
 
     run_id = f"gate_ctx_ab_v1_minimal_s0_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     run_dir = RUNS_ROOT / run_id
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
+    print(f"model={model} arms_order={','.join(arm_ids)} timeout={args.request_timeout}s", flush=True)
+
     summary_rows: list[dict[str, Any]] = []
+    call_index = 0
 
     for arm, main_label, main_text in arms:
+        call_index += 1
         user = _build_user_message(
             arm=arm,
             main_label=main_label,
@@ -195,9 +317,10 @@ def main() -> int:
             contract=contract,
             task_prompt=task["prompt_zh"],
         )
-        print(f"调用 {arm} …", flush=True)
+        print(f"[{call_index}/{len(arms)}] 调用 {arm} …", flush=True)
+        returned_model: str | None = None
         try:
-            response, usage_meta = _call_chat_json(
+            response, usage_meta, returned_model = _call_chat_json(
                 system=system,
                 user=user,
                 model=model,
@@ -205,13 +328,19 @@ def main() -> int:
                 base_url=base_url,
                 max_tokens=max_tokens,
                 temperature=temperature,
+                request_timeout=args.request_timeout,
             )
             val_errs = _validate_response(response)
             parse_ok = len(val_errs) == 0
             status = "ok" if parse_ok else "invalid_schema"
         except Exception as e:  # noqa: BLE001
             response = {"error": str(e)}
-            usage_meta = {"wall_total_s": None, "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+            usage_meta = {
+                "wall_total_s": None,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            }
             val_errs = [f"api_error:{e}"]
             parse_ok = False
             status = "error"
@@ -220,10 +349,13 @@ def main() -> int:
             "schema": "gate_ctx_ab_s0_record_v1",
             "run_id": run_id,
             "arm": arm,
+            "call_index": call_index,
+            "arms_order": arm_ids,
             "task_id": task_id,
             "segment": "S0",
-            "protocol_version": "v1-minimal-s0",
-            "model": model,
+            "protocol_version": protocol_version,
+            "model_requested": model,
+            "model_returned": returned_model,
             "provider": cfg.backend,
             "status": status,
             "parse_ok": parse_ok,
@@ -235,24 +367,33 @@ def main() -> int:
         out_path.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
         summary_rows.append(
             {
+                "call_index": call_index,
                 "arm": arm,
                 "status": status,
                 "parse_ok": parse_ok,
                 "prompt_tokens": usage_meta.get("prompt_tokens"),
                 "completion_tokens": usage_meta.get("completion_tokens"),
                 "wall_total_s": usage_meta.get("wall_total_s"),
+                "model_returned": returned_model,
                 "file": out_path.name,
             }
         )
-        print(f"  -> {status} tokens={usage_meta.get('total_tokens')} wall={usage_meta.get('wall_total_s')}s")
+        print(
+            f"  -> {status} model_returned={returned_model} "
+            f"tokens={usage_meta.get('total_tokens')} wall={usage_meta.get('wall_total_s')}s",
+            flush=True,
+        )
 
     index = {
         "schema": "gate_ctx_ab_run_index_v1",
         "run_id": run_id,
         "task_id": task_id,
         "segment": "S0",
-        "model": model,
-        "freeze_id": "TECH_GRAPH_S1_FREEZE_20260514_V1_1_3",
+        "protocol_version": protocol_version,
+        "model_requested": model,
+        "arms_order": arm_ids,
+        "freeze_id": freeze_id,
+        "request_timeout_s": args.request_timeout,
         "arms": summary_rows,
         "note": "LLM 行为向 token；轴 II 静态字节见 payloads/materialize_report.json",
     }
@@ -261,13 +402,16 @@ def main() -> int:
     md_lines = [
         f"# gate_ctx_ab_v1 minimal S0 — `{run_id}`",
         "",
-        "| arm | status | parse_ok | prompt_tokens | completion_tokens | wall_s | raw |",
-        "| --- | --- | --- | ---:| ---:| ---:| --- |",
+        f"- **model**：`{model}`",
+        f"- **arms_order**：`{','.join(arm_ids)}`",
+        "",
+        "| # | arm | status | parse_ok | prompt | completion | wall_s | model_returned | raw |",
+        "| ---:| --- | --- | --- | ---:| ---:| ---:| --- | --- |",
     ]
     for r in summary_rows:
         md_lines.append(
-            f"| `{r['arm']}` | {r['status']} | {r['parse_ok']} | {r['prompt_tokens']} | "
-            f"{r['completion_tokens']} | {r['wall_total_s']} | `{r['file']}` |"
+            f"| {r['call_index']} | `{r['arm']}` | {r['status']} | {r['parse_ok']} | {r['prompt_tokens']} | "
+            f"{r['completion_tokens']} | {r['wall_total_s']} | `{r.get('model_returned')}` | `{r['file']}` |"
         )
     (run_dir / "README.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
 

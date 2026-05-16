@@ -11,6 +11,11 @@ arms:
   - CTX_JSON
   - CTX_MERMAID
 
+# S0 默认调用顺序（避免首轮冷启动一律落在 JSON 上；可用 CLI --arms-order 覆盖）
+s0_arms_order:
+  - CTX_MERMAID
+  - CTX_JSON
+
 context_strategy: alpha # 每轮 user 重贴全量主载荷 + manifest/contract
 
 attachments:

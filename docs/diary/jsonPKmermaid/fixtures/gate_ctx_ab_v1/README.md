@@ -11,7 +11,15 @@
 | [`system.md`](./system.md) | S0 共用 system persona（Step 3） |
 | [`payloads/`](./payloads/) | Step 2 物化主载荷（`CTX_JSON` / `CTX_MERMAID` + 共享附件） |
 | [`scripts/materialize_payloads.py`](./scripts/materialize_payloads.py) | 重新生成 payloads |
-| [`scripts/run_s0_minimal.py`](./scripts/run_s0_minimal.py) | Step 3：S0 双分支 LLM 调用（需 `SILICONFLOW_API_KEY`） |
+| [`scripts/run_s0_minimal.py`](./scripts/run_s0_minimal.py) | Step 3：S0 双分支（`model` 读 `protocol_version.yaml`；`--arms-order mermaid,json`） |
+
+```bash
+# 默认：先 Mermaid 再 JSON（见 protocol s0_arms_order）
+python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/run_s0_minimal.py
+
+# 与旧 run 相同顺序（先 JSON）
+python …/run_s0_minimal.py --arms-order json,mermaid
+```
 
 **Step 1 完成标准**：本目录四文件齐全；`tasks.json` 中 `gold` 路径可在仓内 `rg` 核验。
 
