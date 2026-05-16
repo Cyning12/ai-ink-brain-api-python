@@ -17,6 +17,8 @@ runs/<run_id>/
 
 | [`…_batch_20260516_111037`](./gate_ctx_ab_v1_batch_20260516_111037/) | 3×parallel | **T001 终批**（见 `../reports/conclusion_gate_ctx_ab_comprehensive_zh.md`） |
 | [`…_batch_t2_…_121253`](./gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/) | 3×parallel | **T002** Unified SSE（见 `../reports/conclusion_t002_s0_batch_zh.md`） |
+| [`…_batch_T003_…_144300`](./gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/) | 3×parallel | **T003** Admin Ingest（[`gold_f1.md`](./gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/gold_f1.md)） |
 | [`…_batch_20260516_110751`](./gate_ctx_ab_v1_batch_20260516_110751/) | 3×parallel | T001 前一批对照 |
 
-汇总：[`../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)
+汇总：[`../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)  
+gold F1 全批：[`../reports/gold_f1_all_batches.md`](../reports/gold_f1_all_batches.md)

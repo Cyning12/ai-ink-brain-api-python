@@ -8,6 +8,7 @@
 | [`protocol_version.yaml`](./protocol_version.yaml) | 冻结模型、策略 α、commit、`freeze_id`、轴 II 基线 |
 | [`tasks.json`](./tasks.json) | 题集 + `gold`（**T001–T002** 已跑 S0；**T003** draft 待核验） |
 | [`TASKS_EXPANSION.md`](./TASKS_EXPANSION.md) | 扩题：人工核验 gold + 推荐方向 |
+| [`scripts/score_gold_f1.py`](./scripts/score_gold_f1.py) | 对 raw jsonl 按 gold 计 entrypoints/impacts F1 |
 | [`user_scripts.yaml`](./user_scripts.yaml) | S1 固定追问（Step 3 后再用） |
 | [`system.md`](./system.md) | S0 共用 system persona（Step 3） |
 | [`payloads/`](./payloads/) | Step 2 物化主载荷（`CTX_JSON` / `CTX_MERMAID` + 共享附件） |
