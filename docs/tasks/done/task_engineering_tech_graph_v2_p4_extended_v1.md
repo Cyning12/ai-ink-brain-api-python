@@ -23,7 +23,7 @@
 | --- | --- | --- | --- |
 | **HG-TASK-DRAFT** | `approved` | — | — |
 | **HG-AUDIT-R1** | `approved` | — | — |
-| **HG-AUDIT-CLOSE** | `pending` | `50` | **终轮 CLOSE 已落盘**；人签后合并 PR |
+| **HG-AUDIT-CLOSE** | `approved` | `50` | **终轮 CLOSE 已落盘**；人签后合并 PR |
 
 ---
 
