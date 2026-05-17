@@ -1,5 +1,6 @@
 # gate_ctx_ab — 实验日志（防漂移）
 
+> **符号表**：[`NOTATION_zh.md`](./NOTATION_zh.md)（段·S0–S2 / KPI·P1–P4 / 规则·R1–R6 / 阶段·Phase·P0–P1）  
 > **维护规则**：每完成一步（题集 / 跑数 / 脚本 / 结论文档），在 **[§4 步骤流水](#4-步骤流水)** 追加一行，并视情况更新 **[§3 真值表](#3-真值表)** 与 **[§5 待办](#5-待办与定稿门槛)**。  
 > **实验边界**：仅 **Agent 主上下文消耗**（token / 墙钟 / 结构化输出 / gold F1）；**不含**人读 md、双轨维护工时、Cursor rules 第三臂。
 
@@ -12,7 +13,7 @@
 | 协议 | `fixtures/gate_ctx_ab_v1/protocol_version.yaml` → `v1-minimal-s0` |
 | 模型 | `deepseek-ai/DeepSeek-V4-Flash`（SiliconFlow） |
 | 策略 | `context_strategy: alpha`（每轮全量主载荷 + manifest/contract） |
-| S0 执行 | 3 轮 / 题，`run_s0_batch.py --parallel`；离群剔除见 batch `aggregate.md` |
+| 段·S0 执行 | Repeat·R=3 轮/题，`run_s0_batch.py --parallel`；离群剔除见 batch `aggregate.md` |
 | 轴 II 静态 | `graph.json` 20224 B；Mermaid 20953 B；启发式 token 5056 / 5026 |
 | `freeze_id` | `TECH_GRAPH_S1_FREEZE_20260514_V1_1_3` |
 | 计分 | `scripts/score_gold_f1.py`（启发式；非双人 Rubric） |
@@ -34,8 +35,8 @@
 | `T002_unified_sse_chain_contract` | `unified_chat_sse` | rg 核验 | [`runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/`](./runs/gate_ctx_ab_v1_batch_t2_unified_sse_chain_con_20260516_121253/) |
 | `T003_ingest_admin_rpc` | `ingest_rpc` | rg 核验 | [`runs/gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/`](./runs/gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/) |
 
-> **勿用** `110751` 等与 `111037` 重复 T001 的 batch 写总表（`score_gold_f1.py --runs-root` 会重复计数）。  
-> 历史/异常 run 索引：[`runs/README.md`](./runs/README.md)。
+> 已删除重复/废弃 run（`110751`、minimal 三轮、smoke `150452`、中断 `150151`）。  
+> 索引：[`runs/README.md`](./runs/README.md)。
 
 ---
 
@@ -85,7 +86,9 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | 2026-05-16 | P0-B：`run_s1_s2.py` + `user_scripts.json`；T001 启用 S1/S2 scope | `a9f52de` | 未跑 API |
 | 2026-05-16 | fix `schema_segment` | `fd6df69` | — |
 | 2026-05-16 | **smoke** T002/JSON S1/S2 `…_150452` | `d6402a2` | β；累计 152369 |
-| 2026-05-16 | **P0-B 全量** `…_152126` + aggregate + 结论文 | （本次 commit） | 见 `conclusion_s1s2_batch_*` |
+| 2026-05-16 | **P0-B 全量** `…_152126` + aggregate + 结论文 | `317a71a` | 见 `conclusion_s1s2_batch_*` |
+| 2026-05-17 | 清理废弃 run / 重复报告 | （本次 commit） | 仅留 4 个 canonical run 目录 |
+| 2026-05-17 | 定稿文 + `NOTATION_zh.md` + §2.0 列解读 | （本次 commit） | P0.9 收口；Rule·R1–R6 |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -100,14 +103,17 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 - [x] P0-A：≥3 题 + gold 核验 + F1 脚本 + 每题 canonical S0 批跑
 - [x] 实验日志（本文件）+ 三题性能/F1 草案
 
-### 定稿前仍缺
+### Phase·P0 跑数与文档（已完成）
 
-- [x] **P0-B 脚本**：`user_scripts.json` + `run_s1_s2.py --all-tasks`（三题×两 arm）
-- [x] **P0-B 全量跑数**：[`runs/gate_ctx_ab_v1_s1s2_20260516_152126/`](./runs/gate_ctx_ab_v1_s1s2_20260516_152126/)（36/36 ok，~4.5h）
-- [x] **P0-B smoke**：T002 × CTX_JSON → [`runs/…_150452/`](./runs/gate_ctx_ab_v1_s1s2_20260516_150452/)（6/6 ok；累计 **152369**）
-- [ ] 三题总表 + S1/S2 后的 **修订结论文**（非 draft）
-- [ ] 可选：F1 规则收紧或 Rubric 抽样（P1）
-- [ ] 书面 **决策规则**（几胜才算倾向 JSON）
+- [x] **P0-A**：≥3 题 canonical 段·S0 批跑 + gold F1
+- [x] **P0-B**：S1/S2 全量 `152126`（36/36 ok）
+- [x] **P0.9**：定稿文 + Rule·R1–R6 + [`NOTATION_zh.md`](./NOTATION_zh.md)
+
+### P0 收口后仍可选 / 非阻塞
+
+- [ ] **人工签收**：将定稿文由 `draft-v0.9.x` 标为 `accepted`（接受「不签收一律 JSON」结论）
+- [ ] **同步协议状态**：`01_experiment_*.md` 头部「尚未跑数」改为指向本日志
+- [ ] **Phase·P1**（可选）：双人 Rubric 抽样 6 条；或收紧 F1 后复算
 
 ### 明确不做（除非改实验 charter）
 
@@ -126,8 +132,7 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | S1/S2 汇总 | `fixtures/gate_ctx_ab_v1/scripts/aggregate_s1s2.py <batch_dir>` |
 | gold F1 | `fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py` |
 | 题集 | `fixtures/gate_ctx_ab_v1/tasks.json` |
-| 全批 F1（勿用于 T001 定稿表） | `reports/gold_f1_all_batches.md` |
-| T001 综合（单题） | `reports/conclusion_gate_ctx_ab_comprehensive_zh.md` |
-| T002 综合（单题） | `reports/conclusion_t002_s0_batch_zh.md` |
+| S0 三题草案 | `reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md` |
 | S1/S2 全量结论 | `reports/conclusion_s1s2_batch_20260516_152126_zh.md` |
+| **定稿文初稿** | `reports/conclusion_gate_ctx_ab_final_zh.md` |
 | S1/S2 批内 S0 F1 | `reports/gold_f1_s1s2_s0_segments.md` |

@@ -1,9 +1,10 @@
 # 实验方案：`graph.json` vs Mermaid 语料 — LLM 上下文形态对比（V3 KPI · v1）
 
+> **符号表**：[`NOTATION_zh.md`](./NOTATION_zh.md) — **段·S0–S2** · **KPI·P1–P4** · **阶段·Phase·P0/P1** · 本文件另用 **Repeat·R**（重复轮次）与 **Reviewer·R1/R2**（评审员），**≠** 定稿文 **Rule·R1–R6**（签收规则）  
 > **日期**：2026-05-15  
-> **状态**：`draft`（协议草案，尚未跑数）  
+> **状态**：`draft`（协议草案；P0 跑数见 [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md)）  
 > **依赖旧总结**：[`00_legacy_compare_summary.md`](./00_legacy_compare_summary.md)  
-> **KPI 权重（沿用 V3 Patch）**：**P1 易交接 40% > P2 可靠性 35% > P3 省钱 15% > P4 省时 10%**
+> **KPI 权重（沿用 V3 Patch）**：**KPI·P1 易交接 40% > P2 可靠性 35% > P3 省钱 15% > P4 省时 10%**
 
 ---
 
@@ -117,7 +118,7 @@ S = 0.40 \cdot S_{P1} + 0.35 \cdot S_{P2} + 0.15 \cdot S_{P3} + 0.10 \cdot S_{P4
 
 ### 5.4 P4 省时（10%）
 
-- **主指标**：`wall_total`（中位数重复 R 次可选，R 建议 3）。  
+- **主指标**：`wall_total`（中位数 **Repeat·R** 次可选，**R 建议 3**；此处 **R = Repeat 重复轮次**，见 [`NOTATION_zh.md`](./NOTATION_zh.md) §5）。  
 - **归一化**：同 P3。
 
 ### 5.5 计分方案详解：rubric 是什么
@@ -138,7 +139,7 @@ S = 0.40 \cdot S_{P1} + 0.35 \cdot S_{P2} + 0.15 \cdot S_{P3} + 0.10 \cdot S_{P4
 
 **结构化表**（本协议推荐落盘为 `runs/<run_id>/scores/*.yaml` 或等价 CSV）：
 
-- **一行（或一条记录）** = 一次「评审单元」，至少包含：`run_id`、`task_id`、`branch`（A/B）、`segment`（S0/S1/S2）、`reviewer_id`（如 `R1`/`R2`）、各 **rubric 子项得分**、`notes`（引用 `evidence` 条目或 gold 条目 id）。
+- **一行（或一条记录）** = 一次「评审单元」，至少包含：`run_id`、`task_id`、`branch`（A/B）、`segment`（段·S0/S1/S2）、`reviewer_id`（如 **Reviewer·R1/R2**，**非** Rule·R1）、各 **rubric 子项得分**、`notes`（引用 `evidence` 条目或 gold 条目 id）。
 - **目的**：把主观分变成 **可 diff 的数据**；后续可做第二人复核、脚本聚合、或发现某评审系统性偏严/偏松。
 
 **双人盲审**（针对 P1、P2 中「定性 rubric」占比较高的部分）：
@@ -149,7 +150,7 @@ S = 0.40 \cdot S_{P1} + 0.35 \cdot S_{P2} + 0.15 \cdot S_{P3} + 0.10 \cdot S_{P4
 **仲裁**：
 
 - **何时启动**：同一 `(task_id, branch, segment, rubric_subitem)` 上，两名评审 **分差 ≥ 预设阈值**（建议 **15～20 分** / 100，或定性档跨两档），或一人标「无法判」。
-- **仲裁员**：第三人（`R3`）；只看 **结构化表 + 原始 JSON + gold**，必要时 **只打开** 被争议的那几条 `evidence` 指向的文件片段。
+- **仲裁员**：第三人（**Reviewer·R3**）；只看 **结构化表 + 原始 JSON + gold**，必要时 **只打开** 被争议的那几条 `evidence` 指向的文件片段（**≠** 定稿文 Rule-3）。
 - **输出**：在结构化表增加一行 `reviewer_id: R3_arbitration`、`final_score` 字段，或在子项上覆盖为 **终值**；**禁止**无记录地口头改分。
 
 ### 5.7 来源说明（与 `docs/diary/test` 的关系）

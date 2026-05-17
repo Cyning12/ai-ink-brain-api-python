@@ -48,6 +48,7 @@ max_tokens: 4096
 
 tools_policy: read_file_whitelist # 与 01 §2 二选一写死；路径白名单见 tasks.json tool_allowlist
 
+# 段 Segment（Sx）：S0 冷启动 / S1 同题追问 / S2 换题 — 见 docs/diary/jsonPKmermaid/NOTATION_zh.md
 segments_enabled:
   - S0
   - S1

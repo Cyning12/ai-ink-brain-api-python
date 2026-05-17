@@ -1,7 +1,9 @@
-# S1/S2 全量批跑结论（P0-B · draft）
+# 段·S1/S2 全量批跑结论（Phase·P0-B · draft）
 
+> **符号表**：[../NOTATION_zh.md](../NOTATION_zh.md)（**S1/S2=段·Segment**；**P0-B=Phase·阶段**）  
+> **定稿合并**：[conclusion_gate_ctx_ab_final_zh.md](./conclusion_gate_ctx_ab_final_zh.md)  
 > **批跑**：[`gate_ctx_ab_v1_s1s2_20260516_152126`](../runs/gate_ctx_ab_v1_s1s2_20260516_152126/)  
-> **策略**：β（S0 全量图谱；S1/S2 摘要 + manifest/contract）  
+> **策略**：β（段·S0 全量图谱；段·S1/S2 摘要 + manifest/contract）  
 > **耗时**：约 4.5h（36/36 轮 `ok`，`exit_code=0`）  
 > **日志**：[../EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md)
 
@@ -92,4 +94,4 @@ S0 单轮 token 中位数：JSON **~12,208**；Mermaid **~12,740**（与 S0 批�
 ## 附录
 
 - 汇总表：[`../runs/.../152126/aggregate.md`](../runs/gate_ctx_ab_v1_s1s2_20260516_152126/aggregate.md)  
-- smoke 对照：[`../runs/gate_ctx_ab_v1_s1s2_20260516_150452/`](../runs/gate_ctx_ab_v1_s1s2_20260516_150452/)
+- smoke 已删；以本批 `152126` 为唯一 P0-B 真值

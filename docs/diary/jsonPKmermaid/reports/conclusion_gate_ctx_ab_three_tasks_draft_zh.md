@@ -1,7 +1,9 @@
-# 三题 S0 总表 — JSON vs Mermaid 草案（非最终签收）
+# 三题 段·S0 总表 — JSON vs Mermaid 草案（非最终签收）
 
-> **状态**：`draft`（P0-A 收口；**未定稿**）  
+> **符号表**：[../NOTATION_zh.md](../NOTATION_zh.md)（**S0=段·Segment**，非单次 LLM）  
+> **状态**：`draft`（Phase·P0-A 收口；**未定稿**）  
 > **日志**：[../EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md)  
+> **定稿合并**：[conclusion_gate_ctx_ab_final_zh.md](./conclusion_gate_ctx_ab_final_zh.md)  
 > **日期**：2026-05-16
 
 ---
@@ -45,24 +47,12 @@
 
 ---
 
-## 4. 与单题结论文的关系
+## 4. 后续（已并入定稿文）
 
-| 题 | 专文 |
-|----|------|
-| T001 | [`conclusion_gate_ctx_ab_comprehensive_zh.md`](./conclusion_gate_ctx_ab_comprehensive_zh.md) |
-| T002 | [`conclusion_t002_s0_batch_zh.md`](./conclusion_t002_s0_batch_zh.md) |
-| T003 | 本表 + batch [`gold_f1.md`](../runs/gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/gold_f1.md) |
+段·S1/S2 与签收规则 Rule-1～6 见 [`conclusion_gate_ctx_ab_final_zh.md`](./conclusion_gate_ctx_ab_final_zh.md)。
 
 ---
 
-## 5. 定稿前仍须补（见实验日志 §5）
-
-1. **S1/S2**（至少 1 题）：多轮 token 与泄漏。  
-2. **决策规则**：例如 P1/P2 权重下，F1 不劣 + token 不劣 是否要求 **≥2/3 题** 同时成立。  
-3. 可选：Rubric 抽样或收紧 F1（path 必填才计 TP）。
-
----
-
-## 6. 草案一句话
+## 5. 草案一句话
 
 **三题 S0 下，JSON 在墙钟与 token 上稳定略优，Mermaid 在 T002/T003 的 gold F1（尤其入口）上略优；样本小、仅冷启动、F1 为启发式——当前仅支持「继续以 graph.json 作 Agent 主载荷候选」，不支持最终选型签收。**
