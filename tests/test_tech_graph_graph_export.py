@@ -6,11 +6,14 @@ from pathlib import Path
 import pytest
 
 from tools.tech_graph_graph_export import (
+    FREEZE_ID,
     TechGraphParseError,
     build_graph_payload,
     collect_raw_edges,
+    raw_edges_to_graph_dict,
     run_check,
 )
+from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2, validate_graph_v2
 
 
 def test_collect_edges_golden_minimal(tmp_path: Path) -> None:
@@ -31,7 +34,9 @@ def test_collect_edges_golden_minimal(tmp_path: Path) -> None:
     assert ("FE_STREAM", "FE_PARSE", "~>") in by_pair
     assert ("A", "B", "::branches") in by_pair
 
-    payload = build_graph_payload(d, generated_at="2026-05-14T00:00:00Z")
+    payload = raw_edges_to_graph_dict(
+        raw, generated_at="2026-05-14T00:00:00Z"
+    )
     types = {(e["from"], e["to"], e["type"], e["sync"]) for e in payload["edges"]}
     assert ("FE", "FE_STREAM", "depends_on", True) in types
     assert ("FE_STREAM", "FE_PARSE", "async_calls", False) in types
@@ -50,6 +55,7 @@ def test_collect_edges_empty_flowchart(tmp_path: Path) -> None:
     payload = build_graph_payload(d, generated_at="2026-01-01T00:00:00Z")
     assert payload["nodes"] == []
     assert payload["edges"] == []
+    assert payload["schema_version"] == SCHEMA_VERSION_V2
 
 
 def test_parse_failure_fp1_unknown_edge_syntax(tmp_path: Path) -> None:
@@ -105,4 +111,45 @@ def test_class_diagram_golden_has_metadata(tmp_path: Path) -> None:
     payload = build_graph_payload(d, generated_at="2026-05-15T00:00:00Z")
     types = {(e["from"], e["to"], e["type"], e["sync"]) for e in payload["edges"]}
     assert ("documents", "FileMeta", "has_metadata", True) in types
-    assert "documents" in payload["nodes"] and "FileMeta" in payload["nodes"]
+    node_ids = {n["id"] for n in payload["nodes"]}
+    assert "documents" in node_ids and "FileMeta" in node_ids
+    validate_graph_v2(payload)
+
+
+def test_build_graph_payload_v2_golden(tmp_path: Path) -> None:
+    """P2-1 golden：导出含 mark / label / anchors[]。"""
+    d = tmp_path / "docs" / "_tech_graph"
+    d.mkdir(parents=True)
+    (d / "00_demo.ai.md").write_text(
+        "```mermaid\n"
+        "flowchart TD\n"
+        '  AUTH --"->"--> POOL[[连接池]]\n'
+        "  // → api/index.py#L100\n"
+        "```\n",
+        encoding="utf-8",
+    )
+    payload = build_graph_payload(d, generated_at="2026-05-17T12:00:00Z")
+    assert payload["schema_version"] == SCHEMA_VERSION_V2
+    assert payload["freeze_id"] == FREEZE_ID
+    validate_graph_v2(payload)
+    edge = payload["edges"][0]
+    assert edge["mark"] == "->"
+    assert edge["anchors"][0]["path"] == "api/index.py"
+
+
+def test_run_check_drift_fp2(tmp_path: Path) -> None:
+    """FP-2：--check 语义漂移 → 退出码 4。"""
+    d = tmp_path / "docs" / "_tech_graph"
+    d.mkdir(parents=True)
+    (d / "z.ai.md").write_text(
+        "```mermaid\nflowchart TD\n  A --\"->\"--> B\n```\n",
+        encoding="utf-8",
+    )
+    out = d / "graph.json"
+    p = build_graph_payload(d, generated_at="2026-05-14T12:00:00Z")
+    out.write_text(json.dumps(p, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert run_check(input_root=d, output_path=out) == 0
+    tampered = json.loads(out.read_text(encoding="utf-8"))
+    tampered["edges"][0]["mark"] = "tampered"
+    out.write_text(json.dumps(tampered, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert run_check(input_root=d, output_path=out) == 4

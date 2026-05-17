@@ -19,7 +19,7 @@ from tools.tech_graph_graph_v2_schema import GraphV2SchemaError, validate_graph_
 def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
     return {
         "schema_version": "graph_v2",
-        "freeze_id": "TECH_GRAPH_S2_FREEZE_TBD",
+        "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
         "generated_at": generated_at,
         "nodes": [
             {"id": "A", "label": "Alpha"},
@@ -120,6 +120,23 @@ def test_equivalence_metrics_pass_when_aligned() -> None:
     assert m.edge_label_coverage == 1.0
 
 
+def test_run_check_passes_on_committed_v2_when_upgraded() -> None:
+    """P2-1：仓内 graph.json 为 graph_v2 时等价检查须 PASS。"""
+    repo_graph = Path(__file__).resolve().parents[1] / "docs" / "_tech_graph" / "graph.json"
+    if not repo_graph.is_file():
+        pytest.skip("无已提交 graph.json")
+    data = json.loads(repo_graph.read_text(encoding="utf-8"))
+    if data.get("schema_version") != "graph_v2":
+        pytest.skip("graph.json 尚未升 graph_v2")
+
+    code = run_equivalence_check(
+        input_root=repo_graph.parent,
+        graph_path=repo_graph,
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+    )
+    assert code == 0
+
+
 def test_run_check_fp5_on_committed_v1(tmp_path: Path) -> None:
     """失败路径：仓库仍为 graph_v1 时等价检查须 FP-5（非静默降级）。"""
     repo_graph = Path(__file__).resolve().parents[1] / "docs" / "_tech_graph" / "graph.json"
@@ -135,10 +152,19 @@ def test_run_check_fp5_on_committed_v1(tmp_path: Path) -> None:
     code = run_equivalence_check(
         input_root=real_input,
         graph_path=repo_graph,
-        freeze_id="TECH_GRAPH_S2_FREEZE_TBD",
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
         require_v2=True,
     )
     assert code == 5
+
+
+def test_equivalence_fails_below_anchor_threshold() -> None:
+    """失败路径：锚点覆盖率低于 95% → FP-3。"""
+    ref = _minimal_v2()
+    exported = _minimal_v2()
+    exported["edges"][0]["anchors"] = []
+    m = compute_equivalence_metrics(ref, exported)
+    assert m.anchor_coverage < 0.95
 
 
 def test_run_check_passes_on_synthetic_v2(tmp_path: Path) -> None:
@@ -155,7 +181,7 @@ def test_run_check_passes_on_synthetic_v2(tmp_path: Path) -> None:
         run_equivalence_check(
             input_root=d,
             graph_path=out,
-            freeze_id="TECH_GRAPH_S2_FREEZE_TBD",
+            freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
         )
         == 0
     )

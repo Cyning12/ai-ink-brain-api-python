@@ -339,7 +339,7 @@ def build_reference_graph_v2(
     input_root: Path,
     *,
     generated_at: str,
-    freeze_id: str = "TECH_GRAPH_S2_FREEZE_TBD",
+    freeze_id: str = "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
 ) -> dict[str, Any]:
     if not input_root.is_dir():
         raise FileNotFoundError(input_root)

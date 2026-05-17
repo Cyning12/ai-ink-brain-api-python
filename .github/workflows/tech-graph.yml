@@ -24,8 +24,11 @@ jobs:
       - name: Tech Graph manifest check
         run: python tools/tech_graph_manifest_check.py
 
-      - name: Tech graph graph.json drift check
+      - name: Tech graph graph.json drift check (graph_v2 export)
         run: python tools/tech_graph_graph_export.py --check
+
+      - name: Tech graph graph_v2 equivalence check
+        run: python tools/tech_graph_graph_equivalence_check.py
 
       - name: Tech graph token estimate (Gate A appendix)
         run: python tools/tech_graph_token_estimate.py --json
