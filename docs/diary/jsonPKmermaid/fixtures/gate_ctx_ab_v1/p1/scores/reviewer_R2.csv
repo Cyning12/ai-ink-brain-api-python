@@ -1,0 +1,7 @@
+sample_id,task_id,p1_total,p2_total,notes
+P1-001,T002_unified_sse_chain_contract,50,50,有 index 双路由；缺 unified_chat.py 流式/_event 与 chatbi_principal 鉴权路径；impacts 缺 _manifest.json
+P1-002,T003_ingest_admin_rpc,38,50,HTTP 入口齐；entrypoints 缺 process_markdown_files/run_sync_job_sync/code_ingest；无 rag_env 与 manifest_check 路径
+P1-003,T001_embedding_dim_default,38,33,仅 expected_embedding_dim；缺 siliconflow_embedding_dimensions/chat 及 ingest/code_ingest/workflows 文件级影响
+P1-004,T002_unified_sse_chain_contract,75,100,SSE 主链路与 tech_graph_contract_check 可核验；缺 agent.py 与 _manifest.json 显式影响
+P1-005,T003_ingest_admin_rpc,63,83,evidence 覆盖 ingest/RPC/manifest；entrypoints 缺 pipeline 实现符号与 manifest_check CI
+P1-006,T001_embedding_dim_default,38,67,有 rag_env+supabase sql；缺 siliconflow/chat、ingest_pipeline/code_ingest 与 .github/workflows
