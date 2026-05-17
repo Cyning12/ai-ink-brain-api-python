@@ -2,7 +2,9 @@
 
 > **状态**：`draft`（**按审查 R1 回填** · 待 **R2 任务审核** 后再交执行帽）  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；`docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
-> **前置验收**：方案1 `graph.json`（`task_engineering_tech_graph_graph_json_export_v1.md` · done）；闸口 A（`docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md` · accepted）  
+> **前置验收**：方案1 `graph.json`（`task_engineering_tech_graph_graph_json_export_v1.md` · done）  
+> **闸口 A（已完成 · 勿重复实验）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md` · `accepted` — 见 **§0.2**  
+> **本 task 行为实验**：仅 **闸口 B**（`CTX_QUERY` vs 整包 Mermaid / 整包 v1）— 见 §4.2、§6 P2-3  
 > **产品抉择 / 治理层**（权威）：`docs/diary/jsonPKmermaid/治理层三相塌缩_Ink技术图谱应用.md` **§8.2～§8.3**  
 > **理论参照**：`docs/diary/jsonPKmermaid/三相塌缩等价性论文_拓扑综合.md`（**仅治理层消费类比**；禁止外推 SBM ARI=1，见 §7）  
 > **审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`  
@@ -38,6 +40,45 @@
 | **旧** | manifest + contract + **整包** `.ai.md` 或 v1 `graph.json` |
 | **新** | manifest + contract + **v2** + **`graph_query`**；`.ai.md` 仍为 export 源直至 G-END-4 |
 
+### 0.2 闸口分工与防重复（Agent / 任务帽必读）
+
+> **闸口** = 阶段对比实验门闸（[`docs/tech_graph/改进方向.md`](../../../../docs/tech_graph/改进方向.md) **R4**），与 CI（`export --check`、manifest、contract）**分工不同**：CI 证「仓库真值不漂」；闸口证「Agent 用法是否净收益」。
+
+#### 闸口 A vs 本 task（闸口 B）
+
+| 闸口 | 方案 | 状态 | 真值文档 | 本 task 是否重做 |
+| --- | --- | --- | --- | --- |
+| **A** | 方案1 · `graph_v1` 整包 vs 整包 Mermaid | **已完成** | [`conclusion_gate_ctx_ab_final_zh.md`](../../diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md) | **否** — 结论沿用，禁止当作本 task 主实验 |
+| **B** | 方案2 · **v2 + `CTX_QUERY`** | **本 task 交付** | §9 回填路径 | **是** — §4.2、P2-3 |
+
+**闸口 A 已采纳结论（勿再争论，除非新 freeze + 新协议版本 + 新 task）：**
+
+- 主载荷 token **~1:1**；**不签收**「一律 `graph.json` 整包替 `*.ai.md`」。  
+- v1 为**有损投影**；P1/P2 **偏 Mermaid**；省钱/省时不能靠**换格式读同样多**。  
+- 详见治理层应用文 [`治理层三相塌缩_Ink技术图谱应用.md`](../../diary/jsonPKmermaid/治理层三相塌缩_Ink技术图谱应用.md) **§8.2～§8.3**。
+
+#### 禁止重复立项 / 重复实验（除非书面新开 task 并 bump 协议）
+
+| ID | 禁止项 | 原因 | 应做替代 |
+| --- | --- | --- | --- |
+| **NR-1** | 再跑一轮「整包 CTX_JSON vs 整包 CTX_MERMAID」并当作**本 task**主结论 | 闸口 A 已覆盖 | 闸口 B：**CTX_QUERY** 臂 |
+| **NR-2** | 把 **v1 整包** `graph.json` 定为生产 Agent **默认主载荷** | G-END-5、闸口 A | **graph_query** + manifest 切片 |
+| **NR-3** | 以「JSON 替 `.ai.md` 提升 LLM 理解/记忆」为**本 task 目标** | 同等信息量下边际极小（§8.3） | 优化**机器轨消费**与**少读子图** |
+| **NR-4** | 用论文 SBM **ARI=1** 证明 Ink 图已等价 | §7 禁止外推 | 本仓 **等价检查阈值**（§2.1） |
+| **NR-5** | 在本 task 做**跨会话长期记忆**（向量库、β 摘要策略等） | §2.2 非范围 | **另立 task**；图谱只服务慢变真值 + 当轮 α |
+| **NR-6** | P2-0 实现 `graphs[]`、`edges[].ref` | R1 延后至 P2-4 | §2.1 P2-0 最小集 |
+| **NR-7** | 再开「三文件 = 论文三相 B/F/G」论证而不做等价/query | 概念混用 | 治理层应用文 §2「工程三相」 |
+
+#### 闸口 / CI / Harness 索引（防漂移）
+
+| 类型 | 路径 |
+| --- | --- |
+| 闸口 A 定稿 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md` |
+| 闸口 A 收口（工作区） | `docs/harness/tasks/done/task_engineering_tech_graph_gate_a_closeout_v1.md` |
+| 闸口 B（待填） | §9 · `docs/diary/jsonPKmermaid/` 或 `docs/tech_graph/` |
+| 改进方向 R4 | `docs/tech_graph/改进方向.md` |
+| 治理层抉择 | `docs/diary/jsonPKmermaid/治理层三相塌缩_Ink技术图谱应用.md` |
+
 ---
 
 ## 1. 背景与目标
@@ -58,11 +99,11 @@
 
 #### A. graph_v2 schema 与导出
 
-- [ ] 落盘 **graph_v2 schema 草案**（工作区 SPEC 或本仓 `docs/_tech_graph/` 旁）。  
+- [x] 落盘 **graph_v2 schema 草案**（`docs/_tech_graph/graph_v2_schema.md` + `tools/tech_graph_graph_v2_schema.py`）。  
 - [ ] **落盘策略（默认，执行可偏离须 PR 说明）**：**同路径** `docs/_tech_graph/graph.json`，`schema_version: graph_v2`；**不**默认并列 `graph_v2.json`。CI `--check` 在过渡期可对比 v1→v2 迁移说明（见 §6 P2-1）。  
 - [ ] 升级 `tools/tech_graph_graph_export.py`（或 v2 脚本）：自 `*.ai.md` 导出 **P2-0 最小 v2**。  
-- [ ] `tools/tech_graph_graph_equivalence_check.py`：参考图（自 `.ai.md` 解析）vs 导出 v2 — **拓扑一致** + 锚点行覆盖率 ≥ **95%**（边 `label` 覆盖率 PR 可单列阈值，建议 ≥ 90%）。  
-- [ ] pytest + `tech-graph.yml` 接入 v2 / 等价检查。
+- [x] `tools/tech_graph_graph_equivalence_check.py`：**P2-0 草案**（参考 vs 导出；阈值 95%/90%；v1 已提交 → FP-5）。  
+- [x] pytest（v2 schema / 参考 / 等价）；`tech-graph.yml` 接入 v2 **待 P2-1**。
 
 **P2-0 最小字段集（单图扁平 · 首版必达）**
 
@@ -220,11 +261,51 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 
 | 项 | 内容 |
 | --- | --- |
-| v2 schema 路径 | （待填） |
-| 等价检查脚本 | （待填） |
-| query 脚本 | （待填） |
-| 闸口 B 报告 | （待填） |
-| freeze_id | （待填） |
+| v2 schema 路径 | `docs/_tech_graph/graph_v2_schema.md`；校验 `tools/tech_graph_graph_v2_schema.py` |
+| 参考图构建 | `tools/tech_graph_graph_v2_reference.py`（自 `*.ai.md`） |
+| 等价检查脚本 | `tools/tech_graph_graph_equivalence_check.py`（`--check`；v1 已提交 → **FP-5** 退出码 5） |
+| pytest | `tests/test_tech_graph_graph_v2_equivalence.py`（8 项：schema 禁止字段、参考 golden、等价指标、FP-5、合成 v2 PASS） |
+| query 脚本 | （P2-2 待填） |
+| 闸口 B 报告 | （P2-3 待填） |
+| freeze_id | 草案 `TECH_GRAPH_S2_FREEZE_TBD`（P2-1 导出前与 `protocol_version.yaml` 对齐 bump） |
+| invoke（执行 P2-0） | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-0-exec.md` |
+
+**P2-0 未做**：`graphs[]` / `edges[].ref`；导出器升 `graph_v2`（属 P2-1）；`graph_query`；闸口 B。
+
+---
+
+### 自检结论（执行者）
+
+| 项 | 结果 |
+| --- | --- |
+| **执行日** | 2026-05-17 |
+| **阶段** | P2-0（schema + 等价草案） |
+| **invoke** | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-0-exec.md` |
+
+**验证命令**（子仓根 `ai-ink-brain-api-python`）：
+
+```bash
+pytest tests -m "not intent_eval and not intent_benchmark"
+pytest tests/test_tech_graph_graph_v2_equivalence.py -q
+```
+
+| 命令 | 退出码 | 摘要 |
+| --- | ---: | --- |
+| 全量 pytest（VERIFY） | **0** | `156 passed, 2 deselected`（约 12s） |
+| v2 等价专项 | **0** | `8 passed` |
+
+**验收对照（P2-0 范围）**
+
+| 验收项 | pass/fail | 证据 |
+| --- | --- | --- |
+| graph_v2 schema 草案落盘 | **pass** | `docs/_tech_graph/graph_v2_schema.md` |
+| 等价检查脚本/测试（无 graphs/ref） | **pass** | 三工具模块 + pytest；`validate_graph_v2` 拒绝 `graphs[]`/`ref`/`kind` |
+| 禁止 P2-0 实现 graphs[]、ref | **pass** | schema 校验 + 测试 `test_validate_graph_v2_rejects_forbidden_p2_4_fields` |
+| 已提交 graph.json 仍为 v1 时不静默当 v2 | **pass** | `run_equivalence_check` → FP-5（码 5）；`test_run_check_fp5_on_committed_v1` |
+| 导出 graph_v2 + `--check` PASS | **未测** | 属 **P2-1**；当前 `graph.json` 仍为 `graph_v1` |
+| graph_query / 闸口 B | **未测** | 非 P2-0 范围 |
+
+**已知未测 / 下一棒**：P2-1 升级 `tech_graph_graph_export.py` 输出 `schema_version: graph_v2` 并接入 CI；P2-2 `graph_query`；自检帽可复跑 VERIFY 并勾选 §4.1 工程项。
 
 ---
 
@@ -233,7 +314,8 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 | 轮次 | 状态 | 下一棒 |
 | --- | --- | --- |
 | **R1** | 已审查；B-D1=§2.1 过重 → **本版已按 R1 回填** | — |
-| **R2** | **待** | **任务审核帽** `22-task-audit`：对照 R1 清单勾选 §2.1 分层、落盘默认、G-END-6、非范围记忆；无硬阻塞后再交 **执行帽** P2-0 |
+| **R2** | 已审查（零硬阻塞） | 见 `docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md` |
+| **P2-0 执行** | 已落盘草案 | invoke：`docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-0-exec.md`；下一棒 **自检帽** 或 **P2-1 执行帽** |
 
 工作区 invoke（R2 发起用）：`docs/harness/invokes/invoke_20260517_22_tech-graph-v2-task-audit-r2.md`（相对聚合仓 `Projects/`）
 
@@ -245,9 +327,10 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 | --- | --- | --- |
 | v0.1 | 2026-05-17 | 初稿 |
 | v0.2 | 2026-05-17 | **按审查 R1 回填**：P2-0/P2-4 字段分层；`graph.json` 升版默认；G-END-6；治理层链；长期记忆非范围；§10 交接 |
+| v0.3 | 2026-05-17 | **§0.2** 闸口 A/B 分工与 NR-1～7 防重复清单 |
 
 ---
 
 ## 给 Cursor
 
-`graph_v2`、`P2-0`、`graph_query`、`CTX_QUERY`、G-END-6、治理层应用、R1 回填、等价检查、query 优先、长期记忆非范围、`docs/_tech_graph`
+`graph_v2`、`P2-0`、`graph_query`、`CTX_QUERY`、闸口 A 已完成、闸口 B、NR-1`、`§0.2`、勿重复 gate_ctx_ab、G-END-6、治理层应用、query 优先、`docs/_tech_graph`
