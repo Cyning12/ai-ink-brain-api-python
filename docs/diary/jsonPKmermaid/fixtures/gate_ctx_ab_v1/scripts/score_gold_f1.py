@@ -392,7 +392,7 @@ def main() -> int:
             rec.setdefault("file", str(jp.resolve().relative_to(REPO_ROOT.resolve())))
         except ValueError:
             rec.setdefault("file", str(jp))
-        task_id = rec.get("task_id")
+        task_id = rec.get("task_id") or rec.get("primary_task_id")
         if task_id not in tasks:
             print(f"跳过未知 task_id={task_id} @ {jp}", file=sys.stderr)
             continue

@@ -20,5 +20,9 @@ runs/<run_id>/
 | [`…_batch_T003_…_144300`](./gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/) | 3×parallel | **T003** Admin Ingest（[`gold_f1.md`](./gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300/gold_f1.md)） |
 | [`…_batch_20260516_110751`](./gate_ctx_ab_v1_batch_20260516_110751/) | 3×parallel | T001 前一批对照 |
 
+| [`…_s1s2_…_152126`](./gate_ctx_ab_v1_s1s2_20260516_152126/) | 3 题 × 2 arm × (S0+S1×3+S2×2) | **P0-B 全量**（β；36/36 ok；见 `aggregate.md`） |
+| [`…_s1s2_…_150452`](./gate_ctx_ab_v1_s1s2_20260516_150452/) | T002 × CTX_JSON | P0-B smoke |
+
 汇总：[`../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md`](../reports/compare_gate_ctx_json_vs_mermaid_minimal_s0.md)  
-gold F1 全批：[`../reports/gold_f1_all_batches.md`](../reports/gold_f1_all_batches.md)
+gold F1 全批：[`../reports/gold_f1_all_batches.md`](../reports/gold_f1_all_batches.md)  
+S1/S2 结论：[`../reports/conclusion_s1s2_batch_20260516_152126_zh.md`](../reports/conclusion_s1s2_batch_20260516_152126_zh.md)

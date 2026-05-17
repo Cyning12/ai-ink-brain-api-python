@@ -1,0 +1,81 @@
+{
+  "schema": "gate_ctx_ab_s1s2_aggregate_v1",
+  "parent_run_id": "gate_ctx_ab_v1_s1s2_20260516_152126",
+  "context_strategy": "beta",
+  "sessions": [
+    {
+      "task_id": "T001_embedding_dim_default",
+      "topic_id": "rag_env_embedding",
+      "arm": "CTX_MERMAID",
+      "s0_wall_s": 7.496,
+      "s0_tokens": 12368,
+      "cumulative_tokens_final": 148257,
+      "s2_leakage_sum": 5,
+      "parse_ok_all": true
+    },
+    {
+      "task_id": "T001_embedding_dim_default",
+      "topic_id": "rag_env_embedding",
+      "arm": "CTX_JSON",
+      "s0_wall_s": 20.106,
+      "s0_tokens": 11801,
+      "cumulative_tokens_final": 141365,
+      "s2_leakage_sum": 6,
+      "parse_ok_all": true
+    },
+    {
+      "task_id": "T002_unified_sse_chain_contract",
+      "topic_id": "unified_chat_sse",
+      "arm": "CTX_MERMAID",
+      "s0_wall_s": 64.259,
+      "s0_tokens": 12816,
+      "cumulative_tokens_final": 154664,
+      "s2_leakage_sum": 4,
+      "parse_ok_all": true
+    },
+    {
+      "task_id": "T002_unified_sse_chain_contract",
+      "topic_id": "unified_chat_sse",
+      "arm": "CTX_JSON",
+      "s0_wall_s": 59.074,
+      "s0_tokens": 12456,
+      "cumulative_tokens_final": 159335,
+      "s2_leakage_sum": 4,
+      "parse_ok_all": true
+    },
+    {
+      "task_id": "T003_ingest_admin_rpc",
+      "topic_id": "ingest_rpc",
+      "arm": "CTX_MERMAID",
+      "s0_wall_s": 394.115,
+      "s0_tokens": 13037,
+      "cumulative_tokens_final": 155509,
+      "s2_leakage_sum": 8,
+      "parse_ok_all": true
+    },
+    {
+      "task_id": "T003_ingest_admin_rpc",
+      "topic_id": "ingest_rpc",
+      "arm": "CTX_JSON",
+      "s0_wall_s": 70.276,
+      "s0_tokens": 12366,
+      "cumulative_tokens_final": 154026,
+      "s2_leakage_sum": 7,
+      "parse_ok_all": true
+    }
+  ],
+  "per_arm": {
+    "CTX_MERMAID": {
+      "n_sessions": 3,
+      "cumulative_tokens_median": 154664.0,
+      "s0_tokens_median": 12816.0,
+      "s2_leakage_sum_mean": 5.67
+    },
+    "CTX_JSON": {
+      "n_sessions": 3,
+      "cumulative_tokens_median": 154026.0,
+      "s0_tokens_median": 12366.0,
+      "s2_leakage_sum_mean": 5.67
+    }
+  }
+}

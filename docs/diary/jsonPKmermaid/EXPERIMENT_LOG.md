@@ -57,6 +57,17 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 
 **三题草案汇总**：[`reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md`](./reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md)
 
+### S1/S2 全量（P0-B · `…_152126` · 策略 β）
+
+| 题 | arm | S0 tokens | **累计 tokens** | S2 泄漏合计 |
+|----|-----|----------:|----------------:|------------:|
+| T001 | JSON / Mermaid | 11801 / 12368 | **141365** / 148257 | 6 / 5 |
+| T002 | JSON / Mermaid | 12456 / 12816 | 159335 / **154664** | 4 / 4 |
+| T003 | JSON / Mermaid | 12366 / 13037 | **154026** / 155509 | 7 / 8 |
+
+arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低）。  
+详见 [`runs/…_152126/aggregate.md`](./runs/gate_ctx_ab_v1_s1s2_20260516_152126/aggregate.md)、[`reports/conclusion_s1s2_batch_20260516_152126_zh.md`](./reports/conclusion_s1s2_batch_20260516_152126_zh.md)。
+
 ---
 
 ## 4. 步骤流水
@@ -73,7 +84,8 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 | 2026-05-16 | 本日志 + 三题草案 | `c16adc1` | 防漂移 |
 | 2026-05-16 | P0-B：`run_s1_s2.py` + `user_scripts.json`；T001 启用 S1/S2 scope | `a9f52de` | 未跑 API |
 | 2026-05-16 | fix `schema_segment` | `fd6df69` | — |
-| 2026-05-16 | **smoke** T002/JSON S1/S2 `…_150452` | — | β；S1 r2 墙钟离群 360s |
+| 2026-05-16 | **smoke** T002/JSON S1/S2 `…_150452` | `d6402a2` | β；累计 152369 |
+| 2026-05-16 | **P0-B 全量** `…_152126` + aggregate + 结论文 | （本次 commit） | 见 `conclusion_s1s2_batch_*` |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -91,8 +103,8 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 ### 定稿前仍缺
 
 - [x] **P0-B 脚本**：`user_scripts.json` + `run_s1_s2.py --all-tasks`（三题×两 arm）
-- [ ] **P0-B 全量跑数**：`run_s1_s2.py --all-tasks`（6 会话）
-- [x] **P0-B smoke**：T002 × CTX_JSON → [`runs/gate_ctx_ab_v1_s1s2_20260516_150452/`](./runs/gate_ctx_ab_v1_s1s2_20260516_150452/)（6/6 ok；累计 token **152369**）
+- [x] **P0-B 全量跑数**：[`runs/gate_ctx_ab_v1_s1s2_20260516_152126/`](./runs/gate_ctx_ab_v1_s1s2_20260516_152126/)（36/36 ok，~4.5h）
+- [x] **P0-B smoke**：T002 × CTX_JSON → [`runs/…_150452/`](./runs/gate_ctx_ab_v1_s1s2_20260516_150452/)（6/6 ok；累计 **152369**）
 - [ ] 三题总表 + S1/S2 后的 **修订结论文**（非 draft）
 - [ ] 可选：F1 规则收紧或 Rubric 抽样（P1）
 - [ ] 书面 **决策规则**（几胜才算倾向 JSON）
@@ -111,8 +123,11 @@ F1 来源：各 batch `gold_f1.md`（`score_gold_f1.py --batch-dir`）。
 |------|------|
 | 跑 S0 批跑 | `fixtures/gate_ctx_ab_v1/scripts/run_s0_batch.py` |
 | 跑 S1/S2 | `fixtures/gate_ctx_ab_v1/scripts/run_s1_s2.py --all-tasks` |
+| S1/S2 汇总 | `fixtures/gate_ctx_ab_v1/scripts/aggregate_s1s2.py <batch_dir>` |
 | gold F1 | `fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py` |
 | 题集 | `fixtures/gate_ctx_ab_v1/tasks.json` |
 | 全批 F1（勿用于 T001 定稿表） | `reports/gold_f1_all_batches.md` |
 | T001 综合（单题） | `reports/conclusion_gate_ctx_ab_comprehensive_zh.md` |
 | T002 综合（单题） | `reports/conclusion_t002_s0_batch_zh.md` |
+| S1/S2 全量结论 | `reports/conclusion_s1s2_batch_20260516_152126_zh.md` |
+| S1/S2 批内 S0 F1 | `reports/gold_f1_s1s2_s0_segments.md` |
