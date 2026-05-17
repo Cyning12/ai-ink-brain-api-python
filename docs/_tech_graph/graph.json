@@ -1,1223 +1,2497 @@
 {
   "edges": [
     {
+      "anchors": [],
       "from": "A1",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "A2",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ALIAS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "TSV",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": "save_debug_log"
+        }
+      ],
       "from": "AM",
+      "label": "",
+      "mark": "::archives",
       "sync": true,
       "to": "LOG",
       "type": "archives"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        }
+      ],
       "from": "AUTH",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/intent_router.py",
+          "symbol": "is_text2sql_intent"
+        },
+        {
+          "path": "api/intent_router.py",
+          "symbol": "decide_intent"
+        }
+      ],
       "from": "AUTH",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        },
+        {
+          "path": "api/code_retrieval.py",
+          "symbol": "_require_code_api_auth"
+        }
+      ],
       "from": "AUTH",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "AUTH",
+      "label": "",
+      "mark": "[ok]",
       "sync": true,
       "to": "HIS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "AUTH",
+      "label": "",
+      "mark": "[ok]",
       "sync": true,
       "to": "INT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "AUTH",
+      "label": "",
+      "mark": "[ok]",
       "sync": true,
       "to": "POOL",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "B1",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "FUSE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "B1",
+      "label": "",
+      "mark": "[ok]",
       "sync": true,
       "to": "FUSE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "BE",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SB_TRUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "BFF",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "PY_SSE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "C1",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RAG",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": ""
+        }
+      ],
       "from": "CHAT",
-      "sync": true,
-      "to": "L",
-      "type": "archives"
-    },
-    {
-      "from": "CHAT",
+      "label": "select",
+      "mark": "->",
       "sync": true,
       "to": "L",
       "type": "depends_on"
     },
     {
+      "anchors": [],
+      "from": "CHAT",
+      "label": "",
+      "mark": "::archives",
+      "sync": true,
+      "to": "L",
+      "type": "archives"
+    },
+    {
+      "anchors": [],
       "from": "CLEAN",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "ORQ",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "CONTENT",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "CONTENT_ROOT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "CONTENT_ROOT",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "BE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "CR1",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "CR2",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": ""
+        }
+      ],
       "from": "CTX",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "LLM",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "DB",
+      "label": "rows==1&1 numeric",
+      "mark": "->",
       "sync": true,
       "to": "DET",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "line": 88,
+          "path": "api/text2sql_core.py",
+          "symbol": "#L88"
+        }
+      ],
       "from": "DB",
+      "label": "TEXT2SQL_DATABASE_URL missing",
+      "mark": "->",
       "sync": true,
       "to": "ERR_DSN",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "DB",
+      "label": "rows==0",
+      "mark": "->",
       "sync": true,
       "to": "OUT2",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "DB",
+      "label": "rows>0",
+      "mark": "->",
       "sync": true,
       "to": "SUM",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "DET",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/admin/sync",
+      "mark": "->",
       "sync": true,
       "to": "A1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/admin/ingest",
+      "mark": "->",
       "sync": true,
       "to": "A2",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/chat",
+      "mark": "->",
       "sync": true,
       "to": "C1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/chain/chat",
+      "mark": "->",
       "sync": true,
       "to": "CH",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/code/query",
+      "mark": "->",
       "sync": true,
       "to": "CR1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/code/search",
+      "mark": "->",
       "sync": true,
       "to": "CR2",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "GET /api/py/chatbi/access/verify",
+      "mark": "->",
       "sync": true,
       "to": "CV",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "E2E_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "GET /api/py/chat/history",
+      "mark": "->",
       "sync": true,
       "to": "H1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "GET /api/py/health",
+      "mark": "->",
       "sync": true,
       "to": "HL",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "OBS_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/unified/chat",
+      "mark": "->",
       "sync": true,
       "to": "U1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "E",
+      "label": "POST /api/py/unified/chat/stream",
+      "mark": "->",
       "sync": true,
       "to": "U2",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EMB",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "EMB_FAIL",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "fetch_keyword_hits"
+        },
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "rpc_execute_with_retry"
+        }
+      ],
       "from": "EMB",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "VEC",
       "type": "async_calls"
     },
     {
+      "anchors": [],
       "from": "EMB_FAIL",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "KEYWORD_ONLY",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_rag_debug_enabled"
+        },
+        {
+          "line": 33,
+          "path": "api/ingest_pipeline.py",
+          "symbol": "#L33"
+        }
+      ],
       "from": "ENV",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "ENV_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR",
+      "label": "stage=rag.embed",
+      "mark": "->",
       "sync": true,
       "to": "E_EMB",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat(_stream)"
+        },
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
       "from": "ERR",
+      "label": "stage=text2sql.execute_sql",
+      "mark": "->",
       "sync": true,
       "to": "E_EXECSQL",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR",
+      "label": "stage=text2sql.generate_sql",
+      "mark": "->",
       "sync": true,
       "to": "E_GENSQL",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR",
+      "label": "stage=router",
+      "mark": "->",
       "sync": true,
       "to": "E_ROUTER",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR",
+      "label": "stage=rag.retrieve",
+      "mark": "->",
       "sync": true,
       "to": "E_RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR_DSN",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR_EXEC",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR_PF",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ERR_VALIDATE",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=assistant.message",
+      "mark": "->",
       "sync": true,
       "to": "AM",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_event"
+        }
+      ],
       "from": "EV",
+      "label": "type=error",
+      "mark": "->",
       "sync": true,
       "to": "ERR",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=latency",
+      "mark": "->",
       "sync": true,
       "to": "LAT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=rag.query_expand",
+      "mark": "->",
       "sync": true,
       "to": "QX",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=router.decision",
+      "mark": "->",
       "sync": true,
       "to": "R1",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=rag.sources",
+      "mark": "->",
       "sync": true,
       "to": "RS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=sql.result",
+      "mark": "->",
       "sync": true,
       "to": "SQLR",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=tool.call.end",
+      "mark": "->",
       "sync": true,
       "to": "TCE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV",
+      "label": "type=tool.call.start",
+      "mark": "->",
       "sync": true,
       "to": "TCS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV_TYPES",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RS_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "EV_TYPES",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SQL_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
       "from": "EXEC",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "DB",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
       "from": "EXEC",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_EXEC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FE",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "FE_STREAM",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "unified_chat_stream_route"
+        }
+      ],
       "from": "FE_STREAM",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "BFF",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FE_STREAM",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "FE_PARSE",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "rpc_execute_with_retry"
+        }
+      ],
       "from": "FTS",
+      "label": "",
+      "mark": "[retry=N]",
       "sync": true,
       "to": "FTS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FTS",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "FTS_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FTS",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "FTS_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/hybrid_fusion.py",
+          "symbol": ""
+        }
+      ],
       "from": "FTS",
+      "label": "",
+      "mark": "::merges",
       "sync": true,
       "to": "FUSE",
       "type": "merges"
     },
     {
+      "anchors": [],
       "from": "FTS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FTS_NULL",
+      "label": "",
+      "mark": "[no]",
       "sync": true,
       "to": "RANK",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "refresh_documents_fts_tokens_for_paths"
+        }
+      ],
       "from": "FTS_NULL",
+      "label": "",
+      "mark": "[yes]",
       "sync": true,
       "to": "REFRESH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "build_context"
+        }
+      ],
       "from": "FUSE",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "CTX",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "FUSE",
+      "label": "",
+      "mark": "?>",
       "sync": true,
       "to": "HIT0",
       "type": "condition"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "validate_sql_readonly"
+        }
+      ],
       "from": "GEN",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "VAL",
       "type": "async_calls"
     },
     {
+      "anchors": [],
       "from": "GLOSS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "CLEAN",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/query_rewrite.py",
+          "symbol": "rewrite_query_with_history"
+        }
+      ],
       "from": "HIS",
+      "label": "可选",
+      "mark": "->",
       "sync": true,
       "to": "RW",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "HIS",
+      "label": "无历史",
+      "mark": "->",
       "sync": true,
       "to": "RW",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "HIT0",
+      "label": "",
+      "mark": "[no]",
       "sync": true,
       "to": "CTX",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "line": 664,
+          "path": "api/unified_chat.py",
+          "symbol": "#L664"
+        },
+        {
+          "line": 664,
+          "path": "api/index.py",
+          "symbol": "#L664"
+        }
+      ],
       "from": "HIT0",
+      "label": "",
+      "mark": "[yes]",
       "sync": true,
       "to": "OUT_NO_DATA",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "I18N",
+      "label": "",
+      "mark": "[on & mode=glossary]",
       "sync": true,
       "to": "GLOSS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "I18N",
+      "label": "",
+      "mark": "[off / err]",
       "sync": true,
       "to": "NOX",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        }
+      ],
       "from": "IN",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        }
+      ],
       "from": "IN",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "structured_recall_by_date"
+        }
+      ],
       "from": "IN",
+      "label": "date-like ?>",
+      "mark": "->",
       "sync": true,
       "to": "B1",
       "type": "condition"
     },
     {
+      "anchors": [],
       "from": "ING",
+      "label": "",
+      "mark": "::triggers",
       "sync": true,
       "to": "C",
       "type": "triggers"
     },
     {
+      "anchors": [],
       "from": "ING",
+      "label": "",
+      "mark": "::triggers",
       "sync": true,
       "to": "D",
       "type": "triggers"
     },
     {
+      "anchors": [
+        {
+          "path": "api/ingest_pipeline.py",
+          "symbol": ""
+        }
+      ],
       "from": "ING",
+      "label": "",
+      "mark": "::triggers",
       "sync": true,
       "to": "RC",
       "type": "triggers"
     },
     {
+      "anchors": [],
       "from": "ING",
+      "label": "",
+      "mark": "::triggers",
       "sync": true,
       "to": "RD",
       "type": "triggers"
     },
     {
+      "anchors": [],
       "from": "INT",
+      "label": "",
+      "mark": "[non_text2sql]",
       "sync": true,
       "to": "OUT0",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_store.py",
+          "symbol": ""
+        }
+      ],
       "from": "INT",
+      "label": "",
+      "mark": "[text2sql]",
       "sync": true,
       "to": "RET",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "KC",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "KD",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "KEYWORD_ONLY",
+      "label": "",
+      "mark": "::merges",
       "sync": true,
       "to": "FUSE",
       "type": "merges"
     },
     {
+      "anchors": [],
       "from": "KQ",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "FTS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_build_rag_sources_event"
+        },
+        {
+          "path": "api/index.py",
+          "symbol": "build_sources_payload"
+        }
+      ],
       "from": "LLM",
+      "label": "",
+      "mark": "::yields",
       "sync": true,
       "to": "SRC",
       "type": "yields"
     },
     {
+      "anchors": [],
       "from": "LOG",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "DB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "LOG",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "DB",
       "type": "async_calls"
     },
     {
+      "anchors": [],
       "from": "LOG",
-      "sync": true,
-      "to": "DB",
-      "type": "depends_on"
-    },
-    {
-      "from": "LOG",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "RPC_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "MATCH",
+      "label": "fts_tokens is null ?>",
+      "mark": "->",
       "sync": true,
       "to": "FTS_NULL",
       "type": "condition"
     },
     {
+      "anchors": [],
       "from": "MATCH",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RANK",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "MC",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "MD",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "NOX",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "ORQ",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": ""
+        }
+      ],
       "from": "OUT",
+      "label": "",
+      "mark": "::archives",
       "sync": true,
       "to": "LOG",
       "type": "archives"
     },
     {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": "save_debug_log"
+        }
+      ],
       "from": "OUT",
+      "label": "",
+      "mark": "::archives",
       "sync": true,
       "to": "LOG",
       "type": "archives"
     },
     {
+      "anchors": [],
       "from": "OUT",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "OBS_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "OUT1",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "OUT2",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "OUT_NO_DATA",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "CTX",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "PF",
+      "label": "?>[err]",
+      "mark": "->",
       "sync": true,
       "to": "ERR_PF",
       "type": "condition"
     },
     {
+      "anchors": [],
       "from": "PF",
+      "label": "?>[ok|skip]",
+      "mark": "->",
       "sync": true,
       "to": "PROMPT",
       "type": "condition"
     },
     {
+      "anchors": [],
       "from": "POOL",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "C",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "POOL",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "D",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "rpc_execute_with_retry"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_NET",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "keyword_code_chunks"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "KC",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "keyword_documents"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "KD",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/create_rag_conversation_logs.sql",
+          "symbol": ""
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "L",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "match_code_chunks"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "MC",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/init.sql",
+          "symbol": "match_documents"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "MD",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "refresh_code_chunks_fts_tokens_for_paths"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "RC",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "refresh_documents_fts_tokens_for_paths"
+        }
+      ],
       "from": "POOL",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "RD",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": ""
+        }
+      ],
       "from": "PROMPT",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "GEN",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_sse"
+        }
+      ],
       "from": "PY_SSE",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "BE",
       "type": "async_calls"
     },
     {
+      "anchors": [],
       "from": "PY_SSE",
+      "label": "",
+      "mark": "::yields",
       "sync": true,
       "to": "SSE_EVENTS",
       "type": "yields"
     },
     {
+      "anchors": [
+        {
+          "line": 434,
+          "path": "api/index.py",
+          "symbol": "#L434"
+        }
+      ],
       "from": "Q",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "E",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": ""
+        }
+      ],
       "from": "Q",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "QS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": ""
+        }
+      ],
       "from": "QS",
+      "label": "",
+      "mark": "?>",
       "sync": true,
       "to": "I18N",
       "type": "condition"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "keyword_query_text_with_i18n_meta"
+        },
+        {
+          "path": "api/index.py",
+          "symbol": "fetch_keyword_hits"
+        },
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "rpc_execute_with_retry"
+        }
+      ],
       "from": "QS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RAG",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "FTS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RAG",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "RAG_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RANK",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RC",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RD",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_RPC_MISSING",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "REFRESH",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat_stream"
+        }
+      ],
       "from": "REQ",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SSE",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_schema_prefetch.py",
+          "symbol": ""
+        }
+      ],
       "from": "RET",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "PF",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RET",
+      "label": "依赖语料",
+      "mark": "->",
       "sync": true,
       "to": "SPEC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "RPC",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "RPC_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "keyword_documents"
+        }
+      ],
       "from": "RPC",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "TSQ",
       "type": "async_calls"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_build_rag_sources_event"
+        },
+        {
+          "path": "api/index.py",
+          "symbol": "build_sources_payload"
+        }
+      ],
       "from": "RS",
+      "label": "payload.sources[*]",
+      "mark": "->",
       "sync": true,
       "to": "SRC_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "keyword_query_text_with_i18n_meta"
+        }
+      ],
       "from": "RW",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "EMB",
       "type": "branches"
     },
     {
+      "anchors": [],
       "from": "RW",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "KQ",
       "type": "branches"
     },
     {
+      "anchors": [
+        {
+          "path": "api/rag_env.py",
+          "symbol": "supabase_client"
+        }
+      ],
       "from": "SB",
+      "label": "service_role",
+      "mark": "->",
       "sync": true,
       "to": "AUTH",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SB_TRUTH",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SB",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SB_TRUTH",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SB_MATCH_DOCS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "line": 425,
+          "path": "api/unified_chat.py",
+          "symbol": "#L425"
+        }
+      ],
       "from": "SQLR",
+      "label": "payload",
+      "mark": "->",
       "sync": true,
       "to": "SQL_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SRC",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "OUT",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_sse"
+        }
+      ],
       "from": "SSE",
+      "label": "",
+      "mark": "[yes]",
       "sync": true,
       "to": "DONE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SSE",
+      "label": "",
+      "mark": "[yes]",
       "sync": true,
       "to": "EV",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat"
+        }
+      ],
       "from": "SSE",
+      "label": "",
+      "mark": "[no]",
       "sync": true,
       "to": "JSON",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SSE_EVENTS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "CHAIN_SHAPE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SSE_EVENTS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "DONE_SHAPE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SSE_EVENTS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "EV_TYPES",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_event"
+        }
+      ],
       "from": "SSE_EVENTS",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "SSE_ENV",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "SUM",
+      "label": "",
+      "mark": "~>",
       "sync": false,
       "to": "OUT",
       "type": "async_calls"
     },
     {
+      "anchors": [],
       "from": "T2S",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "RPC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "T2S",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "T2S_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "TCE",
+      "label": "payload",
+      "mark": "->",
       "sync": true,
       "to": "TCE_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "TCS",
+      "label": "payload",
+      "mark": "->",
       "sync": true,
       "to": "TCS_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "TEND",
+      "label": "includes",
+      "mark": "->",
       "sync": true,
       "to": "TEND_KEYS",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "rag_fts_alias_text"
+        }
+      ],
       "from": "TRG",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "ALIAS",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "TSQ",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "MATCH",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "line": 16,
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "#L16"
+        }
+      ],
       "from": "TSV",
+      "label": "",
+      "mark": "->",
       "sync": true,
       "to": "IDX",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "U1",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "RAG",
       "type": "branches"
     },
     {
+      "anchors": [],
       "from": "U1",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "T2S",
       "type": "branches"
     },
     {
+      "anchors": [],
       "from": "U2",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "RAG",
       "type": "branches"
     },
     {
+      "anchors": [],
       "from": "U2",
+      "label": "",
+      "mark": "::branches",
       "sync": true,
       "to": "T2S",
       "type": "branches"
     },
     {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "validate_sql_readonly"
+        }
+      ],
       "from": "VAL",
+      "label": "",
+      "mark": "[err]",
       "sync": true,
       "to": "ERR_VALIDATE",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "VAL",
+      "label": "",
+      "mark": "[ok]",
       "sync": true,
       "to": "EXEC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "VEC",
+      "label": "",
+      "mark": "::merges",
       "sync": true,
       "to": "FUSE",
       "type": "merges"
     },
     {
+      "anchors": [],
       "from": "VEC",
+      "label": "加载",
+      "mark": "->",
       "sync": true,
       "to": "RPC_DOC",
       "type": "depends_on"
     },
     {
+      "anchors": [],
       "from": "VEC",
+      "label": "",
+      "mark": "[retry=N]",
       "sync": true,
       "to": "VEC",
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "documents_fts_tokens_update"
+        }
+      ],
       "from": "W",
+      "label": "",
+      "mark": "::triggers",
       "sync": true,
       "to": "TRG",
       "type": "triggers"
     }
   ],
-  "freeze_id": "TECH_GRAPH_S1_FREEZE_20260514_V1_1_3",
-  "generated_at": "2026-05-15T03:03:15Z",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+  "generated_at": "2026-05-17T09:15:32Z",
   "nodes": [
-    "A1",
-    "A2",
-    "ALIAS",
-    "AM",
-    "AUTH",
-    "B1",
-    "BE",
-    "BFF",
-    "C",
-    "C1",
-    "CH",
-    "CHAIN_SHAPE",
-    "CHAT",
-    "CLEAN",
-    "CONTENT",
-    "CONTENT_ROOT",
-    "CR1",
-    "CR2",
-    "CTX",
-    "CV",
-    "D",
-    "DB",
-    "DET",
-    "DONE",
-    "DONE_SHAPE",
-    "E",
-    "E2E_DOC",
-    "EMB",
-    "EMB_FAIL",
-    "ENV",
-    "ENV_KEYS",
-    "ERR",
-    "ERR_AUTH",
-    "ERR_DSN",
-    "ERR_EXEC",
-    "ERR_NET",
-    "ERR_PF",
-    "ERR_RPC_MISSING",
-    "ERR_VALIDATE",
-    "EV",
-    "EV_TYPES",
-    "EXEC",
-    "E_EMB",
-    "E_EXECSQL",
-    "E_GENSQL",
-    "E_ROUTER",
-    "E_RPC",
-    "FE",
-    "FE_PARSE",
-    "FE_STREAM",
-    "FTS",
-    "FTS_DOC",
-    "FTS_NULL",
-    "FUSE",
-    "GEN",
-    "GLOSS",
-    "H1",
-    "HIS",
-    "HIT0",
-    "HL",
-    "I18N",
-    "IDX",
-    "IN",
-    "ING",
-    "INT",
-    "JSON",
-    "KC",
-    "KD",
-    "KEYWORD_ONLY",
-    "KQ",
-    "L",
-    "LAT",
-    "LLM",
-    "LOG",
-    "MATCH",
-    "MC",
-    "MD",
-    "NOX",
-    "OBS_DOC",
-    "ORQ",
-    "OUT",
-    "OUT0",
-    "OUT1",
-    "OUT2",
-    "OUT_NO_DATA",
-    "PF",
-    "POOL",
-    "PROMPT",
-    "PY_SSE",
-    "Q",
-    "QS",
-    "QX",
-    "R1",
-    "RAG",
-    "RAG_DOC",
-    "RANK",
-    "RC",
-    "RD",
-    "REFRESH",
-    "REQ",
-    "RET",
-    "RPC",
-    "RPC_DOC",
-    "RS",
-    "RS_KEYS",
-    "RW",
-    "SB",
-    "SB_MATCH_DOCS",
-    "SB_TRUTH",
-    "SPEC",
-    "SQLR",
-    "SQL_KEYS",
-    "SRC",
-    "SRC_KEYS",
-    "SSE",
-    "SSE_ENV",
-    "SSE_EVENTS",
-    "SUM",
-    "T2S",
-    "T2S_DOC",
-    "TCE",
-    "TCE_KEYS",
-    "TCS",
-    "TCS_KEYS",
-    "TEND",
-    "TEND_KEYS",
-    "TRG",
-    "TSQ",
-    "TSV",
-    "U1",
-    "U2",
-    "VAL",
-    "VEC",
-    "W"
+    {
+      "id": "A1",
+      "label": "Sync Ingest"
+    },
+    {
+      "id": "A2",
+      "label": "Ingest"
+    },
+    {
+      "id": "ALIAS",
+      "label": "rag_fts_alias_text()"
+    },
+    {
+      "id": "AM",
+      "label": "assistant.message"
+    },
+    {
+      "id": "AUTH",
+      "label": "鉴权"
+    },
+    {
+      "id": "B1",
+      "label": "Structured Recall"
+    },
+    {
+      "id": "BE",
+      "label": "BE"
+    },
+    {
+      "id": "BFF",
+      "label": "BFF"
+    },
+    {
+      "id": "C",
+      "label": "(DB: public.code_chunks)"
+    },
+    {
+      "id": "C1",
+      "label": "RAG Chat"
+    },
+    {
+      "id": "CH",
+      "label": "Chain Timeline"
+    },
+    {
+      "id": "CHAIN_SHAPE",
+      "label": "CHAIN_SHAPE"
+    },
+    {
+      "id": "CHAT",
+      "label": "RAG/Unified Chat"
+    },
+    {
+      "id": "CLEAN",
+      "label": "candidate clean & limits"
+    },
+    {
+      "id": "CONTENT",
+      "label": "CONTENT"
+    },
+    {
+      "id": "CONTENT_ROOT",
+      "label": "CONTENT_ROOT"
+    },
+    {
+      "id": "CR1",
+      "label": "Code Query"
+    },
+    {
+      "id": "CR2",
+      "label": "Code Search"
+    },
+    {
+      "id": "CTX",
+      "label": "CTX"
+    },
+    {
+      "id": "CV",
+      "label": "ChatBI Access Verify"
+    },
+    {
+      "id": "D",
+      "label": "(DB: public.documents)"
+    },
+    {
+      "id": "DB",
+      "label": "(DB: rag_conversation_logs)"
+    },
+    {
+      "id": "DET",
+      "label": "try_summarize_aggregate()"
+    },
+    {
+      "id": "DONE",
+      "label": "event: done"
+    },
+    {
+      "id": "DONE_SHAPE",
+      "label": "DONE_SHAPE"
+    },
+    {
+      "id": "E",
+      "label": "\"@router.dispatch\""
+    },
+    {
+      "id": "E2E_DOC",
+      "label": ">15_e2e_boundary.md"
+    },
+    {
+      "id": "EMB",
+      "label": "async def embed"
+    },
+    {
+      "id": "EMB_FAIL",
+      "label": ">Embedding Failed"
+    },
+    {
+      "id": "ENV",
+      "label": "Debug env toggles"
+    },
+    {
+      "id": "ENV_KEYS",
+      "label": "\"DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB\""
+    },
+    {
+      "id": "ERR",
+      "label": "error"
+    },
+    {
+      "id": "ERR_AUTH",
+      "label": ">Auth Failed"
+    },
+    {
+      "id": "ERR_DSN",
+      "label": ">Missing env"
+    },
+    {
+      "id": "ERR_EXEC",
+      "label": ">execute_select_sql err"
+    },
+    {
+      "id": "ERR_NET",
+      "label": ">Network/Timeout"
+    },
+    {
+      "id": "ERR_PF",
+      "label": ">TEXT2SQL_SCHEMA_PREFETCH_FAILED"
+    },
+    {
+      "id": "ERR_RPC_MISSING",
+      "label": ">RPC 不存在/函数名错误"
+    },
+    {
+      "id": "ERR_VALIDATE",
+      "label": ">validate_sql_readonly err"
+    },
+    {
+      "id": "EV",
+      "label": "event: chain"
+    },
+    {
+      "id": "EV_TYPES",
+      "label": "EV_TYPES"
+    },
+    {
+      "id": "EXEC",
+      "label": "execute_select_sql()"
+    },
+    {
+      "id": "E_EMB",
+      "label": "Embedding error -> keyword-only"
+    },
+    {
+      "id": "E_EXECSQL",
+      "label": "TEXT2SQL_DATABASE_URL missing / DB error"
+    },
+    {
+      "id": "E_GENSQL",
+      "label": "validate_sql_readonly [err"
+    },
+    {
+      "id": "E_ROUTER",
+      "label": "未实现工具路由 / 参数错误"
+    },
+    {
+      "id": "E_RPC",
+      "label": "RPC error / retries exhausted"
+    },
+    {
+      "id": "FE",
+      "label": "FE"
+    },
+    {
+      "id": "FE_PARSE",
+      "label": "FE_PARSE"
+    },
+    {
+      "id": "FE_STREAM",
+      "label": "FE_STREAM"
+    },
+    {
+      "id": "FTS",
+      "label": "FTS 子流程"
+    },
+    {
+      "id": "FTS_DOC",
+      "label": ">12_flow_fts.md"
+    },
+    {
+      "id": "FTS_NULL",
+      "label": "fts_tokens is null?"
+    },
+    {
+      "id": "FUSE",
+      "label": "FUSE"
+    },
+    {
+      "id": "GEN",
+      "label": "async def llm_generate_sql"
+    },
+    {
+      "id": "GLOSS",
+      "label": "data/i18n_glossary.json"
+    },
+    {
+      "id": "H1",
+      "label": "Chat History"
+    },
+    {
+      "id": "HIS",
+      "label": "历史轮次"
+    },
+    {
+      "id": "HIT0",
+      "label": "hits == 0 ?"
+    },
+    {
+      "id": "HL",
+      "label": "Health"
+    },
+    {
+      "id": "I18N",
+      "label": "I18N_EXPAND_ENABLED?"
+    },
+    {
+      "id": "IDX",
+      "label": "(GIN: documents_fts_tokens_gin)"
+    },
+    {
+      "id": "IN",
+      "label": "入口 Query"
+    },
+    {
+      "id": "ING",
+      "label": "Ingest Pipeline"
+    },
+    {
+      "id": "INT",
+      "label": "Intent Check"
+    },
+    {
+      "id": "JSON",
+      "label": "JSON response"
+    },
+    {
+      "id": "KC",
+      "label": "rpc keyword_code_chunks()"
+    },
+    {
+      "id": "KD",
+      "label": "rpc keyword_documents()"
+    },
+    {
+      "id": "KEYWORD_ONLY",
+      "label": "keyword-only"
+    },
+    {
+      "id": "KQ",
+      "label": "keyword_query_text()"
+    },
+    {
+      "id": "L",
+      "label": "(DB: public.rag_conversation_logs)"
+    },
+    {
+      "id": "LAT",
+      "label": "latency"
+    },
+    {
+      "id": "LLM",
+      "label": "async def llm_answer"
+    },
+    {
+      "id": "LOG",
+      "label": "async def save_debug_log"
+    },
+    {
+      "id": "MATCH",
+      "label": "fts_tokens @@ tsquery"
+    },
+    {
+      "id": "MC",
+      "label": "rpc match_code_chunks()"
+    },
+    {
+      "id": "MD",
+      "label": "rpc match_documents()"
+    },
+    {
+      "id": "NOX",
+      "label": "graceful fallback"
+    },
+    {
+      "id": "OBS_DOC",
+      "label": ">14_runtime_observability.md"
+    },
+    {
+      "id": "ORQ",
+      "label": "OR compose"
+    },
+    {
+      "id": "OUT",
+      "label": "返回 JSON / SSE"
+    },
+    {
+      "id": "OUT0",
+      "label": "返回 non_text2sql 提示"
+    },
+    {
+      "id": "OUT1",
+      "label": "errors.generate_sql"
+    },
+    {
+      "id": "OUT2",
+      "label": "未查到数据"
+    },
+    {
+      "id": "OUT_NO_DATA",
+      "label": "no_data / 不确定回答"
+    },
+    {
+      "id": "PF",
+      "label": "run_text2sql_schema_prefetch_sync"
+    },
+    {
+      "id": "POOL",
+      "label": "(连接池)"
+    },
+    {
+      "id": "PROMPT",
+      "label": "build_sql_prompt()"
+    },
+    {
+      "id": "PY_SSE",
+      "label": "PY_SSE"
+    },
+    {
+      "id": "Q",
+      "label": "用户请求"
+    },
+    {
+      "id": "QS",
+      "label": "keyword_query_text()"
+    },
+    {
+      "id": "QX",
+      "label": "rag.query_expand"
+    },
+    {
+      "id": "R1",
+      "label": "router.decision"
+    },
+    {
+      "id": "RAG",
+      "label": "RAG 子流程"
+    },
+    {
+      "id": "RAG_DOC",
+      "label": ">10_flow_rag.md"
+    },
+    {
+      "id": "RANK",
+      "label": "ts_rank_cd score"
+    },
+    {
+      "id": "RC",
+      "label": "rpc refresh_code_chunks_fts_tokens_for_paths()"
+    },
+    {
+      "id": "RD",
+      "label": "rpc refresh_documents_fts_tokens_for_paths()"
+    },
+    {
+      "id": "REFRESH",
+      "label": "refresh_documents_fts_tokens_for_paths()"
+    },
+    {
+      "id": "REQ",
+      "label": "HTTP Request"
+    },
+    {
+      "id": "RET",
+      "label": "text2sql_store.search()"
+    },
+    {
+      "id": "RPC",
+      "label": "Supabase RPC 子流程"
+    },
+    {
+      "id": "RPC_DOC",
+      "label": ">13_flow_supabase_rpc.md"
+    },
+    {
+      "id": "RS",
+      "label": "rag.sources"
+    },
+    {
+      "id": "RS_KEYS",
+      "label": "RS_KEYS"
+    },
+    {
+      "id": "RW",
+      "label": "Query Rewrite"
+    },
+    {
+      "id": "SB",
+      "label": "Supabase Client"
+    },
+    {
+      "id": "SB_MATCH_DOCS",
+      "label": "SB_MATCH_DOCS"
+    },
+    {
+      "id": "SB_TRUTH",
+      "label": "SB_TRUTH"
+    },
+    {
+      "id": "SPEC",
+      "label": ">docs/text2sql/v1/sql/supabase_init.sql"
+    },
+    {
+      "id": "SQLR",
+      "label": "sql.result"
+    },
+    {
+      "id": "SQL_KEYS",
+      "label": "\"{sql, columns, rows[0..20], truncated}\""
+    },
+    {
+      "id": "SRC",
+      "label": "sources payload"
+    },
+    {
+      "id": "SRC_KEYS",
+      "label": "\"{id, content, filename, score, path, url}\""
+    },
+    {
+      "id": "SSE",
+      "label": "{SSE?"
+    },
+    {
+      "id": "SSE_ENV",
+      "label": "SSE_ENV"
+    },
+    {
+      "id": "SSE_EVENTS",
+      "label": "SSE_EVENTS"
+    },
+    {
+      "id": "SUM",
+      "label": "async def llm_summarize"
+    },
+    {
+      "id": "T2S",
+      "label": "Text2SQL 子流程"
+    },
+    {
+      "id": "T2S_DOC",
+      "label": ">11_flow_text2sql.md"
+    },
+    {
+      "id": "TCE",
+      "label": "tool.call.end"
+    },
+    {
+      "id": "TCE_KEYS",
+      "label": "\"{output, error, latency_ms}\""
+    },
+    {
+      "id": "TCS",
+      "label": "tool.call.start"
+    },
+    {
+      "id": "TCS_KEYS",
+      "label": "\"{tool, input}\""
+    },
+    {
+      "id": "TEND",
+      "label": "TEND"
+    },
+    {
+      "id": "TEND_KEYS",
+      "label": "\"output.{vector_hits,structured_hits,keyword_hits_raw,keyword_hits_rewrite,hits,retry_count,embedding_error}<br/>error, latency_ms\""
+    },
+    {
+      "id": "TRG",
+      "label": "trigger: documents_fts_tokens_update"
+    },
+    {
+      "id": "TSQ",
+      "label": "websearch_to_tsquery('simple', query_text)"
+    },
+    {
+      "id": "TSV",
+      "label": "to_tsvector('simple', content + alias)"
+    },
+    {
+      "id": "U1",
+      "label": "Unified JSON"
+    },
+    {
+      "id": "U2",
+      "label": "Unified SSE"
+    },
+    {
+      "id": "VAL",
+      "label": "validate_sql_readonly()"
+    },
+    {
+      "id": "VEC",
+      "label": "Vector RPC"
+    },
+    {
+      "id": "W",
+      "label": "Write/Update content"
+    }
   ],
-  "schema_version": "graph_v1"
+  "schema_version": "graph_v2"
 }

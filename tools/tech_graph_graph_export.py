@@ -23,10 +23,11 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
-from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
 DEFAULT_INPUT = REPO_ROOT / "docs" / "_tech_graph"
 DEFAULT_OUTPUT = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
 # 与 docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml · graph_v2_freeze_id 对齐
@@ -403,6 +404,8 @@ def build_graph_payload(
     freeze_id: str = FREEZE_ID,
 ) -> dict[str, Any]:
     """自 *.ai.md 构建 P2-0 graph_v2 载荷（与参考图构建器一致）。"""
+    from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
+
     if generated_at is None:
         generated_at = _utc_now_iso_z()
     return build_reference_graph_v2(

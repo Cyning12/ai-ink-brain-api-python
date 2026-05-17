@@ -14,9 +14,14 @@ graph_v2 等价检查（P2-0 草案）。
 import argparse
 import json
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+_REPO_BOOT = Path(__file__).resolve().parent.parent
+if str(_REPO_BOOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_BOOT))
 
 from tools.tech_graph_graph_export import REPO_ROOT, TechGraphParseError
 from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
@@ -68,6 +73,38 @@ def _anchor_keys(anchors: list[dict[str, Any]]) -> set[tuple[str, str]]:
     return out
 
 
+def _group_edges_by_topo(edges: list[dict[str, Any]]) -> dict[tuple[str, str, str], list[dict[str, Any]]]:
+    grouped: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for edge in edges:
+        grouped[_edge_topology_key(edge)].append(edge)
+    return grouped
+
+
+def _match_ref_edges_to_export(
+    ref_edges: list[dict[str, Any]],
+    exp_pool: list[dict[str, Any]],
+    *,
+    predicate,
+) -> tuple[int, list[str]]:
+    """在同拓扑边组内贪心匹配；返回 (匹配数, 失败摘要)。"""
+    pool = list(exp_pool)
+    matched = 0
+    failures: list[str] = []
+    for re_ in ref_edges:
+        key = _edge_topology_key(re_)
+        found_idx: int | None = None
+        for i, ee in enumerate(pool):
+            if predicate(re_, ee):
+                found_idx = i
+                break
+        if found_idx is None:
+            failures.append(f"{key[0]}->{key[1]} mark={key[2]!r}")
+            continue
+        matched += 1
+        pool.pop(found_idx)
+    return matched, failures
+
+
 def compute_equivalence_metrics(
     reference: dict[str, Any],
     exported: dict[str, Any],
@@ -75,36 +112,32 @@ def compute_equivalence_metrics(
     ref_edges = reference.get("edges") or []
     exp_edges = exported.get("edges") or []
 
-    ref_by_topo: dict[tuple[str, str, str], dict[str, Any]] = {}
-    for e in ref_edges:
-        ref_by_topo[_edge_topology_key(e)] = e
+    ref_groups = _group_edges_by_topo(ref_edges)
+    exp_groups = _group_edges_by_topo(exp_edges)
 
-    exp_by_topo: dict[tuple[str, str, str], dict[str, Any]] = {}
-    for e in exp_edges:
-        exp_by_topo[_edge_topology_key(e)] = e
-
-    topology_ok = _node_id_set(reference) == _node_id_set(exported) and set(
-        ref_by_topo.keys()
-    ) == set(exp_by_topo.keys())
+    topology_ok = _node_id_set(reference) == _node_id_set(exported) and all(
+        len(ref_groups.get(key, [])) == len(exp_groups.get(key, []))
+        for key in ref_groups
+    ) and set(ref_groups.keys()) == set(exp_groups.keys())
 
     ref_with_anchor = [e for e in ref_edges if e.get("anchors")]
     matched_anchor = 0
     missing_anchor_edges: list[str] = []
 
-    for re_ in ref_with_anchor:
-        key = _edge_topology_key(re_)
-        ee = exp_by_topo.get(key)
-        if ee is None:
-            missing_anchor_edges.append(f"{key[0]}->{key[1]} mark={key[2]!r}")
+    for key, ref_list in ref_groups.items():
+        anchor_refs = [e for e in ref_list if e.get("anchors")]
+        if not anchor_refs:
             continue
-        ref_a = _anchor_keys(re_.get("anchors") or [])
-        exp_a = _anchor_keys(ee.get("anchors") or [])
-        if ref_a <= exp_a:
-            matched_anchor += 1
-        else:
-            missing_anchor_edges.append(
-                f"{key[0]}->{key[1]} missing={sorted(ref_a - exp_a)[:3]}"
+        exp_pool = list(exp_groups.get(key, []))
+
+        def _anchor_ok(re_: dict[str, Any], ee: dict[str, Any]) -> bool:
+            return _anchor_keys(re_.get("anchors") or []) <= _anchor_keys(
+                ee.get("anchors") or []
             )
+
+        n, fails = _match_ref_edges_to_export(anchor_refs, exp_pool, predicate=_anchor_ok)
+        matched_anchor += n
+        missing_anchor_edges.extend(fails)
 
     anchor_coverage = (
         1.0 if not ref_with_anchor else matched_anchor / len(ref_with_anchor)
@@ -114,16 +147,18 @@ def compute_equivalence_metrics(
     matched_label = 0
     missing_labels: list[str] = []
 
-    for re_ in ref_semantic:
-        key = _edge_topology_key(re_)
-        ee = exp_by_topo.get(key)
-        if ee is None:
-            missing_labels.append(f"{key[0]}->{key[1]}")
+    for key, ref_list in ref_groups.items():
+        label_refs = [e for e in ref_list if (e.get("label") or "").strip()]
+        if not label_refs:
             continue
-        if (ee.get("label") or "").strip() == (re_.get("label") or "").strip():
-            matched_label += 1
-        else:
-            missing_labels.append(f"{key[0]}->{key[1]} exp_label={ee.get('label')!r}")
+        exp_pool = list(exp_groups.get(key, []))
+
+        def _label_ok(re_: dict[str, Any], ee: dict[str, Any]) -> bool:
+            return (ee.get("label") or "").strip() == (re_.get("label") or "").strip()
+
+        n, fails = _match_ref_edges_to_export(label_refs, exp_pool, predicate=_label_ok)
+        matched_label += n
+        missing_labels.extend(fails)
 
     edge_label_coverage = (
         1.0 if not ref_semantic else matched_label / len(ref_semantic)
