@@ -53,6 +53,7 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/aggregate_p1_sco
 
 ## 验收（P1 完成）
 
-- [ ] `reviewer_R1.csv` + `reviewer_R2.csv` 6 行齐全  
-- [ ] `aggregate_p1.md` 已生成；仲裁项有 R3 终值或记录「保留 F1」  
-- [ ] 定稿文 §6 增加「P1 盲审摘要」一段
+- [x] `reviewer_R1.csv` + `reviewer_R2.csv` 6 行齐全  
+- [x] [`scores/aggregate_p1.md`](./fixtures/gate_ctx_ab_v1/p1/scores/aggregate_p1.md) 已生成（**4/6 需仲裁**）  
+- [x] 定稿文 §6.1 已更新  
+- [ ] 可选：Reviewer·R3 仲裁 P1-001～003、006

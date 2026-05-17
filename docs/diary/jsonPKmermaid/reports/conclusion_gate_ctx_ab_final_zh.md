@@ -1,7 +1,7 @@
 # gate_ctx_ab 定稿结论（初稿）
 
 > **符号表**：[../NOTATION_zh.md](../NOTATION_zh.md)（**Sx=段 / Px=KPI / Rx=规则**；Rx **≠** 单次 LLM 调用）  
-> **状态**：`accepted`（Phase·P0 已闭环，2026-05-17）· **Phase·P1 进行中**（见 [`P1_README.md`](../P1_README.md)）  
+> **状态**：`accepted`（Phase·P0 已闭环）· **Phase·P1 双人盲审已汇总**（4/6 需仲裁，见 §6.1）  
 > **协议**：[`fixtures/gate_ctx_ab_v1/protocol_version.yaml`](../fixtures/gate_ctx_ab_v1/protocol_version.yaml) · `freeze_id: TECH_GRAPH_S1_FREEZE_20260514_V1_1_3`  
 > **日志**：[../EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md)  
 > **日期**：2026-05-17  
@@ -220,21 +220,31 @@ flowchart TB
 | 项 | 说明 |
 |----|------|
 | 样本 | 3 题、1 模型、1 freeze；外推有限 |
-| KPI·P2 | P0 为启发式 F1；**P1 盲审进行中** |
-| KPI·P1 | P1 双人 Rubric 见 [`P1_README.md`](../P1_README.md) |
+| KPI·P2 | P0 启发式 F1 + P1 人审（R1/R2） |
+| KPI·P1 | 双人 Rubric 已填；见 §6.1 |
 | β 摘要 | 段·S1 历史仍膨胀；未测更短摘要模板 |
 | 离群 | 个别 wall_s 离群已剔除或标注，不进入 Rule-4 以外的「谁更快」 |
 
-### 6.1 Phase·P1 盲审（进行中）
+### 6.1 Phase·P1 盲审（Reviewer·R1 + R2 · 已汇总）
 
-- **样本**：6 条段·S0（`152126`）→ `fixtures/gate_ctx_ab_v1/p1/blind/P1-*.json`  
-- **SOP**：[`P1_README.md`](../P1_README.md) · Rubric：[`p1/rubric_v1.yaml`](../fixtures/gate_ctx_ab_v1/p1/rubric_v1.yaml)  
-- **结果落盘**（待填）：`p1/scores/reviewer_R1.csv`、`reviewer_R2.csv` → `aggregate_p1.md`  
-- **与 Rule·R1–R6 关系**：P1 终裁写入本节附录；**不自动**改写 §4 硬门槛，除非 charter 变更
+- **样本**：6 条段·S0（`152126`）  
+- **落盘**：[`p1/scores/reviewer_R1.csv`](../fixtures/gate_ctx_ab_v1/p1/scores/reviewer_R1.csv) · [`reviewer_R2.csv`](../fixtures/gate_ctx_ab_v1/p1/scores/reviewer_R2.csv)  
+- **汇总**：[`p1/scores/aggregate_p1.md`](../fixtures/gate_ctx_ab_v1/p1/scores/aggregate_p1.md)（阈值 |Δ|≥15）
 
-#### P1 盲审摘要（待填）
+**双人分歧**：**4/6** 样本需仲裁（P1-001～003、P1-006）；P1-004/005 一致（T002/T003 的 Mermaid 臂）。
 
-> 填毕 `aggregate_p1.md` 后，在此粘贴 arm 聚合胜负与是否改变「不签收一律 JSON」结论。
+**按 arm 粗算**（各样本取 R1/R2 中点再题均；**仲裁前 provisional**）：
+
+| arm | P1 均值 | P2 均值 | 相对 |
+|-----|--------:|--------:|------|
+| CTX_JSON | **49** | **55** | P1/P2 均低于 Mermaid |
+| CTX_MERMAID | **63** | **86** | 同上 |
+
+**与 P0 对照**：
+
+- **一致**：人审 **P2（可靠性/可交接质量）** 仍偏 **Mermaid**，强化 §4 中 Rule-3/Rule-4 未过关叙事。  
+- **张力**：P0 的 **P3/P4** 仍偏 JSON；P1 不推翻「省钱/省时 JSON 更优」，但说明 **默认 JSON 时交付质量风险更大**。  
+- **选型**：**仍不签收**「一律 JSON」；若试点 JSON，须接受 **人审 P2 显著低于 Mermaid（约 55 vs 86）** 及 T002/T003 脚本 F1 劣势。Rule·R1–R6 **不修改**；仲裁后可更新本节终值。
 
 ---
 
@@ -258,3 +268,4 @@ flowchart TB
 | draft-v0.9.1 | 2026-05-17 | §0.1 增加 Segment × arm × KPI 关系图 |
 | draft-v0.9.2 | 2026-05-17 | 符号消歧：Rule vs LLM vs Repeat；链 [NOTATION_zh.md](../NOTATION_zh.md) |
 | draft-v0.9.3 | 2026-05-17 | §2.0 段·S0 主表列名解读 |
+| accepted-p1 | 2026-05-17 | §6.1 P1 双人盲审汇总（aggregate_p1） |

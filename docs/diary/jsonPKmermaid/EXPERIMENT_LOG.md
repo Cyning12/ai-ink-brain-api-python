@@ -89,7 +89,8 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | 2026-05-16 | **P0-B 全量** `…_152126` + aggregate + 结论文 | `317a71a` | 见 `conclusion_s1s2_batch_*` |
 | 2026-05-17 | 清理废弃 run / 重复报告 | （本次 commit） | 仅留 4 个 canonical run 目录 |
 | 2026-05-17 | 定稿文 + `NOTATION_zh.md` + §2.0 列解读 | `06c7ac6` | P0.9 收口；Rule·R1–R6 |
-| 2026-05-17 | **Phase·P1 启动**：盲审包 + rubric + 脚本 | （本次 commit） | 见 `P1_README.md` |
+| 2026-05-17 | **Phase·P1 启动**：盲审包 + rubric + 脚本 | `87e1fdf` | 见 `P1_README.md` |
+| 2026-05-17 | R2 填分 + aggregate + §6.1 | （本次 commit） | 4/6 需仲裁 |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -115,12 +116,13 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 - [x] 定稿文 `accepted`（不签收一律 JSON）
 - [x] `01_experiment` 状态同步
 
-### Phase·P1（进行中）
+### Phase·P1
 
-- [x] 盲审包：`fixtures/gate_ctx_ab_v1/p1/blind/`（6 条段·S0）+ [`P1_README.md`](./P1_README.md)
-- [ ] `scores/reviewer_R1.csv` + `reviewer_R2.csv` 填毕
-- [ ] `aggregate_p1_scores.py` → `scores/aggregate_p1.md`；争议项仲裁
-- [ ] 定稿文 §6 附录：P1 盲审摘要
+- [x] 盲审包 + [`P1_README.md`](./P1_README.md) + Agent Prompt [`p1/prompts/reviewer_R2_agent_zh.md`](./fixtures/gate_ctx_ab_v1/p1/prompts/reviewer_R2_agent_zh.md)
+- [x] `reviewer_R1.csv` + `reviewer_R2.csv`（`7eb5870` 起 R2）
+- [x] [`aggregate_p1.md`](./fixtures/gate_ctx_ab_v1/p1/scores/aggregate_p1.md)（**4/6 需仲裁**）
+- [x] 定稿文 §6.1 P1 摘要
+- [ ] 可选：Reviewer·R3 对 P1-001～003、006 仲裁后修订 arm 均值
 
 ### 明确不做（除非改实验 charter）
 

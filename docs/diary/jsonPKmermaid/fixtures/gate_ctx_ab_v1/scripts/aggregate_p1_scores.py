@@ -21,7 +21,8 @@ def _load_threshold() -> int:
     text = RUBRIC_PATH.read_text(encoding="utf-8")
     for line in text.splitlines():
         if line.strip().startswith("arbitration_threshold:"):
-            return int(line.split(":", 1)[1].strip())
+            raw = line.split(":", 1)[1].strip().split("#", 1)[0].strip()
+            return int(raw)
     return THRESHOLD
 
 
@@ -84,6 +85,43 @@ def main() -> int:
             f"| `{sid}` | {a['p1_total']} | {a['p2_total']} | {b['p1_total']} | {b['p2_total']} | {d1} | {d2} | {'是' if arb else '否'} |"
         )
     lines.extend(["", f"**需仲裁**：{need_arb} / {len(all_ids)}", ""])
+
+    manifest_path = P1_ROOT / "admin" / "sample_manifest.json"
+    if manifest_path.is_file():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        arm_rows: dict[str, list[tuple[int, int, int, int]]] = {}
+        for item in manifest.get("samples", []):
+            sid = item["sample_id"]
+            arm = item["arm"]
+            a, b = s1.get(sid), s2.get(sid)
+            if not a or not b:
+                continue
+            mid_p1 = round((a["p1_total"] + b["p1_total"]) / 2)
+            mid_p2 = round((a["p2_total"] + b["p2_total"]) / 2)
+            arm_rows.setdefault(arm, []).append(
+                (mid_p1, mid_p2, a["p1_total"], b["p1_total"])
+            )
+        lines.extend(
+            [
+                "",
+                "## 按 arm 粗算（R1/R2 中位数；仲裁前 provisional）",
+                "",
+                "| arm | 样本 n | P1 均值 | P2 均值 | 说明 |",
+                "| --- | ---:| ---:| ---:| --- |",
+            ]
+        )
+        for arm in sorted(arm_rows):
+            rows = arm_rows[arm]
+            p1m = round(sum(r[0] for r in rows) / len(rows))
+            p2m = round(sum(r[1] for r in rows) / len(rows))
+            lines.append(
+                f"| `{arm}` | {len(rows)} | {p1m} | {p2m} | 各样本 (R1+P2)/2 再题均 |"
+            )
+        lines.append("")
+        lines.append(
+            "> 有仲裁项时，终值应以 Reviewer·R3 或双人合议为准；本节不改动 Rule·R1–R6。"
+        )
+
     args.out_md.write_text("\n".join(lines), encoding="utf-8")
     print(f"OK -> {args.out_md}")
     return 0

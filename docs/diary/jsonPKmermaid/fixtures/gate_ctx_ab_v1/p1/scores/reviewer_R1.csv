@@ -1,0 +1,7 @@
+sample_id,task_id,p1_total,p2_total,notes
+P1-001,T002_unified_sse_chain_contract,62,68,"P1:结构全/unknowns好；无命令级验证/门禁仅述contract。P2:有stream路由+契约；缺handle_unified_chat_stream、require_chatbi_principal(chatbi_principal)"
+P1-002,T003_ingest_admin_rpc,58,80,"P1:无≤5步命令。P2:admin入口+RPC/图谱链较全；缺process_code_files/run_sync_job_sync作入口、rag_env维度校验"
+P1-003,T001_embedding_dim_default,50,52,"P1:无manifest/CI门禁点名。P2:仅命中expected_embedding_dim；缺siliconflow_embedding_dimensions/chat与ingest_pipeline/code_ingest/workflows路径"
+P1-004,T002_unified_sse_chain_contract,76,95,"P1:契约+contract_check明确；仍无pytest命令。P2:stream+handle_unified_chat_stream+_event+鉴权+分支/前端证据齐"
+P1-005,T003_ingest_admin_rpc,64,88,"P1:嵌套evidence可读；无执行步骤。P2:ingest_pipeline+双RPC+manifest路径优；入口缺code_ingest/run_sync_job_sync"
+P1-006,T001_embedding_dim_default,62,82,"P1:unknowns好。P2:rag_env+embedding_kwargs+supabase sql；缺ENV_KEYS/chat入口与.github/workflows"
