@@ -1,7 +1,7 @@
 # gate_ctx_ab 定稿结论（初稿）
 
 > **符号表**：[../NOTATION_zh.md](../NOTATION_zh.md)（**Sx=段 / Px=KPI / Rx=规则**；Rx **≠** 单次 LLM 调用）  
-> **状态**：`draft-v0.9.2`（Phase·P0-A + Phase·P0-B 数据已齐；**未做 Phase·P1 双人 Rubric**）  
+> **状态**：`accepted`（Phase·P0 已闭环，2026-05-17）· **Phase·P1 进行中**（见 [`P1_README.md`](../P1_README.md)）  
 > **协议**：[`fixtures/gate_ctx_ab_v1/protocol_version.yaml`](../fixtures/gate_ctx_ab_v1/protocol_version.yaml) · `freeze_id: TECH_GRAPH_S1_FREEZE_20260514_V1_1_3`  
 > **日志**：[../EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md)  
 > **日期**：2026-05-17  
@@ -215,17 +215,26 @@ flowchart TB
 
 ---
 
-## 6. 局限与 Phase·P1 待办
+## 6. 局限与 Phase·P1
 
 | 项 | 说明 |
 |----|------|
 | 样本 | 3 题、1 模型、1 freeze；外推有限 |
-| KPI·P2 | 仅启发式 F1；**未**双人 Rubric |
-| KPI·P1 | 未评「下一步可执行性 / 门禁动作」档位 |
+| KPI·P2 | P0 为启发式 F1；**P1 盲审进行中** |
+| KPI·P1 | P1 双人 Rubric 见 [`P1_README.md`](../P1_README.md) |
 | β 摘要 | 段·S1 历史仍膨胀；未测更短摘要模板 |
 | 离群 | 个别 wall_s 离群已剔除或标注，不进入 Rule-4 以外的「谁更快」 |
 
-**Phase·P1 最小包（可选）**：从 `152126` 抽 **6 条段·S0** 结构化输出 → 双人盲审（Reviewer·R1/R2，见 [NOTATION_zh.md](../NOTATION_zh.md) §5）→ 更新 §4 签收表。
+### 6.1 Phase·P1 盲审（进行中）
+
+- **样本**：6 条段·S0（`152126`）→ `fixtures/gate_ctx_ab_v1/p1/blind/P1-*.json`  
+- **SOP**：[`P1_README.md`](../P1_README.md) · Rubric：[`p1/rubric_v1.yaml`](../fixtures/gate_ctx_ab_v1/p1/rubric_v1.yaml)  
+- **结果落盘**（待填）：`p1/scores/reviewer_R1.csv`、`reviewer_R2.csv` → `aggregate_p1.md`  
+- **与 Rule·R1–R6 关系**：P1 终裁写入本节附录；**不自动**改写 §4 硬门槛，除非 charter 变更
+
+#### P1 盲审摘要（待填）
+
+> 填毕 `aggregate_p1.md` 后，在此粘贴 arm 聚合胜负与是否改变「不签收一律 JSON」结论。
 
 ---
 

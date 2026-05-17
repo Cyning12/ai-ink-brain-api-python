@@ -1,0 +1,69 @@
+# gate_ctx_ab Phase·P1 — 双人盲审 Rubric（v1）
+# 符号：Reviewer·R1/R2（评审员），≠ Rule·R1–R6；见 ../../NOTATION_zh.md
+
+schema_version: gate_ctx_p1_rubric_v1
+segment: S0
+blind: true # 评审时不得见 arm（CTX_JSON / CTX_MERMAID）
+
+# 每名评审对每条样本填 P1_total / P2_total（0–100 整数）
+scale:
+  min: 0
+  max: 100
+arbitration_threshold: 15 # |R1 - R2| >= 15 触发 Reviewer·R3
+
+p1_handoff: # KPI·P1 易交接（权重参考 40%）
+  weight_hint: 40
+  subitems:
+    - id: p1_structure
+      label: 结构清晰度
+      criteria:
+        "0": entrypoints/impacts/evidence 缺项或难以解析
+        "1": 三项齐全但层级松散
+        "2": 三项齐全、字段一致、便于 diff
+    - id: p1_next_steps
+      label: 下一步可执行性
+      criteria:
+        "0": 无验证路径或仅泛泛而谈
+        "1": 有方向但缺少命令级 / cwd
+        "2": 给出 ≤5 步且含可执行命令（cwd=仓根）
+    - id: p1_gate_actions
+      label: 门禁动作
+      criteria:
+        "0": 未提及 manifest / contract / 相关 workflow
+        "1": 提及但不可操作
+        "2": 明确点名 _manifest / _contract 或 CI workflow
+    - id: p1_unknowns
+      label: unknowns 诚实度
+      criteria:
+        "0": 无 unknowns 且存在明显臆测
+        "1": 有 unknowns 但不完整
+        "2": 对材料外推明确标注 unknown
+
+p2_reliability: # KPI·P2 可靠性（权重参考 35%）
+  weight_hint: 35
+  subitems:
+    - id: p2_entry_quality
+      label: 入口质量（对照 gold）
+      criteria:
+        "0": 关键入口遗漏或路径错误
+        "1": 部分命中 gold
+        "2": 主要入口与 gold 一致或可等价
+    - id: p2_impact_quality
+      label: 影响面质量（对照 gold）
+      criteria:
+        "0": 影响面偏离题意或 kind 混乱
+        "1": 覆盖部分 gold impacts
+        "2": 覆盖主要链路（含 CI/契约/数据）
+    - id: p2_evidence
+      label: evidence 可核验
+      criteria:
+        "0": evidence 无法对应图谱或路径
+        "1": 部分可回放
+        "2": 多数条目可指回 graph_id 或仓库路径
+
+scoring_instruction: |
+  评审流程：
+  1. 只打开 blind/ 下样本（不得打开 admin/sample_manifest.json）。
+  2. 对照同包内 gold 与题面 prompt_zh，按子项在纸上或草稿计 0–2，再合成 P1_total、P2_total（0–100）。
+  3. 填入 scores/reviewer_R1.csv 或 reviewer_R2.csv（列见 score_template.csv）。
+  4. 汇总：python …/aggregate_p1_scores.py（仲裁后更新定稿文 §4 备注）。

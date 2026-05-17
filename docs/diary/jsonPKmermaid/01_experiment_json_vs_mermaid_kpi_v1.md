@@ -2,7 +2,7 @@
 
 > **符号表**：[`NOTATION_zh.md`](./NOTATION_zh.md) — **段·S0–S2** · **KPI·P1–P4** · **阶段·Phase·P0/P1** · 本文件另用 **Repeat·R**（重复轮次）与 **Reviewer·R1/R2**（评审员），**≠** 定稿文 **Rule·R1–R6**（签收规则）  
 > **日期**：2026-05-15  
-> **状态**：`draft`（协议草案；P0 跑数见 [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md)）  
+> **状态**：`active`（Phase·P0 已闭环；Phase·P1 见 [`P1_README.md`](./P1_README.md) · [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md)）  
 > **依赖旧总结**：[`00_legacy_compare_summary.md`](./00_legacy_compare_summary.md)  
 > **KPI 权重（沿用 V3 Patch）**：**KPI·P1 易交接 40% > P2 可靠性 35% > P3 省钱 15% > P4 省时 10%**
 

@@ -18,7 +18,8 @@
 | — | [`runs/`](./runs/) | **仅保留 canonical S0 三批 + P0-B 全量** |
 | — | [`reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md`](./reports/conclusion_gate_ctx_ab_three_tasks_draft_zh.md) | **S0 三题总表（draft）** |
 | — | [`reports/conclusion_s1s2_batch_20260516_152126_zh.md`](./reports/conclusion_s1s2_batch_20260516_152126_zh.md) | S1/S2 全量（draft） |
-| **4** | [`reports/conclusion_gate_ctx_ab_final_zh.md`](./reports/conclusion_gate_ctx_ab_final_zh.md) | **定稿结论初稿（P0.9）**；术语与关系图见 **§0.1** |
+| **4** | [`reports/conclusion_gate_ctx_ab_final_zh.md`](./reports/conclusion_gate_ctx_ab_final_zh.md) | **定稿结论（P0·accepted）**；§0.1 关系图 |
+| **5** | [`P1_README.md`](./P1_README.md) | **Phase·P1 双人盲审 SOP** |
 
 ## 与历史资产的关系
 

@@ -1,0 +1,152 @@
+{
+  "schema": "gate_ctx_p1_blind_sample_v1",
+  "sample_id": "P1-003",
+  "task_id": "T001_embedding_dim_default",
+  "topic_id": "rag_env_embedding",
+  "segment": "S0",
+  "prompt_zh": "计划调整向量维度约定：将 `api/rag_env.py` 中 `expected_embedding_dim()` 的默认行为（无 `EMBEDDING_DIM` / `SILICONFLOW_EMBEDDING_DIM` 环境变量时）与全链路对齐。请列出主要代码入口、影响面，并给出可核验 evidence（图谱节点 id 或仓库相对路径）。",
+  "gold": {
+    "entrypoints": [
+      {
+        "path": "api/rag_env.py",
+        "symbol": "expected_embedding_dim",
+        "graph_id": "ENV",
+        "note": "维度真值函数；默认 1024"
+      },
+      {
+        "path": "api/rag_env.py",
+        "symbol": "siliconflow_embedding_dimensions",
+        "graph_id": "ENV_KEYS",
+        "note": "SILICONFLOW_EMBEDDING_DIMENSIONS 读取"
+      },
+      {
+        "path": "api/index.py",
+        "symbol": "chat",
+        "graph_id": "C1",
+        "note": "Legacy RAG Chat 入口；index 侧亦有 SILICONFLOW_EMBEDDING_DIMENSIONS 模块级常量"
+      }
+    ],
+    "impacts": [
+      {
+        "path": "api/ingest_pipeline.py",
+        "kind": "data",
+        "graph_id": "A1",
+        "note": "ingest 校验 len(vec) 与 expected_embedding_dim()"
+      },
+      {
+        "path": "api/code_ingest.py",
+        "kind": "data",
+        "graph_id": "A2",
+        "note": "code ingest 同样校验维度"
+      },
+      {
+        "path": "api/unified_chat.py",
+        "kind": "control",
+        "graph_id": "EMB",
+        "note": "RAG 召回 embedding 路径（见 10_flow_rag.ai.md）"
+      },
+      {
+        "path": "supabase/sql",
+        "kind": "data",
+        "graph_id": "VEC",
+        "note": "documents/code_chunks vector(N) 须与维度一致（见 01_struct.md）"
+      },
+      {
+        "path": ".github/workflows",
+        "kind": "ci",
+        "graph_id": null,
+        "note": "变更维度假设须跑 graph export / contract / 相关 pytest"
+      }
+    ],
+    "matching_rules": {
+      "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+      "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+    }
+  },
+  "response": {
+    "entrypoints": [
+      {
+        "path": "api/rag_env.py",
+        "symbol": "expected_embedding_dim",
+        "confidence": "high"
+      },
+      {
+        "path": "api/rag_env.py",
+        "symbol": "pick_supabase_url",
+        "confidence": "medium"
+      },
+      {
+        "path": "api/rag_env.py",
+        "symbol": "pick_supabase_service_key",
+        "confidence": "medium"
+      },
+      {
+        "path": "api/rag_env.py",
+        "symbol": "admin_secret",
+        "confidence": "medium"
+      }
+    ],
+    "impacts": [
+      {
+        "kind": "contract",
+        "description": "修改 expected_embedding_dim 默认值可能影响 EMB 节点（嵌入生成）的向量维度，进而影响 VEC 节点（向量存储）的维度一致性。"
+      },
+      {
+        "kind": "data",
+        "description": "向量维度变化会导致 VEC 中存储的向量维度不匹配，影响 FUSE 融合、RANK 排序等下游节点。"
+      },
+      {
+        "kind": "control",
+        "description": "EMB_FAIL 节点（嵌入失败）可能因维度不匹配触发 KEYWORD_ONLY 回退路径。"
+      },
+      {
+        "kind": "ci",
+        "description": "若存在向量维度相关的 CI 测试（如嵌入维度校验），需同步更新。"
+      },
+      {
+        "kind": "other",
+        "description": "环境变量 EMBEDDING_DIM 和 SILICONFLOW_EMBEDDING_DIM 的默认值逻辑需与全链路对齐。"
+      }
+    ],
+    "evidence": [
+      {
+        "ref": "EMB",
+        "note": "图谱节点 EMB 表示嵌入生成，其输出向量维度由 expected_embedding_dim 决定。"
+      },
+      {
+        "ref": "VEC",
+        "note": "图谱节点 VEC 表示向量存储，依赖 EMB 输出的维度。"
+      },
+      {
+        "ref": "EMB_FAIL",
+        "note": "图谱节点 EMB_FAIL 表示嵌入失败，可能因维度不匹配触发。"
+      },
+      {
+        "ref": "FUSE",
+        "note": "图谱节点 FUSE 融合向量与关键词结果，维度不一致可能导致融合失败。"
+      },
+      {
+        "ref": "RANK",
+        "note": "图谱节点 RANK 对融合结果排序，依赖向量维度一致性。"
+      },
+      {
+        "ref": "api/rag_env.py",
+        "note": "expected_embedding_dim 函数所在文件，修改默认行为直接影响嵌入维度。"
+      },
+      {
+        "ref": "ENV",
+        "note": "图谱节点 ENV 表示环境变量，EMBEDDING_DIM 和 SILICONFLOW_EMBEDDING_DIM 在此定义。"
+      },
+      {
+        "ref": "ENV_KEYS",
+        "note": "图谱节点 ENV_KEYS 表示环境变量键集合，需确保维度相关键被正确引用。"
+      }
+    ],
+    "unknowns": [
+      "具体 CI 测试中是否有向量维度校验步骤，无法从材料推断。",
+      "前端或 BFF 是否依赖向量维度信息，无法从材料推断。",
+      "其他仓库（如 ai-ink-brain）是否依赖此维度约定，无法从材料推断。"
+    ]
+  },
+  "reviewer_note": "盲审：不得根据措辞猜测 arm；仅对照 gold 与 rubric_v1.yaml"
+}

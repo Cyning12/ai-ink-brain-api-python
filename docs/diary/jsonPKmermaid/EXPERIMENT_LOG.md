@@ -88,7 +88,8 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | 2026-05-16 | **smoke** T002/JSON S1/S2 `…_150452` | `d6402a2` | β；累计 152369 |
 | 2026-05-16 | **P0-B 全量** `…_152126` + aggregate + 结论文 | `317a71a` | 见 `conclusion_s1s2_batch_*` |
 | 2026-05-17 | 清理废弃 run / 重复报告 | （本次 commit） | 仅留 4 个 canonical run 目录 |
-| 2026-05-17 | 定稿文 + `NOTATION_zh.md` + §2.0 列解读 | （本次 commit） | P0.9 收口；Rule·R1–R6 |
+| 2026-05-17 | 定稿文 + `NOTATION_zh.md` + §2.0 列解读 | `06c7ac6` | P0.9 收口；Rule·R1–R6 |
+| 2026-05-17 | **Phase·P1 启动**：盲审包 + rubric + 脚本 | （本次 commit） | 见 `P1_README.md` |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -109,11 +110,17 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 - [x] **P0-B**：S1/S2 全量 `152126`（36/36 ok）
 - [x] **P0.9**：定稿文 + Rule·R1–R6 + [`NOTATION_zh.md`](./NOTATION_zh.md)
 
-### P0 收口后仍可选 / 非阻塞
+### Phase·P0 行政收口
 
-- [ ] **人工签收**：将定稿文由 `draft-v0.9.x` 标为 `accepted`（接受「不签收一律 JSON」结论）
-- [ ] **同步协议状态**：`01_experiment_*.md` 头部「尚未跑数」改为指向本日志
-- [ ] **Phase·P1**（可选）：双人 Rubric 抽样 6 条；或收紧 F1 后复算
+- [x] 定稿文 `accepted`（不签收一律 JSON）
+- [x] `01_experiment` 状态同步
+
+### Phase·P1（进行中）
+
+- [x] 盲审包：`fixtures/gate_ctx_ab_v1/p1/blind/`（6 条段·S0）+ [`P1_README.md`](./P1_README.md)
+- [ ] `scores/reviewer_R1.csv` + `reviewer_R2.csv` 填毕
+- [ ] `aggregate_p1_scores.py` → `scores/aggregate_p1.md`；争议项仲裁
+- [ ] 定稿文 §6 附录：P1 盲审摘要
 
 ### 明确不做（除非改实验 charter）
 
@@ -136,3 +143,6 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | S1/S2 全量结论 | `reports/conclusion_s1s2_batch_20260516_152126_zh.md` |
 | **定稿文初稿** | `reports/conclusion_gate_ctx_ab_final_zh.md` |
 | S1/S2 批内 S0 F1 | `reports/gold_f1_s1s2_s0_segments.md` |
+| P1 盲审 SOP | `P1_README.md` |
+| 生成 P1 盲审包 | `fixtures/.../scripts/prepare_p1_blind_pack.py` |
+| 汇总 P1 分数 | `fixtures/.../scripts/aggregate_p1_scores.py` |

@@ -1,0 +1,49 @@
+{
+  "schema": "gate_ctx_p1_admin_manifest_v1",
+  "batch_dir": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/docs/diary/jsonPKmermaid/runs/gate_ctx_ab_v1_s1s2_20260516_152126",
+  "blind_order_seed": 20260517,
+  "samples": [
+    {
+      "sample_id": "P1-001",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_JSON",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T002_unified_sse_chain_contract/CTX_JSON/raw/CTX_JSON_T002_unified_sse_chain_contract_S0.jsonl",
+      "usage_total_tokens": 12456
+    },
+    {
+      "sample_id": "P1-002",
+      "task_id": "T003_ingest_admin_rpc",
+      "arm": "CTX_JSON",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T003_ingest_admin_rpc/CTX_JSON/raw/CTX_JSON_T003_ingest_admin_rpc_S0.jsonl",
+      "usage_total_tokens": 12366
+    },
+    {
+      "sample_id": "P1-003",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_JSON",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T001_embedding_dim_default/CTX_JSON/raw/CTX_JSON_T001_embedding_dim_default_S0.jsonl",
+      "usage_total_tokens": 11801
+    },
+    {
+      "sample_id": "P1-004",
+      "task_id": "T002_unified_sse_chain_contract",
+      "arm": "CTX_MERMAID",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T002_unified_sse_chain_contract/CTX_MERMAID/raw/CTX_MERMAID_T002_unified_sse_chain_contract_S0.jsonl",
+      "usage_total_tokens": 12816
+    },
+    {
+      "sample_id": "P1-005",
+      "task_id": "T003_ingest_admin_rpc",
+      "arm": "CTX_MERMAID",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T003_ingest_admin_rpc/CTX_MERMAID/raw/CTX_MERMAID_T003_ingest_admin_rpc_S0.jsonl",
+      "usage_total_tokens": 13037
+    },
+    {
+      "sample_id": "P1-006",
+      "task_id": "T001_embedding_dim_default",
+      "arm": "CTX_MERMAID",
+      "source_jsonl": "runs/gate_ctx_ab_v1_s1s2_20260516_152126/T001_embedding_dim_default/CTX_MERMAID/raw/CTX_MERMAID_T001_embedding_dim_default_S0.jsonl",
+      "usage_total_tokens": 12368
+    }
+  ]
+}

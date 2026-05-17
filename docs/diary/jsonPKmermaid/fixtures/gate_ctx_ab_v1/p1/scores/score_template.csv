@@ -1,0 +1,7 @@
+sample_id,task_id,p1_total,p2_total,notes
+P1-001,T002_unified_sse_chain_contract,,,
+P1-002,T003_ingest_admin_rpc,,,
+P1-003,T001_embedding_dim_default,,,
+P1-004,T002_unified_sse_chain_contract,,,
+P1-005,T003_ingest_admin_rpc,,,
+P1-006,T001_embedding_dim_default,,,
