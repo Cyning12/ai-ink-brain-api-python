@@ -20,6 +20,8 @@
 | — | [`reports/conclusion_s1s2_batch_20260516_152126_zh.md`](./reports/conclusion_s1s2_batch_20260516_152126_zh.md) | S1/S2 全量（draft） |
 | **4** | [`reports/conclusion_gate_ctx_ab_final_zh.md`](./reports/conclusion_gate_ctx_ab_final_zh.md) | **定稿结论（P0·accepted）**；§0.1 关系图 |
 | **5** | [`P1_README.md`](./P1_README.md) | **Phase·P1 双人盲审 SOP** |
+| — | [`三相塌缩等价性论文_拓扑综合.md`](./三相塌缩等价性论文_拓扑综合.md) | 理论原文（LLM/CIS 层） |
+| — | [`治理层三相塌缩_Ink技术图谱应用.md`](./治理层三相塌缩_Ink技术图谱应用.md) | **论文 → Ink 治理层**应用说明（不改 Transformer） |
 
 ## 与历史资产的关系
 
