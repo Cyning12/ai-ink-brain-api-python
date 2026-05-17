@@ -90,7 +90,8 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 | 2026-05-17 | 清理废弃 run / 重复报告 | （本次 commit） | 仅留 4 个 canonical run 目录 |
 | 2026-05-17 | 定稿文 + `NOTATION_zh.md` + §2.0 列解读 | `06c7ac6` | P0.9 收口；Rule·R1–R6 |
 | 2026-05-17 | **Phase·P1 启动**：盲审包 + rubric + 脚本 | `87e1fdf` | 见 `P1_README.md` |
-| 2026-05-17 | R2 填分 + aggregate + §6.1 | （本次 commit） | 4/6 需仲裁 |
+| 2026-05-17 | R2 填分 + aggregate + §6.1 | `2f61c93` | 4/6 需仲裁 |
+| 2026-05-17 | R3 仲裁 Prompt + `reviewer_R3_arbitration.csv` | （本次 commit） | 终裁；仍不签收一律 JSON |
 
 <!-- 后续追加模板：
 | YYYY-MM-DD | 简述 | 路径或 commit | 备注 |
@@ -122,7 +123,7 @@ arm 累计 token 中位数：JSON **154026** · Mermaid **154664**（JSON 略低
 - [x] `reviewer_R1.csv` + `reviewer_R2.csv`（`7eb5870` 起 R2）
 - [x] [`aggregate_p1.md`](./fixtures/gate_ctx_ab_v1/p1/scores/aggregate_p1.md)（**4/6 需仲裁**）
 - [x] 定稿文 §6.1 P1 摘要
-- [ ] 可选：Reviewer·R3 对 P1-001～003、006 仲裁后修订 arm 均值
+- [x] Reviewer·R3 仲裁：`reviewer_R3_arbitration.csv` + [`p1/prompts/reviewer_R3_agent_zh.md`](./fixtures/gate_ctx_ab_v1/p1/prompts/reviewer_R3_agent_zh.md)
 
 ### 明确不做（除非改实验 charter）
 

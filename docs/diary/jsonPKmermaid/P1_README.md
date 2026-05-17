@@ -56,4 +56,4 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/aggregate_p1_sco
 - [x] `reviewer_R1.csv` + `reviewer_R2.csv` 6 行齐全  
 - [x] [`scores/aggregate_p1.md`](./fixtures/gate_ctx_ab_v1/p1/scores/aggregate_p1.md) 已生成（**4/6 需仲裁**）  
 - [x] 定稿文 §6.1 已更新  
-- [ ] 可选：Reviewer·R3 仲裁 P1-001～003、006
+- [ ] 可选：Reviewer·R3 仲裁 → [`p1/prompts/reviewer_R3_agent_zh.md`](./fixtures/gate_ctx_ab_v1/p1/prompts/reviewer_R3_agent_zh.md) · 落盘 `reviewer_R3_arbitration.csv`
