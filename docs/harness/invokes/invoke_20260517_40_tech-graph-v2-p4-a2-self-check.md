@@ -7,6 +7,7 @@
 | task_paths | ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md |
 | prev_exec | invoke_20260517_30_tech-graph-v2-p4-a2-exec.md |
 | created | 2026-05-17 |
+| completed | 2026-05-17 · §3.1 P2-4a 全 pass |
 
 ## 可复制 Prompt 快照（自检帽 · P2-4a-2 复核）
 
