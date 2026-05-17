@@ -19,7 +19,7 @@ from tools.tech_graph_graph_v2_schema import GraphV2SchemaError, validate_graph_
 def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
     return {
         "schema_version": "graph_v2",
-        "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
         "generated_at": generated_at,
         "nodes": [
             {"id": "A", "label": "Alpha"},
@@ -39,17 +39,21 @@ def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
     }
 
 
-def test_validate_graph_v2_rejects_forbidden_p2_4_fields() -> None:
-    """P2-0：graphs[] / edges[].ref / nodes[].kind 须被拒绝。"""
+def test_validate_graph_v2_rejects_invalid_p2_4a2_graphs() -> None:
+    """P2-4a-2：graphs[] 须含 id/title；非法条目拒绝。"""
     base = _minimal_v2()
-    with pytest.raises(GraphV2SchemaError, match="graphs"):
-        validate_graph_v2({**base, "graphs": []})
-    bad_edge = dict(base["edges"][0])
-    bad_edge["ref"] = "other"
-    with pytest.raises(GraphV2SchemaError, match="ref"):
-        validate_graph_v2({**base, "edges": [bad_edge]})
-    with pytest.raises(GraphV2SchemaError, match="kind"):
-        validate_graph_v2({**base, "nodes": [{"id": "A", "label": "a", "kind": "phase"}]})
+    with pytest.raises(GraphV2SchemaError, match="title"):
+        validate_graph_v2({**base, "graphs": [{"id": "main"}]})
+    ref_only = {
+        "ref": {"node_id": "missing"},
+        "mark": "->",
+        "type": "depends_on",
+        "sync": True,
+        "label": "",
+        "anchors": [],
+    }
+    with pytest.raises(GraphV2SchemaError, match="未知节点"):
+        validate_graph_v2({**base, "edges": [ref_only]})
 
 
 def test_validate_graph_v2_accepts_minimal() -> None:
@@ -78,9 +82,12 @@ def test_reference_collects_anchors_golden(tmp_path: Path) -> None:
     ref = build_reference_graph_v2(d, generated_at="2026-05-17T12:00:00Z")
     validate_graph_v2(ref)
     assert ref["nodes"] == [
-        {"id": "AUTH", "label": "AUTH"},
-        {"id": "POOL", "label": "连接池"},
+        {"id": "AUTH", "label": "AUTH", "graph_id": "00_demo"},
+        {"id": "POOL", "label": "连接池", "graph_id": "00_demo"},
     ]
+    assert len(ref["graphs"]) == 1
+    assert ref["graphs"][0]["id"] == "00_demo"
+    assert ref["graphs"][0]["source_ai_path"].endswith("docs/_tech_graph/00_demo.ai.md")
     assert ref["edges"][0]["anchors"][0]["path"] == "api/index.py"
 
 
@@ -132,7 +139,7 @@ def test_run_check_passes_on_committed_v2_when_upgraded() -> None:
     code = run_equivalence_check(
         input_root=repo_graph.parent,
         graph_path=repo_graph,
-        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_2",
     )
     assert code == 0
 
@@ -152,7 +159,7 @@ def test_run_check_fp5_on_committed_v1(tmp_path: Path) -> None:
     code = run_equivalence_check(
         input_root=real_input,
         graph_path=repo_graph,
-        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_2",
         require_v2=True,
     )
     assert code == 5
@@ -181,7 +188,7 @@ def test_run_check_passes_on_synthetic_v2(tmp_path: Path) -> None:
         run_equivalence_check(
             input_root=d,
             graph_path=out,
-            freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+            freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_2",
         )
         == 0
     )

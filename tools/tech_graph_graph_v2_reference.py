@@ -20,7 +20,10 @@ from tools.tech_graph_graph_export import (
     _repo_rel_posix,
     _skip_node_shape,
 )
-from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
+from tools.tech_graph_graph_v2_schema import (
+    SCHEMA_VERSION_V2,
+    graph_id_from_source_path,
+)
 
 ANCHOR_LINE = re.compile(
     r"^\s*//\s*→\s*(?P<path>[^\s#]+?)(?:#L(?P<line>\d+)|::(?P<symbol>[^\s]+))?\s*$"
@@ -290,15 +293,22 @@ def reference_edges_to_graph_v2(
     *,
     generated_at: str,
     freeze_id: str,
+    include_p2_4: bool = True,
 ) -> dict[str, Any]:
-    """将参考边物化为 P2-0 graph_v2 字典。"""
+    """将参考边物化为 graph_v2；include_p2_4 时写入 graphs[] 与 graph_id。"""
     node_labels: dict[str, str] = {}
+    node_graph_id: dict[str, str] = {}
     edge_objs: list[dict[str, Any]] = []
+    source_files: set[str] = set()
 
     for e in edges:
+        gid = graph_id_from_source_path(e.source_file)
+        source_files.add(e.source_file)
         for nid, lab in ((e.source, e.source_label), (e.target, e.target_label)):
             if nid not in node_labels:
                 node_labels[nid] = lab or nid
+                if include_p2_4:
+                    node_graph_id[nid] = gid
             elif lab and not node_labels[nid]:
                 node_labels[nid] = lab
 
@@ -310,36 +320,63 @@ def reference_edges_to_graph_v2(
             mark = "classDiagram"
             sem_label = ""
 
-        edge_objs.append(
-            {
-                "from": e.source,
-                "to": e.target,
-                "mark": mark,
-                "type": typ,
-                "sync": sync,
-                "label": sem_label,
-                "anchors": [a.to_dict() for a in e.anchors],
-            }
-        )
+        edge_obj: dict[str, Any] = {
+            "from": e.source,
+            "to": e.target,
+            "mark": mark,
+            "type": typ,
+            "sync": sync,
+            "label": sem_label,
+            "anchors": [a.to_dict() for a in e.anchors],
+        }
+        if include_p2_4:
+            edge_obj["graph_id"] = gid
+        edge_objs.append(edge_obj)
 
-    nodes = [{"id": nid, "label": node_labels[nid]} for nid in sorted(node_labels)]
+    nodes: list[dict[str, Any]] = []
+    for nid in sorted(node_labels):
+        node: dict[str, Any] = {"id": nid, "label": node_labels[nid]}
+        if include_p2_4 and nid in node_graph_id:
+            node["graph_id"] = node_graph_id[nid]
+        nodes.append(node)
+
     edge_objs.sort(
-        key=lambda x: (x["from"], x["to"], x["mark"], x["type"], x["sync"], x["label"])
+        key=lambda x: (
+            x.get("graph_id", ""),
+            x["from"],
+            x["to"],
+            x["mark"],
+            x["type"],
+            x["sync"],
+            x["label"],
+        )
     )
-    return {
+
+    payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION_V2,
         "freeze_id": freeze_id,
         "generated_at": generated_at,
         "nodes": nodes,
         "edges": edge_objs,
     }
+    if include_p2_4 and source_files:
+        graphs = [
+            {
+                "id": graph_id_from_source_path(sf),
+                "title": graph_id_from_source_path(sf),
+                "source_ai_path": sf,
+            }
+            for sf in sorted(source_files, key=graph_id_from_source_path)
+        ]
+        payload["graphs"] = graphs
+    return payload
 
 
 def build_reference_graph_v2(
     input_root: Path,
     *,
     generated_at: str,
-    freeze_id: str = "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+    freeze_id: str = "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
 ) -> dict[str, Any]:
     if not input_root.is_dir():
         raise FileNotFoundError(input_root)

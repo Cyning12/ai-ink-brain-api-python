@@ -3,6 +3,7 @@
     {
       "anchors": [],
       "from": "A1",
+      "graph_id": "00_main",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -12,6 +13,7 @@
     {
       "anchors": [],
       "from": "A2",
+      "graph_id": "00_main",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -20,143 +22,8 @@
     },
     {
       "anchors": [],
-      "from": "ALIAS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "TSV",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/database_manager.py",
-          "symbol": "save_debug_log"
-        }
-      ],
-      "from": "AM",
-      "label": "",
-      "mark": "::archives",
-      "sync": true,
-      "to": "LOG",
-      "type": "archives"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/index.py",
-          "symbol": "_require_auth"
-        }
-      ],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_AUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/intent_router.py",
-          "symbol": "is_text2sql_intent"
-        },
-        {
-          "path": "api/intent_router.py",
-          "symbol": "decide_intent"
-        }
-      ],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_AUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/index.py",
-          "symbol": "_require_auth"
-        },
-        {
-          "path": "api/code_retrieval.py",
-          "symbol": "_require_code_api_auth"
-        }
-      ],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_AUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[ok]",
-      "sync": true,
-      "to": "HIS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[ok]",
-      "sync": true,
-      "to": "INT",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "AUTH",
-      "label": "",
-      "mark": "[ok]",
-      "sync": true,
-      "to": "POOL",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "B1",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "FUSE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "B1",
-      "label": "",
-      "mark": "[ok]",
-      "sync": true,
-      "to": "FUSE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "BE",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SB_TRUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "BFF",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "PY_SSE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "C1",
+      "graph_id": "00_main",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -164,58 +31,9 @@
       "type": "depends_on"
     },
     {
-      "anchors": [
-        {
-          "path": "api/database_manager.py",
-          "symbol": ""
-        }
-      ],
-      "from": "CHAT",
-      "label": "select",
-      "mark": "->",
-      "sync": true,
-      "to": "L",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "CHAT",
-      "label": "",
-      "mark": "::archives",
-      "sync": true,
-      "to": "L",
-      "type": "archives"
-    },
-    {
-      "anchors": [],
-      "from": "CLEAN",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "ORQ",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "CONTENT",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "CONTENT_ROOT",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "CONTENT_ROOT",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "BE",
-      "type": "depends_on"
-    },
-    {
       "anchors": [],
       "from": "CR1",
+      "graph_id": "00_main",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -225,10 +43,312 @@
     {
       "anchors": [],
       "from": "CR2",
+      "graph_id": "00_main",
       "label": "",
       "mark": "->",
       "sync": true,
       "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/admin/sync",
+      "mark": "->",
+      "sync": true,
+      "to": "A1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/admin/ingest",
+      "mark": "->",
+      "sync": true,
+      "to": "A2",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/chat",
+      "mark": "->",
+      "sync": true,
+      "to": "C1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/chain/chat",
+      "mark": "->",
+      "sync": true,
+      "to": "CH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/code/query",
+      "mark": "->",
+      "sync": true,
+      "to": "CR1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/code/search",
+      "mark": "->",
+      "sync": true,
+      "to": "CR2",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "GET /api/py/chatbi/access/verify",
+      "mark": "->",
+      "sync": true,
+      "to": "CV",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "E2E_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "GET /api/py/chat/history",
+      "mark": "->",
+      "sync": true,
+      "to": "H1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "GET /api/py/health",
+      "mark": "->",
+      "sync": true,
+      "to": "HL",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "OBS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/unified/chat",
+      "mark": "->",
+      "sync": true,
+      "to": "U1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "POST /api/py/unified/chat/stream",
+      "mark": "->",
+      "sync": true,
+      "to": "U2",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FTS",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "FTS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FTS",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "line": 434,
+          "path": "api/index.py",
+          "symbol": "#L434"
+        }
+      ],
+      "from": "Q",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "E",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RAG",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "FTS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RAG",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "RAG_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RPC",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "T2S",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "T2S",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "T2S_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "U1",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "RAG",
+      "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "U1",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "T2S",
+      "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "U2",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "RAG",
+      "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "U2",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "T2S",
+      "type": "branches"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        }
+      ],
+      "from": "AUTH",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "AUTH",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "[ok]",
+      "sync": true,
+      "to": "HIS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "B1",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "FUSE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "B1",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "[ok]",
+      "sync": true,
+      "to": "FUSE",
       "type": "depends_on"
     },
     {
@@ -239,6 +359,7 @@
         }
       ],
       "from": "CTX",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -247,175 +368,8 @@
     },
     {
       "anchors": [],
-      "from": "DB",
-      "label": "rows==1&1 numeric",
-      "mark": "->",
-      "sync": true,
-      "to": "DET",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "line": 88,
-          "path": "api/text2sql_core.py",
-          "symbol": "#L88"
-        }
-      ],
-      "from": "DB",
-      "label": "TEXT2SQL_DATABASE_URL missing",
-      "mark": "->",
-      "sync": true,
-      "to": "ERR_DSN",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "DB",
-      "label": "rows==0",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT2",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "DB",
-      "label": "rows>0",
-      "mark": "->",
-      "sync": true,
-      "to": "SUM",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "DET",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/admin/sync",
-      "mark": "->",
-      "sync": true,
-      "to": "A1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/admin/ingest",
-      "mark": "->",
-      "sync": true,
-      "to": "A2",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/chat",
-      "mark": "->",
-      "sync": true,
-      "to": "C1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/chain/chat",
-      "mark": "->",
-      "sync": true,
-      "to": "CH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/code/query",
-      "mark": "->",
-      "sync": true,
-      "to": "CR1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/code/search",
-      "mark": "->",
-      "sync": true,
-      "to": "CR2",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "GET /api/py/chatbi/access/verify",
-      "mark": "->",
-      "sync": true,
-      "to": "CV",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "E2E_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "GET /api/py/chat/history",
-      "mark": "->",
-      "sync": true,
-      "to": "H1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "GET /api/py/health",
-      "mark": "->",
-      "sync": true,
-      "to": "HL",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "OBS_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/unified/chat",
-      "mark": "->",
-      "sync": true,
-      "to": "U1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "E",
-      "label": "POST /api/py/unified/chat/stream",
-      "mark": "->",
-      "sync": true,
-      "to": "U2",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "EMB",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "[err]",
       "sync": true,
@@ -434,6 +388,7 @@
         }
       ],
       "from": "EMB",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "~>",
       "sync": false,
@@ -443,6 +398,7 @@
     {
       "anchors": [],
       "from": "EMB_FAIL",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -452,284 +408,12 @@
     {
       "anchors": [
         {
-          "path": "api/index.py",
-          "symbol": "_rag_debug_enabled"
-        },
-        {
-          "line": 33,
-          "path": "api/ingest_pipeline.py",
-          "symbol": "#L33"
-        }
-      ],
-      "from": "ENV",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "ENV_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR",
-      "label": "stage=rag.embed",
-      "mark": "->",
-      "sync": true,
-      "to": "E_EMB",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "handle_unified_chat(_stream)"
-        },
-        {
-          "path": "api/text2sql_core.py",
-          "symbol": "execute_select_sql"
-        }
-      ],
-      "from": "ERR",
-      "label": "stage=text2sql.execute_sql",
-      "mark": "->",
-      "sync": true,
-      "to": "E_EXECSQL",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR",
-      "label": "stage=text2sql.generate_sql",
-      "mark": "->",
-      "sync": true,
-      "to": "E_GENSQL",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR",
-      "label": "stage=router",
-      "mark": "->",
-      "sync": true,
-      "to": "E_ROUTER",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR",
-      "label": "stage=rag.retrieve",
-      "mark": "->",
-      "sync": true,
-      "to": "E_RPC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR_DSN",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR_EXEC",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR_PF",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ERR_VALIDATE",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=assistant.message",
-      "mark": "->",
-      "sync": true,
-      "to": "AM",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "_event"
-        }
-      ],
-      "from": "EV",
-      "label": "type=error",
-      "mark": "->",
-      "sync": true,
-      "to": "ERR",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=latency",
-      "mark": "->",
-      "sync": true,
-      "to": "LAT",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=rag.query_expand",
-      "mark": "->",
-      "sync": true,
-      "to": "QX",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=router.decision",
-      "mark": "->",
-      "sync": true,
-      "to": "R1",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=rag.sources",
-      "mark": "->",
-      "sync": true,
-      "to": "RS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=sql.result",
-      "mark": "->",
-      "sync": true,
-      "to": "SQLR",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=tool.call.end",
-      "mark": "->",
-      "sync": true,
-      "to": "TCE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV",
-      "label": "type=tool.call.start",
-      "mark": "->",
-      "sync": true,
-      "to": "TCS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV_TYPES",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RS_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "EV_TYPES",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SQL_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/text2sql_core.py",
-          "symbol": "execute_select_sql"
-        }
-      ],
-      "from": "EXEC",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "DB",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/text2sql_core.py",
-          "symbol": "execute_select_sql"
-        }
-      ],
-      "from": "EXEC",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_EXEC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "FE",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "FE_STREAM",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/index.py",
-          "symbol": "unified_chat_stream_route"
-        }
-      ],
-      "from": "FE_STREAM",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "BFF",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "FE_STREAM",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "FE_PARSE",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
           "path": "api/rag_recall_tools.py",
           "symbol": "rpc_execute_with_retry"
         }
       ],
       "from": "FTS",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "[retry=N]",
       "sync": true,
@@ -739,15 +423,7 @@
     {
       "anchors": [],
       "from": "FTS",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "FTS_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "FTS",
+      "graph_id": "10_flow_rag",
       "label": "加载",
       "mark": "->",
       "sync": true,
@@ -762,43 +438,12 @@
         }
       ],
       "from": "FTS",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "::merges",
       "sync": true,
       "to": "FUSE",
       "type": "merges"
-    },
-    {
-      "anchors": [],
-      "from": "FTS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "FTS_NULL",
-      "label": "",
-      "mark": "[no]",
-      "sync": true,
-      "to": "RANK",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/hybrid_search.sql",
-          "symbol": "refresh_documents_fts_tokens_for_paths"
-        }
-      ],
-      "from": "FTS_NULL",
-      "label": "",
-      "mark": "[yes]",
-      "sync": true,
-      "to": "REFRESH",
-      "type": "depends_on"
     },
     {
       "anchors": [
@@ -808,6 +453,7 @@
         }
       ],
       "from": "FUSE",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -817,6 +463,7 @@
     {
       "anchors": [],
       "from": "FUSE",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "?>",
       "sync": true,
@@ -826,34 +473,12 @@
     {
       "anchors": [
         {
-          "path": "api/text2sql_core.py",
-          "symbol": "validate_sql_readonly"
-        }
-      ],
-      "from": "GEN",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "VAL",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [],
-      "from": "GLOSS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "CLEAN",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
           "path": "api/query_rewrite.py",
           "symbol": "rewrite_query_with_history"
         }
       ],
       "from": "HIS",
+      "graph_id": "10_flow_rag",
       "label": "可选",
       "mark": "->",
       "sync": true,
@@ -863,6 +488,7 @@
     {
       "anchors": [],
       "from": "HIS",
+      "graph_id": "10_flow_rag",
       "label": "无历史",
       "mark": "->",
       "sync": true,
@@ -872,6 +498,7 @@
     {
       "anchors": [],
       "from": "HIT0",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "[no]",
       "sync": true,
@@ -892,6 +519,7 @@
         }
       ],
       "from": "HIT0",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "[yes]",
       "sync": true,
@@ -899,24 +527,6 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
-      "from": "I18N",
-      "label": "",
-      "mark": "[on & mode=glossary]",
-      "sync": true,
-      "to": "GLOSS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "I18N",
-      "label": "",
-      "mark": "[off / err]",
-      "sync": true,
-      "to": "NOX",
-      "type": "depends_on"
-    },
-    {
       "anchors": [
         {
           "path": "api/index.py",
@@ -924,20 +534,7 @@
         }
       ],
       "from": "IN",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "AUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/index.py",
-          "symbol": "_require_auth"
-        }
-      ],
-      "from": "IN",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -952,6 +549,7 @@
         }
       ],
       "from": "IN",
+      "graph_id": "10_flow_rag",
       "label": "date-like ?>",
       "mark": "->",
       "sync": true,
@@ -960,89 +558,8 @@
     },
     {
       "anchors": [],
-      "from": "ING",
-      "label": "",
-      "mark": "::triggers",
-      "sync": true,
-      "to": "C",
-      "type": "triggers"
-    },
-    {
-      "anchors": [],
-      "from": "ING",
-      "label": "",
-      "mark": "::triggers",
-      "sync": true,
-      "to": "D",
-      "type": "triggers"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/ingest_pipeline.py",
-          "symbol": ""
-        }
-      ],
-      "from": "ING",
-      "label": "",
-      "mark": "::triggers",
-      "sync": true,
-      "to": "RC",
-      "type": "triggers"
-    },
-    {
-      "anchors": [],
-      "from": "ING",
-      "label": "",
-      "mark": "::triggers",
-      "sync": true,
-      "to": "RD",
-      "type": "triggers"
-    },
-    {
-      "anchors": [],
-      "from": "INT",
-      "label": "",
-      "mark": "[non_text2sql]",
-      "sync": true,
-      "to": "OUT0",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/text2sql_store.py",
-          "symbol": ""
-        }
-      ],
-      "from": "INT",
-      "label": "",
-      "mark": "[text2sql]",
-      "sync": true,
-      "to": "RET",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "KC",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "KD",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "KEYWORD_ONLY",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "::merges",
       "sync": true,
@@ -1052,6 +569,7 @@
     {
       "anchors": [],
       "from": "KQ",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1070,6 +588,7 @@
         }
       ],
       "from": "LLM",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "::yields",
       "sync": true,
@@ -1079,15 +598,7 @@
     {
       "anchors": [],
       "from": "LOG",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "DB",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "LOG",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "~>",
       "sync": false,
@@ -1097,64 +608,11 @@
     {
       "anchors": [],
       "from": "LOG",
+      "graph_id": "10_flow_rag",
       "label": "加载",
       "mark": "->",
       "sync": true,
       "to": "RPC_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "MATCH",
-      "label": "fts_tokens is null ?>",
-      "mark": "->",
-      "sync": true,
-      "to": "FTS_NULL",
-      "type": "condition"
-    },
-    {
-      "anchors": [],
-      "from": "MATCH",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RANK",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "MC",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "MD",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "NOX",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "ORQ",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC",
       "type": "depends_on"
     },
     {
@@ -1165,11 +623,317 @@
         }
       ],
       "from": "OUT",
+      "graph_id": "10_flow_rag",
       "label": "",
       "mark": "::archives",
       "sync": true,
       "to": "LOG",
       "type": "archives"
+    },
+    {
+      "anchors": [],
+      "from": "OUT",
+      "graph_id": "10_flow_rag",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "OBS_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "OUT_NO_DATA",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CTX",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "keyword_query_text_with_i18n_meta"
+        }
+      ],
+      "from": "RW",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "EMB",
+      "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "RW",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "::branches",
+      "sync": true,
+      "to": "KQ",
+      "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "SRC",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "TEND",
+      "graph_id": "10_flow_rag",
+      "label": "includes",
+      "mark": "->",
+      "sync": true,
+      "to": "TEND_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "VEC",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "::merges",
+      "sync": true,
+      "to": "FUSE",
+      "type": "merges"
+    },
+    {
+      "anchors": [],
+      "from": "VEC",
+      "graph_id": "10_flow_rag",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "VEC",
+      "graph_id": "10_flow_rag",
+      "label": "",
+      "mark": "[retry=N]",
+      "sync": true,
+      "to": "VEC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/intent_router.py",
+          "symbol": "is_text2sql_intent"
+        },
+        {
+          "path": "api/intent_router.py",
+          "symbol": "decide_intent"
+        }
+      ],
+      "from": "AUTH",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "AUTH",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[ok]",
+      "sync": true,
+      "to": "INT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "DB",
+      "graph_id": "11_flow_text2sql",
+      "label": "rows==1&1 numeric",
+      "mark": "->",
+      "sync": true,
+      "to": "DET",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "line": 88,
+          "path": "api/text2sql_core.py",
+          "symbol": "#L88"
+        }
+      ],
+      "from": "DB",
+      "graph_id": "11_flow_text2sql",
+      "label": "TEXT2SQL_DATABASE_URL missing",
+      "mark": "->",
+      "sync": true,
+      "to": "ERR_DSN",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "DB",
+      "graph_id": "11_flow_text2sql",
+      "label": "rows==0",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT2",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "DB",
+      "graph_id": "11_flow_text2sql",
+      "label": "rows>0",
+      "mark": "->",
+      "sync": true,
+      "to": "SUM",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "DET",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR_DSN",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR_EXEC",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR_PF",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR_VALIDATE",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OUT1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
+      "from": "EXEC",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "DB",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
+      "from": "EXEC",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_EXEC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "validate_sql_readonly"
+        }
+      ],
+      "from": "GEN",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "VAL",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        }
+      ],
+      "from": "IN",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "INT",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[non_text2sql]",
+      "sync": true,
+      "to": "OUT0",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/text2sql_store.py",
+          "symbol": ""
+        }
+      ],
+      "from": "INT",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[text2sql]",
+      "sync": true,
+      "to": "RET",
+      "type": "depends_on"
     },
     {
       "anchors": [
@@ -1179,6 +943,7 @@
         }
       ],
       "from": "OUT",
+      "graph_id": "11_flow_text2sql",
       "label": "",
       "mark": "::archives",
       "sync": true,
@@ -1187,16 +952,8 @@
     },
     {
       "anchors": [],
-      "from": "OUT",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "OBS_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "OUT1",
+      "graph_id": "11_flow_text2sql",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1206,6 +963,7 @@
     {
       "anchors": [],
       "from": "OUT2",
+      "graph_id": "11_flow_text2sql",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1214,16 +972,8 @@
     },
     {
       "anchors": [],
-      "from": "OUT_NO_DATA",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "CTX",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "PF",
+      "graph_id": "11_flow_text2sql",
       "label": "?>[err]",
       "mark": "->",
       "sync": true,
@@ -1233,141 +983,12 @@
     {
       "anchors": [],
       "from": "PF",
+      "graph_id": "11_flow_text2sql",
       "label": "?>[ok|skip]",
       "mark": "->",
       "sync": true,
       "to": "PROMPT",
       "type": "condition"
-    },
-    {
-      "anchors": [],
-      "from": "POOL",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "C",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "POOL",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "D",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/rag_recall_tools.py",
-          "symbol": "rpc_execute_with_retry"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_NET",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/code_chunks.sql",
-          "symbol": "keyword_code_chunks"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "KC",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/hybrid_search.sql",
-          "symbol": "keyword_documents"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "KD",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/create_rag_conversation_logs.sql",
-          "symbol": ""
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "L",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/code_chunks.sql",
-          "symbol": "match_code_chunks"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "MC",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/init.sql",
-          "symbol": "match_documents"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "MD",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/code_chunks.sql",
-          "symbol": "refresh_code_chunks_fts_tokens_for_paths"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "RC",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [
-        {
-          "path": "supabase/sql/hybrid_search.sql",
-          "symbol": "refresh_documents_fts_tokens_for_paths"
-        }
-      ],
-      "from": "POOL",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "RD",
-      "type": "async_calls"
     },
     {
       "anchors": [
@@ -1377,6 +998,7 @@
         }
       ],
       "from": "PROMPT",
+      "graph_id": "11_flow_text2sql",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1386,39 +1008,176 @@
     {
       "anchors": [
         {
-          "path": "api/unified_chat.py",
-          "symbol": "_sse"
+          "path": "api/text2sql_schema_prefetch.py",
+          "symbol": ""
         }
       ],
-      "from": "PY_SSE",
+      "from": "RET",
+      "graph_id": "11_flow_text2sql",
       "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "BE",
-      "type": "async_calls"
+      "mark": "->",
+      "sync": true,
+      "to": "PF",
+      "type": "depends_on"
     },
     {
       "anchors": [],
-      "from": "PY_SSE",
-      "label": "",
-      "mark": "::yields",
+      "from": "RET",
+      "graph_id": "11_flow_text2sql",
+      "label": "依赖语料",
+      "mark": "->",
       "sync": true,
-      "to": "SSE_EVENTS",
-      "type": "yields"
+      "to": "SPEC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SUM",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "OUT",
+      "type": "async_calls"
     },
     {
       "anchors": [
         {
-          "line": 434,
-          "path": "api/index.py",
-          "symbol": "#L434"
+          "path": "api/text2sql_core.py",
+          "symbol": "validate_sql_readonly"
         }
       ],
-      "from": "Q",
+      "from": "VAL",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_VALIDATE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "VAL",
+      "graph_id": "11_flow_text2sql",
+      "label": "",
+      "mark": "[ok]",
+      "sync": true,
+      "to": "EXEC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ALIAS",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
-      "to": "E",
+      "to": "TSV",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "CLEAN",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "ORQ",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FTS_NULL",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "[no]",
+      "sync": true,
+      "to": "RANK",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "refresh_documents_fts_tokens_for_paths"
+        }
+      ],
+      "from": "FTS_NULL",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "[yes]",
+      "sync": true,
+      "to": "REFRESH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "GLOSS",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CLEAN",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "I18N",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "[on & mode=glossary]",
+      "sync": true,
+      "to": "GLOSS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "I18N",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "[off / err]",
+      "sync": true,
+      "to": "NOX",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "MATCH",
+      "graph_id": "12_flow_fts",
+      "label": "fts_tokens is null ?>",
+      "mark": "->",
+      "sync": true,
+      "to": "FTS_NULL",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "MATCH",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RANK",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "NOX",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ORQ",
+      "graph_id": "12_flow_fts",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RPC",
       "type": "depends_on"
     },
     {
@@ -1429,6 +1188,7 @@
         }
       ],
       "from": "Q",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1443,6 +1203,7 @@
         }
       ],
       "from": "QS",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "?>",
       "sync": true,
@@ -1465,6 +1226,7 @@
         }
       ],
       "from": "QS",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1473,25 +1235,8 @@
     },
     {
       "anchors": [],
-      "from": "RAG",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "FTS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "RAG",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "RAG_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "RANK",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1500,75 +1245,12 @@
     },
     {
       "anchors": [],
-      "from": "RC",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "RD",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_RPC_MISSING",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
       "from": "REFRESH",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
       "to": "RPC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "handle_unified_chat_stream"
-        }
-      ],
-      "from": "REQ",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SSE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/text2sql_schema_prefetch.py",
-          "symbol": ""
-        }
-      ],
-      "from": "RET",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "PF",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "RET",
-      "label": "依赖语料",
-      "mark": "->",
-      "sync": true,
-      "to": "SPEC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "RPC",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC_DOC",
       "type": "depends_on"
     },
     {
@@ -1579,6 +1261,7 @@
         }
       ],
       "from": "RPC",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "~>",
       "sync": false,
@@ -1588,240 +1271,12 @@
     {
       "anchors": [
         {
-          "path": "api/unified_chat.py",
-          "symbol": "_build_rag_sources_event"
-        },
-        {
-          "path": "api/index.py",
-          "symbol": "build_sources_payload"
-        }
-      ],
-      "from": "RS",
-      "label": "payload.sources[*]",
-      "mark": "->",
-      "sync": true,
-      "to": "SRC_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/rag_recall_tools.py",
-          "symbol": "keyword_query_text_with_i18n_meta"
-        }
-      ],
-      "from": "RW",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "EMB",
-      "type": "branches"
-    },
-    {
-      "anchors": [],
-      "from": "RW",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "KQ",
-      "type": "branches"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/rag_env.py",
-          "symbol": "supabase_client"
-        }
-      ],
-      "from": "SB",
-      "label": "service_role",
-      "mark": "->",
-      "sync": true,
-      "to": "AUTH",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SB_TRUTH",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SB",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SB_TRUTH",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SB_MATCH_DOCS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "line": 425,
-          "path": "api/unified_chat.py",
-          "symbol": "#L425"
-        }
-      ],
-      "from": "SQLR",
-      "label": "payload",
-      "mark": "->",
-      "sync": true,
-      "to": "SQL_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SRC",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "OUT",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "_sse"
-        }
-      ],
-      "from": "SSE",
-      "label": "",
-      "mark": "[yes]",
-      "sync": true,
-      "to": "DONE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SSE",
-      "label": "",
-      "mark": "[yes]",
-      "sync": true,
-      "to": "EV",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "handle_unified_chat"
-        }
-      ],
-      "from": "SSE",
-      "label": "",
-      "mark": "[no]",
-      "sync": true,
-      "to": "JSON",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SSE_EVENTS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "CHAIN_SHAPE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SSE_EVENTS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "DONE_SHAPE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SSE_EVENTS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "EV_TYPES",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/unified_chat.py",
-          "symbol": "_event"
-        }
-      ],
-      "from": "SSE_EVENTS",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "SSE_ENV",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "SUM",
-      "label": "",
-      "mark": "~>",
-      "sync": false,
-      "to": "OUT",
-      "type": "async_calls"
-    },
-    {
-      "anchors": [],
-      "from": "T2S",
-      "label": "",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "T2S",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "T2S_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "TCE",
-      "label": "payload",
-      "mark": "->",
-      "sync": true,
-      "to": "TCE_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "TCS",
-      "label": "payload",
-      "mark": "->",
-      "sync": true,
-      "to": "TCS_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "TEND",
-      "label": "includes",
-      "mark": "->",
-      "sync": true,
-      "to": "TEND_KEYS",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [
-        {
           "path": "supabase/sql/hybrid_search.sql",
           "symbol": "rag_fts_alias_text"
         }
       ],
       "from": "TRG",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1831,6 +1286,7 @@
     {
       "anchors": [],
       "from": "TSQ",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
@@ -1846,96 +1302,11 @@
         }
       ],
       "from": "TSV",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "->",
       "sync": true,
       "to": "IDX",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "U1",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "RAG",
-      "type": "branches"
-    },
-    {
-      "anchors": [],
-      "from": "U1",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "T2S",
-      "type": "branches"
-    },
-    {
-      "anchors": [],
-      "from": "U2",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "RAG",
-      "type": "branches"
-    },
-    {
-      "anchors": [],
-      "from": "U2",
-      "label": "",
-      "mark": "::branches",
-      "sync": true,
-      "to": "T2S",
-      "type": "branches"
-    },
-    {
-      "anchors": [
-        {
-          "path": "api/text2sql_core.py",
-          "symbol": "validate_sql_readonly"
-        }
-      ],
-      "from": "VAL",
-      "label": "",
-      "mark": "[err]",
-      "sync": true,
-      "to": "ERR_VALIDATE",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "VAL",
-      "label": "",
-      "mark": "[ok]",
-      "sync": true,
-      "to": "EXEC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "VEC",
-      "label": "",
-      "mark": "::merges",
-      "sync": true,
-      "to": "FUSE",
-      "type": "merges"
-    },
-    {
-      "anchors": [],
-      "from": "VEC",
-      "label": "加载",
-      "mark": "->",
-      "sync": true,
-      "to": "RPC_DOC",
-      "type": "depends_on"
-    },
-    {
-      "anchors": [],
-      "from": "VEC",
-      "label": "",
-      "mark": "[retry=N]",
-      "sync": true,
-      "to": "VEC",
       "type": "depends_on"
     },
     {
@@ -1946,549 +1317,1529 @@
         }
       ],
       "from": "W",
+      "graph_id": "12_flow_fts",
       "label": "",
       "mark": "::triggers",
       "sync": true,
       "to": "TRG",
       "type": "triggers"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_require_auth"
+        },
+        {
+          "path": "api/code_retrieval.py",
+          "symbol": "_require_code_api_auth"
+        }
+      ],
+      "from": "AUTH",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "AUTH",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[ok]",
+      "sync": true,
+      "to": "POOL",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": ""
+        }
+      ],
+      "from": "CHAT",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "select",
+      "mark": "->",
+      "sync": true,
+      "to": "L",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "CHAT",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "::archives",
+      "sync": true,
+      "to": "L",
+      "type": "archives"
+    },
+    {
+      "anchors": [],
+      "from": "ING",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "::triggers",
+      "sync": true,
+      "to": "C",
+      "type": "triggers"
+    },
+    {
+      "anchors": [],
+      "from": "ING",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "::triggers",
+      "sync": true,
+      "to": "D",
+      "type": "triggers"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/ingest_pipeline.py",
+          "symbol": ""
+        }
+      ],
+      "from": "ING",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "::triggers",
+      "sync": true,
+      "to": "RC",
+      "type": "triggers"
+    },
+    {
+      "anchors": [],
+      "from": "ING",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "::triggers",
+      "sync": true,
+      "to": "RD",
+      "type": "triggers"
+    },
+    {
+      "anchors": [],
+      "from": "KC",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "KD",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "MC",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "MD",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "C",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "D",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/rag_recall_tools.py",
+          "symbol": "rpc_execute_with_retry"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_NET",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "keyword_code_chunks"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "KC",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "keyword_documents"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "KD",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/create_rag_conversation_logs.sql",
+          "symbol": ""
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "L",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "match_code_chunks"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "MC",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/init.sql",
+          "symbol": "match_documents"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "MD",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/code_chunks.sql",
+          "symbol": "refresh_code_chunks_fts_tokens_for_paths"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "RC",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "supabase/sql/hybrid_search.sql",
+          "symbol": "refresh_documents_fts_tokens_for_paths"
+        }
+      ],
+      "from": "POOL",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "RD",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [],
+      "from": "RC",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RD",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "",
+      "mark": "[err]",
+      "sync": true,
+      "to": "ERR_RPC_MISSING",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/rag_env.py",
+          "symbol": "supabase_client"
+        }
+      ],
+      "from": "SB",
+      "graph_id": "13_flow_supabase_rpc",
+      "label": "service_role",
+      "mark": "->",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/database_manager.py",
+          "symbol": "save_debug_log"
+        }
+      ],
+      "from": "AM",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "::archives",
+      "sync": true,
+      "to": "LOG",
+      "type": "archives"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "_rag_debug_enabled"
+        },
+        {
+          "line": 33,
+          "path": "api/ingest_pipeline.py",
+          "symbol": "#L33"
+        }
+      ],
+      "from": "ENV",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "ENV_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR",
+      "graph_id": "14_runtime_observability",
+      "label": "stage=rag.embed",
+      "mark": "->",
+      "sync": true,
+      "to": "E_EMB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat(_stream)"
+        },
+        {
+          "path": "api/text2sql_core.py",
+          "symbol": "execute_select_sql"
+        }
+      ],
+      "from": "ERR",
+      "graph_id": "14_runtime_observability",
+      "label": "stage=text2sql.execute_sql",
+      "mark": "->",
+      "sync": true,
+      "to": "E_EXECSQL",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR",
+      "graph_id": "14_runtime_observability",
+      "label": "stage=text2sql.generate_sql",
+      "mark": "->",
+      "sync": true,
+      "to": "E_GENSQL",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR",
+      "graph_id": "14_runtime_observability",
+      "label": "stage=router",
+      "mark": "->",
+      "sync": true,
+      "to": "E_ROUTER",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ERR",
+      "graph_id": "14_runtime_observability",
+      "label": "stage=rag.retrieve",
+      "mark": "->",
+      "sync": true,
+      "to": "E_RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=assistant.message",
+      "mark": "->",
+      "sync": true,
+      "to": "AM",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_event"
+        }
+      ],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=error",
+      "mark": "->",
+      "sync": true,
+      "to": "ERR",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=latency",
+      "mark": "->",
+      "sync": true,
+      "to": "LAT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=rag.query_expand",
+      "mark": "->",
+      "sync": true,
+      "to": "QX",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=router.decision",
+      "mark": "->",
+      "sync": true,
+      "to": "R1",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=rag.sources",
+      "mark": "->",
+      "sync": true,
+      "to": "RS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=sql.result",
+      "mark": "->",
+      "sync": true,
+      "to": "SQLR",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=tool.call.end",
+      "mark": "->",
+      "sync": true,
+      "to": "TCE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV",
+      "graph_id": "14_runtime_observability",
+      "label": "type=tool.call.start",
+      "mark": "->",
+      "sync": true,
+      "to": "TCS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "LOG",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "DB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat_stream"
+        }
+      ],
+      "from": "REQ",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SSE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_build_rag_sources_event"
+        },
+        {
+          "path": "api/index.py",
+          "symbol": "build_sources_payload"
+        }
+      ],
+      "from": "RS",
+      "graph_id": "14_runtime_observability",
+      "label": "payload.sources[*]",
+      "mark": "->",
+      "sync": true,
+      "to": "SRC_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "line": 425,
+          "path": "api/unified_chat.py",
+          "symbol": "#L425"
+        }
+      ],
+      "from": "SQLR",
+      "graph_id": "14_runtime_observability",
+      "label": "payload",
+      "mark": "->",
+      "sync": true,
+      "to": "SQL_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_sse"
+        }
+      ],
+      "from": "SSE",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "[yes]",
+      "sync": true,
+      "to": "DONE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SSE",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "[yes]",
+      "sync": true,
+      "to": "EV",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "handle_unified_chat"
+        }
+      ],
+      "from": "SSE",
+      "graph_id": "14_runtime_observability",
+      "label": "",
+      "mark": "[no]",
+      "sync": true,
+      "to": "JSON",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "TCE",
+      "graph_id": "14_runtime_observability",
+      "label": "payload",
+      "mark": "->",
+      "sync": true,
+      "to": "TCE_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "TCS",
+      "graph_id": "14_runtime_observability",
+      "label": "payload",
+      "mark": "->",
+      "sync": true,
+      "to": "TCS_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "BE",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SB_TRUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "BFF",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "PY_SSE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "CONTENT",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CONTENT_ROOT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "CONTENT_ROOT",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "BE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV_TYPES",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RS_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EV_TYPES",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SQL_KEYS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FE",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "FE_STREAM",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/index.py",
+          "symbol": "unified_chat_stream_route"
+        }
+      ],
+      "from": "FE_STREAM",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "BFF",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FE_STREAM",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "FE_PARSE",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_sse"
+        }
+      ],
+      "from": "PY_SSE",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "BE",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [],
+      "from": "PY_SSE",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "::yields",
+      "sync": true,
+      "to": "SSE_EVENTS",
+      "type": "yields"
+    },
+    {
+      "anchors": [],
+      "from": "SB_TRUTH",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SB_TRUTH",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SB_MATCH_DOCS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SSE_EVENTS",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CHAIN_SHAPE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SSE_EVENTS",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "DONE_SHAPE",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SSE_EVENTS",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "EV_TYPES",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_event"
+        }
+      ],
+      "from": "SSE_EVENTS",
+      "graph_id": "15_e2e_boundary",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SSE_ENV",
+      "type": "depends_on"
     }
   ],
-  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
-  "generated_at": "2026-05-17T09:15:32Z",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+  "generated_at": "2026-05-17T11:20:32Z",
+  "graphs": [
+    {
+      "id": "00_main",
+      "source_ai_path": "docs/_tech_graph/00_main.ai.md",
+      "title": "00_main"
+    },
+    {
+      "id": "10_flow_rag",
+      "source_ai_path": "docs/_tech_graph/10_flow_rag.ai.md",
+      "title": "10_flow_rag"
+    },
+    {
+      "id": "11_flow_text2sql",
+      "source_ai_path": "docs/_tech_graph/11_flow_text2sql.ai.md",
+      "title": "11_flow_text2sql"
+    },
+    {
+      "id": "12_flow_fts",
+      "source_ai_path": "docs/_tech_graph/12_flow_fts.ai.md",
+      "title": "12_flow_fts"
+    },
+    {
+      "id": "13_flow_supabase_rpc",
+      "source_ai_path": "docs/_tech_graph/13_flow_supabase_rpc.ai.md",
+      "title": "13_flow_supabase_rpc"
+    },
+    {
+      "id": "14_runtime_observability",
+      "source_ai_path": "docs/_tech_graph/14_runtime_observability.ai.md",
+      "title": "14_runtime_observability"
+    },
+    {
+      "id": "15_e2e_boundary",
+      "source_ai_path": "docs/_tech_graph/15_e2e_boundary.ai.md",
+      "title": "15_e2e_boundary"
+    }
+  ],
   "nodes": [
     {
+      "graph_id": "00_main",
       "id": "A1",
       "label": "Sync Ingest"
     },
     {
+      "graph_id": "00_main",
       "id": "A2",
       "label": "Ingest"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "ALIAS",
       "label": "rag_fts_alias_text()"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "AM",
       "label": "assistant.message"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "AUTH",
       "label": "鉴权"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "B1",
       "label": "Structured Recall"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "BE",
       "label": "BE"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "BFF",
       "label": "BFF"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "C",
       "label": "(DB: public.code_chunks)"
     },
     {
+      "graph_id": "00_main",
       "id": "C1",
       "label": "RAG Chat"
     },
     {
+      "graph_id": "00_main",
       "id": "CH",
       "label": "Chain Timeline"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "CHAIN_SHAPE",
       "label": "CHAIN_SHAPE"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "CHAT",
       "label": "RAG/Unified Chat"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "CLEAN",
       "label": "candidate clean & limits"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "CONTENT",
       "label": "CONTENT"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "CONTENT_ROOT",
       "label": "CONTENT_ROOT"
     },
     {
+      "graph_id": "00_main",
       "id": "CR1",
       "label": "Code Query"
     },
     {
+      "graph_id": "00_main",
       "id": "CR2",
       "label": "Code Search"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "CTX",
       "label": "CTX"
     },
     {
+      "graph_id": "00_main",
       "id": "CV",
       "label": "ChatBI Access Verify"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "D",
       "label": "(DB: public.documents)"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "DB",
       "label": "(DB: rag_conversation_logs)"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "DET",
       "label": "try_summarize_aggregate()"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "DONE",
       "label": "event: done"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "DONE_SHAPE",
       "label": "DONE_SHAPE"
     },
     {
+      "graph_id": "00_main",
       "id": "E",
       "label": "\"@router.dispatch\""
     },
     {
+      "graph_id": "00_main",
       "id": "E2E_DOC",
       "label": ">15_e2e_boundary.md"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "EMB",
       "label": "async def embed"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "EMB_FAIL",
       "label": ">Embedding Failed"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "ENV",
       "label": "Debug env toggles"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "ENV_KEYS",
       "label": "\"DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB\""
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "ERR",
       "label": "error"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "ERR_AUTH",
       "label": ">Auth Failed"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "ERR_DSN",
       "label": ">Missing env"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "ERR_EXEC",
       "label": ">execute_select_sql err"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "ERR_NET",
       "label": ">Network/Timeout"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "ERR_PF",
       "label": ">TEXT2SQL_SCHEMA_PREFETCH_FAILED"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "ERR_RPC_MISSING",
       "label": ">RPC 不存在/函数名错误"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "ERR_VALIDATE",
       "label": ">validate_sql_readonly err"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "EV",
       "label": "event: chain"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "EV_TYPES",
       "label": "EV_TYPES"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "EXEC",
       "label": "execute_select_sql()"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "E_EMB",
       "label": "Embedding error -> keyword-only"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "E_EXECSQL",
       "label": "TEXT2SQL_DATABASE_URL missing / DB error"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "E_GENSQL",
       "label": "validate_sql_readonly [err"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "E_ROUTER",
       "label": "未实现工具路由 / 参数错误"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "E_RPC",
       "label": "RPC error / retries exhausted"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "FE",
       "label": "FE"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "FE_PARSE",
       "label": "FE_PARSE"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "FE_STREAM",
       "label": "FE_STREAM"
     },
     {
+      "graph_id": "00_main",
       "id": "FTS",
       "label": "FTS 子流程"
     },
     {
+      "graph_id": "00_main",
       "id": "FTS_DOC",
       "label": ">12_flow_fts.md"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "FTS_NULL",
       "label": "fts_tokens is null?"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "FUSE",
       "label": "FUSE"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "GEN",
       "label": "async def llm_generate_sql"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "GLOSS",
       "label": "data/i18n_glossary.json"
     },
     {
+      "graph_id": "00_main",
       "id": "H1",
       "label": "Chat History"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "HIS",
       "label": "历史轮次"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "HIT0",
       "label": "hits == 0 ?"
     },
     {
+      "graph_id": "00_main",
       "id": "HL",
       "label": "Health"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "I18N",
       "label": "I18N_EXPAND_ENABLED?"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "IDX",
       "label": "(GIN: documents_fts_tokens_gin)"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "IN",
       "label": "入口 Query"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "ING",
       "label": "Ingest Pipeline"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "INT",
       "label": "Intent Check"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "JSON",
       "label": "JSON response"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "KC",
       "label": "rpc keyword_code_chunks()"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "KD",
       "label": "rpc keyword_documents()"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "KEYWORD_ONLY",
       "label": "keyword-only"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "KQ",
       "label": "keyword_query_text()"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "L",
       "label": "(DB: public.rag_conversation_logs)"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "LAT",
       "label": "latency"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "LLM",
       "label": "async def llm_answer"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "LOG",
       "label": "async def save_debug_log"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "MATCH",
       "label": "fts_tokens @@ tsquery"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "MC",
       "label": "rpc match_code_chunks()"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "MD",
       "label": "rpc match_documents()"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "NOX",
       "label": "graceful fallback"
     },
     {
+      "graph_id": "00_main",
       "id": "OBS_DOC",
       "label": ">14_runtime_observability.md"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "ORQ",
       "label": "OR compose"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "OUT",
       "label": "返回 JSON / SSE"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "OUT0",
       "label": "返回 non_text2sql 提示"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "OUT1",
       "label": "errors.generate_sql"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "OUT2",
       "label": "未查到数据"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "OUT_NO_DATA",
       "label": "no_data / 不确定回答"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "PF",
       "label": "run_text2sql_schema_prefetch_sync"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "POOL",
       "label": "(连接池)"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "PROMPT",
       "label": "build_sql_prompt()"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "PY_SSE",
       "label": "PY_SSE"
     },
     {
+      "graph_id": "00_main",
       "id": "Q",
       "label": "用户请求"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "QS",
       "label": "keyword_query_text()"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "QX",
       "label": "rag.query_expand"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "R1",
       "label": "router.decision"
     },
     {
+      "graph_id": "00_main",
       "id": "RAG",
       "label": "RAG 子流程"
     },
     {
+      "graph_id": "00_main",
       "id": "RAG_DOC",
       "label": ">10_flow_rag.md"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "RANK",
       "label": "ts_rank_cd score"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "RC",
       "label": "rpc refresh_code_chunks_fts_tokens_for_paths()"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "RD",
       "label": "rpc refresh_documents_fts_tokens_for_paths()"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "REFRESH",
       "label": "refresh_documents_fts_tokens_for_paths()"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "REQ",
       "label": "HTTP Request"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "RET",
       "label": "text2sql_store.search()"
     },
     {
+      "graph_id": "00_main",
       "id": "RPC",
       "label": "Supabase RPC 子流程"
     },
     {
+      "graph_id": "00_main",
       "id": "RPC_DOC",
       "label": ">13_flow_supabase_rpc.md"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "RS",
       "label": "rag.sources"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "RS_KEYS",
       "label": "RS_KEYS"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "RW",
       "label": "Query Rewrite"
     },
     {
+      "graph_id": "13_flow_supabase_rpc",
       "id": "SB",
       "label": "Supabase Client"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "SB_MATCH_DOCS",
       "label": "SB_MATCH_DOCS"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "SB_TRUTH",
       "label": "SB_TRUTH"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "SPEC",
       "label": ">docs/text2sql/v1/sql/supabase_init.sql"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "SQLR",
       "label": "sql.result"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "SQL_KEYS",
       "label": "\"{sql, columns, rows[0..20], truncated}\""
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "SRC",
       "label": "sources payload"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "SRC_KEYS",
       "label": "\"{id, content, filename, score, path, url}\""
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "SSE",
       "label": "{SSE?"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "SSE_ENV",
       "label": "SSE_ENV"
     },
     {
+      "graph_id": "15_e2e_boundary",
       "id": "SSE_EVENTS",
       "label": "SSE_EVENTS"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "SUM",
       "label": "async def llm_summarize"
     },
     {
+      "graph_id": "00_main",
       "id": "T2S",
       "label": "Text2SQL 子流程"
     },
     {
+      "graph_id": "00_main",
       "id": "T2S_DOC",
       "label": ">11_flow_text2sql.md"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "TCE",
       "label": "tool.call.end"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "TCE_KEYS",
       "label": "\"{output, error, latency_ms}\""
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "TCS",
       "label": "tool.call.start"
     },
     {
+      "graph_id": "14_runtime_observability",
       "id": "TCS_KEYS",
       "label": "\"{tool, input}\""
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "TEND",
       "label": "TEND"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "TEND_KEYS",
       "label": "\"output.{vector_hits,structured_hits,keyword_hits_raw,keyword_hits_rewrite,hits,retry_count,embedding_error}<br/>error, latency_ms\""
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "TRG",
       "label": "trigger: documents_fts_tokens_update"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "TSQ",
       "label": "websearch_to_tsquery('simple', query_text)"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "TSV",
       "label": "to_tsvector('simple', content + alias)"
     },
     {
+      "graph_id": "00_main",
       "id": "U1",
       "label": "Unified JSON"
     },
     {
+      "graph_id": "00_main",
       "id": "U2",
       "label": "Unified SSE"
     },
     {
+      "graph_id": "11_flow_text2sql",
       "id": "VAL",
       "label": "validate_sql_readonly()"
     },
     {
+      "graph_id": "10_flow_rag",
       "id": "VEC",
       "label": "Vector RPC"
     },
     {
+      "graph_id": "12_flow_fts",
       "id": "W",
       "label": "Write/Update content"
     }

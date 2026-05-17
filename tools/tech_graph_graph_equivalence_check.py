@@ -51,6 +51,17 @@ def _stderr(msg: str) -> None:
     print(msg, file=sys.stderr)
 
 
+def _topological_edges(edges: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """仅含 from/to 的拓扑边（排除 ref 边）。"""
+    out: list[dict[str, Any]] = []
+    for e in edges:
+        if "ref" in e:
+            continue
+        if e.get("from") and e.get("to"):
+            out.append(e)
+    return out
+
+
 def _edge_topology_key(e: dict[str, Any]) -> tuple[str, str, str]:
     return (e["from"], e["to"], e.get("mark", ""))
 
@@ -109,8 +120,8 @@ def compute_equivalence_metrics(
     reference: dict[str, Any],
     exported: dict[str, Any],
 ) -> EquivalenceMetrics:
-    ref_edges = reference.get("edges") or []
-    exp_edges = exported.get("edges") or []
+    ref_edges = _topological_edges(reference.get("edges") or [])
+    exp_edges = _topological_edges(exported.get("edges") or [])
 
     ref_groups = _group_edges_by_topo(ref_edges)
     exp_groups = _group_edges_by_topo(exp_edges)
@@ -265,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--graph", type=Path, default=DEFAULT_GRAPH)
     parser.add_argument(
         "--freeze-id",
-        default="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        default="TECH_GRAPH_S2_FREEZE_20260517_V2_2",
         help="参考图 freeze_id（与导出对齐）",
     )
     parser.add_argument(
