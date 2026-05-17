@@ -1,0 +1,10 @@
+{
+  "run_name": "examples_builtin",
+  "random_seed": 42,
+  "rubric": "min_rubric.json",
+  "rounds": [
+    { "id": "S0", "artifact_file": "round_S0_pr_body.md" },
+    { "id": "S1", "artifact_file": "round_S1_followup.md" },
+    { "id": "S2", "artifact_file": "round_S2_low_overlap.md" }
+  ]
+}

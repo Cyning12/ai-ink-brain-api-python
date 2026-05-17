@@ -8,7 +8,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tools.rubric_review.paths import REPO_ROOT
 from tools.rubric_review.reviewer import FullReviewState
+
+
+def _json_rel_for_meta(json_path: Path) -> str:
+    try:
+        return json_path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return json_path.name
 
 
 def state_to_json_dict(state: FullReviewState, *, extra: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -130,7 +138,7 @@ def render_markdown(
         [
             "## 给下一棒",
             "",
-            "- 本文件由 `python -m tools.rubric_review` 生成，**不**等价于任务审核帽 `task_*_audit_R*.md`；若用于 Harness 签收，请人工复核后按既有命名另存审查结论。",
+            "- 本文件由 `python -m tools.rubric_review` 生成，**不**等价于任务审核帽 `task_*_audit_R*.md`；默认与任务审核分目录存放（`docs/diary/jsonPKmermaid/rubric_runs/`）。",
             "",
             "## 给 Cursor",
             "",
@@ -154,7 +162,7 @@ def write_reports(
     output_dir.mkdir(parents=True, exist_ok=True)
     json_path = output_dir / f"{stem}.json"
     md_path = output_dir / f"{stem}.md"
-    rel_json = f"docs/harness/reviews/{json_path.name}"
+    rel_json = _json_rel_for_meta(json_path)
     payload = state_to_json_dict(state, extra=extra)
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 

@@ -7,39 +7,13 @@ import argparse
 import json
 import logging
 import random
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
 
-from tools.rubric_review.config import (
-    SILICONFLOW_REVIEWER_MODEL_POOL,
-    ReviewRuntimeConfig,
-)
-from tools.rubric_review.report import state_to_json_dict, write_reports
-from tools.rubric_review.reviewer import DoubleBlindReviewer
-from tools.rubric_review.webhook import build_generic_arbitration_payload, post_webhook
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def _slugify(s: str) -> str:
-    s = re.sub(r"[^\w\-]+", "-", s, flags=re.UNICODE).strip("-")
-    return s[:80] or "artifact"
-
-
-def _pick_reviewer_models(cfg: ReviewRuntimeConfig, rng: random.Random) -> tuple[str, str, str]:
-    """返回 (R1, R2, 仲裁)。siliconflow：池内两模型洗牌分配 R1/R2，仲裁再从池中随机选一。"""
-    if cfg.backend == "siliconflow":
-        pool = list(SILICONFLOW_REVIEWER_MODEL_POOL)
-        if len(pool) < 2:
-            raise ValueError("SILICONFLOW_REVIEWER_MODEL_POOL 至少需 2 个模型")
-        rng.shuffle(pool)
-        m_r1, m_r2 = pool[0], pool[1]
-        m_arb = rng.choice(list(SILICONFLOW_REVIEWER_MODEL_POOL))
-        return m_r1, m_r2, m_arb
-    m = cfg.default_model()
-    return m, m, m
+from tools.rubric_review.config import ReviewRuntimeConfig
+from tools.rubric_review.paths import default_rubric_runs_dir
+from tools.rubric_review.runner import execute_single_review, pick_reviewer_models, slugify
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -59,8 +33,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--output-dir",
-        default=str(REPO_ROOT / "docs" / "harness" / "reviews"),
-        help="Markdown/JSON 输出目录（默认本仓 docs/harness/reviews）",
+        default=str(default_rubric_runs_dir()),
+        help="Markdown/JSON 输出目录（默认 docs/diary/jsonPKmermaid/rubric_runs）",
     )
     parser.add_argument("--slug", help="输出文件名 slug；默认取工件文件名")
     parser.add_argument("--webhook-url", help="覆盖环境变量 RUBRIC_REVIEW_WEBHOOK_URL")
@@ -109,81 +83,32 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     rng = random.Random(args.random_seed) if args.random_seed is not None else random.Random()
-    triple = _pick_reviewer_models(cfg, rng)
+    triple = pick_reviewer_models(cfg, rng)
     log.info("模型分配 R1=%s R2=%s arbitration=%s seed=%s", triple[0], triple[1], triple[2], args.random_seed)
 
-    reviewer = DoubleBlindReviewer(
-        rubric,
-        cfg,
-        reviewer_models=triple,
-        random_seed=args.random_seed,
-    )
-    state = reviewer.run(artifact_text, arbitration_override=override)
-
-    slug = args.slug or _slugify(artifact_path.stem)
+    slug = args.slug or slugify(artifact_path.stem)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     stem = f"rubric_review_{slug}_{stamp}"
 
     out_dir = Path(args.output_dir).resolve()
-    extra = {
-        "artifact_file": str(artifact_path),
-        "rubric_file": str(rubric_path),
-        "backend": cfg.backend,
-        "slug": stem,
-        "reviewer_r1_model": state.meta.get("reviewer_r1_model"),
-        "reviewer_r2_model": state.meta.get("reviewer_r2_model"),
-        "arbitration_model": state.meta.get("arbitration_model"),
-        "random_seed": state.meta.get("random_seed"),
-    }
-
-    json_path, md_path = write_reports(
-        state,
+    res = execute_single_review(
+        artifact_text=artifact_text,
+        artifact_path_display=str(artifact_path),
+        rubric=rubric,
+        rubric_path=rubric_path,
+        cfg=cfg,
+        reviewer_models=triple,
+        random_seed=args.random_seed,
+        arbitration_override=override,
         output_dir=out_dir,
         stem=stem,
-        artifact_path=str(artifact_path),
-        rubric_path=str(rubric_path),
-        backend=cfg.backend,
-        extra=extra,
+        send_webhooks=True,
     )
 
-    webhook_url = cfg.webhook_url
-    if webhook_url and state.arbitration_needed and state.disputed_dimensions:
-        payload = build_generic_arbitration_payload(
-            event="rubric_review.dispute_opened",
-            summary_text=(
-                f"Rubric 评审存在争议维度: {', '.join(state.disputed_dimensions)}\n"
-                f"工件: {artifact_path}\n模式: {state.arbitration_mode}\n"
-                f"R1={state.meta.get('reviewer_r1_model')} R2={state.meta.get('reviewer_r2_model')}\n"
-                f"Markdown: {md_path}\nJSON: {json_path}\n"
-            ),
-            detail=state_to_json_dict(
-                state,
-                extra={**extra, "markdown": str(md_path), "json": str(json_path)},
-            ),
-        )
-        log.info("发送 webhook（争议已打开）: %s...", webhook_url[:48])
-        post_webhook(webhook_url, payload, max_retries=cfg.max_retries, retry_base_seconds=cfg.retry_base_seconds)
+    log.info("已写入: %s", res.md_path)
+    log.info("已写入: %s", res.json_path)
 
-    if webhook_url and state.arbitration_mode == "llm" and state.arbitration_needed:
-        payload2 = build_generic_arbitration_payload(
-            event="rubric_review.arbitration_llm_done",
-            summary_text=f"LLM 仲裁已完成。Markdown: {md_path}",
-            detail=state_to_json_dict(state, extra={**extra, "markdown": str(md_path), "json": str(json_path)}),
-        )
-        post_webhook(webhook_url, payload2, max_retries=cfg.max_retries, retry_base_seconds=cfg.retry_base_seconds)
-
-    if webhook_url and state.arbitration_mode == "human_pending":
-        payload3 = build_generic_arbitration_payload(
-            event="rubric_review.human_arbitration_required",
-            summary_text="需人工仲裁（未调用 LLM）。终分含 null。",
-            detail=state_to_json_dict(state, extra={**extra, "markdown": str(md_path), "json": str(json_path)}),
-        )
-        post_webhook(webhook_url, payload3, max_retries=cfg.max_retries, retry_base_seconds=cfg.retry_base_seconds)
-
-    log.info("已写入: %s", md_path)
-    log.info("已写入: %s", json_path)
-
-    if state.arbitration_mode == "human_pending":
+    if res.state.arbitration_mode == "human_pending":
         return 3
     return 0
 

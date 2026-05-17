@@ -1,0 +1,35 @@
+{
+  "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+  "version": "0.1.0",
+  "artifact_types": ["mixed"],
+  "scoring": { "min": 1, "max": 4, "levels": ["不达标", "基线", "良好", "优秀"] },
+  "dimensions": [
+    {
+      "id": "clarity",
+      "name": "清晰度",
+      "description": "目标与范围是否清楚。",
+      "criteria": {
+        "4": "目标、范围、验收一句话能说清。",
+        "3": "基本清楚，少量含糊。",
+        "2": "范围不清或目标发散。",
+        "1": "无法判断要做什么。"
+      }
+    },
+    {
+      "id": "risk",
+      "name": "风险意识",
+      "description": "是否提到回滚或失败影响。",
+      "criteria": {
+        "4": "显式风险与缓解。",
+        "3": "有提及但不具体。",
+        "2": "几乎不谈。",
+        "1": "完全缺失。"
+      }
+    }
+  ],
+  "adjudication_rules": {
+    "max_score_diff_for_auto_accept": 1,
+    "auto_resolution_strategy": "average",
+    "fallback": "llm_arbiter"
+  }
+}
