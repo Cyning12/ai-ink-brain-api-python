@@ -7,7 +7,8 @@
 | task_paths | ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md |
 | related_review_or_none | 无 |
 | created_utc_or_local | 2026-05-17 |
-| notes | 前置 task 已 done；新分支 task/engineering-tech-graph-v2-p4-extended-v1 |
+| notes | 前置 task 已 done；10 帽 v0.2 已结构化 task；下一棒 invoke_20260517_22_tech-graph-v2-p4-task-audit-r1.md |
+| completed | 2026-05-17 · task v0.2 |
 
 ## 可复制 Prompt 快照（下一棒 · 需求帽）
 
