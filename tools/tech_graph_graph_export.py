@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-从 `docs/_tech_graph/*.ai.md` 导出 `graph.json`（方案1）。
+从 `docs/_tech_graph/*.ai.md` 导出 `graph.json`（P2-1 · graph_v2）。
 
 退出码（stderr 含 FP 标记，便于 CI / PR 说明）：
 - 0：写入成功或 `--check` 与已提交文件一致
@@ -10,6 +10,7 @@ from __future__ import annotations
 - 4：FP-2 — 再生成与已提交对象语义不一致（stderr 附差异摘要）
 
 与 `tools/tech_graph_contract_check.py` **并行互补**，禁止合并逻辑。
+v1 扁平导出（`raw_edges_to_graph_dict`）仅保留供解析单测；CI 主路径为 graph_v2。
 """
 
 import argparse
@@ -22,11 +23,15 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
+from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
+from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_INPUT = REPO_ROOT / "docs" / "_tech_graph"
 DEFAULT_OUTPUT = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
-FREEZE_ID = "TECH_GRAPH_S1_FREEZE_20260514_V1_1_3"
-SCHEMA_VERSION = "graph_v1"
+# 与 docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml · graph_v2_freeze_id 对齐
+FREEZE_ID = "TECH_GRAPH_S2_FREEZE_20260517_V2_0"
+SCHEMA_VERSION = SCHEMA_VERSION_V2
 
 MERMAID_FENCE = re.compile(r"```\s*mermaid\s*\n([\s\S]*?)```", re.IGNORECASE)
 
@@ -397,14 +402,23 @@ def build_graph_payload(
     generated_at: str | None = None,
     freeze_id: str = FREEZE_ID,
 ) -> dict[str, Any]:
+    """自 *.ai.md 构建 P2-0 graph_v2 载荷（与参考图构建器一致）。"""
     if generated_at is None:
         generated_at = _utc_now_iso_z()
-    raw = collect_raw_edges(input_root)
-    return raw_edges_to_graph_dict(raw, generated_at=generated_at, freeze_id=freeze_id)
+    return build_reference_graph_v2(
+        input_root, generated_at=generated_at, freeze_id=freeze_id
+    )
 
 
 def dumps_canonical(obj: Any) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+def _node_ids_from_graph(graph: dict[str, Any]) -> set[str]:
+    nodes = graph.get("nodes") or []
+    if nodes and isinstance(nodes[0], str):
+        return set(nodes)
+    return {n["id"] for n in nodes if isinstance(n, dict) and n.get("id")}
 
 
 def _graph_semantic_diff(*, committed: dict[str, Any], fresh: dict[str, Any]) -> str | None:
@@ -414,8 +428,8 @@ def _graph_semantic_diff(*, committed: dict[str, Any], fresh: dict[str, Any]) ->
         if committed.get(key) != fresh.get(key):
             problems.append(f"field_mismatch:{key}")
     if committed.get("nodes") != fresh.get("nodes"):
-        a = set(committed.get("nodes") or [])
-        b = set(fresh.get("nodes") or [])
+        a = _node_ids_from_graph(committed)
+        b = _node_ids_from_graph(fresh)
         problems.append(f"nodes_added={sorted(b - a)[:40]}")
         problems.append(f"nodes_removed={sorted(a - b)[:40]}")
     if committed.get("edges") != fresh.get("edges"):
@@ -475,7 +489,9 @@ def run_check(*, input_root: Path, output_path: Path) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="从 docs/_tech_graph/*.ai.md 导出 graph.json（方案1）。")
+    parser = argparse.ArgumentParser(
+        description="从 docs/_tech_graph/*.ai.md 导出 graph.json（graph_v2）。"
+    )
     parser.add_argument(
         "--input",
         type=Path,
