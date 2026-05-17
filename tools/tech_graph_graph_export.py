@@ -31,7 +31,7 @@ from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
 DEFAULT_INPUT = REPO_ROOT / "docs" / "_tech_graph"
 DEFAULT_OUTPUT = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
 # 与 docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml · graph_v2_freeze_id 对齐
-FREEZE_ID = "TECH_GRAPH_S2_FREEZE_20260517_V2_1"
+FREEZE_ID = "TECH_GRAPH_S2_FREEZE_20260517_V2_2"
 SCHEMA_VERSION = SCHEMA_VERSION_V2
 
 MERMAID_FENCE = re.compile(r"```\s*mermaid\s*\n([\s\S]*?)```", re.IGNORECASE)
@@ -427,7 +427,7 @@ def _node_ids_from_graph(graph: dict[str, Any]) -> set[str]:
 def _graph_semantic_diff(*, committed: dict[str, Any], fresh: dict[str, Any]) -> str | None:
     """FP-2：返回人类可读差异摘要；无差异返回 None。"""
     problems: list[str] = []
-    for key in ("schema_version", "freeze_id", "nodes", "edges"):
+    for key in ("schema_version", "freeze_id", "graphs", "nodes", "edges"):
         if committed.get(key) != fresh.get(key):
             problems.append(f"field_mismatch:{key}")
     if committed.get("nodes") != fresh.get("nodes"):

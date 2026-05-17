@@ -1,13 +1,13 @@
 # Task：技术图谱 — graph_v2 扩展（P2-4）与闸口 B follow-up 切片
 
-> **状态**：`active`（**30 · P2-4a-1 已交付** · 待 **4a-2** `graphs[]`/`ref` + 导出）  
+> **状态**：`active`（**30 · P2-4a 已交付** · 可选 **4b/4c** · 待关账）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · 闸口 B 已签收）  
 > **终轮关账参考**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/_tech_graph/graph_v2_schema.md`  
 > **闸口 B follow-up（可选 · P2-4c）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_b_ctx_query_v1_zh.md` §5.4（T002 类加深 query/manifest）  
 > **test_strategy**：`required`  
 > **test_strategy_note**：P2-4 字段须 `tech_graph_graph_v2_schema.py` 门禁 + `export --check` + 等价 CI + `tests/test_tech_graph_graph_query.py` 单图回归；**禁止**无测试静默扩 `graphs[]`/`ref`/`kind`。  
-> **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_1`（P2-4a-1 bump；与 `fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐）  
+> **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_2`（P2-4a-2 bump；与 `fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐）  
 > **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`、`HANDOFF_CLOSE_TRACE.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260517_10_tech-graph-v2-p4-requirements.md`
 
@@ -57,17 +57,17 @@
 
 ### 1.1 范围
 
-- [ ] **P2-4a（必做 · 关账阻塞）**  
+- [x] **P2-4a（必做 · 关账阻塞）**  
   - [x] **P2-4a-1** `nodes[].kind`（`flow|struct|external` · 可选 · schema 校验）  
-  - [ ] **P2-4a-2** `graphs[]` 多分图元数据（`id`、`title`、可选 `source_ai_path`）+ 导出器/校验器  
-  - [ ] **P2-4a-2** `edges[].ref`（`{ graph_id?, node_id }` + 校验未知引用非 0 退出）  
-  - [x] **P2-4a-1** `tech_graph_graph_v2_schema.py`：`kind` 有则校验；`graphs`/`ref` 仍禁；无 P2-4 字段时 P2-0 兼容  
+  - [x] **P2-4a-2** `graphs[]` 多分图元数据 + 导出器（每 `*.ai.md` 一条 · `graph_id`）  
+  - [x] **P2-4a-2** `edges[].ref`（`{ graph_id?, node_id }` · 与 from/to 互斥 · FP-4-2 校验）  
+  - [x] `tech_graph_graph_v2_schema.py`：无 P2-4 键时 P2-0 兼容（FP-4-4）；`graph_query` 忽略 ref 边  
 - [ ] **P2-4b（可选 · 不阻塞关账）**  
   - [ ] manifest↔node 互引字段或脚本校验（`_manifest.json` / `_contract_manifest.json` ↔ `nodes[].id`）  
 - [ ] **P2-4c（可选 · recommended）**  
   - [ ] `gate_ctx_b_v1/query_seeds.json` 增 T002 类 `upstream`/`neighbors` 组合种子  
   - [ ] 落盘 follow-up 说明 md（**不**重跑 `run_gate_b_batch` 全 arms 对比）  
-- [ ] 等价门禁阈值延续或 **书面 bump**（附 `freeze_id`）  
+- [x] 等价门禁阈值延续；`freeze_id` bump **V2_2**（P2-4a-2）  
 - [ ] `.cursor/rules/10-tech-graph.mdc` 增量（仅当消费路径变更）
 
 ### 1.2 非范围
@@ -131,18 +131,17 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 
 ### 3.1 工程（P2-4a 必达）
 
-- [x] **4a-1** `schema_version` 仍为 `graph_v2`；`python tools/tech_graph_graph_export.py --check` **PASS**（2026-05-17）  
-- [x] **4a-1** `python tools/tech_graph_graph_equivalence_check.py` **PASS**（exit 0）  
-- [x] **4a-1** 无 `kind` 时 schema 接受（FP-4-4 · `test_tech_graph_graph_v2_p4_schema`）  
-- [x] **4a-1** `pytest tests/test_tech_graph_graph_query.py` **PASS**（单图路径未改）  
-- [x] **4a-1** `pytest tests -m "not intent_eval and not intent_benchmark"` **172 passed**（2026-05-17）  
-- [x] **4a-1** 非法 `kind` / 提早 `graphs`/`ref` 非 0（`test_tech_graph_graph_v2_p4_schema`）  
-- [ ] **4a-2** 含 `graphs[]`/`ref` 时导出 + 等价 + 非法引用门禁
+- [x] `schema_version` 仍为 `graph_v2`；`export --check` **PASS**（2026-05-17 · V2_2）  
+- [x] `tech_graph_graph_equivalence_check.py` **PASS**（拓扑边；排除 ref）  
+- [x] 无 P2-4 键时 schema 接受（FP-4-4）；含 `graphs[]`/`graph_id` 导出绿（`test_tech_graph_graph_v2_p4_export`）  
+- [x] `ref` 未知节点 / ref+from 互斥非 0（`test_tech_graph_graph_v2_p4_schema`）  
+- [x] `pytest tests/test_tech_graph_graph_query.py` **PASS**（单图 BFS 不变）  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` **176 passed**（2026-05-17）
 
 ### 3.2 文档
 
-- [x] `graph_v2_schema.md` 增 P2-4a-1 `kind` 与 FP 映射（v0.2）  
-- [ ] task §9 回填路径、invoke 链、关账 `HANDOFF_CLOSE_TRACE`
+- [x] `graph_v2_schema.md` v0.3（P2-4a 全字段）  
+- [ ] task 关账 `HANDOFF_CLOSE_TRACE`（待终轮 22 CLOSE）
 
 ### 3.3 可选阶段（不阻关账）
 
@@ -177,23 +176,22 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 
 | 项 | 内容 |
 | --- | --- |
-| **P2-4a-1** | `tools/tech_graph_graph_v2_schema.py`：`ALLOWED_NODE_KINDS`；`graphs`/`ref` 仍 `P2_4_DEFERRED_*` |
-| **测试** | `tests/test_tech_graph_graph_v2_p4_schema.py`（FP-4-4、非法 kind、提早 graphs/ref） |
-| **freeze** | `TECH_GRAPH_S2_FREEZE_20260517_V2_1` · `protocol_version.yaml` · `graph.json` |
-| **待 4a-2** | `graphs[]` + `edges[].ref` + 导出器/等价扩展 |
+| **P2-4a-1** | `kind` 可选枚举；`tests/test_tech_graph_graph_v2_p4_schema.py` |
+| **P2-4a-2** | `graphs[]` + `graph_id` 导出；`ref` 互斥校验；`graph_query` 跳过 ref 边 |
+| **freeze** | `TECH_GRAPH_S2_FREEZE_20260517_V2_2` · `graph.json` 已再导出 |
+| **待选** | P2-4b manifest 互引；P2-4c 闸口 B follow-up 种子 |
 
 ### 自检结论（执行者）
 
 | 命令 | cwd | 退出码 | 摘要 |
 | --- | --- | --- | --- |
-| `pytest tests -m "not intent_eval and not intent_benchmark"` | `ai-ink-brain-api-python` | **0** | 172 passed, 1 skipped |
-| `python tools/tech_graph_graph_export.py --check` | 同上 | **0** | graph_v2 · freeze V2_1 |
-| `python tools/tech_graph_graph_equivalence_check.py` | 同上 | **0** | 拓扑/锚点阈值 PASS |
-| `pytest tests/test_tech_graph_graph_query.py -q` | 同上 | **0** | 单图 query 回归绿 |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | `ai-ink-brain-api-python` | **0** | 176 passed, 1 skipped |
+| `python tools/tech_graph_graph_export.py --check` | 同上 | **0** | 含 `graphs[]` + `graph_id` · V2_2 |
+| `python tools/tech_graph_graph_equivalence_check.py` | 同上 | **0** | 拓扑/锚点 PASS |
+| `pytest tests/test_tech_graph_graph_v2_p4_schema.py tests/test_tech_graph_graph_v2_p4_export.py -q` | 同上 | **0** | P2-4a 专项绿 |
 
-**阶段**：**P2-4a-1 完成**（kind + schema）；**P2-4a-2**（graphs[]/ref/导出）未做；4b/4c 未做。  
-**审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md`  
-**invoke**：`docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p4-exec.md`
+**阶段**：**P2-4a 完成**（4a-1 + 4a-2）；**4b/4c 未做**。  
+**invoke**：`invoke_20260517_30_tech-graph-v2-p4-a2-exec.md` · `invoke_20260517_40_tech-graph-v2-p4-a2-self-check.md`
 
 ---
 
@@ -203,7 +201,7 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 | --- | --- | --- |
 | **10 需求帽** | v0.2 | `invoke_20260517_10_…` |
 | **22 R1** | 零硬阻塞 | `…_audit_R1_20260517.md` |
-| **30 P2-4a-1** | **已交付** | 待 **4a-2** 或 **40 自检** |
+| **30 P2-4a** | **已交付** | 可选 4b/4c · 关账 22 CLOSE |
 
 ---
 
@@ -214,6 +212,7 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 | v0.1 | 2026-05-17 | 初稿：P2-4 扩展 + 可选闸口 B follow-up |
 | v0.2 | 2026-05-17 | **10 帽结构化**：字段分层表、分期阻塞、验收/failure_paths 可操作化 |
 | v0.3 | 2026-05-17 | **30 · P2-4a-1**：kind schema + pytest + freeze V2_1 |
+| v0.4 | 2026-05-17 | **30 · P2-4a-2**：graphs[]/ref/schema/导出 + freeze V2_2 |
 
 ---
 

@@ -76,7 +76,12 @@ class GraphQueryStore:
         self.upstream: dict[str, list[str]] = {nid: [] for nid in self.node_by_id}
         self.edges: list[dict[str, Any]] = list(graph.get("edges") or [])
         for edge in self.edges:
-            f, t = edge["from"], edge["to"]
+            # P2-4a-2：ref 边不参与单图 BFS（默认 query 路径不变）
+            if "ref" in edge:
+                continue
+            f, t = edge.get("from"), edge.get("to")
+            if not f or not t:
+                continue
             self.downstream[f].append(t)
             self.upstream[t].append(f)
 
