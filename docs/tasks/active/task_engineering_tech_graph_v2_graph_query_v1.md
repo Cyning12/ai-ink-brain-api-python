@@ -1,6 +1,6 @@
 # Task：技术图谱 — 机器轨升级（graph_v2 + 方案2 图查询 + 闸口 B）
 
-> **状态**：`draft`（**按审查 R1 回填** · 待 **R2 任务审核** 后再交执行帽）  
+> **状态**：`active`（**R2 已审** · P2-0～P2-2 已执行/自检 · 待 **P2-3 闸口 B** 与终轮签收）  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；`docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
 > **前置验收**：方案1 `graph.json`（`task_engineering_tech_graph_graph_json_export_v1.md` · done）  
 > **闸口 A（已完成 · 勿重复实验）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md` · `accepted` — 见 **§0.2**  
@@ -10,7 +10,28 @@
 > **审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`  
 > **test_strategy**：`required`  
 > **test_strategy_note**：v2 等价门禁与 query API 为机器轨核心；无 pytest + 闸口 B 复现则无法证明「优化机器轨」成立。  
-> **freeze_id**（草案）：`TECH_GRAPH_S2_FREEZE_TBD`（merge 前与 `fixtures/gate_ctx_ab_v1/protocol_version.yaml` 对齐 bump）
+> **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_0`（与 `docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐）  
+> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`、`HANDOFF_CLOSE_TRACE.md`
+
+### Harness 元信息（半自动 · `post_close`）
+
+| 字段 | 值 |
+| --- | --- |
+| **semi_auto** | `true`（P2-x 段：30→40 可同 Agent 链式；**下一棒 §3 须先**落盘 `docs/harness/invokes/` 并 commit） |
+| **audit_profile** | `post_close`（闸 1：R1/R2 已落盘；闸 2：关账时 `HANDOFF_CLOSE_TRACE` + 终轮签收） |
+| **git_branch** | `task/engineering-tech-graph-v2-graph-query-v1`（子仓 **禁止**在 `main` 上连续 semi_auto commit） |
+
+#### 人工闸 `human_gate`（仅人可将 `pending` 改为 `approved`）
+
+| human_gate_id | status | blocks_hats | 说明 |
+| --- | --- | --- | --- |
+| **HG-TASK-DRAFT** | `approved` | `22-R1` | 初稿 task 已人/Agent 定稿 |
+| **HG-AUDIT-R1** | `approved` | `30` | R1 审查已回填 v0.2；见 `…_audit_R1_20260517.md` |
+| **HG-AUDIT-R2** | `approved` | `30` | R2 零硬阻塞；见 `…_audit_R2_20260517.md` |
+| **HG-P2-3-GATE-B** | `pending` | `done` | P2-3 闸口 B 报告落盘后人签（§9） |
+| **HG-AUDIT-CLOSE** | `pending` | `done`, `50` | 终轮 task 签收 + 可选全局验收后改 `approved` |
+
+> Agent：**不得**代填 `approved`。下一帽 ∈ `blocks_hats` 且该闸为 `pending` 时 **拒执行**。关闭流程时产出 **执行路线与 Commit 回溯**（`HANDOFF_CLOSE_TRACE`）。
 
 ---
 
@@ -100,10 +121,10 @@
 #### A. graph_v2 schema 与导出
 
 - [x] 落盘 **graph_v2 schema 草案**（`docs/_tech_graph/graph_v2_schema.md` + `tools/tech_graph_graph_v2_schema.py`）。  
-- [ ] **落盘策略（默认，执行可偏离须 PR 说明）**：**同路径** `docs/_tech_graph/graph.json`，`schema_version: graph_v2`；**不**默认并列 `graph_v2.json`。CI `--check` 在过渡期可对比 v1→v2 迁移说明（见 §6 P2-1）。  
-- [ ] 升级 `tools/tech_graph_graph_export.py`（或 v2 脚本）：自 `*.ai.md` 导出 **P2-0 最小 v2**。  
-- [x] `tools/tech_graph_graph_equivalence_check.py`：**P2-0 草案**（参考 vs 导出；阈值 95%/90%；v1 已提交 → FP-5）。  
-- [x] pytest（v2 schema / 参考 / 等价）；`tech-graph.yml` 接入 v2 **待 P2-1**。
+- [x] **落盘策略（默认）**：**同路径** `docs/_tech_graph/graph.json`，`schema_version: graph_v2`。  
+- [x] 升级 `tools/tech_graph_graph_export.py`：自 `*.ai.md` 导出 **P2-0 最小 v2**（委托 `build_reference_graph_v2`）。  
+- [x] `tools/tech_graph_graph_equivalence_check.py`：参考 vs 导出；阈值 95%/90%；重复拓扑边 multiset 匹配（P2-1 修复）。  
+- [x] pytest（export v2 golden / 等价 PASS+失败 / FP-5）；`tech-graph.yml` 接入 v2 等价 step。
 
 **P2-0 最小字段集（单图扁平 · 首版必达）**
 
@@ -131,10 +152,10 @@
 
 #### B. graph_query（方案2）
 
-- [ ] `tools/tech_graph_graph_query.py`：加载 **v2** `graph.json`（v1 仅文档化降级，**禁止**静默整包 v1 进 prompt）。  
-- [ ] 最小查询：`downstream(id, depth)`、`upstream(id, depth)`、`neighbors(id)`；返回可序列化子图 + anchors。  
-- [ ] CLI 示例：`python tools/tech_graph_graph_query.py downstream AUTH 2`  
-- [ ] 更新 `.cursor/rules/10-tech-graph.mdc`：**query 优先**；禁止默认整包 v1。  
+- [x] `tools/tech_graph_graph_query.py`：加载 **v2** `graph.json`（v1 仅文档化降级，**禁止**静默整包 v1 进 prompt）。  
+- [x] 最小查询：`downstream(id, depth)`、`upstream(id, depth)`、`neighbors(id)`；返回可序列化子图 + anchors。  
+- [x] CLI 示例：`python tools/tech_graph_graph_query.py downstream AUTH 2`  
+- [x] 更新 `.cursor/rules/10-tech-graph.mdc`：**query 优先**；禁止默认整包 v1。  
 - [ ] MCP：**非**本 task 阻塞验收。
 
 #### C. Agent 加载顺序（写入规则或 PROJECT_CONFIG 指针）
@@ -182,12 +203,12 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 
 ### 4.1 工程
 
-- [ ] 导出 `graph.json`（`schema_version: graph_v2`）且 `--check` 通过。  
-- [ ] 等价检查 CI **PASS**（§2.1 阈值）。  
-- [ ] `graph_query` 对 `AUTH` / `RAG` / `E` 返回非空 JSON。  
-- [ ] pytest：export v2、等价检查、query 各 ≥1 golden + 1 失败路径。  
-- [ ] manifest_check、contract_check **仍独立绿**。  
-- [ ] `10-tech-graph.mdc` 与 G-END 一致。
+- [x] 导出 `graph.json`（`schema_version: graph_v2`）且 `--check` 通过。  
+- [x] 等价检查 CI **PASS**（§2.1 阈值）。  
+- [x] `graph_query` 对 `AUTH` / `RAG` / `E` 返回非空 JSON。  
+- [x] pytest：export v2、等价检查、query 各 ≥1 golden + 1 失败路径。  
+- [ ] manifest_check、contract_check **仍独立绿**（P2-2 执行帽未单独复跑）。  
+- [x] `10-tech-graph.mdc` 与 G-END 一致。
 
 ### 4.2 闸口 B（最低结构）
 
@@ -265,13 +286,20 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 | 参考图构建 | `tools/tech_graph_graph_v2_reference.py`（自 `*.ai.md`） |
 | 等价检查脚本 | `tools/tech_graph_graph_equivalence_check.py`（`--check`；v1 已提交 → **FP-5** 退出码 5） |
 | pytest | `tests/test_tech_graph_graph_v2_equivalence.py`（8 项：schema 禁止字段、参考 golden、等价指标、FP-5、合成 v2 PASS） |
-| query 脚本 | （P2-2 待填） |
+| query 脚本 | `tools/tech_graph_graph_query.py`（`load_graph_v2`；`downstream`/`upstream`/`neighbors`；FP-4=4、FP-5=5） |
+| pytest P2-2 | `tests/test_tech_graph_graph_query.py`（golden + FP-4/FP-5 + 仓内 AUTH/RAG/E + CLI） |
+| invoke（执行 P2-2） | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-2-exec.md` |
 | 闸口 B 报告 | （P2-3 待填） |
-| freeze_id | 草案 `TECH_GRAPH_S2_FREEZE_TBD`（P2-1 导出前与 `protocol_version.yaml` 对齐 bump） |
+| freeze_id | `TECH_GRAPH_S2_FREEZE_20260517_V2_0` · `protocol_version.yaml` · `graph_v2_freeze_id` |
+| 导出器 v2 | `tools/tech_graph_graph_export.py` → `build_reference_graph_v2`；`FREEZE_ID` 同上 |
+| CI | `.github/workflows/tech-graph.yml`：`export --check` + `tech_graph_graph_equivalence_check.py`（manifest/contract 仍独立） |
+| pytest P2-1 | `tests/test_tech_graph_graph_export.py`（v2 golden、FP-2 漂移）；`tests/test_tech_graph_graph_v2_equivalence.py`（+committed v2 PASS） |
+| invoke（执行 P2-1） | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-1-exec.md` |
+| invoke（自检 P2-1） | `docs/harness/invokes/invoke_20260517_40_tech-graph-v2-p2-1-self-check.md` |
 | invoke（执行 P2-0） | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-0-exec.md` |
 | invoke（自检 P2-0） | `docs/harness/invokes/invoke_20260517_40_tech-graph-v2-p2-0-self-check.md` |
 
-**P2-0 未做**：`graphs[]` / `edges[].ref`；导出器升 `graph_v2`（属 P2-1）；`graph_query`；闸口 B。
+**P2-2 未做**：闸口 B（P2-3）；`graphs[]` / `edges[].ref`（P2-4）。
 
 ---
 
@@ -280,36 +308,49 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 | 项 | 结果 |
 | --- | --- |
 | **执行日** | 2026-05-17 |
-| **阶段** | P2-0（schema + 等价草案）· **自检帽签收** |
-| **invoke（执行）** | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-0-exec.md` |
-| **invoke（自检）** | `docs/harness/invokes/invoke_20260517_40_tech-graph-v2-p2-0-self-check.md` |
-| **P2-0 签收** | **pass**（VERIFY + v2 专项绿；范围约束见下表） |
+| **阶段** | **P2-2**（`graph_query` CLI + 规则）· **待自检帽复跑签收** |
+| **invoke（执行）** | `docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p2-2-exec.md` |
+| **invoke（自检）** | （待填 · P2-2 自检帽） |
+| **P2-1 签收** | **pass**（见 `invoke_20260517_40_tech-graph-v2-p2-1-self-check.md`） |
 
 **验证命令**（子仓根 `ai-ink-brain-api-python`）：
 
 ```bash
 pytest tests -m "not intent_eval and not intent_benchmark"
-pytest tests/test_tech_graph_graph_v2_equivalence.py -q
+python tools/tech_graph_graph_export.py --check
+python tools/tech_graph_graph_equivalence_check.py
+pytest tests/test_tech_graph_graph_export.py tests/test_tech_graph_graph_v2_equivalence.py tests/test_tech_graph_graph_query.py -q
+python tools/tech_graph_graph_query.py downstream AUTH 2
 ```
 
 | 命令 | 退出码 | 摘要 |
 | --- | ---: | --- |
-| 全量 pytest（VERIFY） | **0** | `156 passed, 2 deselected`（10.89s） |
-| v2 等价专项 | **0** | `8 passed`（0.01s） |
+| 全量 pytest（VERIFY） | **0** | `167 passed, 1 skipped, 2 deselected`（~12.5s） |
+| `export --check`（graph_v2） | **0** | 已提交 `graph.json` 与再生成一致 |
+| 等价检查（v2） | **0** | `tech_graph_graph_equivalence_check.py` 退出码 0 |
+| export + v2 + query 专项 pytest | **0** | `25 passed, 1 skipped`（含 query 8 项） |
+| CLI `downstream AUTH 2` | **0** | stdout JSON；含 `POOL` 等节点 |
 
-**验收对照（P2-0 范围 · 仅命令/代码证据）**
+**结构核对（P2-2）**
+
+| 核对项 | 结果 | 证据 |
+| --- | --- | --- |
+| `tech_graph_graph_query.py` 仅接受 graph_v2 | **pass** | `load_graph_v2` + FP-5 退出码 5；`test_fp5_v1_graph_rejected` |
+| FP-4 未知节点 | **pass** | 退出码 4 + 示例 id 列表；`test_fp4_unknown_node`、`test_cli_fp4_unknown_node` |
+| query 禁止静默 v1 整包 | **pass** | 无 v1 降级分支；规则与 FP-5 一致 |
+| `10-tech-graph.mdc` query 优先 | **pass** | Agent 读取顺序与 G-END-5/6 对齐 |
+
+**验收对照（P2-2 范围 · 执行帽证据）**
 
 | 验收项 | pass/fail | 证据 |
 | --- | --- | --- |
-| graph_v2 schema 草案落盘 | **pass** | `docs/_tech_graph/graph_v2_schema.md`；`tools/tech_graph_graph_v2_schema.py` |
-| 等价检查脚本/测试（草案，非 v1 整包签收） | **pass** | `tech_graph_graph_equivalence_check.py` + `test_tech_graph_graph_v2_equivalence.py`（8 passed） |
-| 禁止 P2-0 实现 graphs[]、edges[].ref | **pass** | `FORBIDDEN_ROOT_KEYS` 含 `graphs`；`test_validate_graph_v2_rejects_forbidden_p2_4_fields` |
-| 未合并 contract_check 与 graph 导出 | **pass** | 无 `graph_query` 模块；workflow 未合并两脚本（静态核对） |
-| 已提交 `graph.json` 仍为 v1 时 FP-5（禁止静默当 v2） | **pass** | 仓内 `schema_version: graph_v1`；`test_run_check_fp5_on_committed_v1` |
-| §4.1「导出 graph_v2 + `--check` PASS」 | **未测（P2-1）** | 当前 `docs/_tech_graph/graph.json` 仍为 `graph_v1`；勿将 v1 等价当 v2 通过 |
-| graph_query / 闸口 B / §4.1 其余工程项 | **未测** | 非 P2-0 范围 |
+| §2.1 B · `graph_query` 三 API + CLI | **pass** | `tools/tech_graph_graph_query.py`；`test_*_golden`、`test_cli_downstream_auth2` |
+| §2.1 B · AUTH/RAG/E 非空子图 | **pass** | `test_committed_graph_auth_rag_e_non_empty` |
+| pytest query golden + FP-4/FP-5 | **pass** | `tests/test_tech_graph_graph_query.py`（8 项） |
+| §4.1 闸口 B | **未测** | P2-3 |
+| §4.1 manifest_check·contract_check 本轮全绿 | **未测** | 执行帽未单独复跑；P2-2 非阻塞 |
 
-**已知未测 / 下一棒**：**P2-1** 执行帽 — 升级 `tech_graph_graph_export.py` 输出 `schema_version: graph_v2`、接入 `tech-graph.yml` CI、`freeze_id` 对齐；完成后由自检帽复跑 VERIFY 并勾选 §4.1 导出/等价项。
+**已知未测 / 下一棒**：**P2-2 自检帽**复跑 §4.1 query 项；**P2-3** 闸口 B 实验与报告。
 
 ---
 
@@ -320,9 +361,15 @@ pytest tests/test_tech_graph_graph_v2_equivalence.py -q
 | **R1** | 已审查；B-D1=§2.1 过重 → **本版已按 R1 回填** | — |
 | **R2** | 已审查（零硬阻塞） | 见 `docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md` |
 | **P2-0 执行** | 已落盘草案 | invoke：`invoke_20260517_30_tech-graph-v2-p2-0-exec.md` |
-| **P2-0 自检** | **pass** | invoke：`invoke_20260517_40_tech-graph-v2-p2-0-self-check.md`；下一棒 **P2-1 执行帽** |
+| **P2-0 自检** | **pass** | invoke：`invoke_20260517_40_tech-graph-v2-p2-0-self-check.md` |
+| **P2-1 执行** | 已落盘 | invoke：`invoke_20260517_30_tech-graph-v2-p2-1-exec.md` |
+| **P2-1 自检** | **pass** | invoke：`invoke_20260517_40_tech-graph-v2-p2-1-self-check.md` |
+| **P2-2 执行** | 已落盘 | invoke：`invoke_20260517_30_tech-graph-v2-p2-2-exec.md` |
+| **P2-2 自检** | 待 **40** | 下一棒 **P2-2 自检帽**；通过后 **P2-3**（`HG-P2-3-GATE-B` 仍 `pending`） |
+| **关闭回溯** | 待关账 | 终轮填 **执行路线与 Commit 回溯**；`HG-AUDIT-CLOSE` → `approved` |
 
-工作区 invoke（R2 发起用）：`docs/harness/invokes/invoke_20260517_22_tech-graph-v2-task-audit-r2.md`（相对聚合仓 `Projects/`）
+工作区 invoke（R2 发起用）：`docs/harness/invokes/invoke_20260517_22_tech-graph-v2-task-audit-r2.md`（相对聚合仓 `Projects/`）  
+**半自动字段**：见文首 **Harness 元信息**；真值 [`HANDOFF_SEMI_AUTO.md`](../../../../docs/harness/prompts/HANDOFF_SEMI_AUTO.md)
 
 ---
 
@@ -333,9 +380,10 @@ pytest tests/test_tech_graph_graph_v2_equivalence.py -q
 | v0.1 | 2026-05-17 | 初稿 |
 | v0.2 | 2026-05-17 | **按审查 R1 回填**：P2-0/P2-4 字段分层；`graph.json` 升版默认；G-END-6；治理层链；长期记忆非范围；§10 交接 |
 | v0.3 | 2026-05-17 | **§0.2** 闸口 A/B 分工与 NR-1～7 防重复清单 |
+| v0.4 | 2026-05-17 | 文首 **Harness 元信息**：`semi_auto`、`audit_profile: post_close`、`human_gate` 表、`git_branch`；§10 交接与 P2-2 状态 |
 
 ---
 
 ## 给 Cursor
 
-`graph_v2`、`P2-0`、`graph_query`、`CTX_QUERY`、闸口 A 已完成、闸口 B、NR-1`、`§0.2`、勿重复 gate_ctx_ab、G-END-6、治理层应用、query 优先、`docs/_tech_graph`
+`graph_v2`、`P2-0`、`graph_query`、`CTX_QUERY`、闸口 A 已完成、闸口 B、NR-1`、`§0.2`、勿重复 gate_ctx_ab、G-END-6、治理层应用、query 优先、`docs/_tech_graph`、`semi_auto`、`human_gate`、`HG-AUDIT-R2`、`audit_profile`、`HANDOFF_SEMI_AUTO`
