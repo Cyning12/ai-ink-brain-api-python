@@ -9,7 +9,8 @@
 | prev_review | 无 |
 | requirements_invoke | ai-ink-brain-api-python/docs/harness/invokes/invoke_20260517_10_tech-graph-v2-p4-requirements.md |
 | created_utc_or_local | 2026-05-17 |
-| notes | 10 帽 v0.2 已落盘；开 22 前须 `HG-TASK-DRAFT: approved` |
+| notes | R1 审查已落盘 reviews/…_audit_R1_20260517.md；下一棒 30 invoke_20260517_30_tech-graph-v2-p4-exec.md |
+| completed | 2026-05-17 · R1 零硬阻塞 |
 
 ## 可复制 Prompt 快照（下一棒 · 任务审核帽 R1）
 
