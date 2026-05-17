@@ -1,0 +1,45 @@
+{
+  "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+  "rubric_version": "0.1.0",
+  "review_a": {
+    "dimension_scores": {
+      "clarity": 4,
+      "risk": 3
+    },
+    "justification": "clarity：目标与范围极为明确，一句话即可概括需在前一轮基础上补充回滚策略与线上用户影响。risk：明确提及回滚策略与线上用户影响两项风险相关要素，但仅作为补充要求提出，未展开具体风险分析与缓解措施。",
+    "model_used": "Pro/moonshotai/Kimi-K2.6"
+  },
+  "review_b": {
+    "dimension_scores": {
+      "clarity": 3,
+      "risk": 3
+    },
+    "justification": "清晰度：工件本身是要求补充回滚策略和影响，目标明确，但未给出具体内容，存在少量含糊，故给3分。风险意识：明确要求提及回滚策略和影响，体现了风险意识，但尚未具体展开，故给3分。",
+    "model_used": "deepseek-ai/DeepSeek-V4-Flash"
+  },
+  "final_scores": {
+    "clarity": 4,
+    "risk": 3
+  },
+  "arbitration_needed": false,
+  "arbitration_mode": "none",
+  "arbitration_justification": null,
+  "disputed_dimensions": [],
+  "meta": {
+    "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+    "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "random_seed": 42,
+    "effective_fallback": "llm_arbiter"
+  },
+  "run": {
+    "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S1_followup.md",
+    "rubric_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+    "backend": "siliconflow",
+    "slug": "rubric_review_examples_builtin_S1_20260515_201126_01",
+    "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+    "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "random_seed": 42
+  }
+}

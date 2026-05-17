@@ -1,0 +1,45 @@
+{
+  "rubric_name": "示例 Rubric（多轮脚本演示 · 2 维）",
+  "rubric_version": "0.1.0",
+  "review_a": {
+    "dimension_scores": {
+      "clarity": 4,
+      "risk": 1
+    },
+    "justification": "clarity：目标（增加 --dry-run）、范围（内部工具）及验收标准（不影响默认行为、验证未写磁盘）一句话即可说清，毫无含糊。risk：全文完全未提及回滚、失败影响或任何风险缓解措施。",
+    "model_used": "Pro/moonshotai/Kimi-K2.6"
+  },
+  "review_b": {
+    "dimension_scores": {
+      "clarity": 3,
+      "risk": 2
+    },
+    "justification": "清晰度：目标（增加--dry-run）、范围（不影响默认行为）和验证方式（未写磁盘）基本清楚，但未明确验收标准的具体细节，存在少量含糊。风险意识：提到了验证未写磁盘，但未显式讨论回滚或失败影响，风险提及不具体。",
+    "model_used": "deepseek-ai/DeepSeek-V4-Flash"
+  },
+  "final_scores": {
+    "clarity": 4,
+    "risk": 2
+  },
+  "arbitration_needed": false,
+  "arbitration_mode": "none",
+  "arbitration_justification": null,
+  "disputed_dimensions": [],
+  "meta": {
+    "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+    "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "random_seed": 42,
+    "effective_fallback": "llm_arbiter"
+  },
+  "run": {
+    "artifact_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/round_S2_low_overlap.md",
+    "rubric_file": "/Users/cyning/Desktop/Projects/ai-ink-brain-api-python/tools/rubric_review/examples/min_rubric.json",
+    "backend": "siliconflow",
+    "slug": "rubric_review_examples_builtin_S2_20260515_201126_02",
+    "reviewer_r1_model": "Pro/moonshotai/Kimi-K2.6",
+    "reviewer_r2_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "arbitration_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "random_seed": 42
+  }
+}
