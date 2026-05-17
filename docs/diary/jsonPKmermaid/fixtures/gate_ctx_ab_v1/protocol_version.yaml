@@ -7,7 +7,7 @@ repo: ai-ink-brain-api-python
 git_commit: "31715a6"
 freeze_id: TECH_GRAPH_S1_FREEZE_20260514_V1_1_3
 # P2-1 graph_v2 导出 / 等价 CI（与 tools/tech_graph_graph_export.py FREEZE_ID 对齐）
-graph_v2_freeze_id: TECH_GRAPH_S2_FREEZE_20260517_V2_0
+graph_v2_freeze_id: TECH_GRAPH_S2_FREEZE_20260517_V2_1
 graph_v2_path: docs/_tech_graph/graph.json
 
 arms:

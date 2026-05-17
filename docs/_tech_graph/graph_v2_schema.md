@@ -1,9 +1,10 @@
-# graph_v2 schema（P2-0 最小集）
+# graph_v2 schema（P2-0 + P2-4a 渐进）
 
-> **状态**：`draft` · P2-0  
+> **状态**：`draft` · P2-0 + **P2-4a-1**（`kind`）  
 > **落盘路径（默认）**：与本目录 `graph.json` 同文件，`schema_version: graph_v2`（**不**默认并列 `graph_v2.json`）  
-> **关联 task**：`docs/tasks/active/task_engineering_tech_graph_v2_graph_query_v1.md` §2.1  
-> **禁止 P2-0**：`graphs[]`、`edges[].ref`、`nodes[].kind`（见 P2-4）
+> **关联 task**：`docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md`  
+> **P2-4a-1 已启用**：`nodes[].kind`（可选）  
+> **P2-4a-2 未启用**：`graphs[]`、`edges[].ref`
 
 ---
 
@@ -17,18 +18,17 @@
 | `nodes` | array | **必** | 对象数组，见 §2 |
 | `edges` | array | **必** | 对象数组，见 §3 |
 
-**P2-4 延后（本阶段不得出现）**：`graphs[]`、`edges[].ref`。
+**P2-4a-2 未启用（不得出现）**：`graphs[]`、`edges[].ref`。
 
 ---
 
 ## 2. nodes[]
 
-| 字段 | 类型 | P2-0 | 说明 |
-| --- | --- | --- | --- |
-| `id` | string | **必** | 与 Mermaid 节点 id 一致；`graph_query` 主键 |
-| `label` | string | **必** | 自 `[[...]]` / `{...}` / `[...]` 等形状解析的人类可读标签；无形状时可为 `id` |
-
-**P2-4 延后**：`kind`。
+| 字段 | 类型 | P2-0 | P2-4a-1 | 说明 |
+| --- | --- | --- | --- | --- |
+| `id` | string | **必** | **必** | 与 Mermaid 节点 id 一致；`graph_query` 主键 |
+| `label` | string | **必** | **必** | 自 `[[...]]` / `{...}` / `[...]` 等形状解析的人类可读标签；无形状时可为 `id` |
+| `kind` | string | **禁** | **可选** | 枚举：`flow` \| `struct` \| `external`；**缺省**等价 P2-0（FP-4-4） |
 
 **物化顺序（建议）**：按 `id` 字典序稳定排序。
 
@@ -46,7 +46,7 @@
 | `label` | string | **必** | HTTP 路径、动作语义等；纯协议边可为 `""` |
 | `anchors` | array | **必** | 锚点对象列表，见 §4 |
 
-**P2-4 延后**：`ref`。
+**P2-4a-2 未启用**：`ref`（跨分图引用；与 `from`/`to` 互斥规则在 4a-2 定稿）。
 
 **物化顺序（建议）**：`(from, to, mark, type, sync, label)` 字典序。
 
@@ -85,11 +85,23 @@
 | `nodes` | `string[]` | `{ id, label }[]` |
 | 边协议标记 | 合并在 `type` 推断 | 显式 `mark` + `label` |
 | 锚点 | 无 | `anchors[]` |
-| 多分图 | 扁平合并 | P2-4 才引入 `graphs[]` |
+| 多分图 | 扁平合并 | P2-4a-2 才引入 `graphs[]` |
+| `nodes[].kind` | 无 | P2-4a-1 可选 |
 
 ---
 
-## 7. 工具入口（P2-0）
+## 7. failure_paths（P2-4 映射）
+
+| ID | 触发 | 校验行为 |
+| --- | --- | --- |
+| FP-4-1 | P2-4 与 P2-0 冲突 | 等价非 0 |
+| FP-4-2 | 非法 `ref` / 未知引用 | `validate_graph_v2` 非 0（4a-2） |
+| FP-4-3 | query 误读多分图 | pytest `test_tech_graph_graph_query` |
+| FP-4-4 | 无 kind 的合法 P2-0 图被拒 | schema **须接受** 无 `kind` |
+
+---
+
+## 8. 工具入口
 
 | 脚本 | 用途 |
 | --- | --- |
@@ -106,3 +118,4 @@
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-17 | P2-0 最小 schema 与等价阈值草案 |
+| v0.2 | 2026-05-17 | P2-4a-1：`nodes[].kind` 可选枚举；graphs/ref 仍禁 |

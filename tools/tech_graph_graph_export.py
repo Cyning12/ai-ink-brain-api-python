@@ -31,7 +31,7 @@ from tools.tech_graph_graph_v2_schema import SCHEMA_VERSION_V2
 DEFAULT_INPUT = REPO_ROOT / "docs" / "_tech_graph"
 DEFAULT_OUTPUT = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
 # 与 docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml · graph_v2_freeze_id 对齐
-FREEZE_ID = "TECH_GRAPH_S2_FREEZE_20260517_V2_0"
+FREEZE_ID = "TECH_GRAPH_S2_FREEZE_20260517_V2_1"
 SCHEMA_VERSION = SCHEMA_VERSION_V2
 
 MERMAID_FENCE = re.compile(r"```\s*mermaid\s*\n([\s\S]*?)```", re.IGNORECASE)

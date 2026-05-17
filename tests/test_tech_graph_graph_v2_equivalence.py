@@ -19,7 +19,7 @@ from tools.tech_graph_graph_v2_schema import GraphV2SchemaError, validate_graph_
 def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
     return {
         "schema_version": "graph_v2",
-        "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_1",
         "generated_at": generated_at,
         "nodes": [
             {"id": "A", "label": "Alpha"},
@@ -39,17 +39,15 @@ def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
     }
 
 
-def test_validate_graph_v2_rejects_forbidden_p2_4_fields() -> None:
-    """P2-0：graphs[] / edges[].ref / nodes[].kind 须被拒绝。"""
+def test_validate_graph_v2_rejects_deferred_p2_4a2_fields() -> None:
+    """P2-4a-2 未启用：graphs[] / edges[].ref 仍须被拒绝。"""
     base = _minimal_v2()
     with pytest.raises(GraphV2SchemaError, match="graphs"):
         validate_graph_v2({**base, "graphs": []})
     bad_edge = dict(base["edges"][0])
-    bad_edge["ref"] = "other"
+    bad_edge["ref"] = {"node_id": "other"}
     with pytest.raises(GraphV2SchemaError, match="ref"):
         validate_graph_v2({**base, "edges": [bad_edge]})
-    with pytest.raises(GraphV2SchemaError, match="kind"):
-        validate_graph_v2({**base, "nodes": [{"id": "A", "label": "a", "kind": "phase"}]})
 
 
 def test_validate_graph_v2_accepts_minimal() -> None:
@@ -132,7 +130,7 @@ def test_run_check_passes_on_committed_v2_when_upgraded() -> None:
     code = run_equivalence_check(
         input_root=repo_graph.parent,
         graph_path=repo_graph,
-        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_1",
     )
     assert code == 0
 
@@ -152,7 +150,7 @@ def test_run_check_fp5_on_committed_v1(tmp_path: Path) -> None:
     code = run_equivalence_check(
         input_root=real_input,
         graph_path=repo_graph,
-        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_1",
         require_v2=True,
     )
     assert code == 5
@@ -181,7 +179,7 @@ def test_run_check_passes_on_synthetic_v2(tmp_path: Path) -> None:
         run_equivalence_check(
             input_root=d,
             graph_path=out,
-            freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+            freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_1",
         )
         == 0
     )

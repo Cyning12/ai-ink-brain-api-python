@@ -265,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--graph", type=Path, default=DEFAULT_GRAPH)
     parser.add_argument(
         "--freeze-id",
-        default="TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+        default="TECH_GRAPH_S2_FREEZE_20260517_V2_1",
         help="参考图 freeze_id（与导出对齐）",
     )
     parser.add_argument(

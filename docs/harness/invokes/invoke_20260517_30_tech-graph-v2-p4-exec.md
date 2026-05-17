@@ -9,7 +9,8 @@
 | audit_invoke | ai-ink-brain-api-python/docs/harness/invokes/invoke_20260517_22_tech-graph-v2-p4-task-audit-r1.md |
 | git_branch | task/engineering-tech-graph-v2-p4-extended-v1 |
 | created | 2026-05-17 |
-| notes | R1 零硬阻塞；开 30 前须 HG-AUDIT-R1: approved |
+| notes | P2-4a-1 已交付；下一棒 40 自检或 30 续 4a-2 |
+| completed | 2026-05-17 · P2-4a-1 kind + schema |
 
 ## 可复制 Prompt 快照（下一棒 · 执行编码帽）
 

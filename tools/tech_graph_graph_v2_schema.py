@@ -1,19 +1,21 @@
 from __future__ import annotations
 
 """
-graph_v2 结构校验（P2-0）。
+graph_v2 结构校验（P2-0 最小集 + P2-4a 渐进扩展）。
 
-禁止 P2-0 字段：graphs[]、edges[].ref、nodes[].kind。
+P2-4a-1：`nodes[].kind` 可选；缺省等价 P2-0。
+P2-4a-2（未启用）：`graphs[]`、`edges[].ref` 仍禁止出现。
 """
 
 from typing import Any
 
 SCHEMA_VERSION_V2 = "graph_v2"
 
-# P2-4 字段；P2-0 出现即校验失败
-FORBIDDEN_ROOT_KEYS = frozenset({"graphs"})
-FORBIDDEN_NODE_KEYS = frozenset({"kind"})
-FORBIDDEN_EDGE_KEYS = frozenset({"ref"})
+# P2-4a-2 延后：首 PR 仍禁止
+P2_4_DEFERRED_ROOT_KEYS = frozenset({"graphs"})
+P2_4_DEFERRED_EDGE_KEYS = frozenset({"ref"})
+
+ALLOWED_NODE_KINDS = frozenset({"flow", "struct", "external"})
 
 REQUIRED_ROOT_KEYS = ("schema_version", "generated_at", "freeze_id", "nodes", "edges")
 REQUIRED_NODE_KEYS = ("id", "label")
@@ -26,13 +28,13 @@ class GraphV2SchemaError(ValueError):
 
 
 def validate_graph_v2(obj: Any, *, strict_version: bool = True) -> None:
-    """校验对象为 P2-0 graph_v2；失败抛 GraphV2SchemaError。"""
+    """校验 graph_v2；无 P2-4 字段时与 P2-0 兼容（FP-4-4）。"""
     if not isinstance(obj, dict):
         raise GraphV2SchemaError("根类型必须是 object")
 
-    for key in FORBIDDEN_ROOT_KEYS:
+    for key in P2_4_DEFERRED_ROOT_KEYS:
         if key in obj:
-            raise GraphV2SchemaError(f"P2-0 禁止根字段: {key}")
+            raise GraphV2SchemaError(f"P2-4a-2 未启用，禁止根字段: {key}")
 
     for key in REQUIRED_ROOT_KEYS:
         if key not in obj:
@@ -50,12 +52,10 @@ def validate_graph_v2(obj: Any, *, strict_version: bool = True) -> None:
     for i, node in enumerate(nodes):
         if not isinstance(node, dict):
             raise GraphV2SchemaError(f"nodes[{i}] 必须是 object")
-        for key in FORBIDDEN_NODE_KEYS:
-            if key in node:
-                raise GraphV2SchemaError(f"P2-0 禁止 nodes[].{key}")
         for key in REQUIRED_NODE_KEYS:
             if key not in node:
                 raise GraphV2SchemaError(f"nodes[{i}] 缺少 {key}")
+        _validate_node_kind(node, i)
         nid = node["id"]
         if not isinstance(nid, str) or not nid:
             raise GraphV2SchemaError(f"nodes[{i}].id 须为非空 string")
@@ -72,9 +72,9 @@ def validate_graph_v2(obj: Any, *, strict_version: bool = True) -> None:
     for i, edge in enumerate(edges):
         if not isinstance(edge, dict):
             raise GraphV2SchemaError(f"edges[{i}] 必须是 object")
-        for key in FORBIDDEN_EDGE_KEYS:
+        for key in P2_4_DEFERRED_EDGE_KEYS:
             if key in edge:
-                raise GraphV2SchemaError(f"P2-0 禁止 edges[].{key}")
+                raise GraphV2SchemaError(f"P2-4a-2 未启用，禁止 edges[].{key}")
         for key in REQUIRED_EDGE_KEYS:
             if key not in edge:
                 raise GraphV2SchemaError(f"edges[{i}] 缺少 {key}")
@@ -95,3 +95,17 @@ def validate_graph_v2(obj: Any, *, strict_version: bool = True) -> None:
                     raise GraphV2SchemaError(f"edges[{i}].anchors[{j}] 缺少 {key}")
             if "line" in anc and not isinstance(anc["line"], int):
                 raise GraphV2SchemaError(f"edges[{i}].anchors[{j}].line 须为 integer")
+
+
+def _validate_node_kind(node: dict[str, Any], index: int) -> None:
+    """P2-4a-1：kind 可选；出现则须在允许枚举内。"""
+    if "kind" not in node:
+        return
+    kind = node["kind"]
+    if not isinstance(kind, str) or not kind:
+        raise GraphV2SchemaError(f"nodes[{index}].kind 须为非空 string")
+    if kind not in ALLOWED_NODE_KINDS:
+        allowed = ", ".join(sorted(ALLOWED_NODE_KINDS))
+        raise GraphV2SchemaError(
+            f"nodes[{index}].kind 非法: {kind!r}（允许: {allowed}）"
+        )

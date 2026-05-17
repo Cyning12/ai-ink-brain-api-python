@@ -1953,8 +1953,8 @@
       "type": "triggers"
     }
   ],
-  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
-  "generated_at": "2026-05-17T09:15:32Z",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_1",
+  "generated_at": "2026-05-17T11:16:05Z",
   "nodes": [
     {
       "id": "A1",

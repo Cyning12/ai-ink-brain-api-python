@@ -1,13 +1,13 @@
 # Task：技术图谱 — graph_v2 扩展（P2-4）与闸口 B follow-up 切片
 
-> **状态**：`active`（**10 帽 v0.2 结构化** · 待 **22 R1** · `HG-TASK-DRAFT` 人签后方可 R1）  
+> **状态**：`active`（**30 · P2-4a-1 已交付** · 待 **4a-2** `graphs[]`/`ref` + 导出）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · 闸口 B 已签收）  
 > **终轮关账参考**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/_tech_graph/graph_v2_schema.md`  
 > **闸口 B follow-up（可选 · P2-4c）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_b_ctx_query_v1_zh.md` §5.4（T002 类加深 query/manifest）  
 > **test_strategy**：`required`  
 > **test_strategy_note**：P2-4 字段须 `tech_graph_graph_v2_schema.py` 门禁 + `export --check` + 等价 CI + `tests/test_tech_graph_graph_query.py` 单图回归；**禁止**无测试静默扩 `graphs[]`/`ref`/`kind`。  
-> **freeze_id**：`TECH_GRAPH_S2_FREEZE_TBD`（**P2-4a 首 PR 前**与 `fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐 bump）  
+> **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_1`（P2-4a-1 bump；与 `fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐）  
 > **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`、`HANDOFF_CLOSE_TRACE.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260517_10_tech-graph-v2-p4-requirements.md`
 
@@ -23,8 +23,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | `pending` | `22-R1`, `30` | **10 帽 v0.2 已结构化**；人扫 task 全文后改 `approved`，方可 **22 R1** |
-| **HG-AUDIT-R1** | `pending` | `30` | R1 审查落盘、零硬阻塞后人签 |
+| **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | **10 帽 v0.2 已结构化**；人扫 task 全文后改 `approved`，方可 **22 R1** |
+| **HG-AUDIT-R1** | `approved` | `30` | R1 审查落盘、零硬阻塞后人签 |
 | **HG-AUDIT-CLOSE** | `pending` | `done`, `50` | 关账签收 |
 
 ---
@@ -58,10 +58,10 @@
 ### 1.1 范围
 
 - [ ] **P2-4a（必做 · 关账阻塞）**  
-  - [ ] `nodes[].kind`（枚举或受控字符串 · 与 `01_struct` 节点类型草案对齐，首版允许最小枚举如 `flow|struct|external`）  
-  - [ ] `graphs[]` 多分图元数据（`id`、`title`、可选 `source_ai_path`）+ 导出器/校验器  
-  - [ ] `edges[].ref`（跨分图引用 · 最小语义：`{ graph_id?, node_id }` + 校验未知引用非 0 退出）  
-  - [ ] `tech_graph_graph_v2_schema.py` 由「禁止 P2-4 字段」升级为「有则校验、无则 P2-0 兼容」  
+  - [x] **P2-4a-1** `nodes[].kind`（`flow|struct|external` · 可选 · schema 校验）  
+  - [ ] **P2-4a-2** `graphs[]` 多分图元数据（`id`、`title`、可选 `source_ai_path`）+ 导出器/校验器  
+  - [ ] **P2-4a-2** `edges[].ref`（`{ graph_id?, node_id }` + 校验未知引用非 0 退出）  
+  - [x] **P2-4a-1** `tech_graph_graph_v2_schema.py`：`kind` 有则校验；`graphs`/`ref` 仍禁；无 P2-4 字段时 P2-0 兼容  
 - [ ] **P2-4b（可选 · 不阻塞关账）**  
   - [ ] manifest↔node 互引字段或脚本校验（`_manifest.json` / `_contract_manifest.json` ↔ `nodes[].id`）  
 - [ ] **P2-4c（可选 · recommended）**  
@@ -131,16 +131,17 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 
 ### 3.1 工程（P2-4a 必达）
 
-- [ ] 含 P2-4a 字段时 `schema_version` 仍为 `graph_v2`；`python tools/tech_graph_graph_export.py --check` **PASS**  
-- [ ] `python tools/tech_graph_graph_equivalence_check.py --check` **PASS**（阈值见 `graph_v2_schema.md` §5；变更须文档化 + `freeze_id`）  
-- [ ] **无 P2-4 字段** 时导出物与 P2-0 行为 **等价**（回归：禁止字段门禁误伤旧图）  
-- [ ] `pytest tests/test_tech_graph_graph_query.py -q` **PASS**（单图路径不变）  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` **PASS**  
-- [ ] `graphs[]`/`ref`/`kind` 非法组合时校验 **非 0 退出**（**禁止**静默忽略）
+- [x] **4a-1** `schema_version` 仍为 `graph_v2`；`python tools/tech_graph_graph_export.py --check` **PASS**（2026-05-17）  
+- [x] **4a-1** `python tools/tech_graph_graph_equivalence_check.py` **PASS**（exit 0）  
+- [x] **4a-1** 无 `kind` 时 schema 接受（FP-4-4 · `test_tech_graph_graph_v2_p4_schema`）  
+- [x] **4a-1** `pytest tests/test_tech_graph_graph_query.py` **PASS**（单图路径未改）  
+- [x] **4a-1** `pytest tests -m "not intent_eval and not intent_benchmark"` **172 passed**（2026-05-17）  
+- [x] **4a-1** 非法 `kind` / 提早 `graphs`/`ref` 非 0（`test_tech_graph_graph_v2_p4_schema`）  
+- [ ] **4a-2** 含 `graphs[]`/`ref` 时导出 + 等价 + 非法引用门禁
 
 ### 3.2 文档
 
-- [ ] `graph_v2_schema.md` 增 § P2-4 字段表与 FP 映射  
+- [x] `graph_v2_schema.md` 增 P2-4a-1 `kind` 与 FP 映射（v0.2）  
 - [ ] task §9 回填路径、invoke 链、关账 `HANDOFF_CLOSE_TRACE`
 
 ### 3.3 可选阶段（不阻关账）
@@ -176,7 +177,23 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 
 | 项 | 内容 |
 | --- | --- |
-| （待填） | |
+| **P2-4a-1** | `tools/tech_graph_graph_v2_schema.py`：`ALLOWED_NODE_KINDS`；`graphs`/`ref` 仍 `P2_4_DEFERRED_*` |
+| **测试** | `tests/test_tech_graph_graph_v2_p4_schema.py`（FP-4-4、非法 kind、提早 graphs/ref） |
+| **freeze** | `TECH_GRAPH_S2_FREEZE_20260517_V2_1` · `protocol_version.yaml` · `graph.json` |
+| **待 4a-2** | `graphs[]` + `edges[].ref` + 导出器/等价扩展 |
+
+### 自检结论（执行者）
+
+| 命令 | cwd | 退出码 | 摘要 |
+| --- | --- | --- | --- |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | `ai-ink-brain-api-python` | **0** | 172 passed, 1 skipped |
+| `python tools/tech_graph_graph_export.py --check` | 同上 | **0** | graph_v2 · freeze V2_1 |
+| `python tools/tech_graph_graph_equivalence_check.py` | 同上 | **0** | 拓扑/锚点阈值 PASS |
+| `pytest tests/test_tech_graph_graph_query.py -q` | 同上 | **0** | 单图 query 回归绿 |
+
+**阶段**：**P2-4a-1 完成**（kind + schema）；**P2-4a-2**（graphs[]/ref/导出）未做；4b/4c 未做。  
+**审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md`  
+**invoke**：`docs/harness/invokes/invoke_20260517_30_tech-graph-v2-p4-exec.md`
 
 ---
 
@@ -184,9 +201,9 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 
 | 轮次 | 状态 | 下一棒 |
 | --- | --- | --- |
-| **10 需求帽** | **v0.2 已结构化** | `invoke_20260517_10_tech-graph-v2-p4-requirements.md` |
-| **22 R1** | 待 `HG-TASK-DRAFT: approved` | `invoke_20260517_22_tech-graph-v2-p4-task-audit-r1.md` |
-| **30** | 待 R1 零硬阻塞 + `HG-AUDIT-R1: approved` | — |
+| **10 需求帽** | v0.2 | `invoke_20260517_10_…` |
+| **22 R1** | 零硬阻塞 | `…_audit_R1_20260517.md` |
+| **30 P2-4a-1** | **已交付** | 待 **4a-2** 或 **40 自检** |
 
 ---
 
@@ -196,6 +213,7 @@ P2-4c（闸口 B follow-up 种子/文档）— recommended；依赖 4a 不破坏
 | --- | --- | --- |
 | v0.1 | 2026-05-17 | 初稿：P2-4 扩展 + 可选闸口 B follow-up |
 | v0.2 | 2026-05-17 | **10 帽结构化**：字段分层表、分期阻塞、验收/failure_paths 可操作化 |
+| v0.3 | 2026-05-17 | **30 · P2-4a-1**：kind schema + pytest + freeze V2_1 |
 
 ---
 
