@@ -84,6 +84,8 @@ P2-4 / follow-up：graphs[]、ref、manifest graph_node_id 交叉引用
 
 回填完成后：**R2 任务审核**（`PREV_REVIEW_PATH` 指向本文件）。
 
+**2026-05-17 更新**：task 已 **v0.2 按 R1 回填** → 下一棒 invoke：`Projects/docs/harness/invokes/invoke_20260517_22_tech-graph-v2-task-audit-r2.md`；10 帽交接：`invoke_20260517_10_tech-graph-v2-r1-backfill-complete-handoff.md`。
+
 ---
 
 ## 是否建议执行帽开工
