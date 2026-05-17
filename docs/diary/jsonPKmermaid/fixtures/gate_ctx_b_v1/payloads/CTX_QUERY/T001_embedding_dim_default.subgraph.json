@@ -1,0 +1,64 @@
+{
+  "schema": "gate_ctx_b_ctx_query_main_v1",
+  "arm": "CTX_QUERY",
+  "task_id": "T001_embedding_dim_default",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+  "query": {
+    "op": "downstream",
+    "node_id": "ENV",
+    "depth": 2
+  },
+  "subgraph": {
+    "schema_version": "graph_query_result_v1",
+    "graph_schema_version": "graph_v2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+    "query": {
+      "op": "downstream",
+      "root": "ENV",
+      "depth": 2
+    },
+    "nodes": [
+      {
+        "id": "ENV",
+        "label": "Debug env toggles"
+      },
+      {
+        "id": "ENV_KEYS",
+        "label": "\"DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB\""
+      }
+    ],
+    "edges": [
+      {
+        "anchors": [
+          {
+            "path": "api/index.py",
+            "symbol": "_rag_debug_enabled"
+          },
+          {
+            "line": 33,
+            "path": "api/ingest_pipeline.py",
+            "symbol": "#L33"
+          }
+        ],
+        "from": "ENV",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "ENV_KEYS",
+        "type": "depends_on"
+      }
+    ],
+    "anchors": [
+      {
+        "path": "api/index.py",
+        "symbol": "_rag_debug_enabled"
+      },
+      {
+        "line": 33,
+        "path": "api/ingest_pipeline.py",
+        "symbol": "#L33"
+      }
+    ]
+  },
+  "note": "非整包 graph_v2；仅 query 子图 + 附件 manifest/contract"
+}

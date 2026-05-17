@@ -1,0 +1,57 @@
+{
+  "schema": "gate_ctx_b_payload_materialize_v1",
+  "generated_at": "2026-05-17T09:52:24Z",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+  "graph_v2_path": "docs/_tech_graph/graph.json",
+  "arms_static": {
+    "CTX_MERMAID": {
+      "bytes_utf8": 20953,
+      "chars": 20105,
+      "heuristic_tokens": 5026
+    },
+    "CTX_JSON": {
+      "bytes_utf8": 20224,
+      "chars": 20224,
+      "heuristic_tokens": 5056
+    },
+    "CTX_QUERY": {
+      "per_task": {
+        "T001_embedding_dim_default": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_b_v1/payloads/CTX_QUERY/T001_embedding_dim_default.subgraph.json",
+          "node_id": "ENV",
+          "op": "downstream",
+          "depth": 2,
+          "nodes": 2,
+          "edges": 1,
+          "bytes_utf8": 1552,
+          "heuristic_tokens": 383
+        },
+        "T002_unified_sse_chain_contract": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_b_v1/payloads/CTX_QUERY/T002_unified_sse_chain_contract.subgraph.json",
+          "node_id": "U2",
+          "op": "downstream",
+          "depth": 2,
+          "nodes": 7,
+          "edges": 8,
+          "bytes_utf8": 2854,
+          "heuristic_tokens": 701
+        },
+        "T003_ingest_admin_rpc": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_b_v1/payloads/CTX_QUERY/T003_ingest_admin_rpc.subgraph.json",
+          "node_id": "A2",
+          "op": "downstream",
+          "depth": 2,
+          "nodes": 4,
+          "edges": 3,
+          "bytes_utf8": 1736,
+          "heuristic_tokens": 427
+        }
+      },
+      "heuristic_tokens_median": 427
+    }
+  },
+  "forbidden_checks": {
+    "CTX_QUERY_not_whole_graph_v2": true,
+    "CTX_QUERY_uses_graph_query_cli": true
+  }
+}

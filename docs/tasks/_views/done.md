@@ -27,4 +27,5 @@
 - `../done/task_engineering_tech_graph_graph_json_export_v1.md`（2026-05-15：方案1 `graph.json` 导出 / `--check` / pytest / `tech-graph` CI；闸口 A 收口归档）
 - `../done/task_engineering_tech_graph_gate_a_token_compare_v1.md`（2026-05-15：闸口 A token 粗估附录工具与 CI；与 graph 导出同批次验收归档）
 - `../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`（2026-05-15 验收通过：闸口 A 代号 A/B 性能对比专文单一真值；`PR #28` / merge `2315937`）
+- `../done/task_engineering_tech_graph_v2_graph_query_v1.md`（2026-05-17：graph_v2 + graph_query + 闸口 B；Harness CLOSE · `freeze_id` `TECH_GRAPH_S2_FREEZE_20260517_V2_0`）
 

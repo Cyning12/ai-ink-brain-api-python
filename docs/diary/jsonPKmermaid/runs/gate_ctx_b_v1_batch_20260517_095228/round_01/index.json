@@ -1,0 +1,29 @@
+{
+  "schema": "gate_ctx_b_run_index_v1",
+  "run_id": "round_01",
+  "task_id": "T001_embedding_dim_default",
+  "segment": "S0",
+  "protocol_version": "gate_ctx_b_v1",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+  "model_requested": "deepseek-ai/DeepSeek-V4-Flash",
+  "arms_order": [
+    "CTX_QUERY"
+  ],
+  "execution_mode": "sequential",
+  "batch_wall_total_s": null,
+  "arms": [
+    {
+      "call_index": 1,
+      "arm": "CTX_QUERY",
+      "status": "ok",
+      "parse_ok": true,
+      "prompt_tokens": 4447,
+      "completion_tokens": 844,
+      "wall_total_s": 15.544,
+      "model_returned": "deepseek-ai/DeepSeek-V4-Flash",
+      "file": "CTX_QUERY_T001_embedding_dim_default_S0.jsonl"
+    }
+  ],
+  "parent_batch_id": "gate_ctx_b_v1_batch_20260517_095228",
+  "batch_round": 1
+}

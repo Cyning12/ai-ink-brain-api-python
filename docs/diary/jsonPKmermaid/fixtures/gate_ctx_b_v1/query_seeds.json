@@ -1,0 +1,26 @@
+{
+  "schema_version": "gate_ctx_b_query_seeds_v1",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_0",
+  "default_op": "downstream",
+  "default_depth": 2,
+  "tasks": {
+    "T001_embedding_dim_default": {
+      "node_id": "ENV",
+      "op": "downstream",
+      "depth": 2,
+      "rationale": "gold 主入口 expected_embedding_dim / ENV"
+    },
+    "T002_unified_sse_chain_contract": {
+      "node_id": "U2",
+      "op": "downstream",
+      "depth": 2,
+      "rationale": "gold 主入口 unified_chat_stream SSE"
+    },
+    "T003_ingest_admin_rpc": {
+      "node_id": "A2",
+      "op": "downstream",
+      "depth": 2,
+      "rationale": "gold 主入口 admin ingest"
+    }
+  }
+}
