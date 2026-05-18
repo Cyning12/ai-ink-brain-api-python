@@ -1,0 +1,152 @@
+{
+  "schema": "gate_ctx_c_v2_query_main_v1",
+  "arm": "CTX_V2_QUERY",
+  "task_id": "T002_unified_sse_chain_contract",
+  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "query": {
+    "op": "downstream",
+    "node_id": "U2",
+    "depth": 2
+  },
+  "subgraph": {
+    "schema_version": "graph_query_result_v1",
+    "graph_schema_version": "graph_v2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+    "query": {
+      "op": "downstream",
+      "root": "U2",
+      "depth": 2
+    },
+    "nodes": [
+      {
+        "graph_id": "00_main",
+        "id": "FTS",
+        "label": "FTS 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "RAG",
+        "label": "RAG 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "RAG_DOC",
+        "label": ">10_flow_rag.md"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "RPC",
+        "label": "Supabase RPC 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "T2S",
+        "label": "Text2SQL 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "T2S_DOC",
+        "label": ">11_flow_text2sql.md"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "U2",
+        "label": "Unified SSE"
+      }
+    ],
+    "edges": [
+      {
+        "anchors": [],
+        "from": "FTS",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "RPC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "RAG",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "FTS",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "RAG",
+        "graph_id": "00_main",
+        "label": "加载",
+        "mark": "->",
+        "sync": true,
+        "to": "RAG_DOC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "T2S",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "RPC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "T2S",
+        "graph_id": "00_main",
+        "label": "加载",
+        "mark": "->",
+        "sync": true,
+        "to": "T2S_DOC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "U2",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "::branches",
+        "sync": true,
+        "to": "RAG",
+        "type": "branches"
+      },
+      {
+        "anchors": [],
+        "from": "U2",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "::branches",
+        "sync": true,
+        "to": "T2S",
+        "type": "branches"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/rag_recall_tools.py",
+            "symbol": "rpc_execute_with_retry"
+          }
+        ],
+        "from": "FTS",
+        "graph_id": "10_flow_rag",
+        "label": "",
+        "mark": "[retry=N]",
+        "sync": true,
+        "to": "FTS",
+        "type": "depends_on"
+      }
+    ],
+    "anchors": [
+      {
+        "path": "api/rag_recall_tools.py",
+        "symbol": "rpc_execute_with_retry"
+      }
+    ]
+  },
+  "note": "graph_v2 子图；ref 边不参与 BFS"
+}

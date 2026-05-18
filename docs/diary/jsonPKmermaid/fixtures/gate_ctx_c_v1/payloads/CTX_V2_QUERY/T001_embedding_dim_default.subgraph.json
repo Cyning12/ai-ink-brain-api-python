@@ -1,0 +1,67 @@
+{
+  "schema": "gate_ctx_c_v2_query_main_v1",
+  "arm": "CTX_V2_QUERY",
+  "task_id": "T001_embedding_dim_default",
+  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "query": {
+    "op": "downstream",
+    "node_id": "ENV",
+    "depth": 2
+  },
+  "subgraph": {
+    "schema_version": "graph_query_result_v1",
+    "graph_schema_version": "graph_v2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+    "query": {
+      "op": "downstream",
+      "root": "ENV",
+      "depth": 2
+    },
+    "nodes": [
+      {
+        "graph_id": "14_runtime_observability",
+        "id": "ENV",
+        "label": "Debug env toggles"
+      },
+      {
+        "graph_id": "14_runtime_observability",
+        "id": "ENV_KEYS",
+        "label": "\"DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB\""
+      }
+    ],
+    "edges": [
+      {
+        "anchors": [
+          {
+            "path": "api/index.py",
+            "symbol": "_rag_debug_enabled"
+          },
+          {
+            "line": 33,
+            "path": "api/ingest_pipeline.py",
+            "symbol": "#L33"
+          }
+        ],
+        "from": "ENV",
+        "graph_id": "14_runtime_observability",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "ENV_KEYS",
+        "type": "depends_on"
+      }
+    ],
+    "anchors": [
+      {
+        "path": "api/index.py",
+        "symbol": "_rag_debug_enabled"
+      },
+      {
+        "line": 33,
+        "path": "api/ingest_pipeline.py",
+        "symbol": "#L33"
+      }
+    ]
+  },
+  "note": "graph_v2 子图；ref 边不参与 BFS"
+}

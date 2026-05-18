@@ -1,0 +1,10 @@
+{
+  "schema_version": "gate_ctx_c_tasks_ref_v1",
+  "fixture_set": "gate_ctx_c_v1",
+  "tasks_ref": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json",
+  "task_ids": [
+    "T001_embedding_dim_default",
+    "T002_unified_sse_chain_contract",
+    "T003_ingest_admin_rpc"
+  ]
+}

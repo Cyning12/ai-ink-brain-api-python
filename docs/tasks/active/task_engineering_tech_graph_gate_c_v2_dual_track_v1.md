@@ -1,6 +1,6 @@
 # Task：技术图谱 — 闸口 C 对比实验（graph_v2 查询轨 vs 双轨原文）
 
-> **状态**：`active`（**v0.1** · 10 帽初稿 · 待 `HG-TASK-DRAFT` 人签）  
+> **状态**：`active`（**v0.2** · PR-1 P0 已交付 · 待 P1 batch）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · `CTX_QUERY`）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_scheme2_completion_v1.md`（`has_path` / `describe_impact`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** **R4**；`scheme_2_graph_query.md`  
@@ -24,9 +24,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | `pending` | `22-R1`, `30` | 本 v0.1 初稿后人扫 |
-| **HG-AUDIT-R1** | `pending` | `30` | R1 零硬阻塞后人签执行 |
-| **HG-P0-PROTOCOL** | `pending` | `30` | `gate_ctx_c_v1` 协议 + 题集人签 |
+| **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 本 v0.1 初稿后人扫 |
+| **HG-AUDIT-R1** | `approved` | `30` | R1 零硬阻塞后人签执行 |
+| **HG-P0-PROTOCOL** | `approved` | `30` | `gate_ctx_c_v1` 协议 + 题集人签 |
 | **HG-GATE-C-SIGNOFF** | `pending` | `done`, `50` | 实验结论人签 |
 
 ---
@@ -73,11 +73,11 @@
 
 ### 1.1 范围
 
-- [ ] **P0 · 协议与 fixture**  
-  - [ ] `gate_ctx_c_v1/protocol_version.yaml`（`freeze_id`、图路径、`graph_v2_freeze_id` 引用）  
-  - [ ] `dual_track_manifest.json`（每题列出 `.ai.md` + `.md` 路径，上限 token 预算写明）  
-  - [ ] `materialize_gate_c_payloads.py`（输出 D/E 主载荷；报告 `materialize_report.json`）  
-  - [ ] `query_seeds.json`（对齐 v2 真值节点，**禁止**沿用已废弃示例 `AUTH→RAG` 若生产图无边）  
+- [x] **P0 · 协议与 fixture**  
+  - [x] `gate_ctx_c_v1/protocol_version.yaml`（`freeze_id`、图路径、`graph_v2_freeze_id` 引用）  
+  - [x] `dual_track_manifest.json`（每题列出 `.ai.md` + `.md` 路径，上限 token 预算写明）  
+  - [x] `materialize_gate_c_payloads.py`（输出 D/E 主载荷；报告 `materialize_report.json`）  
+  - [x] `query_seeds.json`（对齐 v2 真值节点，**禁止**沿用已废弃示例 `AUTH→RAG` 若生产图无边）  
 - [ ] **P1 · batch**  
   - [ ] 复用或薄封装既有 batch runner（与 `gate_ctx_b_v1` 同型入口，新 protocol id）  
   - [ ] S0 段 3 题 × 2 臂（D、E）最低跑通  
@@ -125,8 +125,8 @@
 
 ### 3.1 P0
 
-- [ ] `python …/materialize_gate_c_payloads.py` → exit 0；D/E payload 目录非空  
-- [ ] pytest 覆盖：manifest 路径存在、query 种子节点在 `graph_v2` 中存在、D 臂子图节点数 < 整包 Mermaid 阈值（阈值写入 protocol）
+- [x] `python …/materialize_gate_c_payloads.py` → exit 0；D/E payload 目录非空  
+- [x] pytest 覆盖：manifest 路径存在、query 种子节点在 `graph_v2` 中存在、D 臂子图节点数 < 整包 Mermaid 阈值（阈值写入 protocol）
 
 ### 3.2 P1
 
@@ -170,7 +170,18 @@
 
 | 项 | 内容 |
 | --- | --- |
-| （待 30 帽） | |
+| P0 fixture | `docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/`（protocol、seeds、manifest、`tasks_ref.json`） |
+| materialize | `fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` → `payloads/CTX_V2_QUERY/*.subgraph.json`、`CTX_DUAL_MD/*.dual_track.md` |
+| pytest | `tests/test_gate_ctx_c_v1_materialize.py`（5 项） |
+| 30 invoke | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
+| P1 待做 | batch runner 新 protocol id `gate_ctx_c_v1`（勿触 `gate_ctx_b_v1` batch） |
+
+### 自检结论（执行者）
+
+- **命令**：`python docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` → **exit 0**；D 臂 median heuristic tokens **479**（< 5026 基线）；E 臂精选 **3** 个 `.ai.md`（整仓非 `99_` 前缀共 **7**）。  
+- **命令**：`pytest tests/test_gate_ctx_c_v1_materialize.py` → **5 passed**；`pytest tests -m "not intent_eval and not intent_benchmark"` → **189 passed**, 1 skipped。  
+- **范围**：未改 `gate_ctx_ab_v1` / `gate_ctx_b_v1` 历史 run；未跑 LLM batch（P1）。  
+- **阻塞**：无；PR-1（P0）验收满足 §3.1。
 
 ---
 
@@ -179,7 +190,8 @@
 | 轮次 | 状态 | 路径 |
 | --- | --- | --- |
 | **10 需求帽** | v0.1 初稿 | `docs/harness/invokes/invoke_20260518_10_tech-graph-gate-c-v2-dual-track-requirements.md` |
-| **22 R1** | 待 | `docs/harness/reviews/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md`（建议名） |
+| **22 R1** | 通过 | `docs/harness/reviews/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md` |
+| **30 PR-1** | P0 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
 
 ---
 
@@ -188,3 +200,4 @@
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-18 | 10 帽初稿：闸口 C · D/E 双臂 · 不复跑 A/B |
+| v0.2 | 2026-05-18 | 30 帽 PR-1：P0 fixture + materialize + pytest 绿 |
