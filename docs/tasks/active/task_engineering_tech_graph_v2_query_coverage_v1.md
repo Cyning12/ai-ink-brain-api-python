@@ -1,6 +1,6 @@
 # Task：技术图谱 — graph_v2 查询可达性优化（闸口 C follow-up）
 
-> **状态**：`active`（v0.1 · 30 帽已落地 · 待 40 自检）  
+> **状态**：`active`（v0.1 · 40 自检 pass · 待 50 复检）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · accepted）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · CTX_QUERY 默认）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` · `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -155,7 +155,36 @@
 
 ### 自检结论（执行者）
 
-（待 **40 帽** 按 task §3 逐条回填命令输出；30 帽已跑通上述验证命令）
+**40 帽 · 2026-05-19** · invoke：`docs/harness/invokes/invoke_20260519_37_tech-graph-v2-query-coverage-40-self-check.md`  
+**cwd**：`ai-ink-brain-api-python` · **分支**：`task/engineering-tech-graph-v2-query-coverage-v1` · **diff 基线**：`main...HEAD`（`05c1b39`）
+
+#### 命令与退出码
+
+| # | 命令 | 退出码 | 输出要点 |
+| --- | --- | ---: | --- |
+| 1 | `python tools/tech_graph_graph_export.py --check` | 0 | 无 stderr；v2 export 校验通过 |
+| 2 | `python docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` | 0 | T002 D 臂：`nodes=17`，`heuristic_tokens=3494`（&lt; 8192）；`OK: …/materialize_report.json` |
+| 3 | `pytest tests/test_gate_ctx_c_v1_materialize.py tests/test_tech_graph_graph_export.py tests/test_tech_graph_graph_query.py -q` | 0 | **31 passed** in 0.53s |
+| 4 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | **195 passed**, 1 skipped, 2 deselected in 70.68s |
+
+#### 验收 pass/fail（对照 §3）
+
+| 验收项 | 结果 | 证据 |
+| --- | --- | --- |
+| §3.1 `graph.json` + `--check` 绿 | **pass** | 命令 #1 exit 0 |
+| §3.1 T002 gold（U2/U1/AUTH/EV_TYPES）BFS 可核对 | **pass** | 命令 #3 含 `test_t002_subgraph_covers_gold_graph_ids` |
+| §3.2 materialize exit 0；T002 tokens &lt; 8192 | **pass** | 命令 #2：3494 tokens |
+| §3.2 T002 含 AUTH/EV_TYPES/U1 + union 17 nodes + contract_slice | **pass** | 命令 #2/#3 materialize 与 `test_gate_ctx_c_v1_materialize.py` |
+| §3.2 `test_gate_ctx_c_v1_materialize.py` 绿 | **pass** | 命令 #3 |
+| §3.3 全量 pytest 仍绿 | **pass** | 命令 #4：195 passed |
+| §1.1 PR-3（可选消融） | **未测** | task 声明不阻塞；保持 `[ ]` |
+
+#### 已知未测 / 阻塞
+
+- **PR-3**：T002 消融 dry-run / 新 batch — 非阻塞，未执行（符合 task §1.3）。
+- **NR-1/2**：未重跑闸口 A/B/C 主 batch（符合非范围）。
+
+**40 帽结论**：PR-1/PR-2 验收项 **全部 pass**；可交 **50 复检帽**。
 
 ---
 
