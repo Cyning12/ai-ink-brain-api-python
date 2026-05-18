@@ -119,7 +119,7 @@ def _split_mark_label(raw: str) -> tuple[str, str]:
 
 
 def _parse_edge_line_with_labels(
-    *, line: str, line_no: int, path: Path
+    *, line: str, line_no: int, path: Path, export_root: Path
 ) -> list[RefEdge]:
     """扩展解析：附带节点 label 与紧随其后的锚点注释。"""
     s0 = line.strip()
@@ -130,7 +130,7 @@ def _parse_edge_line_with_labels(
     if s0.startswith(("flowchart ", "graph ")):
         return []
 
-    rel = _repo_rel_posix(path)
+    rel = _repo_rel_posix(path, base=export_root)
     edges: list[RefEdge] = []
     s = s0
     last_to: str | None = None
@@ -223,7 +223,7 @@ def _parse_edge_line_with_labels(
     return edges
 
 
-def collect_reference_edges(input_root: Path) -> list[RefEdge]:
+def collect_reference_edges(input_root: Path, *, export_root: Path) -> list[RefEdge]:
     """遍历 *.ai.md，收集带锚点的参考边。"""
     from tools.tech_graph_graph_export import MERMAID_FENCE
 
@@ -263,7 +263,9 @@ def collect_reference_edges(input_root: Path) -> list[RefEdge]:
 
                 if mode == "flowchart":
                     line_no = fence_start + i
-                    parsed = _parse_edge_line_with_labels(line=line, line_no=line_no, path=path)
+                    parsed = _parse_edge_line_with_labels(
+                        line=line, line_no=line_no, path=path, export_root=export_root
+                    )
                     if parsed:
                         for e in parsed:
                             e.anchors = list(pending_anchors)
@@ -273,7 +275,9 @@ def collect_reference_edges(input_root: Path) -> list[RefEdge]:
                 elif mode == "classDiagram":
                     from tools.tech_graph_graph_export import _parse_class_diagram_line
 
-                    for raw in _parse_class_diagram_line(line=line, path=path, line_no=fence_start + i):
+                    for raw in _parse_class_diagram_line(
+                        line=line, path=path, line_no=fence_start + i, export_root=export_root
+                    ):
                         all_edges.append(
                             RefEdge(
                                 source=raw.source,
@@ -377,8 +381,10 @@ def build_reference_graph_v2(
     *,
     generated_at: str,
     freeze_id: str = "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+    export_root: Path | None = None,
 ) -> dict[str, Any]:
     if not input_root.is_dir():
         raise FileNotFoundError(input_root)
-    edges = collect_reference_edges(input_root)
+    root = export_root if export_root is not None else REPO_ROOT
+    edges = collect_reference_edges(input_root, export_root=root)
     return reference_edges_to_graph_v2(edges, generated_at=generated_at, freeze_id=freeze_id)

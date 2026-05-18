@@ -37,10 +37,19 @@ SCHEMA_VERSION = SCHEMA_VERSION_V2
 MERMAID_FENCE = re.compile(r"```\s*mermaid\s*\n([\s\S]*?)```", re.IGNORECASE)
 
 
-def _repo_rel_posix(path: Path) -> str:
-    """用于 FP-1 日志：优先相对本仓根，否则退回绝对路径（pytest tmp 等）。"""
+def _resolve_export_repo_root(input_root: Path) -> Path:
+    """导出时 source_file / graphs[].source_ai_path 相对此根（含 docs/_tech_graph 的仓根）。"""
+    ir = input_root.resolve()
+    if ir.name == "_tech_graph" and ir.parent.name == "docs":
+        return ir.parent.parent
+    return REPO_ROOT
+
+
+def _repo_rel_posix(path: Path, *, base: Path | None = None) -> str:
+    """用于 FP-1 与 graph_v2 源路径：优先相对 base（默认同 _resolve_export_repo_root）。"""
+    root = (base or REPO_ROOT).resolve()
     try:
-        return path.resolve().relative_to(REPO_ROOT).as_posix()
+        return path.resolve().relative_to(root).as_posix()
     except ValueError:
         return path.resolve().as_posix()
 
@@ -280,7 +289,9 @@ def _parse_labeled_edge_line(*, line: str, line_no: int, path: Path) -> list[Raw
     return edges
 
 
-def _parse_class_diagram_line(*, line: str, path: Path, line_no: int) -> list[RawEdge]:
+def _parse_class_diagram_line(
+    *, line: str, path: Path, line_no: int, export_root: Path | None = None
+) -> list[RawEdge]:
     s = line.strip()
     if not s or s.startswith("%%") or s.startswith("//") or s.startswith("class "):
         return []
@@ -294,12 +305,12 @@ def _parse_class_diagram_line(*, line: str, path: Path, line_no: int) -> list[Ra
                 path=path,
                 line_no=line_no,
                 message=(
-                    f"classDiagram 边无法解析：{_repo_rel_posix(path)}:"
+                    f"classDiagram 边无法解析：{_repo_rel_posix(path, base=export_root)}:"
                     f"{line_no}: {s!r}"
                 ),
             )
         return []
-    rel = _repo_rel_posix(path)
+    rel = _repo_rel_posix(path, base=export_root)
     return [
         RawEdge(
             source=m.group(1),
@@ -408,8 +419,12 @@ def build_graph_payload(
 
     if generated_at is None:
         generated_at = _utc_now_iso_z()
+    export_root = _resolve_export_repo_root(input_root)
     return build_reference_graph_v2(
-        input_root, generated_at=generated_at, freeze_id=freeze_id
+        input_root,
+        generated_at=generated_at,
+        freeze_id=freeze_id,
+        export_root=export_root,
     )
 
 
