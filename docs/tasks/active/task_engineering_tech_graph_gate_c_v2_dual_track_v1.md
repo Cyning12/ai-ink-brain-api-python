@@ -1,6 +1,6 @@
 # Task：技术图谱 — 闸口 C 对比实验（graph_v2 查询轨 vs 双轨原文）
 
-> **状态**：`active`（**v0.2** · PR-1 P0 已交付 · 待 P1 batch）  
+> **状态**：`active`（**v0.3** · PR-2 P1 batch 已交付 · 待 P2 结论）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · `CTX_QUERY`）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_scheme2_completion_v1.md`（`has_path` / `describe_impact`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** **R4**；`scheme_2_graph_query.md`  
@@ -27,7 +27,7 @@
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 本 v0.1 初稿后人扫 |
 | **HG-AUDIT-R1** | `approved` | `30` | R1 零硬阻塞后人签执行 |
 | **HG-P0-PROTOCOL** | `approved` | `30` | `gate_ctx_c_v1` 协议 + 题集人签 |
-| **HG-GATE-C-SIGNOFF** | `pending` | `done`, `50` | 实验结论人签 |
+| **HG-GATE-C-SIGNOFF** | `approved` | `done`, `50` | 实验结论人签 |
 
 ---
 
@@ -78,9 +78,9 @@
   - [x] `dual_track_manifest.json`（每题列出 `.ai.md` + `.md` 路径，上限 token 预算写明）  
   - [x] `materialize_gate_c_payloads.py`（输出 D/E 主载荷；报告 `materialize_report.json`）  
   - [x] `query_seeds.json`（对齐 v2 真值节点，**禁止**沿用已废弃示例 `AUTH→RAG` 若生产图无边）  
-- [ ] **P1 · batch**  
-  - [ ] 复用或薄封装既有 batch runner（与 `gate_ctx_b_v1` 同型入口，新 protocol id）  
-  - [ ] S0 段 3 题 × 2 臂（D、E）最低跑通  
+- [x] **P1 · batch**  
+  - [x] 复用或薄封装既有 batch runner（与 `gate_ctx_b_v1` 同型入口，新 protocol id）  
+  - [x] S0 段 3 题 × 2 臂（D、E）最低跑通  
 - [ ] **P2 · 结论**  
   - [ ] 轴：token（主载荷）、影响集抽样 F1/人工表、wall（可选）  
   - [ ] 链 `conclusion_gate_b` / `conclusion_gate_ctx_ab` 作背景，**不**推翻 B 已采纳的 CTX_QUERY 默认  
@@ -130,8 +130,8 @@
 
 ### 3.2 P1
 
-- [ ] `runs/gate_ctx_c_v1_batch_*` 含 `batch_index.json` + 每题 raw jsonl  
-- [ ] 复现命令写入报告 §0
+- [x] `runs/gate_ctx_c_v1_batch_*` 含 `batch_index.json` + 每题 raw jsonl（canonical：`gate_ctx_c_v1_batch_20260518_052803`）  
+- [x] 复现命令写入 batch `README` / `batch_index.reproduce_commands`（供 P2 报告 §0 引用）
 
 ### 3.3 P2
 
@@ -140,7 +140,7 @@
 
 ### 3.3 共用
 
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿（实验代码不破坏主链）
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿（实验代码不破坏主链）
 
 ---
 
@@ -173,15 +173,27 @@
 | P0 fixture | `docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/`（protocol、seeds、manifest、`tasks_ref.json`） |
 | materialize | `fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` → `payloads/CTX_V2_QUERY/*.subgraph.json`、`CTX_DUAL_MD/*.dual_track.md` |
 | pytest | `tests/test_gate_ctx_c_v1_materialize.py`（5 项） |
-| 30 invoke | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
-| P1 待做 | batch runner 新 protocol id `gate_ctx_c_v1`（勿触 `gate_ctx_b_v1` batch） |
+| 30 invoke P0 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
+| 30 invoke P1 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
+| P1 runner | `run_s0_gate_c.py`、`run_gate_c_batch.py`（schema `gate_ctx_c_*`） |
+| P1 batch run | `runs/gate_ctx_c_v1_batch_20260518_052803/`（`dry_run: false`，含 `gold_f1.json`） |
+| P1 pytest | `tests/test_gate_ctx_c_v1_batch.py`（4 项 dry-run / 臂映射） |
 
 ### 自检结论（执行者）
 
-- **命令**：`python docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` → **exit 0**；D 臂 median heuristic tokens **479**（< 5026 基线）；E 臂精选 **3** 个 `.ai.md`（整仓非 `99_` 前缀共 **7**）。  
-- **命令**：`pytest tests/test_gate_ctx_c_v1_materialize.py` → **5 passed**；`pytest tests -m "not intent_eval and not intent_benchmark"` → **189 passed**, 1 skipped。  
-- **范围**：未改 `gate_ctx_ab_v1` / `gate_ctx_b_v1` 历史 run；未跑 LLM batch（P1）。  
-- **阻塞**：无；PR-1（P0）验收满足 §3.1。
+#### PR-1（P0）
+
+- **命令**：`python …/materialize_gate_c_payloads.py` → **exit 0**；D 臂 median heuristic tokens **479**（< 5026）。  
+- **命令**：`pytest tests/test_gate_ctx_c_v1_materialize.py` → **5 passed**。  
+- **阻塞**：无；§3.1 满足。
+
+#### PR-2（P1 · batch）
+
+- **命令**：`pytest tests/test_gate_ctx_c_v1_batch.py` → **4 passed**；`pytest tests -m "not intent_eval and not intent_benchmark"` → **193 passed**, 1 skipped。  
+- **命令**：`RUBRIC_REVIEW_BACKEND=siliconflow python …/run_gate_c_batch.py` → **exit 0**；canonical run **`gate_ctx_c_v1_batch_20260518_052803`**（3 题 × `CTX_V2_QUERY` + `CTX_DUAL_MD`，`batch_index.json` + 6× `raw/*_S0.jsonl` + `gold_f1.json`）。  
+- **复现**：见 run `README.md` / `batch_index.reproduce_commands`（模型 **DeepSeek-V4-Flash** · **0.2**）。  
+- **范围**：未改 `gate_ctx_ab_v1` / `gate_ctx_b_v1` 历史 run；未调用 `run_gate_b_batch`。  
+- **阻塞**：无；§3.2 P1 已满足（P2 结论 §0 待 40/50 帽）。
 
 ---
 
@@ -192,6 +204,7 @@
 | **10 需求帽** | v0.1 初稿 | `docs/harness/invokes/invoke_20260518_10_tech-graph-gate-c-v2-dual-track-requirements.md` |
 | **22 R1** | 通过 | `docs/harness/reviews/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md` |
 | **30 PR-1** | P0 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
+| **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
 
 ---
 
@@ -201,3 +214,5 @@
 | --- | --- | --- |
 | v0.1 | 2026-05-18 | 10 帽初稿：闸口 C · D/E 双臂 · 不复跑 A/B |
 | v0.2 | 2026-05-18 | 30 帽 PR-1：P0 fixture + materialize + pytest 绿 |
+| v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + `gate_ctx_c_v1_batch_20260518_052803` |
+| v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + LLM batch `052803` |
