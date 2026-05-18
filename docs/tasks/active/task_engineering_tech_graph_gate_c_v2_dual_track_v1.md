@@ -135,7 +135,13 @@
 
 ### 3.3 P2
 
-- [ ] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted` 前人签 **HG-GATE-C-SIGNOFF**（当前 **`draft`**）  
+| 验收项 | 40 帽 | 说明 |
+| --- | --- | --- |
+| 结论报告 `draft` 且 §0～§3 与证据链数字一致 | **pass** | 见「40 帽 P2 复验」；**未**改 `accepted` |
+| 明确 D vs E 胜负与 Agent 默认轨建议 | **pass** | 报告 §3；维持 B 的 CTX_QUERY |
+| `accepted` + 关账 | **pending** | task 中 **HG-GATE-C-SIGNOFF** 已 `approved`；须人将结论 md 改 `accepted` 后 **50** 关账 |
+
+- [ ] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted`（当前 **`draft`**；人签关账时改）  
 - [x] 明确 **D vs E** 胜负与是否建议调整 Agent 默认消费轨（见报告 §3；**维持** B 的 CTX_QUERY 默认）
 
 ### 3.3 共用
@@ -231,8 +237,33 @@
 | pytest 主链 | pass | `pytest tests -m "not intent_eval and not intent_benchmark"` → **193 passed**, 1 skipped |
 | NR-1/2 | pass | 未重跑 A/B batch；未改历史 runs |
 
-**§3.3 P2（30 帽）**：结论正文与 D vs E 建议 **已交付（draft）**；`accepted` + 关账待 **HG-GATE-C-SIGNOFF** 人签。  
-**阻塞**：无（关账前须人签）。
+**§3.3 P2（30 帽）**：结论正文与 D vs E 建议 **已交付（draft）**；`accepted` + 关账待结论 md 人改 `accepted` 后 **50** 帽。  
+**阻塞**：无（关账前须结论 `accepted`）。
+
+#### 40 帽（PR-2 · P2 独立复验 · 2026-05-18）
+
+**human_gate**：无 `blocks_hats` 含 `40` 且 `pending` → 可开工。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests/test_gate_ctx_c_v1_materialize.py tests/test_gate_ctx_c_v1_batch.py -q` | `ai-ink-brain-api-python` | **0** | **9 passed** in 0.28s |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 同上 | **0** | **193 passed**, 1 skipped, 2 deselected (~68.5s) |
+| `python …/materialize_gate_c_payloads.py` | 同上 | **0** | `OK`；D median **479** · E **1262**（与报告 §1 一致） |
+
+**P2 报告只读核对**（`conclusion_gate_c_v2_dual_track_v1_zh.md` · 状态 **`draft`**）：
+
+| 检查项 | 结果 | 证据 |
+| --- | --- | --- |
+| 状态非 `accepted` | pass | 报告 L4 `draft`；40 帽未代填 |
+| §0 复现命令 | pass | 与 `batch_052803/README.md`、`batch_index.reproduce_commands` 三行一致 |
+| §1 静态 token D/E | pass | `materialize_report.json`：D median **479** · E **1262**；每题 tokens 415/814/479 · 1316/1262/973 |
+| §2.1 运行时 token/wall | pass | 6× `raw/*_S0.jsonl` `usage`；D total 中位 **6018** · E **7019**；wall D **8.6s** · E **42.3s** |
+| §2.2 gold F1 | pass | `gold_f1.md` 与报告表一致；6/6 `parse_ok: true` |
+| §3 D vs E + 不推翻 B | pass | 成本 D 胜；entry 平局；impact D 弱优；§3.2 维持 CTX_QUERY |
+| NR-1/2 | pass | A/B 历史 run 无 diff；未重跑 `gate_ctx_c` LLM batch |
+
+**§3 验收摘要（40 帽 · P2 复验）**：§3.1 P0 **pass** · §3.2 P1 **pass** · §3.3 P2 证据链 **pass**（结论仍 **draft**）· §3.3 共用 **pass**。  
+**阻塞**：无；关账须人将结论改 `accepted` 后戴 **50** 帽。
 
 ---
 
@@ -246,6 +277,7 @@
 | **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
 | **30 PR-2** | P2 结论 draft | `docs/harness/invokes/invoke_20260518_32_tech-graph-gate-c-p2-report.md` |
+| **40 PR-2** | P2 独立复验 pass | `docs/harness/invokes/invoke_20260518_33_tech-graph-gate-c-40-p2-self-check.md` |
 
 ---
 
@@ -259,3 +291,4 @@
 | v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + LLM batch `052803` |
 | v0.4 | 2026-05-18 | 40 帽：PR-2 独立复验；§3.1/3.2/共用 pass；P2 报告待 30 帽 |
 | v0.5 | 2026-05-18 | 30 帽 P2：`conclusion_gate_c_v2_dual_track_v1_zh.md` draft；§1 P2 勾选；待 HG-GATE-C-SIGNOFF |
+| v0.6 | 2026-05-18 | 40 帽 P2 复验：§0～§3 与证据链一致；pytest 绿；结论仍 draft → 待 50 关账 |
