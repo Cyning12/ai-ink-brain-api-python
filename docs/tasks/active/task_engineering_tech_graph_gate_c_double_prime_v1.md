@@ -99,9 +99,9 @@
 
 #### PR-4 · Cursor 消费规约升格（**条件 · 仅 HG 签收后**）
 
-- [ ] 合并前提：**§3.2 验收通过** + `conclusion_gate_c_double_prime_v1_zh.md` 状态 `accepted` + **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** = `approved`。  
-- [ ] 交付：按 **§6.1** 更新 `ai-ink-brain-api-python/.cursor/rules/10-tech-graph.mdc`（及按需 `docs/_tech_graph/graph_v2_schema.md` freeze 指针）。  
-- [ ] **阻塞**：上述 HG ≠ `approved` 时 **禁止** 提交 PR-4  diff。
+- [x] 合并前提：**§3.2 验收通过** + `conclusion_gate_c_double_prime_v1_zh.md` 状态 `accepted` + **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** = `approved`。  
+- [x] 交付：按 **§6.1** 更新 `ai-ink-brain-api-python/.cursor/rules/10-tech-graph.mdc`（`graph_v2_schema.md` 无 freeze 表 → 跳过）。  
+- [x] **阻塞**：上述 HG ≠ `approved` 时 **禁止** 提交 PR-4  diff（已解除）。
 
 ### 1.2 非范围（NR）
 
@@ -193,9 +193,9 @@
 
 ### 3.3 PR-4（rules 升格 · 条件）
 
-- [ ] **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** = `approved`  
-- [ ] §3.2 全部通过且结论 `accepted`  
-- [ ] `10-tech-graph.mdc` 变更与 §6.1 清单一致（无 batch 前偷跑）
+- [x] **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** = `approved`  
+- [x] §3.2 主 KPI + 结论 `accepted`（策略 B 豁免 T002 守卫 / T003 entry）  
+- [x] `10-tech-graph.mdc` 变更与 §6.1 清单一致（无 batch 前偷跑）
 
 ### 3.4 关账
 
@@ -238,7 +238,8 @@
 | PR-1 | T003 `manifest_slice` v2 compact + `impact_surface` v2；`protocol_version.yaml` / `query_seeds.json` C″ freeze |
 | PR-2 | T003 depth 2→1 + 紧凑切片；D 中位数 **561** |
 | PR-3 run | `docs/diary/jsonPKmermaid/runs/gate_ctx_c_v1_batch_20260518_102810/` |
-| C″ 结论 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`（**draft**） |
+| C″ 结论 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`（**accepted** · 策略 B） |
+| PR-4 | `.cursor/rules/10-tech-graph.mdc` · `.cursor/rules/README.md`（2026-05-20） |
 
 ### 6.1 PR-4 拟变更 diff 清单（`10-tech-graph.mdc` · **关账前勿改文件**）
 
@@ -261,7 +262,7 @@
 | §3.2 主 KPI T003 impact | pass | D impact **0.857**（`…_102810/gold_f1.md`） |
 | §3.2 T002 守卫 | **fail** | D impact **0.800** &lt; **0.873** |
 | §3.2 entry 无单题降 &gt;0.05 | **fail** | T003 entry **0.923** vs C′ **1.000**（Δ−0.077） |
-| PR-4 / rules | skip | `HG-GATE-C-DOUBLE-PRIME-SIGNOFF` **pending**（NR-9） |
+| PR-4 / rules | pass | `10-tech-graph.mdc` + `README.md`；HG **approved**；结论 **accepted** |
 | 全量 pytest | pass | 见下 |
 
 **命令（cwd = `ai-ink-brain-api-python`）**
@@ -272,9 +273,25 @@
 | `python docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` | 0 |
 | `pytest tests/test_gate_ctx_c_v1_materialize.py` | 0 |
 | `RUBRIC_REVIEW_BACKEND=siliconflow python …/run_gate_c_batch.py --arms CTX_V2_QUERY,CTX_DUAL_MD` | 0 |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | 0（PR-1–3）；PR-4 见下 |
+
+#### PR-4（2026-05-20 · 执行帽 30）
+
+| 验收项 | 结果 | 证据 |
+| --- | --- | --- |
+| HG-GATE-C-DOUBLE-PRIME-SIGNOFF | pass | task 元信息 `approved` |
+| 结论 `accepted` + §6 豁免 | pass | `conclusion_gate_c_double_prime_v1_zh.md` |
+| §6.1 → `10-tech-graph.mdc` | pass | Agent 读取顺序 · 物化轨表 · 禁止项 · 引用 freeze |
+| `graph_v2_schema.md` freeze 行 | skip | 文档无 freeze 表（§6.1 可选） |
+| 全量 pytest（PR-4 后） | pass | 见下 |
+
+| 命令 | 退出码 |
+| --- | ---: |
 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0（**199 passed**, 1 skipped） |
 
-**已知未测**：PR-4 `10-tech-graph.mdc`（待 HG 签收 + 结论 `accepted`）。
+**改动路径**：`.cursor/rules/10-tech-graph.mdc`、`.cursor/rules/README.md`。
+
+**已知未测**：关账归档 `docs/tasks/done/`（留 50 帽 / 人签）。
 
 ---
 
