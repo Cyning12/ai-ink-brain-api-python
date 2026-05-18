@@ -156,7 +156,7 @@
 ### 自检结论（执行者）
 
 **40 帽 · 2026-05-19** · invoke：`docs/harness/invokes/invoke_20260519_37_tech-graph-v2-query-coverage-40-self-check.md`  
-**cwd**：`ai-ink-brain-api-python` · **分支**：`task/engineering-tech-graph-v2-query-coverage-v1` · **diff 基线**：`main...HEAD`（`05c1b39`）
+**cwd**：`ai-ink-brain-api-python` · **分支**：`task/engineering-tech-graph-v2-query-coverage-v1` · **diff 基线**：`main...HEAD`（实现 `05c1b39` · 含 40 落盘 `ab187fa`）
 
 #### 命令与退出码
 
@@ -165,7 +165,7 @@
 | 1 | `python tools/tech_graph_graph_export.py --check` | 0 | 无 stderr；v2 export 校验通过 |
 | 2 | `python docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py` | 0 | T002 D 臂：`nodes=17`，`heuristic_tokens=3494`（&lt; 8192）；`OK: …/materialize_report.json` |
 | 3 | `pytest tests/test_gate_ctx_c_v1_materialize.py tests/test_tech_graph_graph_export.py tests/test_tech_graph_graph_query.py -q` | 0 | **31 passed** in 0.53s |
-| 4 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | **195 passed**, 1 skipped, 2 deselected in 70.68s |
+| 4 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | **195 passed**, 1 skipped, 2 deselected in 64.74s |
 
 #### 验收 pass/fail（对照 §3）
 
