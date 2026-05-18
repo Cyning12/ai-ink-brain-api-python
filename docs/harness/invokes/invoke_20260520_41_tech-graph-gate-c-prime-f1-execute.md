@@ -5,7 +5,7 @@
 | hat_id | 30 |
 | template | docs/harness/prompts/TEMPLATE-execute-invoke.md §3 |
 | task_paths | ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_gate_c_prime_f1_v1.md |
-| related_review_or_none | ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md（R1 落盘后填；首轮可无） |
+| related_review_or_none | ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md |
 | created_utc_or_local | 2026-05-20 CST |
 | git_branch | task/engineering-tech-graph-gate-c-prime-f1-v1 |
 | notes | 优先级：impact F1 → token → 闸口 C′ batch；freeze TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0 |
