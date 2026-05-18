@@ -85,9 +85,9 @@
 - [x] **P2 · 结论**  
   - [x] 轴：token（主载荷）、影响集抽样 F1/人工表、wall（可选）  
   - [x] 链 `conclusion_gate_b` / `conclusion_gate_ctx_ab` 作背景，**不**推翻 B 已采纳的 CTX_QUERY 默认  
-- [ ] **P3 · 文档（recommended）**  
-  - [ ] `改进方向.md` 对比实验表增 **闸口 C**  
-  - [ ] `docs/tech_graph/tasks/ai-ink-brain-api-python/README.md` 索引  
+- [x] **P3 · 文档（recommended）**  
+  - [x] `改进方向.md` 对比实验表增 **闸口 C**  
+  - [x] `docs/tech_graph/tasks/ai-ink-brain-api-python/README.md` 索引  
 
 ### 1.2 非范围
 
@@ -283,11 +283,28 @@
 | §3.2 P1 | **pass** | `runs/gate_ctx_c_v1_batch_20260518_052803/` · `dry_run: false` |
 | §3.3 P2 `accepted` | **pass** | `reports/conclusion_gate_c_v2_dual_track_v1_zh.md` |
 | §3.3 共用 pytest | **pass** | 193 passed |
-| §1.1 P3（recommended） | **open** | 不阻塞关账 · 可另开 task/invoke |
+| §1.1 P3（recommended） | **pass** | 2026-05-18 · 30 帽 P3 文档 · `invoke_20260518_35` |
 | NR-1/2 | **pass** | 未重跑 A/B batch |
 
 **§3 验收摘要（50 帽）**：PR-1/PR-2 **pass** · P3 **open（非阻塞）** · **建议合并**。  
 **关闭回溯**：`docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md`
+
+#### PR-3（P3 · 规划文档对齐 · 30 帽 · 2026-05-18）
+
+**human_gate**：无 `blocks_hats` 含 `30` 且 `pending` → 可开工。
+
+| 项 | 结果 | 说明 |
+| --- | --- | --- |
+| `Projects/docs/tech_graph/改进方向.md` | **pass** | 对比实验门闸表增 **C**；§2.7 勾选；三者关系方案2 注 **闸口 C** |
+| `Projects/docs/tech_graph/tasks/ai-ink-brain-api-python/README.md` | **pass** | 闸口 C task → `done/` + 链结论 md |
+| 业务代码 / fixture / run | **未改** | NR-1/2；未重跑 `run_gate_c_batch.py` |
+| 结论 `accepted` | **未改** | 只读引用 P2 报告 |
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | `ai-ink-brain-api-python` | **0** | **193 passed**, 1 skipped, 2 deselected (~98s) |
+
+**§1.1 P3**：**pass**（recommended · 已交付）。
 
 ---
 
@@ -301,6 +318,7 @@
 | **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
 | **30 PR-2** | P2 结论 draft | `docs/harness/invokes/invoke_20260518_32_tech-graph-gate-c-p2-report.md` |
+| **30 PR-3** | P3 规划文档对齐 | `docs/harness/invokes/invoke_20260518_35_tech-graph-gate-c-p3-docs.md` |
 | **40 PR-2** | P2 独立复验 pass | `docs/harness/invokes/invoke_20260518_33_tech-graph-gate-c-40-p2-self-check.md` |
 | **50 关账** | 独立复检 pass · task `done` | `docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md` |
 
@@ -320,3 +338,4 @@
 | v0.5 | 2026-05-18 | 30 帽 P2：`conclusion_gate_c_v2_dual_track_v1_zh.md` draft；§1 P2 勾选；待 HG-GATE-C-SIGNOFF |
 | v0.6 | 2026-05-18 | 40 帽 P2 复验：§0～§3 与证据链一致；pytest 绿；结论仍 draft → 待 50 关账 |
 | v1.0 | 2026-05-18 | **关账**：结论 `accepted` + HG-GATE-C-SIGNOFF；50 复检；归档 `done/`；P3 open |
+| v1.1 | 2026-05-18 | **P3**：`改进方向` / 工作区 README 索引；§1.1 P3 勾选；§6 PR-3 自检 |
