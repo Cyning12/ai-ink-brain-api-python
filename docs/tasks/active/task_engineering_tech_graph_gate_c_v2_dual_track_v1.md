@@ -187,13 +187,36 @@
 - **命令**：`pytest tests/test_gate_ctx_c_v1_materialize.py` → **5 passed**。  
 - **阻塞**：无；§3.1 满足。
 
-#### PR-2（P1 · batch）
+#### PR-2（P1 · batch · 30 帽交付）
 
 - **命令**：`pytest tests/test_gate_ctx_c_v1_batch.py` → **4 passed**；`pytest tests -m "not intent_eval and not intent_benchmark"` → **193 passed**, 1 skipped。  
 - **命令**：`RUBRIC_REVIEW_BACKEND=siliconflow python …/run_gate_c_batch.py` → **exit 0**；canonical run **`gate_ctx_c_v1_batch_20260518_052803`**（3 题 × `CTX_V2_QUERY` + `CTX_DUAL_MD`，`batch_index.json` + 6× `raw/*_S0.jsonl` + `gold_f1.json`）。  
 - **复现**：见 run `README.md` / `batch_index.reproduce_commands`（模型 **DeepSeek-V4-Flash** · **0.2**）。  
 - **范围**：未改 `gate_ctx_ab_v1` / `gate_ctx_b_v1` 历史 run；未调用 `run_gate_b_batch`。  
-- **阻塞**：无；§3.2 P1 已满足（P2 结论 §0 待 40/50 帽）。
+
+#### 40 帽（PR-2 · 独立复验 · 2026-05-18）
+
+**human_gate**：无 `blocks_hats` 含 `40` 且 `pending` 的闸；可开工。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests/test_gate_ctx_c_v1_materialize.py -q` | `ai-ink-brain-api-python` | **0** | **5 passed** in 0.15s |
+| `pytest tests/test_gate_ctx_c_v1_batch.py -q` | 同上 | **0** | **4 passed** in 0.16s |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 同上 | **0** | **193 passed**, 1 skipped, 2 deselected (~60.6s) |
+| `python …/materialize_gate_c_payloads.py` | 同上 | **0** | `OK` → `payloads/materialize_report.json`；D 臂 median **479** heuristic tokens |
+
+**P1 产物只读核对**（canonical `runs/gate_ctx_c_v1_batch_20260518_052803/`）：
+
+| 检查项 | 结果 | 证据 |
+| --- | --- | --- |
+| `batch_index.json` | pass | `dry_run: false`；`schema: gate_ctx_c_batch_v1` |
+| `round_01`～`03/index.json` + `raw/*_S0.jsonl` | pass | 6 条 jsonl（3 题 × D/E） |
+| `gold_f1.json` / `gold_f1.md` | pass | 6 条 `parse_ok`；entry/impact F1 表齐全 |
+| 复现命令 | pass | README 三行与 `batch_index.reproduce_commands` 一致 |
+| NR-1/2 | pass | 未改 A/B 历史 run；未调用 `run_gate_b_batch` |
+
+**§3 验收摘要（40 帽）**：§3.1 P0 **pass** · §3.2 P1 **pass** · §3.3 共用 **pass** · §3.3 P2 结论报告 **未测**（交下一棒 30 帽）。  
+**阻塞**：无。
 
 ---
 
@@ -205,6 +228,7 @@
 | **22 R1** | 通过 | `docs/harness/reviews/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md` |
 | **30 PR-1** | P0 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
 | **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
+| **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
 
 ---
 
@@ -216,3 +240,4 @@
 | v0.2 | 2026-05-18 | 30 帽 PR-1：P0 fixture + materialize + pytest 绿 |
 | v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + `gate_ctx_c_v1_batch_20260518_052803` |
 | v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + LLM batch `052803` |
+| v0.4 | 2026-05-18 | 40 帽：PR-2 独立复验；§3.1/3.2/共用 pass；P2 报告待 30 帽 |
