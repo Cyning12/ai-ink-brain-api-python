@@ -21,9 +21,19 @@ if str(REPO_ROOT) not in sys.path:
 RUNS_ROOT = REPO_ROOT / "docs" / "diary" / "jsonPKmermaid" / "runs"
 MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
 TASKS_JSON = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
+QUERY_SEEDS_JSON = FIXTURE_ROOT / "query_seeds.json"
 SCORE_SCRIPT = (
     REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py"
 )
+
+
+def _materialize_freeze_id() -> str:
+    if QUERY_SEEDS_JSON.is_file():
+        doc = json.loads(QUERY_SEEDS_JSON.read_text(encoding="utf-8"))
+        fid = str(doc.get("freeze_id") or "").strip()
+        if fid:
+            return fid
+    return "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0"
 
 TASKS = [
     "T001_embedding_dim_default",
@@ -142,7 +152,7 @@ def run_gate_c_batch(
         "schema": "gate_ctx_c_batch_v1",
         "batch_id": batch_id,
         "protocol_version": "gate_ctx_c_v1",
-        "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+        "freeze_id": _materialize_freeze_id(),
         "tasks": TASKS,
         "arms": arms,
         "dry_run": dry_run,

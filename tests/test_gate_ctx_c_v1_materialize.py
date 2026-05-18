@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""闸口 C P0：gate_ctx_c_v1 manifest / query 种子 / materialize 验收。"""
+"""闸口 C / C′：gate_ctx_c_v1 manifest / query 种子 / materialize 验收。"""
 
 from __future__ import annotations
 
@@ -16,6 +16,8 @@ FIXTURE_ROOT = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1"
 GRAPH_PATH = REPO_ROOT / "docs/_tech_graph/graph.json"
 MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
 PROTOCOL_PATH = FIXTURE_ROOT / "protocol_version.yaml"
+GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
+GATE_C_CANONICAL_FREEZE_ID = "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0"
 
 
 def _load_json(path: Path) -> dict:
@@ -61,7 +63,8 @@ def test_query_seed_nodes_exist_in_graph_v2(graph_doc: dict) -> None:
 
 
 def test_protocol_freeze_ids_locked(protocol: dict, graph_doc: dict) -> None:
-    assert protocol["freeze_id"] == "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0"
+    assert protocol["freeze_id"] == GATE_C_CANONICAL_FREEZE_ID
+    assert protocol["gate_c_prime_freeze_id"] == GATE_C_PRIME_FREEZE_ID
     assert protocol["graph_v2_freeze_id"] == graph_doc.get("freeze_id")
     limits = protocol["payload_limits"]
     assert limits["d_arm_nodes_lt_whole_mermaid_heuristic_tokens"] == 5026
@@ -83,6 +86,7 @@ def test_materialize_exit_zero_and_payloads_nonempty() -> None:
     assert e_dir.is_dir() and any(e_dir.glob("*.md"))
     assert report["forbidden_checks"]["CTX_DUAL_MD_not_whole_corpus"] is True
     assert report["forbidden_checks"]["CTX_V2_QUERY_subgraph_below_mermaid_baseline"] is True
+    assert report["freeze_id"] == GATE_C_PRIME_FREEZE_ID
 
 
 def test_d_arm_heuristic_tokens_below_mermaid_threshold(protocol: dict) -> None:
@@ -113,7 +117,20 @@ def test_t002_subgraph_covers_gold_graph_ids() -> None:
     required = {"U2", "U1", "AUTH", "EV_TYPES"}
     missing = required - node_ids
     assert not missing, f"T002 subgraph missing gold nodes: {sorted(missing)}"
-    assert payload.get("contract_slice"), "T002 应有 SSE contract 小切片"
+    cs = payload.get("contract_slice") or {}
+    assert cs.get("schema") == "gate_ctx_c_sse_contract_slice_v2"
+    assert cs.get("envelope_keys") == ["event", "data"]
+    assert cs.get("chain_data_keys") == ["type", "ts", "step_id", "payload"]
+    assert "rag.sources" in (cs.get("impact_chain_type_values") or [])
+    assert cs.get("contract_check_tool") == "tools/tech_graph_contract_check.py"
+    ms = payload.get("manifest_slice") or {}
+    ep_paths = {e.get("path") for e in ms.get("endpoints") or []}
+    assert "/api/py/unified/chat/stream" in ep_paths
+    assert "/api/py/unified/chat" in ep_paths
+    surface = payload.get("impact_surface") or {}
+    surf_paths = {c.get("path") for c in surface.get("candidates") or []}
+    assert "api/agent.py" in surf_paths
+    assert "tools/tech_graph_contract_check.py" in surf_paths
     per_arm = _load_protocol()["payload_limits"]["max_heuristic_tokens_per_task_arm"]
     from tools.tech_graph_token_estimate import measure
 
@@ -122,7 +139,8 @@ def test_t002_subgraph_covers_gold_graph_ids() -> None:
     assert tokens < per_arm, f"T002 tokens {tokens} >= {per_arm}"
 
 
-def test_query_seeds_coverage_freeze_ids() -> None:
+def test_query_seeds_gate_c_prime_freeze_ids() -> None:
     seeds = _load_json(FIXTURE_ROOT / "query_seeds.json")
-    assert seeds["freeze_id"] == "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0"
+    assert seeds["freeze_id"] == GATE_C_PRIME_FREEZE_ID
     assert seeds["graph_v2_freeze_id"] == "TECH_GRAPH_S2_FREEZE_20260519_V2_3"
+    assert seeds.get("parent_freeze_id") == "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0"
