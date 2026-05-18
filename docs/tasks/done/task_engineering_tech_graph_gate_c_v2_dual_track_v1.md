@@ -283,10 +283,10 @@
 | §3.2 P1 | **pass** | `runs/gate_ctx_c_v1_batch_20260518_052803/` · `dry_run: false` |
 | §3.3 P2 `accepted` | **pass** | `reports/conclusion_gate_c_v2_dual_track_v1_zh.md` |
 | §3.3 共用 pytest | **pass** | 193 passed |
-| §1.1 P3（recommended） | **pass** | 2026-05-18 · 30 帽 P3 文档 · `invoke_20260518_35` |
+| §1.1 P3（recommended） | **pass** | 30 帽 `invoke_20260518_35` · 40 帽 `invoke_20260518_36` 独立复验 |
 | NR-1/2 | **pass** | 未重跑 A/B batch |
 
-**§3 验收摘要（50 帽）**：PR-1/PR-2 **pass** · P3 **open（非阻塞）** · **建议合并**。  
+**§3 验收摘要（50 帽）**：PR-1/PR-2 **pass** · P3 **open（非阻塞 · 关账时）** · **建议合并**（P3 已由 30/40 帽于 2026-05-18 收口）。  
 **关闭回溯**：`docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md`
 
 #### PR-3（P3 · 规划文档对齐 · 30 帽 · 2026-05-18）
@@ -306,6 +306,30 @@
 
 **§1.1 P3**：**pass**（recommended · 已交付）。
 
+#### 40 帽（PR-3 · 独立复验 · 2026-05-18）
+
+**human_gate**：无 `blocks_hats` 含 `40` 且 `pending` → 可开工。  
+**上一棒**：30 帽 P3 · `invoke_20260518_35` · 子仓 `cf48ee9` · 工作区 `738045c`。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | `ai-ink-brain-api-python` | **0** | **193 passed**, 1 skipped, 2 deselected (~68.9s) |
+
+**P3 规划文档只读核对**（对照 30 交付 · 未改 `accepted`）：
+
+| 检查项 | 结果 | 证据 |
+| --- | --- | --- |
+| `改进方向.md` 对比实验表 **闸口 C** 行 | **pass** | L29：D/E 对比组 · 链 `conclusion_gate_c_v2_dual_track_v1_zh.md`（`accepted`）· `freeze_id` `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0` · canonical run `gate_ctx_c_v1_batch_20260518_052803` |
+| **不推翻 B** 默认表述 | **pass** | L29「**不推翻** B 已采纳的 **CTX_QUERY / `graph_query` machine 默认**」；L30 方案3 立项仍依赖 **B** + **R2**（**不**以 C 替代 B） |
+| §2.7 **闸口 C** 验收勾选 | **pass** | L223：`[x]` 闸口 C 已完成 · **维持** B 的 CTX_QUERY machine 默认 · E 为人读/按需双轨 |
+| 「三者关系」方案2 注记 | **pass** | L68：深化实验 **闸口 C**（D vs E）已归档，**不改变** 方案3 对 **闸口 B** 的依赖 |
+| `tasks/ai-ink-brain-api-python/README.md` | **pass** | 闸口 C task → `docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md` · 链 `conclusion_gate_c_v2_dual_track_v1_zh.md` |
+| 结论 `accepted` | **未改** | 只读 L3 `accepted`；40 帽未代填 |
+| NR-1/2 / batch | **pass** | 未重跑 `gate_ctx_c` / A/B batch；未改 fixture/run |
+
+**§1.1 P3（40 帽）**：**pass**（pytest 绿 + 文档链一致；§1.1 两项 `[x]` 维持）。  
+**阻塞**：无。
+
 ---
 
 ## 7. 审查与交接（Harness）
@@ -319,6 +343,7 @@
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
 | **30 PR-2** | P2 结论 draft | `docs/harness/invokes/invoke_20260518_32_tech-graph-gate-c-p2-report.md` |
 | **30 PR-3** | P3 规划文档对齐 | `docs/harness/invokes/invoke_20260518_35_tech-graph-gate-c-p3-docs.md` |
+| **40 PR-3** | P3 独立复验 pass | `docs/harness/invokes/invoke_20260518_36_tech-graph-gate-c-40-p3-self-check.md` |
 | **40 PR-2** | P2 独立复验 pass | `docs/harness/invokes/invoke_20260518_33_tech-graph-gate-c-40-p2-self-check.md` |
 | **50 关账** | 独立复检 pass · task `done` | `docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md` |
 
@@ -339,3 +364,4 @@
 | v0.6 | 2026-05-18 | 40 帽 P2 复验：§0～§3 与证据链一致；pytest 绿；结论仍 draft → 待 50 关账 |
 | v1.0 | 2026-05-18 | **关账**：结论 `accepted` + HG-GATE-C-SIGNOFF；50 复检；归档 `done/`；P3 open |
 | v1.1 | 2026-05-18 | **P3**：`改进方向` / 工作区 README 索引；§1.1 P3 勾选；§6 PR-3 自检 |
+| v1.2 | 2026-05-18 | **40 帽 PR-3**：规划文档只读复验 + pytest 绿；`invoke_20260518_36` |
