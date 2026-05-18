@@ -4,7 +4,7 @@ from __future__ import annotations
 graph_v2 内存图查询（P2-2 · 方案2）。
 
 加载 docs/_tech_graph/graph.json（须 schema_version=graph_v2）；
-提供 downstream / upstream / neighbors 子图 + anchors。
+提供 downstream / upstream / neighbors / has_path / describe_impact。
 
 退出码：
 - 0：成功（stdout JSON）
@@ -231,9 +231,56 @@ def query_neighbors(store: GraphQueryStore, node_id: str) -> dict[str, Any]:
     )
 
 
+def has_path(store: GraphQueryStore, from_id: str, to_id: str) -> bool:
+    """有向路径存在性（沿 downstream；ref 边已在 store 构建时排除）。"""
+    _require_node(store, from_id)
+    _require_node(store, to_id)
+    if from_id == to_id:
+        return True
+    visited: set[str] = {from_id}
+    frontier: deque[str] = deque([from_id])
+    while frontier:
+        u = frontier.popleft()
+        for v in store.downstream.get(u, []):
+            if v == to_id:
+                return True
+            if v not in visited:
+                visited.add(v)
+                frontier.append(v)
+    return False
+
+
+def _format_node_refs(store: GraphQueryStore, node_ids: set[str]) -> str:
+    if not node_ids:
+        return "无"
+    parts: list[str] = []
+    for nid in sorted(node_ids):
+        label = store.node_by_id[nid].get("label") or nid
+        parts.append(f"{label}({nid})")
+    return "、".join(parts)
+
+
+def describe_impact(store: GraphQueryStore, node_id: str, depth: int = 2) -> str:
+    """组合 downstream/upstream 子图，输出人类可读影响描述（非裸 JSON）。"""
+    _require_node(store, node_id)
+    down = query_downstream(store, node_id, depth)
+    up = query_upstream(store, node_id, depth)
+    down_ids = {n["id"] for n in down["nodes"]} - {node_id}
+    up_ids = {n["id"] for n in up["nodes"]} - {node_id}
+    root_label = store.node_by_id[node_id].get("label") or node_id
+    return (
+        f"节点 {root_label}({node_id}) 影响分析（depth={depth}）：\n"
+        f"- 下游（直接/间接）: {_format_node_refs(store, down_ids)}\n"
+        f"- 上游（依赖方）: {_format_node_refs(store, up_ids)}"
+    )
+
+
 def run_cli(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="graph_v2 子图查询（downstream / upstream / neighbors）"
+        description=(
+            "graph_v2 子图查询（downstream / upstream / neighbors / "
+            "has-path / describe-impact）"
+        )
     )
     parser.add_argument(
         "--graph",
@@ -243,15 +290,23 @@ def run_cli(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "op",
-        choices=("downstream", "upstream", "neighbors"),
+        choices=(
+            "downstream",
+            "upstream",
+            "neighbors",
+            "has-path",
+            "describe-impact",
+        ),
         help="查询类型",
     )
-    parser.add_argument("node_id", help="起点节点 id")
     parser.add_argument(
-        "depth",
+        "arg1",
+        help="node_id（子图）或 from_id（has-path）",
+    )
+    parser.add_argument(
+        "arg2",
         nargs="?",
-        type=int,
-        help="hop 深度（neighbors 可省略）",
+        help="depth / to_id（has-path 时为 to_id）",
     )
     args = parser.parse_args(argv)
 
@@ -269,18 +324,54 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     try:
         if args.op == "neighbors":
-            result = query_neighbors(store, args.node_id)
-        else:
-            if args.depth is None:
-                _stderr(f"{args.op} 需要 depth 参数")
+            result = query_neighbors(store, args.arg1)
+            json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
+            sys.stdout.write("\n")
+            return 0
+        if args.op == "has-path":
+            if args.arg2 is None:
+                _stderr("has-path 需要 to_id 参数")
                 return 2
-            if args.op == "downstream":
-                result = query_downstream(store, args.node_id, args.depth)
-            else:
-                result = query_upstream(store, args.node_id, args.depth)
+            path_ok = has_path(store, args.arg1, args.arg2)
+            json.dump(
+                {
+                    "schema_version": "graph_query_result_v1",
+                    "graph_schema_version": store.graph.get("schema_version"),
+                    "freeze_id": store.graph.get("freeze_id"),
+                    "query": {
+                        "op": "has-path",
+                        "from": args.arg1,
+                        "to": args.arg2,
+                    },
+                    "has_path": path_ok,
+                },
+                sys.stdout,
+                ensure_ascii=False,
+                indent=2,
+            )
+            sys.stdout.write("\n")
+            return 0
+        if args.op == "describe-impact":
+            depth = int(args.arg2) if args.arg2 is not None else 2
+            text = describe_impact(store, args.arg1, depth)
+            sys.stdout.write(text)
+            if not text.endswith("\n"):
+                sys.stdout.write("\n")
+            return 0
+        if args.arg2 is None:
+            _stderr(f"{args.op} 需要 depth 参数")
+            return 2
+        depth = int(args.arg2)
+        if args.op == "downstream":
+            result = query_downstream(store, args.arg1, depth)
+        else:
+            result = query_upstream(store, args.arg1, depth)
     except GraphQueryError as exc:
         _stderr(str(exc))
         return exc.exit_code
+    except ValueError:
+        _stderr("depth 须为整数")
+        return 2
 
     json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "graph-query-downstream-auth": {
+      "comment": "示例：经 CLI 调用 graph_v2 下游查询；完整 MCP 工具协议非本阶段交付",
+      "command": "python",
+      "args": ["tools/tech_graph_graph_query.py", "downstream", "AUTH", "2"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}
