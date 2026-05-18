@@ -203,6 +203,8 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ### 自检结论（执行者）
 
+> **40 帽复检**：2026-05-18 · invoke `docs/harness/invokes/invoke_20260518_40_tech-graph-scheme2-completion-self-check.md`
+
 | 验收块 | 结果 | 证据摘要 |
 | --- | --- | --- |
 | §3.1 S2-A | pass | `pytest tests/test_tech_graph_graph_query.py` → **16 passed** |
@@ -217,7 +219,7 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 | `pytest tests/test_tech_graph_graph_query.py -q` | 0（16 passed） |
 | `python tools/tech_graph_graph_export.py --check` | 0 |
 | `python tools/tech_graph_graph_equivalence_check.py` | 0 |
-| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0（184 passed, 1 skipped） |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0（184 passed, 1 skipped；40 帽复检 ~92s） |
 
 **已知未测**：仓内 `has-path AUTH RAG` 在真实拓扑上可为 false（与 golden fixture 不同）；CLI 用例以 `--graph` fixture 覆盖。
 
@@ -242,7 +244,10 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ### Invoke 快照（可选索引）
 
-- 开帽：`docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md`
+- 10：`docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md`
+- 22 R1：`docs/harness/invokes/invoke_20260518_22_tech-graph-scheme2-completion-audit-r1.md`
+- 30：`docs/harness/invokes/invoke_20260518_30_tech-graph-scheme2-completion-execute.md`
+- 40：`docs/harness/invokes/invoke_20260518_40_tech-graph-scheme2-completion-self-check.md`
 
 ---
 
