@@ -8,7 +8,7 @@
 | related_review_or_none | ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md |
 | created_utc_or_local | 2026-05-20 CST |
 | git_branch | task/engineering-tech-graph-gate-c-prime-f1-v1 |
-| notes | 上一棒 30 · commit `51a1aa3`；主 run `gate_ctx_c_v1_batch_20260518_083014` |
+| notes | 上一棒 30 · 基线 `afb901e`；主 run `gate_ctx_c_v1_batch_20260518_083014`；40 独立复验 2026-05-20 |
 
 ## 可复制 Prompt 快照（40 · 自检）
 
@@ -19,7 +19,7 @@
 - docs/harness/prompts/HANDOFF_SEMI_AUTO.md（不得代填 HG-GATE-C-PRIME-SIGNOFF approved）
 
 【Git 前提】
-- 子仓 ai-ink-brain-api-python：分支 task/engineering-tech-graph-gate-c-prime-f1-v1（基线 commit 51a1aa3 或更新）
+- 子仓 ai-ink-brain-api-python：分支 task/engineering-tech-graph-gate-c-prime-f1-v1（基线 commit afb901e 或更新）
 
 【输入】
 - 主 task：

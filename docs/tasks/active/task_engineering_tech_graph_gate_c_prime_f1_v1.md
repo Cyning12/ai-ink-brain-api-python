@@ -174,7 +174,41 @@
 
 ### 自检结论（执行者）
 
-**30 帽（执行编码）**：PR-1→PR-3 已落盘；主 run `gate_ctx_c_v1_batch_20260518_083014`；T002 D **impact F1 0.923**（§3.2 OR 单项 ≥0.55）；entry 中位数 **0.923**；D token 中位数 **481**（≤ canonical×1.25）；产品维持 **`CTX_V2_QUERY`** 默认；**NR-1/6** 未触（052803 / gate_c accepted 正文未改）。**HG-GATE-C-PRIME-SIGNOFF** 仍 `pending`（不阻塞 40）。下一棒 **40** → `docs/harness/invokes/invoke_20260520_42_tech-graph-gate-c-prime-f1-40-self-check.md`。
+#### 30 帽（执行编码）
+
+PR-1→PR-3 已落盘；主 run `gate_ctx_c_v1_batch_20260518_083014`；T002 D **impact F1 0.923**（§3.2 OR 单项 ≥0.55）；entry 中位数 **0.923**；D token 中位数 **481**（≤ canonical×1.25）；产品维持 **`CTX_V2_QUERY`** 默认；**NR-1/6** 未触（052803 / gate_c accepted 正文未改）。
+
+#### 40 帽（独立复验 · 2026-05-20）
+
+**分支 / HEAD**：`task/engineering-tech-graph-gate-c-prime-f1-v1` · `afb901e`（40 开帽时；复验后 commit 见 HANDOFF）。
+
+**human_gate**：`HG-GATE-C-PRIME-SIGNOFF` 仍 **`pending`** → 本帽 **可自检**、**不可** 关账 `done`、**禁止** 代填 `approved`。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `python tools/tech_graph_graph_export.py --check` | 子仓根 | **0** | 无输出错误 |
+| `python …/materialize_gate_c_payloads.py` | 子仓根 | **0** | T002 D **4555** &lt; 8192；D 中位数 token **481** |
+| `pytest tests/test_gate_ctx_c_v1_materialize.py` | 子仓根 | **0** | **7 passed** |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | 子仓根 | **0** | **195 passed**, 1 skipped |
+
+**§3 验收（40 独立核对）**
+
+| 项 | 结果 | 证据 |
+| --- | --- | --- |
+| §3.1 物化 / export | **pass** | 上表四命令 |
+| §3.2 新 run `083014` | **pass** | `batch_index.json`、`gold_f1.md/json`、`round_01..03/raw/*_S0.jsonl`（6 条） |
+| §3.2 T002 D impact ≥0.55（OR） | **pass** | `gold_f1.md`：**0.923** |
+| §3.2 impact 中位数 ≥0.45 | **fail**（OR 已救） | D 中位数 **0.222**；靠 T002 单项达标 |
+| §3.2 entry 无退化 / 中位数 ≥0.80 | **pass** | entry 中位数 **0.923** |
+| §3.2 token ≤ canonical×1.25 | **pass** | D 中位数 **481** ≤ **599**（479×1.25） |
+| §3.2 维持 `CTX_V2_QUERY` 默认 | **pass** | `conclusion_gate_c_prime_f1_v1_zh.md` §4 |
+| §3.3 `HG-GATE-C-PRIME-SIGNOFF` | **未验**（待人签） | status 仍为 `pending` |
+| NR-1 未覆盖 052803 | **pass** | `git diff` 对该 run 无变更 |
+| NR-6 未改 gate_c accepted | **pass** | `conclusion_gate_c_v2_dual_track_v1_zh.md` 无本分支 diff |
+
+**已知未测项**：未重跑 LLM batch（只读核对 `083014` 产物）；`describe-impact` 文本臂（task 可选，未做）。
+
+**下一棒**：`50` 独立复检 → `TEMPLATE-independent-reinspect-invoke.md`（`HG-GATE-C-PRIME-SIGNOFF` 仍阻塞关账，不阻塞 50）。
 
 ---
 
