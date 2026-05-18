@@ -1,6 +1,7 @@
 # Task：技术图谱 — 方案2 补全（API 缺口 + 文档对齐 + 可选 MCP/Harness）
 
-> **状态**：`active`（**v0.2** · S2-A/B 已交付 · 待关账 `HG-AUDIT-CLOSE` 人签）  
+> **状态**：`done（2026-05-18 验收通过 · PR #31 merged）`  
+> **终轮审查**：`docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_CLOSE_20260518.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · **方案2 核心** + 闸口 B 已签收）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_p4_bc_followup_v1.md`（P2-4 延伸 · 不重复本 task）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** §方案2；`Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -242,6 +243,7 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 | **10 需求帽** | v0.2 完成 | `docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md` |
 | **22 R1** | 完成 | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_R1_20260518.md` |
 | **50 独立复检** | 完成 · 建议合并 | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_reinspect_50_20260518.md` |
+| **终轮 CLOSE** | **签收** | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_CLOSE_20260518.md` |
 
 ### Invoke 快照（可选索引）
 
@@ -253,9 +255,22 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ---
 
+## 8. follow-up（关账后 · 非本 task 范围）
+
+| ID | 主题 | 建议承接 | 说明 |
+| --- | --- | --- | --- |
+| **F-2.7-local** | §2.7「Cursor 能调用工具」 | **本地 / Cursor** task | 终端 CLI 冒烟 + 可选 `execute_command` 文档；**非** Agent 规则 |
+| **F-2.7-agent** | §2.7「审计对话自动调工具」 | **Agent / Harness** task | 22/40 帽或 `.cursor/rules` 默认 `describe-impact`；依赖 F-2.7-local |
+| **F-graph-example** | 生产图 `has-path` 与 golden 不一致 | 文档或 export | 真值图无 `AUTH→RAG` 边；示例改用 `C1`/`ENV` 或修 Mermaid 后 export |
+| **F-exp-v2-dual** | graph_v2 vs `.ai.md`+`.md` 新实验 | **独立实验 task** | 勿与闸口 A/B 混跑；见 CLOSE 审查 follow-up |
+| **F-mcp** | 完整 MCP stdio | 独立 task | **后置**于 F-2.7-local + F-2.7-agent |
+
+---
+
 ## 修订记录
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-18 | 10 帽初稿：方案2 补全；明确无新对比实验 |
 | v0.2 | 2026-05-18 | 10 帽结构化：§0.4 矛盾裁定、§0.5 S2-A 锁定、`§2.1` 映射表、命令化验收、`gates_before_code`；`describe_impact` 必做实现 |
+| v1.0 | 2026-05-18 | **关账**：PR #31 merged；50 复检；归档 `done/`；§8 follow-up |
