@@ -1,8 +1,9 @@
 # 闸口 C″ 人工验收清单（PR-1～PR-3 + 签收）
 
-> **task**：`docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md`  
+> **task**：`docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md`  
 > **分支**：`task/engineering-tech-graph-gate-c-double-prime-v1`  
-> **PR-4**：**未含于本 PR**（待单独开帽改 `.cursor/rules/10-tech-graph.mdc`）  
+> **PR-4**：分支 `task/engineering-tech-graph-gate-c-double-prime-pr4-rules`（`10-tech-graph.mdc` · 待合并 main）  
+> **50 CLOSE**：`docs/harness/reviews/task_engineering_tech_graph_gate_c_double_prime_v1_audit_CLOSE_20260520.md`  
 > **日期**：2026-05-20
 
 ---
@@ -14,8 +15,9 @@
 | **HG-TASK-DRAFT** | `approved` | `approved` | 通过 |
 | **HG-AUDIT-R1** | `approved` | `approved` | 通过 |
 | **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `approved`（PR-4 / 关账） | `approved` | 通过 |
+| **HG-AUDIT-CLOSE** | `approved`（归档 `done/`） | `approved` | 通过 |
 | 结论文 `conclusion_gate_c_double_prime_v1_zh.md` | `accepted`（或带豁免） | `accepted` + §6 策略 B | 通过 |
-| **PR-4 rules** | 签收后另 PR | **未实施** | 待下一分支/会话 |
+| **PR-4 rules** | §6.1 已落盘 | `10-tech-graph.mdc` 已改 | 通过（待 PR 合并） |
 
 **§3.2 自动化验收（记录 · 非全绿仍签收）**
 
@@ -34,7 +36,7 @@
 
 | # | 路径 | 验收要点 |
 | --- | --- | --- |
-| 1 | `docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md` | `human_gate` 三行均为 `approved`；§3 与 §6 自检 |
+| 1 | `docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md` | 已归档；§3 与 §6 自检 |
 | 2 | 同上 task §3.2 / §3.3 | 是否接受 **策略 B**（主 KPI 过 + D&gt;E，T002/entry 豁免） |
 
 ### 2.2 实验与结论（P0 · 产品事实）
@@ -60,7 +62,7 @@
 
 | # | 路径 | 验收要点 |
 | --- | --- | --- |
-| 12 | `.cursor/rules/10-tech-graph.mdc` | 当前 **无 C″**；对照 task §6.1 |
+| 12 | `.cursor/rules/10-tech-graph.mdc` | T003 `manifest_slice`/`impact_surface`；物化轨表；C″ freeze 引用 |
 | 13 | `docs/_tech_graph/graph_v2_schema.md`（可选） | freeze 表增 C″ 一行 |
 
 ### 2.5 Harness 留痕（P2 · 可选）
@@ -94,3 +96,4 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 | 日期 | 说明 |
 | --- | --- |
 | 2026-05-20 | v1：签收核对 + 验收阅读顺序落盘 |
+| 2026-05-20 | v1.1：PR-4 已落盘；50 CLOSE；`HG-AUDIT-CLOSE` 待人签 |
