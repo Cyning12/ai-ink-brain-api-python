@@ -29,6 +29,9 @@ EXIT_FP3 = 4
 EXIT_TOKEN_LIMIT = 5
 EXIT_MANIFEST = 2
 
+CONTRACT_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_contract_manifest.json"
+T002_TASK_ID = "T002_unified_sse_chain_contract"
+
 
 def _repo_rel(path: Path) -> str:
     try:
@@ -47,7 +50,7 @@ def _load_protocol_limits() -> tuple[int, int]:
     return per_arm, mermaid_baseline
 
 
-def _run_query(node_id: str, op: str, depth: int) -> dict | str:
+def _run_query(node_id: str, op: str, depth: int | None = None) -> dict | str:
     cmd = [
         sys.executable,
         str(REPO_ROOT / "tools/tech_graph_graph_query.py"),
@@ -55,8 +58,9 @@ def _run_query(node_id: str, op: str, depth: int) -> dict | str:
         str(GRAPH_PATH),
         op,
         node_id,
-        str(depth),
     ]
+    if op != "neighbors" and depth is not None:
+        cmd.append(str(depth))
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if proc.returncode == EXIT_FP3:
         print(proc.stderr, file=sys.stderr)
@@ -66,6 +70,88 @@ def _run_query(node_id: str, op: str, depth: int) -> dict | str:
     if op == "describe-impact":
         return proc.stdout
     return json.loads(proc.stdout)
+
+
+def _edge_key(edge: dict) -> tuple:
+    return (
+        edge.get("from"),
+        edge.get("to"),
+        edge.get("type"),
+        edge.get("mark"),
+        edge.get("graph_id"),
+    )
+
+
+def _merge_subgraphs(parts: list[dict], *, queries: list[dict]) -> dict:
+    node_by_id: dict[str, dict] = {}
+    edges: list[dict] = []
+    edge_keys: set[tuple] = set()
+    anchors_seen: set[tuple] = set()
+    anchors: list[dict] = []
+    freeze_id = parts[0].get("freeze_id") if parts else None
+    graph_schema = parts[0].get("graph_schema_version") if parts else "graph_v2"
+
+    for sg in parts:
+        for node in sg.get("nodes") or []:
+            nid = node["id"]
+            if nid not in node_by_id:
+                node_by_id[nid] = node
+        for edge in sg.get("edges") or []:
+            key = _edge_key(edge)
+            if key not in edge_keys:
+                edge_keys.add(key)
+                edges.append(edge)
+        for anc in sg.get("anchors") or []:
+            if not isinstance(anc, dict):
+                continue
+            akey = (anc.get("path"), anc.get("symbol"), anc.get("line"))
+            if akey in anchors_seen:
+                continue
+            anchors_seen.add(akey)
+            anchors.append(dict(anc))
+
+    edges.sort(key=_edge_key)
+    return {
+        "schema_version": "graph_query_result_v1",
+        "graph_schema_version": graph_schema,
+        "freeze_id": freeze_id,
+        "query": {"op": "union", "parts": queries},
+        "nodes": [node_by_id[nid] for nid in sorted(node_by_id)],
+        "edges": edges,
+        "anchors": anchors,
+    }
+
+
+def _task_query_specs(task_id: str, spec: dict, *, default_op: str, default_depth: int) -> list[dict]:
+    if "queries" in spec:
+        out: list[dict] = []
+        for q in spec["queries"]:
+            op = q.get("op", default_op)
+            entry: dict = {"op": op, "node_id": q["node_id"]}
+            if op != "neighbors":
+                entry["depth"] = int(q.get("depth", default_depth))
+            out.append(entry)
+        return out
+    return [
+        {
+            "op": spec.get("op", default_op),
+            "node_id": spec["node_id"],
+            "depth": int(spec.get("depth", default_depth)),
+        }
+    ]
+
+
+def _sse_contract_slice() -> dict:
+    doc = json.loads(CONTRACT_MANIFEST_PATH.read_text(encoding="utf-8"))
+    sse = doc.get("sse") or {}
+    chain = sse.get("chain") or {}
+    return {
+        "schema": "gate_ctx_c_sse_contract_slice_v1",
+        "source": _repo_rel(CONTRACT_MANIFEST_PATH),
+        "allowed_events": list(sse.get("allowed_events") or []),
+        "chain_type_values": list(chain.get("type_values") or []),
+        "payload_min_keys_by_type": dict(chain.get("payload_min_keys_by_type") or {}),
+    }
 
 
 def _materialize_dual_track(
@@ -130,32 +216,38 @@ def main() -> int:
     per_task_e: dict[str, dict] = {}
 
     for task_id, spec in seeds_doc["tasks"].items():
-        node_id = spec["node_id"]
-        op = spec.get("op", default_op)
-        depth = int(spec.get("depth", default_depth))
-        query_result = _run_query(node_id, op, depth)
-        if isinstance(query_result, str):
-            payload = {
-                "schema": "gate_ctx_c_v2_query_main_v1",
-                "arm": "CTX_V2_QUERY",
-                "task_id": task_id,
-                "freeze_id": freeze_id,
-                "query": {"op": op, "node_id": node_id, "depth": depth},
-                "describe_impact_text": query_result,
-            }
-            node_count = 0
+        query_specs = _task_query_specs(
+            task_id, spec, default_op=default_op, default_depth=default_depth
+        )
+        subgraph_parts: list[dict] = []
+        for q in query_specs:
+            op = q["op"]
+            node_id = q["node_id"]
+            depth = q.get("depth")
+            query_result = _run_query(node_id, op, depth)
+            if isinstance(query_result, str):
+                raise RuntimeError(f"{task_id}: union 不支持 describe-impact 文本臂")
+            subgraph_parts.append(query_result)
+
+        if len(subgraph_parts) == 1:
+            subgraph = subgraph_parts[0]
+            query_meta = query_specs[0]
         else:
-            subgraph = query_result
-            payload = {
-                "schema": "gate_ctx_c_v2_query_main_v1",
-                "arm": "CTX_V2_QUERY",
-                "task_id": task_id,
-                "freeze_id": freeze_id,
-                "query": {"op": op, "node_id": node_id, "depth": depth},
-                "subgraph": subgraph,
-                "note": "graph_v2 子图；ref 边不参与 BFS",
-            }
-            node_count = len(subgraph.get("nodes") or [])
+            subgraph = _merge_subgraphs(subgraph_parts, queries=query_specs)
+            query_meta = {"op": "union", "parts": query_specs}
+
+        payload: dict = {
+            "schema": "gate_ctx_c_v2_query_main_v1",
+            "arm": "CTX_V2_QUERY",
+            "task_id": task_id,
+            "freeze_id": freeze_id,
+            "query": query_meta,
+            "subgraph": subgraph,
+            "note": "graph_v2 子图；ref 边不参与 BFS",
+        }
+        if task_id == T002_TASK_ID and CONTRACT_MANIFEST_PATH.is_file():
+            payload["contract_slice"] = _sse_contract_slice()
+        node_count = len(subgraph.get("nodes") or [])
         out_path = QUERY_OUT / f"{task_id}.subgraph.json"
         text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
         out_path.write_text(text, encoding="utf-8")
@@ -168,9 +260,7 @@ def main() -> int:
             return EXIT_TOKEN_LIMIT
         per_task_d[task_id] = {
             "path": _repo_rel(out_path),
-            "node_id": node_id,
-            "op": op,
-            "depth": depth,
+            "query": query_meta,
             "nodes": node_count,
             "bytes_utf8": m["bytes_utf8"],
             "heuristic_tokens": m["heuristic_tokens"],

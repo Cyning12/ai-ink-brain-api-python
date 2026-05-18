@@ -1,41 +1,61 @@
 {
   "schema": "gate_ctx_c_payload_materialize_v1",
-  "generated_at": "2026-05-18T05:31:18Z",
-  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "generated_at": "2026-05-18T07:08:44Z",
+  "freeze_id": "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0",
   "graph_v2_path": "docs/_tech_graph/graph.json",
-  "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+  "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
   "arms_static": {
     "CTX_V2_QUERY": {
       "per_task": {
         "T001_embedding_dim_default": {
           "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T001_embedding_dim_default.subgraph.json",
-          "node_id": "ENV",
-          "op": "downstream",
-          "depth": 2,
+          "query": {
+            "op": "downstream",
+            "node_id": "ENV",
+            "depth": 2
+          },
           "nodes": 2,
-          "bytes_utf8": 1676,
-          "heuristic_tokens": 415
+          "bytes_utf8": 1684,
+          "heuristic_tokens": 417
         },
         "T002_unified_sse_chain_contract": {
           "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T002_unified_sse_chain_contract.subgraph.json",
-          "node_id": "U2",
-          "op": "downstream",
-          "depth": 2,
-          "nodes": 7,
-          "bytes_utf8": 3303,
-          "heuristic_tokens": 814
+          "query": {
+            "op": "union",
+            "parts": [
+              {
+                "op": "downstream",
+                "node_id": "U2",
+                "depth": 2
+              },
+              {
+                "op": "upstream",
+                "node_id": "U2",
+                "depth": 1
+              },
+              {
+                "op": "neighbors",
+                "node_id": "U2"
+              }
+            ]
+          },
+          "nodes": 17,
+          "bytes_utf8": 14138,
+          "heuristic_tokens": 3494
         },
         "T003_ingest_admin_rpc": {
           "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T003_ingest_admin_rpc.subgraph.json",
-          "node_id": "A2",
-          "op": "downstream",
-          "depth": 2,
+          "query": {
+            "op": "downstream",
+            "node_id": "A2",
+            "depth": 2
+          },
           "nodes": 4,
-          "bytes_utf8": 1941,
-          "heuristic_tokens": 479
+          "bytes_utf8": 1949,
+          "heuristic_tokens": 481
         }
       },
-      "heuristic_tokens_median": 479
+      "heuristic_tokens_median": 481
     },
     "CTX_DUAL_MD": {
       "per_task": {

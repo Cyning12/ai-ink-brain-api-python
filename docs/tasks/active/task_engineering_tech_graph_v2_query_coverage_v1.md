@@ -1,6 +1,6 @@
 # Task：技术图谱 — graph_v2 查询可达性优化（闸口 C follow-up）
 
-> **状态**：`active`（v0.1 初稿 · 待 30 执行）  
+> **状态**：`active`（v0.1 · 30 帽已落地 · 待 40 自检）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · accepted）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · CTX_QUERY 默认）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` · `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -58,14 +58,14 @@
 
 ### 1.1 范围
 
-- [ ] **PR-1 · 图真值**  
-  - [ ] export：`U2` ↔ `EV_TYPES`（`15_e2e_boundary`）、`AUTH`（`chatbi_principal`）、`U1` 姊妹入口可达（边或 `ref` + `anchors`，以 export 规则为准）  
-  - [ ] `python tools/tech_graph_graph_export.py --check`  
-  - [ ] 相关 pytest（`test_tech_graph_graph_export.py` 等）  
-- [ ] **PR-2 · 查询与物化**  
-  - [ ] `query_seeds.json`：T002 多查询（示例：`downstream(U2,2)` + `upstream(U2,1)` + `neighbors(U2)`；协议 token 上限内）  
-  - [ ] `materialize_gate_c_payloads.py`：子图并集去重；可选契约切片 + anchor 索引块  
-  - [ ] `pytest tests/test_gate_ctx_c_v1_materialize.py` 扩展（T002）  
+- [x] **PR-1 · 图真值**  
+  - [x] export：`00_main.ai.md` 增 `U1↔U2`、`U1/U2→AUTH`、`U2→EV_TYPES`；`graph_v2_freeze_id=TECH_GRAPH_S2_FREEZE_20260519_V2_3`  
+  - [x] `python tools/tech_graph_graph_export.py --check`  
+  - [x] 相关 pytest（`test_tech_graph_graph_export.py` 等）  
+- [x] **PR-2 · 查询与物化**  
+  - [x] `query_seeds.json`：T002 `queries[]` union（downstream/upstream/neighbors）  
+  - [x] `materialize_gate_c_payloads.py`：`_merge_subgraphs` + T002 `contract_slice`  
+  - [x] `pytest tests/test_gate_ctx_c_v1_materialize.py` 扩展（T002 gold + freeze）  
 - [ ] **PR-3（可选）**  
   - [ ] T002 消融说明或 dry-run jsonl（**新** run 目录）  
 
@@ -105,18 +105,18 @@
 
 ### 3.1 PR-1
 
-- [ ] `graph.json` 通过 v2 校验且 `--check` 绿  
-- [ ] T002 gold 节点（`U2`/`U1`/`AUTH`/`EV_TYPES`）在 v2 上 **BFS/ref/anchors** 可核对（脚本或 pytest 断言）  
+- [x] `graph.json` 通过 v2 校验且 `--check` 绿  
+- [x] T002 gold 节点（`U2`/`U1`/`AUTH`/`EV_TYPES`）在 v2 上 **BFS** 可核对（`test_t002_subgraph_covers_gold_graph_ids`）  
 
 ### 3.2 PR-2
 
-- [ ] `materialize_gate_c_payloads.py` → exit 0；T002 D 臂 heuristic tokens **<** `protocol_version.yaml` `payload_limits`  
-- [ ] T002 载荷含 `AUTH`、`EV_TYPES`、U1 相关锚点或 `graph_id`（与 `tasks.json` gold 对齐）  
-- [ ] `pytest tests/test_gate_ctx_c_v1_materialize.py` 绿  
+- [x] `materialize_gate_c_payloads.py` → exit 0；T002 D 臂 **3494** tokens **<** 8192  
+- [x] T002 载荷含 `AUTH`、`EV_TYPES`、`U1`（union 17 nodes）+ `contract_slice`  
+- [x] `pytest tests/test_gate_ctx_c_v1_materialize.py` 绿  
 
 ### 3.3 共用
 
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿（195 passed）  
 
 ---
 
@@ -145,10 +145,17 @@
 | 项 | 内容 |
 | --- | --- |
 | invoke · 30 | `docs/harness/invokes/invoke_20260519_36_tech-graph-v2-query-coverage-execute.md` |
+| 分支 | `task/engineering-tech-graph-v2-query-coverage-v1` |
+| PR-1 | `docs/_tech_graph/00_main.ai.md`（U1↔U2、AUTH、EV_TYPES 边）；`graph.json` freeze `TECH_GRAPH_S2_FREEZE_20260519_V2_3`；`tools/tech_graph_graph_export.py` FREEZE_ID |
+| PR-2 | `query_seeds.json`（T002 `queries[]`）；`materialize_gate_c_payloads.py`（union + contract_slice）；`protocol_version.yaml` graph_v2_freeze_id |
+| 物化 | T002 D 臂 3494 tokens / 17 nodes；已重写 `fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T002_*.subgraph.json` 与 `materialize_report.json` |
+| 测试 | `tests/test_gate_ctx_c_v1_materialize.py` 增 T002 gold、coverage freeze 断言 |
+| PR-3 | 未做（可选；不阻塞） |
+| 验证命令 | `tech_graph_graph_export.py --check` exit 0；materialize exit 0；pytest 195 passed |
 
 ### 自检结论（执行者）
 
-（30 / 40 帽回填）
+（待 **40 帽** 按 task §3 逐条回填命令输出；30 帽已跑通上述验证命令）
 
 ---
 

@@ -267,6 +267,21 @@
       "type": "depends_on"
     },
     {
+      "anchors": [
+        {
+          "path": "api/chatbi_principal.py",
+          "symbol": "require_chatbi_principal"
+        }
+      ],
+      "from": "U1",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
       "anchors": [],
       "from": "U1",
       "graph_id": "00_main",
@@ -288,6 +303,46 @@
     },
     {
       "anchors": [],
+      "from": "U1",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "U2",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/chatbi_principal.py",
+          "symbol": "require_chatbi_principal"
+        }
+      ],
+      "from": "U2",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "AUTH",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/unified_chat.py",
+          "symbol": "_event"
+        }
+      ],
+      "from": "U2",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "EV_TYPES",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
       "from": "U2",
       "graph_id": "00_main",
       "label": "",
@@ -305,6 +360,16 @@
       "sync": true,
       "to": "T2S",
       "type": "branches"
+    },
+    {
+      "anchors": [],
+      "from": "U2",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "U1",
+      "type": "depends_on"
     },
     {
       "anchors": [
@@ -2133,8 +2198,8 @@
       "type": "depends_on"
     }
   ],
-  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
-  "generated_at": "2026-05-17T11:20:32Z",
+  "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
+  "generated_at": "2026-05-18T07:07:16Z",
   "graphs": [
     {
       "id": "00_main",
@@ -2194,9 +2259,9 @@
       "label": "assistant.message"
     },
     {
-      "graph_id": "10_flow_rag",
+      "graph_id": "00_main",
       "id": "AUTH",
-      "label": "鉴权"
+      "label": "AUTH"
     },
     {
       "graph_id": "10_flow_rag",
@@ -2374,7 +2439,7 @@
       "label": "event: chain"
     },
     {
-      "graph_id": "15_e2e_boundary",
+      "graph_id": "00_main",
       "id": "EV_TYPES",
       "label": "EV_TYPES"
     },

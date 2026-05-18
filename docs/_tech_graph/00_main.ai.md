@@ -17,6 +17,17 @@ flowchart TD
   U1 --"::branches"--> T2S[[Text2SQL 子流程]]
   U2 --"::branches"--> T2S
 
+  U1 --"->"--> U2
+  // → api/index.py#L576 unified_chat_stream_route（姊妹 SSE 入口）
+  U2 --"->"--> U1
+  // → api/index.py#L561 unified_chat_route
+  U1 --"->"--> AUTH
+  // → api/chatbi_principal.py::require_chatbi_principal
+  U2 --"->"--> AUTH
+  // → api/chatbi_principal.py::require_chatbi_principal
+  U2 --"->"--> EV_TYPES
+  // → api/unified_chat.py::_event
+
   RAG --"加载"--> RAG_DOC[>10_flow_rag.md]
   T2S --"加载"--> T2S_DOC[>11_flow_text2sql.md]
 
