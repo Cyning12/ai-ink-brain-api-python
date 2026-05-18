@@ -170,10 +170,11 @@
 | PR-3 run 目录 | `docs/diary/jsonPKmermaid/runs/gate_ctx_c_v1_batch_20260518_083014`（中间批 `…_081600` 见结论 §0） |
 | C′ 结论 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md` |
 | 验证命令 | `materialize` + `pytest tests/test_gate_ctx_c_v1_materialize.py` + `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 30 帽复验（本轮回） | `tech_graph_graph_export.py --check` **0**；`materialize_gate_c_payloads.py` **0**（T002 tokens **4555** &lt; 8192）；`test_gate_ctx_c_v1_materialize` **7 passed**；全量 pytest **195 passed**, 1 skipped |
 
 ### 自检结论（执行者）
 
-30 帽：PR-1→PR-3 完成；T002 D impact F1 **0.923** 达 §3.2 OR 阈值；维持 `CTX_V2_QUERY` 默认。**HG-GATE-C-PRIME-SIGNOFF** 仍 pending。下一棒 **40** → `invoke_20260520_42`。
+**30 帽（执行编码）**：PR-1→PR-3 已落盘；主 run `gate_ctx_c_v1_batch_20260518_083014`；T002 D **impact F1 0.923**（§3.2 OR 单项 ≥0.55）；entry 中位数 **0.923**；D token 中位数 **481**（≤ canonical×1.25）；产品维持 **`CTX_V2_QUERY`** 默认；**NR-1/6** 未触（052803 / gate_c accepted 正文未改）。**HG-GATE-C-PRIME-SIGNOFF** 仍 `pending`（不阻塞 40）。下一棒 **40** → `docs/harness/invokes/invoke_20260520_42_tech-graph-gate-c-prime-f1-40-self-check.md`。
 
 ---
 
