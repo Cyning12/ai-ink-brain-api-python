@@ -88,6 +88,7 @@ docs/tasks/
 ## 视图索引维护规则（最小集）
 
 - `docs/tasks/_views/design.md`：列出 `draft/design` 的任务 + “缺少状态字段”清单（统一维护在此）
+- `docs/tasks/_views/backlog.md`：列出 `backlog`（**需求池**，排期前一览）
 - `docs/tasks/_views/in_progress.md`：列出 `in_progress`
 - `docs/tasks/_views/done.md`：列出 `done`
 
