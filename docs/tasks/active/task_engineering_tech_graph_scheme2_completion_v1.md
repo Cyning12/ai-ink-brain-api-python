@@ -9,7 +9,8 @@
 > **test_strategy**：`required`  
 > **test_strategy_note**：新增 API 须有 pytest 正反例；文档对齐须链到现有 `test_tech_graph_graph_query.py` 与全量 `pytest` 回归。  
 > **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_2`（继承；无 schema 语义变更则不 bump）  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`
+> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **需求帽 invoke**：`docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md`
 
 ### Harness 元信息
 
@@ -163,7 +164,7 @@
 
 | 轮次 | 状态 |
 | --- | --- |
-| **10 需求帽** | （待 invoke） |
+| **10 需求帽** | `invoke_20260518_10_tech-graph-scheme2-completion-requirements.md` |
 | **22 R1** | （待） |
 
 ---
