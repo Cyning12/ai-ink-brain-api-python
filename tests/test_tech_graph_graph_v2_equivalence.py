@@ -72,7 +72,7 @@ def test_reference_collects_anchors_golden(tmp_path: Path) -> None:
         "```\n",
         encoding="utf-8",
     )
-    edges = collect_reference_edges(d)
+    edges = collect_reference_edges(d, export_root=d.parent.parent)
     assert len(edges) == 1
     assert edges[0].source == "AUTH" and edges[0].target == "POOL"
     assert len(edges[0].anchors) == 1

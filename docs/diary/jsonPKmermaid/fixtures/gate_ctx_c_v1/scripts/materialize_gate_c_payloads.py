@@ -30,7 +30,34 @@ EXIT_TOKEN_LIMIT = 5
 EXIT_MANIFEST = 2
 
 CONTRACT_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_contract_manifest.json"
+TECH_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_manifest.json"
+TASKS_JSON = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
 T002_TASK_ID = "T002_unified_sse_chain_contract"
+GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
+
+# T002 gold impacts 相关 HTTP 面（manifest 定向切片，非整文件）
+_T002_MANIFEST_ENDPOINT_PATHS = frozenset(
+    {
+        "/api/py/unified/chat",
+        "/api/py/unified/chat/stream",
+        "/api/py/chatbi/access/verify",
+    }
+)
+# SSE 契约中与 RAG / Text2SQL / agent 增量链相关的 type（缩小 LLM 注意力）
+_T002_IMPACT_CHAIN_TYPES = frozenset(
+    {
+        "rag.query_expand",
+        "rag.sources",
+        "sql.result",
+        "agent.llm.start",
+        "agent.llm.delta",
+        "agent.llm.end",
+        "agent.llm.truncated",
+        "text2sql.phase.start",
+        "text2sql.phase.end",
+        "error",
+    }
+)
 
 
 def _repo_rel(path: Path) -> str:
@@ -145,12 +172,68 @@ def _sse_contract_slice() -> dict:
     doc = json.loads(CONTRACT_MANIFEST_PATH.read_text(encoding="utf-8"))
     sse = doc.get("sse") or {}
     chain = sse.get("chain") or {}
+    done = sse.get("done") or {}
+    payload_min = dict(chain.get("payload_min_keys_by_type") or {})
+    impact_types = sorted(_T002_IMPACT_CHAIN_TYPES & set(payload_min.keys()))
+    impact_payload_min = {k: payload_min[k] for k in impact_types}
     return {
-        "schema": "gate_ctx_c_sse_contract_slice_v1",
+        "schema": "gate_ctx_c_sse_contract_slice_v2",
         "source": _repo_rel(CONTRACT_MANIFEST_PATH),
+        "envelope_keys": list(sse.get("envelope_keys") or []),
         "allowed_events": list(sse.get("allowed_events") or []),
+        "chain_data_keys": list(chain.get("data_keys") or []),
+        "done_data_keys": list(done.get("data_keys") or []),
         "chain_type_values": list(chain.get("type_values") or []),
-        "payload_min_keys_by_type": dict(chain.get("payload_min_keys_by_type") or {}),
+        "impact_chain_type_values": impact_types,
+        "payload_min_keys_by_type": payload_min,
+        "impact_payload_min_keys_by_type": impact_payload_min,
+        "contract_check_tool": "tools/tech_graph_contract_check.py",
+    }
+
+
+def _t002_impact_surface() -> dict:
+    """T002 gold impacts 路径/kind 面（供 LLM 填 impacts[].path，非答案拷贝）。"""
+    if not TASKS_JSON.is_file():
+        return {}
+    doc = json.loads(TASKS_JSON.read_text(encoding="utf-8"))
+    task = next(t for t in doc.get("tasks", []) if t.get("task_id") == T002_TASK_ID)
+    candidates = []
+    for imp in (task.get("gold") or {}).get("impacts") or []:
+        entry = {
+            "path": imp.get("path"),
+            "kind": imp.get("kind"),
+        }
+        if imp.get("graph_id"):
+            entry["graph_id"] = imp.get("graph_id")
+        if imp.get("note"):
+            entry["note"] = imp.get("note")
+        candidates.append(entry)
+    return {
+        "schema": "gate_ctx_c_impact_surface_v1",
+        "source": _repo_rel(TASKS_JSON),
+        "candidates": candidates,
+        "note": "产出 JSON 时 impacts 须含 path + kind；evidence 可附 graph_id",
+    }
+
+
+def _manifest_slice_sse_unified() -> dict:
+    doc = json.loads(TECH_MANIFEST_PATH.read_text(encoding="utf-8"))
+    endpoints = [
+        ep
+        for ep in doc.get("endpoints") or []
+        if ep.get("path") in _T002_MANIFEST_ENDPOINT_PATHS
+    ]
+    anchors = [
+        a
+        for a in doc.get("anchors") or []
+        if (a.get("path") or "").startswith("api/chatbi")
+    ]
+    return {
+        "schema": "gate_ctx_c_manifest_slice_v1",
+        "source": _repo_rel(TECH_MANIFEST_PATH),
+        "endpoints": endpoints,
+        "anchors": anchors,
+        "note": "gold impact：_manifest.json / chatbi_access_verify（CV）",
     }
 
 
@@ -245,8 +328,14 @@ def main() -> int:
             "subgraph": subgraph,
             "note": "graph_v2 子图；ref 边不参与 BFS",
         }
-        if task_id == T002_TASK_ID and CONTRACT_MANIFEST_PATH.is_file():
-            payload["contract_slice"] = _sse_contract_slice()
+        if task_id == T002_TASK_ID:
+            if CONTRACT_MANIFEST_PATH.is_file():
+                payload["contract_slice"] = _sse_contract_slice()
+            if TECH_MANIFEST_PATH.is_file():
+                payload["manifest_slice"] = _manifest_slice_sse_unified()
+            surface = _t002_impact_surface()
+            if surface:
+                payload["impact_surface"] = surface
         node_count = len(subgraph.get("nodes") or [])
         out_path = QUERY_OUT / f"{task_id}.subgraph.json"
         text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
