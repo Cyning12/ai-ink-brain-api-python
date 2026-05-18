@@ -32,5 +32,6 @@ timeline
   2026-05-13 : 54826c3 auto: api/agent.py
   2026-05-14 : fcbc040 auto: api/chatbi_sql_gate.py
   2026-05-15 : ee6b731 auto: requirements.txt
+  2026-05-18 : 1e55c7b auto: api/chatbi_principal.py
 ```
 

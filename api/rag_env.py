@@ -15,6 +15,13 @@ T = TypeVar("T")
 from dotenv import load_dotenv
 from openai import OpenAI
 
+try:
+    import httpcore
+    import httpx as _httpx
+except ImportError:  # pragma: no cover - 测试环境可能无 httpx
+    httpcore = None  # type: ignore[assignment,misc]
+    _httpx = None  # type: ignore[assignment,misc]
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 for _name in (".env.local", ".env"):
     load_dotenv(REPO_ROOT / _name, override=False)
@@ -100,6 +107,16 @@ def transient_supabase_network_error(exc: BaseException) -> bool:
     depth = 0
     e: BaseException | None = exc
     while e is not None and depth < 8:
+        if _httpx is not None and isinstance(
+            e,
+            (_httpx.ConnectError, _httpx.TimeoutException, _httpx.NetworkError),
+        ):
+            return True
+        if httpcore is not None and isinstance(
+            e,
+            (httpcore.ConnectError, httpcore.TimeoutException),
+        ):
+            return True
         if isinstance(e, OSError):
             en = e.errno
             if en is not None and en in (
