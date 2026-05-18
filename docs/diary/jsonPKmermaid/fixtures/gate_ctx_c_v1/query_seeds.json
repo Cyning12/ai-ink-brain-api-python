@@ -1,7 +1,7 @@
 {
   "schema_version": "gate_ctx_c_query_seeds_v1",
-  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
-  "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+  "freeze_id": "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0",
+  "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
   "default_op": "downstream",
   "default_depth": 2,
   "tasks": {
@@ -12,10 +12,23 @@
       "rationale": "gold 主入口 expected_embedding_dim / ENV"
     },
     "T002_unified_sse_chain_contract": {
-      "node_id": "U2",
-      "op": "downstream",
-      "depth": 2,
-      "rationale": "gold 主入口 unified_chat_stream SSE"
+      "queries": [
+        {
+          "node_id": "U2",
+          "op": "downstream",
+          "depth": 2
+        },
+        {
+          "node_id": "U2",
+          "op": "upstream",
+          "depth": 1
+        },
+        {
+          "node_id": "U2",
+          "op": "neighbors"
+        }
+      ],
+      "rationale": "gold SSE 链：downstream + upstream(U1/E) + neighbors；覆盖 AUTH/EV_TYPES"
     },
     "T003_ingest_admin_rpc": {
       "node_id": "A2",

@@ -2,26 +2,89 @@
   "schema": "gate_ctx_c_v2_query_main_v1",
   "arm": "CTX_V2_QUERY",
   "task_id": "T002_unified_sse_chain_contract",
-  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "freeze_id": "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0",
   "query": {
-    "op": "downstream",
-    "node_id": "U2",
-    "depth": 2
+    "op": "union",
+    "parts": [
+      {
+        "op": "downstream",
+        "node_id": "U2",
+        "depth": 2
+      },
+      {
+        "op": "upstream",
+        "node_id": "U2",
+        "depth": 1
+      },
+      {
+        "op": "neighbors",
+        "node_id": "U2"
+      }
+    ]
   },
   "subgraph": {
     "schema_version": "graph_query_result_v1",
     "graph_schema_version": "graph_v2",
-    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
     "query": {
-      "op": "downstream",
-      "root": "U2",
-      "depth": 2
+      "op": "union",
+      "parts": [
+        {
+          "op": "downstream",
+          "node_id": "U2",
+          "depth": 2
+        },
+        {
+          "op": "upstream",
+          "node_id": "U2",
+          "depth": 1
+        },
+        {
+          "op": "neighbors",
+          "node_id": "U2"
+        }
+      ]
     },
     "nodes": [
       {
         "graph_id": "00_main",
+        "id": "AUTH",
+        "label": "AUTH"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "E",
+        "label": "\"@router.dispatch\""
+      },
+      {
+        "graph_id": "10_flow_rag",
+        "id": "ERR_AUTH",
+        "label": ">Auth Failed"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "EV_TYPES",
+        "label": "EV_TYPES"
+      },
+      {
+        "graph_id": "00_main",
         "id": "FTS",
         "label": "FTS 子流程"
+      },
+      {
+        "graph_id": "10_flow_rag",
+        "id": "HIS",
+        "label": "历史轮次"
+      },
+      {
+        "graph_id": "11_flow_text2sql",
+        "id": "INT",
+        "label": "Intent Check"
+      },
+      {
+        "graph_id": "13_flow_supabase_rpc",
+        "id": "POOL",
+        "label": "(连接池)"
       },
       {
         "graph_id": "00_main",
@@ -39,6 +102,16 @@
         "label": "Supabase RPC 子流程"
       },
       {
+        "graph_id": "15_e2e_boundary",
+        "id": "RS_KEYS",
+        "label": "RS_KEYS"
+      },
+      {
+        "graph_id": "14_runtime_observability",
+        "id": "SQL_KEYS",
+        "label": "\"{sql, columns, rows[0..20], truncated}\""
+      },
+      {
         "graph_id": "00_main",
         "id": "T2S",
         "label": "Text2SQL 子流程"
@@ -50,11 +123,154 @@
       },
       {
         "graph_id": "00_main",
+        "id": "U1",
+        "label": "Unified JSON"
+      },
+      {
+        "graph_id": "00_main",
         "id": "U2",
         "label": "Unified SSE"
       }
     ],
     "edges": [
+      {
+        "anchors": [
+          {
+            "path": "api/index.py",
+            "symbol": "_require_auth"
+          }
+        ],
+        "from": "AUTH",
+        "graph_id": "10_flow_rag",
+        "label": "",
+        "mark": "[err]",
+        "sync": true,
+        "to": "ERR_AUTH",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/intent_router.py",
+            "symbol": "is_text2sql_intent"
+          },
+          {
+            "path": "api/intent_router.py",
+            "symbol": "decide_intent"
+          }
+        ],
+        "from": "AUTH",
+        "graph_id": "11_flow_text2sql",
+        "label": "",
+        "mark": "[err]",
+        "sync": true,
+        "to": "ERR_AUTH",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/index.py",
+            "symbol": "_require_auth"
+          },
+          {
+            "path": "api/code_retrieval.py",
+            "symbol": "_require_code_api_auth"
+          }
+        ],
+        "from": "AUTH",
+        "graph_id": "13_flow_supabase_rpc",
+        "label": "",
+        "mark": "[err]",
+        "sync": true,
+        "to": "ERR_AUTH",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "AUTH",
+        "graph_id": "10_flow_rag",
+        "label": "",
+        "mark": "[ok]",
+        "sync": true,
+        "to": "HIS",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "AUTH",
+        "graph_id": "11_flow_text2sql",
+        "label": "",
+        "mark": "[ok]",
+        "sync": true,
+        "to": "INT",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "AUTH",
+        "graph_id": "13_flow_supabase_rpc",
+        "label": "",
+        "mark": "[ok]",
+        "sync": true,
+        "to": "POOL",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "E",
+        "graph_id": "00_main",
+        "label": "POST /api/py/unified/chat",
+        "mark": "->",
+        "sync": true,
+        "to": "U1",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "E",
+        "graph_id": "00_main",
+        "label": "POST /api/py/unified/chat/stream",
+        "mark": "->",
+        "sync": true,
+        "to": "U2",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "EV_TYPES",
+        "graph_id": "15_e2e_boundary",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "RS_KEYS",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "EV_TYPES",
+        "graph_id": "15_e2e_boundary",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "SQL_KEYS",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/rag_recall_tools.py",
+            "symbol": "rpc_execute_with_retry"
+          }
+        ],
+        "from": "FTS",
+        "graph_id": "10_flow_rag",
+        "label": "",
+        "mark": "[retry=N]",
+        "sync": true,
+        "to": "FTS",
+        "type": "depends_on"
+      },
       {
         "anchors": [],
         "from": "FTS",
@@ -106,6 +322,81 @@
         "type": "depends_on"
       },
       {
+        "anchors": [
+          {
+            "path": "api/chatbi_principal.py",
+            "symbol": "require_chatbi_principal"
+          }
+        ],
+        "from": "U1",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "AUTH",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "U1",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "::branches",
+        "sync": true,
+        "to": "RAG",
+        "type": "branches"
+      },
+      {
+        "anchors": [],
+        "from": "U1",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "::branches",
+        "sync": true,
+        "to": "T2S",
+        "type": "branches"
+      },
+      {
+        "anchors": [],
+        "from": "U1",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "U2",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/chatbi_principal.py",
+            "symbol": "require_chatbi_principal"
+          }
+        ],
+        "from": "U2",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "AUTH",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "_event"
+          }
+        ],
+        "from": "U2",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "EV_TYPES",
+        "type": "depends_on"
+      },
+      {
         "anchors": [],
         "from": "U2",
         "graph_id": "00_main",
@@ -126,27 +417,236 @@
         "type": "branches"
       },
       {
-        "anchors": [
-          {
-            "path": "api/rag_recall_tools.py",
-            "symbol": "rpc_execute_with_retry"
-          }
-        ],
-        "from": "FTS",
-        "graph_id": "10_flow_rag",
+        "anchors": [],
+        "from": "U2",
+        "graph_id": "00_main",
         "label": "",
-        "mark": "[retry=N]",
+        "mark": "->",
         "sync": true,
-        "to": "FTS",
+        "to": "U1",
         "type": "depends_on"
       }
     ],
     "anchors": [
       {
+        "path": "api/chatbi_principal.py",
+        "symbol": "require_chatbi_principal"
+      },
+      {
+        "path": "api/unified_chat.py",
+        "symbol": "_event"
+      },
+      {
+        "path": "api/index.py",
+        "symbol": "_require_auth"
+      },
+      {
         "path": "api/rag_recall_tools.py",
         "symbol": "rpc_execute_with_retry"
+      },
+      {
+        "path": "api/intent_router.py",
+        "symbol": "is_text2sql_intent"
+      },
+      {
+        "path": "api/intent_router.py",
+        "symbol": "decide_intent"
+      },
+      {
+        "path": "api/code_retrieval.py",
+        "symbol": "_require_code_api_auth"
       }
     ]
   },
-  "note": "graph_v2 子图；ref 边不参与 BFS"
+  "note": "graph_v2 子图；ref 边不参与 BFS",
+  "contract_slice": {
+    "schema": "gate_ctx_c_sse_contract_slice_v1",
+    "source": "docs/_tech_graph/_contract_manifest.json",
+    "allowed_events": [
+      "chain",
+      "done"
+    ],
+    "chain_type_values": [
+      "meta",
+      "router.decision",
+      "router.evidence",
+      "router.evidence.details",
+      "tool.call.start",
+      "tool.call.end",
+      "rag.query_expand",
+      "rag.sources",
+      "sql.result",
+      "assistant.message",
+      "latency",
+      "error",
+      "agent.step.start",
+      "agent.think",
+      "agent.clarify",
+      "agent.plan.preview",
+      "agent.intent",
+      "agent.step.end",
+      "agent.final",
+      "agent.llm.start",
+      "agent.llm.delta",
+      "agent.llm.end",
+      "agent.llm.truncated",
+      "text2sql.phase.start",
+      "text2sql.phase.end"
+    ],
+    "payload_min_keys_by_type": {
+      "_note": "每个 type 的 payload 最小必需键集合：后端必须至少提供这些键；前端不得读取 manifest 未承诺的键。",
+      "meta": [
+        "run_id",
+        "mode",
+        "session_id"
+      ],
+      "router.decision": [
+        "prefer",
+        "candidate_mode",
+        "final_mode",
+        "rule_hits",
+        "evidence",
+        "fallback"
+      ],
+      "router.evidence": [
+        "candidate_mode",
+        "final_mode",
+        "fallback",
+        "ddl",
+        "fts"
+      ],
+      "router.evidence.details": [
+        "candidate_mode",
+        "final_mode",
+        "fallback",
+        "thresholds",
+        "ddl_candidates",
+        "fts_candidates"
+      ],
+      "tool.call.start": [
+        "tool",
+        "input"
+      ],
+      "tool.call.end": [
+        "output",
+        "error",
+        "latency_ms"
+      ],
+      "rag.query_expand": [
+        "raw",
+        "rewrite"
+      ],
+      "rag.sources": {
+        "_note": "rag.sources 的 payload 为 sources+retrieval；source_item_keys 为 sources[] 每一项的最小键名集合。",
+        "payload_keys": [
+          "sources",
+          "retrieval"
+        ],
+        "source_item_keys": [
+          "id",
+          "content",
+          "filename",
+          "score",
+          "path",
+          "url"
+        ],
+        "retrieval_keys": [
+          "top_k",
+          "rrf_k"
+        ]
+      },
+      "sql.result": [
+        "sql",
+        "columns",
+        "rows",
+        "truncated"
+      ],
+      "assistant.message": [
+        "role",
+        "content"
+      ],
+      "latency": [
+        "total_ms",
+        "stages_ms"
+      ],
+      "error": [
+        "stage",
+        "message"
+      ],
+      "agent.step.start": [
+        "step_number",
+        "max_steps"
+      ],
+      "agent.think": [
+        "step_number",
+        "thought",
+        "selected_tool",
+        "mode",
+        "confidence"
+      ],
+      "agent.clarify": [
+        "step_number",
+        "message",
+        "prompt_for_user"
+      ],
+      "agent.plan.preview": [
+        "plan_id",
+        "tool",
+        "sql_draft",
+        "warnings",
+        "plan_execution_token",
+        "expires_in_sec"
+      ],
+      "agent.intent": [
+        "tool",
+        "mode",
+        "reasoning",
+        "confidence",
+        "fallback",
+        "cache",
+        "cache_key_hash",
+        "latency_ms"
+      ],
+      "agent.step.end": [
+        "step_number",
+        "tool_used",
+        "mode",
+        "success",
+        "next_action"
+      ],
+      "agent.final": [
+        "total_steps",
+        "tools_used",
+        "modes",
+        "fallback_used"
+      ],
+      "agent.llm.start": [
+        "phase",
+        "step_id"
+      ],
+      "agent.llm.delta": [
+        "text",
+        "part_index"
+      ],
+      "agent.llm.end": [
+        "ok",
+        "phase",
+        "step_id"
+      ],
+      "agent.llm.truncated": [
+        "dropped_chars",
+        "reason"
+      ],
+      "text2sql.phase.start": [
+        "subphase_id",
+        "phase_id",
+        "phase_kind"
+      ],
+      "text2sql.phase.end": [
+        "subphase_id",
+        "phase_id",
+        "latency_ms"
+      ]
+    }
+  }
 }
