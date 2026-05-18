@@ -1,0 +1,87 @@
+{
+  "schema": "gate_ctx_c_v2_query_main_v1",
+  "arm": "CTX_V2_QUERY",
+  "task_id": "T003_ingest_admin_rpc",
+  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "query": {
+    "op": "downstream",
+    "node_id": "A2",
+    "depth": 2
+  },
+  "subgraph": {
+    "schema_version": "graph_query_result_v1",
+    "graph_schema_version": "graph_v2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260517_V2_2",
+    "query": {
+      "op": "downstream",
+      "root": "A2",
+      "depth": 2
+    },
+    "nodes": [
+      {
+        "graph_id": "00_main",
+        "id": "A2",
+        "label": "Ingest"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "RPC",
+        "label": "Supabase RPC 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "RPC_DOC",
+        "label": ">13_flow_supabase_rpc.md"
+      },
+      {
+        "graph_id": "12_flow_fts",
+        "id": "TSQ",
+        "label": "websearch_to_tsquery('simple', query_text)"
+      }
+    ],
+    "edges": [
+      {
+        "anchors": [],
+        "from": "A2",
+        "graph_id": "00_main",
+        "label": "",
+        "mark": "->",
+        "sync": true,
+        "to": "RPC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "RPC",
+        "graph_id": "00_main",
+        "label": "加载",
+        "mark": "->",
+        "sync": true,
+        "to": "RPC_DOC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "supabase/sql/hybrid_search.sql",
+            "symbol": "keyword_documents"
+          }
+        ],
+        "from": "RPC",
+        "graph_id": "12_flow_fts",
+        "label": "",
+        "mark": "~>",
+        "sync": false,
+        "to": "TSQ",
+        "type": "async_calls"
+      }
+    ],
+    "anchors": [
+      {
+        "path": "supabase/sql/hybrid_search.sql",
+        "symbol": "keyword_documents"
+      }
+    ]
+  },
+  "note": "graph_v2 子图；ref 边不参与 BFS"
+}

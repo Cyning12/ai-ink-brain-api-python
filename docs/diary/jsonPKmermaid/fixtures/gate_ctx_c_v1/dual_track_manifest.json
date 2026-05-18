@@ -1,0 +1,47 @@
+{
+  "schema_version": "gate_ctx_c_dual_track_manifest_v1",
+  "freeze_id": "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0",
+  "max_heuristic_tokens_per_task": 6000,
+  "note": "精选双轨原文；非整仓 docs/_tech_graph/*.ai.md（7 文件语料见闸口 A CTX_MERMAID）",
+  "tasks": {
+    "T001_embedding_dim_default": {
+      "rationale": "RAG / embedding 维度与 ingest 链路",
+      "tracks": [
+        {
+          "role": "ai",
+          "path": "docs/_tech_graph/10_flow_rag.ai.md"
+        },
+        {
+          "role": "human",
+          "path": "docs/_tech_graph/10_flow_rag.md"
+        }
+      ]
+    },
+    "T002_unified_sse_chain_contract": {
+      "rationale": "Unified Chat / SSE / 契约边界",
+      "tracks": [
+        {
+          "role": "ai",
+          "path": "docs/_tech_graph/15_e2e_boundary.ai.md"
+        },
+        {
+          "role": "human",
+          "path": "docs/_tech_graph/15_e2e_boundary.md"
+        }
+      ]
+    },
+    "T003_ingest_admin_rpc": {
+      "rationale": "Admin ingest / Supabase RPC",
+      "tracks": [
+        {
+          "role": "ai",
+          "path": "docs/_tech_graph/13_flow_supabase_rpc.ai.md"
+        },
+        {
+          "role": "human",
+          "path": "docs/_tech_graph/13_flow_supabase_rpc.md"
+        }
+      ]
+    }
+  }
+}
