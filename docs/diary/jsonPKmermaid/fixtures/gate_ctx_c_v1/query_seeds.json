@@ -1,7 +1,7 @@
 {
   "schema_version": "gate_ctx_c_query_seeds_v1",
-  "freeze_id": "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0",
-  "parent_freeze_id": "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0",
+  "freeze_id": "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0",
+  "parent_freeze_id": "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0",
   "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
   "default_op": "downstream",
   "default_depth": 2,
@@ -34,8 +34,8 @@
     "T003_ingest_admin_rpc": {
       "node_id": "A2",
       "op": "downstream",
-      "depth": 2,
-      "rationale": "gold 主入口 admin ingest"
+      "depth": 1,
+      "rationale": "gold 主入口 admin ingest；C″ PR-2 降 depth 守 token 中位数"
     }
   }
 }

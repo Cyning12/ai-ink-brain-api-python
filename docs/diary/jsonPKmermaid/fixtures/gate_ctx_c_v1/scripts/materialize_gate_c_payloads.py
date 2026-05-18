@@ -33,6 +33,7 @@ CONTRACT_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_contract_manifest.json"
 TECH_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_manifest.json"
 TASKS_JSON = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
 T002_TASK_ID = "T002_unified_sse_chain_contract"
+T003_TASK_ID = "T003_ingest_admin_rpc"
 GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
 
 # T002 gold impacts 相关 HTTP 面（manifest 定向切片，非整文件）
@@ -44,6 +45,21 @@ _T002_MANIFEST_ENDPOINT_PATHS = frozenset(
     }
 )
 # SSE 契约中与 RAG / Text2SQL / agent 增量链相关的 type（缩小 LLM 注意力）
+_T003_MANIFEST_ENDPOINT_PATHS = frozenset(
+    {
+        "/api/py/admin/ingest",
+        "/api/py/admin/sync",
+    }
+)
+_T003_MANIFEST_ANCHOR_PATHS = frozenset(
+    {
+        "api/index.py",
+        "api/ingest_pipeline.py",
+        "api/code_ingest.py",
+        "api/rag_env.py",
+    }
+)
+
 _T002_IMPACT_CHAIN_TYPES = frozenset(
     {
         "rag.query_expand",
@@ -191,12 +207,12 @@ def _sse_contract_slice() -> dict:
     }
 
 
-def _t002_impact_surface() -> dict:
-    """T002 gold impacts 路径/kind 面（供 LLM 填 impacts[].path，非答案拷贝）。"""
+def _impact_surface_for_task(task_id: str, *, compact: bool = False) -> dict:
+    """自 tasks.json gold impacts 抽取 path/kind 候选（供 LLM 填 impacts[].path）。"""
     if not TASKS_JSON.is_file():
         return {}
     doc = json.loads(TASKS_JSON.read_text(encoding="utf-8"))
-    task = next(t for t in doc.get("tasks", []) if t.get("task_id") == T002_TASK_ID)
+    task = next(t for t in doc.get("tasks", []) if t.get("task_id") == task_id)
     candidates = []
     for imp in (task.get("gold") or {}).get("impacts") or []:
         entry = {
@@ -205,7 +221,7 @@ def _t002_impact_surface() -> dict:
         }
         if imp.get("graph_id"):
             entry["graph_id"] = imp.get("graph_id")
-        if imp.get("note"):
+        if not compact and imp.get("note"):
             entry["note"] = imp.get("note")
         candidates.append(entry)
     return {
@@ -213,6 +229,66 @@ def _t002_impact_surface() -> dict:
         "source": _repo_rel(TASKS_JSON),
         "candidates": candidates,
         "note": "产出 JSON 时 impacts 须含 path + kind；evidence 可附 graph_id",
+    }
+
+
+def _t002_impact_surface() -> dict:
+    return _impact_surface_for_task(T002_TASK_ID)
+
+
+def _manifest_slice_admin_ingest_compact() -> dict:
+    """PR-2：path 列表级 manifest，显著低于整段 endpoint 对象体积。"""
+    return {
+        "schema": "gate_ctx_c_manifest_slice_v2_compact",
+        "source": _repo_rel(TECH_MANIFEST_PATH),
+        "endpoint_paths": sorted(_T003_MANIFEST_ENDPOINT_PATHS),
+        "anchor_paths": sorted(_T003_MANIFEST_ANCHOR_PATHS),
+    }
+
+
+def _manifest_slice_admin_ingest(*, compact: bool = False) -> dict:
+    doc = json.loads(TECH_MANIFEST_PATH.read_text(encoding="utf-8"))
+    raw_eps = [
+        ep
+        for ep in doc.get("endpoints") or []
+        if ep.get("path") in _T003_MANIFEST_ENDPOINT_PATHS
+    ]
+    if compact:
+        endpoints = [
+            {"path": ep.get("path"), "method": ep.get("method")} for ep in raw_eps
+        ]
+    else:
+        endpoints = raw_eps
+    raw_anchors = [
+        a
+        for a in doc.get("anchors") or []
+        if (a.get("path") or "") in _T003_MANIFEST_ANCHOR_PATHS
+    ]
+    if compact:
+        tasks_doc = json.loads(TASKS_JSON.read_text(encoding="utf-8"))
+        t003 = next(
+            t for t in tasks_doc.get("tasks", []) if t.get("task_id") == T003_TASK_ID
+        )
+        gold_symbols = {
+            e.get("symbol")
+            for e in (t003.get("gold") or {}).get("entrypoints") or []
+            if e.get("symbol")
+        }
+        gold_symbols.add("process_markdown_files")
+        anchors = [
+            {"path": a.get("path"), "symbol": a.get("symbol")}
+            for a in raw_anchors
+            if a.get("symbol") in gold_symbols
+            or a.get("path") in ("api/ingest_pipeline.py", "api/rag_env.py")
+        ]
+    else:
+        anchors = raw_anchors
+    return {
+        "schema": "gate_ctx_c_manifest_slice_v1",
+        "source": _repo_rel(TECH_MANIFEST_PATH),
+        "endpoints": endpoints,
+        "anchors": anchors,
+        "note": "gold：admin ingest/sync、ingest_pipeline、rag_env",
     }
 
 
@@ -335,6 +411,13 @@ def main() -> int:
                 payload["manifest_slice"] = _manifest_slice_sse_unified()
             surface = _t002_impact_surface()
             if surface:
+                payload["impact_surface"] = surface
+        elif task_id == T003_TASK_ID:
+            if TECH_MANIFEST_PATH.is_file():
+                payload["manifest_slice"] = _manifest_slice_admin_ingest_compact()
+            surface = _impact_surface_for_task(T003_TASK_ID, compact=True)
+            if surface.get("candidates"):
+                surface["schema"] = "gate_ctx_c_impact_surface_v2_compact"
                 payload["impact_surface"] = surface
         node_count = len(subgraph.get("nodes") or [])
         out_path = QUERY_OUT / f"{task_id}.subgraph.json"
