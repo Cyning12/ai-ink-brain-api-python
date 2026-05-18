@@ -1,6 +1,6 @@
 # 闸口 C′ 结论：graph_v2 查询轨 impact F1 物化增强（F1 优先）
 
-> **状态**：`draft`（待 **HG-GATE-C-PRIME-SIGNOFF** 人签）  
+> **状态**：`accepted`（2026-05-20 · **HG-GATE-C-PRIME-SIGNOFF** 人签）  
 > **freeze_id**：`TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`  
 > **graph_v2_freeze_id**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`（未改图）  
 > **canonical 对照（只读）**：[`runs/gate_ctx_c_v1_batch_20260518_052803`](../runs/gate_ctx_c_v1_batch_20260518_052803/) · [`conclusion_gate_c_v2_dual_track_v1_zh.md`](./conclusion_gate_c_v2_dual_track_v1_zh.md)（**accepted**，本文件不修订）  
@@ -32,6 +32,31 @@
 - **§3.2 主 KPI（OR）**：T002 D impact **0.923 ≥ 0.55** → **通过**（中位数 0.222 &lt; 0.45，靠 T002 单项达标）。  
 - **entry**：三题无单题下降 &gt; 0.05；中位数 **0.923 ≥ 0.80** → **通过**。  
 - **T002 vs E**：本批 E impact **0.588**；D **0.923** 已反超，**不构成**改默认依据。
+
+### 1.1 题级解读：为何主攻 T002、T003 impact 为何下降
+
+**本实验工程重心在 T002，不是三题齐升。**
+
+| 题 | PR-1 物化 | 说明 |
+| --- | --- | --- |
+| **T002** | `contract_slice` v2 + `manifest_slice` + **`impact_surface`** | 闸口 C 弱项（D impact **0.429**）；本 task 主 KPI |
+| **T001** | 原有小 subgraph，无 manifest / impact 切片 | 与 canonical 基本持平 |
+| **T003** | `downstream(A2, depth=2)` 小图 only | token **481 vs 479**，**未**加 T003 专用 `impact_surface` |
+
+PR-3 仍 **全三题** 重跑（闸口 C 式对照）；§3.2 验收为 **OR**：**T002 D impact ≥ 0.55** 即过，**不要求** T003 impact 上升。
+
+**T003 impact：0.400 → 0.222（Δ−0.178）—— 非 T003 物化被改坏，而是新 batch 下 LLM 填 `impacts[]` 更差。**
+
+| 批（D 臂） | impact TP | FP | FN | recall | F1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| canonical `052803` | 4 | 10 | 2 | 0.67 | **0.400** |
+| C′ `083014` | 2 | 10 | 4 | 0.33 | **0.222** |
+
+- **entry** 两批均为 **1.000**（6/6 gold entry）；**仅 impacts 掉分**。  
+- C′ 轮次 jsonl（`…_083014/round_03/raw/CTX_V2_QUERY_T003_*`）中模型写出 **10 条** impact，多依赖 `manifest.*` / `contract.sse.*` 的 `ref`，**缺少** gold 要求的 `path`（如 `api/rag_env.py`、`api/unified_chat.py`、`tools/tech_graph_manifest_check.py`）。  
+- 误引 **Unified Chat SSE** 契约项（`rag.sources`、`sql.result`）——属 **T002 域**，与 Admin Ingest **无关** → 增加 FP，且挤占正确 path 命中。  
+- **主因归纳**：（1）本 task **未** 为 T003 做 impact 物化；（2）同模型/温度下 **批次随机性**；（3）评分按 gold **path + kind** 对齐，`ref` 字符串 **不算** TP。  
+- **验收允许**：OR 规则已由 T002 达标；T003 回落记为 **已知副作用**，不推翻「维持 `CTX_V2_QUERY` 默认」决议。后续 **C″** 若抬 T003，宜 **分题** 加 manifest / `impact_surface`（见 §4）。
 
 ---
 

@@ -1,6 +1,7 @@
 # Task：闸口 C′ — graph_v2 查询轨 impact F1 提升与对照重跑
 
-> **状态**：`active`（C′ batch 完成 · 待 **HG-GATE-C-PRIME-SIGNOFF**）  
+> **状态**：`done（2026-05-20 · 闸口 C′ F1 物化增强收口 · HG-GATE-C-PRIME-SIGNOFF 人签）`  
+> **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_query_coverage_v1.md`（`graph_v2_freeze_id` `V2_3` · T002 union 物化）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · **accepted** · canonical `gate_ctx_c_v1_batch_20260518_052803`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` · `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -24,7 +25,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 初稿；F1 验收阈值人可调 |
-| **HG-GATE-C-PRIME-SIGNOFF** | `pending` | `50`, 关账 | C′ 结论 md 人签后 task 可 `done` |
+| **HG-GATE-C-PRIME-SIGNOFF** | `approved` | `50`, 关账 | 2026-05-20 人签；结论 §1.1 T002/T003 解读已落盘 |
 
 ---
 
@@ -133,7 +134,7 @@
 
 ### 3.3 共用
 
-- [ ] **HG-GATE-C-PRIME-SIGNOFF** 人签（或 task 元信息注明签收人/日期）
+- [x] **HG-GATE-C-PRIME-SIGNOFF** 人签（2026-05-20）
 
 ---
 
@@ -211,13 +212,13 @@ PR-1→PR-3 已落盘；主 run `gate_ctx_c_v1_batch_20260518_083014`；T002 D *
 | §3.2 entry 无退化 / 中位数 ≥0.80 | **pass** | entry 中位数 **0.923** |
 | §3.2 token ≤ canonical×1.25 | **pass** | D 中位数 **481** ≤ **599**（479×1.25） |
 | §3.2 维持 `CTX_V2_QUERY` 默认 | **pass** | `conclusion_gate_c_prime_f1_v1_zh.md` §4 |
-| §3.3 `HG-GATE-C-PRIME-SIGNOFF` | **未验**（待人签） | status 仍为 `pending` |
+| §3.3 `HG-GATE-C-PRIME-SIGNOFF` | **pass** | 2026-05-20 人签 `approved` |
 | NR-1 未覆盖 052803 | **pass** | `git diff` 对该 run 无变更 |
 | NR-6 未改 gate_c accepted | **pass** | `conclusion_gate_c_v2_dual_track_v1_zh.md` 无本分支 diff |
 
 **已知未测项**：未重跑 LLM batch（只读核对 `083014` 产物）；`describe-impact` 文本臂（task 可选，未做）。
 
-**下一棒**：`50` 独立复检 → `TEMPLATE-independent-reinspect-invoke.md`（`HG-GATE-C-PRIME-SIGNOFF` 仍阻塞关账，不阻塞 50）。
+**关账（2026-05-20）**：`HG-GATE-C-PRIME-SIGNOFF` 人签；结论 md 增 §1.1（T002 主攻 / T003 回落解读）；task 归档 `docs/tasks/done/`。
 
 ---
 
@@ -226,3 +227,4 @@ PR-1→PR-3 已落盘；主 run `gate_ctx_c_v1_batch_20260518_083014`；T002 D *
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-20 | 初稿：F1 优先 → token 约束 → 闸口 C′ 重跑；相对 canonical 052803 量化验收 |
+| v1.0 | 2026-05-20 | 人签关账；结论 §1.1；归档 done |
