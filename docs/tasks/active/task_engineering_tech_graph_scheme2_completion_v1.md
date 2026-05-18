@@ -203,25 +203,25 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ### 自检结论（执行者）
 
-> **40 帽复检**：2026-05-18 · invoke `docs/harness/invokes/invoke_20260518_40_tech-graph-scheme2-completion-self-check.md`
+> **40 帽复检**：2026-05-18 10:54 CST · invoke `docs/harness/invokes/invoke_20260518_40_tech-graph-scheme2-completion-self-check.md` · 分支 `task/engineering-tech-graph-scheme2-completion-v1`
 
 | 验收块 | 结果 | 证据摘要 |
 | --- | --- | --- |
-| §3.1 S2-A | pass | `pytest tests/test_tech_graph_graph_query.py` → **16 passed** |
-| §3.2 S2-B | pass | 工作区 `scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7；子仓 `graph_v2_schema.md` §9 |
-| §3.3 回归 | pass | 见下表命令与退出码 |
-| §3.4 S2-C | pass | C1 `.cursor/mcp.json.example` + C2 `TEMPLATE-task-audit-invoke.md` 可选节 |
+| §3.1 S2-A | pass | `pytest tests/test_tech_graph_graph_query.py -q` → **16 passed in 0.15s** |
+| §3.2 S2-B | pass | 工作区 `docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7（模块名 `tech_graph_graph_query.py`）；子仓 `docs/_tech_graph/graph_v2_schema.md` §9 含 `has-path` / `describe-impact` |
+| §3.3 回归 | pass | export `--check`、equivalence、全量 pytest 均 exit 0（见下表） |
+| §3.4 S2-C | pass | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md`「影响分析（可选 · 方案2）」 |
 
 **命令（cwd=`ai-ink-brain-api-python`）**
 
-| 命令 | 退出码 |
-| --- | --- |
-| `pytest tests/test_tech_graph_graph_query.py -q` | 0（16 passed） |
-| `python tools/tech_graph_graph_export.py --check` | 0 |
-| `python tools/tech_graph_graph_equivalence_check.py` | 0 |
-| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0（184 passed, 1 skipped；40 帽复检 ~92s） |
+| 命令 | 退出码 | 摘要 |
+| --- | --- | --- |
+| `pytest tests/test_tech_graph_graph_query.py -q` | 0 | 16 passed |
+| `python tools/tech_graph_graph_export.py --check` | 0 | 无 stderr |
+| `python tools/tech_graph_graph_equivalence_check.py` | 0 | 无 stderr |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | 184 passed, 1 skipped, 2 deselected；~84s |
 
-**已知未测**：仓内 `has-path AUTH RAG` 在真实拓扑上可为 false（与 golden fixture 不同）；CLI 用例以 `--graph` fixture 覆盖。
+**已知未测**：生产 `graph.json` 上 `has-path AUTH RAG` 可为 false（与 golden fixture 不同）；MCP 未做端到端 IDE 冒烟；闸口 B batch（NR-1）未重跑；工作区 `docs/tech_graph/` 变更在 Projects@820f087，本帽未再 diff 工作区根。
 
 ---
 
