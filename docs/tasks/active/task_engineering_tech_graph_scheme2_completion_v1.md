@@ -240,7 +240,8 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 | 轮次 | 状态 | 路径 |
 | --- | --- | --- |
 | **10 需求帽** | v0.2 完成 | `docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md` |
-| **22 R1** | 待（`HG-TASK-DRAFT` 后人扫） | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_R1_20260518.md`（建议名） |
+| **22 R1** | 完成 | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_R1_20260518.md` |
+| **50 独立复检** | 完成 · 建议合并 | `docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_reinspect_50_20260518.md` |
 
 ### Invoke 快照（可选索引）
 
@@ -248,6 +249,7 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 - 22 R1：`docs/harness/invokes/invoke_20260518_22_tech-graph-scheme2-completion-audit-r1.md`
 - 30：`docs/harness/invokes/invoke_20260518_30_tech-graph-scheme2-completion-execute.md`
 - 40：`docs/harness/invokes/invoke_20260518_40_tech-graph-scheme2-completion-self-check.md`
+- 50：`docs/harness/invokes/invoke_20260518_50_tech-graph-scheme2-completion-reinspect.md`
 
 ---
 
