@@ -1,6 +1,6 @@
 # Task：闸口 C′ — graph_v2 查询轨 impact F1 提升与对照重跑
 
-> **状态**：`draft`  
+> **状态**：`active`（C′ batch 完成 · 待 **HG-GATE-C-PRIME-SIGNOFF**）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_query_coverage_v1.md`（`graph_v2_freeze_id` `V2_3` · T002 union 物化）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · **accepted** · canonical `gate_ctx_c_v1_batch_20260518_052803`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` · `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -56,18 +56,16 @@
 
 ### 1.1 范围
 
-- [ ] **PR-1 · F1 导向物化（D 臂）**  
-  - [ ] **T002**：在现有 `contract_slice` 上，按 `tasks.json` gold **impact** 字段补 **SSE / unified chat 契约段**（`_contract_manifest.json` 定向切片，非整文件）。  
-  - [ ] **T001 / T003**：评估是否需 **manifest 切片**（embedding / ingest 相关条目）；无 gold 收益则保持单种子。  
-  - [ ] 可选：对单题试用 `describe-impact` **文本臂** 与 JSON 子图 **并列**（须 pytest 与 token 门禁）；默认仍以子图 + 切片为主。  
-  - [ ] 更新 `query_seeds.json` / `protocol_version.yaml` 中 **本 task `freeze_id`** 指针；**不**改 canonical `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`。  
-- [ ] **PR-2 · token 守门（仅 PR-1 超限时）**  
-  - [ ] 每题 D 臂 `heuristic_tokens` **<** `max_heuristic_tokens_per_task_arm`（8192）且 **<** `d_arm_nodes_lt_whole_mermaid_heuristic_tokens`（5026）。  
-  - [ ] 收缩顺序建议：`contract_slice` 字段裁剪 → union 深度 `-1` → 最后才减 `queries[]` 臂（**须记录 F1 变化**）。  
-- [ ] **PR-3 · 闸口 C′ batch**  
-  - [ ] `materialize_gate_c_payloads.py` → `run_gate_c_batch.py --arms CTX_V2_QUERY,CTX_DUAL_MD`（**非 dry_run** 或按成本先 1 题 smoke 再全量，写入 run README）。  
-  - [ ] `score_gold_f1.py` → run 内 `gold_f1.md` / `gold_f1.json`。  
-  - [ ] 结论 md：相对 **052803** 的 Δimpact F1、Δentry F1、Δtokens；**产品决议是否维持 D 默认**（仅当 E 在 **impact+entry 双维度** 显著优于 D 且 token 不可接受时才建议讨论改默认——预期 **维持**）。
+- [x] **PR-1 · F1 导向物化（D 臂）**  
+  - [x] **T002**：`contract_slice` v2 + `manifest_slice` + `impact_surface`（gold impacts 路径面）。  
+  - [x] **T001 / T003**：无 manifest 切片（单种子保持）。  
+  - [ ] 可选：`describe-impact` 文本臂（未做）。  
+  - [x] `query_seeds.json` / `protocol_version.yaml` 写入 `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`；canonical `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0` 未改。  
+- [x] **PR-2 · token 守门（仅 PR-1 超限时）** — 未触发  
+- [x] **PR-3 · 闸口 C′ batch**  
+  - [x] 主 run：`runs/gate_ctx_c_v1_batch_20260518_083014`  
+  - [x] `gold_f1.md` / `gold_f1.json`  
+  - [x] [`conclusion_gate_c_prime_f1_v1_zh.md`](../diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md)
 
 ### 1.2 非范围（NR）
 
@@ -119,21 +117,19 @@
 
 ### 3.1 PR-1 / PR-2（物化）
 
-- [ ] `python tools/tech_graph_graph_export.py --check` exit 0（若未改图）  
-- [ ] `python …/materialize_gate_c_payloads.py` exit 0；全题 D 臂 token **<** 8192  
-- [ ] `pytest tests/test_gate_ctx_c_v1_materialize.py` 绿（含 T002 `contract_slice`/gold 相关断言，按实现扩展）  
-- [ ] **PR-1 出口**：相对 **post-coverage 物化**（当前 main 载荷），T002 D 臂 payload 已含 **可追踪的契约/manifest 切片变更**（代码或配置说明）
+- [x] `python tools/tech_graph_graph_export.py --check` exit 0  
+- [x] `materialize_gate_c_payloads.py` exit 0；全题 D 臂 token **<** 8192  
+- [x] `pytest tests/test_gate_ctx_c_v1_materialize.py` 绿  
+- [x] **PR-1 出口**：T002 含 `contract_slice` v2 / `manifest_slice` / `impact_surface`
 
 ### 3.2 PR-3（C′ batch · F1 优先）
 
-- [ ] 新 run 目录已生成且 README 含复现命令 + **`freeze_id`**  
-- [ ] **impact F1（D 臂）**  
-  - [ ] 三题 **中位数 ≥ 0.45**（较 canonical **+0.05**），或  
-  - [ ] **T002 D impact F1 ≥ 0.55**（较 canonical T002 **+0.12**）  
-- [ ] **entry F1（D 臂）**：任题相对 canonical **下降 ≤ 0.05**；三题中位数 **≥ 0.80**  
-- [ ] **token（次优）**：D 臂静态 token 中位数 **≤** canonical D **× 1.25**（约 **600** 上限量级）；若超出须 PR-2 记录取舍表  
-- [ ] **C′ 产品结论**：新 md 写明 **是否维持** B/C 的 **`CTX_V2_QUERY` 默认**（预期：**维持**）；若 E 仅在 T002 impact 更高，须写清 **不构成** 改默认依据  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿  
+- [x] 新 run：`gate_ctx_c_v1_batch_20260518_083014`（README + `freeze_id`）  
+- [x] **impact F1（D 臂）** — **T002 D = 0.923 ≥ 0.55**（中位数 0.222 未达 0.45，OR 单项达标）  
+- [x] **entry F1（D 臂）** — 无单题退化；中位数 **0.923 ≥ 0.80**  
+- [x] **token** — D 中位数 **481 ≤ 479×1.25**  
+- [x] **C′ 产品结论** — 维持 `CTX_V2_QUERY` 默认  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 绿（195 passed）  
 
 ### 3.3 共用
 
@@ -167,17 +163,17 @@
 
 | 项 | 内容 |
 | --- | --- |
-| invoke · 30 | （待填） |
-| 分支 | |
-| PR-1 | |
-| PR-2 | |
-| PR-3 run 目录 | |
-| C′ 结论 | |
-| 验证命令 | |
+| invoke · 30 | `invoke_20260520_41_tech-graph-gate-c-prime-f1-execute.md` |
+| 分支 | `task/engineering-tech-graph-gate-c-prime-f1-v1` |
+| PR-1 | `materialize_gate_c_payloads.py`：v2 contract + manifest + impact_surface；`query_seeds`/`protocol` freeze 指针 |
+| PR-2 | 未触发 |
+| PR-3 run 目录 | `docs/diary/jsonPKmermaid/runs/gate_ctx_c_v1_batch_20260518_083014`（中间批 `…_081600` 见结论 §0） |
+| C′ 结论 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md` |
+| 验证命令 | `materialize` + `pytest tests/test_gate_ctx_c_v1_materialize.py` + `pytest tests -m "not intent_eval and not intent_benchmark"` |
 
 ### 自检结论（执行者）
 
-（40 帽回填）
+30 帽：PR-1→PR-3 完成；T002 D impact F1 **0.923** 达 §3.2 OR 阈值；维持 `CTX_V2_QUERY` 默认。**HG-GATE-C-PRIME-SIGNOFF** 仍 pending。下一棒 **40** → `invoke_20260520_42`。
 
 ---
 
