@@ -27,7 +27,7 @@
 | --- | --- | --- | --- |
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 初稿；验收阈值人可调 |
 | **HG-AUDIT-R1** | `approved` | `30` | 任务审核 R1 通过后执行帽可开工 |
-| **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `pending` | `PR-4`, `50`, 关账 | C″ 结论 accepted + 产品决议；**未 approved 禁止 PR-4** |
+| **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `approved` | `PR-4`, `50`, 关账 | C″ 结论 accepted + 产品决议；**未 approved 禁止 PR-4** |
 
 ---
 
