@@ -11,7 +11,7 @@ from fastapi import Header, HTTPException
 
 from .chatbi_access_hash import hash_chatbi_access_token
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
-from .rag_env import supabase_client
+from .rag_env import supabase_client, supabase_execute_with_retry, transient_supabase_network_error
 
 PrincipalKind = Literal["super", "admin", "end_user"]
 
@@ -35,20 +35,35 @@ def _kind_for_level(level: int) -> PrincipalKind:
 
 
 def _fetch_token_row_by_hash(key_hash: str) -> dict[str, Any] | None:
-    sb = supabase_client()
-    res = (
-        sb.table("chatbi_access_tokens")
-        .select("id,access_level,subject_user_id,expires_at,revoked_at")
-        .eq("key_hash", key_hash)
-        .is_("revoked_at", "null")
-        .limit(1)
-        .execute()
+    def _once() -> dict[str, Any] | None:
+        sb = supabase_client()
+        res = (
+            sb.table("chatbi_access_tokens")
+            .select("id,access_level,subject_user_id,expires_at,revoked_at")
+            .eq("key_hash", key_hash)
+            .is_("revoked_at", "null")
+            .limit(1)
+            .execute()
+        )
+        rows = getattr(res, "data", None) or []
+        if not rows:
+            return None
+        r0 = rows[0]
+        return r0 if isinstance(r0, dict) else None
+
+    return supabase_execute_with_retry(_once)
+
+
+def _supabase_unavailable_http(exc: BaseException) -> HTTPException:
+    return HTTPException(
+        status_code=500,
+        detail={
+            "code": "DATABASE_DISCONNECT",
+            "error_type": "DATABASE_DISCONNECT",
+            "message_zh": "数据库连接不可用，请稍后重试",
+            "message": str(exc),
+        },
     )
-    rows = getattr(res, "data", None) or []
-    if not rows:
-        return None
-    r0 = rows[0]
-    return r0 if isinstance(r0, dict) else None
 
 
 def _parse_uuid(val: Any) -> uuid.UUID | None:
@@ -82,7 +97,19 @@ def _resolve_principal_sync(authorization: str | None, *, request_id: str | None
         )
 
     key_hash = hash_chatbi_access_token(bearer)
-    row = _fetch_token_row_by_hash(key_hash)
+    try:
+        row = _fetch_token_row_by_hash(key_hash)
+    except Exception as exc:  # noqa: BLE001
+        if transient_supabase_network_error(exc):
+            if chatbi_json_log_enabled():
+                log_chatbi_record(
+                    message="auth_fail",
+                    event="auth_fail",
+                    request_id=request_id,
+                    reason="supabase_unreachable",
+                )
+            raise _supabase_unavailable_http(exc) from exc
+        raise
     if row is None:
         if chatbi_json_log_enabled():
             log_chatbi_record(
