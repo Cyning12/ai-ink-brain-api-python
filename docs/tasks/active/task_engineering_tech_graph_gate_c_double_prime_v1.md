@@ -1,7 +1,8 @@
 # Task：闸口 C″ — 分题物化修补 T003 impact（graph_v2 查询轨 · 实验先行）
 
-> **状态**：`draft`  
-> **结论（待产出）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`  
+> **状态**：`active`（PR-1～4 已落盘；**关账待** `HG-AUDIT-CLOSE`）  
+> **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`  
+> **50 关账审查**：`docs/harness/reviews/task_engineering_tech_graph_gate_c_double_prime_v1_audit_CLOSE_20260520.md`  
 > **前置 task（done · 只读）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_prime_f1_v1.md` · `docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`  
 > **关联结论（accepted · 不修订正文）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md` · `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_v2_dual_track_v1_zh.md`  
 > **本 task 定位**：在 **维持 `CTX_V2_QUERY` / `graph_query` 默认** 前提下，用 **最小变量**（分题 `manifest_slice` / `impact_surface`、必要时 T003 `query_seeds` 微调）做 **D vs E** 新 batch，相对 **canonical `052803`** 与 **C′ `083014`** 量化 **ΔF1 / Δtoken**；**胜出且人签后** 才升格 Cursor 消费规约（PR-4）  
@@ -28,6 +29,7 @@
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 初稿；验收阈值人可调 |
 | **HG-AUDIT-R1** | `approved` | `30` | 任务审核 R1 通过后执行帽可开工 |
 | **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `approved` | `PR-4`, `50`, 关账 | C″ 结论 accepted + 产品决议；**未 approved 禁止 PR-4** |
+| **HG-AUDIT-CLOSE** | `pending` | `done`, `50` | 终轮 CLOSE 签收；**仅人**可改 `approved` 后归档 `docs/tasks/done/` |
 
 ---
 
@@ -291,7 +293,15 @@
 
 **改动路径**：`.cursor/rules/10-tech-graph.mdc`、`.cursor/rules/README.md`。
 
-**已知未测**：关账归档 `docs/tasks/done/`（留 50 帽 / 人签）。
+**已知未测**：关账归档 `docs/tasks/done/`（待 **`HG-AUDIT-CLOSE`** = `approved`）。
+
+#### 50 帽关账（2026-05-20）
+
+| 验收项 | 结果 | 证据 |
+| --- | --- | --- |
+| 50 全局验收 + CLOSE_TRACE | pass | `…_audit_CLOSE_20260520.md` |
+| PR-4 分支待合并 main | 待 PR | `task/…-pr4-rules` · `api-python@2dc2755` |
+| task → `done/` | **阻塞** | `HG-AUDIT-CLOSE` = `pending` |
 
 ---
 
