@@ -1,6 +1,6 @@
 # Task：技术图谱 — graph_v2 查询可达性优化（闸口 C follow-up）
 
-> **状态**：`active`（v0.1 · 40 自检 pass · 待 50 复检）  
+> **状态**：`done（2026-05-19 · graph_v2 查询可达性 follow-up · 50 关账）`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · accepted）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · CTX_QUERY 默认）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` · `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -186,6 +186,43 @@
 
 **40 帽结论**：PR-1/PR-2 验收项 **全部 pass**；可交 **50 复检帽**。
 
+#### 50 帽（关账 · 独立复检 · 2026-05-19）
+
+**human_gate**：无 `blocks_hats` 含 `50` 且 `pending` → 可开工。  
+**PR**：[#33](https://github.com/Cyning12/ai-ink-brain-api-python/pull/33) **MERGED** → `origin/main` `71eff22`；CI pytest / tech-graph / contract / verify **SUCCESS**。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | `ai-ink-brain-api-python` | **0** | **195 passed**, 1 skipped, 2 deselected (~70s) |
+| `pytest tests/test_tech_graph_graph_export.py tests/test_tech_graph_graph_query.py tests/test_gate_ctx_c_v1_materialize.py -q` | 同上 | **0** | **31 passed** in 0.58s |
+| `python tools/tech_graph_graph_export.py --check` | 同上 | **0** | v2 export 校验通过 |
+| `python …/materialize_gate_c_payloads.py` | 同上 | **0** | T002 D：**17 nodes** · **3494** tokens；`graph_v2_freeze_id` **V2_3** |
+
+| 验收项（§3） | pass/fail | 证据 |
+| --- | --- | --- |
+| §3.1 PR-1 graph + `--check` | **pass** | `FREEZE_ID` `TECH_GRAPH_S2_FREEZE_20260519_V2_3` · `protocol_version.yaml` L8 |
+| §3.1 T002 gold BFS | **pass** | `test_t002_subgraph_covers_gold_graph_ids` |
+| §3.2 materialize + T002 载荷 | **pass** | `materialize_report.json` T002 · 3494 &lt; 8192 |
+| §3.3 共用 pytest | **pass** | 195 passed |
+| §1.1 PR-3（可选） | **open** | 非阻塞；保持 `[ ]` |
+| NR-1/2/3/6 | **pass** | 未重跑 A/B/C batch；未改 `conclusion_gate_c` **accepted** |
+| 闸口 C §3.3 follow-up 意图 | **pass** | 图可达 + union 物化；**维持** query machine 默认 |
+
+**§3 验收摘要（50 帽）**：PR-1/PR-2 **pass** · PR-3 **open（非阻塞）** · **已合并 #33** · **建议流程关闭**。  
+**关闭回溯**：`docs/harness/invokes/invoke_20260519_39_tech-graph-v2-query-coverage-50-close.md`
+
+---
+
+## 7. 审查与交接（Harness）
+
+| 轮次 | 状态 | 路径 |
+| --- | --- | --- |
+| **30** | PR-1/2 完成 | `docs/harness/invokes/invoke_20260519_36_tech-graph-v2-query-coverage-execute.md` |
+| **40** | 独立复验 pass | `docs/harness/invokes/invoke_20260519_37_tech-graph-v2-query-coverage-40-self-check.md` |
+| **50** | 关账 · task `done` | `docs/harness/invokes/invoke_20260519_39_tech-graph-v2-query-coverage-50-close.md` |
+
+**配对 PR**：子仓 [#33](https://github.com/Cyning12/ai-ink-brain-api-python/pull/33)（已合并）；工作区 P3 [#1](https://github.com/Cyning12/cyning-ink-workspace/pull/1)（可选并行）。
+
 ---
 
 ## 修订记录
@@ -193,3 +230,4 @@
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-19 | 初稿：闸口 C follow-up · 图可达性 + query/materialize |
+| v1.0 | 2026-05-19 | **关账**：#33 合并；50 复检；归档 `done/` |
