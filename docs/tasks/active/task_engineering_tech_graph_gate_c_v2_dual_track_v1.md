@@ -1,6 +1,6 @@
 # Task：技术图谱 — 闸口 C 对比实验（graph_v2 查询轨 vs 双轨原文）
 
-> **状态**：`active`（**v0.3** · PR-2 P1 batch 已交付 · 待 P2 结论）  
+> **状态**：`active`（**v0.5** · PR-2 P2 结论 draft · 待 HG-GATE-C-SIGNOFF 关账）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · `CTX_QUERY`）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_scheme2_completion_v1.md`（`has_path` / `describe_impact`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** **R4**；`scheme_2_graph_query.md`  
@@ -81,9 +81,9 @@
 - [x] **P1 · batch**  
   - [x] 复用或薄封装既有 batch runner（与 `gate_ctx_b_v1` 同型入口，新 protocol id）  
   - [x] S0 段 3 题 × 2 臂（D、E）最低跑通  
-- [ ] **P2 · 结论**  
-  - [ ] 轴：token（主载荷）、影响集抽样 F1/人工表、wall（可选）  
-  - [ ] 链 `conclusion_gate_b` / `conclusion_gate_ctx_ab` 作背景，**不**推翻 B 已采纳的 CTX_QUERY 默认  
+- [x] **P2 · 结论**  
+  - [x] 轴：token（主载荷）、影响集抽样 F1/人工表、wall（可选）  
+  - [x] 链 `conclusion_gate_b` / `conclusion_gate_ctx_ab` 作背景，**不**推翻 B 已采纳的 CTX_QUERY 默认  
 - [ ] **P3 · 文档（recommended）**  
   - [ ] `改进方向.md` 对比实验表增 **闸口 C**  
   - [ ] `docs/tech_graph/tasks/ai-ink-brain-api-python/README.md` 索引  
@@ -135,8 +135,8 @@
 
 ### 3.3 P2
 
-- [ ] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted` 前人签 **HG-GATE-C-SIGNOFF**  
-- [ ] 明确 **D vs E** 胜负与是否建议调整 Agent 默认消费轨
+- [ ] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted` 前人签 **HG-GATE-C-SIGNOFF**（当前 **`draft`**）  
+- [x] 明确 **D vs E** 胜负与是否建议调整 Agent 默认消费轨（见报告 §3；**维持** B 的 CTX_QUERY 默认）
 
 ### 3.3 共用
 
@@ -218,6 +218,22 @@
 **§3 验收摘要（40 帽）**：§3.1 P0 **pass** · §3.2 P1 **pass** · §3.3 共用 **pass** · §3.3 P2 结论报告 **未测**（交下一棒 30 帽）。  
 **阻塞**：无。
 
+#### PR-2（P2 · 结论报告 · 30 帽 · 2026-05-18）
+
+**human_gate**：`HG-GATE-C-SIGNOFF` 仅阻塞 `done`/`50`，不阻塞 30；其余闸无 `blocks_hats` 含 `30` 且 `pending` → 可开工。
+
+| 项 | 结果 | 证据 |
+| --- | --- | --- |
+| P2 报告 | **draft** | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_v2_dual_track_v1_zh.md` |
+| 静态 token D vs E | pass | `materialize_report.json`：D median **479** · E **1262** |
+| S0 gold F1 | pass | `runs/gate_ctx_c_v1_batch_20260518_052803/gold_f1.md`（6/6 `parse_ok`） |
+| 不推翻 B 默认 | pass | 报告 §3.2 明确维持 CTX_QUERY / `CTX_V2_QUERY` machine 轨 |
+| pytest 主链 | pass | `pytest tests -m "not intent_eval and not intent_benchmark"` → **193 passed**, 1 skipped |
+| NR-1/2 | pass | 未重跑 A/B batch；未改历史 runs |
+
+**§3.3 P2（30 帽）**：结论正文与 D vs E 建议 **已交付（draft）**；`accepted` + 关账待 **HG-GATE-C-SIGNOFF** 人签。  
+**阻塞**：无（关账前须人签）。
+
 ---
 
 ## 7. 审查与交接（Harness）
@@ -229,6 +245,7 @@
 | **30 PR-1** | P0 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
 | **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
+| **30 PR-2** | P2 结论 draft | `docs/harness/invokes/invoke_20260518_32_tech-graph-gate-c-p2-report.md` |
 
 ---
 
@@ -241,3 +258,4 @@
 | v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + `gate_ctx_c_v1_batch_20260518_052803` |
 | v0.3 | 2026-05-18 | 30 帽 PR-2：P1 batch runner + dry-run pytest + LLM batch `052803` |
 | v0.4 | 2026-05-18 | 40 帽：PR-2 独立复验；§3.1/3.2/共用 pass；P2 报告待 30 帽 |
+| v0.5 | 2026-05-18 | 30 帽 P2：`conclusion_gate_c_v2_dual_track_v1_zh.md` draft；§1 P2 勾选；待 HG-GATE-C-SIGNOFF |
