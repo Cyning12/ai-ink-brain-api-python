@@ -2,11 +2,11 @@
   "schema": "gate_ctx_c_v2_query_main_v1",
   "arm": "CTX_V2_QUERY",
   "task_id": "T003_ingest_admin_rpc",
-  "freeze_id": "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0",
+  "freeze_id": "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0",
   "query": {
     "op": "downstream",
     "node_id": "A2",
-    "depth": 2
+    "depth": 1
   },
   "subgraph": {
     "schema_version": "graph_query_result_v1",
@@ -15,7 +15,7 @@
     "query": {
       "op": "downstream",
       "root": "A2",
-      "depth": 2
+      "depth": 1
     },
     "nodes": [
       {
@@ -27,16 +27,6 @@
         "graph_id": "00_main",
         "id": "RPC",
         "label": "Supabase RPC 子流程"
-      },
-      {
-        "graph_id": "00_main",
-        "id": "RPC_DOC",
-        "label": ">13_flow_supabase_rpc.md"
-      },
-      {
-        "graph_id": "12_flow_fts",
-        "id": "TSQ",
-        "label": "websearch_to_tsquery('simple', query_text)"
       }
     ],
     "edges": [
@@ -49,39 +39,59 @@
         "sync": true,
         "to": "RPC",
         "type": "depends_on"
-      },
-      {
-        "anchors": [],
-        "from": "RPC",
-        "graph_id": "00_main",
-        "label": "加载",
-        "mark": "->",
-        "sync": true,
-        "to": "RPC_DOC",
-        "type": "depends_on"
-      },
-      {
-        "anchors": [
-          {
-            "path": "supabase/sql/hybrid_search.sql",
-            "symbol": "keyword_documents"
-          }
-        ],
-        "from": "RPC",
-        "graph_id": "12_flow_fts",
-        "label": "",
-        "mark": "~>",
-        "sync": false,
-        "to": "TSQ",
-        "type": "async_calls"
       }
     ],
-    "anchors": [
-      {
-        "path": "supabase/sql/hybrid_search.sql",
-        "symbol": "keyword_documents"
-      }
+    "anchors": []
+  },
+  "note": "graph_v2 子图；ref 边不参与 BFS",
+  "manifest_slice": {
+    "schema": "gate_ctx_c_manifest_slice_v2_compact",
+    "source": "docs/_tech_graph/_manifest.json",
+    "endpoint_paths": [
+      "/api/py/admin/ingest",
+      "/api/py/admin/sync"
+    ],
+    "anchor_paths": [
+      "api/code_ingest.py",
+      "api/index.py",
+      "api/ingest_pipeline.py",
+      "api/rag_env.py"
     ]
   },
-  "note": "graph_v2 子图；ref 边不参与 BFS"
+  "impact_surface": {
+    "schema": "gate_ctx_c_impact_surface_v2_compact",
+    "source": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json",
+    "candidates": [
+      {
+        "path": "api/rag_env.py",
+        "kind": "data",
+        "graph_id": "ENV"
+      },
+      {
+        "path": "supabase/sql",
+        "kind": "data",
+        "graph_id": "VEC"
+      },
+      {
+        "path": "api/ingest_pipeline.py",
+        "kind": "data",
+        "graph_id": "RPC"
+      },
+      {
+        "path": "api/unified_chat.py",
+        "kind": "control",
+        "graph_id": "RAG"
+      },
+      {
+        "path": "docs/_tech_graph/_manifest.json",
+        "kind": "contract",
+        "graph_id": "A2"
+      },
+      {
+        "path": "tools/tech_graph_manifest_check.py",
+        "kind": "ci"
+      }
+    ],
+    "note": "产出 JSON 时 impacts 须含 path + kind；evidence 可附 graph_id"
+  }
 }

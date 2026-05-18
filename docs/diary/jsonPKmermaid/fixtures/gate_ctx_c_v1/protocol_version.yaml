@@ -6,6 +6,7 @@ created_at: "2026-05-18"
 repo: ai-ink-brain-api-python
 freeze_id: TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0
 gate_c_prime_freeze_id: TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0
+gate_c_double_prime_freeze_id: TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0
 graph_v2_freeze_id: TECH_GRAPH_S2_FREEZE_20260519_V2_3
 graph_v2_path: docs/_tech_graph/graph.json
 

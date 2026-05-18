@@ -2,7 +2,7 @@
 schema: gate_ctx_c_dual_md_main_v1
 arm: CTX_DUAL_MD
 task_id: T001_embedding_dim_default
-freeze_id: TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0
+freeze_id: TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0
 ---
 
 <!-- gate_ctx_c dual_track role=ai path=docs/_tech_graph/10_flow_rag.ai.md -->
