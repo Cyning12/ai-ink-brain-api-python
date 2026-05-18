@@ -1,6 +1,6 @@
 # Task：闸口 C″ — 分题物化修补 T003 impact（graph_v2 查询轨 · 实验先行）
 
-> **状态**：`active`（PR-1～4 已落盘；**关账待** `HG-AUDIT-CLOSE`）  
+> **状态**：`done（2026-05-20 · 闸口 C″ T003 物化收口 · HG-AUDIT-CLOSE 人签 · PR #38）`  
 > **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`  
 > **50 关账审查**：`docs/harness/reviews/task_engineering_tech_graph_gate_c_double_prime_v1_audit_CLOSE_20260520.md`  
 > **前置 task（done · 只读）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_prime_f1_v1.md` · `docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`  
@@ -29,7 +29,7 @@
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 初稿；验收阈值人可调 |
 | **HG-AUDIT-R1** | `approved` | `30` | 任务审核 R1 通过后执行帽可开工 |
 | **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `approved` | `PR-4`, `50`, 关账 | C″ 结论 accepted + 产品决议；**未 approved 禁止 PR-4** |
-| **HG-AUDIT-CLOSE** | `pending` | `done`, `50` | 终轮 CLOSE 签收；**仅人**可改 `approved` 后归档 `docs/tasks/done/` |
+| **HG-AUDIT-CLOSE** | `approved` | `done`, `50` | 终轮 CLOSE 签收；**仅人**可改 `approved` 后归档 `docs/tasks/done/` |
 
 ---
 
@@ -201,7 +201,7 @@
 
 ### 3.4 关账
 
-- [ ] 三枚 `human_gate` 终态符合上表；task 归档 `docs/tasks/done/`
+- [x] 四枚 `human_gate` 终态符合上表；task 归档 `docs/tasks/done/`
 
 ---
 
@@ -293,15 +293,15 @@
 
 **改动路径**：`.cursor/rules/10-tech-graph.mdc`、`.cursor/rules/README.md`。
 
-**已知未测**：关账归档 `docs/tasks/done/`（待 **`HG-AUDIT-CLOSE`** = `approved`）。
+**关账归档**：`docs/tasks/done/`（**HG-AUDIT-CLOSE** = `approved` · 2026-05-20）。
 
 #### 50 帽关账（2026-05-20）
 
 | 验收项 | 结果 | 证据 |
 | --- | --- | --- |
 | 50 全局验收 + CLOSE_TRACE | pass | `…_audit_CLOSE_20260520.md` |
-| PR-4 分支待合并 main | 待 PR | `task/…-pr4-rules` · `api-python@2dc2755` |
-| task → `done/` | **阻塞** | `HG-AUDIT-CLOSE` = `pending` |
+| PR-4 → main | 待合并 | [PR #38](https://github.com/Cyning12/ai-ink-brain-api-python/pull/38) |
+| task → `done/` | pass | 本文路径 |
 
 ---
 
@@ -310,3 +310,4 @@
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v0.1 | 2026-05-20 | 10 帽初稿：C″ 分题物化主攻 T003；实验先行 · rules 后置；相对 052803/083014 量化验收 |
+| v1.0 | 2026-05-20 | 关账：`HG-AUDIT-CLOSE` approved；归档 `done/` |

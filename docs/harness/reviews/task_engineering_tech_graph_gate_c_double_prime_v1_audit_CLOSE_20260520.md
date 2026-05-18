@@ -4,7 +4,7 @@
 
 | 项 | 内容 |
 |----|------|
-| **关联 task** | `docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md` |
+| **关联 task** | `docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md` |
 | **前置审查** | R1 `…_audit_R1_20260520.md` |
 | **C″ 结论** | `docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`（`accepted` · 策略 B） |
 | **主 run** | `docs/diary/jsonPKmermaid/runs/gate_ctx_c_v1_batch_20260518_102810/` |
@@ -21,7 +21,7 @@
 
 **一句结论**：PR-1～PR-4 工程证据齐全；C″ 结论 **accepted**；**HG-GATE-C-DOUBLE-PRIME-SIGNOFF** 已 `approved`；本地 **199 passed** pytest；**建议合并 PR-4**（`task/engineering-tech-graph-gate-c-double-prime-pr4-rules` → `main`）。**Harness 终局关账**须人签 **`HG-AUDIT-CLOSE`** 后 task 方可 `active/` → `done/`。
 
-**不代签** `HG-AUDIT-CLOSE`（当前 `pending`）。
+**HG-AUDIT-CLOSE** 已人签 `approved`；task 已归档 **`done/`**。
 
 | 核对项 | 结论 |
 |--------|------|
@@ -46,15 +46,15 @@
 | HG-GATE-C-DOUBLE-PRIME-SIGNOFF | pass | 阻塞 PR-4 已解除 |
 | §3.3 PR-4 勾选 | pass | `10-tech-graph.mdc` §物化轨 / T003 读取顺序 |
 | `pytest tests -m "not intent_eval and not intent_benchmark"` | pass | **199 passed**, 1 skipped |
-| **HG-AUDIT-CLOSE** | **待人工** | 人改 `approved` 后归档 task |
+| **HG-AUDIT-CLOSE** | pass | `approved` · task 已 `done/` |
 | 重跑 batch / 改物化默认轨 | N/A | 非范围 |
 
 ---
 
 ## 签收 / 关闭
 
-1. **工程链**：自本文起 **可合并 PR-4**；**不可**声明 task 已 `done/` 直至 **`HG-AUDIT-CLOSE` = `approved`**。  
-2. **task 物理归档**：人签关账后 `active/` → **`docs/tasks/done/`**；头部 `done（2026-05-20 · 闸口 C″）`。  
+1. **工程链**：**可合并 [PR #38](https://github.com/Cyning12/ai-ink-brain-api-python/pull/38)**（PR-4 + 50 落盘）。  
+2. **task 物理归档**：已完成 `active/` → **`docs/tasks/done/`**；头部 `done（2026-05-20 · 闸口 C″）`。  
 3. **禁止重复**：覆盖 `052803`/`083014`；修订 C/C′ accepted 结论文；升 `CTX_DUAL_MD` 默认。  
 4. **follow-up（非阻塞）**：T002 单独复跑；T001 impact vs E（结论文 §6）。
 
@@ -64,7 +64,7 @@
 
 | 序号 | 阶段 / 帽子 | 关键动作 | 落盘工件 | 对应 commit |
 |------|-------------|----------|----------|-------------|
-| 1 | 10 | task 初稿 + invoke | `docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md` | `api-python@442b51d` 链 |
+| 1 | 10 | task 初稿 + invoke | `docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md` | `api-python@442b51d` 链 |
 | 2 | 22 R1 | 零硬阻塞 | `…_audit_R1_20260520.md` | `api-python@754bc57` |
 | 3 | 30 PR-1 | T003 manifest/impact 物化 + pytest | `materialize_gate_c_payloads.py`、`test_gate_ctx_c_v1_materialize.py` | `api-python@3de3663` |
 | 4 | 30 PR-2 | T003 token 守门 depth 2→1 | `materialize_report.json`、payloads | `api-python@3de3663` |
@@ -90,3 +90,4 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-20 | CLOSE：50 全局验收 + 执行路线与 Commit 回溯；HG-AUDIT-CLOSE 待人签 |
+| 2026-05-20 | 关账：HG-AUDIT-CLOSE approved；task 归档 `done/` |

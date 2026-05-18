@@ -1,6 +1,6 @@
 # 闸口 C″ 人工验收清单（PR-1～PR-3 + 签收）
 
-> **task**：`docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md`  
+> **task**：`docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md`  
 > **分支**：`task/engineering-tech-graph-gate-c-double-prime-v1`  
 > **PR-4**：分支 `task/engineering-tech-graph-gate-c-double-prime-pr4-rules`（`10-tech-graph.mdc` · 待合并 main）  
 > **50 CLOSE**：`docs/harness/reviews/task_engineering_tech_graph_gate_c_double_prime_v1_audit_CLOSE_20260520.md`  
@@ -15,7 +15,7 @@
 | **HG-TASK-DRAFT** | `approved` | `approved` | 通过 |
 | **HG-AUDIT-R1** | `approved` | `approved` | 通过 |
 | **HG-GATE-C-DOUBLE-PRIME-SIGNOFF** | `approved`（PR-4 / 关账） | `approved` | 通过 |
-| **HG-AUDIT-CLOSE** | `approved`（归档 `done/`） | **`pending`** | **待人签** |
+| **HG-AUDIT-CLOSE** | `approved`（归档 `done/`） | `approved` | 通过 |
 | 结论文 `conclusion_gate_c_double_prime_v1_zh.md` | `accepted`（或带豁免） | `accepted` + §6 策略 B | 通过 |
 | **PR-4 rules** | §6.1 已落盘 | `10-tech-graph.mdc` 已改 | 通过（待 PR 合并） |
 
@@ -36,7 +36,7 @@
 
 | # | 路径 | 验收要点 |
 | --- | --- | --- |
-| 1 | `docs/tasks/active/task_engineering_tech_graph_gate_c_double_prime_v1.md` | `HG-AUDIT-CLOSE` 人签 `approved` 后归档；§3 与 §6 自检 |
+| 1 | `docs/tasks/done/task_engineering_tech_graph_gate_c_double_prime_v1.md` | 已归档；§3 与 §6 自检 |
 | 2 | 同上 task §3.2 / §3.3 | 是否接受 **策略 B**（主 KPI 过 + D&gt;E，T002/entry 豁免） |
 
 ### 2.2 实验与结论（P0 · 产品事实）
