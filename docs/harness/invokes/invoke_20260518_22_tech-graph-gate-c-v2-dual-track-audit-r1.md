@@ -8,9 +8,9 @@
 | related_review_or_none | 无（首轮 R1） |
 | created_utc_or_local | 2026-05-18 CST |
 | git_branch | task/engineering-tech-graph-gate-c-v2-dual-track-v1 |
-| notes | 闸口 C task v0.1 · R1 开帽；HG-TASK-DRAFT pending 触发 0b 硬停 |
+| notes | 闸口 C · D/E 双臂 · 任务审核 R1 |
 
-## 可复制 Prompt 快照（与对话首条 user 一致）
+## 可复制 Prompt 快照
 
 ```text
 你正在扮演工作区 Harness「任务审核帽（R1）」，严格遵循：
