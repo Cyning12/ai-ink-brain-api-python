@@ -1,13 +1,14 @@
 # Task：技术图谱 — 闸口 C 对比实验（graph_v2 查询轨 vs 双轨原文）
 
-> **状态**：`active`（**v0.5** · PR-2 P2 结论 draft · 待 HG-GATE-C-SIGNOFF 关账）  
+> **状态**：`done（2026-05-18 · 闸口 C 实验收口 · 50 关账）`  
+> **P2 结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_v2_dual_track_v1_zh.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · `CTX_QUERY`）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_scheme2_completion_v1.md`（`has_path` / `describe_impact`）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** **R4**；`scheme_2_graph_query.md`  
 > **本 task 定位**：**闸口 C**（新协议 · 非重跑闸口 A/B 主实验）  
 > **test_strategy**：`required`  
 > **test_strategy_note**：新 `fixtures/gate_ctx_c_v1/` 须可 materialize + 至少 1 题 dry-run；pytest 覆盖 payload 构建与 query 种子；LLM batch 可 Phase 分步。  
-> **freeze_id**：`TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`（待 P0 锁定 `protocol_version.yaml`）  
+> **freeze_id**：`TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`（[`protocol_version.yaml`](../diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/protocol_version.yaml)）  
 > **gates_before_code**：`failure_paths`、`test_strategy`、`freeze_id`、§0.3 实验臂定义、§1.2 NR 清单  
 > **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260518_10_tech-graph-gate-c-v2-dual-track-requirements.md`  
@@ -137,11 +138,11 @@
 
 | 验收项 | 40 帽 | 说明 |
 | --- | --- | --- |
-| 结论报告 `draft` 且 §0～§3 与证据链数字一致 | **pass** | 见「40 帽 P2 复验」；**未**改 `accepted` |
+| 结论报告 `accepted` 且 §0～§3 与证据链数字一致 | **pass** | 50 帽只读核对；人改 `accepted` |
 | 明确 D vs E 胜负与 Agent 默认轨建议 | **pass** | 报告 §3；维持 B 的 CTX_QUERY |
-| `accepted` + 关账 | **pending** | task 中 **HG-GATE-C-SIGNOFF** 已 `approved`；须人将结论 md 改 `accepted` 后 **50** 关账 |
+| `accepted` + 关账 | **pass** | **HG-GATE-C-SIGNOFF** `approved` + 50 帽 |
 
-- [ ] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted`（当前 **`draft`**；人签关账时改）  
+- [x] `conclusion_gate_c_v2_dual_track_v1_zh.md` 状态 `accepted`（人签 · 2026-05-18）  
 - [x] 明确 **D vs E** 胜负与是否建议调整 Agent 默认消费轨（见报告 §3；**维持** B 的 CTX_QUERY 默认）
 
 ### 3.3 共用
@@ -265,6 +266,29 @@
 **§3 验收摘要（40 帽 · P2 复验）**：§3.1 P0 **pass** · §3.2 P1 **pass** · §3.3 P2 证据链 **pass**（结论仍 **draft**）· §3.3 共用 **pass**。  
 **阻塞**：无；关账须人将结论改 `accepted` 后戴 **50** 帽。
 
+#### 50 帽（关账 · 独立复检 · 2026-05-18）
+
+**human_gate**：`HG-GATE-C-SIGNOFF` **approved**；无 `blocks_hats` 含 `50` 且 `pending` → 可开工。  
+**结论状态**：`conclusion_gate_c_v2_dual_track_v1_zh.md` L3 **`accepted`**（50 帽未代填）。
+
+| 命令 | cwd | 退出码 | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests/test_gate_ctx_c_v1_materialize.py tests/test_gate_ctx_c_v1_batch.py -q` | `ai-ink-brain-api-python` | **0** | **9 passed** |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 同上 | **0** | **193 passed**, 1 skipped |
+| `python …/materialize_gate_c_payloads.py` | 同上 | **0** | D median **479** · E **1262** |
+
+| 验收项（§3） | pass/fail | 证据 |
+| --- | --- | --- |
+| §3.1 P0 | **pass** | `fixtures/gate_ctx_c_v1/` + `test_gate_ctx_c_v1_materialize.py` |
+| §3.2 P1 | **pass** | `runs/gate_ctx_c_v1_batch_20260518_052803/` · `dry_run: false` |
+| §3.3 P2 `accepted` | **pass** | `reports/conclusion_gate_c_v2_dual_track_v1_zh.md` |
+| §3.3 共用 pytest | **pass** | 193 passed |
+| §1.1 P3（recommended） | **open** | 不阻塞关账 · 可另开 task/invoke |
+| NR-1/2 | **pass** | 未重跑 A/B batch |
+
+**§3 验收摘要（50 帽）**：PR-1/PR-2 **pass** · P3 **open（非阻塞）** · **建议合并**。  
+**关闭回溯**：`docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md`
+
 ---
 
 ## 7. 审查与交接（Harness）
@@ -278,6 +302,9 @@
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |
 | **30 PR-2** | P2 结论 draft | `docs/harness/invokes/invoke_20260518_32_tech-graph-gate-c-p2-report.md` |
 | **40 PR-2** | P2 独立复验 pass | `docs/harness/invokes/invoke_20260518_33_tech-graph-gate-c-40-p2-self-check.md` |
+| **50 关账** | 独立复检 pass · task `done` | `docs/harness/invokes/invoke_20260518_34_tech-graph-gate-c-50-close.md` |
+
+**关闭回溯（commit 索引）**：见对话「执行路线与 Commit 回溯」；末条关账 commit 见 `invoke_20260518_34` 提交 hash。
 
 ---
 
@@ -292,3 +319,4 @@
 | v0.4 | 2026-05-18 | 40 帽：PR-2 独立复验；§3.1/3.2/共用 pass；P2 报告待 30 帽 |
 | v0.5 | 2026-05-18 | 30 帽 P2：`conclusion_gate_c_v2_dual_track_v1_zh.md` draft；§1 P2 勾选；待 HG-GATE-C-SIGNOFF |
 | v0.6 | 2026-05-18 | 40 帽 P2 复验：§0～§3 与证据链一致；pytest 绿；结论仍 draft → 待 50 关账 |
+| v1.0 | 2026-05-18 | **关账**：结论 `accepted` + HG-GATE-C-SIGNOFF；50 复检；归档 `done/`；P3 open |
