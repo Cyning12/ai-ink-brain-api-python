@@ -12,6 +12,8 @@ from tools.tech_graph_graph_query import (
     EXIT_FP5,
     GraphQueryError,
     GraphQueryStore,
+    describe_impact,
+    has_path,
     load_graph_v2,
     query_downstream,
     query_neighbors,
@@ -151,6 +153,88 @@ def test_cli_downstream_auth2() -> None:
     payload = json.loads(proc.stdout)
     assert payload["query"] == {"op": "downstream", "root": "AUTH", "depth": 2}
     assert any(n["id"] == "POOL" for n in payload["nodes"])
+
+
+def test_has_path_reachable(minimal_store: GraphQueryStore) -> None:
+    assert has_path(minimal_store, "AUTH", "RAG") is True
+    assert has_path(minimal_store, "AUTH", "POOL") is True
+
+
+def test_has_path_not_reachable(minimal_store: GraphQueryStore) -> None:
+    assert has_path(minimal_store, "RAG", "AUTH") is False
+    assert has_path(minimal_store, "POOL", "E") is False
+
+
+def test_has_path_same_node(minimal_store: GraphQueryStore) -> None:
+    assert has_path(minimal_store, "AUTH", "AUTH") is True
+
+
+def test_has_path_fp4_unknown(minimal_store: GraphQueryStore) -> None:
+    with pytest.raises(GraphQueryError) as exc:
+        has_path(minimal_store, "NO_SUCH", "AUTH")
+    assert exc.value.exit_code == EXIT_FP4
+    with pytest.raises(GraphQueryError) as exc2:
+        has_path(minimal_store, "AUTH", "NO_SUCH")
+    assert exc2.value.exit_code == EXIT_FP4
+
+
+def test_describe_impact_contains_labels(minimal_store: GraphQueryStore) -> None:
+    text = describe_impact(minimal_store, "POOL", 2)
+    assert "POOL" in text
+    assert "连接池" in text
+    assert "RAG" in text
+    assert "鉴权" in text or "AUTH" in text
+    assert "下游" in text
+    assert "上游" in text
+
+
+def test_describe_impact_fp4(minimal_store: GraphQueryStore) -> None:
+    with pytest.raises(GraphQueryError) as exc:
+        describe_impact(minimal_store, "__UNKNOWN__", 2)
+    assert exc.value.exit_code == EXIT_FP4
+
+
+def test_cli_has_path_auth_rag(tmp_path: Path) -> None:
+    """CLI has-path 使用 fixture 图，避免仓内拓扑与 golden 不一致。"""
+    repo_root = Path(__file__).resolve().parents[1]
+    graph_file = tmp_path / "graph.json"
+    graph_file.write_text(json.dumps(_minimal_v2_graph(), indent=2), encoding="utf-8")
+    script = repo_root / "tools" / "tech_graph_graph_query.py"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--graph",
+            str(graph_file),
+            "has-path",
+            "AUTH",
+            "RAG",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    payload = json.loads(proc.stdout)
+    assert payload["has_path"] is True
+
+
+def test_cli_describe_impact_pool() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    script = repo_root / "tools" / "tech_graph_graph_query.py"
+    proc = subprocess.run(
+        [sys.executable, str(script), "describe-impact", "POOL", "2"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0 and "graph_v2" in (proc.stderr or ""):
+        pytest.skip("graph.json 非 v2")
+    assert proc.returncode == 0, proc.stderr
+    assert "POOL" in proc.stdout
+    assert "下游" in proc.stdout
 
 
 def test_cli_fp4_unknown_node() -> None:

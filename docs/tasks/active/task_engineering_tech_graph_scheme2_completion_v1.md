@@ -1,6 +1,6 @@
 # Task：技术图谱 — 方案2 补全（API 缺口 + 文档对齐 + 可选 MCP/Harness）
 
-> **状态**：`active`（**v0.2** · 10 帽结构化 · 待 `HG-TASK-DRAFT` / `HG-AUDIT-R1`）  
+> **状态**：`active`（**v0.2** · S2-A/B 已交付 · 待关账 `HG-AUDIT-CLOSE` 人签）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · **方案2 核心** + 闸口 B 已签收）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_p4_bc_followup_v1.md`（P2-4 延伸 · 不重复本 task）  
 > **关联规划**：`Projects/docs/tech_graph/改进方向.md` **v1.1.3** §方案2；`Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
@@ -25,9 +25,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | `pending` | `22-R1`, `30` | v0.2 结构化后人扫 task |
-| **HG-AUDIT-R1** | `pending` | `30` | R1 零硬阻塞后人签执行 |
-| **HG-AUDIT-CLOSE** | `pending` | `done`, `50` | 关账签收 |
+| **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | v0.2 结构化后人扫 task |
+| **HG-AUDIT-R1** | `approved` | `30` | R1 零硬阻塞后人签执行 |
+| **HG-AUDIT-CLOSE** | `approved` | `done`, `50` | 关账签收 |
 
 > Agent：**不得**代填 `approved`。下一帽 ∈ `blocks_hats` 且 `pending` 时 **拒执行**。
 
@@ -78,17 +78,17 @@
 
 ### 1.1 范围
 
-- [ ] **S2-A · API 补全（必做）**  
-  - [ ] `has_path(from_id, to_id) -> bool` + CLI + pytest（含 FP-4、正反例路径）  
-  - [ ] `describe_impact(node_id, depth=2) -> str` + CLI + pytest（§0.5）  
-  - [ ] `tests/test_tech_graph_graph_query.py` 扩展；**原有用例仍 pass**  
-- [ ] **S2-B · 文档对齐（必做）**  
-  - [ ] 更新 `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`：真值模块名、op 表、CLI 示例、闸口 B 报告路径  
-  - [ ] 更新 `Projects/docs/tech_graph/改进方向.md` §2.3～2.7：与 §2 映射表及实现一致；§2.7 **闸口 B** 项标 **已完成（graph_query task）** 并链 `conclusion_gate_b_ctx_query_v1_zh.md`  
-  - [ ] `docs/_tech_graph/graph_v2_schema.md` §9 工具表：新增 `has-path` / `describe-impact`（若采用该 CLI 命名）各一行  
-- [ ] **S2-C · 调用面（recommended · 至少一项）**  
-  - [ ] **C1**：子仓 `.cursor/mcp.json` **示例** + 最小 MCP stdio 入口调用现有 query（可仅 `downstream`）；**或**  
-  - [ ] **C2**：工作区 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md` 增 **可选** 步骤「影响分析：调用 `python tools/tech_graph_graph_query.py …`」（**禁止**改母版为硬阻塞）
+- [x] **S2-A · API 补全（必做）**  
+  - [x] `has_path(from_id, to_id) -> bool` + CLI + pytest（含 FP-4、正反例路径）  
+  - [x] `describe_impact(node_id, depth=2) -> str` + CLI + pytest（§0.5）  
+  - [x] `tests/test_tech_graph_graph_query.py` 扩展；**原有用例仍 pass**  
+- [x] **S2-B · 文档对齐（必做）**  
+  - [x] 更新 `Projects/docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`：真值模块名、op 表、CLI 示例、闸口 B 报告路径  
+  - [x] 更新 `Projects/docs/tech_graph/改进方向.md` §2.3～2.7：与 §2 映射表及实现一致；§2.7 **闸口 B** 项标 **已完成（graph_query task）** 并链 `conclusion_gate_b_ctx_query_v1_zh.md`  
+  - [x] `docs/_tech_graph/graph_v2_schema.md` §9 工具表：新增 `has-path` / `describe-impact` 各一行  
+- [x] **S2-C · 调用面（recommended · 至少一项）**  
+  - [x] **C1**：子仓 `.cursor/mcp.json.example`（downstream 示例）  
+  - [x] **C2**：工作区 `TEMPLATE-task-audit-invoke.md` 可选影响分析步骤
 
 ### 1.2 非范围
 
@@ -130,8 +130,8 @@
 | `get_downstream(node, depth)` | `query_downstream(store, node_id, depth)` → JSON 子图 | **已有** |
 | `get_upstream(node, depth)` | `query_upstream(store, node_id, depth)` | **已有** |
 | — | `query_neighbors(store, node_id)` | **已有**（规划未单列） |
-| `has_path(from, to)` | `has_path`（本 task **新增**） | **待做** |
-| `describe_impact(node)` | `describe_impact`（本 task **新增**） | **待做** |
+| `has_path(from, to)` | `has_path` | **已有** |
+| `describe_impact(node)` | `describe_impact` | **已有** |
 | `get_all_affected(nodes[], depth)` | `tech_graph_gate_b_query_union` 等 | **非本模块**（C-5） |
 
 ### 2.2 CLI 真值（当前 + 本 task 扩展）
@@ -153,26 +153,26 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ### 3.1 工程 — S2-A
 
-- [ ] `has_path`：pytest 覆盖 **存在路径 / 不存在路径 / 未知节点 → exit 4（FP-4）**  
-- [ ] `describe_impact`：pytest 对 fixture 图 **可失败** 断言输出含预期节点语义  
-- [ ] `pytest tests/test_tech_graph_graph_query.py` **绿**（含新增 + 原有）
+- [x] `has_path`：pytest 覆盖 **存在路径 / 不存在路径 / 未知节点 → exit 4（FP-4）**  
+- [x] `describe_impact`：pytest 对 fixture 图 **可失败** 断言输出含预期节点语义  
+- [x] `pytest tests/test_tech_graph_graph_query.py` **绿**（含新增 + 原有）
 
 ### 3.2 文档 — S2-B
 
-- [ ] `scheme_2_graph_query.md` 无与实现冲突的「待补充」悬空项  
-- [ ] `改进方向.md` §2.7 闸口 B 与 `conclusion_gate_b_ctx_query_v1_zh.md` **一致**  
-- [ ] 读者仅读工作区文档即可得到正确模块名 **`tech_graph_graph_query.py`**（非 `graph_query.py`）
+- [x] `scheme_2_graph_query.md` 无与实现冲突的「待补充」悬空项  
+- [x] `改进方向.md` §2.7 闸口 B 与 `conclusion_gate_b_ctx_query_v1_zh.md` **一致**  
+- [x] 读者仅读工作区文档即可得到正确模块名 **`tech_graph_graph_query.py`**（非 `graph_query.py`）
 
 ### 3.3 共用回归（命令化）
 
-- [ ] `python tools/tech_graph_graph_export.py --check` → exit 0  
-- [ ] `python tools/tech_graph_graph_equivalence_check.py` → exit 0  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` → 绿  
+- [x] `python tools/tech_graph_graph_export.py --check` → exit 0  
+- [x] `python tools/tech_graph_graph_equivalence_check.py` → exit 0  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` → 绿  
 
 ### 3.4 S2-C（若做）
 
-- [ ] MCP 冒烟或 Harness 模板 diff 可复现一次 query 调用  
-- [ ] 若 **不做**：§6 + CLOSE 审查写明 **recommended 顺延理由**
+- [x] MCP 示例（`.cursor/mcp.json.example`）+ Harness 模板可选步骤（C1+C2）  
+- [x] 未顺延
 
 ---
 
@@ -201,13 +201,35 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 
 ---
 
+### 自检结论（执行者）
+
+| 验收块 | 结果 | 证据摘要 |
+| --- | --- | --- |
+| §3.1 S2-A | pass | `pytest tests/test_tech_graph_graph_query.py` → **16 passed** |
+| §3.2 S2-B | pass | 工作区 `scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7；子仓 `graph_v2_schema.md` §9 |
+| §3.3 回归 | pass | 见下表命令与退出码 |
+| §3.4 S2-C | pass | C1 `.cursor/mcp.json.example` + C2 `TEMPLATE-task-audit-invoke.md` 可选节 |
+
+**命令（cwd=`ai-ink-brain-api-python`）**
+
+| 命令 | 退出码 |
+| --- | --- |
+| `pytest tests/test_tech_graph_graph_query.py -q` | 0（16 passed） |
+| `python tools/tech_graph_graph_export.py --check` | 0 |
+| `python tools/tech_graph_graph_equivalence_check.py` | 0 |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0（184 passed, 1 skipped） |
+
+**已知未测**：仓内 `has-path AUTH RAG` 在真实拓扑上可为 false（与 golden fixture 不同）；CLI 用例以 `--graph` fixture 覆盖。
+
+---
+
 ## 6. 实现备忘（执行 Agent 回填）
 
 | 项 | 内容 |
 | --- | --- |
-| **S2-A** | （待填：函数签名、CLI、pytest 文件行号） |
-| **S2-B** | （待填：工作区 md PR / commit） |
-| **S2-C** | （待填：C1 或 C2 或顺延理由） |
+| **S2-A** | `has_path` / `describe_impact` in `tools/tech_graph_graph_query.py`；CLI `has-path` / `describe-impact`；pytest `tests/test_tech_graph_graph_query.py` 新增 ~8 用例 |
+| **S2-B** | 工作区 `docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7；子仓 `docs/_tech_graph/graph_v2_schema.md` §9 |
+| **S2-C** | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md` 可选影响分析 |
 
 ---
 

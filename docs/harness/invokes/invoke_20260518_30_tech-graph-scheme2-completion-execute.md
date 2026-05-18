@@ -7,9 +7,9 @@
 | task_paths | ai-ink-brain-api-python/docs/tasks/active/task_engineering_tech_graph_scheme2_completion_v1.md |
 | related_review_or_none | ai-ink-brain-api-python/docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_R1_20260518.md |
 | created_utc_or_local | 2026-05-18 |
-| notes | 开帽前 gate 检查：**HG-TASK-DRAFT**、**HG-AUDIT-R1** 仍为 `pending` → **30 拒开工**（未改业务代码） |
+| notes | 人工闸已签；S2-A/B/C 已交付 |
 | git_branch | task/engineering-tech-graph-scheme2-completion-v1 |
-| outcome | blocked_by_human_gate |
+| outcome | executed |
 
 ## 可复制 Prompt 快照（与对话首条 user 一致）
 

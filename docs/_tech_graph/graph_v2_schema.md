@@ -97,6 +97,18 @@
 | `tools/tech_graph_graph_equivalence_check.py` | 等价 CI |
 | `tools/tech_graph_graph_query.py` | 单图 query（忽略 ref） |
 
+## 9. `tech_graph_graph_query.py` CLI
+
+| 子命令 | 参数 | 输出 |
+| --- | --- | --- |
+| `downstream` | `<node_id> <depth>` | JSON 子图 |
+| `upstream` | `<node_id> <depth>` | JSON 子图 |
+| `neighbors` | `<node_id>` | JSON 子图 |
+| `has-path` | `<from_id> <to_id>` | JSON（`has_path: bool`） |
+| `describe-impact` | `<node_id> [depth]` | 人类可读文本（默认 depth=2） |
+
+退出码：`4` 未知节点；`5` 非 graph_v2。详见 `scheme_2_graph_query.md`。
+
 ---
 
 ## 修订记录
