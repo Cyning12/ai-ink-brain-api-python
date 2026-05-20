@@ -7,7 +7,8 @@
 | task_paths | `ai-ink-brain-api-python/docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md` |
 | related_review_or_none | `ai-ink-brain-api-python/docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_R4_20260514.md`（工作区指针：`docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_R4_20260514.md`） |
 | priority_roadmap | [`docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md`](../../../../docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md) §3 **B3** · INK-P3 |
-| git_branch | **`task/chatbi-v3-prompt-injection-closeout-v1`**（子 Agent **须自行创建**；**禁止**与 B1 共用） |
+| git_branch | **`task/chatbi-v3-prompt-injection-closeout-v1`**（**禁止**与 B1 共用） |
+| worktree_root | **`ai-ink-brain-api-python-wt-chatbi-closeout`**（相对 `Projects/`；`pytest`/`git` cwd） |
 | parallel_with | B1 · [`invoke_20260520_10_tech-graph-gate-d-v2-tasks-requirements.md`](invoke_20260520_10_tech-graph-gate-d-v2-tasks-requirements.md)（`task/engineering-tech-graph-gate-d-v2-tasks-v1`） |
 | created | 2026-05-20 |
 | revised | 2026-05-20（明确独立分支） |
