@@ -8,12 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 API_DIR = REPO_ROOT / "api"
 SQL_DIR = REPO_ROOT / "supabase" / "sql"
-MANIFEST_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_manifest.json"
-
+DEFAULT_BACKEND_MANIFEST = REPO_ROOT / "docs" / "_tech_graph" / "_manifest.json"
 
 KEY_ENV_PREFIX = (
     "NEXT_PUBLIC_SUPABASE_",
@@ -35,7 +33,7 @@ KEY_ENV_EXACT = {
     "MAX_X_SOURCES_HEADER_CHARS",
 }
 
-FRONTEND_ENV_PREFIX = (
+FRONTEND_KEY_ENV_PREFIX = (
     "NEXT_PUBLIC_",
     "SUPABASE_",
     "SILICONFLOW_",
@@ -43,15 +41,15 @@ FRONTEND_ENV_PREFIX = (
     "EMBEDDING_",
     "DASHSCOPE_",
 )
-FRONTEND_ENV_EXACT = {
+FRONTEND_KEY_ENV_EXACT = {
     "NODE_ENV",
     "PY_API_URL",
     "CHAT_API_SECRET",
+    "EMBEDDING_PROVIDER",
+    "EMBEDDING_DIM",
 }
 
-ROUTE_HANDLER_PAT = re.compile(
-    r"(?m)^export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE)\b",
-)
+HTTP_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE")
 
 
 @dataclass(frozen=True)
@@ -60,6 +58,12 @@ class EndpointTruth:
     path: str
     handler: str
     line: int
+
+
+@dataclass(frozen=True)
+class RouteTruth:
+    method: str
+    path: str
 
 
 def _read_text(p: Path) -> str:
@@ -103,13 +107,13 @@ def _extract_env_names_from_text(py_text: str) -> set[str]:
     return set(re.findall(r'os\.getenv\("([A-Z0-9_]+)"', py_text))
 
 
-def _filter_key_envs(envs: Iterable[str]) -> set[str]:
+def _filter_key_envs(envs: Iterable[str], *, exact: set[str], prefixes: tuple[str, ...]) -> set[str]:
     out: set[str] = set()
     for e in envs:
-        if e in KEY_ENV_EXACT:
+        if e in exact:
             out.add(e)
             continue
-        if any(e.startswith(p) for p in KEY_ENV_PREFIX):
+        if any(e.startswith(p) for p in prefixes):
             out.add(e)
     return out
 
@@ -134,89 +138,14 @@ def _extract_sql_public_functions(sql_text: str) -> set[str]:
     return set([m.group(1) for m in pat.finditer(sql_text)])
 
 
-def _load_manifest(manifest_path: Path) -> dict[str, Any]:
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"missing manifest: {manifest_path}")
-    raw = _read_text(manifest_path)
+def _load_manifest(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"missing manifest: {path}")
+    raw = _read_text(path)
     obj = json.loads(raw)
     if not isinstance(obj, dict):
         raise TypeError("manifest root must be an object")
     return obj
-
-
-def _is_route_group_segment(segment: str) -> bool:
-    return segment.startswith("(") and segment.endswith(")")
-
-
-def _page_url_from_page_file(repo_root: Path, page_file: Path) -> str:
-    rel = page_file.relative_to(repo_root / "app")
-    parts = [p for p in rel.parts if p != "page.tsx" and not _is_route_group_segment(p)]
-    if not parts:
-        return "/"
-    return "/" + "/".join(parts)
-
-
-def _api_url_from_route_file(repo_root: Path, route_file: Path) -> str:
-    rel = route_file.relative_to(repo_root / "app" / "api")
-    parts = [p for p in rel.parts if p != "route.ts" and not _is_route_group_segment(p)]
-    return "/api/" + "/".join(parts)
-
-
-def _extract_route_methods_from_text(route_text: str) -> list[str]:
-    return sorted({m.group(1).upper() for m in ROUTE_HANDLER_PAT.finditer(route_text)})
-
-
-def _collect_frontend_pages_truth(repo_root: Path) -> set[str]:
-    app_dir = repo_root / "app"
-    if not app_dir.is_dir():
-        raise FileNotFoundError(f"missing app dir: {app_dir}")
-    pages: set[str] = set()
-    for page_file in sorted(app_dir.glob("**/page.tsx")):
-        pages.add(_page_url_from_page_file(repo_root, page_file))
-    return pages
-
-
-def _collect_frontend_routes_truth(repo_root: Path) -> set[str]:
-    api_dir = repo_root / "app" / "api"
-    if not api_dir.is_dir():
-        raise FileNotFoundError(f"missing app/api dir: {api_dir}")
-    routes: set[str] = set()
-    for route_file in sorted(api_dir.glob("**/route.ts")):
-        url = _api_url_from_route_file(repo_root, route_file)
-        text = _read_text(route_file)
-        for method in _extract_route_methods_from_text(text):
-            routes.add(_endpoint_key(method, url))
-    return routes
-
-
-def _iter_frontend_scan_files(repo_root: Path) -> list[Path]:
-    roots = [repo_root / "lib", repo_root / "app" / "api"]
-    out: list[Path] = []
-    for root in roots:
-        if not root.is_dir():
-            continue
-        for pattern in ("**/*.ts", "**/*.tsx"):
-            out.extend(root.glob(pattern))
-    return sorted({p for p in out if p.is_file()})
-
-
-def _extract_frontend_env_names_from_text(text: str) -> set[str]:
-    names = set(re.findall(r"process\.env\.([A-Z0-9_]+)", text))
-    names |= set(re.findall(r'process\.env\["([A-Z0-9_]+)"\]', text))
-    names |= set(re.findall(r"process\.env\['([A-Z0-9_]+)'\]", text))
-    names |= set(re.findall(r'mustGetEnv\("([A-Z0-9_]+)"\)', text))
-    return names
-
-
-def _filter_frontend_envs(envs: Iterable[str]) -> set[str]:
-    out: set[str] = set()
-    for e in envs:
-        if e in FRONTEND_ENV_EXACT:
-            out.add(e)
-            continue
-        if any(e.startswith(p) for p in FRONTEND_ENV_PREFIX):
-            out.add(e)
-    return out
 
 
 def _expect_list_str(obj: dict[str, Any], key: str) -> list[str]:
@@ -255,22 +184,11 @@ def _expect_endpoints(obj: dict[str, Any]) -> list[dict[str, Any]]:
     return eps
 
 
-def _expect_frontend_pages(obj: dict[str, Any]) -> list[str]:
-    pages = obj.get("pages")
-    if not isinstance(pages, list) or not all(isinstance(x, str) for x in pages):
-        raise TypeError("manifest.pages must be list[str]")
-    return pages
-
-
-def _expect_frontend_routes(obj: dict[str, Any]) -> list[dict[str, Any]]:
+def _expect_routes(obj: dict[str, Any]) -> list[dict[str, Any]]:
     routes = obj.get("routes")
     if not isinstance(routes, list) or not all(isinstance(x, dict) for x in routes):
         raise TypeError("manifest.routes must be list[object]")
-    required = {"method", "path"}
     for i, r in enumerate(routes):
-        missing = required - set(r.keys())
-        if missing:
-            raise TypeError(f"manifest.routes[{i}] missing keys: {sorted(missing)}")
         if not isinstance(r.get("method"), str) or not isinstance(r.get("path"), str):
             raise TypeError(f"manifest.routes[{i}] method/path must be string")
     return routes
@@ -325,21 +243,21 @@ def _endpoint_diff(truth: list[EndpointTruth], declared: list[dict[str, Any]]) -
 
     msgs: list[str] = []
     if missing:
-        msgs.append("Endpoints 缺失（truth->manifest）：\n" + "\n".join([f"  - {x}" for x in missing]))
+        msgs.append("Routes 缺失（truth->manifest）：\n" + "\n".join([f"  - {x}" for x in missing]))
     if extra:
-        msgs.append("Endpoints 多余（manifest->truth）：\n" + "\n".join([f"  - {x}" for x in extra]))
+        msgs.append("Routes 多余（manifest->truth）：\n" + "\n".join([f"  - {x}" for x in extra]))
     if changed:
-        msgs.append("Endpoints 不一致（同 method+path）：\n" + "\n".join([f"  - {x}" for x in changed]))
+        msgs.append("Routes 不一致（同 method+path）：\n" + "\n".join([f"  - {x}" for x in changed]))
     return msgs
 
 
-def _route_diff(truth: set[str], declared_routes: list[dict[str, Any]]) -> list[str]:
-    declared_map = {
-        _endpoint_key(str(r.get("method", "")).upper(), str(r.get("path", ""))): r
-        for r in declared_routes
+def _route_diff(truth: list[RouteTruth], declared: list[dict[str, Any]]) -> list[str]:
+    truth_keys = {_endpoint_key(r.method, r.path) for r in truth}
+    declared_keys = {
+        _endpoint_key(str(r.get("method", "")).upper(), str(r.get("path", ""))) for r in declared
     }
-    missing = sorted([k for k in truth if k not in declared_map])
-    extra = sorted([k for k in declared_map.keys() if k not in truth])
+    missing = sorted([k for k in truth_keys if k not in declared_keys])
+    extra = sorted([k for k in declared_keys if k not in truth_keys])
     msgs: list[str] = []
     if missing:
         msgs.append("Routes 缺失（truth->manifest）：\n" + "\n".join([f"  - {x}" for x in missing]))
@@ -348,40 +266,83 @@ def _route_diff(truth: set[str], declared_routes: list[dict[str, Any]]) -> list[
     return msgs
 
 
-def _page_diff(truth: set[str], declared_pages: list[str]) -> list[str]:
-    declared_set = set(declared_pages)
-    d = _set_diff(truth=truth, declared=declared_set)
-    if not d["missing"] and not d["extra"]:
+def _is_route_group_segment(segment: str) -> bool:
+    return segment.startswith("(") and segment.endswith(")")
+
+
+def _page_path_to_url(page_tsx: Path, app_dir: Path) -> str:
+    rel = page_tsx.relative_to(app_dir)
+    segments = [s for s in rel.parts[:-1] if not _is_route_group_segment(s)]
+    if not segments:
+        return "/"
+    return "/" + "/".join(segments)
+
+
+def _route_file_to_url(route_ts: Path, app_dir: Path) -> str:
+    rel = route_ts.relative_to(app_dir)
+    if len(rel.parts) < 3 or rel.parts[0] != "api" or rel.parts[-1] != "route.ts":
+        raise ValueError(f"unexpected route file layout: {route_ts}")
+    segments = [s for s in rel.parts[1:-1] if not _is_route_group_segment(s)]
+    return "/api/" + "/".join(segments)
+
+
+def _extract_http_methods_from_route(text: str) -> list[str]:
+    methods: list[str] = []
+    pat = re.compile(
+        r"(?m)^export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE)\b",
+    )
+    for m in pat.finditer(text):
+        methods.append(m.group(1).upper())
+    return methods
+
+
+def _extract_frontend_pages(app_dir: Path) -> set[str]:
+    pages: set[str] = set()
+    for page in sorted(app_dir.rglob("page.tsx")):
+        if not page.is_file():
+            continue
+        pages.add(_page_path_to_url(page, app_dir))
+    return pages
+
+
+def _extract_frontend_routes(app_dir: Path) -> list[RouteTruth]:
+    api_dir = app_dir / "api"
+    if not api_dir.is_dir():
         return []
-    return [_format_diff("Pages", d)]
+    out: list[RouteTruth] = []
+    for route_file in sorted(api_dir.rglob("route.ts")):
+        text = _read_text(route_file)
+        url = _route_file_to_url(route_file, app_dir)
+        for method in _extract_http_methods_from_route(text):
+            out.append(RouteTruth(method=method, path=url))
+    out.sort(key=lambda r: (r.path, r.method))
+    return out
 
 
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Tech graph manifest drift check (api-python or frontend).")
-    parser.add_argument(
-        "--repo",
-        choices=["frontend"],
-        default=None,
-        help="Repository profile. Default: api-python (unchanged legacy behavior).",
+def _extract_frontend_env_names(repo_root: Path) -> set[str]:
+    names: set[str] = set()
+    scan_roots = [repo_root / "lib", repo_root / "app" / "api"]
+    dot_pat = re.compile(r"process\.env\.([A-Z][A-Z0-9_]*)")
+    bracket_pat = re.compile(r'process\.env\[["\']([A-Z][A-Z0-9_]*)["\']\]')
+    must_get_pat = re.compile(r'mustGetEnv\(["\']([A-Z][A-Z0-9_]*)["\']\)')
+    for root in scan_roots:
+        if not root.is_dir():
+            continue
+        for ts in sorted(root.rglob("*.ts")) + sorted(root.rglob("*.tsx")):
+            if not ts.is_file():
+                continue
+            text = _read_text(ts)
+            names |= set(dot_pat.findall(text))
+            names |= set(bracket_pat.findall(text))
+            names |= set(must_get_pat.findall(text))
+    return _filter_key_envs(
+        names,
+        exact=FRONTEND_KEY_ENV_EXACT,
+        prefixes=FRONTEND_KEY_ENV_PREFIX,
     )
-    parser.add_argument(
-        "--repo-root",
-        type=Path,
-        default=None,
-        help="Repository root. Default: script parent dir (api-python) or required for --repo frontend.",
-    )
-    parser.add_argument(
-        "--manifest",
-        type=Path,
-        default=None,
-        help="Path to _manifest.json. Default: docs/_tech_graph/_manifest.json under repo-root.",
-    )
-    return parser.parse_args()
 
 
-def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
-    api_dir = repo_root / "api"
-    sql_dir = repo_root / "supabase" / "sql"
+def _run_backend_check(*, manifest_path: Path) -> int:
     try:
         manifest = _load_manifest(manifest_path)
         manifest_env = set(_expect_list_str(manifest, "env"))
@@ -390,7 +351,7 @@ def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
         manifest_rpc_set = set(manifest_rpc)
         manifest_endpoints = _expect_endpoints(manifest)
 
-        index_path = api_dir / "index.py"
+        index_path = API_DIR / "index.py"
         if not index_path.exists():
             print("FAIL: missing api/index.py")
             return 2
@@ -398,16 +359,16 @@ def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
         index_text = _read_text(index_path)
         endpoint_truth = _extract_endpoints_from_index(index_text)
 
-        py_files = sorted([p for p in api_dir.glob("*.py") if p.is_file()]) if api_dir.is_dir() else []
-        py_text_all = "\n".join([_read_text(p) for p in py_files])
-        env_truth = _filter_key_envs(_extract_env_names_from_text(py_text_all))
+        py_text_all = "\n".join([_read_text(p) for p in _iter_py_files()])
+        env_truth = _filter_key_envs(
+            _extract_env_names_from_text(py_text_all),
+            exact=KEY_ENV_EXACT,
+            prefixes=KEY_ENV_PREFIX,
+        )
         rpc_truth = _extract_rpc_names_from_text(py_text_all)
         table_truth = _extract_table_names_from_text(py_text_all)
 
-        sql_files = (
-            sorted([p for p in sql_dir.glob("*.sql") if p.is_file()]) if sql_dir.is_dir() else []
-        )
-        sql_text_all = "\n".join([_read_text(p) for p in sql_files])
+        sql_text_all = "\n".join([_read_text(p) for p in _iter_sql_files()])
         sql_tables = _extract_sql_tables(sql_text_all)
         sql_funcs = _extract_sql_public_functions(sql_text_all)
 
@@ -439,7 +400,7 @@ def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
                 if not isinstance(p, str) or not isinstance(sym, str) or not p or not sym:
                     problems.append(f"Anchors: FAIL\n  anchors[{i}] requires path/symbol string")
                     break
-                abs_p = (repo_root / p).resolve()
+                abs_p = (REPO_ROOT / p).resolve()
                 if not abs_p.exists():
                     problems.append(f"Anchors: FAIL\n  anchors[{i}] path not found: {p}")
                     break
@@ -458,7 +419,7 @@ def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
                 print()
             return 1
 
-        ai_main = repo_root / "docs" / "_tech_graph" / "00_main.ai.md"
+        ai_main = REPO_ROOT / "docs" / "_tech_graph" / "00_main.ai.md"
         if ai_main.exists():
             t = _read_text(ai_main)
             if "<!-- AUTO:ENDPOINTS_AND_ANCHORS BEGIN -->" in t and "<!-- AUTO:ENDPOINTS_AND_ANCHORS END -->" in t:
@@ -475,28 +436,34 @@ def _check_api_python(*, repo_root: Path, manifest_path: Path) -> int:
     except (json.JSONDecodeError, TypeError, ValueError) as exc:
         print(f"ERROR: manifest invalid: {exc}")
         return 2
-    except Exception as exc:  # noqa: BLE001
-        print(f"ERROR: unexpected: {type(exc).__name__}: {exc}")
-        return 2
 
 
-def _check_frontend(*, repo_root: Path, manifest_path: Path) -> int:
+def _run_frontend_check(*, repo_root: Path, manifest_path: Path) -> int:
     try:
         manifest = _load_manifest(manifest_path)
-        if manifest.get("repo") != "ai-ink-brain":
-            print('WARN: manifest.repo is not "ai-ink-brain" (frontend profile)')
+        schema = manifest.get("schema_version")
+        if schema != "tech_graph_manifest_v1":
+            raise TypeError(f"manifest.schema_version must be tech_graph_manifest_v1, got {schema!r}")
 
-        manifest_pages = _expect_frontend_pages(manifest)
-        manifest_routes = _expect_frontend_routes(manifest)
+        manifest_pages = set(_expect_list_str(manifest, "pages"))
+        manifest_routes = _expect_routes(manifest)
         manifest_env = set(_expect_list_str(manifest, "env"))
 
-        pages_truth = _collect_frontend_pages_truth(repo_root)
-        routes_truth = _collect_frontend_routes_truth(repo_root)
-        scan_text = "\n".join([_read_text(p) for p in _iter_frontend_scan_files(repo_root)])
-        env_truth = _filter_frontend_envs(_extract_frontend_env_names_from_text(scan_text))
+        app_dir = repo_root / "app"
+        if not app_dir.is_dir():
+            print(f"FAIL: missing app directory under repo root: {app_dir}")
+            return 2
+
+        pages_truth = _extract_frontend_pages(app_dir)
+        routes_truth = _extract_frontend_routes(app_dir)
+        env_truth = _extract_frontend_env_names(repo_root)
 
         problems: list[str] = []
-        problems += _page_diff(pages_truth, manifest_pages)
+
+        d_pages = _set_diff(truth=pages_truth, declared=manifest_pages)
+        if d_pages["missing"] or d_pages["extra"]:
+            problems.append(_format_diff("Pages", d_pages))
+
         problems += _route_diff(routes_truth, manifest_routes)
 
         d_env = _set_diff(truth=env_truth, declared=manifest_env)
@@ -504,7 +471,7 @@ def _check_frontend(*, repo_root: Path, manifest_path: Path) -> int:
             problems.append(_format_diff("Key env vars", d_env))
 
         if problems:
-            print("FAIL: frontend manifest drift detected.\n")
+            print("FAIL: manifest drift detected.\n")
             for msg in problems:
                 print(msg)
                 print()
@@ -522,21 +489,49 @@ def _check_frontend(*, repo_root: Path, manifest_path: Path) -> int:
     except (json.JSONDecodeError, TypeError, ValueError) as exc:
         print(f"ERROR: manifest invalid: {exc}")
         return 2
+
+
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Tech graph manifest drift check (backend or frontend).")
+    parser.add_argument(
+        "--repo",
+        choices=("frontend",),
+        default=None,
+        help="Profile: frontend Next.js repo (requires --repo-root and --manifest).",
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=None,
+        help="Repository root for --repo frontend (e.g. ai-ink-brain checkout).",
+    )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="Path to _manifest.json (default: backend docs/_tech_graph/_manifest.json).",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parse_args(argv)
+    try:
+        if args.repo == "frontend":
+            if args.repo_root is None:
+                print("ERROR: --repo frontend requires --repo-root")
+                return 2
+            manifest_path = args.manifest
+            if manifest_path is None:
+                manifest_path = args.repo_root / "docs" / "_tech_graph" / "_manifest.json"
+            return _run_frontend_check(repo_root=args.repo_root.resolve(), manifest_path=manifest_path.resolve())
+
+        manifest_path = args.manifest if args.manifest is not None else DEFAULT_BACKEND_MANIFEST
+        return _run_backend_check(manifest_path=manifest_path.resolve())
+
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR: unexpected: {type(exc).__name__}: {exc}")
         return 2
-
-
-def main() -> int:
-    args = _parse_args()
-    if args.repo == "frontend":
-        repo_root = (args.repo_root or Path.cwd()).resolve()
-        manifest_path = (args.manifest or (repo_root / "docs" / "_tech_graph" / "_manifest.json")).resolve()
-        return _check_frontend(repo_root=repo_root, manifest_path=manifest_path)
-
-    repo_root = (args.repo_root or REPO_ROOT).resolve()
-    manifest_path = (args.manifest or MANIFEST_PATH).resolve()
-    return _check_api_python(repo_root=repo_root, manifest_path=manifest_path)
 
 
 if __name__ == "__main__":
