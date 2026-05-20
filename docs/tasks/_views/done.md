@@ -28,5 +28,10 @@
 - `../done/task_engineering_tech_graph_gate_a_token_compare_v1.md`（2026-05-15：闸口 A token 粗估附录工具与 CI；与 graph 导出同批次验收归档）
 - `../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`（2026-05-15 验收通过：闸口 A 代号 A/B 性能对比专文单一真值；`PR #28` / merge `2315937`）
 - `../done/task_engineering_tech_graph_v2_graph_query_v1.md`（2026-05-17：graph_v2 + graph_query + 闸口 B；Harness CLOSE · `freeze_id` `TECH_GRAPH_S2_FREEZE_20260517_V2_0`）
+- `../done/task_engineering_tech_graph_scheme2_completion_v1.md`（2026-05-17：方案2 API/文档补全 · PR #31）
+- `../done/task_engineering_tech_graph_v2_query_coverage_v1.md`（graph_v2 查询覆盖与 pytest）
+- `../done/task_engineering_tech_graph_v2_p4_extended_v1.md`（2026-05-17：P2-4a · freeze `V2_2`；4b/4c 见该单 §1.1，无独立 follow-up task）
+- `../done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（2026-05-18：闸口 C · D vs E · `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`）
+- `../done/task_engineering_tech_graph_gate_c_prime_f1_v1.md`（2026-05-20：闸口 C′ · T002 物化 · `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_double_prime_v1.md`（2026-05-20：闸口 C″ T003 物化 · batch `102810` · PR #37+#38 · `TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`）
 
