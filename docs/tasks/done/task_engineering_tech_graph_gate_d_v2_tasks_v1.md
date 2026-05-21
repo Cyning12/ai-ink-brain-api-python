@@ -1,6 +1,8 @@
 # Task：闸口 D — `gate_ctx_ab_v2` 题集扩域（v1 三题 + T004/T005）
 
-> **状态**：`active（2026-05-20 · 10 帽立项）`  
+> **状态**：`done（2026-05-21 · 闸口 D v2 五题扩域 · HG-GATE-D-SIGNOFF 人签 · 50 复检 R1）`  
+> **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`  
+> **50 关账复检**：`docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_reinspect_R1_20260521.md`  
 > **路线图**：[`docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md`](../../../../docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md) **INK-P5** · §3 **B1**  
 > **方法论**：[`ai_coding_governance/methodology/graph/AGENT_GRAPH_CONSUMPTION_METHODOLOGY_v1_zh.md`](../../../../ai_coding_governance/methodology/graph/AGENT_GRAPH_CONSUMPTION_METHODOLOGY_v1_zh.md) §6.1、§7  
 > **草案来源**：[`ai_coding_governance/methodology/graph/drafts/draft_gate_ctx_ab_v2_expansion_v1.md`](../../../../ai_coding_governance/methodology/graph/drafts/draft_gate_ctx_ab_v2_expansion_v1.md)  
@@ -29,7 +31,7 @@
 | --- | --- | --- | --- |
 | **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 本 task 初稿；人扫验收阈值与 NR 后改 `approved` |
 | **HG-AUDIT-R1** | `approved` | `30` | 任务审核 R1 零硬阻塞后执行帽可开工 |
-| **HG-GATE-D-SIGNOFF** | `pending` | `50`, `done` | 闸口 D 结论文 `accepted` 后人签关账 |
+| **HG-GATE-D-SIGNOFF** | `approved` | `50`, `done` | 闸口 D 结论文 `accepted` 后人签关账 |
 
 ---
 
@@ -219,7 +221,7 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 
 ### 3.3 关账
 
-- [ ] **HG-GATE-D-SIGNOFF** = `approved`；结论文状态 `accepted`  
+- [x] **HG-GATE-D-SIGNOFF** = `approved`；结论文状态 `accepted`  
 - [ ] `git mv` 至 `docs/tasks/done/`；**PRIORITY_ROADMAP** INK-P5 / §3 B1 → `done（YYYY-MM-DD）`
 
 ---
@@ -261,7 +263,7 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 | 物化 / PR-2 | `fixtures/gate_ctx_c_v1/payloads/materialize_report.json` · D 中位数 **658** |
 | batch dry-run | `runs/gate_ctx_c_v1_batch_20260521_065655/`（5×round · `dry_run: true`） |
 | 主 run（LLM） | `runs/gate_ctx_c_v1_batch_20260521_091709/` · `dry_run: false` · 10 jsonl |
-| 结论文 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（`draft` · 表 1/2/3 已填） |
+| 结论文 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（`accepted` · 表 1/2/3） |
 
 ### 自检结论（执行者）
 
@@ -298,7 +300,7 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 | 新 batch + 结论文表 1/2/3 | **pass** | `…_091709` + `conclusion_gate_d_*.md` |
 | 维持 `CTX_V2_QUERY` 默认 | **pass** | D impact/total 中位数优于 E |
 | 全仓 pytest | **pass** | 204 |
-| 结论文 `accepted` | **pending** | **HG-GATE-D-SIGNOFF** 仍 `pending` |
+| 结论文 `accepted` | **pass** | 结论文 + **HG-GATE-D-SIGNOFF** `approved`（2026-05-21 关账） |
 
 **已知未测项**：表 2「无专属物化」ablation 基线（未跑；以绝对门槛 0.45 验收）；PR-4 `改进方向.md` 索引（recommended · 非阻塞）。
 

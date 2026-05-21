@@ -1,6 +1,6 @@
-# 闸口 D 结论：v2 五题扩域（graph_query 轨 · draft）
+# 闸口 D 结论：v2 五题扩域（graph_query 轨 · accepted）
 
-> **状态**：`draft`（PR-3 batch 已落盘；待 **HG-GATE-D-SIGNOFF** → `accepted`）  
+> **状态**：`accepted`（2026-05-21 · PR-3 batch `091709` · **HG-GATE-D-SIGNOFF** `approved`）  
 > **freeze_id**：`TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0`  
 > **graph_v2_freeze_id**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`  
 > **回归基线（只读）**：[`runs/gate_ctx_c_v1_batch_20260518_102810`](../runs/gate_ctx_c_v1_batch_20260518_102810/)  
