@@ -65,3 +65,17 @@ docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_audit_R1_202
 | **复检报告** | 未落盘 |
 | **下一动作（人）** | 将 `HG-GATE-D-SIGNOFF` 改为 `approved`（结论文 `accepted` 后）再重开 50 帽 |
 
+
+---
+
+## 执行结果（50 帽 · 20260521 续跑 · semi_auto）
+
+| 项 | 值 |
+| --- | --- |
+| **开帽前硬停** | **否** — `HG-GATE-D-SIGNOFF` = `approved` |
+| **§一 / §二** | **已执行** |
+| **复检报告** | `docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_reinspect_R1_20260521.md` |
+| **pytest** | 204 passed, 1 skipped |
+| **score_gold_f1** | 与表 1/2/3 **一致**（复跑 OK） |
+| **建议合并** | **是**（无硬阻塞） |
+| **关账待办** | 结论文 `draft`→`accepted`；`git mv` task（人确认） |
