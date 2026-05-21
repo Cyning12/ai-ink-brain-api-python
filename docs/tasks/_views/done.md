@@ -23,10 +23,16 @@
 - `../done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`（2026-05-11：V2 SPEC/任务验收归档索引）
 - `../done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`（2026-05-11 验收通过：RAG 改写上链 + LLM Prompt 可观测）
 - `../done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（2026-05-14 验收通过：P1-1 Text2SQL 后闸 SQL AST 硬化）
+- `../done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（2026-05-20：P1-2 Prompt 注入 PoC；22 帽 CLOSE · `docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`）
 - `../done/task_engineering_chatbi_sse_first_v1.md`（2026-05-15：ChatBI 工程纪律 SSE 优先；Harness R2 签收后归档）
 - `../done/task_engineering_tech_graph_graph_json_export_v1.md`（2026-05-15：方案1 `graph.json` 导出 / `--check` / pytest / `tech-graph` CI；闸口 A 收口归档）
 - `../done/task_engineering_tech_graph_gate_a_token_compare_v1.md`（2026-05-15：闸口 A token 粗估附录工具与 CI；与 graph 导出同批次验收归档）
 - `../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`（2026-05-15 验收通过：闸口 A 代号 A/B 性能对比专文单一真值；`PR #28` / merge `2315937`）
 - `../done/task_engineering_tech_graph_v2_graph_query_v1.md`（2026-05-17：graph_v2 + graph_query + 闸口 B；Harness CLOSE · `freeze_id` `TECH_GRAPH_S2_FREEZE_20260517_V2_0`）
+- `../done/task_engineering_tech_graph_scheme2_completion_v1.md`（2026-05-17：方案2 API/文档补全 · PR #31）
+- `../done/task_engineering_tech_graph_v2_query_coverage_v1.md`（graph_v2 查询覆盖与 pytest）
+- `../done/task_engineering_tech_graph_v2_p4_extended_v1.md`（2026-05-17：P2-4a · freeze `V2_2`；4b/4c 见该单 §1.1，无独立 follow-up task）
+- `../done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（2026-05-18：闸口 C · D vs E · `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`）
+- `../done/task_engineering_tech_graph_gate_c_prime_f1_v1.md`（2026-05-20：闸口 C′ · T002 物化 · `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_double_prime_v1.md`（2026-05-20：闸口 C″ T003 物化 · batch `102810` · PR #37+#38 · `TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`）
 
