@@ -1,6 +1,6 @@
 # Task：闸口 D — `gate_ctx_ab_v2` 题集扩域（v1 三题 + T004/T005）
 
-> **状态**：`done（2026-05-21 · 闸口 D v2 五题扩域 · HG-GATE-D-SIGNOFF 人签 · 50 复检 R1）`  
+> **状态**：`done（2026-05-21 · 闸口 D v2 五题扩域 · HG-GATE-D-SIGNOFF 人签 · PR #41 · merge abb08f4）`  
 > **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`  
 > **50 关账复检**：`docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_reinspect_R1_20260521.md`  
 > **路线图**：[`docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md`](../../../../docs/tech_graph/tasks/PRIORITY_ROADMAP_v1_zh.md) **INK-P5** · §3 **B1**  
@@ -327,3 +327,4 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 | 日期 | 说明 |
 | --- | --- |
 | 2026-05-20 | v1.0：10 帽自草案立正式 task；INK-P5/B1 立项 |
+| 2026-05-21 | v1.1：PR #41 合 main；结论文 accepted；路线图 INK-P5/B1/M2 → done |
