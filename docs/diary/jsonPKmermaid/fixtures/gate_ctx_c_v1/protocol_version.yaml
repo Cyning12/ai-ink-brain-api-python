@@ -7,6 +7,7 @@ repo: ai-ink-brain-api-python
 freeze_id: TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0
 gate_c_prime_freeze_id: TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0
 gate_c_double_prime_freeze_id: TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0
+gate_d_v2_tasks_freeze_id: TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0
 graph_v2_freeze_id: TECH_GRAPH_S2_FREEZE_20260519_V2_3
 graph_v2_path: docs/_tech_graph/graph.json
 
@@ -32,7 +33,7 @@ payload_paths:
     dir: docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_DUAL_MD
   attachments_dir: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/payloads/_shared
 
-tasks_ref: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json
+tasks_ref: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json
 query_seeds_ref: docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/query_seeds.json
 dual_track_manifest_ref: docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/dual_track_manifest.json
 materialize_script: docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/scripts/materialize_gate_c_payloads.py

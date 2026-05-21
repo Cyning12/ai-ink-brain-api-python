@@ -1,0 +1,421 @@
+{
+  "schema_version": "gate_ctx_ab_tasks_v2",
+  "fixture_set": "gate_ctx_ab_v2",
+  "tool_allowlist": [
+    "docs/_tech_graph/graph.json",
+    "docs/_tech_graph/_manifest.json",
+    "docs/_tech_graph/_contract_manifest.json",
+    "api/rag_env.py",
+    "api/index.py",
+    "api/ingest_pipeline.py",
+    "api/code_ingest.py",
+    "api/unified_chat.py",
+    "api/chatbi_principal.py",
+    "api/chatbi_sql_gate.py",
+    "api/text2sql_core.py",
+    "api/text2sql_store.py",
+    "api/intent_router.py",
+    "api/intent_agent.py",
+    "api/agent.py",
+    "tools/tech_graph_contract_check.py",
+    "supabase/sql"
+  ],
+  "tasks": [
+    {
+      "task_id": "T001_embedding_dim_default",
+      "topic_id": "rag_env_embedding",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整向量维度约定：将 `api/rag_env.py` 中 `expected_embedding_dim()` 的默认行为（无 `EMBEDDING_DIM` / `SILICONFLOW_EMBEDDING_DIM` 环境变量时）与全链路对齐。请列出主要代码入口、影响面，并给出可核验 evidence（图谱节点 id 或仓库相对路径）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/rag_env.py",
+            "symbol": "expected_embedding_dim",
+            "graph_id": "ENV",
+            "note": "维度真值函数；默认 1024"
+          },
+          {
+            "path": "api/rag_env.py",
+            "symbol": "siliconflow_embedding_dimensions",
+            "graph_id": "ENV_KEYS",
+            "note": "SILICONFLOW_EMBEDDING_DIMENSIONS 读取"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "chat",
+            "graph_id": "C1",
+            "note": "Legacy RAG Chat 入口；index 侧亦有 SILICONFLOW_EMBEDDING_DIMENSIONS 模块级常量"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "api/ingest_pipeline.py",
+            "kind": "data",
+            "graph_id": "A1",
+            "note": "ingest 校验 len(vec) 与 expected_embedding_dim()"
+          },
+          {
+            "path": "api/code_ingest.py",
+            "kind": "data",
+            "graph_id": "A2",
+            "note": "code ingest 同样校验维度"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "EMB",
+            "note": "RAG 召回 embedding 路径（见 10_flow_rag.ai.md）"
+          },
+          {
+            "path": "supabase/sql",
+            "kind": "data",
+            "graph_id": "VEC",
+            "note": "documents/code_chunks vector(N) 须与维度一致（见 01_struct.md）"
+          },
+          {
+            "path": ".github/workflows",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "变更维度假设须跑 graph export / contract / 相关 pytest"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        }
+      }
+    },
+    {
+      "task_id": "T002_unified_sse_chain_contract",
+      "topic_id": "unified_chat_sse",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整 Unified Chat **SSE**（`POST /api/py/unified/chat/stream`）的 chain 事件形态或 `typ` 枚举：需列出 HTTP 路由入口、流式处理函数、鉴权依赖，以及改动后最敏感的契约/门禁与分支影响面。请给出可核验 evidence（图谱节点 id 或仓库相对路径 + 符号名）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/index.py",
+            "symbol": "unified_chat_stream_route",
+            "graph_id": "U2",
+            "note": "L574；manifest POST /api/py/unified/chat/stream"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat_stream",
+            "graph_id": "U2",
+            "note": "L1980；SSE chain/done 主实现"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "unified_chat_route",
+            "graph_id": "U1",
+            "note": "L566；非流式对照入口，共用分支逻辑"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat",
+            "graph_id": "U1",
+            "note": "L808；JSON 响应路径，与 SSE 共享 prompt guard / 路由"
+          },
+          {
+            "path": "api/chatbi_principal.py",
+            "symbol": "require_chatbi_principal",
+            "graph_id": "AUTH",
+            "note": "L202；stream/json 路由 Depends 鉴权"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "_event",
+            "graph_id": "EV_TYPES",
+            "note": "L63；chain 单条事件结构 type/ts/step_id/payload"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "docs/_tech_graph/_contract_manifest.json",
+            "kind": "contract",
+            "graph_id": "EV_TYPES",
+            "note": "allowed_events、type_values、payload_min_keys_by_type 真值"
+          },
+          {
+            "path": "tools/tech_graph_contract_check.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "删改 chain typ/键名须过静态契约扫描（workflow tech-graph-contract）"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "RAG",
+            "note": "SSE 内 RAG 分支 yield chain（rewrite/embed/retrieve/generate）"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "T2S",
+            "note": "SSE 内 Text2SQL 分支（retrieve/generate_sql/execute_sql）"
+          },
+          {
+            "path": "api/agent.py",
+            "kind": "control",
+            "graph_id": null,
+            "note": "emit agent.llm.start|delta|end|truncated；与 unified_chat 增量队列合并契约扫描"
+          },
+          {
+            "path": "docs/_tech_graph/_manifest.json",
+            "kind": "contract",
+            "graph_id": "CV",
+            "note": "含 chatbi_access_verify；鉴权链变更时 BFF 探活敏感"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        },
+        "verified_by": "rg 2026-05-16：index unified_chat_stream_route L574、unified_chat_route L566；unified_chat handle_unified_chat_stream L1980、handle_unified_chat L808、_event L63；chatbi require_chatbi_principal L202；agent.llm.* @ api/agent.py + unified_chat truncated 队列；_manifest.json / _contract_manifest.json"
+      }
+    },
+    {
+      "task_id": "T003_ingest_admin_rpc",
+      "topic_id": "ingest_rpc",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整 **Admin Ingest** 链路：在 `POST /api/py/admin/ingest`（markdown/code）或同步任务 `POST /api/py/admin/sync` 中，变更向量写入、`documents` 表操作或 Supabase RPC（如 `refresh_documents_fts_tokens_for_paths`）的行为。请列出 HTTP 入口、ingest 实现函数、鉴权依赖，以及下游数据/RPC/检索/RAG 影响面；给出可核验 evidence（图谱节点 id 或 path+symbol）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/index.py",
+            "symbol": "py_admin_ingest",
+            "graph_id": "A2",
+            "note": "L1032；POST /api/py/admin/ingest → process_markdown_files | process_code_files"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "symbol": "process_markdown_files",
+            "graph_id": "A2",
+            "note": "L253；content markdown → chunk → embed → documents 表"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "py_admin_sync_post",
+            "graph_id": "A1",
+            "note": "L989；POST /api/py/admin/sync 202 + 后台 run_sync_job_sync"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "symbol": "run_sync_job_sync",
+            "graph_id": "A1",
+            "note": "L418；同步任务执行体"
+          },
+          {
+            "path": "api/index.py",
+            "symbol": "_require_auth",
+            "graph_id": "AUTH",
+            "note": "L165；admin ingest/sync 路由鉴权（x-admin-token 等）"
+          },
+          {
+            "path": "api/code_ingest.py",
+            "symbol": "process_code_files",
+            "graph_id": "A2",
+            "note": "L180；admin ingest type=code 分支"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "api/rag_env.py",
+            "kind": "data",
+            "graph_id": "ENV",
+            "note": "ingest 写入前校验 len(vec) 与 expected_embedding_dim()"
+          },
+          {
+            "path": "supabase/sql",
+            "kind": "data",
+            "graph_id": "VEC",
+            "note": "documents / code_chunks 表结构与 vector 维度"
+          },
+          {
+            "path": "api/ingest_pipeline.py",
+            "kind": "data",
+            "graph_id": "RPC",
+            "note": "sb.rpc refresh_documents_fts_tokens_for_paths 等 FTS 刷新"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "kind": "control",
+            "graph_id": "RAG",
+            "note": "入库内容变更影响后续 match_documents / 召回"
+          },
+          {
+            "path": "docs/_tech_graph/_manifest.json",
+            "kind": "contract",
+            "graph_id": "A2",
+            "note": "admin 端点与 RPC 清单；改路由须同步 manifest"
+          },
+          {
+            "path": "tools/tech_graph_manifest_check.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "端点/RPC 漂移门禁"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        },
+        "verified_by": "rg 2026-05-16：index py_admin_ingest L1032、py_admin_sync_post L989、_require_auth L165；ingest_pipeline process_markdown_files L253、run_sync_job_sync L418；code_ingest process_code_files L180；refresh_documents_fts_tokens_for_paths L303/L370；_manifest.json admin 端点"
+      }
+    },
+    {
+      "task_id": "T004_chatbi_text2sql_chain",
+      "topic_id": "text2sql_chatbi",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整 ChatBI **Text2SQL** 链路：在 unified 流式/JSON 路径或独立 `POST /api/py/text2sql/chat` 上变更 T2S 分支、`apply_chatbi_sql_gate` AST 后闸或 `text2sql.phase.*` 事件形态。请列出 HTTP 入口、SQL 闸门函数、schema/SQL 资产与契约影响面；给出可核验 evidence（图谱节点 id 或 path+symbol）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/index.py",
+            "symbol": "text2sql_chat",
+            "graph_id": "TSQ",
+            "note": "L536；POST /api/py/text2sql/chat"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat_stream",
+            "graph_id": "U2",
+            "note": "L1980；SSE 内 T2S 分支"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat",
+            "graph_id": "U1",
+            "note": "L808；JSON 路径 T2S 分支"
+          },
+          {
+            "path": "api/chatbi_sql_gate.py",
+            "symbol": "apply_chatbi_sql_gate",
+            "graph_id": "T2S",
+            "note": "L506；AST → 表策略 → 档位/L2"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "supabase/sql",
+            "kind": "data",
+            "graph_id": "T2S",
+            "note": "Text2SQL 表结构 / chatbi_sql_table_policy 相关 DDL"
+          },
+          {
+            "path": "api/text2sql_core.py",
+            "kind": "control",
+            "graph_id": "T2S",
+            "note": "generate_sql / execute_sql 子流程"
+          },
+          {
+            "path": "api/text2sql_store.py",
+            "kind": "data",
+            "graph_id": "T2S",
+            "note": "会话与 SQL 结果存储"
+          },
+          {
+            "path": "docs/_tech_graph/_contract_manifest.json",
+            "kind": "contract",
+            "graph_id": "T2S",
+            "note": "text2sql.phase.* / sql.result chain typ"
+          },
+          {
+            "path": "tests/test_chatbi_sql_ast_gate_v1.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "AST 后闸负例 pytest"
+          },
+          {
+            "path": "tools/tech_graph_contract_check.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "SSE typ 漂移门禁"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        },
+        "verified_by": "rg 2026-05-21：index text2sql_chat L536；unified_chat handle_unified_chat_stream L1980、handle_unified_chat L808；chatbi_sql_gate apply_chatbi_sql_gate L506；graph.json T2S/TSQ；_manifest /api/py/text2sql/chat"
+      }
+    },
+    {
+      "task_id": "T005_intent_routing",
+      "topic_id": "intent_routing",
+      "segment_scope": ["S0", "S1", "S2"],
+      "prompt_zh": "计划调整 **Intent 路由**：变更 `decide_intent` 阈值/模式、低置信 **clarify** 短路或 SSE `agent.intent` / `agent.clarify` 观测字段。请列出路由决策入口、unified 事件发射点、日志/契约影响面；给出可核验 evidence（图谱节点 id 或 path+symbol）。",
+      "gold": {
+        "entrypoints": [
+          {
+            "path": "api/intent_router.py",
+            "symbol": "decide_intent",
+            "graph_id": "INT",
+            "note": "L223；prefer 模式路由决策"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat_stream",
+            "graph_id": "U2",
+            "note": "L1980；SSE agent.intent / clarify 事件"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "handle_unified_chat",
+            "graph_id": "U1",
+            "note": "L808；JSON 路径 intent 观测"
+          },
+          {
+            "path": "api/unified_chat.py",
+            "symbol": "_clarify_short_circuit_events",
+            "graph_id": "INT",
+            "note": "L145；低置信 clarify 短路"
+          }
+        ],
+        "impacts": [
+          {
+            "path": "api/intent_agent.py",
+            "kind": "control",
+            "graph_id": "INT",
+            "note": "decide_intent_v2 / LLM 路由"
+          },
+          {
+            "path": "docs/_tech_graph/_contract_manifest.json",
+            "kind": "contract",
+            "graph_id": "INT",
+            "note": "agent.intent payload_min_keys"
+          },
+          {
+            "path": "api/database_manager.py",
+            "kind": "data",
+            "graph_id": "L",
+            "note": "rag_conversation_logs 观测字段"
+          },
+          {
+            "path": "docs/_tech_graph/14_runtime_observability.md",
+            "kind": "contract",
+            "graph_id": "OBS_DOC",
+            "note": "latency / agent 事件观测规约"
+          },
+          {
+            "path": "tools/tech_graph_contract_check.py",
+            "kind": "ci",
+            "graph_id": null,
+            "note": "agent.intent / agent.clarify typ 门禁"
+          },
+          {
+            "path": "api/agent.py",
+            "kind": "control",
+            "graph_id": null,
+            "note": "agent 步进与 intent 队列协作"
+          }
+        ],
+        "matching_rules": {
+          "entrypoints": "path 精确匹配；symbol 可选；graph_id 命中任一即计分",
+          "impacts": "path 目录级或文件级匹配；kind 须一致或记为 partial"
+        },
+        "verified_by": "rg 2026-05-21：intent_router decide_intent L223；unified_chat _clarify_short_circuit_events L145、agent.intent L168+；_contract_manifest agent.intent keys；graph.json INT"
+      }
+    }
+  ]
+}

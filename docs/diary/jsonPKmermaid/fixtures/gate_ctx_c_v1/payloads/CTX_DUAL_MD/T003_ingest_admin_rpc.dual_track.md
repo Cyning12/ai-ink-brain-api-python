@@ -2,7 +2,7 @@
 schema: gate_ctx_c_dual_md_main_v1
 arm: CTX_DUAL_MD
 task_id: T003_ingest_admin_rpc
-freeze_id: TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0
+freeze_id: TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0
 ---
 
 <!-- gate_ctx_c dual_track role=ai path=docs/_tech_graph/13_flow_supabase_rpc.ai.md -->

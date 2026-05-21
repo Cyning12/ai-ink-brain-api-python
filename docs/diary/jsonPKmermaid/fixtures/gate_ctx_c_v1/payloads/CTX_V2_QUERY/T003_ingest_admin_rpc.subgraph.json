@@ -2,7 +2,7 @@
   "schema": "gate_ctx_c_v2_query_main_v1",
   "arm": "CTX_V2_QUERY",
   "task_id": "T003_ingest_admin_rpc",
-  "freeze_id": "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0",
+  "freeze_id": "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0",
   "query": {
     "op": "downstream",
     "node_id": "A2",
@@ -60,7 +60,7 @@
   },
   "impact_surface": {
     "schema": "gate_ctx_c_impact_surface_v2_compact",
-    "source": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json",
+    "source": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json",
     "candidates": [
       {
         "path": "api/rag_env.py",
