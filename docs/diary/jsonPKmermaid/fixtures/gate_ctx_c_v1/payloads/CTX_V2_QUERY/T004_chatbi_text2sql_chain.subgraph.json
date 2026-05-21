@@ -1,11 +1,11 @@
 {
   "schema": "gate_ctx_c_v2_query_main_v1",
   "arm": "CTX_V2_QUERY",
-  "task_id": "T003_ingest_admin_rpc",
+  "task_id": "T004_chatbi_text2sql_chain",
   "freeze_id": "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0",
   "query": {
     "op": "downstream",
-    "node_id": "A2",
+    "node_id": "T2S",
     "depth": 1
   },
   "subgraph": {
@@ -14,30 +14,45 @@
     "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
     "query": {
       "op": "downstream",
-      "root": "A2",
+      "root": "T2S",
       "depth": 1
     },
     "nodes": [
       {
         "graph_id": "00_main",
-        "id": "A2",
-        "label": "Ingest"
+        "id": "RPC",
+        "label": "Supabase RPC 子流程"
       },
       {
         "graph_id": "00_main",
-        "id": "RPC",
-        "label": "Supabase RPC 子流程"
+        "id": "T2S",
+        "label": "Text2SQL 子流程"
+      },
+      {
+        "graph_id": "00_main",
+        "id": "T2S_DOC",
+        "label": ">11_flow_text2sql.md"
       }
     ],
     "edges": [
       {
         "anchors": [],
-        "from": "A2",
+        "from": "T2S",
         "graph_id": "00_main",
         "label": "",
         "mark": "->",
         "sync": true,
         "to": "RPC",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [],
+        "from": "T2S",
+        "graph_id": "00_main",
+        "label": "加载",
+        "mark": "->",
+        "sync": true,
+        "to": "T2S_DOC",
         "type": "depends_on"
       }
     ],
@@ -48,14 +63,15 @@
     "schema": "gate_ctx_c_manifest_slice_v2_compact",
     "source": "docs/_tech_graph/_manifest.json",
     "endpoint_paths": [
-      "/api/py/admin/ingest",
-      "/api/py/admin/sync"
+      "/api/py/text2sql/chat",
+      "/api/py/unified/chat",
+      "/api/py/unified/chat/stream"
     ],
     "anchor_paths": [
-      "api/code_ingest.py",
+      "api/chatbi_sql_gate.py",
       "api/index.py",
-      "api/ingest_pipeline.py",
-      "api/rag_env.py"
+      "api/text2sql_core.py",
+      "api/unified_chat.py"
     ]
   },
   "impact_surface": {
@@ -63,32 +79,31 @@
     "source": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json",
     "candidates": [
       {
-        "path": "api/rag_env.py",
-        "kind": "data",
-        "graph_id": "ENV"
-      },
-      {
         "path": "supabase/sql",
         "kind": "data",
-        "graph_id": "VEC"
+        "graph_id": "T2S"
       },
       {
-        "path": "api/ingest_pipeline.py",
-        "kind": "data",
-        "graph_id": "RPC"
-      },
-      {
-        "path": "api/unified_chat.py",
+        "path": "api/text2sql_core.py",
         "kind": "control",
-        "graph_id": "RAG"
+        "graph_id": "T2S"
       },
       {
-        "path": "docs/_tech_graph/_manifest.json",
+        "path": "api/text2sql_store.py",
+        "kind": "data",
+        "graph_id": "T2S"
+      },
+      {
+        "path": "docs/_tech_graph/_contract_manifest.json",
         "kind": "contract",
-        "graph_id": "A2"
+        "graph_id": "T2S"
       },
       {
-        "path": "tools/tech_graph_manifest_check.py",
+        "path": "tests/test_chatbi_sql_ast_gate_v1.py",
+        "kind": "ci"
+      },
+      {
+        "path": "tools/tech_graph_contract_check.py",
         "kind": "ci"
       }
     ],

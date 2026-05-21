@@ -1,7 +1,8 @@
 {
   "schema": "gate_ctx_c_payload_materialize_v1",
-  "generated_at": "2026-05-20T08:22:44Z",
-  "freeze_id": "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0",
+  "generated_at": "2026-05-21T06:56:10Z",
+  "freeze_id": "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0",
+  "pr2_token_guard": null,
   "graph_v2_path": "docs/_tech_graph/graph.json",
   "graph_v2_freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
   "arms_static": {
@@ -15,8 +16,8 @@
             "depth": 2
           },
           "nodes": 2,
-          "bytes_utf8": 1689,
-          "heuristic_tokens": 418
+          "bytes_utf8": 1685,
+          "heuristic_tokens": 417
         },
         "T002_unified_sse_chain_contract": {
           "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T002_unified_sse_chain_contract.subgraph.json",
@@ -40,8 +41,8 @@
             ]
           },
           "nodes": 17,
-          "bytes_utf8": 18541,
-          "heuristic_tokens": 4556
+          "bytes_utf8": 17737,
+          "heuristic_tokens": 4355
         },
         "T003_ingest_admin_rpc": {
           "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T003_ingest_admin_rpc.subgraph.json",
@@ -51,11 +52,33 @@
             "depth": 1
           },
           "nodes": 2,
-          "bytes_utf8": 2280,
-          "heuristic_tokens": 561
+          "bytes_utf8": 2276,
+          "heuristic_tokens": 560
+        },
+        "T004_chatbi_text2sql_chain": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T004_chatbi_text2sql_chain.subgraph.json",
+          "query": {
+            "op": "downstream",
+            "node_id": "T2S",
+            "depth": 1
+          },
+          "nodes": 3,
+          "bytes_utf8": 2679,
+          "heuristic_tokens": 658
+        },
+        "T005_intent_routing": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_V2_QUERY/T005_intent_routing.subgraph.json",
+          "query": {
+            "op": "downstream",
+            "node_id": "INT",
+            "depth": 1
+          },
+          "nodes": 3,
+          "bytes_utf8": 2876,
+          "heuristic_tokens": 709
         }
       },
-      "heuristic_tokens_median": 561
+      "heuristic_tokens_median": 658
     },
     "CTX_DUAL_MD": {
       "per_task": {
@@ -109,10 +132,44 @@
           ],
           "bytes_utf8": 4070,
           "heuristic_tokens": 973
+        },
+        "T004_chatbi_text2sql_chain": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_DUAL_MD/T004_chatbi_text2sql_chain.dual_track.md",
+          "files": [
+            {
+              "role": "ai",
+              "path": "docs/_tech_graph/11_flow_text2sql.ai.md",
+              "bytes_utf8": 4463
+            },
+            {
+              "role": "human",
+              "path": "docs/_tech_graph/11_flow_text2sql.md",
+              "bytes_utf8": 4650
+            }
+          ],
+          "bytes_utf8": 9287,
+          "heuristic_tokens": 1996
+        },
+        "T005_intent_routing": {
+          "path": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/payloads/CTX_DUAL_MD/T005_intent_routing.dual_track.md",
+          "files": [
+            {
+              "role": "ai",
+              "path": "docs/_tech_graph/14_runtime_observability.ai.md",
+              "bytes_utf8": 3129
+            },
+            {
+              "role": "human",
+              "path": "docs/_tech_graph/14_runtime_observability.md",
+              "bytes_utf8": 610
+            }
+          ],
+          "bytes_utf8": 3927,
+          "heuristic_tokens": 939
         }
       },
       "heuristic_tokens_median": 1262,
-      "selected_ai_md_count": 3,
+      "selected_ai_md_count": 5,
       "repo_ai_md_count": 7
     }
   },

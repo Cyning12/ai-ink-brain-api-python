@@ -31,10 +31,24 @@ EXIT_MANIFEST = 2
 
 CONTRACT_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_contract_manifest.json"
 TECH_MANIFEST_PATH = REPO_ROOT / "docs/_tech_graph/_manifest.json"
-TASKS_JSON = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
 T002_TASK_ID = "T002_unified_sse_chain_contract"
 T003_TASK_ID = "T003_ingest_admin_rpc"
+T004_TASK_ID = "T004_chatbi_text2sql_chain"
+T005_TASK_ID = "T005_intent_routing"
 GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
+GATE_D_V2_TASKS_FREEZE_ID = "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0"
+
+
+def _tasks_json_path() -> Path:
+    import yaml
+
+    doc = yaml.safe_load(PROTOCOL_PATH.read_text(encoding="utf-8"))
+    rel = str(doc.get("tasks_ref") or "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json")
+    return REPO_ROOT / rel
+
+
+def _tasks_json() -> Path:
+    return _tasks_json_path()
 
 # T002 gold impacts 相关 HTTP 面（manifest 定向切片，非整文件）
 _T002_MANIFEST_ENDPOINT_PATHS = frozenset(
@@ -59,6 +73,34 @@ _T003_MANIFEST_ANCHOR_PATHS = frozenset(
         "api/rag_env.py",
     }
 )
+_T004_MANIFEST_ENDPOINT_PATHS = frozenset(
+    {
+        "/api/py/text2sql/chat",
+        "/api/py/unified/chat",
+        "/api/py/unified/chat/stream",
+    }
+)
+_T004_MANIFEST_ANCHOR_PATHS = frozenset(
+    {
+        "api/index.py",
+        "api/unified_chat.py",
+        "api/chatbi_sql_gate.py",
+        "api/text2sql_core.py",
+    }
+)
+_T005_MANIFEST_ENDPOINT_PATHS = frozenset(
+    {
+        "/api/py/unified/chat",
+        "/api/py/unified/chat/stream",
+    }
+)
+_T005_MANIFEST_ANCHOR_PATHS = frozenset(
+    {
+        "api/unified_chat.py",
+        "api/intent_router.py",
+        "api/intent_agent.py",
+    }
+)
 
 _T002_IMPACT_CHAIN_TYPES = frozenset(
     {
@@ -71,6 +113,25 @@ _T002_IMPACT_CHAIN_TYPES = frozenset(
         "agent.llm.truncated",
         "text2sql.phase.start",
         "text2sql.phase.end",
+        "error",
+    }
+)
+_T004_IMPACT_CHAIN_TYPES = frozenset(
+    {
+        "text2sql.phase.start",
+        "text2sql.phase.end",
+        "sql.result",
+        "rag.sources",
+        "error",
+    }
+)
+_T005_IMPACT_CHAIN_TYPES = frozenset(
+    {
+        "agent.intent",
+        "agent.clarify",
+        "agent.think",
+        "agent.step.start",
+        "agent.step.end",
         "error",
     }
 )
@@ -185,33 +246,80 @@ def _task_query_specs(task_id: str, spec: dict, *, default_op: str, default_dept
 
 
 def _sse_contract_slice() -> dict:
+    return _sse_contract_slice_for_types(_T002_IMPACT_CHAIN_TYPES)
+
+
+def _manifest_slice_endpoints(
+    endpoint_paths: frozenset[str],
+    *,
+    anchor_paths: frozenset[str] | None = None,
+    compact: bool = False,
+) -> dict:
+    doc = json.loads(TECH_MANIFEST_PATH.read_text(encoding="utf-8"))
+    raw_eps = [
+        ep for ep in doc.get("endpoints") or [] if ep.get("path") in endpoint_paths
+    ]
+    if compact:
+        endpoints = [{"path": ep.get("path"), "method": ep.get("method")} for ep in raw_eps]
+    else:
+        endpoints = raw_eps
+    anchors: list[dict] = []
+    if anchor_paths:
+        anchors = [
+            {"path": a.get("path"), "symbol": a.get("symbol")}
+            for a in doc.get("anchors") or []
+            if (a.get("path") or "") in anchor_paths
+        ]
+    schema = (
+        "gate_ctx_c_manifest_slice_v2_compact"
+        if compact
+        else "gate_ctx_c_manifest_slice_v1"
+    )
+    out: dict = {
+        "schema": schema,
+        "source": _repo_rel(TECH_MANIFEST_PATH),
+    }
+    if compact:
+        out["endpoint_paths"] = sorted(endpoint_paths)
+        out["anchor_paths"] = sorted(anchor_paths or ())
+    else:
+        out["endpoints"] = endpoints
+        out["anchors"] = anchors
+    return out
+
+
+def _sse_contract_slice_for_types(
+    impact_types: frozenset[str],
+    *,
+    schema: str = "gate_ctx_c_sse_contract_slice_v2",
+) -> dict:
     doc = json.loads(CONTRACT_MANIFEST_PATH.read_text(encoding="utf-8"))
     sse = doc.get("sse") or {}
     chain = sse.get("chain") or {}
     done = sse.get("done") or {}
     payload_min = dict(chain.get("payload_min_keys_by_type") or {})
-    impact_types = sorted(_T002_IMPACT_CHAIN_TYPES & set(payload_min.keys()))
-    impact_payload_min = {k: payload_min[k] for k in impact_types}
-    return {
-        "schema": "gate_ctx_c_sse_contract_slice_v2",
+    impact_chain_types = sorted(impact_types & set(payload_min.keys()))
+    impact_payload_min = {k: payload_min[k] for k in impact_chain_types}
+    out: dict = {
+        "schema": schema,
         "source": _repo_rel(CONTRACT_MANIFEST_PATH),
-        "envelope_keys": list(sse.get("envelope_keys") or []),
-        "allowed_events": list(sse.get("allowed_events") or []),
-        "chain_data_keys": list(chain.get("data_keys") or []),
-        "done_data_keys": list(done.get("data_keys") or []),
-        "chain_type_values": list(chain.get("type_values") or []),
-        "impact_chain_type_values": impact_types,
-        "payload_min_keys_by_type": payload_min,
+        "impact_chain_type_values": impact_chain_types,
         "impact_payload_min_keys_by_type": impact_payload_min,
         "contract_check_tool": "tools/tech_graph_contract_check.py",
     }
+    if schema == "gate_ctx_c_sse_contract_slice_v2":
+        out["envelope_keys"] = list(sse.get("envelope_keys") or [])
+        out["chain_data_keys"] = list(chain.get("data_keys") or [])
+        out["payload_min_keys_by_type"] = payload_min
+    return out
 
 
 def _impact_surface_for_task(task_id: str, *, compact: bool = False) -> dict:
     """自 tasks.json gold impacts 抽取 path/kind 候选（供 LLM 填 impacts[].path）。"""
-    if not TASKS_JSON.is_file():
+    tasks_path = _tasks_json()
+    if not tasks_path.is_file():
         return {}
-    doc = json.loads(TASKS_JSON.read_text(encoding="utf-8"))
+    doc = json.loads(tasks_path.read_text(encoding="utf-8"))
     task = next(t for t in doc.get("tasks", []) if t.get("task_id") == task_id)
     candidates = []
     for imp in (task.get("gold") or {}).get("impacts") or []:
@@ -226,7 +334,7 @@ def _impact_surface_for_task(task_id: str, *, compact: bool = False) -> dict:
         candidates.append(entry)
     return {
         "schema": "gate_ctx_c_impact_surface_v1",
-        "source": _repo_rel(TASKS_JSON),
+        "source": _repo_rel(tasks_path),
         "candidates": candidates,
         "note": "产出 JSON 时 impacts 须含 path + kind；evidence 可附 graph_id",
     }
@@ -265,7 +373,7 @@ def _manifest_slice_admin_ingest(*, compact: bool = False) -> dict:
         if (a.get("path") or "") in _T003_MANIFEST_ANCHOR_PATHS
     ]
     if compact:
-        tasks_doc = json.loads(TASKS_JSON.read_text(encoding="utf-8"))
+        tasks_doc = json.loads(_tasks_json().read_text(encoding="utf-8"))
         t003 = next(
             t for t in tasks_doc.get("tasks", []) if t.get("task_id") == T003_TASK_ID
         )
@@ -419,6 +527,28 @@ def main() -> int:
             if surface.get("candidates"):
                 surface["schema"] = "gate_ctx_c_impact_surface_v2_compact"
                 payload["impact_surface"] = surface
+        elif task_id == T004_TASK_ID:
+            if TECH_MANIFEST_PATH.is_file():
+                payload["manifest_slice"] = _manifest_slice_endpoints(
+                    _T004_MANIFEST_ENDPOINT_PATHS,
+                    anchor_paths=_T004_MANIFEST_ANCHOR_PATHS,
+                    compact=True,
+                )
+            surface = _impact_surface_for_task(T004_TASK_ID, compact=True)
+            if surface.get("candidates"):
+                surface["schema"] = "gate_ctx_c_impact_surface_v2_compact"
+                payload["impact_surface"] = surface
+        elif task_id == T005_TASK_ID:
+            if TECH_MANIFEST_PATH.is_file():
+                payload["manifest_slice"] = _manifest_slice_endpoints(
+                    _T005_MANIFEST_ENDPOINT_PATHS,
+                    anchor_paths=_T005_MANIFEST_ANCHOR_PATHS,
+                    compact=True,
+                )
+            surface = _impact_surface_for_task(T005_TASK_ID, compact=True)
+            if surface.get("candidates"):
+                surface["schema"] = "gate_ctx_c_impact_surface_v2_compact"
+                payload["impact_surface"] = surface
         node_count = len(subgraph.get("nodes") or [])
         out_path = QUERY_OUT / f"{task_id}.subgraph.json"
         text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
@@ -462,10 +592,25 @@ def main() -> int:
     )
     dual_not_whole = selected_ai_count < ai_md_whole_count
 
+    d_tokens = sorted(t["heuristic_tokens"] for t in per_task_d.values())
+    d_median = d_tokens[len(d_tokens) // 2] if d_tokens else 0
+    pr2_note = None
+    if freeze_id == GATE_D_V2_TASKS_FREEZE_ID and d_median > 701:
+        pr2_note = {
+            "triggered": True,
+            "threshold_median": 701,
+            "observed_median": d_median,
+            "steps": [
+                "T004/T005 query depth=1",
+                "T004/T005 省略 contract_slice",
+            ],
+        }
+
     report = {
         "schema": "gate_ctx_c_payload_materialize_v1",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "freeze_id": freeze_id,
+        "pr2_token_guard": pr2_note,
         "graph_v2_path": _repo_rel(GRAPH_PATH),
         "graph_v2_freeze_id": seeds_doc.get("graph_v2_freeze_id"),
         "arms_static": {

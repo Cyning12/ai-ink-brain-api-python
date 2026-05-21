@@ -1,0 +1,120 @@
+{
+  "schema": "gate_ctx_c_v2_query_main_v1",
+  "arm": "CTX_V2_QUERY",
+  "task_id": "T005_intent_routing",
+  "freeze_id": "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0",
+  "query": {
+    "op": "downstream",
+    "node_id": "INT",
+    "depth": 1
+  },
+  "subgraph": {
+    "schema_version": "graph_query_result_v1",
+    "graph_schema_version": "graph_v2",
+    "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
+    "query": {
+      "op": "downstream",
+      "root": "INT",
+      "depth": 1
+    },
+    "nodes": [
+      {
+        "graph_id": "11_flow_text2sql",
+        "id": "INT",
+        "label": "Intent Check"
+      },
+      {
+        "graph_id": "11_flow_text2sql",
+        "id": "OUT0",
+        "label": "返回 non_text2sql 提示"
+      },
+      {
+        "graph_id": "11_flow_text2sql",
+        "id": "RET",
+        "label": "text2sql_store.search()"
+      }
+    ],
+    "edges": [
+      {
+        "anchors": [],
+        "from": "INT",
+        "graph_id": "11_flow_text2sql",
+        "label": "",
+        "mark": "[non_text2sql]",
+        "sync": true,
+        "to": "OUT0",
+        "type": "depends_on"
+      },
+      {
+        "anchors": [
+          {
+            "path": "api/text2sql_store.py",
+            "symbol": ""
+          }
+        ],
+        "from": "INT",
+        "graph_id": "11_flow_text2sql",
+        "label": "",
+        "mark": "[text2sql]",
+        "sync": true,
+        "to": "RET",
+        "type": "depends_on"
+      }
+    ],
+    "anchors": [
+      {
+        "path": "api/text2sql_store.py",
+        "symbol": ""
+      }
+    ]
+  },
+  "note": "graph_v2 子图；ref 边不参与 BFS",
+  "manifest_slice": {
+    "schema": "gate_ctx_c_manifest_slice_v2_compact",
+    "source": "docs/_tech_graph/_manifest.json",
+    "endpoint_paths": [
+      "/api/py/unified/chat",
+      "/api/py/unified/chat/stream"
+    ],
+    "anchor_paths": [
+      "api/intent_agent.py",
+      "api/intent_router.py",
+      "api/unified_chat.py"
+    ]
+  },
+  "impact_surface": {
+    "schema": "gate_ctx_c_impact_surface_v2_compact",
+    "source": "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json",
+    "candidates": [
+      {
+        "path": "api/intent_agent.py",
+        "kind": "control",
+        "graph_id": "INT"
+      },
+      {
+        "path": "docs/_tech_graph/_contract_manifest.json",
+        "kind": "contract",
+        "graph_id": "INT"
+      },
+      {
+        "path": "api/database_manager.py",
+        "kind": "data",
+        "graph_id": "L"
+      },
+      {
+        "path": "docs/_tech_graph/14_runtime_observability.md",
+        "kind": "contract",
+        "graph_id": "OBS_DOC"
+      },
+      {
+        "path": "tools/tech_graph_contract_check.py",
+        "kind": "ci"
+      },
+      {
+        "path": "api/agent.py",
+        "kind": "control"
+      }
+    ],
+    "note": "产出 JSON 时 impacts 须含 path + kind；evidence 可附 graph_id"
+  }
+}

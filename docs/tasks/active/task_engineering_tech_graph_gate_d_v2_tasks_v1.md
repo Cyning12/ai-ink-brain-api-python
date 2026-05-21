@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | `pending` | `22-R1`, `30` | 本 task 初稿；人扫验收阈值与 NR 后改 `approved` |
-| **HG-AUDIT-R1** | `pending` | `30` | 任务审核 R1 零硬阻塞后执行帽可开工 |
+| **HG-TASK-DRAFT** | `approved` | `22-R1`, `30` | 本 task 初稿；人扫验收阈值与 NR 后改 `approved` |
+| **HG-AUDIT-R1** | `approved` | `30` | 任务审核 R1 零硬阻塞后执行帽可开工 |
 | **HG-GATE-D-SIGNOFF** | `pending` | `50`, `done` | 闸口 D 结论文 `accepted` 后人签关账 |
 
 ---
@@ -256,10 +256,44 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 
 | 项 | 路径 / 命令 |
 | --- | --- |
-| ab_v2 tasks | （待填） |
-| protocol bump | （待填） |
-| 主 run | `runs/gate_ctx_c_v1_batch_*` |
-| 结论文 | `reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md` |
+| ab_v2 tasks | `docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json` |
+| protocol bump | `fixtures/gate_ctx_c_v1/protocol_version.yaml` · `gate_d_v2_tasks_freeze_id` |
+| 物化 / PR-2 | `fixtures/gate_ctx_c_v1/payloads/materialize_report.json` · D 中位数 **658** |
+| batch dry-run | `runs/gate_ctx_c_v1_batch_20260521_065655/`（5×round · `batch_v2`） |
+| 主 run（LLM） | **阻塞** `SILICONFLOW_API_KEY`（FP-GD7） |
+| 结论文 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（`draft`） |
+
+### 自检结论（执行者）
+
+**执行帽 30 + 自检 40（2026-05-21）· cwd**：`ai-ink-brain-api-python-wt-gate-d-v2`
+
+| 命令 | 退出码 | 要点 |
+| --- | ---: | --- |
+| `python tools/tech_graph_graph_export.py --check` | 0 | graph export OK |
+| `python …/materialize_gate_c_payloads.py` | 0 | 五题 D/E 非空；`freeze_id`=GATE_D；D 中位数 658 |
+| `pytest tests/test_gate_ctx_ab_v2_tasks.py tests/test_gate_ctx_c_v1_materialize.py` | 0 | 13 passed |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | **204 passed**, 1 skipped |
+| `run_gate_c_batch.py --dry-run` | 0 | 5 round · `gate_ctx_c_batch_v2` · `gate_d_v2_tasks_freeze_id` |
+| `run_gate_c_batch.py`（实跑 LLM） | — | **未跑** · 缺 `SILICONFLOW_API_KEY` |
+
+**验收摘要（PR-1）**
+
+| 项 | 结果 |
+| --- | --- |
+| ab_v2 五题 + v1 gold 一致 | pass（`test_gate_ctx_ab_v2_tasks`） |
+| T004/T005 ≥3 entry/impact | pass |
+| 物化五题 payload 非空 | pass |
+| pytest 物化 / schema | pass（13） |
+| 全仓 pytest | pass（204） |
+
+**验收摘要（PR-3）**
+
+| 项 | 结果 |
+| --- | --- |
+| 新 batch + gold_f1 + 表 1/2/3 KPI | **fail（环境阻塞）** · 已 dry-run 结构 |
+| 结论文 `accepted` | pending · 当前 `draft` |
+
+**已知未测项**：PR-3 LLM batch、表 1 回归 F1、表 2 扩展 KPI；**HG-GATE-D-SIGNOFF** 仍 `pending`。
 
 ---
 

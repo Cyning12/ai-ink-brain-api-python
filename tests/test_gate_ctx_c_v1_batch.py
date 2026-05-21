@@ -23,6 +23,8 @@ TASK_IDS = [
     "T001_embedding_dim_default",
     "T002_unified_sse_chain_contract",
     "T003_ingest_admin_rpc",
+    "T004_chatbi_text2sql_chain",
+    "T005_intent_routing",
 ]
 
 
@@ -56,9 +58,10 @@ def _materialize_once() -> None:
     assert proc.returncode == 0, proc.stderr or proc.stdout
 
 
-def test_tasks_ref_lists_three_tasks() -> None:
+def test_tasks_ref_lists_five_tasks() -> None:
     doc = json.loads(TASKS_REF.read_text(encoding="utf-8"))
     assert doc["task_ids"] == TASK_IDS
+    assert doc["tasks_ref"].endswith("gate_ctx_ab_v2/tasks.json")
 
 
 def test_gate_c_arm_specs_paths_exist(gate_c_s0) -> None:
@@ -90,12 +93,12 @@ def test_dry_run_batch_index_and_round_layout(tmp_path: Path, gate_c_batch) -> N
     index_path = batch_dir / "batch_index.json"
     assert index_path.is_file()
     index = json.loads(index_path.read_text(encoding="utf-8"))
-    assert index["schema"] == "gate_ctx_c_batch_v1"
+    assert index["schema"] == "gate_ctx_c_batch_v2"
     assert index["tasks"] == TASK_IDS
     assert index["arms"] == DEFAULT_ARMS
     assert "reproduce_commands" in index
-    assert len(index["run_dirs"]) == 3
-    for i in range(1, 4):
+    assert len(index["run_dirs"]) == 5
+    for i in range(1, 6):
         round_dir = batch_dir / f"round_{i:02d}"
         assert (round_dir / "index.json").is_file()
         raw_files = list((round_dir / "raw").glob("*_S0.jsonl"))
