@@ -196,26 +196,26 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 
 **产品（硬）**
 
-- [ ] **维持** `CTX_V2_QUERY` 为 machine 默认  
-- [ ] **不**修订 C 系 accepted 结论文正文  
+- [x] **维持** `CTX_V2_QUERY` 为 machine 默认  
+- [x] **不**修订 C 系 accepted 结论文正文  
 
 **表 1 · v1 回归（D 臂 vs `102810`）**
 
-- [ ] T001～T003：单题 impact F1 **相对 C″ 下降 ≤ 0.10**（阈值 HG-TASK-DRAFT 可调）  
+- [x] T001～T003：单题 impact F1 **相对 C″ 下降 ≤ 0.10**（阈值 HG-TASK-DRAFT 可调）  
 
 **表 2 · v2 扩展（D 臂）**
 
-- [ ] T004 **或** T005：impact F1 ≥ **0.45**，**或** 相对执行帽记录的「无专属物化」基线 Δ ≥ **+0.15**  
+- [x] T004 **或** T005：impact F1 ≥ **0.45**，**或** 相对执行帽记录的「无专属物化」基线 Δ ≥ **+0.15**  
 
 **token（D 臂 · 五题）**
 
-- [ ] 中位数 ≤ **max(601, C″×1.25)**（约 **701**；以 `materialize_report` 为准）  
-- [ ] 单题 heuristic tokens **< 8192**  
+- [x] 中位数 ≤ **max(601, C″×1.25)**（约 **701**；以 `materialize_report` 为准）  
+- [x] 单题 heuristic tokens **< 8192**  
 
 **工程**
 
-- [ ] 新 `runs/gate_ctx_c_v1_batch_*` + `conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（含复现命令）  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 绿  
+- [x] 新 `runs/gate_ctx_c_v1_batch_*` + `conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（含复现命令）  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 绿  
 
 ### 3.3 关账
 
@@ -259,41 +259,48 @@ python docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py
 | ab_v2 tasks | `docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v2/tasks.json` |
 | protocol bump | `fixtures/gate_ctx_c_v1/protocol_version.yaml` · `gate_d_v2_tasks_freeze_id` |
 | 物化 / PR-2 | `fixtures/gate_ctx_c_v1/payloads/materialize_report.json` · D 中位数 **658** |
-| batch dry-run | `runs/gate_ctx_c_v1_batch_20260521_065655/`（5×round · `batch_v2`） |
-| 主 run（LLM） | **阻塞** `SILICONFLOW_API_KEY`（FP-GD7） |
-| 结论文 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（`draft`） |
+| batch dry-run | `runs/gate_ctx_c_v1_batch_20260521_065655/`（5×round · `dry_run: true`） |
+| 主 run（LLM） | `runs/gate_ctx_c_v1_batch_20260521_091709/` · `dry_run: false` · 10 jsonl |
+| 结论文 | `docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`（`draft` · 表 1/2/3 已填） |
 
 ### 自检结论（执行者）
 
-**执行帽 30 + 自检 40（2026-05-21）· cwd**：`ai-ink-brain-api-python-wt-gate-d-v2`
+**执行帽 30 + 自检 40（2026-05-21 · PR-3）· cwd**：`ai-ink-brain-api-python-wt-gate-d-v2` · 分支 `task/engineering-tech-graph-gate-d-v2-tasks-v1`
 
 | 命令 | 退出码 | 要点 |
 | --- | ---: | --- |
-| `python tools/tech_graph_graph_export.py --check` | 0 | graph export OK |
-| `python …/materialize_gate_c_payloads.py` | 0 | 五题 D/E 非空；`freeze_id`=GATE_D；D 中位数 658 |
-| `pytest tests/test_gate_ctx_ab_v2_tasks.py tests/test_gate_ctx_c_v1_materialize.py` | 0 | 13 passed |
+| `python tools/tech_graph_graph_export.py --check` | 0 | graph export OK（PR-1 已验；本轮未重跑） |
+| `python …/materialize_gate_c_payloads.py` | 0 | D 中位数 **658** ≤ **701**（PR-2 pass） |
+| `pytest tests/test_gate_ctx_ab_v2_tasks.py tests/test_gate_ctx_c_v1_materialize.py` | 0 | 13 passed（PR-1） |
+| `run_gate_c_batch.py`（实跑 LLM） | 0 | 主 run **`…_091709`** · 5 round × D/E · `gate_d_v2_tasks_freeze_id` |
+| `score_gold_f1.py --batch-dir …_091709 --tasks ab_v2/tasks.json` | 0 | `gold_f1.md/json` · 10 条评分 |
 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | **204 passed**, 1 skipped |
-| `run_gate_c_batch.py --dry-run` | 0 | 5 round · `gate_ctx_c_batch_v2` · `gate_d_v2_tasks_freeze_id` |
-| `run_gate_c_batch.py`（实跑 LLM） | — | **未跑** · 缺 `SILICONFLOW_API_KEY` |
+
+**NR 核对**：`052803` / `083014` / `102810` **无 git diff**；未升 `CTX_DUAL_MD` 默认；未改 C 系 accepted 结论文。
 
 **验收摘要（PR-1）**
 
 | 项 | 结果 |
 | --- | --- |
-| ab_v2 五题 + v1 gold 一致 | pass（`test_gate_ctx_ab_v2_tasks`） |
+| ab_v2 五题 + v1 gold 一致 | pass |
 | T004/T005 ≥3 entry/impact | pass |
 | 物化五题 payload 非空 | pass |
 | pytest 物化 / schema | pass（13） |
-| 全仓 pytest | pass（204） |
 
-**验收摘要（PR-3）**
+**验收摘要（PR-3 · §3.2）**
 
-| 项 | 结果 |
-| --- | --- |
-| 新 batch + gold_f1 + 表 1/2/3 KPI | **fail（环境阻塞）** · 已 dry-run 结构 |
-| 结论文 `accepted` | pending · 当前 `draft` |
+| 项 | 结果 | 证据 |
+| --- | --- | --- |
+| 表 1 · v1 回归 impact Δ ≤ 0.10 | **pass** | T001 0.000 · T002 +0.123 · T003 +0.143 |
+| 表 2 · T004/T005 impact ≥ 0.45 | **pass** | **0.750** / **0.857** |
+| D 静态 token 中位数 ≤ 701 | **pass** | **658**（`materialize_report.json`） |
+| D 单题静态 &lt; 8192 | **pass** | max **4355**（T002） |
+| 新 batch + 结论文表 1/2/3 | **pass** | `…_091709` + `conclusion_gate_d_*.md` |
+| 维持 `CTX_V2_QUERY` 默认 | **pass** | D impact/total 中位数优于 E |
+| 全仓 pytest | **pass** | 204 |
+| 结论文 `accepted` | **pending** | **HG-GATE-D-SIGNOFF** 仍 `pending` |
 
-**已知未测项**：PR-3 LLM batch、表 1 回归 F1、表 2 扩展 KPI；**HG-GATE-D-SIGNOFF** 仍 `pending`。
+**已知未测项**：表 2「无专属物化」ablation 基线（未跑；以绝对门槛 0.45 验收）；PR-4 `改进方向.md` 索引（recommended · 非阻塞）。
 
 ---
 
