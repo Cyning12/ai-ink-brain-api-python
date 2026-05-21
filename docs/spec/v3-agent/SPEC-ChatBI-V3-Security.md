@@ -35,11 +35,11 @@
 
 ## 3. Prompt 注入
 
-> **首期 PoC 边界**：V3 首期 Prompt 防护的**可执行交付范围**以 `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` **§4 验收**为准；**§3.2 输出侧**未在该 task 验收勾选并合并代码前，**不得**在对外叙述或简历中将本子规「输出侧」标为已交付。
+> **首期 PoC 边界**：V3 首期 Prompt 防护的**可执行交付范围**以 `docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md` **§4 验收**为准；**§3.2 输出侧**未在该 task 验收勾选并合并代码前，**不得**在对外叙述或简历中将本子规「输出侧」标为已交付。
 
 ### 3.1 输入侧
 
-- **首期 PoC（已合并代码）**：`api/chatbi_prompt_guard.py` + `CHATBI_PROMPT_GUARD_MODE`（`off`/`warn`/`block`），接入 **`api/unified_chat.py::handle_unified_chat`**（非流式 JSON）与 **`handle_unified_chat_stream`**（**SSE**；`meta` 之后、`decide_intent` / `ChatBIAgent.run` 之前短路）。规则与验收以 `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` 为准。  
+- **首期 PoC（已合并代码）**：`api/chatbi_prompt_guard.py` + `CHATBI_PROMPT_GUARD_MODE`（`off`/`warn`/`block`），接入 **`api/unified_chat.py::handle_unified_chat`**（非流式 JSON）与 **`handle_unified_chat_stream`**（**SSE**；`meta` 之后、`decide_intent` / `ChatBIAgent.run` 之前短路）。规则与验收以 `docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md` 为准。  
 - 用户消息、历史、**工具回灌** 中的异常模式（指令覆盖、数据渗出请求）—— **PoC 级**检测规则 + 可配置阈值；与 Intent / rewrite 链路交点须在 `_tech_graph` 或本子规修订中标注。
 
 ### 3.2 输出侧
@@ -59,7 +59,7 @@
 ## 5. 关联
 
 - `docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（**P1-1** implementation · 已归档）  
-- `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（**P1-2** implementation）  
+- `docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（**P1-2** implementation · 已归档）  
 - `docs/spec/v2-agent/SPEC-ChatBI-V2-Tool-Design.md`  
 - [`SPEC-ChatBI-V3-Logging-Trace.md`](SPEC-ChatBI-V3-Logging-Trace.md)
 
