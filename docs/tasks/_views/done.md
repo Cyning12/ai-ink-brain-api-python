@@ -35,5 +35,24 @@
 - `../done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（2026-05-18：闸口 C · D vs E · `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_prime_f1_v1.md`（2026-05-20：闸口 C′ · T002 物化 · `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_double_prime_v1.md`（2026-05-20：闸口 C″ T003 物化 · batch `102810` · PR #37+#38 · `TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`）
+- `../done/done_chatbi_v2_agent_p0_backend_constraints_2026-04-29.md`（2026-04-29 验收通过）
+- `../done/done_chatbi_v2_agent_p0_backend_full_2026-04-29.md`（待补日期：请核对任务头部 `状态`）
+- `../done/done_chatbi_v2_agent_p0_backend_modules_intent_tools_memory.md`（2026-04-29 验收通过）
+- `../done/done_unified_chat_backend_v1.md`（2026-04-28 验收通过）
+- `../done/done_unified_chat_streaming_backend_sse_v1.md`（2026-04-28 验收通过）
+- `../done/task_chatbi_level_gate_v1.md`（2026-05-13 归档）
+- `../done/task_chatbi_text2sql_denial_final_answer_no_respin_v1.md`（2026-05-12 验收通过）
+- `../done/task_chatbi_v2_agent_p0_backend.md`（2026-04-29 验收通过）
+- `../done/task_chatbi_v2_incremental_sse_backend_v1.md`（2026-05-11 归档）
+- `../done/task_chatbi_v2_text2sql_multiturn_grounding_v1.md`（2026-05-11 归档）
+- `../done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（待补日期：请核对任务头部 `状态`）
+- `../done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（2026-05-11 归档）
+- `../done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`（待补日期：请核对任务头部 `状态`）
+- `../done/task_engineering_tech_graph_gate_d_v2_tasks_v1.md`（2026-05-21 验收通过）
+- `../done/task_intent_router_backend_v1.md`（2026-05-13 归档）
+- `../done/task_text2sql_schema_prefetch_before_mutate_v1.md`（2026-05-13 归档）
+- `../done/task_unified_chat_router_evidence_event_v1.md`（2026-04-30 验收通过）
+- `../done/task_unified_chat_router_evidence_observability_v1.md`（2026-04-30 验收通过：`router.evidence.details` SSE + `metadata.router_debug` 落库）
+- `../done/task_chatbi_v2_acceptance_runner_v1.md`（2026-05-22 验收通过：L0–L7 Runner 归档）
 - `../done/task_docs_tasks_reorg_move_v1.md`（2026-05-22 验收通过：`docs/tasks/` 按 active/done/specs/templates/legacy 规整；顶层无混放 SPEC/模板）
 

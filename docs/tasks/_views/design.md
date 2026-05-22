@@ -7,6 +7,10 @@
 
 - 无（`task_engineering_tech_graph_gate_a_perf_compare_v1` 已归档：[`../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md`](../done/task_engineering_tech_graph_gate_a_perf_compare_v1.md)）
 
+## Pending（排期参考 · 索引在 backlog）
+
+> 非 `design`/`draft` 状态的任务不在本视图重复维护；见 [`backlog.md`](backlog.md)「相关但未标 backlog」表。
+
 ## 缺少状态字段（请补齐后再归类）
 
 > 这些文件属于 tasks 域，但未在头部声明 `状态`，暂时无法可靠归类。

@@ -1,6 +1,6 @@
 # Task：Unified Chat（后端）— Router Evidence 可追溯日志（SSE + DB，v1）
 
-> **状态**：pending  
+> **状态**：done（2026-04-30 验收通过）  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：`docs/tasks/done/task_unified_chat_router_evidence_event_v1.md`（`router.evidence` 已验收通过）  
 关联：
@@ -122,20 +122,20 @@
 ## 验收标准（必须可操作）
 
 ### 1) 契约/manifest 门禁（阻断项）
-- [ ] `_contract_manifest.json` 已包含 `router.evidence.details` 的 `type_values` 与 payload 最小键
-- [ ] `_manifest.json` 已包含 `DEBUG_ROUTER_EVIDENCE`
-- [ ] `python tools/tech_graph_contract_check.py` 通过
-- [ ] `python tools/tech_graph_manifest_check.py` 通过
+- [x] `_contract_manifest.json` 已包含 `router.evidence.details` 的 `type_values` 与 payload 最小键
+- [x] `_manifest.json` 已包含 `DEBUG_ROUTER_EVIDENCE`
+- [x] `python tools/tech_graph_contract_check.py` 通过
+- [x] `python tools/tech_graph_manifest_check.py` 通过
 
 ### 2) 行为验收（阻断项）
-- [ ] `DEBUG_ROUTER_EVIDENCE=0`（默认）时：不输出 `router.evidence.details`，且不落库
-- [ ] `DEBUG_ROUTER_EVIDENCE=1` 时：
-  - [ ] JSON：`/api/py/unified/chat` 返回的 `events[]` 包含 `router.evidence.details`
-  - [ ] SSE：`/api/py/unified/chat/stream` 的 `chain` 包含 `router.evidence.details`
-  - [ ] `rag_conversation_logs.metadata.router_debug.router_evidence_details` 可查到对应结构（仅候选摘要）
+- [x] `DEBUG_ROUTER_EVIDENCE=0`（默认）时：不输出 `router.evidence.details`，且不落库
+- [x] `DEBUG_ROUTER_EVIDENCE=1` 时：
+  - [x] JSON：`/api/py/unified/chat` 返回的 `events[]` 包含 `router.evidence.details`
+  - [x] SSE：`/api/py/unified/chat/stream` 的 `chain` 包含 `router.evidence.details`
+  - [x] `rag_conversation_logs.metadata.router_debug.router_evidence_details` 可查到对应结构（仅候选摘要）
 
 ### 3) 测试验收（阻断项）
-- [ ] pytest 覆盖至少 1 条用例：开启 `DEBUG_ROUTER_EVIDENCE=1` 时断言 `router.evidence.details` 出现
+- [x] pytest 覆盖至少 1 条用例：开启 `DEBUG_ROUTER_EVIDENCE=1` 时断言 `router.evidence.details` 出现
 
 ---
 
