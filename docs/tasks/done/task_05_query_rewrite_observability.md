@@ -1,11 +1,11 @@
 # Task：Rewrite 可观测性（raw vs rewrite 召回对比 + 关键实体丢失）
 
-> **状态**：in_progress（2026-05-22 · P0-B/C Harness 试点）  
+> **状态**：done（2026-05-22 验收通过 · [PR #46](https://github.com/Cyning12/ai-ink-brain-api-python/pull/46)）  
 > **关联图谱**：`docs/_tech_graph/10_flow_rag.md`  
-> **关联 Issue/PR**：无  
+> **关联 Issue/PR**：[#46](https://github.com/Cyning12/ai-ink-brain-api-python/pull/46)  
 > **前端依赖**：无（仅 metadata / DEBUG_RAG；前端展示另任务）
 
-> 落盘：`docs/tasks/active/` · Harness 试点见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0.3
+> 归档：`docs/tasks/done/` · Harness 试点见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0.3
 
 ---
 
@@ -119,9 +119,9 @@
 
 | 项 | 结果 |
 |----|------|
-| 命令 | `pytest tests/test_query_rewrite_compare_anchor.py -q` |
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
 | 结论 | **pass** |
-| 要点 | 4 passed；覆盖 `extract_anchor_tokens`、`compare_anchor_tokens` 丢失/保留场景 |
+| 要点 | 208 passed，1 skipped（2026-05-22 本地 `.venv`）；含 `test_query_rewrite_compare_anchor.py` 4 条 |
 
 ---
 
