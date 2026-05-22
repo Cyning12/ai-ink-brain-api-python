@@ -93,6 +93,68 @@
 - 自动链式时：**对话可摘要**，但 **invoke 须完整 §3**；禁止只 commit 代码不落 invoke。  
 - 若下一步是 **关账无下一棒**：改走 [`HANDOFF_CLOSE_TRACE.md`](HANDOFF_CLOSE_TRACE.md)，不生成空 invoke。
 
+### 3.4 每棒状态栏（版本 B · 对话默认）
+
+> **裁决**：Harness 评价回复 **§3.2** — 版本 **B**（结构化多行）为 **每帽结束** 的对话默认输出；与 [`HANDOFF_CLOSE_TRACE.md`](HANDOFF_CLOSE_TRACE.md) **分工**：状态栏 = 会话内「**现在在哪**」；CLOSE_TRACE = 关账时 **全链路** commit 回溯，**互补不替代**。
+
+#### 3.4.1 何时必须输出
+
+| # | 时机 |
+|---|------|
+| S1 | **每一顶帽子** 在本轮回复 **末尾**（在「下一棒可复制 Prompt」或阻塞说明 **之前或之后** 均可，但须 **同条回复** 内可见） |
+| S2 | **遇 `human_gate: pending` 硬停** 时：仍须输出状态栏，**下一棒** 填 `—（阻塞）` |
+| S3 | **关账无下一棒**：**不** 用状态栏代替 CLOSE_TRACE；可最后一棒先输出状态栏，再输出 **执行路线与 Commit 回溯** |
+
+#### 3.4.2 版本 B 格式（复制块）
+
+标题固定为 **`📋 Harness 状态栏（版本 B）`**，正文用 **树形多行**（与 Execution Report 习惯一致）：
+
+```text
+📋 Harness 状态栏（版本 B）
+├── 当前帽：<10|20|22|30|40|50> · <短标题>
+├── task：<task 文件名或 slug> · audit_profile：<full|post_close|human_only>
+├── 分支：<git_branch 或 git branch --show-current>
+├── human_gate：<gate_id> <pending|approved>（blocks <帽子>）· …；无则写「无」
+├── 本棒交付：<本轮落盘/结论一句>
+├── 下一棒：A=<路径简述> · B=<路径简述>（10 帽 **须** 给 A/B；仅一路则 B=—）
+├── 推荐：（可选）<A|B>（<一行理由>）— **不得**因推荐自动执行
+└── 阻塞：<无 | HG-xxx pending → 停，须改 <路径>>
+```
+
+**硬规则**：
+
+| # | 规则 |
+|---|------|
+| R1 | **禁止** 用单行省略版代替 B（除非用户明示「不要状态栏」） |
+| R2 | **禁止** 因「推荐」自动走路径 A/B；推荐仅标注，**人择** 不变 |
+| R3 | **禁止** 在状态栏写 `human_gate: approved` 若工件仍为 `pending` |
+| R4 | `semi_auto: false` 或 `human_only` 时，**下一棒** 可写 `—（须人发起）` |
+
+#### 3.4.3 版本 C（可选 · invoke / review 锚点）
+
+跨会话续跑时，可在 **`docs/harness/invokes/invoke_*.md` 元信息表** 或 **22 review 文首** 追加 **表格版**（与 B 语义一致，便于扫读）：
+
+| 字段 | 值 |
+|------|-----|
+| hat_id | 22 |
+| task | `active/task_05_*.md` |
+| audit_profile | post_close |
+| git_branch | `task/query-rewrite-obs` |
+| human_gate | HG-AUDIT-R1 pending |
+| next | A=30 · B=22-R2 |
+| block | HG-AUDIT-R1 |
+
+- **invoke 正文 §3** 仍为完整 Prompt 真值；C 表为 **摘要**，不可替代 §3。
+
+#### 3.4.4 与各帽衔接
+
+| 帽子 | 状态栏要点 |
+|------|------------|
+| **10** | **必须** 列出下一棒 **A（22）+ B（30）**；推荐行见 P0-A3 模板 |
+| **22** | `human_gate` 与 `reviews/` 落盘路径写入 **本棒交付** |
+| **30→40→50** | 本棒交付含命令/pytest 结论摘要；50 后下一棒常为 **关账** |
+| **阻塞** | **仅** 输出状态栏 + 须改的 `gate_id` 与文件路径，**禁止** 代填 approved |
+
 ---
 
 ## 4. 审核节奏：`audit_profile`（并入 §3 两闸模型）
@@ -160,6 +222,7 @@
 | **22** | R1 通过时 **不得** 代改 `HG-AUDIT-R1`；终轮设 `HG-AUDIT-CLOSE` |
 | **30→40** | `post_close` 下可 auto；**30 前** 必查 `HG-AUDIT-R1` |
 | **50** | 常对应 `HG-GLOBAL-SIGNOFF`；通过后 CLOSE_TRACE |
+| **每帽结束** | 对话输出 **§3.4 版本 B 状态栏**；关账另用 CLOSE_TRACE |
 
 ---
 
@@ -168,9 +231,10 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-17 | v1：人工闸标识、自动戴帽前置 invoke+commit、audit_profile 两闸、多分支建议 |
+| 2026-05-22 | v1.1：§3.4 每棒状态栏（版本 B 对话默认 + 版本 C invoke 可选）；与 CLOSE_TRACE 分工 |
 
 ---
 
 ## 给 Cursor
 
-`HANDOFF_SEMI_AUTO`、`human_gate`、`HG-`、`pending`、`approved`、`semi_auto`、`audit_profile`、`post_close`、`full`、自动戴帽、`invokes`、多分支、`task/`
+`HANDOFF_SEMI_AUTO`、`Harness 状态栏`、`版本 B`、`版本 C`、`human_gate`、`HG-`、`pending`、`approved`、`semi_auto`、`audit_profile`、`post_close`、`full`、自动戴帽、`invokes`、多分支、`task/`、`HANDOFF_CLOSE_TRACE`

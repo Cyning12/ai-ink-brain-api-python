@@ -27,7 +27,7 @@
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
 | ~~A1~~ | ~~扩展 `TASK_TEMPLATE` Harness 字段~~ | `docs/tasks/templates/TASK_TEMPLATE.md` | **done** |
-| A2 | `HANDOFF_SEMI_AUTO` 状态栏 **版本 B** | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | 待做 |
+| ~~A2~~ | ~~`HANDOFF_SEMI_AUTO` 状态栏 **版本 B**~~ | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | **done** |
 | A3 | 10 帽双 Prompt + `（推荐）` + 理由 | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | 待做 |
 | A4 | `harness/README` §4 rsync 仅维护者 | `docs/harness/README.md` | 待做 |
 
@@ -272,6 +272,7 @@ flowchart TD
 | 2026-05-22 | 更新快照：reorg/V2 Runner 已 `done/`；Harness 内嵌 task 待归档；**本表为最近安排真值** |
 | 2026-05-22 | §0.1/0.2 **done**：PR #45 已合并 `main`；下一棒 **P0-A1**（仍用 `task/chore-diary-tmp-ignore-and-main-branch-policy`） |
 | 2026-05-22 | **P0-A1 done**：`TASK_TEMPLATE` 扩展 Harness 字段；下一棒 **P0-A2**（HANDOFF 状态栏版本 B） |
+| 2026-05-22 | **P0-A2 done**：`HANDOFF_SEMI_AUTO` §3.4 版本 B/C；下一棒 **P0-A3**（10 帽 A/B 推荐） |
 
 ---
 
