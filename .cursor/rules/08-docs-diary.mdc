@@ -9,6 +9,7 @@ alwaysApply: true
 
 - **非必读**：`docs/diary/` **全树**不纳入日常必读链路；**非需要不主动读取**（不预加载、不 glob 遍历、不在无关任务中引用）。
 - **何时可读**：用户 `@` 明确路径；当前 **task / invoke** 依赖列出 diary 路径；排障、复盘、实验复现且范围已锁定到**具体文件**。
+- **`docs/diary/tmp/`（强制）**：**不纳入 Git**（`.gitignore`）；Agent **禁止**默认 `glob`/`grep`/遍历该目录；仅当用户或 task **单独指明** `docs/diary/tmp/…` 具体文件时可读。
 - **真值优先级**：实现与架构以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/`、`docs/spec/` 为准；diary **不得**覆盖或替代上述真值。
 
 ## 落盘纪律（写什么进 diary）
@@ -16,6 +17,14 @@ alwaysApply: true
 - **用途**：存放 **非长期维护**、**易过时** 的产物，例如：一次性验收记录、实验批次报告、对比跑分、留证 curl、阶段性结论草稿、排障快照。
 - **长期真值不得滞留**：结论已冻结并写入 `_tech_graph/`、`docs/tasks/done/`、`docs/tech_graph/SPEC/` 等稳定位置后，diary 内文稿仅作 **历史回溯**；Agent 默认 **不再**以其叙述作为实现依据。
 - **新增沉淀**：优先落在 `docs/diary/`（按 `DIARY_GUIDE.md` 命名）；若内容将长期引用，须同步提炼进真值表 / 图谱 / task，而非仅堆在 diary。
+
+## 草稿轨：`docs/diary/tmp/`（非 Git · 非默认扫描）
+
+| 项 | 约定 |
+| --- | --- |
+| **性质** | 评价稿、Prompt 草稿、排期对比等 **未冻结** 文稿 |
+| **Git** | **不跟踪**；结论沉淀后写入 `docs/diary/YYYY-MM-DD-*.md` 或 `docs/harness/` / `docs/tasks/` 再提交 |
+| **Agent** | **禁止**日常任务中主动打开；须用户或 task 显式路径 |
 
 ## 实验轨：`docs/diary/jsonPKmermaid/`（非必读）
 

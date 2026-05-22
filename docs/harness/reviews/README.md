@@ -1,49 +1,66 @@
-# docs/harness/reviews（本后端仓 · 任务审核产出）
+# docs/harness/reviews（本后端仓 · 22 帽任务审核）
 
-> **用途**：存放 **任务审核帽**（工作区 [`docs/harness/prompts/22-task-audit.md`](../../../../docs/harness/prompts/22-task-audit.md)）对本仓 **`docs/tasks/`** 相关 task 的**书面审查结果**（每轮必产出）。  
-> **真值**：与本仓 `docs/tasks/active|done` 强绑定的 task，其 **签收 / 关闭** 以 **本目录** 下对应 `task_*_audit_*.md` 为准，并与 task 头部 `状态` 一致；**不得以聊天结论替代落盘**。  
-> **工作区索引**：[`docs/harness/reviews/README.md`](../../../../docs/harness/reviews/README.md)（多子仓总说明；后端 task 全文以 **本目录** 为归档真值）。  
-> **Invoke 快照**（新帽节 §3 正文锚点）：[`../invokes/README.md`](../invokes/README.md)（与本仓 `docs/tasks` 强绑定时，快照归 **本目录旁 `invokes/`**；总规见工作区链入文件）。
+> **用途**：**仅**存放对本仓 **`docs/tasks/`** 绑定 task 的 **22 帽** 书面审查（`task_*_audit_R*_*.md`）。  
+> **禁止**：把工作区总 Agent、前端仓或其他子项目的审查全文放在本目录（历史混放是删除旧 `reviews/` 的原因）。
 
 ---
 
-## 命名建议
+## 落盘规则（硬）
 
-与工作区一致：
-
-| 场景 | 建议文件名 |
-|------|------------|
-| 首轮审查 | `task_<slug>_audit_R1_YYYYMMDD.md` |
-| 复审 | 递增 `R2`、`R3`…；文首「元信息」链回上一轮文件 |
-
-路径均相对 **本仓库根**：`docs/harness/reviews/<文件名>.md`。
-
----
-
-## Rubric 自动化双人评审（补充）
-
-> **非**任务审核帽 `22-task-audit` 的法定产出；**不得**单独作为 task 签收真值。  
-> **落盘目录**：默认 **`docs/diary/jsonPKmermaid/rubric_runs/`**（与 task 审核本目录分离；见 [`../../tools/rubric_review/README.md`](../../tools/rubric_review/README.md)）。
-
-| 项 | 说明 |
+| 项 | 约定 |
 |----|------|
-| CLI | `python -m tools.rubric_review`（见 [`../../tools/rubric_review/README.md`](../../tools/rubric_review/README.md)） |
-| 多轮合并 | `python -m tools.rubric_review.multi_round --manifest ...` |
-| 默认输出 | **`docs/diary/jsonPKmermaid/rubric_runs/`** 下 `rubric_review_*` / `rubric_multiround_*` |
-| 首轮元分析 Prompt | [`../../diary/jsonPKmermaid/prompt_analyze_first_round_rubric.md`](../../diary/jsonPKmermaid/prompt_analyze_first_round_rubric.md) |
-| 用途 | PR 正文 / 技术方案草稿的 **Rubric 结构化打分** + 可选 webhook |
+| **路径** | 本仓根相对：`docs/harness/reviews/<文件名>.md` |
+| **命名** | `task_<slug>_audit_R<轮次>_YYYYMMDD.md`（例：`task_foo_v1_audit_R1_20260522.md`） |
+| **绑定** | 元信息表须含 **`task_path`** → `docs/tasks/active|done/...` |
+| **签收** | 终轮须有 **「签收 / 关闭」** 节，与 task 头部 `状态` 对齐 |
 
+跨仓审查、工作区 Harness 任务：**不得**写入本目录；若需备忘，用工作区 `Projects/docs/harness/reviews/` 的 **pointer**（本仓不维护）。
+
+---
+
+## 与 20 / 50 分工
+
+| 帽 | 目录 | 层级 |
+|----|------|------|
+| **20** | `docs/tasks/review_results/` | SPEC/task **短评**，可选 |
+| **22** | **本目录** | task **合同**是否可执行（R1/R2…） |
+| **50** | `docs/tasks/reinspect_results/` | 实现 vs 验收（三方，关账） |
+
+---
+
+## 人工择路（10 帽交接）
+
+10 帽结束须给出 **两条** 下一棒 Prompt（见 [`../prompts/TEMPLATE-requirements-invoke.md`](../prompts/TEMPLATE-requirements-invoke.md) §3）：
+
+- **路径 A**：`TEMPLATE-task-audit-invoke` → 本目录落盘 R1  
+- **路径 B**：`TEMPLATE-execute-invoke` → 直进 30（**人**判定可跳过 22 时选用）
+
+---
+
+## 本仓已产出示例（历史召回 · 非必读）
+
+> 2026-05-22 从提交 `a34f55e`（`d48845d` 父提交）恢复，对应工作区 `Projects/docs/harness/reviews/` 中 **pointer 曾指向本仓** 的后端 task 审查；供 22 帽格式对照，**非**日常 Agent 必读。
+
+| 文件 | 绑定 task（本仓 `docs/tasks/`） |
+|------|--------------------------------|
+| [`task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md`](task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md) | `done/task_engineering_tech_graph_gate_a_perf_compare_v1.md` |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md) | `done/task_engineering_tech_graph_v2_graph_query_v1.md` |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md) | 同上 |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md) | 同上（终轮签收） |
+| [`task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md`](task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md) | `done/task_engineering_tech_graph_v2_p4_extended_v1.md` |
+| [`task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md`](task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md) | 同上 |
+| [`task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md`](task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md) | `active` 或 `done` 同名 task |
+| [`task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md`](task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md) | `task_engineering_tech_graph_gate_c_prime_f1_v1.md` |
+| [`task_engineering_tech_graph_gate_d_v2_tasks_v1_audit_R1_20260520.md`](task_engineering_tech_graph_gate_d_v2_tasks_v1_audit_R1_20260520.md) | `task_engineering_tech_graph_gate_d_v2_tasks_v1.md` |
+| [`task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`](task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md) | `done/task_chatbi_v3_prompt_injection_guard_poc_v1.md` |
+
+裁决与召回范围见 [`../../diary/2026-05-22-harness-evaluation-improvement-response.md`](../../diary/2026-05-22-harness-evaluation-improvement-response.md) §4.1。
+
+---
 
 ## 修订记录
 
 | 日期 | 摘要 |
 |------|------|
-| 2026-05-14 | v1：后端仓独立落盘任务审核；与根 `docs/harness/reviews` 分工 |
-| 2026-05-14 | v1.1：链 **Invoke 快照** [`../invokes/README.md`](../invokes/README.md) |
-| 2026-05-15 | v1.3：Rubric CLI 默认落盘迁至 `docs/diary/jsonPKmermaid/rubric_runs/`；链首轮分析 Prompt |
-
----
-
-## 给 Cursor
-
-`Harness`、`reviews`、`任务审核`、`audit`、`R1`、`签收`、`闭环`、`docs/tasks`、`rubric_review`
+| 2026-05-22 | v1：本仓专用 reviews；与工作区混放脱钩 |
+| 2026-05-22 | v1.1：召回 10 份历史审查样例（pointer 对齐；非必读） |

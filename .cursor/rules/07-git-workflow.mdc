@@ -1,0 +1,33 @@
+---
+description: Git 分支与 PR — 本地不在 main 上改代码/提交；远程合并须 PR
+alwaysApply: true
+---
+
+# Git 工作流（本仓）
+
+## 原则（全任务适用）
+
+- **远程**：合并进 **`main`**（及 `production`）**必须经 PR**；禁止假设可直推 `main`。
+- **本地**：**不要在 `main` 分支上**做日常修改、`git add`、`git commit` 等操作（不便区分子任务，也与 PR 流程脱节）。
+- **范围**：适用于**本仓一切任务**（代码、文档、Harness、图谱、diary 已跟踪文件等），**非**仅 Harness 文档。
+
+## Agent 开干前（硬）
+
+1. 执行 `git branch --show-current`（或等价）确认当前分支。  
+2. 若在 **`main`** / **`production`**：  
+   - 有进行中任务 → `git checkout` 到对应 **`task/<slug>`**（或 `feat/<slug>`）；  
+   - 无则 **`git checkout -b task/<简短主题>`**（从最新 `origin/main` 或本地 `main` 拉出，按仓库习惯）。  
+3. **确认已在任务分支后**再改文件、再 commit。
+
+用户仅说「commit」且未指定分支时：先完成 §2，再提交。
+
+## 提交与合并
+
+- 所有 commit 落在 **任务分支**；通过 **PR** 合入 `main`。  
+- **不**默认 `git push`；用户要求开 PR 或推送时再执行。  
+- **例外**：用户明文「就在当前 main 上提交」或紧急 hotfix 流程已说明。
+
+## Harness（与上节一致）
+
+- 半自动多帽、invoke/review 落盘：同样**只在任务分支** commit（`HANDOFF_SEMI_AUTO` §5）。  
+- PR 合并前：满足 `AGENTS.md` 合并前必绿（如 `pytest`）。
