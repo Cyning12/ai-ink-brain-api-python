@@ -6,12 +6,16 @@
 
 ## 工作区 Harness 任务（不在本目录）
 
-与 **跨子仓流程 / CI 门禁对齐 / 帽子 prompts / 根级验收** 相关的任务单统一在工作区：
+与 **跨子仓流程 / CI 门禁对齐** 相关的 Harness **任务单** 仍统一在工作区：
 
 - **`../../../docs/harness/tasks/active/`**、**`../../../docs/harness/tasks/done/`**  
-- 规则与索引：**[`../../../docs/harness/tasks/README.md`](../../../docs/harness/tasks/README.md)**
+- 索引：**[`../../../docs/harness/tasks/README.md`](../../../docs/harness/tasks/README.md)**
 
-本目录 **`docs/tasks/`** 仅承载 **本后端仓** 任务。
+**帽子 Prompt / TEMPLATE / 半自动通则** 已内嵌本仓，开发时读：
+
+- **[`../harness/README.md`](../harness/README.md)** → **[`../harness/prompts/README.md`](../harness/prompts/README.md)**
+
+本目录 **`docs/tasks/`** 仅承载 **本后端仓** 任务；invoke / review 落盘见 **`docs/harness/invokes/`**、**`docs/harness/reviews/`**。
 
 ---
 
@@ -32,15 +36,16 @@ docs/tasks/
 
 ### 工程纪律索引（防口头约定漂移）
 
-- **ChatBI：新功能以 SSE 优先（团队纪律 task）**：[`done/task_engineering_chatbi_sse_first_v1.md`](done/task_engineering_chatbi_sse_first_v1.md) — 书面审查 R1：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R1_20260515.md)；R2：[`../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R2_20260515.md`](../harness/reviews/task_engineering_chatbi_sse_first_v1_audit_R2_20260515.md)
+- **ChatBI：新功能以 SSE 优先（团队纪律 task）**：[`done/task_engineering_chatbi_sse_first_v1.md`](done/task_engineering_chatbi_sse_first_v1.md) — 历史审查见 [`../diary/harness-archive/`](../diary/harness-archive/README.md)；**新 task** 22 帽落盘 [`../harness/reviews/`](../harness/reviews/README.md)。
 
 ### 审查与复检产出（非 task 单）
 
 - **`review_results/`**：规格/任务 **审查帽**（`20`）结论归档；详见 [`review_results/README.md`](review_results/README.md)。  
-- **`../harness/reviews/`**：**任务审核帽**（工作区 `22-task-audit`）对 **`docs/tasks/`** 绑定 task 的 **书面审查**（`task_*_audit_R*_*.md`）；详见 [`../harness/reviews/README.md`](../harness/reviews/README.md)。  
-- **`reinspect_results/`**：**独立复检帽**结论归档；详见 [`reinspect_results/README.md`](reinspect_results/README.md)。  
+- **`../harness/reviews/`**：**22 帽任务审核**（**仅本仓** `docs/tasks/` 绑定 task；勿混放总项目/他仓审查）。  
+- **`reinspect_results/`**：**50 帽三方复检** — 关账必选。  
+- **Harness**：[`../harness/README.md`](../harness/README.md)；10 结束输出 **下一棒 A（22）+ B（30）**，由人择一。
 
-二者（及 `harness/reviews`）均可将「回填清单」交给工作区 **需求帽**（[`../../../docs/harness/prompts/10-requirements.md`](../../../docs/harness/prompts/10-requirements.md)）以更新本仓 `docs/tasks/`、`docs/spec/`（按清单内路径执行）。
+审查回填清单由 **需求帽**（[`../harness/prompts/10-requirements.md`](../harness/prompts/10-requirements.md)）更新本仓 `docs/tasks/`、`docs/spec/`。
 
 ---
 

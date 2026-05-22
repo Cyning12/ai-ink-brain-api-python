@@ -20,7 +20,11 @@
    - `99_spec.md` — 实现规约
    - `99_mermaid_protocol.md` — Mermaid 拓扑协议（Python/FastAPI 适配版）
 4. **`docs/tasks/`**：任务规格（实现与验收口径）
-5. **多子仓协作**（总设职责、任务单规范与落盘路径）见工作区根 `Projects/AGENTS.md` **§2**，跨仓任务按该约定先写任务初稿再分派子 Agent 丰富。
+5. **`docs/harness/`**：Harness（10→**人择** 22 或 30→40→50；落盘可查收）
+   - 入口：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/ACCEPTANCE_LANDING.md`](docs/harness/ACCEPTANCE_LANDING.md)
+   - **22 审核**（仅本仓）：`docs/harness/reviews/` · **50 复检**：`docs/tasks/reinspect_results/`
+   - 10 下一棒：**两条** Prompt（A=22，B=30），见 `TEMPLATE-requirements-invoke` §3
+6. **多子仓协作**（总设职责、任务单规范与落盘路径）见工作区根 `Projects/AGENTS.md` **§2**，跨仓任务按该约定先写任务初稿再分派子 Agent 丰富。
 
 ---
 
@@ -151,12 +155,29 @@
 
 执行 `docs/tasks/active/*.md` 或用户 `@task` 时：
 
-1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见工作区 `Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）。
+1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
 2. **无阻塞则连续跑**：凡 `human_gate` 对下一棒 **非** `pending`（或 `blocks_hats` 不含该帽），**同会话**自动戴下一帽；**禁止**每棒要求用户重贴 `TEMPLATE-*` §3。
-3. **下一棒前必落盘**：将下一棒 §3 全文写入 `docs/harness/invokes/invoke_*.md`（或工作区 `Projects/docs/harness/invokes/` 若 invoke 在工作区），再 **commit** 本轮路径，然后执行。
+3. **下一棒前必落盘**：将下一棒 §3 全文写入本仓 `docs/harness/invokes/invoke_*.md`（本仓 `docs/tasks/` 任务 **禁止** 只写工作区 invokes），再 **commit** 本轮路径，然后执行。
 4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。
 5. **新会话续跑**：读 task + **最新** `docs/harness/invokes/` 下与本 task 相关的 invoke，按其中 §3 继续；用户可说「按 semi_auto 继续」。
 6. **关账**：无下一棒时输出 **执行路线与 Commit 回溯**（`HANDOFF_CLOSE_TRACE`），非空 Prompt。
+
+---
+
+## Harness In Repo
+
+> Harness 本仓真值 — prompts/模板/规划入口，禁止默认查工作区外部路径
+
+# Harness（本后端仓内嵌）
+
+执行 Harness 流程、复制帽子 Prompt、`semi_auto` 续跑时：
+
+1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md)
+2. **模板**：`docs/harness/prompts/TEMPLATE-*-invoke.md` §3；帽子 `10`～`50` 与同目录 `HANDOFF_*.md`
+3. **落盘**：invoke → `docs/harness/invokes/`；**22** → `docs/harness/reviews/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）
+4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 例外见 `docs/tasks/README.md`「工作区 Harness 任务」
+
+半自动续跑细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc)。
 
 ---
 

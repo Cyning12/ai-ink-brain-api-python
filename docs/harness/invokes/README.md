@@ -1,19 +1,20 @@
-# docs/harness/invokes（本后端仓 · 新帽节 Invoke 快照）
+# docs/harness/invokes（新快照落盘）
 
-> **用途**：当 **主 task** 落在本仓 **`docs/tasks/`** 时，将 **每顶帽子新开局** 时粘贴到对话的、**占位符已全部替换** 的 `TEMPLATE-*-invoke.md` **§3 全文** 落盘于此，与 **`docs/harness/reviews/`** 书面审查、task 内 **`### 自检结论`** 形成 **仓库内可追溯链环**。  
-> **工作区总规（命名、触发条件、正文骨架、与审查互链）**：[`docs/harness/invokes/README.md`](../../../../docs/harness/invokes/README.md)（相对工作区根 `Projects/` 的路径与表结构以该文件为准）。
-
----
-
-## 修订记录
-
-| 日期 | 摘要 |
-|------|------|
-| 2026-05-14 | v1：与根目录 `invokes` 总规互链；本目录为后端 task 的 invoke 快照归档位 |
-| 2026-05-15 | v1.1：首份 **invoke 快照** 示例落盘：`invoke_20260515_0000_22_chatbi-v3-sql-ast-prompt-injection.md`（任务审核 R2 启动体；与总规 [`docs/harness/invokes/README.md`](../../../../docs/harness/invokes/README.md) §3～§5 一致） |
+> **用途**：本仓 `docs/tasks/` 任务在 **每顶帽子新开局** 时，将已替换占位符的 `TEMPLATE-*` **§3 全文** 存一份于此。  
+> **历史快照**（2026-05 图谱/闸口等 ~50 份）已迁至 [`../../diary/harness-archive/invokes/`](../../diary/harness-archive/invokes/)，**非必读**。
 
 ---
 
-## 给 Cursor
+## 命名
 
-`Harness`、`invokes`、`invoke 快照`、`TEMPLATE`、`docs/tasks`、`reviews`
+`invoke_YYYYMMDD_<帽号>_<slug>.md`（例：`invoke_20260522_30_docs-tasks-p0.md`）
+
+## 规则（摘要）
+
+1. **同一帽**多轮追问 **不** 重复落盘；换帽才新建文件。  
+2. 与 task 同 **`git_branch`** 提交；并行任务用独立 worktree（见 [`../README.md`](../README.md) §3）。  
+3. 审查结论：用 **`docs/tasks/review_results/`**（20 帽）或 task 正文，**不**使用已移除的 `harness/reviews/`。
+
+## 模板来源
+
+[`../prompts/README.md`](../prompts/README.md)
