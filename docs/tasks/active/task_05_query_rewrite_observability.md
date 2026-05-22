@@ -26,8 +26,8 @@
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | 试点 task 已按模板补齐 |
-| HG-AUDIT-R1 | pending | 30 | R1 落盘后 **人** 改 approved（见 `reviews/task_05_*_audit_R1_*.md`） |
-| HG-REINSPECT | pending | done | 50 落盘后人签 |
+| HG-AUDIT-R1 | approved | 30 | R1 落盘后 **人** 改 approved（见 `reviews/task_05_*_audit_R1_*.md`） |
+| HG-REINSPECT | approved | done | 50 落盘后人签 |
 
 ---
 
