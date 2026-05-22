@@ -37,8 +37,30 @@
 
 ---
 
+## 本仓已产出示例（历史召回 · 非必读）
+
+> 2026-05-22 从提交 `a34f55e`（`d48845d` 父提交）恢复，对应工作区 `Projects/docs/harness/reviews/` 中 **pointer 曾指向本仓** 的后端 task 审查；供 22 帽格式对照，**非**日常 Agent 必读。
+
+| 文件 | 绑定 task（本仓 `docs/tasks/`） |
+|------|--------------------------------|
+| [`task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md`](task_engineering_tech_graph_gate_a_perf_compare_v1_audit_R2_20260515.md) | `done/task_engineering_tech_graph_gate_a_perf_compare_v1.md` |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md) | `done/task_engineering_tech_graph_v2_graph_query_v1.md` |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md) | 同上 |
+| [`task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`](task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md) | 同上（终轮签收） |
+| [`task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md`](task_engineering_tech_graph_v2_p4_extended_v1_audit_R1_20260517.md) | `done/task_engineering_tech_graph_v2_p4_extended_v1.md` |
+| [`task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md`](task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md) | 同上 |
+| [`task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md`](task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md) | `active` 或 `done` 同名 task |
+| [`task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md`](task_engineering_tech_graph_gate_c_prime_f1_audit_R1_20260520.md) | `task_engineering_tech_graph_gate_c_prime_f1_v1.md` |
+| [`task_engineering_tech_graph_gate_d_v2_tasks_v1_audit_R1_20260520.md`](task_engineering_tech_graph_gate_d_v2_tasks_v1_audit_R1_20260520.md) | `task_engineering_tech_graph_gate_d_v2_tasks_v1.md` |
+| [`task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`](task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md) | `done/task_chatbi_v3_prompt_injection_guard_poc_v1.md` |
+
+裁决与召回范围见 [`../../diary/2026-05-22-harness-evaluation-improvement-response.md`](../../diary/2026-05-22-harness-evaluation-improvement-response.md) §4.1。
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-22 | v1：本仓专用 reviews；与工作区混放脱钩 |
+| 2026-05-22 | v1.1：召回 10 份历史审查样例（pointer 对齐；非必读） |

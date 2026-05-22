@@ -18,6 +18,7 @@
 | task 字段 | `HARNESS_V2_PLAN.md` §5 |
 | 流程 | `SDD_HAT_FLOW.md` |
 | 新 invoke | `invokes/` |
+| **Harness 裁决共识（已接受）** | [`../diary/2026-05-22-harness-evaluation-improvement-response.md`](../diary/2026-05-22-harness-evaluation-improvement-response.md) **§九** |
 
 **Cursor**：`.cursor/rules/05-harness-semi-auto.mdc`、`.cursor/rules/06-harness-in-repo.mdc`。
 
@@ -64,3 +65,4 @@ rsync -a ../docs/harness/prompts/TEMPLATE-independent-reinspect-invoke.md docs/h
 |------|------|
 | 2026-05-22 | v2 最小集 |
 | 2026-05-22 | v3：**恢复 50** + `ACCEPTANCE_LANDING` + `reinspect_results` 关账 |
+| 2026-05-22 | v4：链 diary **§九 生效共识**；`reviews/` 历史样例召回见 `reviews/README.md` |
