@@ -1,6 +1,6 @@
 # Task：Unified Chat（后端）— Router Evidence 可追溯日志（SSE + DB，v1）
 
-状态：pending  
+> **状态**：pending  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：`docs/tasks/done/task_unified_chat_router_evidence_event_v1.md`（`router.evidence` 已验收通过）  
 关联：

@@ -1,6 +1,6 @@
 # Task：Docs Tasks 规整迁移（v1）— 按类型/状态移动 tasks 文档
 
-> 状态：in_progress  
+> 状态：done（2026-05-22 验收通过）  
 > 范围：仅 `ai-ink-brain-api-python/docs/`（不涉及代码与 `_tech_graph/`）  
 > 关联：`docs/README.md`、`docs/tasks/_views/*.md`
 
@@ -27,9 +27,9 @@
 
 ## 范围
 
-- [ ] 新增 tasks 目录结构（只在 `docs/tasks/` 内）
-- [ ] 将现有文件按规则 `git mv` 到新位置（保留 git 历史）
-- [ ] 更新 `docs/README.md` 与 `docs/tasks/_views/*.md` 的链接/路径
+- [x] 新增 tasks 目录结构（只在 `docs/tasks/` 内）
+- [x] 将现有文件按规则 `git mv` 到新位置（保留 git 历史）
+- [x] 更新 `docs/README.md` 与 `docs/tasks/_views/*.md` 的链接/路径
 
 ## 非范围
 
@@ -81,10 +81,10 @@ docs/tasks/
 
 ## 验收标准
 
-- [ ] `docs/tasks/` 顶层不再混放 `SPEC-*.md` 与 `TASK_TEMPLATE.md`
-- [ ] `docs/tasks/_views/*.md` 能正确链接到迁移后的文件路径
-- [ ] `docs/README.md` 的 tasks 导航更新为新结构（含 `_views` 入口）
-- [ ] `git status` 无丢失文件（只应体现移动与索引更新）
+- [x] `docs/tasks/` 顶层不再混放 `SPEC-*.md` 与 `TASK_TEMPLATE.md`
+- [x] `docs/tasks/_views/*.md` 能正确链接到迁移后的文件路径
+- [x] `docs/README.md` 的 tasks 导航更新为新结构（含 `_views` 入口）
+- [x] `git status` 无丢失文件（只应体现移动与索引更新）
 
 ---
 

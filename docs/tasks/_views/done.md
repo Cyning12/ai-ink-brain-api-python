@@ -35,4 +35,5 @@
 - `../done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（2026-05-18：闸口 C · D vs E · `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_prime_f1_v1.md`（2026-05-20：闸口 C′ · T002 物化 · `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`）
 - `../done/task_engineering_tech_graph_gate_c_double_prime_v1.md`（2026-05-20：闸口 C″ T003 物化 · batch `102810` · PR #37+#38 · `TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`）
+- `../done/task_docs_tasks_reorg_move_v1.md`（2026-05-22 验收通过：`docs/tasks/` 按 active/done/specs/templates/legacy 规整；顶层无混放 SPEC/模板）
 

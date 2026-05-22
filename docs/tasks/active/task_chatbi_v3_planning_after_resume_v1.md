@@ -1,6 +1,6 @@
 # Task：ChatBI V3 —— 规划入口（在 V2 文档归档之后执行）
 
-状态：**planning**（V2 文档层收口见 **`docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`**（**done**）；本入口可展开 V3 排期）  
+状态：**pending**（V2 文档层收口见 **`docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`**（**done**）；本入口可展开 V3 排期）  
 **V3 规格真值（初版）**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§0 L1 子规索引**）；目录 `docs/spec/v3-agent/README.md`；L1 文件含 `SPEC-ChatBI-V3-Observability-Text2SQL.md`、`SPEC-ChatBI-V3-Logging-Trace.md`、`SPEC-ChatBI-V3-Security.md`、`SPEC-ChatBI-V3-Identity-Access.md`、`SPEC-ChatBI-V3-Resilience-Ops.md`、`SPEC-ChatBI-V3-Multiturn-Debt.md`、`SPEC-ChatBI-V3-Evaluation.md`  
 **权威叙述边界**：`docs/diary/简历评估意见-2026-5-9.md`（**§三 状态分层**、**§四 技术表述**、**§五 时间线**、**§七 文档结构**）  
 **企业路线图**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`  

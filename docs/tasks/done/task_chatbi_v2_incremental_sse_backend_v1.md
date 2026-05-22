@@ -1,6 +1,6 @@
 # 实现 ChatBI V2 执行期增量 SSE 与 LLM 子步流式（后端 v1）
 
-**状态**：**已验收归档**（2026-05-11；`pytest` / `tech_graph_contract_check`、前后端联调通过）  
+**状态**：done（2026-05-11 验收通过）  
 **归档自**：`docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`  
 **范围**：仅 `ai-ink-brain-api-python`（`api/unified_chat.py`、`api/agent.py` 及 LLM 调用链；契约与 CI）  
 **关联图谱**：`docs/_tech_graph/` 中与 unified chat 相关条目（落地后增量更新）  

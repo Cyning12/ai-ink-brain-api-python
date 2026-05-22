@@ -21,7 +21,7 @@
 
 ## 依赖与引用
 
-- `docs/tasks/SPEC-08-rag-b1-metadata-normalization-and-structured-recall.md`
+- `docs/tasks/specs/SPEC-08-rag-b1-metadata-normalization-and-structured-recall.md`
 - 入口：`api/ingest_pipeline.py`、`api/unified_chat.py`
 
 ## 验收标准
