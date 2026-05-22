@@ -21,7 +21,16 @@
    - `99_mermaid_protocol.md` — Mermaid 拓扑协议（Python/FastAPI 适配版）
 4. **`docs/tasks/`**：任务规格（实现与验收口径）
 5. **多子仓协作**（总设职责、任务单规范与落盘路径）见工作区根 `Projects/AGENTS.md` **§2**，跨仓任务按该约定先写任务初稿再分派子 Agent 丰富。
-6. **日记/日志规则**（含截图占位、引用 ≤ 300 字、禁止本地路径）见工作区根 `DIARY_GUIDE.md`；后端"知识总结"素材写在 `docs/diary/`（按日期命名）。
+
+---
+
+## 非必读（按需）
+
+| 路径 | 说明 |
+|------|------|
+| **`docs/diary/`** | **非长期、易过时**产物落盘区（验收留证、排障快照、实验报告等）；**默认不读**，仅 task / 用户 `@` 显式指向时打开 |
+| **`docs/diary/jsonPKmermaid/`** | 图谱 **行为实验轨**（闸口 A–C″、fixtures、runs）；**非必读**，非实验复现任务勿主动遍历 |
+| **写作规范** | 向 diary 新增内容时见 `docs/diary/DIARY_GUIDE.md`；工作区根 `DIARY_GUIDE.md` 为跨仓日记格式 |
 
 ---
 
@@ -151,6 +160,38 @@
 
 ---
 
+## Docs Diary
+
+> docs/diary — 非必读、易过时产物落盘；实验轨 jsonPKmermaid 按需读
+
+# `docs/diary/` 目录约定（非必读）
+
+## Agent 读取策略（强制）
+
+- **非必读**：`docs/diary/` **全树**不纳入日常必读链路；**非需要不主动读取**（不预加载、不 glob 遍历、不在无关任务中引用）。
+- **何时可读**：用户 `@` 明确路径；当前 **task / invoke** 依赖列出 diary 路径；排障、复盘、实验复现且范围已锁定到**具体文件**。
+- **真值优先级**：实现与架构以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/`、`docs/spec/` 为准；diary **不得**覆盖或替代上述真值。
+
+## 落盘纪律（写什么进 diary）
+
+- **用途**：存放 **非长期维护**、**易过时** 的产物，例如：一次性验收记录、实验批次报告、对比跑分、留证 curl、阶段性结论草稿、排障快照。
+- **长期真值不得滞留**：结论已冻结并写入 `_tech_graph/`、`docs/tasks/done/`、`docs/tech_graph/SPEC/` 等稳定位置后，diary 内文稿仅作 **历史回溯**；Agent 默认 **不再**以其叙述作为实现依据。
+- **新增沉淀**：优先落在 `docs/diary/`（按 `DIARY_GUIDE.md` 命名）；若内容将长期引用，须同步提炼进真值表 / 图谱 / task，而非仅堆在 diary。
+
+## 实验轨：`docs/diary/jsonPKmermaid/`（非必读）
+
+| 项 | 约定 |
+| --- | --- |
+| **性质** | 图谱 **行为实验 / 闸口对照** 的脚本、`fixtures/`、`reports/`、`runs/` 等 |
+| **读取** | **非必读**；仅在做 jsonPKmermaid 复现、闸口实验、或 task 显式引用其中路径时，打开 **最小必要文件集** |
+| **与生产轨** | accepted 结论的 **执行真值** 在 `docs/_tech_graph/`、`tools/tech_graph*.py` 与 CI；**禁止**为日常改代码默认遍历 `jsonPKmermaid/` |
+
+## 日期总结（`YYYY-MM-DD.md`）
+
+- 按 `docs/diary/DIARY_GUIDE.md` 写的后端知识总结同属 diary，同样 **按需** 读取，作为归总素材而非实现依据。
+
+---
+
 ## Tech Graph
 
 > 技术图谱 — Mermaid 维护轨 + graph.json 机器轨（双轨，低幻觉）
@@ -159,7 +200,7 @@
 
 - 架构、流程、依赖的**维护真值**在 `docs/_tech_graph/`；禁止用大段纯文本文档替代图谱做业务逻辑依据。
 - 前后端**各自**维护本仓 `_tech_graph/`，禁止混用他仓图谱文件。
-- 与 **jsonPKmermaid 行为实验**（`docs/diary/jsonPKmermaid/`）的关系：实验脚本**不**注入本规则；仅对比 `graph.json` vs Mermaid 语料主载荷。日常 Cursor 仍遵循下文。
+- 与 **jsonPKmermaid 实验轨**（`docs/diary/jsonPKmermaid/`）的关系：**非必读**（见 `08-docs-diary.mdc`）；本规则描述 **生产轨**（`_tech_graph/` + `graph_query`）。仅在做闸口复现或 task 显式引用时按需读实验目录，**禁止**默认遍历。
 
 ## 双轨制（维护轨 vs 机器轨）
 
@@ -209,12 +250,14 @@ docs/_tech_graph/
    - → `_manifest.json` 切片 →（若涉 **Unified Chat / SSE / T002 类题**）`_contract_manifest.json` 切片（与闸口 C′ 物化一致；**不**在本规则展开新实验）
    - → 按需 `01_struct.md` / `99_spec.md`
    - → query 不足时再读对应 `10_flow_*.ai.md` 片段
-   - **Admin Ingest / T003 类题**（及 gold 在 `fixtures/gate_ctx_ab_v1/tasks.json` 已枚举 path/kind 时）：在子图 + manifest/contract 之后，可参照 **jsonPKmermaid 物化轨** 的 **`manifest_slice` + `impact_surface`**（path/kind 来自 gold `impacts[]`，如 `api/rag_env.py`、`api/ingest_pipeline.py`、`supabase/sql`、`tools/tech_graph_manifest_check.py`）；产出 `impacts[]` **须含 `path` + `kind`**，**勿**仅靠无 `path` 的 `ref` 占位。
+   - **Admin Ingest / T003 类题**（且 **task 已指向** `docs/diary/jsonPKmermaid/fixtures/...`）：在子图 + manifest/contract 之后，可参照实验轨 **`manifest_slice` + `impact_surface`**（path/kind 来自 gold `impacts[]`）；产出 `impacts[]` **须含 `path` + `kind`**。**无 task 指向时勿读** jsonPKmermaid fixtures。
    - **勿**默认 `cat graph.json` 整包；**勿**用 graph_v1 冒充 v2 query。
 2. **改表结构 / 向量维度 / Env**：`01_struct.md`、`99_spec.md` + 代码；不单靠 `graph.json`。
 3. **改代码后**：同步更新受影响 `.ai.md` / `_manifest` / `_contract`，并确保 `graph.json`（**graph_v2**）导出与 CI（`tech_graph_manifest_check`、`tech_graph_contract_check`、`tech_graph_graph_export --check`、`tech_graph_graph_equivalence_check`）通过。
 
-## jsonPKmermaid 物化轨 vs 默认 machine 轨（闸口 C / C′ / C″）
+## jsonPKmermaid 物化轨 vs 默认 machine 轨（闸口 C / C′ / C″ · 实验轨 · 非必读）
+
+> 本节为 **历史实验结论摘要**；日常实现以 **`graph_query` + `_tech_graph/`** 为准。详文与 fixtures 在 `docs/diary/jsonPKmermaid/`，**仅 task/用户显式需要时**打开。
 
 | 项 | 约定 |
 | --- | --- |
@@ -227,14 +270,14 @@ docs/_tech_graph/
 - **禁止**将物化 `impact_surface` 或分题 `manifest_slice` **当作**默认整包 `graph.json`、graph_v1/v2 全文件或 `15_e2e` Mermaid 双轨主载荷。
 - **禁止**因物化切片有效而默认切换为 `CTX_DUAL_MD`；维持 **`graph_query` + `CTX_V2_QUERY`**。
 
-## 重要引用
+## 稳定引用（生产轨）
 
 - 方案 1 规约：`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`
 - 方案 2 查询：`docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md` · `tools/tech_graph_graph_query.py`
-- 闸口 C（D/E · **accepted**）：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_v2_dual_track_v1_zh.md` · `TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`
-- 闸口 C′（T002 物化 · **accepted**）：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md` · `TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`
-- 闸口 C″（T003 物化 · **accepted**）：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md` · **`TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`**
-- gold 题集（path/kind）：`docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json`
+
+## 按需引用（实验轨 · 非必读）
+
+- 闸口 C / C′ / C″ 结论文与 gold 题集：`docs/diary/jsonPKmermaid/reports/`、`docs/diary/jsonPKmermaid/fixtures/`（freeze_id 见各 `conclusion_*`；**勿**在无 task 时主动读取）
 - 前端图谱：见 `ai-ink-brain/` 仓内规则（目录同为 `docs/_tech_graph/`）
 - 工作区总规范：`Projects/AGENTS.md` §7
 

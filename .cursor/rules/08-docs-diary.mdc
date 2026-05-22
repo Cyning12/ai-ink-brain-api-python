@@ -1,0 +1,30 @@
+---
+description: docs/diary — 非必读、易过时产物落盘；实验轨 jsonPKmermaid 按需读
+alwaysApply: true
+---
+
+# `docs/diary/` 目录约定（非必读）
+
+## Agent 读取策略（强制）
+
+- **非必读**：`docs/diary/` **全树**不纳入日常必读链路；**非需要不主动读取**（不预加载、不 glob 遍历、不在无关任务中引用）。
+- **何时可读**：用户 `@` 明确路径；当前 **task / invoke** 依赖列出 diary 路径；排障、复盘、实验复现且范围已锁定到**具体文件**。
+- **真值优先级**：实现与架构以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/`、`docs/spec/` 为准；diary **不得**覆盖或替代上述真值。
+
+## 落盘纪律（写什么进 diary）
+
+- **用途**：存放 **非长期维护**、**易过时** 的产物，例如：一次性验收记录、实验批次报告、对比跑分、留证 curl、阶段性结论草稿、排障快照。
+- **长期真值不得滞留**：结论已冻结并写入 `_tech_graph/`、`docs/tasks/done/`、`docs/tech_graph/SPEC/` 等稳定位置后，diary 内文稿仅作 **历史回溯**；Agent 默认 **不再**以其叙述作为实现依据。
+- **新增沉淀**：优先落在 `docs/diary/`（按 `DIARY_GUIDE.md` 命名）；若内容将长期引用，须同步提炼进真值表 / 图谱 / task，而非仅堆在 diary。
+
+## 实验轨：`docs/diary/jsonPKmermaid/`（非必读）
+
+| 项 | 约定 |
+| --- | --- |
+| **性质** | 图谱 **行为实验 / 闸口对照** 的脚本、`fixtures/`、`reports/`、`runs/` 等 |
+| **读取** | **非必读**；仅在做 jsonPKmermaid 复现、闸口实验、或 task 显式引用其中路径时，打开 **最小必要文件集** |
+| **与生产轨** | accepted 结论的 **执行真值** 在 `docs/_tech_graph/`、`tools/tech_graph*.py` 与 CI；**禁止**为日常改代码默认遍历 `jsonPKmermaid/` |
+
+## 日期总结（`YYYY-MM-DD.md`）
+
+- 按 `docs/diary/DIARY_GUIDE.md` 写的后端知识总结同属 diary，同样 **按需** 读取，作为归总素材而非实现依据。

@@ -1,3 +1,11 @@
+## 0. Agent 读取与目录定位（强制）
+
+- **`docs/diary/` 为非必读**：Agent **非需要不主动读取**本目录任何内容；实现真值以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/` 为准。
+- **落盘纪律**：所有 **非长期需要**、**容易过时** 的产物（一次性验收、实验批次、留证 curl、对比跑分、阶段性草稿等）**应写在本目录**，勿堆在 `meta/`、`_tech_graph/` 或 `tasks/` 正文中。
+- **实验轨**：`docs/diary/jsonPKmermaid/*` 为图谱行为实验专用；**非必读**，仅闸口复现或 task 显式引用时按需打开。
+
+---
+
 # 后端（ai-ink-brain-api-python）日记总结规范（docs/diary）
 
 > 用途：沉淀**后端侧知识总结**（RAG、检索、日志、入库、性能与稳定性），为后续按日期归总到前端仓 `content/diary/` 提供可引用素材。
