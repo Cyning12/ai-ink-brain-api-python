@@ -40,7 +40,7 @@
 | ~~B3–B4~~ | ~~10 帽 + task 模板~~ | `task_05` 已按 TASK_TEMPLATE 补齐 | **done** |
 | ~~C1~~ | **22 R1** 新落盘 | [`reviews/task_05_query_rewrite_observability_audit_R1_20260522.md`](../harness/reviews/task_05_query_rewrite_observability_audit_R1_20260522.md) | **done** |
 | C2–C4 | 30 → 40 → 50 | 单测绿、自检/复检已落盘 | **done**（`HG-*` 已 approved） |
-| ~~C5~~ | ~~关账 `done/` + 合并 PR #46~~ | [`done/task_05_query_rewrite_observability.md`](done/task_05_query_rewrite_observability.md) | **done**（pytest 208 passed；待人合并 PR） |
+| ~~C5~~ | ~~关账 `done/` + 合并 PR #46~~ | [`done/task_05_query_rewrite_observability.md`](done/task_05_query_rewrite_observability.md) | **done**（已合并 PR #46 → `main` `1db7b4c`） |
 
 **建议 task 单（Harness 自身）**：
 
