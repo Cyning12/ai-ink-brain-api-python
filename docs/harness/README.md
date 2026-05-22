@@ -22,6 +22,12 @@
 
 **Cursor**：`.cursor/rules/05-harness-semi-auto.mdc`、`.cursor/rules/06-harness-in-repo.mdc`。
 
+**Agent 禁止（日常）**：
+
+- **禁止** 默认读取工作区 `Projects/docs/harness/`（跨子仓 Harness 任务除外，见 `docs/tasks/README.md`）。
+- **禁止** 将子仓 `prompts/` 软链到工作区；真值以 **本仓** `docs/harness/prompts/` 为准。
+- **禁止** 在任务执行中运行下文 **§4 `rsync`**（仅维护者偶发同步）。
+
 ---
 
 ## 2. 目录结构
@@ -49,13 +55,31 @@ docs/harness/
 
 ---
 
-## 4. 上游同步（维护者）
+## 4. 上游同步（**仅维护者** · 非 Agent 路径）
+
+> **裁决**：Harness 评价 **§2** — 子仓 **内嵌 prompts** 为 Agent 唯一日常真值；`rsync` 为 **维护者偶发** 从工作区拉取差量，**不是** 执行 task / 半自动链的必读步骤。
+
+| 角色 | 行为 |
+|------|------|
+| **Agent / 子 Agent** | 只读 **本仓** `docs/harness/prompts/`、`reviews/`、`invokes/`；**不** 执行本节命令 |
+| **维护者** | 工作区 `Projects/docs/harness/` 有模板更新时，按需 `rsync` 差量进子仓；合并时 **保留** 本仓 `ACCEPTANCE_LANDING.md`、50 落盘约定、`reviews/` 规则，**勿** 整目录覆盖删改 |
+
+**前提**：在 **工作区根** `Projects/` 下执行（路径相对该根）；目标为 **`ai-ink-brain-api-python/docs/harness/prompts/`**。
 
 ```bash
-rsync -a ../docs/harness/prompts/50-independent-reinspect.md docs/harness/prompts/
-rsync -a ../docs/harness/prompts/TEMPLATE-independent-reinspect-invoke.md docs/harness/prompts/
-# 合并后保留本仓 ACCEPTANCE_LANDING、ACCEPTANCE 落盘约定，勿覆盖删 50
+# 示例：仅同步指定文件（按实际上游变更增删行，禁止 blind 全量覆盖 prompts/）
+rsync -a docs/harness/prompts/50-independent-reinspect.md \
+  ai-ink-brain-api-python/docs/harness/prompts/
+rsync -a docs/harness/prompts/TEMPLATE-independent-reinspect-invoke.md \
+  ai-ink-brain-api-python/docs/harness/prompts/
+# 合并后人工 diff：保留本仓 ACCEPTANCE_LANDING、reinspect 落盘路径、reviews 仅本仓 等约定
 ```
+
+**维护者合并检查清单**：
+
+- [ ] 未删除本仓 `50` 与 `reinspect_results/` 关账链
+- [ ] 未恢复工作区 `reviews/` 正文到子仓（历史样例以本仓 `reviews/README` 为准）
+- [ ] `06-harness-in-repo.mdc` 仍指向 **本仓** `docs/harness/`，非工作区默认路径
 
 ---
 
@@ -66,3 +90,4 @@ rsync -a ../docs/harness/prompts/TEMPLATE-independent-reinspect-invoke.md docs/h
 | 2026-05-22 | v2 最小集 |
 | 2026-05-22 | v3：**恢复 50** + `ACCEPTANCE_LANDING` + `reinspect_results` 关账 |
 | 2026-05-22 | v4：链 diary **§九 生效共识**；`reviews/` 历史样例召回见 `reviews/README.md` |
+| 2026-05-22 | v5：§4 标明 rsync **仅维护者**；§1 Agent 禁止默认读工作区 harness |

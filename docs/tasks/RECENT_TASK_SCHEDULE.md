@@ -29,7 +29,7 @@
 | ~~A1~~ | ~~扩展 `TASK_TEMPLATE` Harness 字段~~ | `docs/tasks/templates/TASK_TEMPLATE.md` | **done** |
 | ~~A2~~ | ~~`HANDOFF_SEMI_AUTO` 状态栏 **版本 B**~~ | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | **done** |
 | ~~A3~~ | ~~10 帽双 Prompt + `（推荐）` + 理由~~ | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | **done** |
-| A4 | `harness/README` §4 rsync 仅维护者 | `docs/harness/README.md` | 待做 |
+| ~~A4~~ | ~~`harness/README` §4 rsync 仅维护者~~ | `docs/harness/README.md` | **done** |
 
 ### 0.3 阶段 P0-B/C — 试点闭环（硬验收）
 
@@ -274,6 +274,7 @@ flowchart TD
 | 2026-05-22 | **P0-A1 done**：`TASK_TEMPLATE` 扩展 Harness 字段；下一棒 **P0-A2**（HANDOFF 状态栏版本 B） |
 | 2026-05-22 | **P0-A2 done**：`HANDOFF_SEMI_AUTO` §3.4 版本 B/C；下一棒 **P0-A3**（10 帽 A/B 推荐） |
 | 2026-05-22 | **P0-A3 done**：10/TEMPLATE A/B `（推荐）` + 规则表；下一棒 **P0-A4**（harness README rsync） |
+| 2026-05-22 | **P0-A 收口**：A1–A4 均 done；下一棒 **P0-B/C**（`task_05` 试点闭环）或先 **PR 合入 P0-A 文档批** |
 
 ---
 
