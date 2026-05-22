@@ -29,6 +29,17 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
+def _tasks_json_path() -> Path:
+    import yaml
+
+    doc = yaml.safe_load(PROTOCOL_PATH.read_text(encoding="utf-8"))
+    rel = str(
+        doc.get("tasks_ref")
+        or "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
+    )
+    return REPO_ROOT / rel
+
+
 def _load_s0_module():
     path = GATE_A_FIXTURE / "scripts" / "run_s0_minimal.py"
     spec = importlib.util.spec_from_file_location("gate_ctx_s0_minimal", path)
@@ -77,7 +88,7 @@ def execute_gate_c_s0(
 ) -> tuple[Path, dict[str, Any], int]:
     s0 = _load_s0_module()
     protocol = s0.load_protocol(PROTOCOL_PATH)
-    tasks_doc = json.loads((GATE_A_FIXTURE / "tasks.json").read_text(encoding="utf-8"))
+    tasks_doc = json.loads(_tasks_json_path().read_text(encoding="utf-8"))
     task = next(t for t in tasks_doc["tasks"] if t["task_id"] == task_id)
 
     model_resolved = (model or protocol.get("model") or "").strip()

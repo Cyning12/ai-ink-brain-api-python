@@ -20,11 +20,32 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 RUNS_ROOT = REPO_ROOT / "docs" / "diary" / "jsonPKmermaid" / "runs"
 MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
-TASKS_JSON = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
+PROTOCOL_PATH = FIXTURE_ROOT / "protocol_version.yaml"
 QUERY_SEEDS_JSON = FIXTURE_ROOT / "query_seeds.json"
 SCORE_SCRIPT = (
     REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/scripts/score_gold_f1.py"
 )
+GATE_D_V2_TASKS_FREEZE_ID = "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0"
+
+
+def _load_protocol() -> dict:
+    import yaml
+
+    return yaml.safe_load(PROTOCOL_PATH.read_text(encoding="utf-8"))
+
+
+def _tasks_json_path() -> Path:
+    doc = _load_protocol()
+    rel = str(
+        doc.get("tasks_ref")
+        or "docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json"
+    )
+    return REPO_ROOT / rel
+
+
+def _load_task_ids() -> list[str]:
+    doc = json.loads(_tasks_json_path().read_text(encoding="utf-8"))
+    return [str(t["task_id"]) for t in doc.get("tasks") or []]
 
 
 def _materialize_freeze_id() -> str:
@@ -35,11 +56,6 @@ def _materialize_freeze_id() -> str:
             return fid
     return "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0"
 
-TASKS = [
-    "T001_embedding_dim_default",
-    "T002_unified_sse_chain_contract",
-    "T003_ingest_admin_rpc",
-]
 DEFAULT_ARMS = ["CTX_V2_QUERY", "CTX_DUAL_MD"]
 
 
@@ -71,7 +87,7 @@ def _reproduce_commands(*, batch_dir: Path, arms: list[str], dry_run: bool) -> d
             f"RUBRIC_REVIEW_BACKEND=siliconflow python {batch_py} --arms {arms_csv}"
             + (" --dry-run" if dry_run else "")
         ),
-        "score_gold_f1": f"python {score_py} --batch-dir {rel_batch} --tasks docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/tasks.json",
+        "score_gold_f1": f"python {score_py} --batch-dir {rel_batch} --tasks {_tasks_json_path().relative_to(REPO_ROOT).as_posix()}",
         "note": "模型/温度见 gate_ctx_c_v1/protocol_version.yaml（DeepSeek-V4-Flash · 0.2）",
     }
 
@@ -128,9 +144,13 @@ def run_gate_c_batch(
             print("materialize 失败", file=sys.stderr)
             return mat_code
 
+    tasks = _load_task_ids()
+    protocol = _load_protocol()
+    gate_d_freeze = str(protocol.get("gate_d_v2_tasks_freeze_id") or "").strip()
+
     task_dirs: list[Path] = []
     exit_code = 0
-    for i, task_id in enumerate(TASKS, start=1):
+    for i, task_id in enumerate(tasks, start=1):
         run_dir = batch_dir / f"round_{i:02d}"
         _, index, code = run_mod.execute_gate_c_s0(
             run_dir=run_dir,
@@ -149,11 +169,13 @@ def run_gate_c_batch(
 
     repro = _reproduce_commands(batch_dir=batch_dir, arms=arms, dry_run=dry_run)
     batch_index = {
-        "schema": "gate_ctx_c_batch_v1",
+        "schema": "gate_ctx_c_batch_v2",
         "batch_id": batch_id,
         "protocol_version": "gate_ctx_c_v1",
         "freeze_id": _materialize_freeze_id(),
-        "tasks": TASKS,
+        "gate_d_v2_tasks_freeze_id": gate_d_freeze or None,
+        "tasks_ref": _tasks_json_path().relative_to(REPO_ROOT).as_posix(),
+        "tasks": tasks,
         "arms": arms,
         "dry_run": dry_run,
         "run_dirs": [d.name for d in task_dirs],
@@ -190,7 +212,7 @@ def run_gate_c_batch(
                 "--batch-dir",
                 str(batch_dir),
                 "--tasks",
-                str(TASKS_JSON),
+                str(_tasks_json_path()),
             ],
             check=False,
         )

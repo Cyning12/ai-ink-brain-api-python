@@ -17,7 +17,19 @@ GRAPH_PATH = REPO_ROOT / "docs/_tech_graph/graph.json"
 MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
 PROTOCOL_PATH = FIXTURE_ROOT / "protocol_version.yaml"
 GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
+GATE_C_DOUBLE_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0"
+GATE_D_V2_TASKS_FREEZE_ID = "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0"
 GATE_C_CANONICAL_FREEZE_ID = "TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0"
+T003_TASK_ID = "T003_ingest_admin_rpc"
+T004_TASK_ID = "T004_chatbi_text2sql_chain"
+T005_TASK_ID = "T005_intent_routing"
+EXPECTED_TASK_IDS = (
+    "T001_embedding_dim_default",
+    "T002_unified_sse_chain_contract",
+    T003_TASK_ID,
+    T004_TASK_ID,
+    T005_TASK_ID,
+)
 
 
 def _load_json(path: Path) -> dict:
@@ -65,6 +77,9 @@ def test_query_seed_nodes_exist_in_graph_v2(graph_doc: dict) -> None:
 def test_protocol_freeze_ids_locked(protocol: dict, graph_doc: dict) -> None:
     assert protocol["freeze_id"] == GATE_C_CANONICAL_FREEZE_ID
     assert protocol["gate_c_prime_freeze_id"] == GATE_C_PRIME_FREEZE_ID
+    assert protocol["gate_c_double_prime_freeze_id"] == GATE_C_DOUBLE_PRIME_FREEZE_ID
+    assert protocol["gate_d_v2_tasks_freeze_id"] == GATE_D_V2_TASKS_FREEZE_ID
+    assert protocol["tasks_ref"].endswith("gate_ctx_ab_v2/tasks.json")
     assert protocol["graph_v2_freeze_id"] == graph_doc.get("freeze_id")
     limits = protocol["payload_limits"]
     assert limits["d_arm_nodes_lt_whole_mermaid_heuristic_tokens"] == 5026
@@ -86,7 +101,9 @@ def test_materialize_exit_zero_and_payloads_nonempty() -> None:
     assert e_dir.is_dir() and any(e_dir.glob("*.md"))
     assert report["forbidden_checks"]["CTX_DUAL_MD_not_whole_corpus"] is True
     assert report["forbidden_checks"]["CTX_V2_QUERY_subgraph_below_mermaid_baseline"] is True
-    assert report["freeze_id"] == GATE_C_PRIME_FREEZE_ID
+    assert report["freeze_id"] == GATE_D_V2_TASKS_FREEZE_ID
+    per_task = report["arms_static"]["CTX_V2_QUERY"]["per_task"]
+    assert set(per_task.keys()) == set(EXPECTED_TASK_IDS)
 
 
 def test_d_arm_heuristic_tokens_below_mermaid_threshold(protocol: dict) -> None:
@@ -139,8 +156,74 @@ def test_t002_subgraph_covers_gold_graph_ids() -> None:
     assert tokens < per_arm, f"T002 tokens {tokens} >= {per_arm}"
 
 
-def test_query_seeds_gate_c_prime_freeze_ids() -> None:
+def test_query_seeds_gate_d_freeze_ids() -> None:
     seeds = _load_json(FIXTURE_ROOT / "query_seeds.json")
-    assert seeds["freeze_id"] == GATE_C_PRIME_FREEZE_ID
+    assert seeds["freeze_id"] == GATE_D_V2_TASKS_FREEZE_ID
     assert seeds["graph_v2_freeze_id"] == "TECH_GRAPH_S2_FREEZE_20260519_V2_3"
-    assert seeds.get("parent_freeze_id") == "TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0"
+    assert seeds.get("parent_freeze_id") == GATE_C_DOUBLE_PRIME_FREEZE_ID
+    assert set(seeds["tasks"].keys()) == set(EXPECTED_TASK_IDS)
+
+
+def test_t003_manifest_slice_and_impact_surface() -> None:
+    """T003 D 臂须含 Admin Ingest manifest_slice + gold impact_surface。"""
+    proc = subprocess.run(
+        [sys.executable, str(MATERIALIZE_SCRIPT)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr or proc.stdout
+    payload = _load_json(
+        FIXTURE_ROOT / f"payloads/CTX_V2_QUERY/{T003_TASK_ID}.subgraph.json"
+    )
+    ms = payload.get("manifest_slice") or {}
+    assert ms.get("schema") == "gate_ctx_c_manifest_slice_v2_compact"
+    ep_paths = set(ms.get("endpoint_paths") or [])
+    assert "/api/py/admin/ingest" in ep_paths
+    assert "/api/py/admin/sync" in ep_paths
+    anchor_paths = set(ms.get("anchor_paths") or [])
+    assert "api/ingest_pipeline.py" in anchor_paths
+    assert "api/rag_env.py" in anchor_paths
+    surface = payload.get("impact_surface") or {}
+    assert surface.get("schema") == "gate_ctx_c_impact_surface_v2_compact"
+    surf_paths = {c.get("path") for c in surface.get("candidates") or []}
+    assert "api/rag_env.py" in surf_paths
+    assert "supabase/sql" in surf_paths
+    assert "api/ingest_pipeline.py" in surf_paths
+    assert "tools/tech_graph_manifest_check.py" in surf_paths
+    per_arm = _load_protocol()["payload_limits"]["max_heuristic_tokens_per_task_arm"]
+    from tools.tech_graph_token_estimate import measure
+
+    text = json.dumps(payload, ensure_ascii=False)
+    tokens = measure("T003_payload", text)["heuristic_tokens"]
+    assert tokens < per_arm, f"T003 tokens {tokens} >= {per_arm}"
+
+
+def test_t004_t005_payload_slices_and_seeds(graph_doc: dict) -> None:
+    """T004/T005 D 臂须含 manifest/contract/impact 切片且种子节点 ∈ graph_v2。"""
+    proc = subprocess.run(
+        [sys.executable, str(MATERIALIZE_SCRIPT)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr or proc.stdout
+    node_ids = {n["id"] for n in graph_doc.get("nodes") or []}
+    seeds = _load_json(FIXTURE_ROOT / "query_seeds.json")
+    for task_id in (T004_TASK_ID, T005_TASK_ID):
+        spec = seeds["tasks"][task_id]
+        for nid in _iter_seed_node_ids(spec):
+            assert nid in node_ids, f"{task_id}: unknown node {nid}"
+    t004 = _load_json(
+        FIXTURE_ROOT / f"payloads/CTX_V2_QUERY/{T004_TASK_ID}.subgraph.json"
+    )
+    ms4 = t004.get("manifest_slice") or {}
+    assert "/api/py/text2sql/chat" in set(ms4.get("endpoint_paths") or [])
+    t005 = _load_json(
+        FIXTURE_ROOT / f"payloads/CTX_V2_QUERY/{T005_TASK_ID}.subgraph.json"
+    )
+    assert (t005.get("impact_surface") or {}).get("candidates")
+    subgraph5 = t005["subgraph"]
+    assert "INT" in {n["id"] for n in subgraph5.get("nodes") or []}
