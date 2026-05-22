@@ -39,8 +39,8 @@
 | ~~B2~~ | ~~任务分支~~ | `task/query-rewrite-obs` | **done** |
 | ~~B3–B4~~ | ~~10 帽 + task 模板~~ | `task_05` 已按 TASK_TEMPLATE 补齐 | **done** |
 | ~~C1~~ | **22 R1** 新落盘 | [`reviews/task_05_query_rewrite_observability_audit_R1_20260522.md`](../harness/reviews/task_05_query_rewrite_observability_audit_R1_20260522.md) | **done** |
-| C2–C4 | 30 → 40 → 50 | 单测绿、自检/复检已落盘 | **进行中**（**HG-AUDIT-R1 / HG-REINSPECT 待人 approved**） |
-| C5 | 关账 `done/` + CLOSE_TRACE | — | 待做 |
+| C2–C4 | 30 → 40 → 50 | 单测绿、自检/复检已落盘 | **done**（`HG-*` 已 approved） |
+| C5 | 关账 `done/` + CLOSE_TRACE | [PR #46](https://github.com/Cyning12/ai-ink-brain-api-python/pull/46) 待合并后归档 | **PR 已开** |
 
 **建议 task 单（Harness 自身）**：
 
