@@ -18,7 +18,6 @@
 | --- | --- | --- |
 | [`task_chatbi_v3_planning_after_resume_v1.md`](../active/task_chatbi_v3_planning_after_resume_v1.md) | `planning` | V3 统筹入口 |
 | [`task_chatbi_v3_prompt_injection_guard_poc_v1.md`](../active/task_chatbi_v3_prompt_injection_guard_poc_v1.md) | `todo` | P1-2 PoC，待审核归档 |
-| [`task_05_query_rewrite_observability.md`](../active/task_05_query_rewrite_observability.md) | `pending` | Rewrite 可观测性 |
 | [`task_ui_chain_events_backend.md`](../active/task_ui_chain_events_backend.md) | `pending` | Chain Events 后端 |
 | [`task_docs_tasks_reorg_move_v1.md`](../done/task_docs_tasks_reorg_move_v1.md) | `done` | tasks 目录规整（2026-05-22 已归档） |
 

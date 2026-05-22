@@ -41,9 +41,40 @@
 ## 交接物
 
 - 可粘贴进子仓 `task_*.md` 或 harness `docs/harness/tasks/active/` 的正文块；并注明建议 `test_strategy` 取值（`required` / `recommended` / `not_applicable` + `test_strategy_note`）。  
-- **下一棒（硬）**：须输出 **两条** 可复制 Prompt（**路径 A：22 任务审核** / **路径 B：30 执行跳过 22**），由 **人** 择一；格式见 [`TEMPLATE-requirements-invoke.md`](TEMPLATE-requirements-invoke.md) §3 第 5 条。  
+- **下一棒（硬）**：须输出 **两条** 可复制 Prompt（**路径 A：22 任务审核** / **路径 B：30 执行跳过 22**），由 **人** 择一；格式见 [`TEMPLATE-requirements-invoke.md`](TEMPLATE-requirements-invoke.md) §3 第 5–6 条与下文 **§下一棒 A/B**。  
+- 回复末尾须输出 **[`HANDOFF_SEMI_AUTO.md`](HANDOFF_SEMI_AUTO.md) §3.4 版本 B 状态栏**（含 A/B 摘要；**不得**因推荐省略 B 或 A 全文）。  
 - 若由审查驱动：**更新后的 task 路径** + 下一轮 **22** 应读取的 `docs/harness/reviews/task_*_audit_*.md`。  
-- 若本轮已落盘 invoke / 写入 task： 且已写入 task / invoke 等文件：按 [`HANDOFF_AUTO_COMMIT.md`](HANDOFF_AUTO_COMMIT.md) 分仓 commit（用户写明 **「本轮不要 commit」** 可豁免）。
+- 若本轮已落盘 invoke / 写入 task：按 [`HANDOFF_AUTO_COMMIT.md`](HANDOFF_AUTO_COMMIT.md) 分仓 commit（用户写明 **「本轮不要 commit」** 可豁免）。
+
+---
+
+## 下一棒 A/B 与推荐（人择一 · 硬）
+
+> 与 [`../ACCEPTANCE_LANDING.md`](../ACCEPTANCE_LANDING.md) §2 一致：**每次都提供 A、B 全文**；**推荐仅标注**，不替代人择、不自动执行下一帽。
+
+### 输出格式（对话）
+
+1. **推荐判定**（1～3 行）：写明 **推荐路径 A 或 B** 及 **一行理由**（可引用下表）。  
+2. **路径 A**：标题须为 `### 下一棒 A：22 任务审核 R1`；若推荐 A，改为 `### 下一棒 A：22 任务审核 R1（推荐）`。正文 = 已替换占位符的 [`TEMPLATE-task-audit-invoke.md`](TEMPLATE-task-audit-invoke.md) **§3 全文**。  
+3. **路径 B**：标题须为 `### 下一棒 B：30 执行（跳过 22）`；若推荐 B，改为 `### 下一棒 B：30 执行（跳过 22）（推荐）`。正文 = 已替换占位符的 [`TEMPLATE-execute-invoke.md`](TEMPLATE-execute-invoke.md) **§3 全文**。  
+4. **禁止**：只输出一条；因推荐自动走路径；未给 B 时省略「跳过 22」的风险说明。
+
+### 推荐规则（启发式 · 冲突时优先级见下）
+
+| 条件 | 推荐 | 理由（示例文案） |
+|------|:----:|------------------|
+| task 元信息 **`audit_profile: full`** | **A** | 架构/跨仓/高风险，须多轮 22 |
+| **`audit_profile: post_close`**（工程流水线，默认） | **A** | 闸 1 最小 R1 后再 30，与 CI + 40 对齐 |
+| **`audit_profile: human_only`** | **A** | 关键步人驱动，不宜直跳 30 |
+| **`test_strategy: required`** | **A** | 可测性与失败路径须书面钉住 |
+| 验收含糊、跨仓契约变更、新 task 无 R1 | **A** | 阻塞清单须在 `reviews/` 落盘 |
+| 小范围 docs/规则、task 已人扫、无 API/表变更 | **B** | 范围清晰，人已承担闸 1 |
+| **紧急 hotfix**（用户/task 明示） | **B** ⚠️ | 速度优先；task **须** 写明 **事后补 22** 或 **`post_close` 闸 2** 签收，禁止永久跳过审查 |
+| task 正文 **显式**「推荐路径：A/B」 | 按 task | **覆盖**下表启发式 |
+
+**冲突优先级（高 → 低）**：task 显式声明 > `audit_profile` > `test_strategy: required` > 上表其余启发式。
+
+**Agent 硬规则**：推荐路径写入状态栏 **「推荐」** 行；**禁止** 在未获用户选择前按推荐执行 22 或 30。
 
 ---
 
@@ -54,9 +85,10 @@
 | 2026-05-13 | v1：初版 |
 | 2026-05-13 | v1.1：承接任务审核帽 `reviews` 回填与交接说明 |
 | 2026-05-14 | v1.2：链 [`TEMPLATE-requirements-invoke.md`](TEMPLATE-requirements-invoke.md)；占位符未替换则 Agent 须追问 |
+| 2026-05-22 | v1.3：§下一棒 A/B — `（推荐）` 标题、推荐规则表、冲突优先级；链 §3.4 状态栏 |
 
 ---
 
 ## 给 Cursor
 
-`Harness`、`帽子`、`验收`、`failure_paths`、`非范围`、`依赖`、`拒开工`、`test_strategy`、`docs/harness/tasks`、`reviews`、`任务审核`、`TEMPLATE-requirements-invoke`、`占位符`
+`Harness`、`帽子`、`验收`、`failure_paths`、`下一棒 A`、`下一棒 B`、`（推荐）`、`人择一`、`audit_profile`、`test_strategy`、`TEMPLATE-requirements-invoke`、`占位符`、`Harness 状态栏`

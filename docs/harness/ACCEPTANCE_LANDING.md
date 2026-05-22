@@ -22,10 +22,10 @@
 
 10 帽结束 **必须** 给出两条下一棒 Prompt（见 `TEMPLATE-requirements-invoke` §3）：
 
-- **路径 A**：22 R1 → 落盘 `docs/harness/reviews/`（建议：新 task、跨仓契约、`test_strategy: required`、验收条含糊）
-- **路径 B**：直进 30（**人**判定：小改、task 已人工扫过、重复性 docs 治理）
+- **路径 A**：22 R1 → 落盘 `docs/harness/reviews/`（**默认推荐**：`audit_profile: post_close|full`、`test_strategy: required`、新 task、跨仓契约、验收含糊）
+- **路径 B**：直进 30（**人**择；10 帽可对 B 标 `（推荐）`：小改 docs、task 已人扫、紧急 hotfix 且 task 写明事后补 22）
 
-**不是**「22 可选流程」：而是 **每次都提供 A/B，由人决定走哪条**。
+**不是**「22 可选流程」：而是 **每次都提供 A/B 全文**，10 帽加 **推荐标注** 降认知负担；**禁止** Agent 因推荐自动执行下一帽。细则见 [`prompts/10-requirements.md`](prompts/10-requirements.md) **§下一棒 A/B**。
 
 ## 3. 何时必须跑 50 + 落盘
 

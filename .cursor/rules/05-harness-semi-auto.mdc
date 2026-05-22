@@ -13,3 +13,4 @@ alwaysApply: true
 4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。
 5. **新会话续跑**：读 task + **最新** `docs/harness/invokes/` 下与本 task 相关的 invoke，按其中 §3 继续；用户可说「按 semi_auto 继续」。
 6. **关账**：无下一棒时输出 **执行路线与 Commit 回溯**（`HANDOFF_CLOSE_TRACE`），非空 Prompt。
+7. **每棒结束**：回复末尾输出 **`📋 Harness 状态栏（版本 B）`**（见 `HANDOFF_SEMI_AUTO.md` §3.4）；关账时另用 CLOSE_TRACE，不互相替代。

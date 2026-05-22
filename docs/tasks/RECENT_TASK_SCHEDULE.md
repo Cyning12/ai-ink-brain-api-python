@@ -10,36 +10,37 @@
 
 ## 0. Harness 改进（当前主线 · P0 优先）
 
-> **里程碑**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_*_audit_R1_*.md`（≠ 已召回的 10 份历史样例）。  
+> **里程碑**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_*_audit_R1_*.md`（≠ 已召回的 10 份历史样例）— **已达成**（`task_05` · PR #46）。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **工作分支（当前）**：`task/chore-diary-tmp-ignore-and-main-branch-policy`（承接 §0.1 + P0-A～C，**不**另开 `task/harness-improve-p0-*`）。
+> **工作分支（当前）**：`task/query-rewrite-obs`（**P0-B/C 试点**）；Harness 文档批在 `task/chore-diary-tmp-ignore-and-main-branch-policy`（**ahead**，待 PR 或 cherry-pick）。
 
 ### 0.1 阶段 0 — Git / 分支
 
 | # | 任务 | 状态 | 说明 |
 |---|------|------|------|
-| 0.1 | PR：`task/chore-diary-tmp-ignore-and-main-branch-policy` | **PR #45 已开** | 含 tmp ignore、`07-git-workflow`、Harness 内嵌/裁决/样例、`RECENT_TASK_SCHEDULE`；启动 Prompt → `docs/harness/invokes/invoke_20260522_30_harness-stage0-1-pr-chore-branch.md` |
-| 0.2 | 本地 `main` 超前 `origin` 的 harness/diary 提交 | **并入 0.1** | 与 0.1 同 PR（#45）一并合入（分支已含 `d48845d`～`0460ce1`） |
+| ~~0.1~~ | ~~PR：`task/chore-diary-tmp-ignore-and-main-branch-policy`~~ | **done** | 已合并 [PR #45](https://github.com/Cyning12/ai-ink-brain-api-python/pull/45) → `main`（`f2e3437`）；含 tmp ignore、`07-git-workflow`、Harness 内嵌/裁决/样例、`RECENT_TASK_SCHEDULE` |
+| ~~0.2~~ | ~~本地 `main` 超前 `origin` 的 harness/diary 提交~~ | **done** | 随 #45 一并合入（`d48845d`～`0460ce1`） |
 | 0.3 | ~~建分支 `task/harness-improve-p0-20260522`~~ | **取消** | 沿用当前分支 |
 
 ### 0.2 阶段 P0-A — 文档与模板（1 个 PR）
 
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
-| A1 | 扩展 `TASK_TEMPLATE` Harness 字段 | `docs/tasks/templates/TASK_TEMPLATE.md` | 待做 |
-| A2 | `HANDOFF_SEMI_AUTO` 状态栏 **版本 B** | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | 待做 |
-| A3 | 10 帽双 Prompt + `（推荐）` + 理由 | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | 待做 |
-| A4 | `harness/README` §4 rsync 仅维护者 | `docs/harness/README.md` | 待做 |
+| ~~A1~~ | ~~扩展 `TASK_TEMPLATE` Harness 字段~~ | `docs/tasks/templates/TASK_TEMPLATE.md` | **done** |
+| ~~A2~~ | ~~`HANDOFF_SEMI_AUTO` 状态栏 **版本 B**~~ | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | **done** |
+| ~~A3~~ | ~~10 帽双 Prompt + `（推荐）` + 理由~~ | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | **done** |
+| ~~A4~~ | ~~`harness/README` §4 rsync 仅维护者~~ | `docs/harness/README.md` | **done** |
 
 ### 0.3 阶段 P0-B/C — 试点闭环（硬验收）
 
 | # | 任务 | 试点 | 状态 |
 |---|------|------|------|
-| B1 | 选定试点 task | **`active/task_05_query_rewrite_observability.md`**（`pending`） | 已存在 |
-| B2 | 任务分支 | `task/query-rewrite-obs` 或与 slug 一致 | 待做 |
-| B3–B4 | 10 帽 + 人择 A/B | 用 A1/A3 新模板 | 待做 |
-| C1 | **22 R1** 新落盘 | `docs/harness/reviews/task_05_*_audit_R1_*.md` | 待做 |
-| C2–C5 | 30 → 40 → 50 → 关账 | invoke、`reinspect_results/`、pytest 绿、`done/` | 待做 |
+| ~~B1~~ | ~~选定试点 task~~ | [`done/task_05_query_rewrite_observability.md`](done/task_05_query_rewrite_observability.md) | **done** |
+| ~~B2~~ | ~~任务分支~~ | `task/query-rewrite-obs` | **done** |
+| ~~B3–B4~~ | ~~10 帽 + task 模板~~ | `task_05` 已按 TASK_TEMPLATE 补齐 | **done** |
+| ~~C1~~ | **22 R1** 新落盘 | [`reviews/task_05_query_rewrite_observability_audit_R1_20260522.md`](../harness/reviews/task_05_query_rewrite_observability_audit_R1_20260522.md) | **done** |
+| C2–C4 | 30 → 40 → 50 | 单测绿、自检/复检已落盘 | **done**（`HG-*` 已 approved） |
+| ~~C5~~ | ~~关账 `done/` + 合并 PR #46~~ | [`done/task_05_query_rewrite_observability.md`](done/task_05_query_rewrite_observability.md) | **done**（pytest 208 passed；待人合并 PR） |
 
 **建议 task 单（Harness 自身）**：
 
@@ -65,7 +66,7 @@
 | 维度 | 结论 |
 |------|------|
 | **本表角色** | **最近任务安排真值**（替代 `docs/diary/tmp/2026-05-22-backend-tasks-priority-final.md`） |
-| **active/** | **9** 个任务相关文件（见 §1.1） |
+| **active/** | **8** 个任务相关文件（见 §1.1） |
 | **done/** | 49 个 `.md`；含已完成的 `task_docs_tasks_reorg_move_v1`、`task_chatbi_v2_acceptance_runner_v1` |
 | **_views/done.md** | 已索引 **31** 条 → **遗漏 18** 条（§6.1） |
 | **V3 P1 后端** | P1-1～P1-3、P1-4 后端侧 **done** |
@@ -77,14 +78,13 @@
 | # | 任务文件 | 状态 | 主题 | 排期 |
 |---|---------|------|------|------|
 | 1 | `task_harness_in_repo_prompts_and_rules_v1.md` | `done`（未归档） | Harness 内嵌 v1/v2 | **§0**；先归档 |
-| 2 | `task_05_query_rewrite_observability.md` | `pending` | Rewrite 可观测 | **§0 试点** + P1 业务 |
-| 3 | `task_ui_chain_events_backend.md` | `pending` | Chain Events 统一事件 | P3 |
-| 4 | `task_rag_graphrag_pilot_explore_v1.md` | （见 task 头） | GraphRAG 探索 | 按需 |
-| 5 | `task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V3 统筹索引 | P4 |
-| 6 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md` | `backlog` | 低置信 §5.1 | P2 |
-| 7 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 多轮欠债母单 | P2 |
-| 8 | `task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | Intent vNext | P4 |
-| 9 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属 | Agent Prompt | — |
+| 2 | `task_ui_chain_events_backend.md` | `pending` | Chain Events 统一事件 | P3 |
+| 3 | `task_rag_graphrag_pilot_explore_v1.md` | （见 task 头） | GraphRAG 探索 | 按需 |
+| 4 | `task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V3 统筹索引 | P4 |
+| 5 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md` | `backlog` | 低置信 §5.1 | P2 |
+| 6 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 多轮欠债母单 | P2 |
+| 7 | `task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | Intent vNext | P4 |
+| 8 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属 | Agent Prompt | — |
 
 ---
 
@@ -270,6 +270,13 @@ flowchart TD
 |------|------|
 | 2026-05-22 | 自 `docs/diary/tmp/2026-05-22-backend-tasks-priority-final.md` 迁入 `docs/tasks/`；合并 Harness 改进排期 §0 |
 | 2026-05-22 | 更新快照：reorg/V2 Runner 已 `done/`；Harness 内嵌 task 待归档；**本表为最近安排真值** |
+| 2026-05-22 | §0.1/0.2 **done**：PR #45 已合并 `main`；下一棒 **P0-A1**（仍用 `task/chore-diary-tmp-ignore-and-main-branch-policy`） |
+| 2026-05-22 | **P0-A1 done**：`TASK_TEMPLATE` 扩展 Harness 字段；下一棒 **P0-A2**（HANDOFF 状态栏版本 B） |
+| 2026-05-22 | **P0-A2 done**：`HANDOFF_SEMI_AUTO` §3.4 版本 B/C；下一棒 **P0-A3**（10 帽 A/B 推荐） |
+| 2026-05-22 | **P0-A3 done**：10/TEMPLATE A/B `（推荐）` + 规则表；下一棒 **P0-A4**（harness README rsync） |
+| 2026-05-22 | **P0-A 收口**：A1–A4 均 done；下一棒 **P0-B/C**（`task_05` 试点闭环）或先 **PR 合入 P0-A 文档批** |
+| 2026-05-22 | **P0-B/C 试点**：分支 `task/query-rewrite-obs`；首份新 R1 `task_05_*_audit_R1_20260522`；单测+50 已落盘；**待人** `HG-*` approved 后关账 |
+| 2026-05-22 | **P0-B/C 关账**：`task_05` → `done/`；pytest 208 passed；PR #46 待/已合并 |
 
 ---
 

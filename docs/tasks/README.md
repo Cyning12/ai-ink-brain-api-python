@@ -108,11 +108,9 @@ docs/tasks/
 
 ## Harness V2 · 任务单扩展字段
 
-与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐（路径相对工作区根 `Projects/`；复制到 task 正文或元信息区即可）：
+**模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
 
-- **`test_strategy`**：`required | recommended | not_applicable`（`not_applicable` 须一行理由）。
-- **`failure_paths`**：建议独立小节（触发条件、行为/错误码、可重试、用户可见类型）。
-- 可选 **`freeze_id`**、**`gates_before_code`**：见规划 §5.2–§5.4。
+新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md)。
 
 ## 常见坑（强制避免）
 

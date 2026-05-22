@@ -53,10 +53,12 @@
 3. 若 AUDIT 路径非「无」：按该审查文档的回填清单逐条映射到 task 小节建议，并在建议文末注明「按审查 R<n> 回填」应指向的文件名。
 4. 禁止：写业务实现代码；改 CI；在 task 中写绝对本机路径；把未在依赖中声明的契约当真值。
 5. 对话回复 — **下一棒须输出两条 Prompt（由人择一执行，不可只给一条）**：
-   - **路径 A · 建议任务审核（22）**：标题 `### 下一棒 A：22 任务审核 R1`；正文为已替换占位符的 [`TEMPLATE-task-audit-invoke.md`](TEMPLATE-task-audit-invoke.md) **§3 全文**（`{{TASK_PATH}}` 等指向本仓 task；审查落盘 `docs/harness/reviews/task_<slug>_audit_R1_YYYYMMDD.md`）。
-   - **路径 B · 直进执行（30）**：标题 `### 下一棒 B：30 执行（跳过 22）`；正文为已替换占位符的 [`TEMPLATE-execute-invoke.md`](TEMPLATE-execute-invoke.md) **§3 全文**（仅当 task 已足够清晰、范围小、无跨仓契约变更时由 **人** 选此路径；10 须在 A/B 前各用一行说明 **何时优先选 A / 何时可选 B**）。
-   两条均须可独立复制进新对话；须兼顾打回、二次审查、上一棒修复等情形。
-6. **自动 commit**：若本轮已落盘 invoke 或已按用户授权写入 task，在输出下一棒 Prompt 后按 docs/harness/prompts/HANDOFF_AUTO_COMMIT.md 分仓 commit（仅本轮路径；对话报 short-hash）。仅对话、零文件变更则不必空提交；用户写明「不要 commit」则跳过。
+   - 先输出 **推荐判定**（1～3 行）：依据 [`10-requirements.md`](10-requirements.md) **§下一棒 A/B** 规则表与 task 元信息（`audit_profile`、`test_strategy`、显式声明）；写明 **推荐 A 或 B** 及一行理由。
+   - **路径 A · 22 任务审核**：标题 `### 下一棒 A：22 任务审核 R1`；若推荐 A 则 `### 下一棒 A：22 任务审核 R1（推荐）`。正文 = 已替换占位符的 [`TEMPLATE-task-audit-invoke.md`](TEMPLATE-task-audit-invoke.md) **§3 全文**（`{{TASK_PATH}}` 等指向本仓 task；审查落盘 `docs/harness/reviews/task_<slug>_audit_R1_YYYYMMDD.md`）。
+   - **路径 B · 30 执行（跳过 22）**：标题 `### 下一棒 B：30 执行（跳过 22）`；若推荐 B 则 `### 下一棒 B：30 执行（跳过 22）（推荐）`。正文 = 已替换占位符的 [`TEMPLATE-execute-invoke.md`](TEMPLATE-execute-invoke.md) **§3 全文**。**选 B 时** 须在推荐判定中注明：人承担闸 1；hotfix 须 task 写明事后补 22 或 `post_close` 闸 2。
+   - 两条均须 **全文**、可独立复制进新对话；**禁止** 因推荐只给一条或自动执行下一帽。
+6. 回复末尾输出 **[`HANDOFF_SEMI_AUTO.md`](HANDOFF_SEMI_AUTO.md) §3.4** `📋 Harness 状态栏（版本 B）`（`下一棒` 行列出 A/B；`推荐` 行与第 5 条一致；**不得** 代填 `human_gate: approved`）。
+7. **自动 commit**：若本轮已落盘 invoke 或已按用户授权写入 task，在输出下一棒 Prompt 与状态栏后按 [`HANDOFF_AUTO_COMMIT.md`](HANDOFF_AUTO_COMMIT.md) 分仓 commit（仅本轮路径；对话报 short-hash）。仅对话、零文件变更则不必空提交；用户写明「不要 commit」则跳过。
 
 不强制落盘；若用户要求写入某 task 文件，须由用户明确路径后再编辑（本模板不预置写文件占位符）。
 ```
@@ -70,9 +72,10 @@
 | 2026-05-14 | v1：与 `10-requirements` 关联；占位符未替换则 Agent 追问 |
 | 2026-05-14 | v1.1：§3 增对话收口「下一棒可复制 Prompt」（含打回、二次审查、上一棒修复） |
 | 2026-05-14 | v1.2：§3 可复制正文增第 **0** 条 **Invoke 快照（开帽起点）** |
+| 2026-05-22 | v1.3：§3 第 5–7 条 — A/B `（推荐）`、推荐判定、§3.4 状态栏；禁止自动走路径 |
 
 ---
 
 ## 给 Cursor
 
-`Harness`、`TEMPLATE-requirements-invoke`、`10-requirements`、`failure_paths`、`test_strategy`、`reviews`、`追问`
+`Harness`、`TEMPLATE-requirements-invoke`、`10-requirements`、`下一棒 A`、`下一棒 B`、`（推荐）`、`人择一`、`failure_paths`、`test_strategy`、`Harness 状态栏`、`reviews`、`追问`
