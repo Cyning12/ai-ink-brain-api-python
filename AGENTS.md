@@ -183,15 +183,15 @@
 
 ## Git Workflow
 
-> Git 分支与 PR — 禁止在 main 上直接提交 Harness/文档变更
+> 本地不在 main 上改/提交；远程合入 main 须 PR
 
 # Git 工作流（本仓）
 
-- Agent **不得**在 **`main`** / **`production`** 上 `git commit` 业务或文档变更；须在 **`task/<slug>`** 等任务分支提交，经 **PR** 合并。
-- 用户仅说「commit」且未指定分支时：先建/切任务分支再 commit。
-- **例外**：用户明文允许在 `main` 提交。
-- 半自动 Harness 多帽落盘：**只在任务分支** commit（`HANDOFF_SEMI_AUTO` §5）。
-- **不**默认 `git push`；开 PR 时再由用户或流程触发。
+- **远程**：合并 **`main`** **必须 PR**。
+- **本地**：**一切任务**（代码、文档、Harness 等）**不要在 `main` 上**直接修改或 `commit`；若在 `main`，先 **切换已有 `task/*` 分支** 或 **`git checkout -b task/<slug>`** 再动手。
+- 用户仅说「commit」时：先确认/切换任务分支，再提交。
+- **不**默认 `git push`。
+- Harness 半自动多帽落盘同样只在任务分支（`HANDOFF_SEMI_AUTO` §5）。
 
 细则见 [`.cursor/rules/07-git-workflow.mdc`](.cursor/rules/07-git-workflow.mdc)。
 
