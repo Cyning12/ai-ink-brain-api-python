@@ -12,7 +12,7 @@
 
 > **里程碑**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_*_audit_R1_*.md`（≠ 已召回的 10 份历史样例）。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **工作分支（当前）**：`task/chore-diary-tmp-ignore-and-main-branch-policy`（§0.1 **已完成**；承接 **P0-A～C**，**不**另开 `task/harness-improve-p0-*`）。
+> **工作分支（当前）**：`task/query-rewrite-obs`（**P0-B/C 试点**）；Harness 文档批在 `task/chore-diary-tmp-ignore-and-main-branch-policy`（**ahead**，待 PR 或 cherry-pick）。
 
 ### 0.1 阶段 0 — Git / 分支
 
@@ -36,10 +36,11 @@
 | # | 任务 | 试点 | 状态 |
 |---|------|------|------|
 | B1 | 选定试点 task | **`active/task_05_query_rewrite_observability.md`**（`pending`） | 已存在 |
-| B2 | 任务分支 | `task/query-rewrite-obs` 或与 slug 一致 | 待做 |
-| B3–B4 | 10 帽 + 人择 A/B | 用 A1/A3 新模板 | 待做 |
-| C1 | **22 R1** 新落盘 | `docs/harness/reviews/task_05_*_audit_R1_*.md` | 待做 |
-| C2–C5 | 30 → 40 → 50 → 关账 | invoke、`reinspect_results/`、pytest 绿、`done/` | 待做 |
+| ~~B2~~ | ~~任务分支~~ | `task/query-rewrite-obs` | **done** |
+| ~~B3–B4~~ | ~~10 帽 + task 模板~~ | `task_05` 已按 TASK_TEMPLATE 补齐 | **done** |
+| ~~C1~~ | **22 R1** 新落盘 | [`reviews/task_05_query_rewrite_observability_audit_R1_20260522.md`](../harness/reviews/task_05_query_rewrite_observability_audit_R1_20260522.md) | **done** |
+| C2–C4 | 30 → 40 → 50 | 单测绿、自检/复检已落盘 | **进行中**（**HG-AUDIT-R1 / HG-REINSPECT 待人 approved**） |
+| C5 | 关账 `done/` + CLOSE_TRACE | — | 待做 |
 
 **建议 task 单（Harness 自身）**：
 
@@ -275,6 +276,7 @@ flowchart TD
 | 2026-05-22 | **P0-A2 done**：`HANDOFF_SEMI_AUTO` §3.4 版本 B/C；下一棒 **P0-A3**（10 帽 A/B 推荐） |
 | 2026-05-22 | **P0-A3 done**：10/TEMPLATE A/B `（推荐）` + 规则表；下一棒 **P0-A4**（harness README rsync） |
 | 2026-05-22 | **P0-A 收口**：A1–A4 均 done；下一棒 **P0-B/C**（`task_05` 试点闭环）或先 **PR 合入 P0-A 文档批** |
+| 2026-05-22 | **P0-B/C 试点**：分支 `task/query-rewrite-obs`；首份新 R1 `task_05_*_audit_R1_20260522`；单测+50 已落盘；**待人** `HG-*` approved 后关账 |
 
 ---
 

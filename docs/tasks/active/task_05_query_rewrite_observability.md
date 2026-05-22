@@ -1,83 +1,130 @@
-# Task 05：Rewrite 可观测性增强（raw vs rewrite 召回对比 + 关键实体丢失判定）
+# Task：Rewrite 可观测性（raw vs rewrite 召回对比 + 关键实体丢失）
 
-状态：pending  
-范围：仅后端 `ai-ink-brain-api-python`  
+> **状态**：in_progress（2026-05-22 · P0-B/C Harness 试点）  
+> **关联图谱**：`docs/_tech_graph/10_flow_rag.md`  
+> **关联 Issue/PR**：无  
+> **前端依赖**：无（仅 metadata / DEBUG_RAG；前端展示另任务）
+
+> 落盘：`docs/tasks/active/` · Harness 试点见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0.3
+
+---
+
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `recommended` |
+| **test_strategy_note** | — |
+| **freeze_id** | `task_05_query_rewrite_obs@2026-05-22` |
+| **gates_before_code** | `failure_paths`, 验收命令, 必读路径 |
+| **semi_auto** | `true` |
+| **audit_profile** | `post_close` |
+| **git_branch** | `task/query-rewrite-obs` |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | approved | 22-R1,30 | 试点 task 已按模板补齐 |
+| HG-AUDIT-R1 | pending | 30 | R1 落盘后 **人** 改 approved（见 `reviews/task_05_*_audit_R1_*.md`） |
+| HG-REINSPECT | pending | done | 50 落盘后人签 |
+
+---
 
 ## 背景与目标
 
-当前排查 “rewrite 导致检索变差/丢关键 token（如 task_04/文件名/日期）” 时，需要频繁去 Supabase 查询 `documents` 或翻 `rag_conversation_logs`，成本高且不直观。
+排查「rewrite 导致检索变差 / 丢失关键 token（如 task_04、文件名、日期）」时，不宜频繁查 Supabase 或翻 `rag_conversation_logs` 全文。
 
-目标：
+**完成态**：
 
-- 在每次 `/api/py/chat` 请求中，记录 **raw query** 与 **rewrite query** 的对比指标，回答：
-  - rewrite 是否降低了召回？
-  - 是否丢失关键实体（日期/数字/文件名/任务编号/专有名词等可配置规则）？
-- 将对比指标写入 `public.rag_conversation_logs.metadata`，并在 `DEBUG_RAG=1` 时输出可读摘要（减少查库频次）。
+- 每次 `POST /api/py/chat` 在 `rag_conversation_logs.metadata.match.query_compare` 写入 raw vs rewrite 对比指标；
+- `DEBUG_RAG=1` 时终端一行 `query_compare` 摘要。
 
-> 说明：本任务不改变对外 API 契约；仅增加日志字段与 debug 输出。召回策略的升级（方案 1：双查询并行融合）另起任务。
+> 不改变对外 API 契约；双查询并行融合另起任务。
 
-## 范围 / 非范围
+---
 
-### 范围
-- `POST /api/py/chat`：新增 query 对比日志（raw vs rewrite）与关键实体丢失判定
-- `DEBUG_RAG` 模式下：输出一条聚合摘要（console）
+## 范围
 
-### 非范围
-- 不修改 Supabase SQL（不新增表/函数）
-- 不改变 RRF 融合逻辑（仍以现有检索链路为准）
-- 不新增前端 UI（前端 debug 展示由前端任务处理）
+- [x] `POST /api/py/chat`：`metadata.match.query_compare` 字段（实现见 `api/index.py`）
+- [x] Keyword 路 raw/rewrite 各跑一次计数（仅观测，不改变融合策略）
+- [x] `compare_anchor_tokens` 关键实体丢失判定（`api/keyword_fallback.py`）
+- [x] `DEBUG_RAG=1` 日志摘要
+- [x] 单测：`tests/test_query_rewrite_compare_anchor.py`
 
-## 设计（日志字段与含义）
+## 非范围
 
-新增字段建议落在：
+- 不修改 Supabase SQL
+- 不改变 RRF 融合主策略
+- 不新增前端 UI
 
-- `rag_conversation_logs.metadata.match.query_compare`
+---
 
-字段（简易版对齐需求）：
+## 依赖与引用
 
-- `query_raw`: 原始问题（同 `payload.query`，此处冗余存储便于单点读取）
-- `query_rewrite`: 改写后问题（同 `payload.rewritten_query`）
-- `recall_raw_count`: 原始 query 的召回数量（**Keyword/FTS 路**为主）
-- `recall_rw_count`: 改写 query 的召回数量（Keyword/FTS 路）
-- `recall_raw_top1_score`: 原始 query 的 Top1 分数（Keyword 路 `score`）
-- `recall_rw_top1_score`: 改写 query 的 Top1 分数（Keyword 路 `score`）
-- `is_key_entity_lost`: 是否丢失关键实体（raw 中存在但 rewrite 中缺失）
+| 依赖项 | 路径/说明 |
+|--------|-----------|
+| PROJECT_CONFIG | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
+| API | `POST /api/py/chat` · `api/index.py` |
+| 表 | `public.rag_conversation_logs` · `docs/_tech_graph/01_struct.md` |
+| 图谱 | `docs/_tech_graph/10_flow_rag.md` |
+| 锚点规则 | `api/keyword_fallback.py` · `ANCHOR_TOKEN_PATTERNS` |
 
-扩展字段（推荐，便于调试与后续做方案 2/1）：
+---
 
-- `key_entities.tokens_raw`: 规则提取到的 raw token 列表（去重保序）
-- `key_entities.tokens_rewrite`: rewrite token 列表
-- `key_entities.missing`: raw - rewrite 的缺失 token
-- `key_entities.lost_types`: 可选（按规则分类：date/file/task/number/...）
-- `score_type`: `"fts_score"`（显式说明 top1_score 的含义，避免与 vector similarity 混淆）
+## 设计（`metadata.match.query_compare`）
 
-> 注：如需记录 Vector 路的 Top1 similarity，可另加 `vector_top1_similarity`，但不与上述 `top1_score` 混用。
+| 字段 | 含义 |
+|------|------|
+| `query_raw` / `query_rewrite` | 原始与改写问句 |
+| `recall_raw_count` / `recall_rw_count` | Keyword/FTS 路命中数 |
+| `recall_raw_top1_score` / `recall_rw_top1_score` | Keyword Top1 `score`（`score_type: fts_score`） |
+| `is_key_entity_lost` | raw 锚点 token 是否在 rewrite 中缺失 |
+| `key_entities` | `tokens_raw` / `tokens_rewrite` / `missing` |
 
-## 关键实体（token）规则
+---
 
-规则集中管理，便于增删改：
+## 失败路径
 
-- 文件名/后缀：`*.md/mdx/pdf/txt/...`
-- task 编号：`task_04 / task-04 / Task 04`
-- 日期：`YYYY-MM-DD`（含 `2026-4-14.md`）
-- （可选）数字串、路径片段、代码符号等
+| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|----------|----------|--------|----------|
+| F1 | Supabase 不可用 | 检索失败；日志可能无 `query_compare` | 是 | 流式仍可能降级；500 类 |
+| F2 | Embedding 失败 | keyword-only；`query_compare` 仍写入 | 是 | 无向量路 |
+| F3 | rewrite 失败 | `rewritten_query=query`；对比仍有效 | — | 无单独错误码 |
+
+---
 
 ## 验收标准
 
-- [ ] `POST /api/py/chat` 的 `rag_conversation_logs.metadata.match.query_compare` 中包含上述字段
-- [ ] 对于输入包含 `task_04` / 文件名 / 日期 的问题：
-  - [ ] 若 rewrite 丢失 token，`is_key_entity_lost=true` 且 `missing` 包含对应 token
-- [ ] `DEBUG_RAG=1` 时，终端输出包含一行 query_compare 摘要（raw/rewrite counts、top1 分数、是否丢失 token）
-- [ ] 不影响现有流式输出与 sources 机制
+- [x] `metadata.match.query_compare` 含约定字段（`build_rag_match_meta` / `index.py`）
+- [x] 含 `task_04` / 文件名 / 日期 时，rewrite 丢 token → `is_key_entity_lost=true` 且 `missing` 含对应 token（单测覆盖）
+- [x] `DEBUG_RAG=1` 输出 `query_compare` 一行摘要
+- [x] 不影响流式输出与 sources
+
+**测试命令**：`pytest tests/test_query_rewrite_compare_anchor.py -q`
+
+---
 
 ## 实现备忘
 
-建议实现步骤：
+| 项 | 内容 |
+|----|------|
+| 涉及文件 | `api/index.py`, `api/keyword_fallback.py`, `api/rag_logging.py`, `tests/test_query_rewrite_compare_anchor.py` |
+| 关键 env | `DEBUG_RAG=1` |
+| 图谱变更点 | 无（行为已在 `10_flow_rag` 隐含，可选增量） |
 
-1. 抽取/复用 token 规则（可复用 `api/keyword_fallback.py` 的锚点 token 规则并扩展）
-2. 在检索阶段，对 Keyword 路分别执行：
-   - `keyword_documents(query_raw, ...)`
-   - `keyword_documents(query_rewrite, ...)`
-   记录 count 与 top1 score（此处仅用于日志，不改变最终召回策略）
-3. 在写库 payload 时写入 `metadata.match.query_compare`
+---
 
+## 自检结论（执行者 · 40 帽回填）
+
+| 项 | 结果 |
+|----|------|
+| 命令 | `pytest tests/test_query_rewrite_compare_anchor.py -q` |
+| 结论 | **pass** |
+| 要点 | 4 passed；覆盖 `extract_anchor_tokens`、`compare_anchor_tokens` 丢失/保留场景 |
+
+---
+
+## 给 Cursor
+
+`task_05`、`query_compare`、`rewrite`、`DEBUG_RAG`、`compare_anchor_tokens`、`Harness P0-B/C`
