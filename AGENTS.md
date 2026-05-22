@@ -19,7 +19,7 @@
    - `13_flow_supabase_rpc.md` — Supabase RPC 流程（[AI 协议版](docs/_tech_graph/13_flow_supabase_rpc.ai.md)）
    - `99_spec.md` — 实现规约
    - `99_mermaid_protocol.md` — Mermaid 拓扑协议（Python/FastAPI 适配版）
-4. **`docs/tasks/`**：任务规格（实现与验收口径）
+4. **`docs/tasks/`**：任务规格（实现与验收口径）；**近期排期** 先读 [`docs/tasks/RECENT_TASK_SCHEDULE.md`](docs/tasks/RECENT_TASK_SCHEDULE.md)
 5. **`docs/harness/`**：Harness（10→**人择** 22 或 30→40→50；落盘可查收）
    - 入口：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/ACCEPTANCE_LANDING.md`](docs/harness/ACCEPTANCE_LANDING.md)
    - **22 审核**（仅本仓）：`docs/harness/reviews/` · **50 复检**：`docs/tasks/reinspect_results/`
