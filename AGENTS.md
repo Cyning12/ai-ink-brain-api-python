@@ -181,6 +181,22 @@
 
 ---
 
+## Git Workflow
+
+> Git 分支与 PR — 禁止在 main 上直接提交 Harness/文档变更
+
+# Git 工作流（本仓）
+
+- Agent **不得**在 **`main`** / **`production`** 上 `git commit` 业务或文档变更；须在 **`task/<slug>`** 等任务分支提交，经 **PR** 合并。
+- 用户仅说「commit」且未指定分支时：先建/切任务分支再 commit。
+- **例外**：用户明文允许在 `main` 提交。
+- 半自动 Harness 多帽落盘：**只在任务分支** commit（`HANDOFF_SEMI_AUTO` §5）。
+- **不**默认 `git push`；开 PR 时再由用户或流程触发。
+
+细则见 [`.cursor/rules/07-git-workflow.mdc`](.cursor/rules/07-git-workflow.mdc)。
+
+---
+
 ## Docs Diary
 
 > docs/diary — 非必读、易过时产物落盘；实验轨 jsonPKmermaid 按需读
@@ -191,6 +207,7 @@
 
 - **非必读**：`docs/diary/` **全树**不纳入日常必读链路；**非需要不主动读取**（不预加载、不 glob 遍历、不在无关任务中引用）。
 - **何时可读**：用户 `@` 明确路径；当前 **task / invoke** 依赖列出 diary 路径；排障、复盘、实验复现且范围已锁定到**具体文件**。
+- **`docs/diary/tmp/`**：**不纳入 Git**（`.gitignore`）；Agent **禁止**默认 glob/grep/遍历；仅用户或 task **单独指明**具体文件时可读。
 - **真值优先级**：实现与架构以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/`、`docs/spec/` 为准；diary **不得**覆盖或替代上述真值。
 
 ## 落盘纪律（写什么进 diary）

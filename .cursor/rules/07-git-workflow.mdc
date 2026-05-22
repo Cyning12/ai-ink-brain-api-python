@@ -1,0 +1,22 @@
+---
+description: Git 分支与 PR — 禁止在 main 上直接提交 Harness/文档变更
+alwaysApply: true
+---
+
+# Git 工作流（本仓）
+
+## 禁止在 `main` 上直接提交
+
+- Agent **不得**在 **`main`** / **`production`** 上 `git commit` 业务或文档变更（含 Harness、`docs/tasks/`、`docs/harness/`、`docs/diary/` 已纳入版本控制的文件）。
+- **须**在任务分支上提交，例如 `task/<slug>`、`feat/<slug>`，再经 **PR** 合并 `main`。
+- 用户仅说「commit」而未指定分支时：先 `git checkout -b task/<简短主题>`（或复用已有任务分支），再 commit。
+- **例外**：用户明文「在 main 上提交」或「hotfix 直推 main」；否则默认走分支 + PR。
+
+## 与 Harness 对齐
+
+- 半自动链式执行、多帽 invoke/review 落盘：**只在任务分支** commit（见 `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` §5）。
+- PR 合并前：本地或 CI 满足 `AGENTS.md` 合并前必绿（`pytest` 等）。
+
+## 推送
+
+- **不**默认 `git push`；用户明确要求或开 PR 流程时再 push。

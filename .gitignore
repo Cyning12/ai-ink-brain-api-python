@@ -129,6 +129,8 @@ docs/*
 
 # Rubric 演示暂存 + jsonPKmermaid 主实验协议（与 task 审核 `docs/harness/reviews` 分离）
 !docs/diary/
+# diary 草稿/tmp：不提交；Agent 默认不扫描（见 .cursor/rules/08-docs-diary.mdc）
+docs/diary/tmp/
 !docs/diary/jsonPKmermaid/
 !docs/_staging/
 !docs/_staging/jsonPKmermaid-rubric-demo/
