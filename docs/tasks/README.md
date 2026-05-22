@@ -4,6 +4,12 @@
 
 ---
 
+## 最近任务安排（排期真值）
+
+**近期执行顺序、Harness P0、active 清单与时间线** 以 **[`RECENT_TASK_SCHEDULE.md`](RECENT_TASK_SCHEDULE.md)** 为准；规划或 `@task` 前先读该表，再打开具体 `active/task_*.md`。
+
+---
+
 ## 工作区 Harness 任务（不在本目录）
 
 与 **跨子仓流程 / CI 门禁对齐** 相关的 Harness **任务单** 仍统一在工作区：
@@ -24,6 +30,7 @@
 ```
 docs/tasks/
   README.md                # 本文件：落盘规则
+  RECENT_TASK_SCHEDULE.md  # 最近任务安排表（排期真值）
   _views/                  # 状态视图索引（聚合，不改原任务正文）
   active/                  # 设计中/待开始/进行中（task_*.md）
   done/                    # 已完成（task_*.md）；本仓任务的**归档目录**（相对 `active/`）
