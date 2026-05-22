@@ -1,6 +1,6 @@
 # Task：ChatBI V2 —— 验收执行引导（Runner）
 
-状态：active（随总规 §7.5 更新；**不替代** `SPEC-ChatBI-V2-Agent-Overview.md` 原文）  
+> **状态**：done（2026-05-22 验收通过）  
 范围：后端 `ai-ink-brain-api-python`；跨仓步骤仅列引用  
 **权威真值**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` **§7**（验收勾选）、**§7.4**（全量对照）、**§7.5**（L0–L7 操作细则）  
 关联：`SPEC-ChatBI-V2-Gap-Checklist.md` · `docs/tasks/done/task_chatbi_v2_agent_p1_behavior.md`（P1 已归档）· `docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md` · **`docs/tasks/done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`**（V2 SPEC/任务归档总索引）· **`task_chatbi_v3_planning_after_resume_v1.md`**（V3 规划入口）
