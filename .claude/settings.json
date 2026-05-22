@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Bash(python3 *)",
+      "Bash(pytest *)",
+      "Bash(uvicorn *)"
+    ]
+  }
+}
