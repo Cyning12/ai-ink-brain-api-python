@@ -12,21 +12,21 @@
 
 > **里程碑**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_*_audit_R1_*.md`（≠ 已召回的 10 份历史样例）。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **工作分支（当前）**：`task/chore-diary-tmp-ignore-and-main-branch-policy`（承接 §0.1 + P0-A～C，**不**另开 `task/harness-improve-p0-*`）。
+> **工作分支（当前）**：`task/chore-diary-tmp-ignore-and-main-branch-policy`（§0.1 **已完成**；承接 **P0-A～C**，**不**另开 `task/harness-improve-p0-*`）。
 
 ### 0.1 阶段 0 — Git / 分支
 
 | # | 任务 | 状态 | 说明 |
 |---|------|------|------|
-| 0.1 | PR：`task/chore-diary-tmp-ignore-and-main-branch-policy` | **PR #45 已开** | 含 tmp ignore、`07-git-workflow`、Harness 内嵌/裁决/样例、`RECENT_TASK_SCHEDULE`；启动 Prompt → `docs/harness/invokes/invoke_20260522_30_harness-stage0-1-pr-chore-branch.md` |
-| 0.2 | 本地 `main` 超前 `origin` 的 harness/diary 提交 | **并入 0.1** | 与 0.1 同 PR（#45）一并合入（分支已含 `d48845d`～`0460ce1`） |
+| ~~0.1~~ | ~~PR：`task/chore-diary-tmp-ignore-and-main-branch-policy`~~ | **done** | 已合并 [PR #45](https://github.com/Cyning12/ai-ink-brain-api-python/pull/45) → `main`（`f2e3437`）；含 tmp ignore、`07-git-workflow`、Harness 内嵌/裁决/样例、`RECENT_TASK_SCHEDULE` |
+| ~~0.2~~ | ~~本地 `main` 超前 `origin` 的 harness/diary 提交~~ | **done** | 随 #45 一并合入（`d48845d`～`0460ce1`） |
 | 0.3 | ~~建分支 `task/harness-improve-p0-20260522`~~ | **取消** | 沿用当前分支 |
 
 ### 0.2 阶段 P0-A — 文档与模板（1 个 PR）
 
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
-| A1 | 扩展 `TASK_TEMPLATE` Harness 字段 | `docs/tasks/templates/TASK_TEMPLATE.md` | 待做 |
+| ~~A1~~ | ~~扩展 `TASK_TEMPLATE` Harness 字段~~ | `docs/tasks/templates/TASK_TEMPLATE.md` | **done** |
 | A2 | `HANDOFF_SEMI_AUTO` 状态栏 **版本 B** | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | 待做 |
 | A3 | 10 帽双 Prompt + `（推荐）` + 理由 | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | 待做 |
 | A4 | `harness/README` §4 rsync 仅维护者 | `docs/harness/README.md` | 待做 |
@@ -270,6 +270,8 @@ flowchart TD
 |------|------|
 | 2026-05-22 | 自 `docs/diary/tmp/2026-05-22-backend-tasks-priority-final.md` 迁入 `docs/tasks/`；合并 Harness 改进排期 §0 |
 | 2026-05-22 | 更新快照：reorg/V2 Runner 已 `done/`；Harness 内嵌 task 待归档；**本表为最近安排真值** |
+| 2026-05-22 | §0.1/0.2 **done**：PR #45 已合并 `main`；下一棒 **P0-A1**（仍用 `task/chore-diary-tmp-ignore-and-main-branch-policy`） |
+| 2026-05-22 | **P0-A1 done**：`TASK_TEMPLATE` 扩展 Harness 字段；下一棒 **P0-A2**（HANDOFF 状态栏版本 B） |
 
 ---
 
