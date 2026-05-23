@@ -61,30 +61,29 @@
 
 ---
 
-## 1. 现状快照（2026-05-22 更新）
+## 1. 现状快照（2026-05-23 更新）
 
 | 维度 | 结论 |
 |------|------|
 | **本表角色** | **最近任务安排真值**（替代 `docs/diary/tmp/2026-05-22-backend-tasks-priority-final.md`） |
-| **active/** | **8** 个任务相关文件（见 §1.1） |
-| **done/** | 49 个 `.md`；含已完成的 `task_docs_tasks_reorg_move_v1`、`task_chatbi_v2_acceptance_runner_v1` |
-| **_views/done.md** | 已索引 **31** 条 → **遗漏 18** 条（§6.1） |
+| **active/** | **7** 个任务相关文件（见 §1.1） |
+| **done/** | 53 个 `.md`；含 `task_harness_in_repo_prompts_and_rules_v1` 已归档 |
+| **_views/done.md** | 已索引 **53** 条，遗漏 **0** 条（§6.1 已补齐） |
 | **V3 P1 后端** | P1-1～P1-3、P1-4 后端侧 **done** |
 | **V3 P1 缺口** | **P1-4 前端**（Ink-Brain）仍 `pending`，跨仓阻塞 P1 收口 |
-| **Harness 内嵌** | `task_harness_in_repo_prompts_and_rules_v1` 头部 **done**，文件仍在 `active/` → **应 `git mv` 至 `done/`** |
+| **Harness 内嵌** | `task_harness_in_repo_prompts_and_rules_v1` 已完成 `git mv` 归档至 `done/` |
 
 ### 1.1 active/ 任务清单
 
 | # | 任务文件 | 状态 | 主题 | 排期 |
 |---|---------|------|------|------|
-| 1 | `task_harness_in_repo_prompts_and_rules_v1.md` | `done`（未归档） | Harness 内嵌 v1/v2 | **§0**；先归档 |
-| 2 | `task_ui_chain_events_backend.md` | `pending` | Chain Events 统一事件 | P3 |
-| 3 | `task_rag_graphrag_pilot_explore_v1.md` | （见 task 头） | GraphRAG 探索 | 按需 |
-| 4 | `task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V3 统筹索引 | P4 |
-| 5 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md` | `backlog` | 低置信 §5.1 | P2 |
-| 6 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 多轮欠债母单 | P2 |
-| 7 | `task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | Intent vNext | P4 |
-| 8 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属 | Agent Prompt | — |
+| 1 | `task_ui_chain_events_backend.md` | `pending` | Chain Events 统一事件 | P3 |
+| 2 | `task_rag_graphrag_pilot_explore_v1.md` | （见 task 头） | GraphRAG 探索 | 按需 |
+| 3 | `task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V3 统筹索引 | P4 |
+| 4 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md` | `backlog` | 低置信 §5.1 | P2 |
+| 5 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 多轮欠债母单 | P2 |
+| 6 | `task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | Intent vNext | P4 |
+| 7 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属 | Agent Prompt | — |
 
 ---
 
@@ -94,8 +93,8 @@
 |------|------|--------|------|
 | **当前** | **§0 Harness P0-A**（模板 + HANDOFF 状态栏 + A/B 推荐） | **P0** | 与裁决 §九 一致 |
 | **当前** | **§0 Harness P0-C** 以 `task_05` 跑通 10→关账 → **首份新 R1** | **P0** | 硬验收 |
-| **立即** | 归档 `task_harness_in_repo_prompts_and_rules_v1` → `done/` + `_views/done.md` | P0 治理 | 头部已 done |
-| **立即** | 补 `_views/done.md` 遗漏 **18** 条（§6.1） | P0 治理 | |
+| ~~立即~~ | ~~归档 `task_harness_in_repo_prompts_and_rules_v1` → `done/` + `_views/done.md`~~ | **done** | 2026-05-23 已完成 `git mv` + 索引追加 |
+| ~~立即~~ | ~~补 `_views/done.md` 遗漏 **18** 条（§6.1）~~ | **done** | 2026-05-23 校验 done 视图已补齐（遗漏 0） |
 | **本周** | `task_05` 业务验收（可观测日志/metadata） | P1 | 与 Harness 试点可同一分支 |
 | **本周** | 推动 Ink **P1-4 前端**烟测 | P1 跨仓 | |
 | **本周** | 对照现网后再定 `task_ui_chain_events_backend` | P3 | 避免与 SSE 重复 |
@@ -207,30 +206,10 @@ flowchart TD
 
 ## 6. 治理与数据卫生
 
-### 6.1 `_views/done.md` 遗漏（18 条）
+### 6.1 `_views/done.md` 索引一致性（已收敛）
 
-`done/` 共 49 个文件，视图仅索引 31 条。以下 **未出现在** `_views/done.md`，建议补一行索引（`../done/<文件名>`）：
-
-| 文件 |
-|------|
-| `done_chatbi_v2_agent_p0_backend_constraints_2026-04-29.md` |
-| `done_chatbi_v2_agent_p0_backend_full_2026-04-29.md` |
-| `done_chatbi_v2_agent_p0_backend_modules_intent_tools_memory.md` |
-| `done_unified_chat_backend_v1.md` |
-| `done_unified_chat_streaming_backend_sse_v1.md` |
-| `task_chatbi_level_gate_v1.md` |
-| `task_chatbi_text2sql_denial_final_answer_no_respin_v1.md` |
-| `task_chatbi_v2_agent_p0_backend.md` |
-| `task_chatbi_v2_incremental_sse_backend_v1.md` |
-| `task_chatbi_v2_text2sql_multiturn_grounding_v1.md` |
-| `task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md` |
-| `task_chatbi_v3_text2sql_tool_latency_obs_v1.md` |
-| `task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md` |
-| `task_engineering_tech_graph_gate_d_v2_tasks_v1.md` |
-| `task_intent_router_backend_v1.md` |
-| `task_text2sql_schema_prefetch_before_mutate_v1.md` |
-| `task_unified_chat_router_evidence_event_v1.md` |
-| `task_unified_chat_router_evidence_observability_v1.md` |
+`done/` 当前 53 个文件，`_views/done.md` 已索引 53 条，**遗漏 0**。  
+本轮已完成：`task_harness_in_repo_prompts_and_rules_v1` 归档后同步追加索引。
 
 ### 6.2 `legacy/`（6 个）
 
@@ -247,7 +226,7 @@ flowchart TD
 
 | 文件路径 | 问题 |
 |---------|------|
-| `active/task_harness_in_repo_prompts_and_rules_v1.md` | 头部 `done` 但仍在 `active/` |
+| （已修复）`done/task_harness_in_repo_prompts_and_rules_v1.md` | 2026-05-23 已自 `active/` 归档，状态与目录一致 |
 | `docs/tasks/done/task_unified_chat_router_evidence_observability_v1.md` 等 | 核对文首 `状态` 与目录 |
 
 ---
@@ -277,6 +256,7 @@ flowchart TD
 | 2026-05-22 | **P0-A 收口**：A1–A4 均 done；下一棒 **P0-B/C**（`task_05` 试点闭环）或先 **PR 合入 P0-A 文档批** |
 | 2026-05-22 | **P0-B/C 试点**：分支 `task/query-rewrite-obs`；首份新 R1 `task_05_*_audit_R1_20260522`；单测+50 已落盘；**待人** `HG-*` approved 后关账 |
 | 2026-05-22 | **P0-B/C 关账**：`task_05` → `done/`；pytest 208 passed；PR #46 待/已合并 |
+| 2026-05-23 | **P0 治理归档**：`task_harness_in_repo_prompts_and_rules_v1` 已 `git mv` 至 `done/`；`_views/done.md` 完整索引（53/53）；§1 与 §2 已同步 |
 
 ---
 

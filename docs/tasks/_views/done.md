@@ -56,4 +56,5 @@
 - `../done/task_chatbi_v2_acceptance_runner_v1.md`（2026-05-22 验收通过：L0–L7 Runner 归档）
 - `../done/task_docs_tasks_reorg_move_v1.md`（2026-05-22 验收通过：`docs/tasks/` 按 active/done/specs/templates/legacy 规整；顶层无混放 SPEC/模板）
 - `../done/task_05_query_rewrite_observability.md`（2026-05-22 验收通过：query_compare 可观测 + Harness P0-B/C 试点；PR #46 · 首份新 `reviews/task_05_*_audit_R1_*.md`）
+- `../done/task_harness_in_repo_prompts_and_rules_v1.md`（2026-05-22 验收通过：Harness prompts/rules 内嵌后端仓，active→done 归档完成）
 
