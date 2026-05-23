@@ -36,6 +36,7 @@ docs/tasks/
   done/                    # 已完成（task_*.md）；本仓任务的**归档目录**（相对 `active/`）
   specs/                   # 规格文档（SPEC-*.md）
   templates/               # 模板（TASK_TEMPLATE.md）
+  skills/                  # 蒸馏 SKILL 索引与类型说明（见 skills/README.md）
   legacy/                  # 历史命名/缺少状态/待补齐字段
   review_results/          # 审查帽输出归档（见该目录 README）；可交需求帽回填 task/SPEC
   reinspect_results/       # 独立复检帽输出归档（见该目录 README）；必要时交需求帽回填
@@ -111,6 +112,37 @@ docs/tasks/
 **模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
 
 新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md)。
+
+### 蒸馏 SKILL（高频场景预填）
+
+按任务类型选用预填片段，与模板骨架叠加使用；类型定义、输入输出与关账蒸馏口径见 **[`skills/README.md`](skills/README.md)**。
+
+---
+
+## `human_gate` 场景速查
+
+> **真值**：字段语义见 [`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5.6**；Agent 行为见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md) **§2**。  
+> **硬规则**：**仅人** 可将 `status` 从 `pending` 改为 `approved`；Agent **禁止**代填、禁止勾选「已人工审核」。
+
+| gate_id | status | blocks_hats | 典型场景 | 谁改 approved |
+|---------|--------|-------------|----------|---------------|
+| `HG-TASK-DRAFT` | `pending` / `approved` | `22-R1`, `30` | 10 帽产出 task 初稿；人扫字段完整性、验收可执行性、`failure_paths` 后再放行执行 | **任务负责人 / 审阅人**（扫完 task 正文与 Harness 元信息表） |
+| `HG-AUDIT-R1` | `pending` / `approved` | `30` | 22 帽 R1 审查落盘 `docs/harness/reviews/` 后；执行编码前确认零阻塞或阻塞已回填 | **审查签收人**（读过 R1 review 全文） |
+| `HG-REINSPECT` | `pending` / `approved` | `done`, `50`（可选） | 50 帽复检落盘 `reinspect_results/` 后；关账归档或合并 PR 前 | **复检签收人 / Tech Lead** |
+| `HG-GLOBAL-SIGNOFF` | `pending` / `approved` | 合并 `main`（可选） | 关账 `HANDOFF_CLOSE_TRACE` 输出后；跨仓或大里程碑合并前总签 | **仓库维护者 / 发布负责人** |
+| `HG-<自定义>` | `pending` / `approved` | task 元信息 `blocks_hats` 列明 | 产品决策、合规、外部依赖就绪等 task 自定义闸 | **task 正文或元信息表指定的签收角色** |
+
+**Agent 开帽前**：扫描 task 与关联 `reviews/*` 中全部 `human_gate`；若计划执行的帽子 ∈ 某闸的 `blocks_hats` 且该闸 `status: pending` → **拒执行**，仅输出须人修改的 `gate_id` 与文件路径。
+
+**落盘格式**（task 内推荐表格式，见 [`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)）：
+
+```markdown
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | pending | 22-R1,30 | … |
+```
+
+---
 
 ## 常见坑（强制避免）
 
