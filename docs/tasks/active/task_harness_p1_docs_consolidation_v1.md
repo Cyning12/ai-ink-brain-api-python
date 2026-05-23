@@ -168,6 +168,19 @@
 
 ---
 
+## 复检结论（独立复检 · 50 帽）
+
+> 全文：[`docs/tasks/reinspect_results/reinspect_harness_p1_docs_consolidation_20260523.md`](../reinspect_results/reinspect_harness_p1_docs_consolidation_20260523.md)
+
+| 项 | 结果 |
+|----|------|
+| 验收项 | **全部 pass**（见复检报告验收表） |
+| 口径交叉 | human_gate 5 列、6 类 SKILL 与 HARNESS_V2 §5 / diary §三 3.1 **一致** |
+| 合并建议 | **建议合并**（PR 内容） |
+| `HG-REINSPECT` | **仍为 `pending`** — 待人签后再 `done` |
+
+---
+
 ## 给 Cursor
 
 `task_harness_p1_docs_consolidation_v1`、`Harness P1`、`P1-3`、`P1-2`、`human_gate`、`skills`、`test_strategy`、`audit_profile`、`semi_auto`
