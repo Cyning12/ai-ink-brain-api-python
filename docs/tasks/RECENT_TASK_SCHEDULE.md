@@ -8,11 +8,11 @@
 
 ---
 
-## 0. Harness 改进（当前主线 · **P0 已收口** → **P1 巩固**）
+## 0. Harness 改进（当前主线 · **P1 巩固已收口** → **P2 / P1-4 远期**）
 
 > **里程碑（已达成）**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_05_*_audit_R1_*.md`（PR #46 · `task_05` 试点）。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **下一棒**：**§0.4 P1-1～P1-3**（建议 **一个治理 task / 一个 PR**，见 §4.2）。
+> **下一棒**：**P2-1** Resilience 拆单 / 低置信 §5.1 backlog；**远期** Ink Harness parity（§0.4 P1-4）。
 
 ### 0.1 阶段 0 — Git / 分支
 
@@ -45,17 +45,17 @@
 
 > **关账**：`docs/tasks/done/task_05_query_rewrite_observability.md`（2026-05-22）
 
-### 0.4 阶段 P1 — 巩固（**当前**）
+### 0.4 阶段 P1 — 巩固（**已收口**）
 
 | # | 任务 | 状态 | 说明 |
 |---|------|------|------|
-| P1-1 | 工作区 `Projects/docs/harness/reviews/` pointer 改索引/删悬空 | **待做** | **工作区仓**；可与 P1-2/3 分 PR |
-| P1-2 | `docs/tasks/skills/` + README（6 类 SKILL，关账蒸馏+人审） | **done** | `task_harness_p1_docs_consolidation_v1` · 2026-05-23 |
+| P1-1 | 工作区 `Projects/docs/harness/reviews/` pointer 改索引/删悬空 | **done** | Projects `main` `c8f3d8c` · `docs/harness/tasks/done/task_harness_p1_reviews_pointers_v1.md` · 2026-05-23 |
+| P1-2 | `docs/tasks/skills/` + README（6 类 SKILL，关账蒸馏+人审） | **done** | `task_harness_p1_docs_consolidation_v1` · PR #49 · 2026-05-23 |
 | P1-3 | `docs/tasks/README.md` `human_gate` 场景速查表 | **done** | 同上 |
 | P1-4 | 前端 `ai-ink-brain` **Harness parity**（模板/rsync/规则同步） | **远期** | ≠ V3 **P1-4 §4.3 烟测**（已 done，见 §5） |
 | P1-5 | 历史 review 样例 | **已做** | 10 份 + `task_05` 新 R1，`reviews/README` |
 
-**建议执行方式**：**P1-2 + P1-3** 合并为 **一个后端 task**（如 `task_harness_p1_docs_consolidation_v1`）→ **一个 PR**；**P1-1** 单独在工作区 `Projects/` 开 PR（跨仓 pointer，Reviewer 不同）。顺序：**P1-3（速查表，轻）→ P1-2（skills 目录，重）**；P1-1 可与后端 PR **并行**。
+**P1 巩固**：P1-1～P1-3 **全部 done**（2026-05-23）；工作区 pointer 与后端文档批分仓交付完成。
 
 ---
 
@@ -69,7 +69,7 @@
 | **_views/done.md** | **53 / 53** 已索引（§6.1 **已补齐**） |
 | **Harness P0** | **done**（A1–A4 + `task_05` 试点 + 首份新 R1） |
 | **V3 P1** | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23） |
-| **Harness P1** | P1-2/P1-3 **done**（2026-05-23）；P1-1 **待做**；Harness 前端 parity（P1-4）**远期** |
+| **Harness P1** | **P1-1～P1-3 done**（2026-05-23）；Harness 前端 parity（P1-4）**远期** |
 
 ### 1.1 active/ 任务清单
 
@@ -91,11 +91,11 @@
 |------|------|--------|------|
 | ~~**当前**~~ | ~~§0 Harness P0-A + P0-C（`task_05`）~~ | ~~**P0**~~ | **done**（PR #45、#46） |
 | ~~**立即**~~ | ~~归档 `task_harness_in_repo` + 补 `_views/done.md`~~ | ~~P0 治理~~ | **done**（2026-05-23） |
-| **当前** | **§0.4 P1-1** 工作区 `Projects/` reviews pointer | **P1** | 独立 PR |
-| ~~**当前**~~ | ~~§0.4 Harness P1-2 + P1-3~~ | ~~**P1**~~ | **done**（2026-05-23） |
+| ~~**当前**~~ | ~~§0.4 P1-1 工作区 `Projects/` reviews pointer~~ | ~~**P1**~~ | **done**（Projects `c8f3d8c` · 2026-05-23） |
+| ~~**当前**~~ | ~~§0.4 Harness P1-2 + P1-3~~ | ~~**P1**~~ | **done**（PR #49 · 2026-05-23） |
+| **当前** | **P2-1** Resilience 拆单（待建 task） | **P2** | Harness P1 已收口 |
 | ~~**本周**~~ | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周** | 对照现网后再定 `task_ui_chain_events_backend` | P3 | 避免与 SSE 重复 |
-| **下周** | 从 SPEC 拆 **P2-1** `task_chatbi_v3_p2_resilience_v1`（待建） | P2 | |
 | **V3 排期** | 低置信 §5.1 预览确认拆分 | P2 | §5.0 已验收 |
 | **按需** | `legacy/` 6 个治理 | 治理 | 不阻塞 |
 | **远期** | Intent vNext、统筹单；Ink Harness parity（P1-4） | P4 | |
@@ -114,10 +114,10 @@ flowchart TD
         HB --> HR[首份新 reviews R1]
     end
 
-    subgraph H1["Harness P1 · 当前"]
+    subgraph H1["Harness P1 · 已收口"]
         direction TB
         P13[P1-3 human_gate 速查] --> P12[P1-2 skills 目录]
-        P11[P1-1 工作区 pointer] -.-> P12
+        P11[P1-1 工作区 pointer] --> P12
     end
 
     subgraph P1["P1 · 已闭环"]
@@ -141,7 +141,7 @@ flowchart TD
     P1 --> P3
 
     style H0 fill:#c8e6c9
-    style H1 fill:#e1bee7
+    style H1 fill:#c8e6c9
     style P1 fill:#ffe6cc
     style P2 fill:#ffffcc
     style P3 fill:#e8ffe8
@@ -154,32 +154,28 @@ flowchart TD
 ### 4.1 全栈闭环线
 
 ```text
-① §0.4 Harness P1-2 + P1-3（一个 task / 一个 PR）  ← 当前
+① P2-1 Resilience 拆单 + 低置信 §5.1 backlog 择项  ← 当前
     ↓
-② §0.4 P1-1 工作区 pointer（Projects/ 独立 PR，可并行）
+② 对照现网后再定 task_ui_chain_events_backend（P3）
     ↓
-③ P2-1 Resilience 拆单 + 低置信 §5.1 backlog 择项
-    ↓
-④ 远期：Ink Harness parity（§0.4 P1-4）
+③ 远期：Ink Harness parity（§0.4 P1-4）
 ```
 
 ### 4.2 纯后端线
 
 ```text
-① Harness P1-3 → P1-2（合并一个 PR）
-② P2-1 Resilience 新建 task
-③ task_ui_chain_events_backend 现网对照后再动
+① P2-1 Resilience 新建 task（Harness P1 已收口）
+② task_ui_chain_events_backend 现网对照后再动
+③ 按需 legacy/ 治理
 ```
 
 ### 4.3 依赖关系（简图）
 
 ```mermaid
 flowchart TD
-  HAR[Harness P0 done] --> P1DOC[P1-2/3 文档巩固]
-  P1DOC --> P21[P2-1 待拆]
+  HAR[Harness P0+P1 done] --> P21[P2-1 待拆]
   P1FE[Ink P1-4 §4.3 done] --> LC[低置信 §5.1]
   P1FE --> P21
-  P11WS[P1-1 工作区] -.-> P1DOC
 ```
 
 ---
@@ -234,6 +230,7 @@ flowchart TD
 | Harness §九 裁决 | [`../diary/2026-05-22-harness-evaluation-improvement-response.md`](../diary/2026-05-22-harness-evaluation-improvement-response.md) |
 | V3 总规 | `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §2.1 |
 | Ink P1-4 前端关账 | `ai-ink-brain/content/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md` |
+| Projects P1-1 关账 | `Projects/docs/harness/tasks/done/task_harness_p1_reviews_pointers_v1.md`（`main` `c8f3d8c`） |
 | 项目配置 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
 
 ---
@@ -247,10 +244,11 @@ flowchart TD
 | 2026-05-22 | **P0-A1～A4 done**；**P0-B/C** 以 `task_05` 试点 |
 | 2026-05-22 | **PR #46 合并**：P0 全收口 + 首份新 R1 |
 | 2026-05-23 | **P0 治理 done**：`task_harness_in_repo` 归档；`_views/done.md` 53/53 |
-| 2026-05-23 | **Harness P1-2/P1-3 done**：`task_harness_p1_docs_consolidation_v1` 关账；下一棒 **P1-1**（工作区） |
+| 2026-05-23 | **Harness P1-2/P1-3 done**：`task_harness_p1_docs_consolidation_v1` 关账（PR #49） |
+| 2026-05-23 | **Harness P1-1 done**：Projects reviews pointer（`c8f3d8c`）；**P1-1～P1-3 全收口**；下一棒 **P2-1** |
 
 ---
 
 ## 给 Cursor
 
-`RECENT_TASK_SCHEDULE`、`最近任务安排`、`Harness P1`、`P1-2`、`P1-3`、`active`、`_views/done`
+`RECENT_TASK_SCHEDULE`、`最近任务安排`、`Harness P1`、`P2-1`、`active`、`_views/done`
