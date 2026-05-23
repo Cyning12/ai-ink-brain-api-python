@@ -1,6 +1,6 @@
 # Task：Harness 模板与规则内嵌后端仓（v1）
 
-> **状态**：done（2026-05-22 验收通过；v2 最小集同日落盘）  
+> **状态**：done（2026-05-22 验收通过）  
 > **范围**：仅 `ai-ink-brain-api-python/docs/harness/`、`.cursor/rules/`、`AGENTS.md`、`docs/README.md`  
 > **目标**：后端 **最小 Harness**（10/20/30/40 + HANDOFF）；无 `reviews/`、历史 invoke 在 `docs/diary/harness-archive/`。
 
