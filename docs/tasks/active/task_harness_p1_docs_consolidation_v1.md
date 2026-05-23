@@ -28,7 +28,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1,30 | task 初稿由人扫后改 `approved`；在此之前仅允许停留在 10 帽。 |
+| HG-TASK-DRAFT | approved | 22-R1,30 | task 初稿由人扫后改 `approved`；在此之前仅允许停留在 10 帽。 |
 | HG-REINSPECT | pending | done | （可选）50 复检后由人签收再归档 done / 合并。 |
 
 ---
@@ -113,7 +113,7 @@
 
 | 矛盾项 | 来源 A | 来源 B | 当前处理 |
 |--------|--------|--------|----------|
-| （待填） | diary §九 | HARNESS_V2 §5 | 保留冲突并提交 22 帽裁决 |
+| 无 | diary §九 未枚举 6 类 SKILL 明细 | HARNESS_V2 §5 未定义 SKILL 类型表 | **无口径冲突**：§九 接受 P1 落点 `docs/tasks/skills/`；6 类 ID 与预填语义取自已接受设计稿 §1.3（评价回复 §三 3.1）；本 README 按该来源编写 |
 
 ---
 
@@ -132,7 +132,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `docs/tasks/README.md`、`docs/tasks/skills/README.md` |
+| 涉及文件 | `docs/tasks/README.md`（P1-3 human_gate 速查 + skills 入口）、`docs/tasks/skills/README.md`（P1-2 新建） |
 | 关键 env | 无 |
 | SQL 执行顺序 | 无 |
 | 接口变更 | 无 |
@@ -146,9 +146,25 @@
 
 | 项 | 结果 |
 |----|------|
-| 命令 | 待回填 |
-| 结论 | 待回填 |
-| 要点 | 待回填 |
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"`（cwd：`ai-ink-brain-api-python`） |
+| 退出码 | `0` |
+| 结论 | **pass**（纯 docs 变更，未触发运行时代码路径；pytest 全绿证明未破坏现有测试基线） |
+| 要点 | `208 passed, 1 skipped, 2 deselected, 55 warnings in 13.04s`；skip 为 `test_tech_graph_graph_v2_equivalence.py` 已知升 graph_v2 |
+
+### 验收项核对
+
+| 验收项 | 结果 | 证据 |
+|--------|------|------|
+| `docs/tasks/README.md` 新增 human_gate 场景速查（5 列） | pass | 新增「`human_gate` 场景速查」节，含 gate_id / status / blocks_hats / 典型场景 / 谁改 approved |
+| 新增 `docs/tasks/skills/README.md`（6 类 SKILL + 关账蒸馏/人审） | pass | 六类一览表 + 关账蒸馏与人审口径节 |
+| README 入口链至 skills/README | pass | 「蒸馏 SKILL」小节 + 目录结构 `skills/` 条目 |
+| 矛盾单列（§九 vs HARNESS_V2 §5） | pass | 无冲突，已记录来源与处理 |
+| 非范围未触及 | pass | 仅改 `docs/tasks/README.md`、`docs/tasks/skills/README.md`、task 正文 |
+| test_strategy not_applicable | pass | 纯文档治理；目录/文件存在性已核对 |
+
+### 已知未测项
+
+- 无（本 task 无运行时代码路径；合并前 pytest 已绿）
 
 ---
 
