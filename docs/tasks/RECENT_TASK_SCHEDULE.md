@@ -94,6 +94,8 @@
 | ~~**当前**~~ | ~~§0.4 P1-1 工作区 `Projects/` reviews pointer~~ | ~~**P1**~~ | **done**（Projects `c8f3d8c` · 2026-05-23） |
 | ~~**当前**~~ | ~~§0.4 Harness P1-2 + P1-3~~ | ~~**P1**~~ | **done**（PR #49 · 2026-05-23） |
 | **当前** | **P2-1** Resilience 拆单（待建 task） | **P2** | Harness P1 已收口 |
+| ~~**本周**~~ | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
+| **本周** | 对照现网后再定 `task_ui_chain_events_backend` | P3 | 避免与 SSE 重复 |
 | **V3 排期** | 低置信 §5.1 预览确认拆分 | P2 | §5.0 已验收 |
 | **按需** | `legacy/` 6 个治理 | 治理 | 不阻塞 |
 | **远期** | Intent vNext、统筹单；Ink Harness parity（P1-4） | P4 | |
@@ -172,6 +174,8 @@ flowchart TD
 ```mermaid
 flowchart TD
   HAR[Harness P0+P1 done] --> P21[P2-1 待拆]
+  P1FE[Ink P1-4 §4.3 done] --> LC[低置信 §5.1]
+  P1FE --> P21
 ```
 
 ---
