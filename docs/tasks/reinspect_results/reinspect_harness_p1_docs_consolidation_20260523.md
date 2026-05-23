@@ -4,7 +4,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| task | `docs/tasks/active/task_harness_p1_docs_consolidation_v1.md` |
+| task | `docs/tasks/done/task_harness_p1_docs_consolidation_v1.md` |
 | git_branch | `task/harness-p1-docs-consolidation` |
 | base_commit | `main...HEAD`（实现交付 `5c2cd8a`） |
 | reinspect_commit | （本报告 commit 后补 short-hash） |
@@ -78,17 +78,14 @@
 | 契约 / API / `_contract_manifest` 未变更 | pass | diff 无相关路径 |
 | 本仓合并前 pytest | pass | 208 passed |
 | tech-graph CI | 未触发 | 纯 docs；无图谱文件变更 |
-| `HG-REINSPECT` | **pending** | **待人工** — 人改 `approved` 后方可 `done` / 合并关账 |
-| PR 合并决策 | — | **待人工** |
+| `HG-REINSPECT` | **`approved`**（2026-05-23 人签） | — |
+| PR 合并决策 | — | **待开 PR** |
 
 ---
 
 ## 阻塞合并项
 
-| # | 阻塞 | 说明 |
-|---|------|------|
-| 1 | **`HG-REINSPECT` = `pending`** | task `L32`：`blocks_hats: done`。50 复检已落盘，**须人**将 status 改为 `approved` 后再归档 `done`、更新 `RECENT_TASK_SCHEDULE` §0.4 状态。**Agent 禁止代填。** |
-| — | 代码/验收阻塞 | **无** |
+**无**（`HG-REINSPECT` 已于 2026-05-23 人签 `approved`；task 已归档 `done/`）。
 
 ---
 
@@ -96,7 +93,7 @@
 
 **建议合并**（PR 内容层面）：P1-3 + P1-2 交付满足 task 全部验收项；口径与 HARNESS_V2 §5、diary §三 3.1、HANDOFF_SEMI_AUTO 一致；pytest 全绿。
 
-**关账前置（人）**：`HG-REINSPECT` → `approved` → task 头部 `done（日期）` + `git mv` 至 `docs/tasks/done/` + 更新 `_views/done.md` + 可选 `HANDOFF_CLOSE_TRACE`。
+**关账**：task 已 `git mv` 至 `docs/tasks/done/`；待开 PR 合入 `main`。
 
 ---
 
@@ -110,4 +107,4 @@
 
 | 日期 | 摘要 |
 |------|------|
-| 2026-05-23 | v1：50 帽初检；HG-REINSPECT 待人签 |
+| 2026-05-23 | v2：HG-REINSPECT 人签；task 归档 done |

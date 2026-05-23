@@ -50,8 +50,8 @@
 | # | 任务 | 状态 | 说明 |
 |---|------|------|------|
 | P1-1 | 工作区 `Projects/docs/harness/reviews/` pointer 改索引/删悬空 | **待做** | **工作区仓**；可与 P1-2/3 分 PR |
-| P1-2 | `docs/tasks/skills/` + README（6 类 SKILL，关账蒸馏+人审） | **待做** | 本仓 |
-| P1-3 | `docs/tasks/README.md` `human_gate` 场景速查表 | **待做** | 本仓 |
+| P1-2 | `docs/tasks/skills/` + README（6 类 SKILL，关账蒸馏+人审） | **done** | `task_harness_p1_docs_consolidation_v1` · 2026-05-23 |
+| P1-3 | `docs/tasks/README.md` `human_gate` 场景速查表 | **done** | 同上 |
 | P1-4 | 前端 `ai-ink-brain` **Harness parity**（模板/rsync/规则同步） | **远期** | ≠ V3 **P1-4 §4.3 烟测**（已 done，见 §5） |
 | P1-5 | 历史 review 样例 | **已做** | 10 份 + `task_05` 新 R1，`reviews/README` |
 
@@ -69,7 +69,7 @@
 | **_views/done.md** | **53 / 53** 已索引（§6.1 **已补齐**） |
 | **Harness P0** | **done**（A1–A4 + `task_05` 试点 + 首份新 R1） |
 | **V3 P1** | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23） |
-| **Harness P1** | P1-1～P1-3 **待做**；Harness 前端 parity（P1-4）**远期** |
+| **Harness P1** | P1-2/P1-3 **done**（2026-05-23）；P1-1 **待做**；Harness 前端 parity（P1-4）**远期** |
 
 ### 1.1 active/ 任务清单
 
@@ -91,8 +91,8 @@
 |------|------|--------|------|
 | ~~**当前**~~ | ~~§0 Harness P0-A + P0-C（`task_05`）~~ | ~~**P0**~~ | **done**（PR #45、#46） |
 | ~~**立即**~~ | ~~归档 `task_harness_in_repo` + 补 `_views/done.md`~~ | ~~P0 治理~~ | **done**（2026-05-23） |
-| **当前** | **§0.4 Harness P1-2 + P1-3**（一个 task / 一个 PR） | **P1** | 本仓文档巩固 |
-| **并行** | **§0.4 P1-1** 工作区 `Projects/` reviews pointer | **P1** | 独立 PR |
+| **当前** | **§0.4 P1-1** 工作区 `Projects/` reviews pointer | **P1** | 独立 PR |
+| ~~**当前**~~ | ~~§0.4 Harness P1-2 + P1-3~~ | ~~**P1**~~ | **done**（2026-05-23） |
 | ~~**本周**~~ | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周** | 对照现网后再定 `task_ui_chain_events_backend` | P3 | 避免与 SSE 重复 |
 | **下周** | 从 SPEC 拆 **P2-1** `task_chatbi_v3_p2_resilience_v1`（待建） | P2 | |
@@ -247,7 +247,7 @@ flowchart TD
 | 2026-05-22 | **P0-A1～A4 done**；**P0-B/C** 以 `task_05` 试点 |
 | 2026-05-22 | **PR #46 合并**：P0 全收口 + 首份新 R1 |
 | 2026-05-23 | **P0 治理 done**：`task_harness_in_repo` 归档；`_views/done.md` 53/53 |
-| 2026-05-23 | **V3 P1-4 前端烟测 done**（Ink）；**Harness P1-1～P1-3** 标为下一棒；§0.4 建议 P1-2+3 合并一个 PR |
+| 2026-05-23 | **Harness P1-2/P1-3 done**：`task_harness_p1_docs_consolidation_v1` 关账；下一棒 **P1-1**（工作区） |
 
 ---
 

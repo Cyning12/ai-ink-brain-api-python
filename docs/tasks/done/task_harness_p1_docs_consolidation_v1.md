@@ -1,6 +1,6 @@
 # Task：巩固 Harness P1 文档（P1-3 → P1-2）
 
-> **状态**：draft  
+> **状态**：done（2026-05-23 验收通过 · HG-REINSPECT 人签）  
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（工程规约）  
 > **关联 Issue/PR**：待补（本任务目标为一个 task + 一个 PR）  
 > **前端依赖**：无
@@ -29,7 +29,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | task 初稿由人扫后改 `approved`；在此之前仅允许停留在 10 帽。 |
-| HG-REINSPECT | pending | done | （可选）50 复检后由人签收再归档 done / 合并。 |
+| HG-REINSPECT | approved | done | （可选）50 复检后由人签收再归档 done / 合并。 |
 
 ---
 
@@ -41,10 +41,10 @@
 
 ## 范围
 
-- [ ] **P1-3（先做）**：更新 `docs/tasks/README.md`，新增 `human_gate` 场景速查表，字段至少包含：`gate_id`、`status`、`blocks_hats`、`典型场景`、`谁可改 approved`。  
-- [ ] **P1-2（后做）**：新增目录 `docs/tasks/skills/` 与 `docs/tasks/skills/README.md`，定义 6 类 SKILL（含关账蒸馏与人审口径）。  
-- [ ] 在 `docs/tasks/README.md` 补充到 `docs/tasks/skills/README.md` 的可发现入口（索引链路）。  
-- [ ] 所有新增或改动文档采用 UTF-8、相对路径引用，不写绝对本机路径。  
+- [x] **P1-3（先做）**：更新 `docs/tasks/README.md`，新增 `human_gate` 场景速查表，字段至少包含：`gate_id`、`status`、`blocks_hats`、`典型场景`、`谁可改 approved`。  
+- [x] **P1-2（后做）**：新增目录 `docs/tasks/skills/` 与 `docs/tasks/skills/README.md`，定义 6 类 SKILL（含关账蒸馏与人审口径）。  
+- [x] 在 `docs/tasks/README.md` 补充到 `docs/tasks/skills/README.md` 的可发现入口（索引链路）。  
+- [x] 所有新增或改动文档采用 UTF-8、相对路径引用，不写绝对本机路径。  
 
 ## 非范围
 
@@ -91,11 +91,11 @@
 
 ## 验收标准
 
-- [ ] `docs/tasks/README.md` 新增 `human_gate` 场景速查，含 5 列：`gate_id`、`status`、`blocks_hats`、`典型场景`、`谁改 approved`。  
-- [ ] 新增 `docs/tasks/skills/README.md`，明确 6 类 SKILL、适用阶段、输入输出与关账蒸馏/人审口径。  
-- [ ] `docs/tasks/README.md` 出现到 `docs/tasks/skills/README.md` 的入口链接。  
-- [ ] task 内保留「矛盾单列」要求：若 §九 与 HARNESS_V2 §5 不一致，必须单独小节列出而非混写。  
-- [ ] 非范围项未被触及（无 `api/`、CI workflow、前端仓改动）。  
+- [x] `docs/tasks/README.md` 新增 `human_gate` 场景速查，含 5 列：`gate_id`、`status`、`blocks_hats`、`典型场景`、`谁改 approved`。  
+- [x] 新增 `docs/tasks/skills/README.md`，明确 6 类 SKILL、适用阶段、输入输出与关账蒸馏/人审口径。  
+- [x] `docs/tasks/README.md` 出现到 `docs/tasks/skills/README.md` 的入口链接。  
+- [x] task 内保留「矛盾单列」要求：若 §九 与 HARNESS_V2 §5 不一致，必须单独小节列出而非混写。  
+- [x] 非范围项未被触及（无 `api/`、CI workflow、前端仓改动）。  
 
 **测试 / TDD（与 `test_strategy` 对齐）**：
 
@@ -177,7 +177,7 @@
 | 验收项 | **全部 pass**（见复检报告验收表） |
 | 口径交叉 | human_gate 5 列、6 类 SKILL 与 HARNESS_V2 §5 / diary §三 3.1 **一致** |
 | 合并建议 | **建议合并**（PR 内容） |
-| `HG-REINSPECT` | **仍为 `pending`** — 待人签后再 `done` |
+| `HG-REINSPECT` | **`approved`**（2026-05-23 人签）— 可归档 `done` |
 
 ---
 
