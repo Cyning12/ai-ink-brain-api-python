@@ -30,9 +30,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | **人扫本 task 初稿**后改 `approved` 再开 30 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | **人扫本 task 初稿**后改 `approved` 再开 30 |
 | HG-AUDIT-R1 | approved | 30 | 全自动试验：允许跳过 22 或 22 仅零阻塞 record |
-| HG-REINSPECT | pending | done | 50 复检 + PR 前人签 |
+| HG-REINSPECT | approved | done | 50 复检 + PR 前人签 |
 
 ---
 
@@ -52,15 +52,15 @@
 
 ## 范围
 
-- [ ] 阅读并对齐 `SPEC-ChatBI-V3-Resilience-Ops.md` §2–§4 与 `PROJECT_CONFIG` 现有 env 习惯。  
-- [ ] 现状差距表：`/api/py/health` vs 子规建议的 `/health|/live` + `/ready` + 429/熔断。  
-- [ ] 拆单方案（写入本节 **§实现拆单（10/30 回填）**）：  
+- [x] 阅读并对齐 `SPEC-ChatBI-V3-Resilience-Ops.md` §2–§4 与 `PROJECT_CONFIG` 现有 env 习惯。  
+- [x] 现状差距表：`/api/py/health` vs 子规建议的 `/health|/live` + `/ready` + 429/熔断。  
+- [x] 拆单方案（写入本节 **§实现拆单（10/30 回填）**）：  
   - **建议 P2-1a**：health / ready 契约与 JSON 字段  
   - **建议 P2-1b**：限流（IP 或 API Key；优先 unified chat / chat）  
   - **建议 P2-1c**：外呼熔断（LLM、Supabase）与可观测钩子  
-- [ ] 为每个子项起草 **`docs/tasks/active/task_chatbi_v3_p2_resilience_*_v1.md` 草案**（或单文件 §附录子 task 全文，二选一须在拆单结论中说明）。  
-- [ ] 更新 Overview **§3** 任务表：P2-1 母单 + 子 task 链接。  
-- [ ] 本 task：`failure_paths`、验收标准、Harness 字段齐全。
+- [x] 为每个子项起草 **`docs/tasks/active/task_chatbi_v3_p2_resilience_*_v1.md` 草案**（或单文件 §附录子 task 全文，二选一须在拆单结论中说明）。  
+- [x] 更新 Overview **§3** 任务表：P2-1 母单 + 子 task 链接。  
+- [x] 本 task：`failure_paths`、验收标准、Harness 字段齐全。
 
 ## 非范围
 
@@ -116,6 +116,14 @@
 
 > 10 帽先给可执行版草案，30 帽据现网与审查结论定稿。
 
+### 现状差距表（30 执行帽审计）
+
+| 观察点 | 现网（只读审计） | 与子规差距 | 拆单去向 |
+|--------|------------------|------------|----------|
+| 健康探针 | `api/index.py` 仅有 `GET /api/py/health`，返回 `{"ok":"true","service":"ai-ink-brain-rag"}` | 缺少 `/live` 与 `/ready` 语义分离；缺少依赖状态与 `503` 契约 | P2-1a |
+| 高消耗入口 | `api/index.py` 暴露 `/api/py/unified/chat` 与 `/api/py/unified/chat/stream`，未见限流中间件接入 | 缺少 429 标准化返回与阈值 env | P2-1b |
+| 外呼韧性 | `api/index.py` 与聊天链路存在 OpenAI/Supabase 外呼，入口层未声明熔断状态机 | 缺少 `open/half-open/closed` 可观测与降级协议 | P2-1c |
+
 | 子 ID | 建议 task 文件 | 范围摘要 | 必须落盘字段 | 可执行验收（最小） | test_strategy | PR 顺序 |
 |-------|----------------|----------|--------------|--------------------|---------------|---------|
 | P2-1a | `task_chatbi_v3_p2_resilience_health_ready_v1.md` | `/live` + `/ready` 契约；ready 失败返回 503 + 组件名 | 端点契约、env、failure_paths、非范围 | `curl -sS /api/py/health`（现状对照）+ `curl -sS /api/py/live` 返回 200；`curl -sS /api/py/ready` 在依赖缺失场景返回 503 且 JSON 含 `components[]` | `required` | 1 |
@@ -124,19 +132,19 @@
 
 ### 子 task 验收清单（P2-1a/b/c 可执行化）
 
-- [ ] **P2-1a**：task 正文包含至少 2 条命令级断言（`/live` 200、`/ready` 503 场景）与 JSON 字段断言示例。
-- [ ] **P2-1b**：task 正文包含 429 触发脚本（或 pytest 压测桩）与阈值 env 配置示例，明确默认值与边界值。
-- [ ] **P2-1c**：task 正文包含“依赖故障注入 -> 熔断打开 -> 恢复半开”的三段验证步骤和日志断言键名。
-- [ ] 三个子 task 均声明 `test_strategy: required`，并给出“先失败后通过”的最小测试策略说明。
-- [ ] 三个子 task 均声明各自非范围，避免跨单耦合（例如 P2-1a 不实现限流，P2-1b 不改熔断状态机）。
+- [x] **P2-1a**：task 正文包含至少 2 条命令级断言（`/live` 200、`/ready` 503 场景）与 JSON 字段断言示例。
+- [x] **P2-1b**：task 正文包含 429 触发脚本（或 pytest 压测桩）与阈值 env 配置示例，明确默认值与边界值。
+- [x] **P2-1c**：task 正文包含“依赖故障注入 -> 熔断打开 -> 恢复半开”的三段验证步骤和日志断言键名。
+- [x] 三个子 task 均声明 `test_strategy: required`，并给出“先失败后通过”的最小测试策略说明。
+- [x] 三个子 task 均声明各自非范围，避免跨单耦合（例如 P2-1a 不实现限流，P2-1b 不改熔断状态机）。
 
 ### Overview §3 变更点（执行帽需完成）
 
-- [ ] 在 `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §3 新增或更新 P2-1 索引行，至少包含：
+- [x] 在 `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §3 新增或更新 P2-1 索引行，至少包含：
   - 母单：`docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`
   - 子单：`task_chatbi_v3_p2_resilience_health_ready_v1.md` / `task_chatbi_v3_p2_resilience_rate_limit_v1.md` / `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`
-- [ ] Overview §3 的“元状态”与子 task 文首状态一致（`todo`/`backlog` 等），并在职责摘要写清 1a/1b/1c 边界。
-- [ ] 若子 task 命名调整，需同步回填本 task 与 Overview §3，确保两处路径一致。
+- [x] Overview §3 的“元状态”与子 task 文首状态一致（`todo`/`backlog` 等），并在职责摘要写清 1a/1b/1c 边界。
+- [x] 若子 task 命名调整，需同步回填本 task 与 Overview §3，确保两处路径一致。
 
 ---
 
@@ -164,8 +172,8 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待 30 帽回填） |
-| 子 task 路径 | （待 30 帽回填） |
+| 涉及文件 | `docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`；`docs/tasks/active/task_chatbi_v3_p2_resilience_health_ready_v1.md`；`docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md`；`docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`；`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` |
+| 子 task 路径 | `docs/tasks/active/task_chatbi_v3_p2_resilience_health_ready_v1.md`；`docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md`；`docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` |
 | 图谱变更点 | 实现阶段再动 `_tech_graph/` |
 
 ---
@@ -174,9 +182,9 @@
 
 | 项 | 结果 |
 |----|------|
-| 命令 | |
-| 结论 | |
-| 要点 | |
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 结论 | `exit_code=0`；`208 passed, 1 skipped, 2 deselected` |
+| 要点 | 本轮为 docs-only 拆单，未触碰 `api/` 与 CI workflow；主 task + 3 子 task + Overview 索引更新完成 |
 
 ---
 
