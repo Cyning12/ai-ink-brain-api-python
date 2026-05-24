@@ -1,6 +1,6 @@
 # Task：ChatBI V3 P2-1 高可用拆单（限流 / 熔断 / health）
 
-> **状态**：draft  
+> **状态**：done（2026-05-24 验收通过 · P2-1 拆单）  
 > **关联图谱**：`docs/_tech_graph/00_main.md`（顶层 HTTP 入口）、`docs/_tech_graph/99_spec.md`（Env / 工程规约）  
 > **关联 Issue/PR**：待补  
 > **前端依赖**：无（P2-1 后端 middleware / 端点；BFF 探活对齐另开 task）

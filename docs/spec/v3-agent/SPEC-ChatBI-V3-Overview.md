@@ -121,7 +121,7 @@
 | `docs/tasks/done/task_text2sql_schema_prefetch_before_mutate_v1.md` | `done` | Text2SQL **变更前 schema 预取**（防臆造列名）；实现 `api/text2sql_schema_prefetch.py` + `text2sql_execute` 接入 |
 | `docs/tasks/active/task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | **意图识别欠债**：单标签与 Prompt 边界下的 **复合意图**、表结构语义与 **Intent vNext** 升级母索引（与 multiturn 母单分列）；**远期**：多候选 K=5 + 裁判（Rerank / LLM）见该单 **§2.1** |
 | `docs/tasks/active/task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md` | `backlog` | **P2 延伸**：低置信 **方案 B 编排** + **text2sql/rag 执行方案预览** + 用户确认 + **门控升格**（见 **`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`**） |
-| `docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`（母单） + `docs/tasks/active/task_chatbi_v3_p2_resilience_health_ready_v1.md` / `docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md` / `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `draft`（母） + `todo`（子） | **P2-1 拆单**：母单仅做 docs 拆分与验收编排；子单分别承接 `health/ready`、限流、熔断实现 |
+| `docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`（母单） + `docs/tasks/active/task_chatbi_v3_p2_resilience_health_ready_v1.md` / `docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md` / `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `done`（母） + `todo`（子） | **P2-1 拆单**：母单仅做 docs 拆分与验收编排；子单分别承接 `health/ready`、限流、熔断实现 |
 
 **不在上表但可能并行**：V2 **增量 SSE vNext**（`docs/spec/v2-agent/SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md`）属 **交互契约升级**，排期可与 V3 支柱 **并行**；若实现触碰 `chain.type` 扩展，仍须满足 `tools/tech_graph_contract_check.py` 与「manifest 同 PR」规则。
 
