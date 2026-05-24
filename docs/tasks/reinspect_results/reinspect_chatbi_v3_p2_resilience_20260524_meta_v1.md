@@ -156,9 +156,10 @@ PR #51 body 未包含 `HANDOFF_CLOSE_TRACE.md` §2.2 要求的「执行路线表
 
 ## 给需求帽回填
 
-- 无文档内容缺口。仅需在 Harness 流程层面补强：
-  - `HANDOFF_SEMI_AUTO.md` 已更新：增加「human_gate 预批须二次确认」与「人单独 commit 优先」规则
-  - `50-independent-reinspect.md` 已更新：增强制检查项「须 diff 审查 `human_gate` 行在全部 commit 中的变更，追溯 author，不可仅读最终状态」
+- 无文档内容缺口。Harness 流程蒸馏已落盘 SKILL（双轨，2026-05-24）：
+  - 便携真值：[`docs/tasks/skills/SKILL-harness-meta-reinspect.md`](../skills/SKILL-harness-meta-reinspect.md)
+  - Cursor 入口：`.cursor/skills/harness-meta-reinspect/SKILL.md`
+- 可选后续：将 gate diff / 人单独 commit 规则同步写入 `HANDOFF_SEMI_AUTO.md`、`50-independent-reinspect.md`（与 SKILL 语义对齐）
 
 ---
 

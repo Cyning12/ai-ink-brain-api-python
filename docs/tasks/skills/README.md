@@ -2,7 +2,8 @@
 
 > **用途**：为新建 task 提供 **高频场景预填片段**，与 [`../templates/TASK_TEMPLATE.md`](../templates/TASK_TEMPLATE.md) 骨架叠加；降低 Harness 扩展字段（`test_strategy`、`failure_paths`、`human_gate` 等）填写成本。  
 > **真值层级**：类型清单与关账蒸馏口径以 [`docs/diary/2026-05-22-harness-evaluation-improvement-response.md`](../../diary/2026-05-22-harness-evaluation-improvement-response.md) **§三 3.1**（已接受 P1 规格）为准；字段语义与 [`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) **§5** 对齐。  
-> **非目标**：本目录 **不替代** task 正文；具体业务仍须在 `active/task_*.md` 中微调。
+> **非目标**：本目录 **不替代** task 正文；具体业务仍须在 `active/task_*.md` 中微调。  
+> **跨 Agent**：本目录为 **Git 便携真值**；Cursor 另维护 [`.cursor/skills/README.md`](../../.cursor/skills/README.md)（项目 skill 入口，Claude Code / Kimi **默认不自动读取**）。
 
 ---
 
@@ -29,6 +30,7 @@
 | [`docs-governance`](SKILL-docs-governance.md) | 10 / 30 | 目录/索引变更范围 | 范围：文档移动 + 链接修复；非范围：代码/CI；`test_strategy: not_applicable` + note |
 | [`tech-graph-update`](SKILL-tech-graph-update.md) | 30 执行前 | 受影响 `.ai.md`、manifest/contract | 范围：维护轨 + 机器轨导出；验收含 `tech_graph_*_check` |
 | [`harness-task`](SKILL-harness-task.md) | 10 需求帽 | prompts/模板/rules 变更点 | 范围：Harness 工件；非范围：业务代码；**`audit_profile: full`** |
+| [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
 
 各类型详细预填段落见同目录 `SKILL-<id>.md`（随关账蒸馏增量维护；初版可与本表语义一致即可）。
 
@@ -74,6 +76,7 @@ docs/tasks/skills/
   SKILL-docs-governance.md
   SKILL-tech-graph-update.md
   SKILL-harness-task.md
+  SKILL-harness-meta-reinspect.md
 ```
 
 初版可仅维护 **README + 本表**；各 `SKILL-*.md` 随首个同类型 task 关账后按需增补。
@@ -85,3 +88,4 @@ docs/tasks/skills/
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-23 | P1-2 初版：6 类 SKILL 索引 + 关账蒸馏/人审口径（`task_harness_p1_docs_consolidation_v1`） |
+| 2026-05-24 | 新增 `harness-meta-reinspect`；双轨 `.cursor/skills/` 说明（P2-1 元复检蒸馏） |
