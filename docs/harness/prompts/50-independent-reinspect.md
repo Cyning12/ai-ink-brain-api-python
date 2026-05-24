@@ -11,6 +11,7 @@
 - 输入裁剪：**优先** diff、命令输出、自检验收表；**避免**执行过程长文、中间草稿。  
 - 对每条验收：**结论** + **证据**（文件:行、日志片段、测试名）。  
 - fail 必须写清 **复现步骤** 或 **缺失证据**（非主观「感觉不对」）。
+- **`human_gate` diff 审查**：必须对 task 中全部 `human_gate` 行执行 commit-level diff 审查（`git log -p -- <task文件>` 或 `git diff <base>..HEAD -- <task文件> | grep -E "human_gate|approved|pending"`），追溯变更 author（`git blame` 或 `git show <hash> --stat`），确认状态变更由人完成。**禁止**仅读取 task 文件最终状态即断言「未改写 gate」。
 
 ### 禁止什么
 
@@ -91,6 +92,7 @@
 | 2026-05-13 | v1.1：复检输入假设链 task 自检结论与可选 reviews 签收 |
 | 2026-05-14 | v1.2：链 [`TEMPLATE-independent-reinspect-invoke.md`](TEMPLATE-independent-reinspect-invoke.md)；占位符未替换则 Agent 须追问 |
 | 2026-05-14 | v1.3：链全量模板 [`TEMPLATE-independent-reinspect-invoke-full.md`](TEMPLATE-independent-reinspect-invoke-full.md) 与 [`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md`](EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md) |
+| 2026-05-24 | v1.4：「只做什么」增强制 `human_gate` diff 审查与 author 追溯
 
 ---
 

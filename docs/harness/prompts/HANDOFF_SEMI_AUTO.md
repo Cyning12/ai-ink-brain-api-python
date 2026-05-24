@@ -61,7 +61,14 @@
 1. 开帽前扫描 **task + 本轮关联 `reviews/*`** 中全部 `human_gate`。  
 2. 若下一计划帽子 ∈ 某闸的 `blocks_hats` 且该闸 `status: pending` → **仅输出**：阻塞说明、**须人修改的路径与标识**、当前 gate 表；**禁止**写业务代码、禁止自动戴帽。  
 3. **禁止**将 `pending` 改为 `approved`；**禁止**替用户勾选「已人工审核」。  
-4. 人改后 **新会话或同会话用户明示「HG-xxx 已 approved」** 方可继续；Agent 须 **复读** 工件确认 `status: approved` 后再落盘下一 invoke。
+4. 人改后 **新会话或同会话用户明示「HG-xxx 已 approved」** 方可继续；Agent 须 **复读** 工件确认 `status: approved` 后再落盘下一 invoke。  
+5. **预批与二次确认**：若用户/invoke 声称 gate 已「预批」但 task 文件中仍为 `pending`，Agent **不得**直接代填 `approved`。须执行二次确认：
+   - 向用户指出：`HG-XXX` 在 task 文件中仍为 `pending`；
+   - 请用户明确授权：「请确认是否授权我代填 approved？」；
+   - **仅当**用户在本轮对话中明确回复「授权代填」「你改」等**文字授权**后，方可修改；
+   - 代填后的 commit message 须注明 `human_gate 由 Agent 按人授权代填`。  
+6. **优先由人单独 commit**：即使获得授权，**强烈建议**由人通过独立 commit 完成 gate 状态变更（如 `git add <task文件>` + `git commit -m "chore(gate): HG-XXX approved"`），使 `git blame` 指向人。  
+7. **禁止混在业务 commit 中**：gate 状态变更 **禁止**与业务代码/文档修改混在同一 commit 中（避免 audit 时无法区分是业务变更还是流程变更）。
 
 ---
 
@@ -232,6 +239,7 @@
 |------|------|
 | 2026-05-17 | v1：人工闸标识、自动戴帽前置 invoke+commit、audit_profile 两闸、多分支建议 |
 | 2026-05-22 | v1.1：§3.4 每棒状态栏（版本 B 对话默认 + 版本 C invoke 可选）；与 CLOSE_TRACE 分工 |
+| 2026-05-24 | v1.2：§2.3 增加「预批与二次确认」「优先由人单独 commit」「禁止混在业务 commit 中」
 
 ---
 
