@@ -106,7 +106,7 @@
 - [ ] 现状差距表引用真实代码路径（如 `api/index.py` health）。  
 - [ ] `SPEC-ChatBI-V3-Overview.md` §3 已增 P2-1 母单/子单索引行，并与本 task 子单命名一致。  
 - [ ] 本 task 无 `api/` 代码 diff（或仅注释级若 task 允许 — **默认不允许**）。  
-- [ ] `docs/tasks/reinspect_results/reinspect_chatbi_v3_p2_resilience_*` 50 帽落盘（semi_auto 关账）。  
+- [x] `docs/tasks/reinspect_results/reinspect_chatbi_v3_p2_resilience_*` 50 帽落盘（semi_auto 关账）。
 
 **合并前必绿**：`pytest tests -m "not intent_eval and not intent_benchmark"`（纯 docs 亦须绿）。
 
