@@ -31,7 +31,13 @@
 ## 输出形状
 
 - 结构化：**背景 / 范围 / 非范围 / 依赖链接 / 验收列表 / failure_paths / 给执行帽的必读列表**。  
-- 矛盾单独小节：**矛盾 A vs 矛盾 B，各自出处（路径或章节）**。
+- 矛盾单独小节：**矛盾 A vs 矛盾 B，各自出处（路径或章节）**。  
+- 若涉及 **新建 SPEC 或重大增节**：须附 **「SPEC 待确认清单」**（3～5 条决策点 · 建议选项 · 待谁确认），格式见 [`docs/spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../../../spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md) §4；**未确认前** 不得宣称 30 可开工。
+
+## SPEC 起草（与 SDD 衔接）
+
+- 默认 **不** 在 10 帽一次生成整本 L1 SPEC；顺序：**意图卡 → L0 骨架 → L1+冻结**（见同上 SPEC §1）。  
+- 小改 / 纯文档 task：可 **无新 SPEC**，在 task 标明 `test_strategy` 与理由即可（同上 SPEC §3）。
 
 ## 停止条件
 

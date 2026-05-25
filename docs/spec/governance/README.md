@@ -6,6 +6,8 @@
 | --- | --- | --- |
 | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) | `active` | **整体安排表**（T0～T4、Wiki-CTX-AB P1/P2） |
 
+**SDD 起草**（全仓 SPEC 通用）：[`../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)
+
 **实验落盘**（非 SPEC 正文）：[`../../harness/experiments/wiki_ctx_ab_v1/`](../../harness/experiments/wiki_ctx_ab_v1/README.md)
 
 **工作区对照稿**：`Projects/docs/harness/guides/COMPARISON_tech_graph_coding_wiki_graph_memory_v1_zh.md`
