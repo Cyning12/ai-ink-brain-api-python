@@ -141,7 +141,7 @@
 ### Overview §3 变更点（执行帽需完成）
 
 - [x] 在 `docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` §3 新增或更新 P2-1 索引行，至少包含：
-  - 母单：`docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`
+  - 母单：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`
   - 子单：`task_chatbi_v3_p2_resilience_health_ready_v1.md` / `task_chatbi_v3_p2_resilience_rate_limit_v1.md` / `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`
 - [x] Overview §3 的“元状态”与子 task 文首状态一致（`todo`/`backlog` 等），并在职责摘要写清 1a/1b/1c 边界。
 - [x] 若子 task 命名调整，需同步回填本 task 与 Overview §3，确保两处路径一致。

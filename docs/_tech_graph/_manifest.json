@@ -89,6 +89,24 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/api/py/live",
+      "handler": "live",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "live"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/py/ready",
+      "handler": "ready",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "ready"
+      }
+    },
+    {
       "method": "POST",
       "path": "/api/py/text2sql/chat",
       "handler": "text2sql_chat",
