@@ -1,7 +1,7 @@
 # Task：ChatBI 工程约定 — **新功能以 SSE 优先**（Harness 需求帽落盘）
 
 > **状态**：done（2026-05-15 验收通过）  
-> **帽子依据**：工作区 `docs/harness/prompts/10-requirements.md`  
+> **帽子依据**：工作区 `docs/harness/prompts/hats/10-requirements.md`  
 > **test_strategy**：`not_applicable`  
 > **test_strategy_note**：流程/优先级约定；验收以 **SPEC/task 勾选 + 代码审查** 为准，无单独 pytest 门禁。
 

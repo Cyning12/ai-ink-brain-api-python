@@ -104,7 +104,7 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 git log -p <first_task_commit>..HEAD -- docs/tasks/**/task_<slug>.md
 ```
 
-判定口径（与 `HANDOFF_SEMI_AUTO.md` §2.3 对齐）：
+判定口径（与 `handoff/HANDOFF_SEMI_AUTO.md` §2.3 对齐）：
 
 | 情形 | 判定 |
 |------|------|
@@ -158,7 +158,7 @@ git log -p <first_task_commit>..HEAD -- docs/tasks/**/task_<slug>.md
 | 文档 | 关系 |
 |------|------|
 | `50-independent-reinspect.md` | 首轮 50 内容验收；本 SKILL **叠加**流程元复检 |
-| `HANDOFF_SEMI_AUTO.md` | gate / semi_auto 规则来源 |
+| `handoff/HANDOFF_SEMI_AUTO.md` | gate / semi_auto 规则来源 |
 | `HANDOFF_CLOSE_TRACE.md` | 关账回溯格式 |
 | `ACCEPTANCE_LANDING.md` | reinspect 落盘最小结构 |
 

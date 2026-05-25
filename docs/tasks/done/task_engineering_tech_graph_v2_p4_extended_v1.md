@@ -1,13 +1,13 @@
 # Task：技术图谱 — graph_v2 扩展（P2-4）与闸口 B follow-up 切片
 
 > **状态**：`done（2026-05-17 · P2-4a 验收通过）`  
-> **终轮审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md`  
+> **终轮审查**：`docs/harness/reviews/by-task/engineering_tech_graph_v2_p4_extended_v1/task_engineering_tech_graph_v2_p4_extended_v1_audit_CLOSE_20260517.md`  
 > **关闭回溯**：见终轮审查 **「执行路线与 Commit 回溯」**  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · 闸口 B 已签收）  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/_tech_graph/graph_v2_schema.md`  
 > **test_strategy**：`required`  
 > **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_2`  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_CLOSE_TRACE.md`
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_CLOSE_TRACE.md`
 
 ### Harness 元信息（半自动 · `post_close`）
 

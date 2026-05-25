@@ -7,10 +7,10 @@ alwaysApply: true
 
 执行 `docs/tasks/active/*.md` 或用户 `@task` 时：
 
-1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
+1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
 2. **无阻塞则连续跑**：凡 `human_gate` 对下一棒 **非** `pending`（或 `blocks_hats` 不含该帽），**同会话**自动戴下一帽；**禁止**每棒要求用户重贴 `TEMPLATE-*` §3。
 3. **下一棒前必落盘**：将下一棒 §3 全文写入本仓 `docs/harness/invokes/invoke_*.md`（本仓 `docs/tasks/` 任务 **禁止** 只写工作区 invokes），再 **commit** 本轮路径，然后执行。
 4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。**预批场景**：若用户声称 gate 已预批但文件仍为 `pending`，Agent 须**二次确认**（向用户指出并请求明确文字授权），获授权后方可代填，且 commit message 须注明；**强烈建议**由人单独 commit 改 gate，使 `git blame` 指向人。
 5. **新会话续跑**：读 task + **最新** `docs/harness/invokes/` 下与本 task 相关的 invoke，按其中 §3 继续；用户可说「按 semi_auto 继续」。
 6. **关账**：无下一棒时输出 **执行路线与 Commit 回溯**（`HANDOFF_CLOSE_TRACE`），非空 Prompt。
-7. **每棒结束**：回复末尾输出 **`📋 Harness 状态栏（版本 B）`**（见 `HANDOFF_SEMI_AUTO.md` §3.4）；关账时另用 CLOSE_TRACE，不互相替代。
+7. **每棒结束**：回复末尾输出 **`📋 Harness 状态栏（版本 B）`**（见 `handoff/HANDOFF_SEMI_AUTO.md` §3.4）；关账时另用 CLOSE_TRACE，不互相替代。

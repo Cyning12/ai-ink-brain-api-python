@@ -11,7 +11,7 @@
 > **test_strategy_note**：`has_path` / `describe_impact` 须 **先** 在 `tests/test_tech_graph_graph_query.py` 写可失败用例再实现；文档对齐后全量 `pytest tests -m "not intent_eval and not intent_benchmark"` 回归。  
 > **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_2`（继承；无 schema 语义变更则不 bump）  
 > **gates_before_code**：`failure_paths`、`test_strategy`、`freeze_id`、§0.4 矛盾裁定、§2 API 映射表  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260518_10_tech-graph-scheme2-completion-requirements.md`
 
 ### Harness 元信息
@@ -211,7 +211,7 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 | §3.1 S2-A | pass | `pytest tests/test_tech_graph_graph_query.py -q` → **16 passed in 0.15s** |
 | §3.2 S2-B | pass | 工作区 `docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7（模块名 `tech_graph_graph_query.py`）；子仓 `docs/_tech_graph/graph_v2_schema.md` §9 含 `has-path` / `describe-impact` |
 | §3.3 回归 | pass | export `--check`、equivalence、全量 pytest 均 exit 0（见下表） |
-| §3.4 S2-C | pass | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md`「影响分析（可选 · 方案2）」 |
+| §3.4 S2-C | pass | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/templates/TEMPLATE-task-audit-invoke.md`「影响分析（可选 · 方案2）」 |
 
 **命令（cwd=`ai-ink-brain-api-python`）**
 
@@ -232,7 +232,7 @@ python tools/tech_graph_graph_query.py describe-impact <node_id> [depth]
 | --- | --- |
 | **S2-A** | `has_path` / `describe_impact` in `tools/tech_graph_graph_query.py`；CLI `has-path` / `describe-impact`；pytest `tests/test_tech_graph_graph_query.py` 新增 ~8 用例 |
 | **S2-B** | 工作区 `docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`、`改进方向.md` §2.3～2.7；子仓 `docs/_tech_graph/graph_v2_schema.md` §9 |
-| **S2-C** | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/TEMPLATE-task-audit-invoke.md` 可选影响分析 |
+| **S2-C** | C1 `.cursor/mcp.json.example`；C2 `docs/harness/prompts/templates/TEMPLATE-task-audit-invoke.md` 可选影响分析 |
 
 ---
 

@@ -30,9 +30,9 @@
 
 ## 验收标准
 
-- [x] `@docs/harness/prompts/TEMPLATE-execute-invoke.md` 在本仓可打开且 §3 引用路径为 `docs/harness/...`（无 `../../../docs/harness`）
+- [x] `@docs/harness/prompts/templates/TEMPLATE-execute-invoke.md` 在本仓可打开且 §3 引用路径为 `docs/harness/...`（无 `../../../docs/harness`）
 - [x] `AGENTS.md` 必读含 `docs/harness/README.md`
-- [x] Agent 执行 `docs/tasks/active/*.md` 时，半自动规则指向本仓 `HANDOFF_SEMI_AUTO.md`
+- [x] Agent 执行 `docs/tasks/active/*.md` 时，半自动规则指向本仓 `handoff/HANDOFF_SEMI_AUTO.md`
 
 ---
 

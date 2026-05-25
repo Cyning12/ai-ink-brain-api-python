@@ -47,6 +47,8 @@
 
 在后端 AI coding 场景引入 **LLM Wiki / Coding Wiki** 编译层：将 **已关账** 的 SDD + Harness + TDD 过程产物蒸馏为互链 Markdown，供后续 Agent **省 token、提准确率、易回溯**。
 
+**Harness 落盘 taxonomy（先于 Wiki ingest 定稿）**：[`docs/harness/README.md`](../harness/README.md) **§2.1** — `prompts/{hats,templates,handoff}`、`invokes/by-task/`、`reviews/by-task/`；**不**建 `prompts/domains/`（域知识归 Wiki，invoke/review 按 task 绑定）。
+
 **完成态（试点）**：
 
 1. 存在 `docs/coding_wiki/` 目录与 `CODING_WIKI.md` schema（ingest / query / lint 约定）。  

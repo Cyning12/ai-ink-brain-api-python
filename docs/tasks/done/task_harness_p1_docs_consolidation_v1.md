@@ -6,7 +6,7 @@
 > **前端依赖**：无
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
-> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) **§5**；半自动 / 人工闸：[`docs/harness/prompts/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/HANDOFF_SEMI_AUTO.md)。
+> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) **§5**；半自动 / 人工闸：[`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
 
 ---
 
@@ -62,8 +62,8 @@
 | 任务模板 | [`docs/tasks/templates/TASK_TEMPLATE.md`](../templates/TASK_TEMPLATE.md) |
 | 本仓任务规则 | [`docs/tasks/README.md`](../README.md) |
 | Harness 字段真值 | [`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5 |
-| 半自动与状态栏 | [`docs/harness/prompts/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/HANDOFF_SEMI_AUTO.md) |
-| 10 帽规则 | [`docs/harness/prompts/10-requirements.md`](../../harness/prompts/10-requirements.md) |
+| 半自动与状态栏 | [`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md) |
+| 10 帽规则 | [`docs/harness/prompts/hats/10-requirements.md`](../../harness/prompts/10-requirements.md) |
 | 关账与人审口径参考 | `docs/diary/2026-05-22-harness-evaluation-improvement-response.md` §九（执行时按需核对） |
 
 ---
@@ -123,7 +123,7 @@
 2. `docs/tasks/RECENT_TASK_SCHEDULE.md`（§0.4）  
 3. `docs/tasks/README.md`（将被修改）  
 4. `docs/harness/HARNESS_V2_PLAN.md`（§5 字段口径）  
-5. `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（人工闸与状态栏）  
+5. `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`（人工闸与状态栏）  
 6. `docs/diary/2026-05-22-harness-evaluation-improvement-response.md`（§九，类型清单来源）  
 
 ---

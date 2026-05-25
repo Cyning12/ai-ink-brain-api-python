@@ -1,6 +1,6 @@
 # 审查归档 R2：ChatBI V3 Security — P1-1 / P1-2（回填后再审）
 
-> **审查帽**：工作区 `docs/harness/prompts/20-review-spec-task.md`  
+> **审查帽**：工作区 `docs/harness/prompts/hats/20-review-spec-task.md`  
 > **字段约定**：`docs/harness/HARNESS_V2_PLAN.md` **§5**  
 > **R1 归档**：`review_chatbi_v3_security_p1_p2_20260513_v1.md`（**一至五为当时快照**；回填记录见该文件 **§八**）  
 > **R2 落盘路径（本文件）**：`ai-ink-brain-api-python/docs/tasks/review_results/review_chatbi_v3_security_p1_p2_20260513_v2.md`  
@@ -64,8 +64,8 @@
 
 ## 六、给需求帽 / 复检
 
-- **需求帽**：`docs/harness/prompts/10-requirements.md`  
-- **独立复检帽**：`docs/harness/prompts/50-independent-reinspect.md`（若以 diff + 验收表为主）
+- **需求帽**：`docs/harness/prompts/hats/10-requirements.md`  
+- **独立复检帽**：`docs/harness/prompts/hats/50-independent-reinspect.md`（若以 diff + 验收表为主）
 
 ---
 

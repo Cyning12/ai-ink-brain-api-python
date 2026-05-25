@@ -56,6 +56,6 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 
 ## 规范引用
 
-- `docs/harness/prompts/50-independent-reinspect.md`
-- `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` §2.3（human_gate）
-- `docs/harness/prompts/HANDOFF_CLOSE_TRACE.md`
+- `docs/harness/prompts/hats/50-independent-reinspect.md`
+- `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md` §2.3（human_gate）
+- `docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md`

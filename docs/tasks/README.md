@@ -111,7 +111,7 @@ docs/tasks/
 
 **模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
 
-新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md)。
+新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
 
 ### 蒸馏 SKILL（高频场景预填）
 
@@ -121,7 +121,7 @@ docs/tasks/
 
 ## `human_gate` 场景速查
 
-> **真值**：字段语义见 [`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5.6**；Agent 行为见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md) **§2**。  
+> **真值**：字段语义见 [`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5.6**；Agent 行为见 [`../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md) **§2**。  
 > **硬规则**：**仅人** 可将 `status` 从 `pending` 改为 `approved`；Agent **禁止**代填、禁止勾选「已人工审核」。
 
 | gate_id | status | blocks_hats | 典型场景 | 谁改 approved |

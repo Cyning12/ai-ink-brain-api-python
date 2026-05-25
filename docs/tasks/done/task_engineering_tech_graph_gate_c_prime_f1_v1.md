@@ -10,7 +10,7 @@
 > **test_strategy_note**：物化/token pytest、可选 batch 评分脚本；**禁止**无 baseline 对比即宣称 F1 提升。  
 > **freeze_id**：`TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0`（本 task 实验冻结；含 `graph_v2_freeze_id` 指针）  
 > **graph_v2_freeze_id（输入）**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`（除非 PR-1 为 F1 微调图边，须 bump 并写清）  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **git_branch**：`task/engineering-tech-graph-gate-c-prime-f1-v1`（自 **`main`** 拉取）
 
 ### Harness 元信息

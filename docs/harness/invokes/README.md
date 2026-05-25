@@ -7,7 +7,16 @@
 
 ## 命名
 
-`invoke_YYYYMMDD_<帽号>_<slug>.md`（例：`invoke_20260522_30_docs-tasks-p0.md`）
+`invoke_YYYYMMDD_<帽号>_<slug>.md`（例：`invoke_20260525_30_chatbi-v3-p2-1a-health.md`）
+
+## 目录 taxonomy（规划 · 与 [`../README.md`](../README.md) §2.1 一致）
+
+| 阶段 | 路径 |
+|------|------|
+| **现状（2026-05-25）** | 已迁至 `invokes/by-task/<task_slug>/` |
+| **新文件** | 仅落 `invokes/by-task/<task_slug>/invoke_*.md`（例 `chatbi-v3-p2-1a-health`） |
+
+**规则**：新 invoke **建议**直接落 `by-task/`；历史根目录文件迁移前仍有效。按 **task** 归类，**不**按 `chatbi` / `tech-graph` 域分目录。
 
 ## 规则（摘要）
 

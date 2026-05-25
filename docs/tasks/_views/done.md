@@ -23,7 +23,7 @@
 - `../done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`（2026-05-11：V2 SPEC/任务验收归档索引）
 - `../done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`（2026-05-11 验收通过：RAG 改写上链 + LLM Prompt 可观测）
 - `../done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（2026-05-14 验收通过：P1-1 Text2SQL 后闸 SQL AST 硬化）
-- `../done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（2026-05-20：P1-2 Prompt 注入 PoC；22 帽 CLOSE · `docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`）
+- `../done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（2026-05-20：P1-2 Prompt 注入 PoC；22 帽 CLOSE · `docs/harness/reviews/by-task/chatbi_v3_prompt_injection_guard_poc_v1/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`）
 - `../done/task_chatbi_v3_p2_resilience_v1.md`（2026-05-24 验收通过：P2-1 拆单 docs-only，子单 health/limit/circuit 已建立）
 - `../done/task_chatbi_v3_p2_resilience_health_ready_v1.md`（2026-05-25 验收通过：P2-1a `/live` + `/ready` 健康探针；50 复检 `reinspect_chatbi_v3_p2_1a_health_ready_20260525_v1.md`）
 - `../done/task_engineering_chatbi_sse_first_v1.md`（2026-05-15：ChatBI 工程纪律 SSE 优先；Harness R2 签收后归档）
@@ -57,7 +57,7 @@
 - `../done/task_unified_chat_router_evidence_observability_v1.md`（2026-04-30 验收通过：`router.evidence.details` SSE + `metadata.router_debug` 落库）
 - `../done/task_chatbi_v2_acceptance_runner_v1.md`（2026-05-22 验收通过：L0–L7 Runner 归档）
 - `../done/task_docs_tasks_reorg_move_v1.md`（2026-05-22 验收通过：`docs/tasks/` 按 active/done/specs/templates/legacy 规整；顶层无混放 SPEC/模板）
-- `../done/task_05_query_rewrite_observability.md`（2026-05-22 验收通过：query_compare 可观测 + Harness P0-B/C 试点；PR #46 · 首份新 `reviews/task_05_*_audit_R1_*.md`）
+- `../done/task_05_query_rewrite_observability.md`（2026-05-22 验收通过：query_compare 可观测 + Harness P0-B/C 试点；PR #46 · 首份新 `reviews/by-task/05_query_rewrite_observability/task_05_*_audit_R1_*.md`）
 - `../done/task_harness_in_repo_prompts_and_rules_v1.md`（2026-05-22 验收通过：Harness prompts/rules 内嵌后端仓，active→done 归档完成）
 - `../done/task_harness_p1_docs_consolidation_v1.md`（2026-05-23 验收通过：P1-3 human_gate 速查 + P1-2 skills 索引；路径 B 10→30→50 关账）
 

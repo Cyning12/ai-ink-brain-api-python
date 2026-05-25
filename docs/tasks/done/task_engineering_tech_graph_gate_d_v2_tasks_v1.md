@@ -14,7 +14,7 @@
 > **freeze_id（占位 · 执行帽落盘时写入 protocol）**：`TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0`  
 > **graph_v2_freeze_id（输入）**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`（图语义变更须 bump 并书面说明）  
 > **gates_before_code**：`["failure_paths", "freeze_id", "test_strategy", "deps_installed"]`  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260520_10_tech-graph-gate-d-v2-tasks-requirements.md`  
 > **git_branch**：`task/engineering-tech-graph-gate-d-v2-tasks-v1`
 

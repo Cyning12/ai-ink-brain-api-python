@@ -9,8 +9,10 @@
 
 | 项 | 约定 |
 |----|------|
-| **路径** | 本仓根相对：`docs/harness/reviews/<文件名>.md` |
+| **路径（2026-05-25）** | `docs/harness/reviews/by-task/<task_slug>/task_<slug>_audit_R<轮次>_YYYYMMDD.md` |
 | **命名** | `task_<slug>_audit_R<轮次>_YYYYMMDD.md`（例：`task_foo_v1_audit_R1_20260522.md`） |
+
+> **taxonomy**：与 [`../README.md`](../README.md) §2.1 一致 — **按 task 绑定**，不按业务域分目录；新 R1 **建议**落 `by-task/`。
 | **绑定** | 元信息表须含 **`task_path`** → `docs/tasks/active|done/...` |
 | **签收** | 终轮须有 **「签收 / 关闭」** 节，与 task 头部 `状态` 对齐 |
 

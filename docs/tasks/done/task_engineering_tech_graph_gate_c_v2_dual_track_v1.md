@@ -10,7 +10,7 @@
 > **test_strategy_note**：新 `fixtures/gate_ctx_c_v1/` 须可 materialize + 至少 1 题 dry-run；pytest 覆盖 payload 构建与 query 种子；LLM batch 可 Phase 分步。  
 > **freeze_id**：`TECH_GRAPH_GATE_C_FREEZE_20260518_V1_0`（[`protocol_version.yaml`](../diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/protocol_version.yaml)）  
 > **gates_before_code**：`failure_paths`、`test_strategy`、`freeze_id`、§0.3 实验臂定义、§1.2 NR 清单  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **需求帽 invoke**：`docs/harness/invokes/invoke_20260518_10_tech-graph-gate-c-v2-dual-track-requirements.md`  
 > **git_branch**：`task/engineering-tech-graph-gate-c-v2-dual-track-v1`
 
@@ -337,7 +337,7 @@
 | 轮次 | 状态 | 路径 |
 | --- | --- | --- |
 | **10 需求帽** | v0.1 初稿 | `docs/harness/invokes/invoke_20260518_10_tech-graph-gate-c-v2-dual-track-requirements.md` |
-| **22 R1** | 通过 | `docs/harness/reviews/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md` |
+| **22 R1** | 通过 | `docs/harness/reviews/by-task/engineering_tech_graph_gate_c_v2_dual_track_v1/task_engineering_tech_graph_gate_c_v2_dual_track_v1_audit_R1_20260518.md` |
 | **30 PR-1** | P0 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-v2-dual-track-execute.md` |
 | **30 PR-2** | P1 batch 完成 | `docs/harness/invokes/invoke_20260518_30_tech-graph-gate-c-p1-batch.md` |
 | **40 PR-2** | P1 独立复验 pass | `docs/harness/invokes/invoke_20260518_31_tech-graph-gate-c-40-self-check.md` |

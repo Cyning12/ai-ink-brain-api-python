@@ -70,7 +70,7 @@
 | 版本 **B**（结构化多行）为对话默认 | ✅ P0 | 与 Execution Report 习惯一致，可读性优于单行 A。 |
 | 版本 C 表格写入 invoke/review | ✅ P0 | 利于跨会话锚点，与 invoke 快照职能一致。 |
 | 与 `HANDOFF_CLOSE_TRACE` 分工 | ✅ | 状态栏=会话内「现在在哪」；CLOSE_TRACE=关账全链路，互补不替代。 |
-| 落盘位置 | ✅ P0 | 建议写入 `HANDOFF_SEMI_AUTO.md` §3.2 后「每棒结束须输出状态栏」；规则层可选同步 `05-harness-semi-auto.mdc` 一句。 |
+| 落盘位置 | ✅ P0 | 建议写入 `handoff/HANDOFF_SEMI_AUTO.md` §3.2 后「每棒结束须输出状态栏」；规则层可选同步 `05-harness-semi-auto.mdc` 一句。 |
 
 ### 3.3 §三 A/B 路径默认推荐
 
@@ -147,7 +147,7 @@ P1（闭环通过后）
 
 | 位置 | 更新时机 |
 |------|----------|
-| `docs/harness/prompts/HANDOFF_SEMI_AUTO.md` | P0：状态栏 + 与改进草案交叉引用 |
+| `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md` | P0：状态栏 + 与改进草案交叉引用 |
 | `docs/tasks/templates/TASK_TEMPLATE.md` | P0：Harness 元信息块 |
 | `docs/harness/reviews/README.md` | 首份新 R1 后：增加「本仓已产出示例」链接 |
 | `docs/harness/README.md` §4 | 标明 rsync 为维护者可选，非 Agent 路径 |
@@ -179,7 +179,7 @@ P1（闭环通过后）
 
 ### 9.3 明确接受的三项（P0）
 
-1. **状态栏版本 B**（结构化多行）→ 写入 `HANDOFF_SEMI_AUTO.md`。  
+1. **状态栏版本 B**（结构化多行）→ 写入 `handoff/HANDOFF_SEMI_AUTO.md`。  
 2. **A/B 路径**加 `（推荐）` + 推荐理由 → P0。  
 3. **验证闭环**：子仓跑通并产出**第一份新** `reviews/`（新 task 的 R1）→ P0 最高优先级。
 

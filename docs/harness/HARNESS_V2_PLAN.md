@@ -1,6 +1,6 @@
 # Harness 工程 V2 初版规划
 
-> **状态**：`draft`（初版 2026-05-13；**运维收口** 见 **§10** 2026-05-14、`HARNESS_V2_P0_ACCEPTANCE.md` §6.1）  
+> **状态**：`accepted`（初版 2026-05-13；**运维收口** 见 **§10** 2026-05-14、`HARNESS_V2_P0_ACCEPTANCE.md` §6.1）  
 > **范围**：工作区 `Projects/` 下与 Ink-Brain 全栈研发相关的 **多 Agent + SDD + 分级 TDD + CI 背压**；不替代各仓 `AGENTS.md`、`PROJECT_CONFIG`、`_tech_graph/`。  
 > **真值**：流程与字段约定以 **本文件 + 根目录 `AGENTS.md`** 为准；实现后应更新本节 **§修订记录**。
 
@@ -132,7 +132,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 
 ### 5.6 `human_gate` / `semi_auto`（半自动 · 可选）
 
-- **`semi_auto: true`**：允许同 Agent 在 **无 pending 人工闸** 时自动执行下一帽；**下一棒 §3 须先** 落盘 `docs/harness/invokes/` 并 commit（[`HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §3）。  
+- **`semi_auto: true`**：允许同 Agent 在 **无 pending 人工闸** 时自动执行下一帽；**下一棒 §3 须先** 落盘 `docs/harness/invokes/` 并 commit（[`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §3）。  
 - **`human_gate`**：表列 `human_gate_id`、`status`（`pending` \| `approved`）、`blocks_hats`；**仅人** 可将 `pending` 改为 `approved`；Agent 遇阻塞帽 **拒执行**。  
 - **`git_branch`**（建议）：半自动执行所在分支名（如 `task/<slug>`），**禁止**在 `main` 上连续自动链式提交。
 
@@ -192,7 +192,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 | 2026-05-14 | **运维收口**：前后端仓库 PR 上 **`quality`** / **`pytest`** 已通过；**`verify-fast` 不设 Required**（与 `VERIFICATION_CI_PATTERN.md` 推荐策略 1 一致）；**无常驻 Harness-only `active` 任务**为预期态，日常纪律在各子仓 task（`HARNESS_V2_PLAN.md` §5）中落实；详见 [`HARNESS_V2_P0_ACCEPTANCE.md`](HARNESS_V2_P0_ACCEPTANCE.md) §6.1、`docs/harness/tasks/README.md`「当前状态」 |
 | 2026-05-14 | **Invoke 快照**：新增 [`invokes/README.md`](invokes/README.md)；§1 原则、`§8` 索引、`reviews` README 与 `docs/harness/README` 互链 |
 | 2026-05-14 | §3 表后脚注 **Invoke 快照**（链 §1、`invokes/`、`prompts` 各 `TEMPLATE-*-invoke` §3）；§4 **P2-6** 增补 `invokes/` 与 §1、§3 同步修订 |
-| 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
+| 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
 
 ---
 
