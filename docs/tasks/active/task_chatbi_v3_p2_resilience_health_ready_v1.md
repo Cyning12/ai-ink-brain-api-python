@@ -1,7 +1,7 @@
 # Task：ChatBI V3 P2-1a 健康探针契约（/live + /ready）
 
 > **状态**：todo  
-> **关联母单**：`docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`  
+> **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §4
 
 ---
@@ -15,7 +15,7 @@
 | gates_before_code | `["failure_paths","验收标准","必读列表"]` |
 | semi_auto | `true` |
 | audit_profile | `post_close` |
-| git_branch | `task/chatbi-v3-p2-resilience-spec` |
+| git_branch | `task/chatbi-v3-p2-1a-health` |
 
 ---
 
@@ -59,7 +59,7 @@
 ## 给执行帽的必读列表
 
 1. 本 task 全文  
-2. `docs/tasks/active/task_chatbi_v3_p2_resilience_v1.md`  
+2. `docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
 3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md`  
 4. `api/index.py`（现有 `/api/py/health`）
 

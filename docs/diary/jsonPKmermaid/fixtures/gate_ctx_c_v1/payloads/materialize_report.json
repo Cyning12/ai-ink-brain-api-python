@@ -1,6 +1,6 @@
 {
   "schema": "gate_ctx_c_payload_materialize_v1",
-  "generated_at": "2026-05-21T11:46:11Z",
+  "generated_at": "2026-05-24T00:54:52Z",
   "freeze_id": "TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0",
   "pr2_token_guard": null,
   "graph_v2_path": "docs/_tech_graph/graph.json",

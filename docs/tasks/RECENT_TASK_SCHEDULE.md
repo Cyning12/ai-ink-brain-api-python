@@ -12,7 +12,7 @@
 
 > **里程碑（已达成）**：子仓跑通 **第一份新写的** `docs/harness/reviews/task_05_*_audit_R1_*.md`（PR #46 · `task_05` 试点）。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **下一棒**：**P2-1** Resilience 拆单 / 低置信 §5.1 backlog；**远期** Ink Harness parity（§0.4 P1-4）。
+> **下一棒**：**P2-1a** health/ready 实现（分支 `task/chatbi-v3-p2-1a-health`）；其后 P2-1b/c；**远期** Ink Harness parity（§0.4 P1-4）。
 
 ### 0.1 阶段 0 — Git / 分支
 
@@ -59,22 +59,26 @@
 
 ---
 
-## 1. 现状快照（2026-05-23 更新）
+## 1. 现状快照（2026-05-24 更新）
 
 | 维度 | 结论 |
 |------|------|
 | **本表角色** | **最近任务安排真值** |
-| **active/** | **7** 个任务相关文件（见 §1.1） |
-| **done/** | **53** 个 `.md` |
-| **_views/done.md** | **53 / 53** 已索引（§6.1 **已补齐**） |
+| **active/** | **11** 个任务相关文件（见 §1.1） |
+| **done/** | **54+** 个 `.md`（含 P2-1 拆单母单，[PR #51](https://github.com/Cyning12/ai-ink-brain-api-python/pull/51)） |
+| **_views/done.md** | 合并后请核对条数与 `done/` 一致 |
 | **Harness P0** | **done**（A1–A4 + `task_05` 试点 + 首份新 R1） |
 | **V3 P1** | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23） |
 | **Harness P1** | **P1-1～P1-3 done**（2026-05-23）；Harness 前端 parity（P1-4）**远期** |
+| **V3 P2-1** | 母单 **done**（拆单）；**当前棒 P2-1a** `todo` |
 
 ### 1.1 active/ 任务清单
 
 | # | 任务文件 | 状态 | 主题 | 排期 |
 |---|---------|------|------|------|
+| **0** | **`task_chatbi_v3_p2_resilience_health_ready_v1.md`** | **`todo`** | **P2-1a health/ready** | **当前 · `task/chatbi-v3-p2-1a-health`** |
+| 0b | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | P2-1b 限流 | P2 · 1a 后 |
+| 0c | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | P2 · 1b 后 |
 | 1 | `task_ui_chain_events_backend.md` | `pending` | Chain Events 统一事件 | P3 |
 | 2 | `task_rag_graphrag_pilot_explore_v1.md` | （见 task 头） | GraphRAG 探索 | 按需 |
 | 3 | `task_chatbi_v3_planning_after_resume_v1.md` | `planning` | V3 统筹索引 | P4 |
@@ -82,6 +86,7 @@
 | 5 | `task_chatbi_v3_debt_from_v2_multiturn_v1.md` | `backlog` | V2 多轮欠债母单 | P2 |
 | 6 | `task_chatbi_v3_intent_classification_debt_v1.md` | `backlog` | Intent vNext | P4 |
 | 7 | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属 | Agent Prompt | — |
+| 8 | `task_coding_wiki_pilot_v1.md` | `draft` | Coding Wiki 试点 | 设计中 |
 
 ---
 
@@ -93,14 +98,15 @@
 | ~~**立即**~~ | ~~归档 `task_harness_in_repo` + 补 `_views/done.md`~~ | ~~P0 治理~~ | **done**（2026-05-23） |
 | ~~**当前**~~ | ~~§0.4 P1-1 工作区 `Projects/` reviews pointer~~ | ~~**P1**~~ | **done**（Projects `c8f3d8c` · 2026-05-23） |
 | ~~**当前**~~ | ~~§0.4 Harness P1-2 + P1-3~~ | ~~**P1**~~ | **done**（PR #49 · 2026-05-23） |
-| **当前** | **P2-1** Resilience 拆单（待建 task） | **P2** | Harness P1 已收口 |
+| ~~**当前**~~ | ~~**P2-1** Resilience 拆单~~ | ~~**P2**~~ | **done**（PR #51 · 2026-05-24） |
+| **当前** | **P2-1a** `task_chatbi_v3_p2_resilience_health_ready_v1` | **P2** | 分支 `task/chatbi-v3-p2-1a-health` |
 | ~~**本周**~~ | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周** | 对照现网后再定 `task_ui_chain_events_backend` | P3 | 避免与 SSE 重复 |
 | **V3 排期** | 低置信 §5.1 预览确认拆分 | P2 | §5.0 已验收 |
 | **按需** | `legacy/` 6 个治理 | 治理 | 不阻塞 |
 | **远期** | Intent vNext、统筹单；Ink Harness parity（P1-4） | P4 | |
 
-**工时粗估（非承诺）**：Harness P1 文档批 **1～2 天**；P2-1 拆单 **0.5 天**；P2 实现 **2～4 周**。
+**工时粗估（非承诺）**：P2-1a **2～3 天**；P2-1b/c 各 **3～5 天**；P2 全批 **2～4 周**。
 
 ---
 
@@ -127,7 +133,10 @@ flowchart TD
 
     subgraph P2["P2 · V3"]
         direction TB
-        P21[P2-1 高可用 待拆] --> P22[P2-2 评估]
+        P21D[P2-1 拆单 done] --> P21A[P2-1a health todo]
+        P21A --> P21B[P2-1b 限流]
+        P21B --> P21C[P2-1c 熔断]
+        P21C --> P22[P2-2 评估]
         LC5[低置信 §5.1 backlog]
     end
 
@@ -154,42 +163,46 @@ flowchart TD
 ### 4.1 全栈闭环线
 
 ```text
-① P2-1 Resilience 拆单 + 低置信 §5.1 backlog 择项  ← 当前
+① P2-1a health/ready（task/chatbi-v3-p2-1a-health）  ← 当前
     ↓
-② 对照现网后再定 task_ui_chain_events_backend（P3）
+② P2-1b 限流 → P2-1c 熔断
     ↓
-③ 远期：Ink Harness parity（§0.4 P1-4）
+③ 低置信 §5.1 / P2-2 评估（排队）· P3 chain events（对照现网）
 ```
 
 ### 4.2 纯后端线
 
 ```text
-① P2-1 Resilience 新建 task（Harness P1 已收口）
+① P2-1a → P2-1b → P2-1c（母单 docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md）
 ② task_ui_chain_events_backend 现网对照后再动
-③ 按需 legacy/ 治理
+③ 按需 legacy/ 治理 · Coding Wiki 试点（draft）
 ```
 
 ### 4.3 依赖关系（简图）
 
 ```mermaid
 flowchart TD
-  HAR[Harness P0+P1 done] --> P21[P2-1 待拆]
+  P21D[P2-1 拆单 done PR51] --> P21A[P2-1a health]
+  P21A --> P21B[P2-1b 限流]
+  P21B --> P21C[P2-1c 熔断]
   P1FE[Ink P1-4 §4.3 done] --> LC[低置信 §5.1]
-  P1FE --> P21
 ```
 
 ---
 
 ## 5. V3 批次对照（SPEC §2.1 摘要）
 
-| 批次 | 项 | 后端任务状态（2026-05-23） |
+| 批次 | 项 | 后端任务状态（2026-05-24） |
 |------|-----|---------------------------|
 | **P0** | Text2SQL 可观测 | `done` |
 | **P1-1** | SQL AST | `done`（2026-05-14） |
 | **P1-2** | Prompt 注入 PoC | `done`（2026-05-20） |
 | **P1-3** | 分级闸门 RBAC | `done`（2026-05-13） |
 | **P1-4** | 低置信澄清 §4.3 | 后端 `done`；前端 **done**（2026-05-23 · Ink 烟测；`ai-ink-brain/content/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`） |
-| **P2-1** | 限流熔断 + health | **待拆 implementation 单** |
+| **P2-1** | 拆单母单 | **done**（`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md` · PR #51） |
+| **P2-1a** | health / ready | **`todo`** · `task_chatbi_v3_p2_resilience_health_ready_v1.md` |
+| **P2-1b** | 限流 | **`todo`** · `task_chatbi_v3_p2_resilience_rate_limit_v1.md` |
+| **P2-1c** | 熔断 | **`todo`** · `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` |
 | **P2-2** | 评估烟测集 | **待拆** |
 | **P2-3** | multiturn §2 工程债 | `backlog` 母单 |
 | **P2 延伸** | 低置信预览确认 §5.1 | `backlog`（§5.0 已验收 2026-05-13） |
@@ -246,6 +259,7 @@ flowchart TD
 | 2026-05-23 | **P0 治理 done**：`task_harness_in_repo` 归档；`_views/done.md` 53/53 |
 | 2026-05-23 | **Harness P1-2/P1-3 done**：`task_harness_p1_docs_consolidation_v1` 关账（PR #49） |
 | 2026-05-23 | **Harness P1-1 done**：Projects reviews pointer（`c8f3d8c`）；**P1-1～P1-3 全收口**；下一棒 **P2-1** |
+| 2026-05-24 | **P2-1 拆单 done**（PR #51）；**当前棒 P2-1a**；子单母单路径指向 `done/`；分支 `task/chatbi-v3-p2-1a-health` |
 
 ---
 

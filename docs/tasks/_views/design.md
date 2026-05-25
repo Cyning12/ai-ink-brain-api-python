@@ -5,6 +5,8 @@
 
 ## 设计中
 
+- [`../active/task_coding_wiki_pilot_v1.md`](../active/task_coding_wiki_pilot_v1.md) — Coding Wiki 试点（LLM Wiki 模式）· `draft` · 指导意见 [`docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`](../../../../docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md)
+
 ## Pending（排期参考 · 索引在 backlog）
 
 > 非 `design`/`draft` 状态的任务不在本视图重复维护；见 [`backlog.md`](backlog.md)「相关但未标 backlog」表。
