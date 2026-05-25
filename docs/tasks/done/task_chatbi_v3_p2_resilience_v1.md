@@ -2,7 +2,7 @@
 
 > **状态**：done（2026-05-24 验收通过 · P2-1 拆单）  
 > **关联图谱**：`docs/_tech_graph/00_main.md`（顶层 HTTP 入口）、`docs/_tech_graph/99_spec.md`（Env / 工程规约）  
-> **关联 Issue/PR**：待补  
+> **关联 Issue/PR**：拆单 PR #51；子单 P2-1a 实现 [PR #52](https://github.com/Cyning12/ai-ink-brain-api-python/pull/52)（`8f56d4a`）  
 > **前端依赖**：无（P2-1 后端 middleware / 端点；BFF 探活对齐另开 task）
 
 > 落盘规则：验收通过后 `git mv` → `docs/tasks/done/` 并更新 `docs/tasks/_views/done.md`。  
@@ -33,6 +33,14 @@
 | HG-TASK-DRAFT | approved | 22-R1, 30 | **人扫本 task 初稿**后改 `approved` 再开 30 |
 | HG-AUDIT-R1 | approved | 30 | 全自动试验：允许跳过 22 或 22 仅零阻塞 record |
 | HG-REINSPECT | approved | done | 50 复检 + PR 前人签 |
+
+### 子单状态（2026-05-25 · 与排期表同步）
+
+| 子 ID | task | 状态 | 备注 |
+|-------|------|------|------|
+| **P2-1a** | `docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md` | **done** | PR #52 · `/live` + `/ready` |
+| P2-1b | `docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | V3 排队；非 Harness 近期 |
+| P2-1c | `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | V3 排队 |
 
 ---
 
@@ -126,7 +134,7 @@
 
 | 子 ID | 建议 task 文件 | 范围摘要 | 必须落盘字段 | 可执行验收（最小） | test_strategy | PR 顺序 |
 |-------|----------------|----------|--------------|--------------------|---------------|---------|
-| P2-1a | `task_chatbi_v3_p2_resilience_health_ready_v1.md` | `/live` + `/ready` 契约；ready 失败返回 503 + 组件名 | 端点契约、env、failure_paths、非范围 | `curl -sS /api/py/health`（现状对照）+ `curl -sS /api/py/live` 返回 200；`curl -sS /api/py/ready` 在依赖缺失场景返回 503 且 JSON 含 `components[]` | `required` | 1 |
+| P2-1a | `task_chatbi_v3_p2_resilience_health_ready_v1.md` | `/live` + `/ready` 契约；ready 失败返回 503 + 组件名 | 端点契约、env、failure_paths、非范围 | 同上（见子单 done 文） | `required` | 1 · **done** PR #52 |
 | P2-1b | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `/api/py/unified/chat/stream`、`/api/py/chat` 限流；429 结构化 | 限流粒度、阈值 env、429 body、failure_paths | `hey`/并发压测触发 429；响应 JSON 至少含 `error_code`，可选 `retry_after`；阈值可通过 env 调整并复测 | `required` | 2 |
 | P2-1c | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | LLM/Supabase 外呼熔断（open/half-open/closed 可观测） | 熔断状态机语义、降级策略、日志字段、failure_paths | 人工注入外呼失败后返回结构化错误（不吞错）；日志含熔断状态迁移；恢复窗口后可半开探测成功 | `required` | 3 |
 

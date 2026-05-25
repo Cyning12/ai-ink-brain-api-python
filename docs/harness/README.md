@@ -35,23 +35,48 @@
 ```text
 docs/harness/
   README.md
-  ACCEPTANCE_LANDING.md     # 人类可读落盘 + 50 硬规则
+  ACCEPTANCE_LANDING.md
   HARNESS_V2_PLAN.md
   SDD_HAT_FLOW.md
-  prompts/                  # 10/20/22/30/40/50 + TEMPLATE + HANDOFF_*
-  reviews/README.md         # 22 帽 · 仅本仓 task
-  invokes/README.md
+  prompts/                  # 帽模板（§2.1 · 迁移前仍可能扁平）
+  invokes/                  # 按 task 快照（§2.2）
+  reviews/                  # 22 帽按 task（§2.2）
 ```
+
+### 2.1 落盘 taxonomy（规划 · 未冻结 · 迁移前勿双真值）
+
+**原则**：**按 task 绑定**落盘（`invokes` / `reviews` / `reinspect_results` 已按 task 语义）；**不按业务域分顶层目录**。域知识进 **LLM Wiki**（`task_coding_wiki_pilot_v1`），不进 `prompts/domains/`。
+
+| 树 | 目标路径 | 内容 |
+|----|----------|------|
+| **prompts** | `prompts/hats/` | `10-requirements` … `50-independent-reinspect` |
+| | `prompts/templates/` | `TEMPLATE-*-invoke.md` |
+| | `prompts/handoff/` | `HANDOFF_*.md` |
+| **invokes** | `invokes/by-task/<task_slug>/` | `invoke_YYYYMMDD_<帽号>_<slug>.md`（见 [`invokes/README.md`](invokes/README.md)） |
+| **reviews** | `reviews/by-task/<task_slug>/` | `task_<slug>_audit_R<轮次>_YYYYMMDD.md`（见 [`reviews/README.md`](reviews/README.md)） |
+| **50（不变）** | `docs/tasks/reinspect_results/` | 关账复检；文件名可含 task slug |
+
+**为何不建 `prompts/domains/chatbi` 或 `domains/tech-graph`？**
+
+- Harness 文件描述的是**帽序与 HANDOFF 协议**，与「ChatBI / 图谱」等业务域 **正交**；同一 task 常跨多域。
+- 按域拆目录会导致：同一 `invoke` 难归类、Agent 误把域片段当关账真值。
+- **若将来**需要跨 task 复用的 Prompt **片段**，再用 `prompts/snippets/<domain>/`（可选），与 Wiki 词条分工，**仍不**替代 `by-task/` 落盘。
+
+**迁移顺序（建议）**：① 定命名表 + 更新 README / `.mdc` 路径 → ② `git mv` prompts → ③ `git mv` 历史 invokes/reviews 进 `by-task/`（或保留根目录旧文件、新文件仅进子目录）→ ④ Coding Wiki ingest 索引 `by-task` 路径。
+
+**落地 task**：[`docs/tasks/active/task_coding_wiki_pilot_v1.md`](../tasks/active/task_coding_wiki_pilot_v1.md)。
 
 ---
 
 ## 3. 关账最低要求（摘要）
 
+> **常模（改进已收口）**：`test_strategy: required` 的实现类 task，**40 之后默认跑 50** 并落盘 `reinspect_results/`；不再视为「试点/测试阶段」特例。纯文档 task 见 [`../tasks/RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) §0.0。
+
 1. （若人择 **路径 A**）`docs/harness/reviews/task_*_audit_*.md`（22）无阻塞  
 2. task **`### 自检结论（执行者）`**（40）  
 3. **`docs/tasks/reinspect_results/reinspect_*.md`**（50）  
 4. **`human_gate`** → `approved`（人改）  
-5. CI 绿
+5. CI 绿（**Required**：`pytest` + tech-graph；`verify-fast` 见排期表 §6.5，**非**默认 Required）
 
 ---
 
@@ -91,3 +116,4 @@ rsync -a docs/harness/prompts/TEMPLATE-independent-reinspect-invoke.md \
 | 2026-05-22 | v3：**恢复 50** + `ACCEPTANCE_LANDING` + `reinspect_results` 关账 |
 | 2026-05-22 | v4：链 diary **§九 生效共识**；`reviews/` 历史样例召回见 `reviews/README.md` |
 | 2026-05-22 | v5：§4 标明 rsync **仅维护者**；§1 Agent 禁止默认读工作区 harness |
+| 2026-05-25 | v6：§2.1 统一 prompts / invokes / reviews taxonomy；**不**建 `domains/` |
