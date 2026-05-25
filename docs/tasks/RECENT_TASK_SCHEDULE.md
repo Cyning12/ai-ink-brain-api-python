@@ -58,7 +58,7 @@
 | ~~B1~~    | ~~选定首开验证 task~~       | `task_05_query_rewrite_observability`                              | **done** |
 | ~~B2~~    | ~~任务分支~~              | `task/query-rewrite-obs`                                           | **done** |
 | ~~B3–B4~~ | ~~10 帽 + 人择 A/B~~     | A1/A3 新模板                                                          | **done** |
-| ~~C1~~    | ~~**22 R1** 新落盘~~     | `reviews/task_05_query_rewrite_observability_audit_R1_20260522.md` | **done** |
+| ~~C1~~    | ~~**22 R1** 新落盘~~     | `reviews/by-task/05_query_rewrite_observability/task_05_query_rewrite_observability_audit_R1_20260522.md` | **done** |
 | ~~C2–C5~~ | ~~30 → 40 → 50 → 关账~~ | invoke、`reinspect_results/`、pytest 绿、`done/`                       | **done** |
 
 
