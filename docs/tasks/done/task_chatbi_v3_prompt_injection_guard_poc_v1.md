@@ -1,7 +1,7 @@
 # Task：ChatBI V3 — **Prompt 注入** 防护 PoC（P1-2）
 
 > **状态**：`done（2026-05-20 · 22 帽 CLOSE 签收）`  
-> **关闭回溯**：`docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`  
+> **关闭回溯**：`docs/harness/reviews/by-task/chatbi_v3_prompt_injection_guard_poc_v1/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`  
 > **与总规批次对应**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§2.1 P1-2**  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§3**（输入侧 / 输出侧）  
 > **企业参考**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md` **§3.2.2**  

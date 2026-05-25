@@ -1,18 +1,18 @@
 # Task：技术图谱 — 机器轨升级（graph_v2 + 方案2 图查询 + 闸口 B）
 
 > **状态**：`done（2026-05-17 验收通过）`  
-> **终轮审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`  
+> **终轮审查**：`docs/harness/reviews/by-task/engineering_tech_graph_v2_graph_query_v1/task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；`docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  
 > **前置验收**：方案1 `graph.json`（`task_engineering_tech_graph_graph_json_export_v1.md` · done）  
 > **闸口 A（已完成 · 勿重复实验）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md` · `accepted` — 见 **§0.2**  
 > **本 task 行为实验**：仅 **闸口 B**（`CTX_QUERY` vs 整包 Mermaid / 整包 v1）— 见 §4.2、§6 P2-3  
 > **产品抉择 / 治理层**（权威）：`docs/diary/jsonPKmermaid/治理层三相塌缩_Ink技术图谱应用.md` **§8.2～§8.3**  
 > **理论参照**：`docs/diary/jsonPKmermaid/三相塌缩等价性论文_拓扑综合.md`（**仅治理层消费类比**；禁止外推 SBM ARI=1，见 §7）  
-> **审查**：`docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`  
+> **审查**：`docs/harness/reviews/by-task/engineering_tech_graph_v2_graph_query_v1/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`  
 > **test_strategy**：`required`  
 > **test_strategy_note**：v2 等价门禁与 query API 为机器轨核心；无 pytest + 闸口 B 复现则无法证明「优化机器轨」成立。  
 > **freeze_id**：`TECH_GRAPH_S2_FREEZE_20260517_V2_0`（与 `docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/protocol_version.yaml` · `graph_v2_freeze_id` 对齐）  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`、`HANDOFF_CLOSE_TRACE.md`
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`、`HANDOFF_CLOSE_TRACE.md`
 
 ### Harness 元信息（半自动 · `post_close`）
 
@@ -215,7 +215,7 @@ graph_query(…) → _manifest 切片 → _contract（若 SSE）
 | 机器轨 SPEC 草案     | `docs/tech_graph/spec/ai-ink-brain-api-python/machine_track_architecture_draft_zh.md`          |
 | SPEC 1/2        | `docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；`query_graph/scheme_2_graph_query.md` |
 | 规则              | `.cursor/rules/10-tech-graph.mdc`、`20-tech-graph-update.mdc`                                   |
-| 审查 R1           | `docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`      |
+| 审查 R1           | `docs/harness/reviews/by-task/engineering_tech_graph_v2_graph_query_v1/task_engineering_tech_graph_v2_graph_query_v1_audit_R1_20260517.md`      |
 
 
 ---
@@ -408,7 +408,7 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 | 轮次          | 状态                                | 下一棒                                                                                                     |
 | ----------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | **R1**      | 已审查；B-D1=§2.1 过重 → **本版已按 R1 回填** | —                                                                                                       |
-| **R2**      | 已审查（零硬阻塞）                         | 见 `docs/harness/reviews/task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md`             |
+| **R2**      | 已审查（零硬阻塞）                         | 见 `docs/harness/reviews/by-task/engineering_tech_graph_v2_graph_query_v1/task_engineering_tech_graph_v2_graph_query_v1_audit_R2_20260517.md`             |
 | **P2-0 执行** | 已落盘草案                             | invoke：`invoke_20260517_30_tech-graph-v2-p2-0-exec.md`                                                  |
 | **P2-0 自检** | **pass**                          | invoke：`invoke_20260517_40_tech-graph-v2-p2-0-self-check.md`                                            |
 | **P2-1 执行** | 已落盘                               | invoke：`invoke_20260517_30_tech-graph-v2-p2-1-exec.md`                                                  |
@@ -422,7 +422,7 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 
 
 工作区 invoke（R2 发起用）：`docs/harness/invokes/invoke_20260517_22_tech-graph-v2-task-audit-r2.md`（相对聚合仓 `Projects/`）  
-**半自动字段**：见文首 **Harness 元信息**；真值 `[HANDOFF_SEMI_AUTO.md](../../../../docs/harness/prompts/HANDOFF_SEMI_AUTO.md)`
+**半自动字段**：见文首 **Harness 元信息**；真值 `[HANDOFF_SEMI_AUTO.md](../../../../docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)`
 
 ---
 

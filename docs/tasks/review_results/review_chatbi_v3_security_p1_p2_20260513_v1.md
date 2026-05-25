@@ -1,6 +1,6 @@
 # 审查归档：ChatBI V3 Security — P1-1 / P1-2 task + SPEC
 
-> **审查帽**：工作区 `docs/harness/prompts/20-review-spec-task.md`  
+> **审查帽**：工作区 `docs/harness/prompts/hats/20-review-spec-task.md`  
 > **字段约定**：`docs/harness/HARNESS_V2_PLAN.md` **§5**（`test_strategy` / `failure_paths` / `freeze_id`）  
 > **归档日期**：2026-05-13  
 > **落盘路径（本文件）**：`ai-ink-brain-api-python/docs/tasks/review_results/review_chatbi_v3_security_p1_p2_20260513_v1.md`  
@@ -94,7 +94,7 @@
 3. **P1-2 task**：FP-1 **golden JSON 路径**、FP-4 **默认 fail-closed**（或显式二选一）写入 failure_paths / 待确认 / 实现备忘指引。  
 4. （可选）两份 task：增加 **`gates_before_code`** 列表，引用 `failure_paths`、`freeze_id`、必读列表 — 见 `HARNESS_V2_PLAN.md` **§5.4**。
 
-**需求帽入口形状**：`docs/harness/prompts/10-requirements.md`
+**需求帽入口形状**：`docs/harness/prompts/hats/10-requirements.md`
 
 ---
 

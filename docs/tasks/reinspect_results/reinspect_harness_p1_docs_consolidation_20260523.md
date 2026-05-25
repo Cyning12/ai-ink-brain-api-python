@@ -12,7 +12,7 @@
 | test_strategy | `not_applicable` |
 | 复检日期 | 2026-05-23 |
 | 复检模式 | 独立复检 |
-| invoke | `docs/harness/invokes/invoke_20260523_50_harness-p1-docs-consolidation.md` |
+| invoke | `docs/harness/invokes/by-task/harness-p1-docs-consolidation/invoke_20260523_50_harness-p1-docs-consolidation.md` |
 
 ---
 

@@ -6,7 +6,7 @@
 > **前端依赖**：无（P2-1 后端 middleware / 端点；BFF 探活对齐另开 task）
 
 > 落盘规则：验收通过后 `git mv` → `docs/tasks/done/` 并更新 `docs/tasks/_views/done.md`。  
-> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) **§5**；半自动：[`docs/harness/prompts/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/HANDOFF_SEMI_AUTO.md)。
+> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) **§5**；半自动：[`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
 
 ---
 
@@ -164,7 +164,7 @@
 4. `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（env 表）  
 5. `api/index.py`（health 现状）  
 6. `docs/tasks/RECENT_TASK_SCHEDULE.md`  
-7. `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（semi_auto + 单闸关账）  
+7. `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`（semi_auto + 单闸关账）  
 
 ---
 

@@ -43,7 +43,7 @@
 | #      | 任务                                   | 产出                                                     | 状态       |
 | ------ | ------------------------------------ | ------------------------------------------------------ | -------- |
 | ~~A1~~ | ~~扩展 `TASK_TEMPLATE` Harness 字段~~    | `docs/tasks/templates/TASK_TEMPLATE.md`                | **done** |
-| ~~A2~~ | ~~`HANDOFF_SEMI_AUTO` 状态栏 **版本 B~~** | `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`            | **done** |
+| ~~A2~~ | ~~`HANDOFF_SEMI_AUTO` 状态栏 **版本 B~~** | `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`            | **done** |
 | ~~A3~~ | ~~10 帽双 Prompt + `（推荐）` + 理由~~       | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` | **done** |
 | ~~A4~~ | ~~`harness/README` §4 rsync 仅维护者~~   | `docs/harness/README.md`                               | **done** |
 
@@ -95,7 +95,7 @@
 | **Harness 前端 parity** | **下一棒（全仓）** · §0.4 P1-4 |
 | **近期当前** | **taxonomy 规划** + `task_coding_wiki_pilot_v1`（draft） |
 | **V3 P2-1 韧性** | P2-1a **done**（PR #52）；P2-1b/c **排队**（非 Harness、非默认当前棒） |
-| **维护债** | taxonomy `git mv` 未执行；Overview §3 文件若缺失则母单 §子单状态为准 |
+| **维护债** | Overview §3 文件若缺失则以母单 §子单状态为准 |
 
 
 ### 1.1 active/ 任务清单
@@ -282,7 +282,7 @@ flowchart TD
 | --- | --------------------------------- | -------- | ---------------------------------------------------------------------- |
 | 1   | `RECENT_TASK_SCHEDULE` 与 P2-1a    | **done** | 本节已同步 PR #52                                                           |
 | 2   | `HARNESS_V2_PLAN`                 | **done** | 用户已改 `accepted`                                                        |
-| 3   | Harness taxonomy（prompts + invokes + reviews） | **规划 done** | [`../harness/README.md`](../harness/README.md) §2.1；**不**建 `domains/`；`git mv` 未执行 |
+| 3   | Harness taxonomy（prompts + invokes + reviews） | **done** | `git mv` 2026-05-25；见 [`../harness/README.md`](../harness/README.md) §2.1 |
 | 4   | `content/tasks` 无 — 本仓 N/A | — | 前端 parity 时对齐 `content/harness` |
 | 5   | CI Required vs `verify-fast` | **已明确** | 见 §6.5 |
 | 6   | 母单 §子单状态 P2-1a | **done** | `task_chatbi_v3_p2_resilience_v1.md` + PR #52 |

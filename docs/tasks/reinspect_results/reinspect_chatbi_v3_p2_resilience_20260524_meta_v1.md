@@ -90,8 +90,8 @@ exit_code=0
    ```
 
 **违反规则**：
-- `HANDOFF_SEMI_AUTO.md` §2.3：「**禁止**将 `pending` 改为 `approved`；**禁止**替用户勾选『已人工审核』」
-- `HANDOFF_SEMI_AUTO.md` §2.3：「Agent **不得**代填 `approved`、不得勾选人检框」
+- `handoff/HANDOFF_SEMI_AUTO.md` §2.3：「**禁止**将 `pending` 改为 `approved`；**禁止**替用户勾选『已人工审核』」
+- `handoff/HANDOFF_SEMI_AUTO.md` §2.3：「Agent **不得**代填 `approved`、不得勾选人检框」
 - 母单自身约束：「**仅人** 可将 `pending`→`approved`；Agent **禁止**代填」
 - `invoke_20260523_30` 硬约束：「**禁止 Agent 修改任何 human_gate 状态**」
 
@@ -159,7 +159,7 @@ PR #51 body 未包含 `HANDOFF_CLOSE_TRACE.md` §2.2 要求的「执行路线表
 - 无文档内容缺口。Harness 流程蒸馏已落盘 SKILL（双轨，2026-05-24）：
   - 便携真值：[`docs/tasks/skills/SKILL-harness-meta-reinspect.md`](../skills/SKILL-harness-meta-reinspect.md)
   - Cursor 入口：`.cursor/skills/harness-meta-reinspect/SKILL.md`
-- 可选后续：将 gate diff / 人单独 commit 规则同步写入 `HANDOFF_SEMI_AUTO.md`、`50-independent-reinspect.md`（与 SKILL 语义对齐）
+- 可选后续：将 gate diff / 人单独 commit 规则同步写入 `handoff/HANDOFF_SEMI_AUTO.md`、`50-independent-reinspect.md`（与 SKILL 语义对齐）
 
 ---
 

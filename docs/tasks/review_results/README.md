@@ -1,6 +1,6 @@
 # review_results / 审查结果落盘（本后端仓）
 
-> **用途**：存放 **规格 / 任务审查帽**（工作区 [`docs/harness/prompts/20-review-spec-task.md`](../../../../docs/harness/prompts/20-review-spec-task.md)）对本仓 **task / SPEC** 的 **缺口与可测性** 审查结论，便于追溯与交给 **需求帽** 回填 `docs/tasks/`、`docs/spec/`。  
+> **用途**：存放 **规格 / 任务审查帽**（工作区 [`docs/harness/prompts/hats/20-review-spec-task.md`](../../../../docs/harness/prompts/hats/20-review-spec-task.md)）对本仓 **task / SPEC** 的 **缺口与可测性** 审查结论，便于追溯与交给 **需求帽** 回填 `docs/tasks/`、`docs/spec/`。  
 > **注意**：本目录 **不是** `task_*.md` 任务单本体；不替代 `active/`、`done/` 状态流。
 
 ---
@@ -33,7 +33,7 @@
 
 ## 回填闭环
 
-- 需求帽入口：[`docs/harness/prompts/10-requirements.md`](../../../../docs/harness/prompts/10-requirements.md)  
+- 需求帽入口：[`docs/harness/prompts/hats/10-requirements.md`](../../../../docs/harness/prompts/hats/10-requirements.md)  
 - 回填完成后：可在本文件顶部加一行 **「已回填 / 日期 / PR」**，不必强制移动文件。
 
 ---

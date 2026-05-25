@@ -23,7 +23,7 @@
 - `../done/task_chatbi_v2_docs_acceptance_archive_2026-05-11.md`（2026-05-11：V2 SPEC/任务验收归档索引）
 - `../done/task_chatbi_v2_rewrite_timeline_llm_prompt_capture_v1.md`（2026-05-11 验收通过：RAG 改写上链 + LLM Prompt 可观测）
 - `../done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（2026-05-14 验收通过：P1-1 Text2SQL 后闸 SQL AST 硬化）
-- `../done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（2026-05-20：P1-2 Prompt 注入 PoC；22 帽 CLOSE · `docs/harness/reviews/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`）
+- `../done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（2026-05-20：P1-2 Prompt 注入 PoC；22 帽 CLOSE · `docs/harness/reviews/by-task/chatbi_v3_prompt_injection_guard_poc_v1/task_chatbi_v3_prompt_injection_guard_poc_v1_audit_CLOSE_20260520.md`）
 - `../done/task_chatbi_v3_p2_resilience_v1.md`（2026-05-24 验收通过：P2-1 拆单 docs-only，子单 health/limit/circuit 已建立）
 - `../done/task_chatbi_v3_p2_resilience_health_ready_v1.md`（2026-05-25 验收通过：P2-1a `/live` + `/ready` 健康探针；50 复检 `reinspect_chatbi_v3_p2_1a_health_ready_20260525_v1.md`）
 - `../done/task_engineering_chatbi_sse_first_v1.md`（2026-05-15：ChatBI 工程纪律 SSE 优先；Harness R2 签收后归档）

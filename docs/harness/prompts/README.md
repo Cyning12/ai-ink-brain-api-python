@@ -9,7 +9,7 @@
 1. **10 结束**：必须输出 **下一棒 A（22）** + **下一棒 B（30）** 两条 §3 Prompt，**人**择一。  
 2. **22**：审查写入 **`docs/harness/reviews/`**（仅本仓 `docs/tasks/`，见 [`../reviews/README.md`](../reviews/README.md)）。  
 3. **30→40→50**：50 须先落盘 `docs/tasks/reinspect_results/`。  
-4. **半自动**：[`HANDOFF_SEMI_AUTO.md`](HANDOFF_SEMI_AUTO.md)。
+4. **半自动**：[`handoff/HANDOFF_SEMI_AUTO.md`](handoff/HANDOFF_SEMI_AUTO.md)。
 
 ---
 
@@ -17,13 +17,13 @@
 
 | 帽 | 文件 |
 |----|------|
-| 10 | `10-requirements.md`、`TEMPLATE-requirements-invoke.md` |
-| 20 | `20-review-spec-task.md`、`TEMPLATE-review-spec-task-invoke.md` |
-| **22** | **`22-task-audit.md`**、**`TEMPLATE-task-audit-invoke.md`** |
-| 30 | `30-execute-code.md`、`TEMPLATE-execute-invoke.md` |
-| 40 | `40-self-check.md`、`TEMPLATE-self-check-invoke.md` |
-| 50 | `50-independent-reinspect.md`、`TEMPLATE-independent-reinspect-invoke.md`（+ 可选 full） |
-| — | `HANDOFF_*` ×3 |
+| 10 | `hats/10-requirements.md`、`templates/TEMPLATE-requirements-invoke.md` |
+| 20 | `hats/20-review-spec-task.md`、`templates/TEMPLATE-review-spec-task-invoke.md` |
+| **22** | **`hats/22-task-audit.md`**、**`templates/TEMPLATE-task-audit-invoke.md`** |
+| 30 | `hats/30-execute-code.md`、`templates/TEMPLATE-execute-invoke.md` |
+| 40 | `hats/40-self-check.md`、`templates/TEMPLATE-self-check-invoke.md` |
+| 50 | `hats/50-independent-reinspect.md`、`templates/TEMPLATE-independent-reinspect-invoke.md`（+ 可选 full） |
+| — | `handoff/HANDOFF_*` ×3 |
 
 **工作区混放审查**（非本后端 task）：**不要**写入本仓 `docs/harness/reviews/`；见 archive。
 

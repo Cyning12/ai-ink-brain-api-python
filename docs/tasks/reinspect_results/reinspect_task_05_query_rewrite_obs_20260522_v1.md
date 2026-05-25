@@ -8,7 +8,7 @@
 | **git_branch** | `task/query-rewrite-obs` |
 | **commit** | （合并前填写 `git rev-parse --short HEAD`） |
 | **复检日期** | 2026-05-22 |
-| **invoke_snapshot** | `docs/harness/invokes/invoke_20260522_50_task05-reinspect.md` |
+| **invoke_snapshot** | `docs/harness/invokes/by-task/task05-query-rewrite-obs/invoke_20260522_50_task05-reinspect.md` |
 
 ---
 

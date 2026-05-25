@@ -2,7 +2,7 @@
 
 > **用途**：**50 帽（独立复检）** 的 **人类可读、可查收** 书面结论；供维护者合并决策与事后审计。  
 > **真值**：[`../harness/ACCEPTANCE_LANDING.md`](../harness/ACCEPTANCE_LANDING.md)、[`../harness/prompts/50-independent-reinspect.md`](../harness/prompts/50-independent-reinspect.md)。  
-> **模板**：[`../harness/prompts/TEMPLATE-independent-reinspect-invoke.md`](../harness/prompts/TEMPLATE-independent-reinspect-invoke.md)（占位符 `{{REINSPECT_OUTPUT_PATH}}` 指向本目录）。
+> **模板**：[`../harness/prompts/templates/TEMPLATE-independent-reinspect-invoke.md`](../harness/prompts/templates/TEMPLATE-independent-reinspect-invoke.md)（占位符 `{{REINSPECT_OUTPUT_PATH}}` 指向本目录）。
 
 ---
 
@@ -36,7 +36,7 @@
 ## 与 invoke / 人工闸
 
 - 50 开帽 invoke 快照：[`../harness/invokes/`](../harness/invokes/README.md)  
-- `human_gate`（如 `HG-REINSPECT`、`HG-GLOBAL-SIGNOFF`）**approved** 后方可 `done` / 合并（人改，见 [`../harness/prompts/HANDOFF_SEMI_AUTO.md`](../harness/prompts/HANDOFF_SEMI_AUTO.md)）
+- `human_gate`（如 `HG-REINSPECT`、`HG-GLOBAL-SIGNOFF`）**approved** 后方可 `done` / 合并（人改，见 [`../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)）
 
 ---
 

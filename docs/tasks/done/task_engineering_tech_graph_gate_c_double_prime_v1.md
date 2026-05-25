@@ -10,7 +10,7 @@
 > **test_strategy_note**：物化 / token pytest、batch 评分脚本；须相对 **052803** 与 **083014** 双基线对比，禁止无 baseline 宣称提升。  
 > **freeze_id**：`TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0`  
 > **graph_v2_freeze_id（输入）**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`（除非 PR-1 为 F1 微调图边，须 bump 并写清）  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **invoke（10 帽）**：`docs/harness/invokes/invoke_20260520_50_tech-graph-gate-c-double-prime-requirements.md`  
 > **git_branch（建议）**：`task/engineering-tech-graph-gate-c-double-prime-v1`（自 **`main`** 拉取）
 

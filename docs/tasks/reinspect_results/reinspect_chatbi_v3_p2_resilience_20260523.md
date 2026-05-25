@@ -32,9 +32,9 @@
 ## Diff 证据（关键）
 
 - 新增 invoke：  
-  - `docs/harness/invokes/invoke_20260523_30_chatbi-v3-p2-resilience-spec.md`  
-  - `docs/harness/invokes/invoke_20260523_40_chatbi-v3-p2-resilience-spec.md`  
-  - `docs/harness/invokes/invoke_20260523_50_chatbi-v3-p2-resilience-spec.md`
+  - `docs/harness/invokes/by-task/chatbi-v3-p2-resilience-spec/invoke_20260523_30_chatbi-v3-p2-resilience-spec.md`  
+  - `docs/harness/invokes/by-task/chatbi-v3-p2-resilience-spec/invoke_20260523_40_chatbi-v3-p2-resilience-spec.md`  
+  - `docs/harness/invokes/by-task/chatbi-v3-p2-resilience-spec/invoke_20260523_50_chatbi-v3-p2-resilience-spec.md`
 - 新增子 task：  
   - `docs/tasks/active/task_chatbi_v3_p2_resilience_health_ready_v1.md`  
   - `docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md`  

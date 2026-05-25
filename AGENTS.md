@@ -156,7 +156,7 @@
 
 执行 `docs/tasks/active/*.md` 或用户 `@task` 时：
 
-1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
+1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
 2. **无阻塞则连续跑**：凡 `human_gate` 对下一棒 **非** `pending`（或 `blocks_hats` 不含该帽），**同会话**自动戴下一帽；**禁止**每棒要求用户重贴 `TEMPLATE-*` §3。
 3. **下一棒前必落盘**：将下一棒 §3 全文写入本仓 `docs/harness/invokes/invoke_*.md`（本仓 `docs/tasks/` 任务 **禁止** 只写工作区 invokes），再 **commit** 本轮路径，然后执行。
 4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。
@@ -174,7 +174,7 @@
 执行 Harness 流程、复制帽子 Prompt、`semi_auto` 续跑时：
 
 1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md)
-2. **模板**：`docs/harness/prompts/TEMPLATE-*-invoke.md` §3；帽子 `10`～`50` 与同目录 `HANDOFF_*.md`
+2. **模板**：`docs/harness/prompts/templates/TEMPLATE-*-invoke.md` §3；帽子 `10`～`50` 与同目录 `HANDOFF_*.md`
 3. **落盘**：invoke → `docs/harness/invokes/`；**22** → `docs/harness/reviews/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）
 4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 例外见 `docs/tasks/README.md`「工作区 Harness 任务」
 

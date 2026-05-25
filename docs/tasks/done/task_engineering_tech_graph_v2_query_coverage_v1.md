@@ -9,7 +9,7 @@
 > **test_strategy_note**：export `--check`、graph_query pytest、gate_ctx_c materialize 扩展须同 PR 可失败再绿。  
 > **freeze_id**：`TECH_GRAPH_QUERY_COVERAGE_FREEZE_20260519_V1_0`（本 task 工程冻结；图内容快照见 `graph_v2_freeze_id`）  
 > **graph_v2_freeze_id（目标）**：`TECH_GRAPH_S2_FREEZE_20260519_V2_3`（PR-1 落地后写入 `graph.json`）  
-> **Harness 通则**：`Projects/docs/harness/prompts/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
+> **Harness 通则**：`Projects/docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`、`HANDOFF_AUTO_COMMIT.md`  
 > **git_branch**：`task/engineering-tech-graph-v2-query-coverage-v1`（自 `main` 拉取；**勿**基于 `task/engineering-tech-graph-gate-c-p3-docs-v1`）
 
 ### Harness 元信息
