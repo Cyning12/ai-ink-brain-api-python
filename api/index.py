@@ -429,9 +429,71 @@ def build_system_prompt(context: str) -> str:
     return f"{rules}\n【检索到的文档片段】\n{body}"
 
 
+def _build_live_payload() -> dict[str, Any]:
+    return {
+        "ok": True,
+        "service": "ai-ink-brain-rag",
+        "probe": "live",
+    }
+
+
+def _component_status(name: str, ok: bool, detail: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": name,
+        "status": "ok" if ok else "failed",
+    }
+    if detail:
+        payload["detail"] = detail
+    return payload
+
+
+def _build_ready_components() -> list[dict[str, Any]]:
+    supabase_url = (pick_supabase_url() or "").strip()
+    supabase_key = (pick_supabase_service_key() or "").strip()
+    siliconflow_api_key = (os.getenv("SILICONFLOW_API_KEY") or "").strip()
+
+    components: list[dict[str, Any]] = []
+    if supabase_url and supabase_key:
+        components.append(_component_status("supabase", True))
+    else:
+        components.append(
+            _component_status(
+                "supabase",
+                False,
+                "missing NEXT_PUBLIC_SUPABASE_URL/SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SERVICE_KEY",
+            )
+        )
+
+    if siliconflow_api_key:
+        components.append(_component_status("siliconflow_api_key", True))
+    else:
+        components.append(_component_status("siliconflow_api_key", False, "missing SILICONFLOW_API_KEY"))
+    return components
+
+
+@app.get("/api/py/live")
+def live() -> dict[str, Any]:
+    # live 探针仅反映进程存活，不执行重依赖外呼。
+    return _build_live_payload()
+
+
+@app.get("/api/py/ready")
+def ready() -> JSONResponse:
+    components = _build_ready_components()
+    is_ready = all(c.get("status") == "ok" for c in components)
+    payload = {
+        "ok": is_ready,
+        "service": "ai-ink-brain-rag",
+        "probe": "ready",
+        "components": components,
+    }
+    return JSONResponse(status_code=200 if is_ready else 503, content=payload)
+
+
 @app.get("/api/py/health")
-def health() -> dict[str, str]:
-    return {"ok": "true", "service": "ai-ink-brain-rag"}
+def health() -> dict[str, Any]:
+    # 兼容历史探针：沿用轻量语义，对齐 live 契约返回。
+    return _build_live_payload()
 
 
 @app.get("/api/py/chat/history")

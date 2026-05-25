@@ -49,10 +49,10 @@
 
 ## 验收标准
 
-- [ ] `curl -sS http://127.0.0.1:8000/api/py/live` 返回 `200` 且 JSON 含 `ok=true`（或等价布尔）。
-- [ ] 依赖故障注入场景下，`curl -i -sS http://127.0.0.1:8000/api/py/ready` 返回 `503`，body 含 `components` 数组。
-- [ ] 文档与实现保持一致：`PROJECT_CONFIG` 或 task 中记录端点字段说明。
-- [ ] pytest 覆盖最小 happy path + dependency-down path。
+- [x] `curl -sS http://127.0.0.1:8000/api/py/live` 返回 `200` 且 JSON 含 `ok=true`（或等价布尔）。
+- [x] 依赖故障注入场景下，`curl -i -sS http://127.0.0.1:8000/api/py/ready` 返回 `503`，body 含 `components` 数组。
+- [x] 文档与实现保持一致：`PROJECT_CONFIG` 或 task 中记录端点字段说明。
+- [x] pytest 覆盖最小 happy path + dependency-down path。
 
 ---
 
@@ -62,4 +62,16 @@
 2. `docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
 3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md`  
 4. `api/index.py`（现有 `/api/py/health`）
+
+---
+
+## 自检结论（执行者）
+
+| 项 | 结果 |
+|----|------|
+| 命令 1 | `pytest tests/test_health_probe_routes.py` |
+| 结论 1 | `exit_code=0`；`2 passed`（覆盖 `/api/py/live` 200 与 `/api/py/ready` 503 注入场景） |
+| 命令 2 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 结论 2 | `exit_code=0`；`210 passed, 1 skipped, 2 deselected` |
+| 证据归因 | 通过 pytest 的接口断言等价覆盖验收中两条 curl 场景（状态码 + JSON 字段） |
 

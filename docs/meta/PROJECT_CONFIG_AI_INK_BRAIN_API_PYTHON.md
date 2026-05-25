@@ -144,7 +144,9 @@
 
 | 契约 | 路径/说明 |
 |---|---|
-| `GET /api/py/health` | 健康检查 |
+| `GET /api/py/live` | 进程存活探针（轻量 200；`ok=true`；不做重依赖外呼） |
+| `GET /api/py/ready` | 依赖就绪探针（检查 Supabase 配置与 `SILICONFLOW_API_KEY`；失败返回 `503` + `components[]`） |
+| `GET /api/py/health` | 兼容历史探针，当前与 `/api/py/live` 返回语义保持一致 |
 | `POST /api/py/chat` | **流式** `text/plain`；检索 hybrid；失败降级策略见下 |
 | `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs`；**鉴权**：Ink admin（`_require_auth`）**或**请求头 **`X-ChatBI-Access-Token`**（DB 明文，与 Next BFF 对齐；实现见 `api/index.py::_require_rag_history_auth`） |
 | `GET /api/py/chatbi/access/verify` | ChatBI 明文 token **探活**（JSON：`ok` / `access_level` / `principal_kind` / `token_id`）；**鉴权**：与 Unified 相同，**仅** `Authorization: Bearer <明文>` → `require_chatbi_principal` |
