@@ -15,8 +15,8 @@
 | [`questions.md`](./questions.md) | Gold 题 + 标准答案要点（P1 锁定 slug） |
 | [`payloads/TEMPLATE-H-full.md`](./payloads/TEMPLATE-H-full.md) | P1 对照臂：扫 by-task 全文 |
 | [`payloads/TEMPLATE-H-lean.md`](./payloads/TEMPLATE-H-lean.md) | P1 基线臂：纪律消费 |
-| `payloads/H-full_harness-p1-docs-consolidation.md` | P1 物化实例（执行 AB 时生成） |
-| `payloads/H-lean_harness-p1-docs-consolidation.md` | P1 物化实例 |
+| `payloads/H-full_harness-p1-docs-consolidation.md` | P1 物化实例（**已生成** · 4 invoke + done 全文） |
+| `payloads/H-lean_harness-p1-docs-consolidation.md` | P1 物化实例（**已生成** · README 摘录 + done 至验收节） |
 | `scorecard.md` | P1/P2 填表（执行时创建） |
 | `conclusion_p1_zh.md` | P1 结论文（执行后） |
 | `conclusion_p2_zh.md` | P2 结论文（Wiki 就绪后） |

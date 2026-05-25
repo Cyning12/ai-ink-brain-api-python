@@ -9,7 +9,8 @@
 | **invoke 目录** | `docs/harness/invokes/by-task/harness-p1-docs-consolidation/` |
 | **review 目录** | `docs/harness/reviews/by-task/`（本 Epic **无** 独立 review 子目录时，H-full 仅含 invoke + done task） |
 
-> **跑法**：每题对 **H-full**、**H-lean** 各答一次；载荷仅允许对应 `payloads/H-*_harness-p1-docs-consolidation.md` 内列出的文件（或该文件已内联的全文）。记录答案与 `payload_char_count` 填入 `scorecard.md`。
+> **跑法**：每题对 **H-full**、**H-lean** 各答一次；载荷仅允许对应 `payloads/H-*_harness-p1-docs-consolidation.md` 内列出的文件（或该文件已内联的全文）。记录答案与文首 **物化后统计** 的 `payload_char_count` 填入 `scorecard.md`。  
+> **物化**：`payloads/H-full_*.md`、`H-lean_*.md` 已由脚本拼接（2026-05-25）；H-lean 的 done task **不含** 40/50 长回填。
 
 ---
 
