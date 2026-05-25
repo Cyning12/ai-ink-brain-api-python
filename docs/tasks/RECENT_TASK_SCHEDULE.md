@@ -129,7 +129,7 @@
 | ~~**当前**~~  | ~~§0.4 Harness P1-2 + P1-3~~                       | ~~**P1**~~ | **done**（PR #49 · 2026-05-23）                   |
 | ~~**当前**~~  | ~~**P2-1** Resilience 拆单~~                         | ~~**P2**~~ | **done**（PR #51 · 2026-05-24）                   |
 | ~~**当前**~~  | ~~**P2-1a** health/ready~~ | ~~**P2**~~ | **done**（PR #52 · `8f56d4a` · 2026-05-25） |
-| **当前** | Wiki-CTX-AB P1 + Coding Wiki pilot | 治理 | `wiki_ctx_ab_v1` · `task_coding_wiki_pilot_v1` · SPEC `governance/` |
+| **当前** | T3 工作区 harness 推广 · Coding Wiki pilot | 治理 | `task_harness_workspace_taxonomy_promote_v1` · `task_coding_wiki_pilot_v1` |
 | **下一棒（全仓）** | `ai-ink-brain` Harness parity | P1 | §0.4 P1-4 |
 | **V3 排队** | P2-1b 限流 → P2-1c 熔断 | P2 | 按需立项；**非** Harness 改进近期项 |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
@@ -310,7 +310,8 @@ flowchart TD
 | 阶段 | 任务 / 工件 | 状态 | 说明 |
 | --- | --- | --- | --- |
 | T0 | Harness taxonomy 本仓 | **done** | §6.4 #3 |
-| **T1a** | **`task_wiki_ctx_ab_v1`** · P1 H-full vs H-lean | **draft / 可开工** | `HG-AB-SLUG` 人签后物化 payload |
+| **T1a** | **`task_wiki_ctx_ab_v1`** · P1 | **done** | `conclusion_p1_zh.md` · 推荐 T3 |
+| **T3** | **`task_harness_workspace_taxonomy_promote_v1`** | **pending** | 工作区 harness pointer/README |
 | **T1b** | **`task_coding_wiki_pilot_v1`** | **draft** | 与 P1 **同 slug** ingest；∥ T1a |
 | T2 | P2 H-lean vs W | **blocked** | 依赖 T1b 最小 Wiki 页 |
 | T3 | 工作区 harness 推广 + 前端 P1-4 | **等待** | T1a + T2 结论 |

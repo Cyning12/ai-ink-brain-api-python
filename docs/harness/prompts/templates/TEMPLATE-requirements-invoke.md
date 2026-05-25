@@ -25,6 +25,20 @@
 | `{{GOAL_AND_CONTEXT}}` | 目标与上下文：要解决什么、约束、读者是谁（**必填**） | 「把 X 写成可验收 task 草案」 |
 | `{{SPEC_OR_TASK_PATHS_OR_PASTE_NOTE}}` | 已存在的 SPEC/task **相对路径**（`Projects/` 起），多行一条一路径；若正文将贴在**下一条消息**，此处写 **`全文见下一条消息`**（五字照抄） | `ai-ink-brain-api-python/docs/tasks/active/task_….md` |
 | `{{AUDIT_REVIEW_PATH_OR_NONE}}` | 若按 **`22`** 审查回填：填 `docs/harness/reviews/…_audit_R….md`；否则 **`无`** | `无` |
+| `{{SDD_INTENT_ROUNDS_STATUS}}` | **SDD 三轮**状态（必填其一，见下表） | `轮0+1+2 已完成，清单已人确认` |
+| `{{NEW_OR_MAJOR_SPEC}}` | 是否 **新建或重大修订** SPEC？`是` / `否` | `否` |
+
+**`{{SDD_INTENT_ROUNDS_STATUS}}` 合法取值（照抄其一）**
+
+| 取值 | 含义 |
+| --- | --- |
+| `不涉及新 SPEC（§3 省略）` | 纯 docs / 实验 / 仅落实既有 SPEC |
+| `轮0 意图卡完成，待轮1` | 仅背景与非范围已对齐 |
+| `轮0+1 骨架完成，待轮2` | L0/Overview 已人确认 |
+| `轮0+1+2 已完成，清单已人确认` | 可进入 task 定稿 + 下一棒 A/B |
+| `轮0+1+2 已完成，清单有待确认项` | **禁止** 推荐路径 B；30 须拒开工 |
+
+**真值**：[`docs/spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../../../spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)（§1 三轮 · §4 待确认清单 · §5 与 22/30）
 
 ---
 
@@ -34,6 +48,7 @@
 你正在扮演工作区 Harness「需求与任务分析帽」，严格遵循：
 - docs/harness/prompts/hats/10-requirements.md（身份、只做什么、禁止什么、输出形状、停止条件、交接物）
 - docs/harness/HARNESS_V2_PLAN.md §5（与 task 字段对齐时可引用）
+- docs/spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md（**SDD 三轮** · §4 待确认清单 · §5 完成后下一棒）
 
 输入（已由人工替换占位符；若你仍看到 {{…}} 字样，须先追问用户，不得开工）：
 
@@ -46,9 +61,21 @@
 【是否按任务审核文档回填】（无则写「无」；有则写相对路径）
 {{AUDIT_REVIEW_PATH_OR_NONE}}
 
+【SDD 三轮状态】（§2 合法取值之一）
+{{SDD_INTENT_ROUNDS_STATUS}}
+
+【是否新建或重大修订 SPEC】
+{{NEW_OR_MAJOR_SPEC}}
+
 你必须完成：
-0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 [`../invokes/README.md`](../invokes/README.md) 落盘到 `docs/harness/invokes/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
-1. 输出结构化块：背景 / 范围 / 非范围 / 依赖链接 / 验收列表 / failure_paths / 给执行帽的必读列表；矛盾单独小节（若有）。
+0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 [`../invokes/README.md`](../invokes/README.md) 落盘到 `docs/harness/invokes/by-task/<task_slug>/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
+1. **SDD 纪律（硬）**：
+   - 若 `{{NEW_OR_MAJOR_SPEC}}` = **是**：须遵守三轮模型（§1）；**禁止** 在本帽一次生成整本 L1 SPEC。
+   - 若 `{{SDD_INTENT_ROUNDS_STATUS}}` 含 **「清单有待确认项」**：下一棒 **只许推荐路径 A** 或输出阻塞清单，**禁止** 推荐路径 B。
+   - 若状态 = **`轮0+1+2 已完成，清单已人确认`**：可据 §下一棒 A/B 规则推荐 A 或 B；**三轮完成 ≠ 自动跳过 22**（见 SPEC §5）。
+   - 若 `{{NEW_OR_MAJOR_SPEC}}` = **否** 且状态 = **`不涉及新 SPEC`**：跳过待确认清单，直接 task 定稿。
+   - 当 `{{NEW_OR_MAJOR_SPEC}}` = **是** 时，task 草案末须附 **「SPEC 待确认清单」** 表（SPEC §4，3～5 行）；已全部确认则在表后写 **「均已人确认 · YYYY-MM-DD」**。
+2. 输出结构化块：背景 / 范围 / 非范围 / 依赖链接 / 验收列表 / failure_paths / 给执行帽的必读列表；矛盾单独小节（若有）。
 2. 注明建议 test_strategy（required | recommended | not_applicable）及 test_strategy_note（若 not_applicable 须附理由）。
 3. 若 AUDIT 路径非「无」：按该审查文档的回填清单逐条映射到 task 小节建议，并在建议文末注明「按审查 R<n> 回填」应指向的文件名。
 4. 禁止：写业务实现代码；改 CI；在 task 中写绝对本机路径；把未在依赖中声明的契约当真值。
@@ -73,6 +100,7 @@
 | 2026-05-14 | v1.1：§3 增对话收口「下一棒可复制 Prompt」（含打回、二次审查、上一棒修复） |
 | 2026-05-14 | v1.2：§3 可复制正文增第 **0** 条 **Invoke 快照（开帽起点）** |
 | 2026-05-22 | v1.3：§3 第 5–7 条 — A/B `（推荐）`、推荐判定、§3.4 状态栏；禁止自动走路径 |
+| 2026-05-25 | v1.4：SDD 三轮占位符 + §3.1 SDD 纪律 + SPEC 待确认清单强制表 |
 
 ---
 
