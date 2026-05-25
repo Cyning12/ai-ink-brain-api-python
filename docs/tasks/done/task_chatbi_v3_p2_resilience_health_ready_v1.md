@@ -1,6 +1,6 @@
 # Task：ChatBI V3 P2-1a 健康探针契约（/live + /ready）
 
-> **状态**：todo  
+> **状态**：done（2026-05-25 验收通过 · 人签合并前关账）  
 > **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §4
 
@@ -74,4 +74,26 @@
 | 命令 2 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
 | 结论 2 | `exit_code=0`；`210 passed, 1 skipped, 2 deselected` |
 | 证据归因 | 通过 pytest 的接口断言等价覆盖验收中两条 curl 场景（状态码 + JSON 字段） |
+
+---
+
+## 复检结论（50 · 独立复检）
+
+| 项 | 结果 |
+|----|------|
+| 复检报告 | [`docs/tasks/reinspect_results/reinspect_chatbi_v3_p2_1a_health_ready_20260525_v1.md`](../reinspect_results/reinspect_chatbi_v3_p2_1a_health_ready_20260525_v1.md) |
+| 结论 | **pass（建议合并）** |
+| 复检基线 | `4dae83c`（实现）+ `d06fe8b`（50 invoke） |
+| 独立重跑 | `pytest tests/test_health_probe_routes.py` → `2 passed`；全量门禁 → `210 passed, 1 skipped, 2 deselected` |
+| 关账状态 | 已归档 `docs/tasks/done/`；待 **PR 合并 `main` + CI 绿** |
+
+---
+
+## 实现备忘（30/50 回填）
+
+| 项 | 内容 |
+|----|------|
+| 涉及文件 | `api/index.py`；`tests/test_health_probe_routes.py`；`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`；`docs/_tech_graph/_manifest.json` |
+| 端点 | `GET /api/py/live`、`GET /api/py/ready`；`GET /api/py/health` 与 live 语义对齐 |
+| 图谱 | `_manifest.json` 已登记 live/ready handler |
 
