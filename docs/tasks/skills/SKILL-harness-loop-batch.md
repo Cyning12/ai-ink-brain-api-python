@@ -212,6 +212,8 @@
 
 **FAIL 时**：50 或 META meta-reinspect 标 **C2 fail**；**不要求** retrofix 已合并 Loop 的 stub invoke（记入过程债）；**下一 Loop** 或全 pass 复检须达标。
 
+**执行层（第三批）**：实例 `PROMPT_LOOP_22_to_CLOSE_v1.md` 步骤 1–5 含 invoke C2 自检句；[`HANDOFF_AUTO_COMMIT.md`](../../harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md) commit 前体量检查；[`HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md) P5 cross-round 不断质。
+
 ---
 
 ## failure_paths 模板（母 task）
@@ -319,3 +321,4 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
 | 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
 | 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
+| 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |

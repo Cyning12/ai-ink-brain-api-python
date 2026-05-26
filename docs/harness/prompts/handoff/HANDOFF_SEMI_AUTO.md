@@ -14,6 +14,7 @@
 | P2 | **不须人审**：同 Agent 可 **自动戴下一棒**；但 **下一棒 §3 Prompt 须先落盘**（`invokes/`）并 **commit**，再切换角色执行。 |
 | P3 | **审核节奏**：见 **§3 `audit_profile`**——`full` 多轮 `22`；`post_close` 开头轻闸 + 关账后统一人审（§4）。 |
 | P4 | **Git 形态**：半自动链式执行 **强烈建议** 在 **任务专用分支** 上进行（§5），`main` 仅通过 PR / 人签合并。 |
+| P5 | **Loop Batch**：`semi_auto` cross-round 续跑 **不降低** invoke 质量；30/40/50 换帽前仍须 §3 全文（≥15 行）+ commit（见 [`SKILL-harness-loop-batch`](../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁） |
 
 ---
 
@@ -239,7 +240,8 @@
 |------|------|
 | 2026-05-17 | v1：人工闸标识、自动戴帽前置 invoke+commit、audit_profile 两闸、多分支建议 |
 | 2026-05-22 | v1.1：§3.4 每棒状态栏（版本 B 对话默认 + 版本 C invoke 可选）；与 CLOSE_TRACE 分工 |
-| 2026-05-24 | v1.2：§2.3 增加「预批与二次确认」「优先由人单独 commit」「禁止混在业务 commit 中」
+| 2026-05-24 | v1.2：§2.3 增加「预批与二次确认」「优先由人单独 commit」「禁止混在业务 commit 中」 |
+| 2026-05-26 | v1.3：P5 Loop Batch invoke C2 — cross-round 不断质（第三批联动） |
 
 ---
 

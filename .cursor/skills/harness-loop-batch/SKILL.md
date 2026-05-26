@@ -40,4 +40,5 @@ disable-model-invocation: true
 ## 状态
 
 SKILL **`draft`** — 两 Loop + B-Q3 meta-reinspect **条件通过**；**C2 仍 FAIL**（R2/R3 30/40/50 stub），**不得**标 `accepted`  
-invoke 质量门禁 / 过程债矩阵 / 晋升决策树：见便携真值 **§invoke 质量门禁、§两 Loop 过程债矩阵**
+invoke 质量门禁 / 过程债矩阵 / 晋升决策树：见便携真值 **§invoke 质量门禁、§两 Loop 过程债矩阵**  
+**第三批已联动**：`PROMPT_LOOP` · `HANDOFF_AUTO_COMMIT` · `HANDOFF_SEMI_AUTO`（见便携真值 §invoke 质量门禁 · 执行层）

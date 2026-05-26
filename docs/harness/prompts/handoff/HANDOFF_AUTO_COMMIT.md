@@ -69,6 +69,17 @@ docs(harness): 22 R2 任务审核落盘与下一棒 30 执行 invoke
 已提交：Projects @ <short-hash> — …（若适用）
 ```
 
+**Loop Batch invoke C2（commit 前 · 与 commit 纪律并列）**：
+
+| 检查 | 行为 |
+|------|------|
+| invoke §3 **< 15 行** 或文件 **< 800 B** | **不得 commit**；补全 §3 可复制 Prompt 后再提交 |
+| §3 仅为「交付摘要 + commit」 | 同上 |
+| 元信息表缺 `task_slug`（或 round/hat/task/freeze_id/git_branch） | 补全后再 commit |
+| 用户显式豁免 | 对话声明「本轮 invoke stub 豁免」并说明理由 |
+
+真值：[`SKILL-harness-loop-batch.md`](../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁 · 实例 [`PROMPT_LOOP_22_to_CLOSE_v1.md`](../invokes/by-task/wiki-loop-a1-a4/PROMPT_LOOP_22_to_CLOSE_v1.md) 步骤内自检句。
+
 6. **禁止** 除非用户明确要求：`git push`、`git config` 修改、`--no-verify`、`--amend`（除用户规则允许情形）。
 
 ---
@@ -104,6 +115,7 @@ docs(harness): 22 R2 任务审核落盘与下一棒 30 执行 invoke
 |------|------|
 | 2026-05-17 | v1：初版 — 下一棒 Prompt 后自动 commit 通则 |
 | 2026-05-17 | v1.1：互链 [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)（无下一棒分支） |
+| 2026-05-26 | v1.2：Loop Batch invoke C2 — commit 前 §3 行数/体量自检（SKILL v1.5 第三批联动） |
 
 ---
 
