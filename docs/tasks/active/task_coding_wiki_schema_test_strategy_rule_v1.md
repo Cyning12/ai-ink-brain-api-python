@@ -34,7 +34,10 @@
 ## 前置（A1 关账回填 · 勿删标记）
 
 <!-- PLACEHOLDER:A1_OUTCOME -->
-（待回填：A1 写入的 test_strategy 取值、修改的文件路径、commit 短哈希、一句摘要）
+- **test_strategy**：`recommended`（与 L1 `task_05_query_rewrite_observability.md` 一致）
+- **改动路径**：`docs/coding_wiki/syntheses/query-rewrite-observability.md`、`docs/coding_wiki/log.md`
+- **30 commit**：`cbe181e`
+- **摘要**：A1 在 synthesis frontmatter/摘要/§测试变更 蒸馏 `test_strategy`，修复 Wiki-CTX-AB Multi slug B-Q3 类缺口
 <!-- /PLACEHOLDER:A1_OUTCOME -->
 
 > **22 开工前**：若上块仍为「待回填」→ **先**完成 A1 关账回填，**再**开 22。

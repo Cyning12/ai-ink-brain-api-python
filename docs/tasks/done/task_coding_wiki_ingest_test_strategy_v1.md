@@ -1,6 +1,6 @@
 # Task：Coding Wiki A1 — synthesis 补全 test_strategy（v1）
 
-> **状态**：`draft`  
+> **状态**：done（2026-05-26 验收通过 · CODING-WIKI-A1-TEST-STRATEGY@2026-05-26）  
 > **母 Loop**：[`task_harness_wiki_loop_a1_a4_v1.md`](task_harness_wiki_loop_a1_a4_v1.md) · round **A1**  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.1  
 > **证据**：[`conclusion_multi_slug_zh.md`](../harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md) slug B B-Q3
@@ -56,11 +56,11 @@ Multi slug AB 表明：W 臂禁止回读 L1 done task 时，`query-rewrite-obser
 
 ## 范围
 
-- [ ] 修改 `docs/coding_wiki/syntheses/query-rewrite-observability.md`：frontmatter 增 `test_strategy: recommended`（或等价 YAML + 摘要一句）。  
-- [ ] 摘要或 §测试变更 附近说明与 L1 / [`concepts/test-strategy-ink-backend.md`](../coding_wiki/concepts/test-strategy-ink-backend.md) 的 pointer 关系。  
-- [ ] 可选：`docs/coding_wiki/log.md` append 一行 ingest 记录。  
-- [ ] VERIFY：`rg -n test_strategy docs/coding_wiki/syntheses/query-rewrite-observability.md` 有命中且取值正确。  
-- [ ] 22/40/50 落盘；关账后回填 A2 占位 + `git mv` 本 task 至 `done/`。
+- [x] 修改 `docs/coding_wiki/syntheses/query-rewrite-observability.md`：frontmatter 增 `test_strategy: recommended`（或等价 YAML + 摘要一句）。  
+- [x] 摘要或 §测试变更 附近说明与 L1 / [`concepts/test-strategy-ink-backend.md`](../coding_wiki/concepts/test-strategy-ink-backend.md) 的 pointer 关系。  
+- [x] 可选：`docs/coding_wiki/log.md` append 一行 ingest 记录。  
+- [x] VERIFY：`rg -n test_strategy docs/coding_wiki/syntheses/query-rewrite-observability.md` 有命中且取值正确。  
+- [x] 22/40/50 落盘；关账后回填 A2 占位 + `git mv` 本 task 至 `done/`。
 
 ## 非范围
 
@@ -95,11 +95,11 @@ Multi slug AB 表明：W 臂禁止回读 L1 done task 时，`query-rewrite-obser
 
 ## 验收标准
 
-- [ ] `rg -n test_strategy docs/coding_wiki/syntheses/query-rewrite-observability.md` 输出含 `recommended`（或与 L1 一致的其他合法取值 + 摘要说明）。  
-- [ ] frontmatter 仍符合 `CODING_WIKI.md` §3 最小集（不破坏既有 `slug` / `source_task`）。  
-- [ ] 22 R1 落盘 `docs/harness/reviews/by-task/wiki-a1-ingest-test-strategy/`（零阻塞亦须记录）。  
-- [ ] 50 复检 pass；关账已回填 A2 `<!-- PLACEHOLDER:A1_OUTCOME -->`。  
-- [ ] 无 `api/`、`tests/`、prompts、CI diff。
+- [x] `rg -n test_strategy docs/coding_wiki/syntheses/query-rewrite-observability.md` 输出含 `recommended`（或与 L1 一致的其他合法取值 + 摘要说明）。  
+- [x] frontmatter 仍符合 `CODING_WIKI.md` §3 最小集（不破坏既有 `slug` / `source_task`）。  
+- [x] 22 R1 落盘 `docs/harness/reviews/by-task/wiki-loop-a1-a4/`（零阻塞亦须记录）。  
+- [x] 50 复检 pass；关账已回填 A2 `<!-- PLACEHOLDER:A1_OUTCOME -->`。  
+- [x] 无 `api/`、`tests/`、prompts、CI diff。
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（回归基线）。
 
