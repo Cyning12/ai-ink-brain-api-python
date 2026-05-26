@@ -1,7 +1,8 @@
 # Loop Manifest · A1–A4（每轮执行前替换 PROMPT_LOOP 占位符）
 
 > **git_branch**（四轮相同）：`task/wiki-loop-a1-a4-v1`  
-> **母 task**：`docs/tasks/active/task_harness_wiki_loop_a1_a4_v1.md`（四轮完成后关账）
+> **母 task**：`docs/tasks/done/task_harness_wiki_loop_a1_a4_v1.md`（四轮完成后 META 关账）  
+> **全链启动**：[`PROMPT_START_loop_a1_full_chain_v1.md`](./PROMPT_START_loop_a1_full_chain_v1.md)（【授权】cross-round **仅**在此，不在 `PROMPT_LOOP` 模板）
 
 | round | task_path（active → done） | task_slug | freeze_id | 上一轮回填本 task 的占位 | 关账后须回填下一 task |
 |-------|---------------------------|-----------|-----------|-------------------------|------------------------|

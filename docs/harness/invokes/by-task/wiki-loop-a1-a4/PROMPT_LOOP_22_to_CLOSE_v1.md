@@ -1,6 +1,7 @@
 # 启动 Prompt · Loop 执行 · 22 → 关账（v1 · 无 10）
 
-> **每子 task 一轮** · 新对话 · 先读 [`LOOP_MANIFEST.md`](./LOOP_MANIFEST.md) 替换下方占位符。  
+> **单 round 模板** · 先读 [`LOOP_MANIFEST.md`](./LOOP_MANIFEST.md) 替换 §3 占位符。  
+> **全链首次启动**（A1→META 同会话）：用 [`PROMPT_START_loop_a1_full_chain_v1.md`](./PROMPT_START_loop_a1_full_chain_v1.md)（【授权】**仅**在该文件，**不在**本模板 §3）。  
 > **禁止** 再跑 10；task 初稿已由 [`PROMPT_BATCH_10_four_tasks_v1.md`](./PROMPT_BATCH_10_four_tasks_v1.md) 生成。
 
 ---
@@ -37,10 +38,11 @@
 ```text
 你正在执行 Wiki Loop **{{LOOP_ROUND}}** 帽链：**22 → 30 → 40 → 50 → 关账**（本 Epic **无 10**），严格遵循：
 - docs/harness/prompts/hats/22-task-audit.md、30-execute-code.md、40-self-check.md、50-independent-reinspect.md
-- docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md、HANDOFF_CLOSE_TRACE.md
+- docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md、HANDOFF_AUTO_COMMIT.md、HANDOFF_CLOSE_TRACE.md
 - docs/harness/HARNESS_V2_PLAN.md §5
 - .cursor/rules/05-harness-semi-auto.mdc、06-harness-in-repo.mdc、07-git-workflow.mdc
 - semi_auto: true（无 pending 闸时可同会话连跑至本 round 关账）
+- **commit（硬）**：每帽结束须 `git add` 本轮路径 + `commit` 后再戴下一帽（见 HANDOFF_AUTO_COMMIT）；禁止只落盘不提交
 
 【元信息】
 - round: {{LOOP_ROUND}}
@@ -121,7 +123,9 @@ docs/harness/invokes/by-task/wiki-loop-a1-a4/invoke_YYYYMMDD_22_{{TASK_SLUG}}-v1
 5. 打开 {{NEXT_TASK_PATH}}，若含 `<!-- PLACEHOLDER:... -->`：
    - 用本 round 交付摘要回填（与步骤 0 相同纪律）
    - commit `chore(task): 预回填 <PLACEHOLDER_ID> from {{LOOP_ROUND}} close`
-6. **禁止** 为下一子 task 新建 10 或重写 task 结构；**禁止** 在本会话代跑下一子 task 的 22（除非 semi_auto 且人明确要求连跑下一轮）
+6. **禁止** 为下一子 task 新建 10 或重写 task 结构。
+   - **若** 当会话已授权 cross-round（见 [`PROMPT_START_loop_a1_full_chain_v1.md`](./PROMPT_START_loop_a1_full_chain_v1.md) §2，或首份 22 invoke 元信息 `cross_round_semi_auto: true`）：关账 commit 后 **同会话** 读 MANIFEST 下一 round → 生成下一 round 22 invoke §3 全文 → commit → 续跑 22；**禁止** 要求用户开新对话或再贴【授权】。
+   - **否则**：**禁止** 在本会话代跑下一子 task 的 22；步骤 6 输出「下一对话 · 本文件 · MANIFEST round=…」。
 
 7. commit 关账改动 · message `docs(task): Wiki loop {{LOOP_ROUND}} 关账 · {{FREEZE_ID}}`
 
@@ -130,12 +134,13 @@ docs/harness/invokes/by-task/wiki-loop-a1-a4/invoke_YYYYMMDD_22_{{TASK_SLUG}}-v1
 ### 步骤 6 · 对话末尾
 
 - 📋 Harness 状态栏（版本 B）
-- 若 {{NEXT_TASK_PATH}} ≠ 无：输出「下一对话 · PROMPT_LOOP_22_to_CLOSE · MANIFEST round=…」路径
+- 若 {{NEXT_TASK_PATH}} ≠ 无 **且未** cross-round 授权：输出「下一对话 · PROMPT_LOOP_22_to_CLOSE · MANIFEST round=…」
+- 若已 cross-round 授权且 {{NEXT_TASK_PATH}} ≠ 无：状态栏写「续跑 round=… · 同会话」；**不**停
 - 若 round = META：输出整链 CLOSE_TRACE · **无下一棒**
 
 硬约束：Open ai-ink-brain-api-python/ · 分支 {{GIT_BRANCH}} · 单 PR 纪律
 
-关键词：Loop、{{LOOP_ROUND}}、22、30、40、50、关账、无10、PLACEHOLDER
+关键词：Loop、{{LOOP_ROUND}}、22、30、40、50、关账、无10、PLACEHOLDER、HANDOFF_AUTO_COMMIT
 ```
 
 ---
@@ -145,3 +150,4 @@ docs/harness/invokes/by-task/wiki-loop-a1-a4/invoke_YYYYMMDD_22_{{TASK_SLUG}}-v1
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：Batch 10 与 Loop 22→关账 分离 |
+| 2026-05-26 | v1.1：跨 round【授权】迁至 PROMPT_START_loop_a1_full_chain；§3 增 commit 硬纪律与 cross-round 续跑规则 |

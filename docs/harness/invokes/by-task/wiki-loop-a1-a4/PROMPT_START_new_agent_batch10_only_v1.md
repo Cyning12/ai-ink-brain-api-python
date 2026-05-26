@@ -13,7 +13,7 @@
 
 **人工闸**：母 task 内 `HG-LOOP-BATCH` 保持 **`pending`**（勿代填 approved）。
 
-**完成后输出**：5 个文件路径列表 + commit 短哈希 +「下一棒：人批 HG-LOOP-BATCH → `PROMPT_LOOP_22_to_CLOSE` round=A1」。
+**完成后输出**：5 个文件路径列表 + commit 短哈希 +「下一棒：人批 HG-LOOP-BATCH → [`PROMPT_START_loop_a1_full_chain_v1.md`](./PROMPT_START_loop_a1_full_chain_v1.md)」。
 
 ---
 
@@ -67,4 +67,4 @@ test ! -f docs/tasks/active/task_coding_wiki_ingest_test_strategy_v1.md || echo 
 |------|------|
 | 母闸 pending | `task_harness_wiki_loop_a1_a4_v1.md` |
 | A2 占位 | `<!-- PLACEHOLDER:A1_OUTCOME -->` |
-| Loop 入口 | `PROMPT_LOOP_22_to_CLOSE_v1.md` + `LOOP_MANIFEST.md` |
+| Loop 入口 | `PROMPT_START_loop_a1_full_chain_v1.md` + `LOOP_MANIFEST.md` |

@@ -7,23 +7,23 @@
 | 文件 | 用途 |
 |------|------|
 | [`PROMPT_BATCH_10_four_tasks_v1.md`](./PROMPT_BATCH_10_four_tasks_v1.md) | **一次性**：生成母 task + A1～A4 四个 `active/task_*.md` 初稿 |
-| [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) | **每轮执行**：替换 `LOOP_MANIFEST` 中当轮占位符后粘贴 §3 代码块 |
-| [`LOOP_MANIFEST.md`](./LOOP_MANIFEST.md) | 四轮路径 / slug / freeze_id / 回填关系（人改「当轮」行即可） |
+| [`PROMPT_START_loop_a1_full_chain_v1.md`](./PROMPT_START_loop_a1_full_chain_v1.md) | **全链启动（推荐）**：A1 粘贴 **一次** + 【授权】cross-round；含 commit 硬纪律 |
+| [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) | **单 round 模板**（无【授权】）；断点续跑时按 MANIFEST 替换 §3 |
+| [`LOOP_MANIFEST.md`](./LOOP_MANIFEST.md) | 四轮路径 / slug / freeze_id / 回填关系 |
 
 ## 流程
 
 ```text
 [会话 1 · 仅一次]
-  PROMPT_BATCH_10 → 落盘 5 个 task + invoke_10_batch snapshot → commit
+  PROMPT_BATCH_10 → 5 task + invoke_10_batch → commit
 
-[会话 2..N · 每子 task 一轮]
-  若当轮 task 含 <!-- PLACEHOLDER:... --> 且上一子 task 已关账：
-    → 先读上一子 done task §实现备忘 / CLOSE commit，回填占位 → commit（可标 chore(backfill)）
-  PROMPT_LOOP_22_to_CLOSE（当轮 MANIFEST 行）→ 22→30→40→50→关账
-  关账帽末尾：若有下一轮，回填下一轮占位（见 PROMPT §关账）；**禁止** 为下一轮新建 10
+[会话 2 · 全链 · 推荐]
+  人批 HG-LOOP-BATCH → PROMPT_START_loop_a1_full_chain §3（含【授权】一次）
+  → A1..A4 各 22→30→40→50→关账 → META 关账 → 开 PR
+  每帽：invoke 落盘 + commit（HANDOFF_AUTO_COMMIT）
 
-[全部四轮 done 后]
-  母 task PROMPT_LOOP（round=META）→ 关账母 task → 开 PR
+[断点续跑 · 可选]
+  读最新 invoke + MANIFEST 当 round → PROMPT_LOOP §3（不必再贴【授权】，若首 invoke 含 cross_round_semi_auto）
 ```
 
 ## 分支
@@ -33,3 +33,11 @@
 ## 人工闸
 
 母 task `HG-LOOP-BATCH` = **approved** 后，子 task 文内写「继承母闸，不重复 pending」。
+
+## cross-round【授权】放哪
+
+| 放 | 不放 |
+|----|------|
+| `PROMPT_START_loop_a1_full_chain_v1.md` §2（会话级，一次） | `PROMPT_LOOP_22_to_CLOSE_v1.md` §3 模板正文 |
+
+断点凭据：首份 A1·22 invoke 元信息 `cross_round_semi_auto: true`。
