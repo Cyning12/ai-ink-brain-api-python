@@ -125,9 +125,9 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 ## 验收标准
 
-- [ ] `decisions/` ≥1 文件；`concepts/test-strategy-ink-backend.md` 存在且在 `index.md` 登记。  
-- [ ] 2 张新 synthesis 含 `## 测试变更` 与有效 `source_task`。  
-- [ ] 40 VERIFY 全 pass；50 建议关账无阻塞。  
+- [x] `decisions/` ≥1 文件；`concepts/test-strategy-ink-backend.md` 存在且在 `index.md` 登记。  
+- [x] 2 张新 synthesis 含 `## 测试变更` 与有效 `source_task`。  
+- [x] 40 VERIFY 全 pass；50 建议关账无阻塞。  
 - [ ] `git diff` 无 `api/`、无 `docs/harness/prompts/`。  
 - [ ] task 关账：`done/` + `_views/done.md` + §6.6 T1c **done**。
 
@@ -146,15 +146,18 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 ### 自检结论（执行者）
 
-**30 帽草稿**（40 将独立 VERIFY）：
+**40 帽 VERIFY**（2026-05-26 · commit `de2d05b` 交付）：
 
-| # | VERIFY | 30 预期 |
-|---|--------|---------|
-| (1) | `decisions/*.md` ≥1 | pass |
-| (2) | `concepts/test-strategy-ink-backend.md` | pass |
-| (3) | 两张 T1c synthesis | pass |
-| (4) | `## 测试变更` | pass |
-| (5) | 无 `api/`、`docs/harness/prompts/` diff | pass（本 Epic 未改） |
+| # | 检查项 | 结果 | 证据 |
+|---|--------|------|------|
+| (1) | `decisions/*.md` ≥1 | **pass** | `find` → 1 |
+| (2) | `concepts/test-strategy-ink-backend.md` | **pass** | `test -f` exit 0 |
+| (3) | 两张 T1c synthesis 存在 | **pass** | `query-rewrite-observability.md`、`chatbi-v3-text2sql-tool-latency-obs.md` |
+| (4) | 含 `## 测试变更`；`log.md` T1c ingest 行 | **pass** | `rg '^## 测试变更'` · `log.md` `T1c ingest` |
+| (5) | 无 `api/`、`prompts/`、`tests/`、`.github/` 变更 | **pass** | `git diff origin/main...HEAD` 上述路径 0 文件 |
+| (6) | `source_task` 相对路径；无 `/Users/`；无 pytest 清单真值表 | **pass** | 抽检 2× synthesis + `rg /Users/` 无匹配 |
+
+**结论**：**pass** — 可进入 **50** 独立复检。
 
 ---
 
