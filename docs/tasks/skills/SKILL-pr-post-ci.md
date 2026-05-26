@@ -52,6 +52,8 @@
 - [ ] （业务向）…
 ```
 
+**Bot 自动勾选**（Required 全绿且 PR 仍 open）：勾选 `## Test plan` 内 **不含** `合入后` / `automerge` / `Mergify` / `可选` 等词的 `- [ ]` 行；Mergify 是否真 merge、合入后验收 **保留 `[ ]`**（见 SPEC §3.1 · #56）。
+
 ---
 
 ## 本地命令
@@ -82,3 +84,4 @@ gh pr edit <N> --body-file /tmp/body.md
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：方案 C 落盘 |
+| 2026-05-26 | v1.1：对齐 #56 修订（Test plan / CI 表 / 已关闭 PR） |

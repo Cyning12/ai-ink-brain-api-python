@@ -66,14 +66,23 @@
 
 **触发**：`workflow_run`（pytest / tech-graph / tech-graph-contract / verify-fast 完成）及 `pull_request` `synchronize`。
 
-**动作**（PR 仍 open 时）：
+**动作**（PR **`state=OPEN`** 时；`MERGED`/`CLOSED` **跳过** `gh pr edit`）：
 
-1. 汇总 Required 类 checks（见 workflow 内 `REQUIRED_CHECKS` 列表）。  
+1. 汇总 Required 类 checks（`pytest`、`manifest_check`、`contract_check`）。  
 2. 若 **全部 success**：  
-   - 在 PR body 追加或更新 `## CI 状态（自动 · pr-post-ci）` 表（时间、check、conclusion）。  
-   - 将 `## Test plan` 下与模板匹配的 `- [ ]` 改为 `- [x]`（不删除人工条目）。  
+   - 在 PR body 追加或更新 `## CI 状态（自动 · pr-post-ci）` 表（**仅列上述 Required**，不列 Mergify/Vercel 等，避免 `in_progress` 误导）。  
+   - 将 `## Test plan` 下 **可自动验收** 的 `- [ ]` 改为 `- [x]`（见下「Test plan 勾选」）。  
    - 追加 `## 变更范围（自动统计）`：`git diff --name-only` 按顶层目录计数。  
 3. 若 **未全绿**：仅更新 CI 状态表为失败/进行中，**不** 勾选 Test plan，**不** merge。
+
+**Test plan 勾选**（`tools/pr_post_ci_update_body.py` · #56 修订）：
+
+| 全绿时 | 行为 |
+| --- | --- |
+| **自动勾** | `## Test plan` 内 `- [ ]` 行，且 **不含** `合入后`、`下一支`、`可选`、`automerge`、`Mergify` 等关键词 |
+| **保留 `[ ]`** | 合入后验收、Mergify 是否真 merge、可选端到端等 **须人确认** 的条目 |
+
+**禁止**用宽泛正则（如 `.*pytest.*绿`）改写条目文案；只改 `[ ]` → `[x]`。
 
 **不做什么**：不用 LLM 重写 Summary；多主题 PR 的叙述性 Summary 由 **SKILL / 人** 补。
 
@@ -118,6 +127,13 @@
 | F2 | 路径含 `api/` 但带 `automerge` | Mergify 不合并；comment 提示移除标签或拆 PR |
 | F3 | bot 改 body 失败（权限） | workflow 失败；人用手动 `gh pr edit` |
 | F4 | 多主题 squash 仅依赖 bot Summary | **不允许**；人须补 Summary（SKILL） |
+| F5 | PR 已 merge 仍触发 `workflow_run` | 脚本检测 `state≠OPEN` 后跳过 body 更新 |
+| F6 | Mergify 未 merge 但 Test plan 勾了 automerge 行 | **不自动勾** 含 `automerge`/`Mergify` 的行；人审或 merge 后手动勾 |
+
+### 3.4 Mergify 排障（#56）
+
+- **不需** 配置 Merge Queue：本仓用 `pull_request_rules` + `actions: merge`，与控制台 **Queue rules 为空** 不矛盾。  
+- automerge 未触发：查 [Mergify Event logs](https://dashboard.mergify.com) → App 对仓库 **Contents: Read and write**、`.mergify.yml` 已在 `main`。
 
 ---
 
@@ -136,3 +152,4 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：方案 C（workflow + Mergify + SKILL）；#54 教训 |
+| 2026-05-26 | v1.1：#56 修订 — Test plan 区段勾选、CI 表仅 Required、跳过已关闭 PR |
