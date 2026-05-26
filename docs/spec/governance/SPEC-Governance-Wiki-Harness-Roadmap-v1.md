@@ -49,12 +49,15 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **done**（2026-05-26 · [`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | **P1-4** | 前端 Harness parity | `ai-ink-brain` 模板/rsync/规则 | **远期**（≠ T3 工作区交付） |
 | **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | **planned** |
+| **T1c** | Wiki 扩域（过程档案） | 测试迭代 `syntheses`/`decisions`/`concepts`；见 [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §8 | **planned**（试点关账后） |
 
 ```text
 T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
          │
          T1b（pilot）──► T2（P2 AB）✓ ──► 默认 coding_wiki 读序（2026-05-26 签收）
          │
+         T1c（测试过程档案等）· planned
+         T4（图谱桥接）· planned
          P1-4（前端 parity）· 远期
 ```
 
@@ -90,7 +93,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | --- | --- | --- |
 | **本 SPEC** | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` | 整体安排、阶段闸口 |
 | **排期表** | `docs/tasks/RECENT_TASK_SCHEDULE.md` | 状态勾选、与 V3 队列并列 |
-| **Wiki 试点 task** | `docs/tasks/active/task_coding_wiki_pilot_v1.md` | 交付 `coding_wiki/` |
+| **Wiki 试点 task** | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | 交付 `coding_wiki/`（**done**） |
 | **AB task** | `docs/tasks/done/task_wiki_ctx_ab_v1.md` | scorecard + conclusion（P1+P2 **done**） |
 | **ChatBI SDD** | `docs/spec/v3-agent/*` | 业务行为；**不**替代治理线 |
 
@@ -101,6 +104,20 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 - 图即记忆 T/K/H 全栈、Neo4j（INK-P7）、改 `docs/harness/prompts/` 帽子正文。  
 - 将 invoke/review 全文迁入 SPEC 或 `graph.json`。  
 - 在 P2 结论前将 **`coding_wiki/` 升为 Agent 默认读序**（T3 工作区 harness 已关账；T1b/T2 仍管 Wiki 疗效）。
+- 用 Wiki 替代 pytest / `_test_manifest` 做 **coverage 真值或 CI 映射**（仅允许 **测试变更过程** 存档，见 `CODING_WIKI.md` §8）。
+
+---
+
+## 5.1 下一步优先级（2026-05-26 草案 · 试点关账后）
+
+| 优先级 | 代号 | 内容 | 依赖 |
+| --- | --- | --- | --- |
+| **P0** | 试点关账 | Wiki-CTX-AB task 归档、`RECENT_TASK_SCHEDULE` / `_views` 同步；实践文 → `docs/diary/` | **done**（2026-05-26 · task 已在 `done/`；见 diary 与对比表） |
+| **P1** | T1c 扩域 | 选 1～2 个 **测试相关 done task** ingest；可选 `concepts/test-strategy-ink-backend`；`decisions/` 首条 append | `CODING_WIKI` §8 |
+| **P1** | 多 slug AB | 对 `tech-graph-gate-d-v2-tasks` 等再跑 **对照实验二**（精简 Harness 包 vs 仅 Wiki），削弱「单 Epic 外推」局限 | 已有 synthesis |
+| **P2** | L2 工具链 | 锚点校验、测试↔`ERR_*` manifest（治理仓 L2-1/L2-2）；与 Wiki **并行**，不阻塞 T1c | 图谱测评建议 |
+| **P2** | T4 | Wiki frontmatter `graph_nodes` 与 L0 桥接 | planned |
+| **P3** | P1-4 | 前端 Harness parity | 远期 |
 
 ---
 
@@ -111,6 +128,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | Harness taxonomy | [`docs/harness/README.md`](../../harness/README.md) §2.1 |
 | 图谱消费 | `docs/_tech_graph/` · `AGENT_GRAPH_CONSUMPTION`（治理仓 methodology） |
 | LLM Wiki 译文 | `ai_coding_governance/lib/llm-wiki_zh.md` |
+| 需求逐项对比 | [`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md) |
 
 ---
 
@@ -120,6 +138,9 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | --- | --- |
 | 2026-05-25 | v1：整体安排表；T0～T4；Wiki-CTX-AB P1/P2 闸口 |
 | 2026-05-26 | v1.2：T2 **done** · SPEC §3.1 P2 签收 · 推荐默认 `coding_wiki/` 读序 |
+| 2026-05-26 | v1.3：T1c 扩域（测试过程档案）· §5.1 下一步优先级 · §5 非范围补 Wiki≠coverage |
+| 2026-05-26 | v1.4：§4 pilot → done 路径 · §6 链出需求对比表 |
+| 2026-05-26 | v1.5：§5.1 P0 **done** · diary 实践文落盘 |
 
 ---
 

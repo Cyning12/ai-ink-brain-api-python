@@ -21,6 +21,9 @@ freeze_id: CODING-WIKI-PILOT@2026-05-25
 | 影响面、依赖、RPC/表 | `graph_query` + `_tech_graph`（L0） |
 | 单 task 验收与闸口 | L1 task / review |
 | 跨 Epic 决策、Harness 口径、历史 why | L2 `index.md` + syntheses |
+| 测试增删改查的 **过程档案**（非 coverage 真值） | L2 `decisions/`、`syntheses` §测试变更；真值仍在 `tests/` + L0 |
+
+Schema 细则：[[../CODING_WIKI]] §7–§9。
 
 ## 链接
 
