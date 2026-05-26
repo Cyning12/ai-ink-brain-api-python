@@ -1,6 +1,6 @@
 # Task：Coding Wiki T1c — 测试迭代过程档案（v1）
 
-> **状态**：`pending`  
+> **状态**：`done（2026-05-26 验收通过 · CODING-WIKI-T1C@2026-05-26）`  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)（**T1c** · §5.1 P1）  
 > **关联对比表**：[`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)  
 > **前置（done）**：[`task_coding_wiki_pilot_v1.md`](../done/task_coding_wiki_pilot_v1.md) · [`task_wiki_ctx_ab_v1.md`](../done/task_wiki_ctx_ab_v1.md)
@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 人扫 task 与 ingest 名单 |
-| HG-T1C-INGEST-SCOPE | pending | 30 | 人确认本期 **2** 个测试相关 done task（见下表） |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 人扫 task 与 ingest 名单 |
+| HG-T1C-INGEST-SCOPE | approved | 30 | 人确认本期 **2** 个测试相关 done task（见下表） |
 
 ### 前置条件（开工前自检）
 
@@ -36,7 +36,7 @@
 |---|------|------|
 | P1 | T1b pilot、`docs/coding_wiki/` 骨架存在 | **已满足** |
 | P2 | Wiki-CTX-AB P2 签收、默认读序已写 SPEC | **已满足** |
-| P3 | `HG-TASK-DRAFT`、`HG-T1C-INGEST-SCOPE` = `approved` | **须人签** |
+| P3 | `HG-TASK-DRAFT`、`HG-T1C-INGEST-SCOPE` = `approved` | **已满足**（2026-05-26 人签） |
 
 ---
 
@@ -87,11 +87,11 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 ## 范围
 
-- [ ] 新建 `decisions/` 与首条决策记录（append-only）。  
-- [ ] 新建 `concepts/test-strategy-ink-backend.md`（frontmatter 合规）。  
-- [ ] 上表 2 个 done task → `syntheses/` + `index` + `log`。  
-- [ ] 每张新 synthesis 含：`source_task`、`## 测试变更`、pointer → `tests/` 与相关 `failure_paths` / 图谱节点（文字即可）。  
-- [ ] 22 R1 审查：无双真值、未复制 review 全文、未改 `docs/harness/prompts/`。
+- [x] 新建 `decisions/` 与首条决策记录（append-only）。  
+- [x] 新建 `concepts/test-strategy-ink-backend.md`（frontmatter 合规）。  
+- [x] 上表 2 个 done task → `syntheses/` + `index` + `log`。  
+- [x] 每张新 synthesis 含：`source_task`、`## 测试变更`、pointer → `tests/` 与相关 `failure_paths` / 图谱节点（文字即可）。  
+- [x] 22 R1 审查：无双真值、未复制 review 全文、未改 `docs/harness/prompts/`。
 
 ## 非范围
 
@@ -125,11 +125,11 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 ## 验收标准
 
-- [ ] `decisions/` ≥1 文件；`concepts/test-strategy-ink-backend.md` 存在且在 `index.md` 登记。  
-- [ ] 2 张新 synthesis 含 `## 测试变更` 与有效 `source_task`。  
-- [ ] 40 VERIFY 全 pass；50 建议关账无阻塞。  
-- [ ] `git diff` 无 `api/`、无 `docs/harness/prompts/`。  
-- [ ] task 关账：`done/` + `_views/done.md` + §6.6 T1c **done**。
+- [x] `decisions/` ≥1 文件；`concepts/test-strategy-ink-backend.md` 存在且在 `index.md` 登记。  
+- [x] 2 张新 synthesis 含 `## 测试变更` 与有效 `source_task`。  
+- [x] 40 VERIFY 全 pass；50 建议关账无阻塞。  
+- [x] `git diff` 无 `api/`、无 `docs/harness/prompts/`。  
+- [x] task 关账：`done/` + `_views/done.md` + §6.6 T1c **done**。
 
 ---
 
@@ -137,15 +137,51 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 | 类型 | 路径 |
 |------|------|
-| Wiki | `docs/coding_wiki/decisions/`、`concepts/`、`syntheses/` |
-| Harness | `docs/harness/invokes/by-task/coding-wiki-t1c/`、`reviews/by-task/coding-wiki-t1c/` |
+| Wiki | `docs/coding_wiki/decisions/2026-05-26-unit-first-test-archive.md` |
+| Wiki | `docs/coding_wiki/concepts/test-strategy-ink-backend.md` |
+| Wiki | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |
+| Wiki | `docs/coding_wiki/syntheses/chatbi-v3-text2sql-tool-latency-obs.md` |
+| Wiki | `docs/coding_wiki/index.md`、`log.md`（ingest 登记） |
+| Harness | `docs/harness/invokes/by-task/coding-wiki-t1c/invoke_20260526_30_coding-wiki-t1c-v1.md` |
 
 ### 自检结论（执行者）
 
-（40 帽填写）
+**40 帽 VERIFY**（2026-05-26 · commit `de2d05b` 交付）：
+
+| # | 检查项 | 结果 | 证据 |
+|---|--------|------|------|
+| (1) | `decisions/*.md` ≥1 | **pass** | `find` → 1 |
+| (2) | `concepts/test-strategy-ink-backend.md` | **pass** | `test -f` exit 0 |
+| (3) | 两张 T1c synthesis 存在 | **pass** | `query-rewrite-observability.md`、`chatbi-v3-text2sql-tool-latency-obs.md` |
+| (4) | 含 `## 测试变更`；`log.md` T1c ingest 行 | **pass** | `rg '^## 测试变更'` · `log.md` `T1c ingest` |
+| (5) | 无 `api/`、`prompts/`、`tests/`、`.github/` 变更 | **pass** | `git diff origin/main...HEAD` 上述路径 0 文件 |
+| (6) | `source_task` 相对路径；无 `/Users/`；无 pytest 清单真值表 | **pass** | 抽检 2× synthesis + `rg /Users/` 无匹配 |
+
+**结论**：**pass** — 可进入 **50** 独立复检。
 
 ---
 
 ## 给 Cursor
 
 `task_coding_wiki_t1c_test_archive_v1`、`CODING-WIKI-T1C`、`T1c`、`测试迭代档案`、`decisions`、`test-strategy`、`semi_auto`、`coding-wiki-t1c`
+
+---
+
+## 执行路线与 Commit 回溯（关账 · 2026-05-26）
+
+| 序号 | 帽 | 关键动作 | 落盘工件 | commit |
+|------|-----|----------|----------|--------|
+| 1 | **22 R1** | 零阻塞合同审 | `reviews/by-task/coding-wiki-t1c/..._audit_R1_20260526.md` | `api-python@e9af40d` |
+| 2 | **30** | T1c Wiki 交付 | `docs/coding_wiki/decisions/`、`concepts/`、2× `syntheses/` | `api-python@de2d05b` |
+| 3 | **40** | VERIFY (1)–(6) pass | task `### 自检结论` | `api-python@25d4647` |
+| 4 | **50** | 建议关账 | `reinspect_coding_wiki_t1c_20260526_v1.md` | `api-python@b8cc396` |
+| 5 | **关账** | `git mv` → `done/`、排期 §6.6 | 本文件、`_views/done.md` | （本 commit） |
+
+### api-python（`task/coding-wiki-t1c-v1`）
+
+- `b8cc396` docs(harness): 50 复检 T1c 建议关账  
+- `25d4647` docs(harness): 40 自检 T1c VERIFY pass  
+- `de2d05b` docs(coding_wiki): T1c 测试过程档案交付  
+- `e9af40d` docs(harness): 22 R1 audit Coding Wiki T1c  
+
+**关闭回溯**：50 → `docs/tasks/reinspect_results/reinspect_coding_wiki_t1c_20260526_v1.md`

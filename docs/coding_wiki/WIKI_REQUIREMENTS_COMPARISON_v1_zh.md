@@ -42,7 +42,7 @@
 | 4 | Wiki 非架构第二真值 | B、C §1 | 冲突以 L0/L1 为准 | §1、§7 明文 | ✅ |
 | 5 | 三层：Raw / Wiki / Schema | A | 三层分离 | L1=原文、L2=Wiki、Schema=`CODING_WIKI` | ⚠️ **有意裁剪**；见 §4 |
 | 6 | 与图谱分工：拓扑 vs 叙事 | C、D | 表/RPC/依赖走 L0 | `llm-wiki-layers` | ✅ |
-| 7 | 测试「过程存档」非 coverage 真值 | D、C §8 | Wiki 记变更史/意图 | §8 已规范；无 `decisions/` 页 | ⚠️ → **T1c** |
+| 7 | 测试「过程存档」非 coverage 真值 | D、C §8 | Wiki 记变更史/意图 | §8 + `decisions/` + 2× synthesis §测试变更 | ✅ **T1c done** |
 | 8 | 测试↔`ERR_*` 机器校验 | D | `_test_manifest` 等 | 未建 | ❌ **工具链 L2**；SPEC §5.1 P2 |
 
 ---
@@ -57,7 +57,7 @@
 | 12 | `concepts/` 跨 task 概念 | A、C | 多页织网 | **1 页** | ⚠️ T1c 可增 `test-strategy-*` |
 | 13 | `entities/` 实体页 | A、C 可选 | 产品/模块等 | **未建目录** | ❌ 可选；模块/表优先 L0 |
 | 14 | `sources/` 源 stub | C §9 | L1 过大时 | **未建** | ⏸ 按需 |
-| 15 | `decisions/` 决策 append | C §8、D | 删测/暂不测等 | **未建** | ❌ T1c |
+| 15 | `decisions/` 决策 append | C §8、D | 删测/暂不测等 | `2026-05-26-unit-first-test-archive.md` | ✅ **T1c done** |
 | 16 | 每源 touch 10～15 页 | A | 密集互链 | 1 task → 1 synthesis | ❌ **工程裁剪，不采纳** |
 | 17 | Query 结果写回 Wiki | A | 好答案沉淀 | 大改走 task 再 ingest | ⚠️ 弱化为关账 ingest |
 
@@ -98,7 +98,7 @@
 | 32 | Coding Wiki 骨架 | T1b | 同 slug ingest | **done**，3 syntheses | ✅ |
 | 33 | 对照实验二 | T2 | 再优且不降 | **-78.8%**（相对臂 B），4/4 | ✅；**单 slug** |
 | 34 | 默认 Agent 读序 | P2 签收 | 关账先 Wiki | conclusion_p2 | ✅ |
-| 35 | 测试过程扩域 | **T1c** | CODING_WIKI §8 | **planned** | ❌ **无 active task** |
+| 35 | 测试过程扩域 | **T1c** | CODING_WIKI §8 | **done** 2026-05-26 | ✅ `task_coding_wiki_t1c_test_archive_v1` |
 | 36 | Wiki↔图谱 frontmatter | T4 | graph_nodes | planned | ❌ P2 |
 | 37 | 前端 Harness parity | P1-4 | 前端仓 | 远期 | ⏸ |
 | 38 | 多 slug 对照实验二 | SPEC §5.1 P1 | 削弱外推局限 | 未排 task | ❌ 建议新 AB task |
@@ -125,7 +125,7 @@
 | SPEC §5.1 项 | active task？ | done / 实验 | 建议 |
 | --- | --- | --- | --- |
 | P0 试点关账 | 无（收口，不新建） | `task_wiki_ctx_ab_v1` 等 **done** | ✅ 2026-05-26；**T1c 起需 active task** |
-| P1 T1c | **无** | 仅 §8 规范 | **新建** `task_coding_wiki_t1c_*` |
+| P1 T1c | **无** | **done** · `done/task_coding_wiki_t1c_test_archive_v1.md` | ✅ 2026-05-26 关账 |
 | P1 多 slug AB | **无** | v1 单 slug | 新建或并入 T1c |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | planned | 未来 task |
