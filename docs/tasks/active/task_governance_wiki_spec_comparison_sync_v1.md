@@ -1,6 +1,6 @@
 # Task：Governance A3 — SPEC §2 与对比表 Wiki 同步（v1）
 
-> **状态**：`draft`  
+> **状态**：done（2026-05-26 验收通过 · GOV-WIKI-A3-SPEC-SYNC@2026-05-26）  
 > **母 Loop**：[`task_harness_wiki_loop_a1_a4_v1.md`](task_harness_wiki_loop_a1_a4_v1.md) · round **A3**  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)  
 > **对比表**：[`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)
@@ -56,11 +56,11 @@ T1c 与 Multi slug AB 均已关账，但 **SPEC §2 时间线** 仍标 T1c 为 `
 
 ## 范围
 
-- [ ] 更新 `SPEC-Governance-Wiki-Harness-Roadmap-v1.md` **§2** 时间线：T1c → **done**；增补或更新 Multi slug 行 → **done**（链 `task_wiki_ctx_ab_multi_slug_v1`）。  
-- [ ] 更新 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`：**#12** concepts 行（1 页 → T1c done + concept 页存在）。  
-- [ ] 更新对比表 **#46** 多 slug 行：与 Multi 结论（slug B W 3/4、ingest 条件）一致；若 A1/A2 已 done 可改为「Loop A1/A2 已补 test_strategy 纪律」。  
-- [ ] 两文件修订记录各追加一行。  
-- [ ] 22/40/50 落盘；关账 `done/`。
+- [x] 更新 `SPEC-Governance-Wiki-Harness-Roadmap-v1.md` **§2** 时间线：T1c → **done**；增补或更新 Multi slug 行 → **done**（链 `task_wiki_ctx_ab_multi_slug_v1`）。  
+- [x] 更新 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`：**#12** concepts 行（1 页 → T1c done + concept 页存在）。  
+- [x] 更新对比表 **#46** 多 slug 行：与 Multi 结论（slug B W 3/4、ingest 条件）一致；若 A1/A2 已 done 可改为「Loop A1/A2 已补 test_strategy 纪律」。  
+- [x] 两文件修订记录各追加一行。  
+- [x] 22/40/50 落盘；关账 `done/`。
 
 ## 非范围
 
@@ -96,11 +96,11 @@ T1c 与 Multi slug AB 均已关账，但 **SPEC §2 时间线** 仍标 T1c 为 `
 
 ## 验收标准
 
-- [ ] `grep -n planned docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` 在 **§2 T1c 行** 无 `planned`（应为 done 或等价）。  
-- [ ] SPEC §2 含 Multi slug **done** 引用（`task_wiki_ctx_ab_multi_slug_v1` 或结论文）。  
-- [ ] 对比表 #12、#46 现状列与 2026-05-26 Multi + T1c 事实一致。  
-- [ ] 22 R1 落盘 `reviews/by-task/wiki-a3-spec-comparison/`。  
-- [ ] 50 复检 pass；本 task 在 `done/`。
+- [x] `grep -n planned docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` 在 **§2 T1c 行** 无 `planned`（应为 done 或等价）。  
+- [x] SPEC §2 含 Multi slug **done** 引用（`task_wiki_ctx_ab_multi_slug_v1` 或结论文）。  
+- [x] 对比表 #12、#46 现状列与 2026-05-26 Multi + T1c 事实一致。  
+- [x] 22 R1 落盘 `reviews/by-task/wiki-loop-a1-a4/`。  
+- [x] 50 复检 pass；本 task 在 `done/`。
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`。
 
@@ -111,6 +111,7 @@ T1c 与 Multi slug AB 均已关账，但 **SPEC §2 时间线** 仍标 T1c 为 `
 | 项 | 内容 |
 |----|------|
 | 涉及文件 | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`、`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
+| 30 commit | `待关账回填` |
 | 图谱变更点 | 无 |
 
 ---
@@ -119,9 +120,9 @@ T1c 与 Multi slug AB 均已关账，但 **SPEC §2 时间线** 仍标 T1c 为 `
 
 | 项 | 结果 |
 |----|------|
-| 命令 | — |
-| 结论 | — |
-| 要点 | — |
+| 命令 | `grep -n 'T1c' docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`；`grep -n '46' docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
+| 结论 | **pass** |
+| 要点 | §2 T1c/Multi **done**；#12/#46 已同步 A1/A2 test_strategy |
 
 ---
 
