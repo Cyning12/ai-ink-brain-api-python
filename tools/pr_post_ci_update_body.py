@@ -31,6 +31,16 @@ BLOCK_AUTOMERGE_PREFIXES = (
 
 CI_SECTION = "## CI 状态（自动 · pr-post-ci）"
 SCOPE_SECTION = "## 变更范围（自动统计）"
+TEST_PLAN_HEADER = "## Test plan"
+
+# Required 全绿时可自动勾选；含下列词的条目保留人工（#56 教训）
+TEST_PLAN_MANUAL_LINE = re.compile(
+    r"合入后|下一支|后续|可选|端到端|automerge|Mergify",
+    re.IGNORECASE,
+)
+
+# CI 表仅展示 Required，避免 Mergify/Vercel 等 in_progress 误导
+NOISE_CHECK_PREFIXES = ("Vercel", "Mergify")
 
 
 def _run(cmd: list[str], *, check: bool = True) -> str:
@@ -42,6 +52,10 @@ def _run(cmd: list[str], *, check: bool = True) -> str:
         check=check,
     )
     return result.stdout.strip()
+
+
+def fetch_pr_state(pr: int) -> str:
+    return _run(["gh", "pr", "view", str(pr), "--json", "state", "-q", ".state"])
 
 
 def fetch_checks(pr: int) -> list[dict]:
@@ -60,7 +74,7 @@ def fetch_checks(pr: int) -> list[dict]:
     out: list[dict] = []
     for item in rollup:
         name = item.get("name") or item.get("context") or ""
-        if not name or name.startswith("Vercel"):
+        if not name:
             continue
         conclusion = item.get("conclusion")
         state = item.get("state") or item.get("status")
@@ -72,6 +86,15 @@ def fetch_checks(pr: int) -> list[dict]:
             status = "unknown"
         out.append({"name": name, "status": status})
     return out
+
+
+def is_noise_check(name: str) -> bool:
+    return any(name.startswith(prefix) for prefix in NOISE_CHECK_PREFIXES)
+
+
+def checks_for_ci_table(checks: list[dict]) -> list[dict]:
+    """CI 状态表只列 Required checks。"""
+    return [c for c in checks if c["name"] in REQUIRED_CHECKS]
 
 
 def all_required_green(checks: list[dict]) -> bool:
@@ -107,6 +130,7 @@ def has_blocked_paths(files: list[str]) -> list[str]:
 
 
 def render_ci_table(checks: list[dict], *, green: bool) -> str:
+    display = checks_for_ci_table(checks)
     lines = [
         CI_SECTION,
         "",
@@ -118,9 +142,8 @@ def render_ci_table(checks: list[dict], *, green: bool) -> str:
         "| Check | Status |",
         "| --- | --- |",
     ]
-    for c in sorted(checks, key=lambda x: x["name"]):
-        mark = "（required）" if c["name"] in REQUIRED_CHECKS else ""
-        lines.append(f"| {c['name']}{mark} | {c['status']} |")
+    for c in sorted(display, key=lambda x: x["name"]):
+        lines.append(f"| {c['name']} | {c['status']} |")
     lines.append("")
     return "\n".join(lines)
 
@@ -170,21 +193,37 @@ def upsert_section(body: str, section_header: str, new_content: str) -> str:
     return body.rstrip() + sep + new_content + "\n"
 
 
+def should_auto_tick_test_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped.startswith("- [ ]"):
+        return False
+    return TEST_PLAN_MANUAL_LINE.search(stripped) is None
+
+
 def tick_test_plan(body: str, *, green: bool) -> str:
     if not green:
         return body
-    # 仅勾选常见模板行，保留人工条目
-    replacements = [
-        (r"- \[ \] CI.*pytest", "- [x] CI **pytest**"),
-        (r"- \[ \] CI.*tech-graph", "- [x] CI **tech-graph**"),
-        (r"- \[ \] CI.*verify", "- [x] CI **verify-fast**"),
-        (r"- \[ \] CI.*绿", "- [x] CI 绿"),
-        (r"- \[ \] .*pytest.*绿", "- [x] pytest 绿"),
-    ]
-    out = body
-    for pat, repl in replacements:
-        out = re.sub(pat, repl, out, flags=re.IGNORECASE)
-    return out
+
+    section = re.compile(
+        rf"^({re.escape(TEST_PLAN_HEADER)}\s*\n)(.*?)(?=^## |\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+
+    def _replace_section(match: re.Match[str]) -> str:
+        header, content = match.group(1), match.group(2)
+        new_lines: list[str] = []
+        for line in content.splitlines():
+            if should_auto_tick_test_line(line):
+                line = line.replace("- [ ]", "- [x]", 1)
+            new_lines.append(line)
+        body_part = "\n".join(new_lines)
+        if content.endswith("\n"):
+            body_part += "\n"
+        return header + body_part
+
+    if section.search(body):
+        return section.sub(_replace_section, body, count=1)
+    return body
 
 
 def update_body(pr: int) -> tuple[str, bool]:
@@ -205,13 +244,17 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
+    state = fetch_pr_state(args.pr)
+    if state != "OPEN":
+        print(f"PR #{args.pr} state={state}; skip body update", file=sys.stderr)
+        return 0
+
     new_body, green = update_body(args.pr)
     if args.dry_run:
         print(new_body)
         print(f"\n# required_all_green={green}", file=sys.stderr)
         return 0
 
-    # gh pr edit 用 body 文件避免 shell 转义
     tmp = REPO_ROOT / "tmp" / f"pr_{args.pr}_body.md"
     tmp.parent.mkdir(parents=True, exist_ok=True)
     tmp.write_text(new_body, encoding="utf-8")
