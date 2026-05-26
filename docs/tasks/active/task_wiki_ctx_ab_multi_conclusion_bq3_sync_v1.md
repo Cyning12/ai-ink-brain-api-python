@@ -106,8 +106,9 @@ R1 提供 §Recheck 证据。本 round 将实验叙事与 **需求对比表** �
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| conclusion §Recheck | | |
-| 对比表 #46 | | |
+| conclusion §Recheck | **pass** | §5 增量 · §1–§4 未删 |
+| 对比表 #46 | **pass** | 附条件全满足 · 与 scorecard 一致 |
+| scorecard §Multi 主表 | **pass** | 未改冻结行 |
 
 ---
 
