@@ -1,6 +1,6 @@
 # Task：Coding Wiki A2 — CODING_WIKI §8 ingest test_strategy 纪律（v1）
 
-> **状态**：`draft`  
+> **状态**：done（2026-05-26 验收通过 · CODING-WIKI-A2-SCHEMA-RULE@2026-05-26）  
 > **母 Loop**：[`task_harness_wiki_loop_a1_a4_v1.md`](task_harness_wiki_loop_a1_a4_v1.md) · round **A2**  
 > **关联 Schema**：[`docs/coding_wiki/CODING_WIKI.md`](../coding_wiki/CODING_WIKI.md) **§8**  
 > **前置占位**：A1 关账回填（见下）
@@ -66,9 +66,9 @@ Multi 结论 §4 建议：**改 `api/` 的 done Epic**，synthesis ingest 时须
 
 ## 范围
 
-- [ ] 在 `docs/coding_wiki/CODING_WIKI.md` **§8** 增补 ingest 规范：`api/` 相关 done Epic → synthesis **须**含 `test_strategy`（frontmatter 或摘要）**或** 内联 pointer 至 `concepts/test-strategy-ink-backend` 正文。  
-- [ ] §8 修订记录追加一行（日期 + 摘要）。  
-- [ ] 22/40/50 落盘；关账 `git mv` 至 `done/`。
+- [x] 在 `docs/coding_wiki/CODING_WIKI.md` **§8** 增补 ingest 规范：`api/` 相关 done Epic → synthesis **须**含 `test_strategy`（frontmatter 或摘要）**或** 内联 pointer 至 `concepts/test-strategy-ink-backend` 正文。  
+- [x] §8 修订记录追加一行（日期 + 摘要）。  
+- [x] 22/40/50 落盘；关账 `git mv` 至 `done/`。
 
 ## 非范围
 
@@ -103,11 +103,11 @@ Multi 结论 §4 建议：**改 `api/` 的 done Epic**，synthesis ingest 时须
 
 ## 验收标准
 
-- [ ] `CODING_WIKI.md` §8 含明确条文：`api/` 类 Epic synthesis 须 `test_strategy` 或合规 pointer。  
-- [ ] `grep -n test_strategy docs/coding_wiki/CODING_WIKI.md` 在 §8 区间有命中。  
-- [ ] 22 R1 落盘 `reviews/by-task/wiki-a2-schema-test-strategy/`。  
-- [ ] 50 复检 pass；本 task 在 `done/`。  
-- [ ] 无 `api/`、`tests/` diff。
+- [x] `CODING_WIKI.md` §8 含明确条文：`api/` 类 Epic synthesis 须 `test_strategy` 或合规 pointer。  
+- [x] `grep -n test_strategy docs/coding_wiki/CODING_WIKI.md` 在 §8 区间有命中。  
+- [x] 22 R1 落盘 `reviews/by-task/wiki-loop-a1-a4/`。  
+- [x] 50 复检 pass；本 task 在 `done/`。  
+- [x] 无 `api/`、`tests/` diff。
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`。
 
@@ -117,7 +117,8 @@ Multi 结论 §4 建议：**改 `api/` 的 done Epic**，synthesis ingest 时须
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `docs/coding_wiki/CODING_WIKI.md` |
+| 涉及文件 | `docs/coding_wiki/CODING_WIKI.md` §8.1 |
+| 30 commit | （关账 commit 回溯） |
 | 图谱变更点 | 无 |
 
 ---
@@ -126,9 +127,9 @@ Multi 结论 §4 建议：**改 `api/` 的 done Epic**，synthesis ingest 时须
 
 | 项 | 结果 |
 |----|------|
-| 命令 | — |
-| 结论 | — |
-| 要点 | — |
+| 命令 | `grep -n test_strategy docs/coding_wiki/CODING_WIKI.md` |
+| 结论 | **pass** |
+| 要点 | §8.1 含 ingest 纪律 + VERIFY；与 A1 示范一致 |
 
 ---
 

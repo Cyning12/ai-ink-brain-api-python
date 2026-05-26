@@ -125,6 +125,19 @@ Wiki **不**执行、不替代 pytest / CI / 覆盖率统计，也**不**维护�
 
 **ingest 纪律**：仅 **done** 且与测试交付相关的 task 写入 synthesis；进行中调整只记 `log.md` 一行。
 
+### 8.1 `api/` 类 Epic · `test_strategy` ingest（Multi slug B-Q3 纪律）
+
+当 ingest 的 **done** L1 task **曾改 `api/`**（RAG 路由、ingest、unified chat 等）且 L1 头含 **`test_strategy`** 时：
+
+| 检查项 | 要求 |
+|--------|------|
+| **frontmatter** | `test_strategy: required \| recommended \| not_applicable` — **取值须与 L1 task 头一致** |
+| **或摘要** | 摘要或 §测试变更 **内联** 同上取值 + wikilink `[[../concepts/test-strategy-ink-backend]]` |
+| **禁止** | 仅写「见 concept / 见 test-strategy」**而不**给出枚举取值（Wiki-only 无法答 B-Q3 类题） |
+| **VERIFY** | ingest 关账前：`rg -n test_strategy docs/coding_wiki/syntheses/<slug>.md` 有命中且取值与 L1 一致 |
+
+**示范**：`syntheses/query-rewrite-observability`（A1 · `recommended`，链 [`task_coding_wiki_ingest_test_strategy_v1.md`](../tasks/done/task_coding_wiki_ingest_test_strategy_v1.md)）。
+
 ---
 
 ## 9. 原文（Raw）与 `sources/` 何时启用
@@ -148,3 +161,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-26 | 试点 v1：目录、frontmatter、ingest/query/lint |
 | 2026-05-26 | §7 试点定位；§8 测试迭代档案；§9 Raw/sources 启用条件 |
 | 2026-05-26 | 链出 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
+| 2026-05-26 | §8.1 `api/` Epic `test_strategy` ingest 纪律（Wiki Loop A2 · `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`） |
