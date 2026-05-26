@@ -112,12 +112,73 @@
 
 ---
 
-## P2 · H-lean vs W（T1b 后填）
+## P2 · H-lean vs W
 
-| 题 | 臂 | payload_char_count | 正确性 | 备注 |
-| --- | --- | --- | --- | --- |
-| Q1 | H-lean | | | |
-| Q1 | W | | | |
-| … | | | | |
+| **model** | `composer-2.5` |
+| **temperature** | `0` |
+| **date** | 2026-05-26 |
 
-**结论草稿**：（链 `conclusion_p2_zh.md`）
+**slug**：`harness-p1-docs-consolidation`
+
+| 题 | 臂 | payload_char_count | 正确性 (pass/fail) | 幻觉/漏读 | 备注 |
+| --- | --- | --- | --- | --- | --- |
+| Q1 | H-lean | 9896 | **pass** | 无 | P1-3 human_gate 速查 + P1-2 6 类 SKILL |
+| Q1 | W | 2096 | **pass** | 无 | synthesis 摘要命中两项交付 |
+| Q2 | H-lean | — | **pass** | 无 | `not_applicable` + 纯文档治理 |
+| Q2 | W | — | **pass** | 无 | 同上（synthesis 摘要） |
+| Q3 | H-lean | — | **pass** | 无 | `HARNESS-P1-DOCS@2026-05-23` + `2026-05-23` |
+| Q3 | W | — | **pass** | 无 | synthesis frontmatter 同值 |
+| Q4 | H-lean | — | **pass** | 无 | 不在范围 + task 非范围 / 工作区 pointer |
+| Q4 | W | — | **pass** | 无 | 不在范围 + synthesis「P1-1 另 task」 |
+
+**P2 汇总**
+
+| 指标 | H-lean | W | 降幅（相对 H-lean） |
+| --- | --- | --- | --- |
+| 总 char（物化统计） | 9896 | 2096 | **78.8%** |
+| 正确题数 / 4 | 4/4 | 4/4 | 0（持平） |
+
+**结论草稿**：T7（78.8% ≥ 30%）+ T8（4/4 = 4/4）→ 见 [`conclusion_p2_zh.md`](./conclusion_p2_zh.md)（**推荐默认先读 coding_wiki**）
+
+---
+
+## P2 逐题回答原文（可选交付物）
+
+### Q1 · W
+
+> 本 Epic（`task_harness_p1_docs_consolidation_v1`）在 **范围** 内必须完成的两项文档交付是什么？请各用一句话说明路径。
+
+1. **P1-3**：在 `docs/tasks/README.md` 增加 `human_gate` 五列场景速查表。  
+2. **P1-2**：新建 `docs/tasks/skills/README.md`，定义 6 类 SKILL 与关账蒸馏口径。
+
+---
+
+### Q2 · W
+
+> 该 done task 头部 `test_strategy` 取值是什么？`test_strategy_note` 用一句话说明原因。
+
+- `test_strategy` = **`not_applicable`**
+- 原因：纯文档治理（README 与 skills），不涉及运行时代码、API、CI 行为变更。
+
+---
+
+### Q3 · W
+
+> 该 task 的 `freeze_id` 是什么？状态行显示的关账日期（YYYY-MM-DD）？
+
+- `freeze_id` = **`HARNESS-P1-DOCS@2026-05-23`**
+- 关账日期：**`2026-05-23`**（synthesis `closed_date`）
+
+---
+
+### Q4 · W
+
+> `RECENT_TASK_SCHEDULE` §0.4 中的 **P1-1**（工作区 reviews pointer）是否在本 task 的 **范围** 内？为什么？
+
+**不在**本 Epic 范围内。
+
+依据：synthesis **非范围** 写明「工作区 reviews pointer（**P1-1 另 task**）」；本页仅覆盖 P1-3 + P1-2 文档巩固，不含工作区 pointer 调整。
+
+---
+
+（H-lean 四题原文与 P1 §逐题 一致，本轮独立会话复答，结论同为 4/4 pass；未重复粘贴以控篇幅。）

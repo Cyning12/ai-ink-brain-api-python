@@ -1,6 +1,6 @@
 # Task：Wiki-CTX-AB v1（Harness 上下文消费对照 · P1→P2）
 
-> **状态**：`active`（P1 **done** · **P2 帽链就绪** · 从 **22** 开新对话）  
+> **状态**：`active`（P1 **done** · P2 **30 done** · 待 **40** 自检）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)  
 > **实验目录**：[`docs/harness/experiments/wiki_ctx_ab_v1/`](../harness/experiments/wiki_ctx_ab_v1/README.md)  
 > **T1b（done）**：[`../done/task_coding_wiki_pilot_v1.md`](../done/task_coding_wiki_pilot_v1.md) · 同 slug `harness-p1-docs-consolidation`
@@ -15,7 +15,7 @@
 | **test_strategy_note** | 实验填表 + 结论文；无代码/CI 变更。 |
 | **freeze_id** | `WIKI-CTX-AB@2026-05-25` |
 | **gates_before_code** | `["human_gate"]` |
-| **semi_auto** | `false` |
+| **semi_auto** | `true` |
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/wiki-ctx-ab-p2-v1` |
 | **task_slug** | `wiki-ctx-ab` |
@@ -68,7 +68,7 @@
 - [x] 按 [`questions.md`](../harness/experiments/wiki_ctx_ab_v1/questions.md) 跑 P1（4 题 × 2 臂）。
 - [x] `payloads/H-full_harness-p1-docs-consolidation.md`、`H-lean_*.md` 已物化。
 - [x] [`scorecard.md`](../harness/experiments/wiki_ctx_ab_v1/scorecard.md) §P1 · [`conclusion_p1_zh.md`](../harness/experiments/wiki_ctx_ab_v1/conclusion_p1_zh.md)。
-- [ ] （P2）H-lean vs W（同题集）· `conclusion_p2_zh.md` · 是否默认 `coding_wiki/` 读序。
+- [x] （P2）H-lean vs W（同题集）· `conclusion_p2_zh.md` · 是否默认 `coding_wiki/` 读序。
 
 ## 非范围
 
@@ -81,19 +81,22 @@
 
 - [x] P1 `scorecard` 含每题 × 两臂的 `payload_char_count`、正确性 pass/fail。
 - [x] `conclusion_p1_zh.md` 明确：推荐 T3 Harness 推广（已 accepted）。
-- [ ] （P2）`conclusion_p2_zh.md` 明确：是否默认先读 `coding_wiki/`。
+- [x] （P2）`conclusion_p2_zh.md` 明确：是否默认先读 `coding_wiki/`（**推荐是**）。
 
 ---
 
 ## 实现备忘（由执行 Agent 回填）
 
-| 类别 | 路径 |
+| 类别 | 路径 / 值 |
 |------|------|
+| **30 执行** | 2026-05-26 · model `composer-2.5` · temp `0` |
+| **payload_char_count** | H-lean **9896** · W **2096**（降幅 78.8%） |
+| **P2 结论** | [`conclusion_p2_zh.md`](../harness/experiments/wiki_ctx_ab_v1/conclusion_p2_zh.md)（accepted · 推荐默认 `coding_wiki/`) |
 | **invoke** | `docs/harness/invokes/by-task/wiki-ctx-ab/invoke_20260526_{22,30,40,50}_wiki-ctx-ab-p2-v1.md` |
 | **22 R1** | `docs/harness/reviews/by-task/wiki-ctx-ab/task_wiki_ctx_ab_v1_audit_R1_20260526.md` |
 | **W 物化** | `python tools/wiki_ctx_ab_materialize_w.py` → `payloads/W_harness-p1-docs-consolidation.md` |
 | **50** | `docs/tasks/reinspect_results/reinspect_wiki_ctx_ab_p2_*_v1.md` |
-| **下一棒** | **22**（本准备阶段未执行任何帽） |
+| **下一棒** | **40**（`PROMPT_40_startup_wiki-ctx-ab-p2-v1.md`） |
 
 ---
 
