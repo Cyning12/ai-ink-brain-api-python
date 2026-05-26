@@ -1,6 +1,6 @@
 # Task：Wiki Loop A1–A4 — 单 PR 编排母单（v1）
 
-> **状态**：`draft`  
+> **状态**：done（2026-05-26 验收通过 · WIKI-LOOP-A1-A4@2026-05-26）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.1（Multi 部分外推后续）  
 > **证据**：[`docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md`](../harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md) §4  
 > **前置（done）**：[`task_wiki_ctx_ab_multi_slug_v1.md`](../done/task_wiki_ctx_ab_multi_slug_v1.md) · [`task_coding_wiki_t1c_test_archive_v1.md`](../done/task_coding_wiki_t1c_test_archive_v1.md)  
@@ -72,11 +72,11 @@ Wiki-CTX-AB **Multi slug** 已签收 **部分外推**：slug B（`query-rewrite-
 
 ## 范围
 
-- [ ] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 A1 Loop。  
-- [ ] A1→A2→A3→A4 按上表顺序各走完整 22→30→40→50→关账链。  
-- [ ] A1 关账后回填 A2 内 `PLACEHOLDER:A1_OUTCOME`。  
-- [ ] 四轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
-- [ ] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`；本文件 `done/`。
+- [x] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 A1 Loop。  
+- [x] A1→A2→A3→A4 按上表顺序各走完整 22→30→40→50→关账链。  
+- [x] A1 关账后回填 A2 内 `PLACEHOLDER:A1_OUTCOME`。  
+- [x] 四轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
+- [x] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`；本文件 `done/`。
 
 ## 非范围
 
@@ -112,12 +112,12 @@ Wiki-CTX-AB **Multi slug** 已签收 **部分外推**：slug B（`query-rewrite-
 
 ## 验收标准
 
-- [ ] 四子 task 文件均在 `docs/tasks/done/`，且 `_views/done.md` 已更新。  
-- [ ] A1：`query-rewrite-observability` synthesis 含可检索 `test_strategy`（与 L1 `recommended` 一致）。  
-- [ ] A2：`CODING_WIKI.md` §8 含 api/ 类 Epic ingest 的 `test_strategy` 纪律。  
-- [ ] A3：SPEC §2 T1c / Multi slug 标 **done**；对比表 #12、#46 与 Multi 结论一致。  
-- [ ] A4：`RECENT_TASK_SCHEDULE.md` §1 快照与 §6.6 Wiki 行反映 Loop **done**。  
-- [ ] 单 PR 合 `main`；`pytest` Required 仍绿（本 Loop **无** `api/` 变更）。
+- [x] 四子 task 文件均在 `docs/tasks/done/`，且 `_views/done.md` 已更新。  
+- [x] A1：`query-rewrite-observability` synthesis 含可检索 `test_strategy`（与 L1 `recommended` 一致）。  
+- [x] A2：`CODING_WIKI.md` §8 含 api/ 类 Epic ingest 的 `test_strategy` 纪律。  
+- [x] A3：SPEC §2 T1c / Multi slug 标 **done**；对比表 #12、#46 与 Multi 结论一致。  
+- [x] A4：`RECENT_TASK_SCHEDULE.md` §1 快照与 §6.6 Wiki 行反映 Loop **done**。  
+- [x] 单 PR 合 `main`；`pytest` Required 仍绿（本 Loop **无** `api/` 变更）。
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（本母单无代码变更，作回归基线）。
 
@@ -127,8 +127,9 @@ Wiki-CTX-AB **Multi slug** 已签收 **部分外推**：slug B（`query-rewrite-
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | 见四子 task「实现备忘」汇总 |
-| 子 task commits | A1–A4 各轮 CLOSE_TRACE |
+| 涉及文件 | 四子 task + `RECENT`/`SPEC`/`CODING_WIKI`/synthesis（见各子 done task） |
+| 子 task commits | A1 `9108b0a` 关账 · A2 `ae2bdea` · A3 `f04656d` · A4 `6094588` |
+| 分支 | `task/wiki-loop-a1-a4-v1`（单 PR） |
 | 图谱变更点 | 无（纯 docs / Wiki L2） |
 
 ---
@@ -137,9 +138,9 @@ Wiki-CTX-AB **Multi slug** 已签收 **部分外推**：slug B（`query-rewrite-
 
 | 项 | 结果 |
 |----|------|
-| 命令 | — |
-| 结论 | — |
-| 要点 | META 关账轮由 40 填写 |
+| 命令 | `ls docs/tasks/active/task_harness_wiki_loop*.md`（无）；`pytest -q` 221 passed |
+| 结论 | **pass** |
+| 要点 | 四子 task + 母单均在 `done/`；§6.6 Wiki Loop **done** |
 
 ---
 

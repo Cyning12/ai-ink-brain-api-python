@@ -51,7 +51,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | **planned** |
 | **T1c** | Wiki 扩域（过程档案） | 测试迭代 `syntheses`/`decisions`/`concepts`；见 [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §8 | **done**（2026-05-26 · [`task_coding_wiki_t1c_test_archive_v1.md`](../../tasks/done/task_coding_wiki_t1c_test_archive_v1.md)） |
 | **Multi slug** | Wiki-CTX-AB 多 slug | 2 slug · 部分外推；链 [`conclusion_multi_slug_zh.md`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md) | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1.md`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md)） |
-| **Wiki Loop** | A1–A4 ingest 纪律 | `test_strategy` synthesis + `CODING_WIKI` §8.1；单 PR [`task_harness_wiki_loop_a1_a4_v1.md`](../../tasks/active/task_harness_wiki_loop_a1_a4_v1.md) | **进行中**（2026-05-26 · A1/A2 **done**） |
+| **Wiki Loop** | A1–A4 ingest 纪律 | `test_strategy` synthesis + `CODING_WIKI` §8.1 + SPEC/排期同步；单 PR | **done**（2026-05-26 · [`task_harness_wiki_loop_a1_a4_v1.md`](../../tasks/done/task_harness_wiki_loop_a1_a4_v1.md)） |
 
 ```text
 T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
@@ -59,7 +59,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
          T1b（pilot）──► T2（P2 AB）✓ ──► 默认 coding_wiki 读序（2026-05-26 签收）
          │
          T1c（测试过程档案）✓ · Multi slug AB ✓
-         Wiki Loop A1–A4（ingest test_strategy）· 进行中
+         Wiki Loop A1–A4（ingest test_strategy）✓
          T4（图谱桥接）· planned
          P1-4（前端 parity）· 远期
 ```

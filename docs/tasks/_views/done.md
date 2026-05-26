@@ -69,4 +69,5 @@
 - `../done/task_coding_wiki_schema_test_strategy_rule_v1.md`（2026-05-26 验收通过：Wiki Loop A2 · `CODING_WIKI.md` §8.1 ingest 纪律 · `reinspect_wiki-a2-schema-test-strategy_20260526_v1.md` · `freeze_id` `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`）
 - `../done/task_governance_wiki_spec_comparison_sync_v1.md`（2026-05-26 验收通过：Wiki Loop A3 · SPEC §2 + 对比表 #12/#46 · `reinspect_wiki-a3-spec-comparison_20260526_v1.md` · `freeze_id` `GOV-WIKI-A3-SPEC-SYNC@2026-05-26`）
 - `../done/task_governance_recent_schedule_wiki_sync_v1.md`（2026-05-26 验收通过：Wiki Loop A4 · `RECENT_TASK_SCHEDULE` §6.6 · `reinspect_wiki-a4-recent-schedule_20260526_v1.md` · `freeze_id` `GOV-WIKI-A4-SCHEDULE@2026-05-26`）
+- `../done/task_harness_wiki_loop_a1_a4_v1.md`（2026-05-26 验收通过：Wiki Loop 母单 A1–A4 · 单 PR `task/wiki-loop-a1-a4-v1` · `WIKI-LOOP-A1-A4@2026-05-26`）
 
