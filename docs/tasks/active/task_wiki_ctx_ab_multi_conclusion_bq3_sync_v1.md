@@ -64,9 +64,9 @@ R1 提供 §Recheck 证据。本 round 将实验叙事与 **需求对比表** �
 
 ## 范围
 
-- [ ] 读 R1 done + scorecard §Recheck；22 前确认 PLACEHOLDER 已填。  
-- [ ] 更新 conclusion（**保留** §1–§4 冻结正文；Recheck 为增量）。  
-- [ ] 更新对比表 #46、§7 相关行；§9 建议顺序 footnote（若需要）。  
+- [x] 读 R1 done + scorecard §Recheck；22 前确认 PLACEHOLDER 已填。  
+- [x] 更新 conclusion（**保留** §1–§4 冻结正文；Recheck 为增量）。  
+- [x] 更新对比表 #46、§7 相关行；§9 建议顺序 footnote（若需要）。  
 - [ ] 22/40/50 落盘；`git mv` 至 `done/`。
 
 ## 非范围
@@ -99,8 +99,8 @@ R1 提供 §Recheck 证据。本 round 将实验叙事与 **需求对比表** �
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | |
-| #46 新表述 | |
+| 涉及文件 | `conclusion_multi_slug_zh.md` §5 · `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` #46/§7 · `questions.md` B-Q3 footnote |
+| #46 新表述 | **附条件全满足** · B-Q3 Recheck slug B W 4/4 |
 
 ### 自检结论（执行者）
 

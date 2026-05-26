@@ -116,7 +116,7 @@
 | 43 | 不需排期全文 | ⚠️ 依赖 synthesis 蒸馏 | 漏写 → 回 L1 |
 | 44 | 不需 invoke/review 全文 | ✅（实验二） | 日常可按 by-task 片段 |
 | 45 | Wiki 完整性可消「边界靠摘要」局限 | 部分 | ingest 纪律 + 回 L1 |
-| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **部分** | Multi slug AB **done**；Wiki Loop A1/A2 已补 `test_strategy` ingest（slug B 示范 `query-rewrite-observability`） |
+| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **附条件全满足** | Multi slug AB **done**；A1 ingest + **B-Q3 Recheck**（2026-05-26）slug B W **4/4**；仍仅 2 slug |
 
 ---
 
@@ -126,7 +126,8 @@
 | --- | --- | --- | --- |
 | P0 试点关账 | 无（收口，不新建） | `task_wiki_ctx_ab_v1` 等 **done** | ✅ 2026-05-26；**T1c 起需 active task** |
 | P1 T1c | **无** | **done** · `done/task_coding_wiki_t1c_test_archive_v1.md` | ✅ 2026-05-26 关账 |
-| P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ 部分外推；A1/A2 补 test_strategy |
+| P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ B-Q3 Recheck 后 slug B W 4/4 |
+| Wiki Loop B-Q3 | **无** | R1–R2 **done** · `done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md` 等 | ✅ 单 PR `task/wiki-loop-bq3-recheck-v1` |
 | Wiki Loop A1–A4 | **无** | **done** · `done/task_harness_wiki_loop_a1_a4_v1.md` · 2026-05-26 | ✅ 单 PR `task/wiki-loop-a1-a4-v1` |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | planned | 未来 task |
