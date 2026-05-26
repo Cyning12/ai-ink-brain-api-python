@@ -98,9 +98,9 @@ rg 'Loop C2 Verify.*done' docs/tasks/RECENT_TASK_SCHEDULE.md
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| README 验收说明 | | |
-| RECENT done | | |
-| R2 invoke C2 | | |
+| README 验收说明 | **pass** | `rg 'C2 verify\|C2 Verify'` 命中 README |
+| RECENT done | **待关账** | 50 建议关账后由 CLOSE 改 done |
+| R2 invoke C2 | **pass** | 22/30/40/50 §3 ≥15 行 · 非 stub |
 
 ---
 
