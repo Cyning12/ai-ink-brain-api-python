@@ -131,6 +131,7 @@ Wiki-CTX-AB **Multi slug** 已签收 **部分外推**：slug B（`query-rewrite-
 | 子 task commits | A1 `9108b0a` 关账 · A2 `ae2bdea` · A3 `f04656d` · A4 `6094588` |
 | 分支 | `task/wiki-loop-a1-a4-v1`（单 PR） |
 | 图谱变更点 | 无（纯 docs / Wiki L2） |
+| **SKILL 蒸馏** | 草案 [`docs/tasks/skills/SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)（v1.1 · `draft` · 待人审 / 第二 Loop 验证） |
 
 ---
 
