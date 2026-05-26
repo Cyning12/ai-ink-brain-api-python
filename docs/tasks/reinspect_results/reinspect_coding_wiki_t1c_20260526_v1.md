@@ -4,7 +4,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| **task_path** | `docs/tasks/active/task_coding_wiki_t1c_test_archive_v1.md` |
+| **task_path** | `docs/tasks/done/task_coding_wiki_t1c_test_archive_v1.md` |
 | **task_slug** | `coding-wiki-t1c` |
 | **freeze_id** | `CODING-WIKI-T1C@2026-05-26` |
 | **git_branch** | `task/coding-wiki-t1c-v1` |
