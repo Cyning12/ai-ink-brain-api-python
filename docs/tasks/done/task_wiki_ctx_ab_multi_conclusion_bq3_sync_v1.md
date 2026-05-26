@@ -1,6 +1,6 @@
 # Task：Wiki-CTX-AB Multi — conclusion 与对比表 B-Q3 同步（R2）
 
-> **状态**：draft  
+> **状态**：`done（2026-05-26 验收通过 · WIKI-BQ3-R2-CONCLUSION@2026-05-26）`  
 > **母 Loop**：[`task_harness_wiki_loop_bq3_recheck_v1.md`](task_harness_wiki_loop_bq3_recheck_v1.md) · round **R2**  
 > **依赖 round**：R1 · [`task_wiki_ctx_ab_multi_bq3_recheck_v1.md`](done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md)
 
@@ -67,7 +67,7 @@ R1 提供 §Recheck 证据。本 round 将实验叙事与 **需求对比表** �
 - [x] 读 R1 done + scorecard §Recheck；22 前确认 PLACEHOLDER 已填。  
 - [x] 更新 conclusion（**保留** §1–§4 冻结正文；Recheck 为增量）。  
 - [x] 更新对比表 #46、§7 相关行；§9 建议顺序 footnote（若需要）。  
-- [ ] 22/40/50 落盘；`git mv` 至 `done/`。
+- [x] 22/40/50 落盘；`git mv` 至 `done/`。
 
 ## 非范围
 
@@ -89,9 +89,9 @@ R1 提供 §Recheck 证据。本 round 将实验叙事与 **需求对比表** �
 
 ## 验收标准
 
-- [ ] conclusion §Recheck 与 scorecard 一致。  
-- [ ] 对比表 #46 与 R1 证据一致（pass→升级表述；fail→保持部分）。  
-- [ ] 未改 scorecard §Multi 主表。
+- [x] conclusion §Recheck 与 scorecard 一致。  
+- [x] 对比表 #46 与 R1 证据一致（pass→升级表述；fail→保持部分）。  
+- [x] 未改 scorecard §Multi 主表。
 
 ---
 

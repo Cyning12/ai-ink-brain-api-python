@@ -71,4 +71,5 @@
 - `../done/task_governance_recent_schedule_wiki_sync_v1.md`（2026-05-26 验收通过：Wiki Loop A4 · `RECENT_TASK_SCHEDULE` §6.6 · `reinspect_wiki-a4-recent-schedule_20260526_v1.md` · `freeze_id` `GOV-WIKI-A4-SCHEDULE@2026-05-26`）
 - `../done/task_harness_wiki_loop_a1_a4_v1.md`（2026-05-26 验收通过：Wiki Loop 母单 A1–A4 · 单 PR `task/wiki-loop-a1-a4-v1` · `WIKI-LOOP-A1-A4@2026-05-26`）
 - `../done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md`（2026-05-26 验收通过：Wiki Loop B-Q3 R1 · W 载荷 §Recheck · slug B W 4/4 · `reinspect_wiki-bq3-r1-payload-scorecard_20260526_v1.md` · `freeze_id` `WIKI-BQ3-R1-PAYLOAD@2026-05-26`）
+- `../done/task_wiki_ctx_ab_multi_conclusion_bq3_sync_v1.md`（2026-05-26 验收通过：Wiki Loop B-Q3 R2 · conclusion §5 + 对比表 #46 · `reinspect_wiki-bq3-r2-conclusion_20260526_v1.md` · `freeze_id` `WIKI-BQ3-R2-CONCLUSION@2026-05-26`）
 
