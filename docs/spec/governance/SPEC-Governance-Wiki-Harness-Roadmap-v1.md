@@ -114,7 +114,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | --- | --- | --- | --- |
 | **P0** | 试点关账 | Wiki-CTX-AB task 归档、`RECENT_TASK_SCHEDULE` / `_views` 同步；实践文 → `docs/diary/` | **done**（2026-05-26 · task 已在 `done/`；见 diary 与对比表） |
 | **P1** | T1c 扩域 | 选 1～2 个 **测试相关 done task** ingest；可选 `concepts/test-strategy-ink-backend`；`decisions/` 首条 append | `CODING_WIKI` §8 |
-| **P1** | 多 slug AB | 对 `tech-graph-gate-d-v2-tasks` 等再跑 **对照实验二**（精简 Harness 包 vs 仅 Wiki），削弱「单 Epic 外推」局限 | 已有 synthesis |
+| **P1** | 多 slug AB | 对 `tech-graph-gate-d-v2-tasks` 等再跑 **对照实验二**（精简 Harness 包 vs 仅 Wiki），削弱「单 Epic 外推」局限 | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md) · 部分外推） |
 | **P2** | L2 工具链 | 锚点校验、测试↔`ERR_*` manifest（治理仓 L2-1/L2-2）；与 Wiki **并行**，不阻塞 T1c | 图谱测评建议 |
 | **P2** | T4 | Wiki frontmatter `graph_nodes` 与 L0 桥接 | planned |
 | **P3** | P1-4 | 前端 Harness parity | 远期 |
@@ -140,7 +140,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 2026-05-26 | v1.2：T2 **done** · SPEC §3.1 P2 签收 · 推荐默认 `coding_wiki/` 读序 |
 | 2026-05-26 | v1.3：T1c 扩域（测试过程档案）· §5.1 下一步优先级 · §5 非范围补 Wiki≠coverage |
 | 2026-05-26 | v1.4：§4 pilot → done 路径 · §6 链出需求对比表 |
-| 2026-05-26 | v1.5：§5.1 P0 **done** · diary 实践文落盘 |
+| 2026-05-26 | v1.6：§5.1 P1 多 slug AB **done** · 链至 `task_wiki_ctx_ab_multi_slug_v1` |
 
 ---
 

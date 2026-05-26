@@ -101,7 +101,7 @@
 | 35 | 测试过程扩域 | **T1c** | CODING_WIKI §8 | **done** 2026-05-26 | ✅ `task_coding_wiki_t1c_test_archive_v1` |
 | 36 | Wiki↔图谱 frontmatter | T4 | graph_nodes | planned | ❌ P2 |
 | 37 | 前端 Harness parity | P1-4 | 前端仓 | 远期 | ⏸ |
-| 38 | 多 slug 对照实验二 | SPEC §5.1 P1 | 削弱外推局限 | 未排 task | ❌ 建议新 AB task |
+| 38 | 多 slug 对照实验二 | SPEC §5.1 P1 | 削弱外推局限 | **done** · Multi slug AB 2026-05-26 | ✅ `task_wiki_ctx_ab_multi_slug_v1` |
 | 39 | 试点关账 P0 | SPEC §5.1 | 归档、排期、diary | task 在 `done/`；`_views`；diary 已发布 | ✅ 2026-05-26 |
 | 40 | SPEC §4 pilot 路径 | SPEC §4 | 与 done 一致 | 已改 `done/task_coding_wiki_pilot_v1` | ✅ |
 
@@ -116,7 +116,7 @@
 | 43 | 不需排期全文 | ⚠️ 依赖 synthesis 蒸馏 | 漏写 → 回 L1 |
 | 44 | 不需 invoke/review 全文 | ✅（实验二） | 日常可按 by-task 片段 |
 | 45 | Wiki 完整性可消「边界靠摘要」局限 | 部分 | ingest 纪律 + 回 L1 |
-| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | 未自动满足 | T1c + 多 slug AB |
+| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **部分** | T1c + Multi slug AB **done** · slug B W 3/4（test_strategy 缺口） |
 
 ---
 
@@ -126,7 +126,7 @@
 | --- | --- | --- | --- |
 | P0 试点关账 | 无（收口，不新建） | `task_wiki_ctx_ab_v1` 等 **done** | ✅ 2026-05-26；**T1c 起需 active task** |
 | P1 T1c | **无** | **done** · `done/task_coding_wiki_t1c_test_archive_v1.md` | ✅ 2026-05-26 关账 |
-| P1 多 slug AB | **无** | v1 单 slug | 新建或并入 T1c |
+| P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ 部分外推 |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | planned | 未来 task |
 | P3 前端 parity | 前端仓 | 远期 | 不在本仓 |
