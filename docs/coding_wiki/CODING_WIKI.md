@@ -93,8 +93,56 @@ docs/coding_wiki/
 
 ---
 
+## 7. 试点定位（与 Karpathy LLM Wiki 的关系）
+
+本目录是 **工程化裁剪版** LLM Wiki，首要目标是降低 **L1 Harness 历史**（`invokes/`、`reviews/`、长 done task）在 **关账回顾 / 跨 Epic 理解** 时的上下文消耗，**不是**个人知识库式的全量 Raw + 概念网。
+
+| Karpathy 模式 | 本仓试点 |
+|---------------|----------|
+| Raw 原文库 + 每源改 10～15 页 | **L1 即原文真值**；L2 只 ingest **done** 摘要 |
+| 实体/概念织网 | `concepts/`、`entities/` **可选**；表/RPC/依赖以 **L0 图谱** 为准 |
+| Wiki 即唯一真值 | **禁止**；与 L0/L1 矛盾时以 L0/L1 为准 |
+
+**读序（关账后默认）**：`index.md` → `syntheses/<slug>.md` → 按需 pointer 打开 L1 → 改代码/拓扑必 L0。
+
+---
+
+## 8. 测试迭代档案（过程存档 · 非 coverage 真值）
+
+Wiki **不**执行、不替代 pytest / CI / 覆盖率统计，也**不**维护与代码等价的「用例清单真值表」（避免与 `tests/` 漂移）。
+
+**存档对象**：测试覆盖工作的 **变更史、意图、范围边界**，支撑未来对测试做增删改查时的上下文，例如：
+
+| 写入位置 | 内容示例 |
+|----------|----------|
+| `syntheses/<slug>.md` §测试变更 | 本 Epic **新增/删除/修改** 了哪些测试文件；覆盖了哪些 **failure path**（文字 + pointer） |
+| `decisions/`（append-only） | 「删除 flaky 用例 X，原因…」「某 ERR 分支暂不测，欠债单…」 |
+| `concepts/` | 跨 Epic 测试策略演进（如 ChatBI 分级闸门、smoke → e2e） |
+| `log.md` | `YYYY-MM-DD \| ingest \| <slug> \| 测试 +2 -1` |
+
+**与图谱测评 L2 工具链的关系**（见治理仓 `11_REVIEW_L3_L2理论层缺口分析`）：`_test_manifest`、锚点校验等负责 **机器校验**；Wiki 负责 **人/Agent 读懂「为何这样测」** 并 pointer 到 L0 `ERR_*` 与 L1 `failure_paths`。
+
+**ingest 纪律**：仅 **done** 且与测试交付相关的 task 写入 synthesis；进行中调整只记 `log.md` 一行。
+
+---
+
+## 9. 原文（Raw）与 `sources/` 何时启用
+
+```text
+pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 → 仍过大再写 sources/ stub
+```
+
+| 场景 | 动作 |
+|------|------|
+| 已有结构化 L1（task、SPEC、review by-task） | **不**复制全文进 Wiki；`source_task` + pointer 即可 |
+| L1 单文件过大、Agent 仅需结论 | 在 `sources/` 写 **stub 摘要**（可选），正文仍留 L1 |
+| 无 L1、仅外部剪报/帖子库 | 参考 Karpathy Raw 库（本仓 **非** 当前试点范围） |
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-26 | 试点 v1：目录、frontmatter、ingest/query/lint |
+| 2026-05-26 | §7 试点定位；§8 测试迭代档案；§9 Raw/sources 启用条件 |
