@@ -16,6 +16,7 @@
 - **如果你要做可复现交付（SDD/TDD/Harness）**：读 [`docs/harness/README.md`](harness/README.md) → [`docs/harness/ACCEPTANCE_LANDING.md`](harness/ACCEPTANCE_LANDING.md)（含 **50 三方复检** 落盘 `docs/tasks/reinspect_results/`），辅以 `docs/delivery/`
 - **如果你要查跨 task 蒸馏知识（Coding Wiki / L2）**：读 [`docs/coding_wiki/index.md`](coding_wiki/index.md) → [`docs/coding_wiki/CODING_WIKI.md`](coding_wiki/CODING_WIKI.md)
 - **如果你要写总结**：读 `docs/diary/DIARY_GUIDE.md` 并按规范产出
+- **如果你要开 PR / 条件 automerge（docs-only）**：读 [`docs/spec/governance/SPEC-Governance-PR-Post-CI-v1.md`](spec/governance/SPEC-Governance-PR-Post-CI-v1.md) 与 [`docs/tasks/skills/SKILL-pr-post-ci.md`](tasks/skills/SKILL-pr-post-ci.md)（CI 全绿 + `automerge` 标签；勿改 `api/`、`tests/`、`.github/workflows/`）
 
 ---
 
@@ -119,6 +120,7 @@
 ## 3. docs 规整进度（摘要）
 
 - **已完成（2026-05-22）**：`docs/tasks/` v1 目录结构、`_views/` 状态索引、SPEC/模板分目录（见 [`task_docs_tasks_reorg_move_v1.md`](tasks/done/task_docs_tasks_reorg_move_v1.md)）。
+- **已完成（2026-05-26）**：PR post-CI + Mergify docs-only automerge（[`SPEC-Governance-PR-Post-CI-v1.md`](spec/governance/SPEC-Governance-PR-Post-CI-v1.md)，合入 #55）。
 - **仍不参与**：`docs/_tech_graph/` 内容搬迁。
 
 ---
