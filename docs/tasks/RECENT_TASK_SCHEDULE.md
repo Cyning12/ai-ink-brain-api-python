@@ -312,7 +312,7 @@ flowchart TD
 | **T3** | **`task_harness_workspace_taxonomy_promote_v1`** | **done** | 工作区 [`docs/harness/tasks/done/`](../../../../docs/harness/tasks/done/task_harness_workspace_taxonomy_promote_v1.md) · 2026-05-26 关账 |
 | **T1b** | **`task_coding_wiki_pilot_v1`** | **done** | 2026-05-26 关账 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md) |
 | T2 | **`task_wiki_ctx_ab_v1`** · P2（精简包 vs 仅 Wiki） | **done** | 2026-05-26 关账 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · **推荐默认** `coding_wiki/index` + syntheses（降幅 78.8%、4/4 pass） |
-| **T1c** | Wiki 扩域（测试过程档案等） | **planned** | [`CODING_WIKI.md`](../coding_wiki/CODING_WIKI.md) §8 · 对比表 [`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md) · **待** active task |
+| **T1c** | **`task_coding_wiki_t1c_test_archive_v1`** | **pending** | [`active/task_coding_wiki_t1c_test_archive_v1.md`](active/task_coding_wiki_t1c_test_archive_v1.md) · Harness：`invokes/by-task/coding-wiki-t1c/PROMPT_22_*` |
 | P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
 | T4 | 图谱 `::documents` 等 | **planned** | SPEC §T4 |
 
