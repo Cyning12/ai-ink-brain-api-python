@@ -91,7 +91,8 @@ rg 'Loop C2 Verify.*done' docs/tasks/RECENT_TASK_SCHEDULE.md
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `wiki-loop-c2-verify/README.md` · `RECENT_TASK_SCHEDULE.md` §6.6 · `_views/done.md` |
+| 涉及文件 | `wiki-loop-c2-verify/README.md` · 关账时 `RECENT_TASK_SCHEDULE.md` §6.6 · `_views/done.md` |
+| README | §验收说明已回填 · 链 meta-reinspect C2 FAIL · R1/R2 invoke C2 目标 |
 
 ### 自检结论（执行者）
 

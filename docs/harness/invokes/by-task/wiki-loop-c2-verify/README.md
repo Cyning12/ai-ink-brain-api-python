@@ -23,7 +23,7 @@
 
 换帽前自检见 [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) 步骤 1–5 · [`SKILL-harness-loop-batch`](../../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁。
 
-**验收说明（关账后回填）**：第三 Loop 完成后，meta-reinspect 或 SKILL 晋升须抽检 R1/R2 全部 30/40/50 invoke **§3 ≥15 行** · 非 stub。
+**验收说明（R2 回填 · 2026-05-26）**：本 Loop **主验收** = 各 round **invoke C2 质量全绿**（22/30/40/50/CLOSE · §3 ≥15 行 · 元信息含 `task_slug` · **非 stub**）。对照第二 Loop meta-reinspect [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../../../tasks/reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) **C2 FAIL** 基线；R1/R2 全链 invoke 已按 PROMPT_LOOP C2 自检落盘。母 META 关账后 **人** 可审 SKILL `draft`→`accepted`（Agent **不得**代改）。
 
 ## 修订记录
 
