@@ -66,4 +66,5 @@
 - `../done/task_coding_wiki_t1c_test_archive_v1.md`（2026-05-26 验收通过：Coding Wiki T1c 测试过程档案 · `decisions/` + 2× synthesis §测试变更 · 50 复检 `reinspect_coding_wiki_t1c_20260526_v1.md` · `freeze_id` `CODING-WIKI-T1C@2026-05-26`）
 - `../done/task_wiki_ctx_ab_multi_slug_v1.md`（2026-05-26 验收通过：Wiki-CTX-AB Multi slug · H-lean vs W × 2 域 · 降幅 86.3%/61.4% · slug B W 3/4 部分外推 · 50 复检 `reinspect_wiki_ctx_ab_multi_20260526_v1.md` · `freeze_id` `WIKI-CTX-AB-MULTI@2026-05-26`）
 - `../done/task_coding_wiki_ingest_test_strategy_v1.md`（2026-05-26 验收通过：Wiki Loop A1 · synthesis `test_strategy: recommended` · `reinspect_wiki-a1-ingest-test-strategy_20260526_v1.md` · `freeze_id` `CODING-WIKI-A1-TEST-STRATEGY@2026-05-26`）
+- `../done/task_coding_wiki_schema_test_strategy_rule_v1.md`（2026-05-26 验收通过：Wiki Loop A2 · `CODING_WIKI.md` §8.1 ingest 纪律 · `reinspect_wiki-a2-schema-test-strategy_20260526_v1.md` · `freeze_id` `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`）
 

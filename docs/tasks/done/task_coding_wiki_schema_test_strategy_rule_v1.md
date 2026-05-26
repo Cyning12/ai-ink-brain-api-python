@@ -118,7 +118,7 @@ Multi 结论 §4 建议：**改 `api/` 的 done Epic**，synthesis ingest 时须
 | 项 | 内容 |
 |----|------|
 | 涉及文件 | `docs/coding_wiki/CODING_WIKI.md` §8.1 |
-| 30 commit | （关账 commit 回溯） |
+| 30 commit | `3826cba` |
 | 图谱变更点 | 无 |
 
 ---
