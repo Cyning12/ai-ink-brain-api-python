@@ -5,6 +5,7 @@
 | 文件 | 状态 | 说明 |
 | --- | --- | --- |
 | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) | `active` | **整体安排表**（T0～T4、Wiki-CTX-AB P1/P2） |
+| [`SPEC-Governance-PR-Post-CI-v1.md`](./SPEC-Governance-PR-Post-CI-v1.md) | `active` | PR 后 CI 更新 body + Mergify 条件 automerge（方案 C） |
 
 **SDD 起草**（全仓 SPEC 通用）：[`../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)
 
