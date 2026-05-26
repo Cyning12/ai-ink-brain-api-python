@@ -220,13 +220,13 @@ git diff --quiet docs/harness/prompts/      → 0（未改 prompts）
 | 2 | **30** | `docs/coding_wiki/` 骨架 + 3× ingest + 入口 | `docs/coding_wiki/**` · `…/invoke_20260526_30_coding-wiki-pilot.md` | `api-python@92e4e64` |
 | 3 | **40** | VERIFY (1)–(5) · §自检结论 | `…/invoke_20260526_40_coding-wiki-pilot.md` · 本 task `### 自检结论` | `api-python@92e4e64` |
 | 4 | **50** | 独立复检 + 全局验收（T1b） | `docs/tasks/reinspect_results/reinspect_coding_wiki_pilot_20260526_v1.md` · `…/invoke_20260526_50_coding-wiki-pilot-v1.md` | `api-python@abb14d9` |
-| 5 | **关账** | `git mv` task · 排期/_views · 本回溯节 | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | `api-python@dceca3e` |
+| 5 | **关账** | `git mv` task · 排期/_views · 本回溯节 | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | `api-python@48f901a` |
 
 ### 分仓 Commit 索引（api-python · 从新到旧）
 
 ```text
 ### api-python（ai-ink-brain-api-python · branch task/coding-wiki-pilot-v1）
-- dceca3e docs(task): Coding Wiki pilot 关账 · CODING-WIKI-PILOT@2026-05-25
+- 48f901a docs(task): Coding Wiki pilot 关账 · CODING-WIKI-PILOT@2026-05-25
 - abb14d9 docs(harness): 50 复检 Coding Wiki pilot — 建议关账
 - 92e4e64 docs(coding-wiki): pilot 交付 L2 骨架与 22/30/40 Harness 落盘
 - e52a6a0 docs(harness): Coding Wiki pilot 帽链 22→30→40→50 启动 Prompt
