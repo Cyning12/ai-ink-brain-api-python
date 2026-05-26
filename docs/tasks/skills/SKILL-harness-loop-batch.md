@@ -200,7 +200,7 @@
 
 ### invoke 质量门禁（C2 · 可执行）
 
-> cross-round【授权】**不降低** 30/40/50 invoke 质量；**每换帽**须独立生成该帽 §3 全文，禁止「续跑摘要一行 + commit」。
+> cross-round【授权】**不降低** 30/40/50 invoke 质量；**每换帽**须独立生成该帽 §3 全文，禁止「续跑摘要一行 + commit」。同会话 **旧帽 Prompt 仍影响新帽** 的机理与 role switch 纪律见 [`HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md) **§3.5**（通则，非 Loop 专有）。
 
 | 检查 | pass 条件 |
 |------|-----------|
