@@ -17,9 +17,11 @@
 | skill 目录 | 便携正文（Git 真值） |
 |------------|----------------------|
 | [`harness-meta-reinspect/`](harness-meta-reinspect/SKILL.md) | [`docs/tasks/skills/SKILL-harness-meta-reinspect.md`](../../docs/tasks/skills/SKILL-harness-meta-reinspect.md) |
+| [`harness-loop-batch/`](harness-loop-batch/SKILL.md) | [`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../docs/tasks/skills/SKILL-harness-loop-batch.md) |
 
 ## 修订记录
 
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-24 | 初版：双轨说明 + `harness-meta-reinspect`（来源 P2-1 元复检） |
+| 2026-05-26 | 新增 `harness-loop-batch`（Wiki Loop A1–A4 蒸馏） |

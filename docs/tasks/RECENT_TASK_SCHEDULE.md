@@ -86,7 +86,7 @@
 | 维度                    | 结论                                                                                             |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
-| **active/**           | **9** 个任务相关文件（见 §1.1；Wiki-CTX-AB 已归档）                                                               |
+| **active/**           | **9** 个任务相关文件（见 §1.1；Wiki Loop A1–A4 已归档）                                                               |
 | **done/**             | **55+** 个 `.md`（含 P2-1a，[PR #52](https://github.com/Cyning12/ai-ink-brain-api-python/pull/52)） |
 | **_views/done.md**    | 已含 P2-1a 索引行                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口；`[HARNESS_V2_PLAN](../harness/HARNESS_V2_PLAN.md)` `accepted`）               |
@@ -314,6 +314,7 @@ flowchart TD
 | T2 | **`task_wiki_ctx_ab_v1`** · P2（精简包 vs 仅 Wiki） | **done** | 2026-05-26 关账 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · **推荐默认** `coding_wiki/index` + syntheses（降幅 78.8%、4/4 pass） |
 | **T1c** | **`task_coding_wiki_t1c_test_archive_v1`** | **done** | 2026-05-26 关账 · [`done/task_coding_wiki_t1c_test_archive_v1.md`](done/task_coding_wiki_t1c_test_archive_v1.md) · `reinspect_coding_wiki_t1c_20260526_v1.md` |
 | **Multi slug AB** | **`task_wiki_ctx_ab_multi_slug_v1`** | **done** | 2026-05-26 关账 · [`done/task_wiki_ctx_ab_multi_slug_v1.md`](done/task_wiki_ctx_ab_multi_slug_v1.md) · 2 slug 部分外推 · `reinspect_wiki_ctx_ab_multi_20260526_v1.md` |
+| **Wiki Loop A1–A4** | **`task_harness_wiki_loop_a1_a4_v1`** + 四子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_a1_a4_v1.md`](done/task_harness_wiki_loop_a1_a4_v1.md) · test_strategy ingest + SPEC/排期同步 · 单 PR `task/wiki-loop-a1-a4-v1` |
 | P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
 | T4 | 图谱 `::documents` 等 | **planned** | SPEC §T4 |
 
@@ -358,6 +359,7 @@ flowchart TD
 | 2026-05-26 | **P0 收口**：`_views/done` 已含 wiki 双 task；实践文 [`docs/diary/2026-05-26-llm-wiki-harness-pilot-practice.md`](../diary/2026-05-26-llm-wiki-harness-pilot-practice.md)；下一棒 **T1c**（需新建 active task） |
 | 2026-05-26 | **T1c done**：`task_coding_wiki_t1c_test_archive_v1` 关账 · `CODING-WIKI-T1C@2026-05-26` · §6.6 更新 |
 | 2026-05-26 | **Multi slug AB done**：`task_wiki_ctx_ab_multi_slug_v1` 关账 · 部分外推 · §6.6 更新 |
+| 2026-05-26 | **Wiki Loop A1–A4 done**：四子 task + 母单关账 · §1/§6.6 同步 · `WIKI-LOOP-A1-A4@2026-05-26` |
 
 
 ---

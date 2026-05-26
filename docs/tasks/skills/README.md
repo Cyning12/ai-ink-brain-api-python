@@ -30,6 +30,7 @@
 | [`docs-governance`](SKILL-docs-governance.md) | 10 / 30 | 目录/索引变更范围 | 范围：文档移动 + 链接修复；非范围：代码/CI；`test_strategy: not_applicable` + note |
 | [`tech-graph-update`](SKILL-tech-graph-update.md) | 30 执行前 | 受影响 `.ai.md`、manifest/contract | 范围：维护轨 + 机器轨导出；验收含 `tech_graph_*_check` |
 | [`harness-task`](SKILL-harness-task.md) | 10 需求帽 | prompts/模板/rules 变更点 | 范围：Harness 工件；非范围：业务代码；**`audit_profile: full`** |
+| [`harness-loop-batch`](SKILL-harness-loop-batch.md) | 10 Batch + Loop 执行 | 母单 + N 子 task、单 PR、`LOOP_MANIFEST` | Batch-10 一次；22→关账 × N；`HG-LOOP-BATCH`；cross-round 授权仅 `PROMPT_START` |
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
 | [`pr-post-ci`](SKILL-pr-post-ci.md) | 开 PR / push 后 | PR 号、是否 docs-only | CI 监听、body/Test plan 同步、`automerge` 白名单；见 `SPEC-Governance-PR-Post-CI-v1` |
 
@@ -77,6 +78,7 @@ docs/tasks/skills/
   SKILL-docs-governance.md
   SKILL-tech-graph-update.md
   SKILL-harness-task.md
+  SKILL-harness-loop-batch.md
   SKILL-harness-meta-reinspect.md
   SKILL-pr-post-ci.md
 ```
@@ -91,3 +93,6 @@ docs/tasks/skills/
 |------|------|
 | 2026-05-23 | P1-2 初版：6 类 SKILL 索引 + 关账蒸馏/人审口径（`task_harness_p1_docs_consolidation_v1`） |
 | 2026-05-24 | 新增 `harness-meta-reinspect`；双轨 `.cursor/skills/` 说明（P2-1 元复检蒸馏） |
+| 2026-05-26 | 新增 `harness-loop-batch`（Wiki Loop 关账蒸馏 · `draft`） |
+| 2026-05-26 | `harness-loop-batch` v1.1：人审泛化（R1…Rn、模式文件名、三选一流程） |
+| 2026-05-26 | `harness-loop-batch` v1.2：META 关账、合规自检、试点过程债、accepted 晋升 |

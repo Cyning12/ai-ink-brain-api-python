@@ -54,7 +54,7 @@
 | 9 | `index.md` 分类目录 | A、C | 每 ingest 更新 | 有；1 concept + 3 syntheses | ✅ 结构有；体量小 |
 | 10 | `log.md` 时间线 | A、C | append-only | 有 | ✅ |
 | 11 | `syntheses/` 关账蒸馏 | B T1b、C | done task 一页 | **3 页** | ✅；待扩 slug |
-| 12 | `concepts/` 跨 task 概念 | A、C | 多页织网 | **1 页** | ⚠️ T1c 可增 `test-strategy-*` |
+| 12 | `concepts/` 跨 task 概念 | A、C | 多页织网 | **`test-strategy-ink-backend`** 等 | ✅ **T1c done**（2026-05-26） |
 | 13 | `entities/` 实体页 | A、C 可选 | 产品/模块等 | **未建目录** | ❌ 可选；模块/表优先 L0 |
 | 14 | `sources/` 源 stub | C §9 | L1 过大时 | **未建** | ⏸ 按需 |
 | 15 | `decisions/` 决策 append | C §8、D | 删测/暂不测等 | `2026-05-26-unit-first-test-archive.md` | ✅ **T1c done** |
@@ -116,7 +116,7 @@
 | 43 | 不需排期全文 | ⚠️ 依赖 synthesis 蒸馏 | 漏写 → 回 L1 |
 | 44 | 不需 invoke/review 全文 | ✅（实验二） | 日常可按 by-task 片段 |
 | 45 | Wiki 完整性可消「边界靠摘要」局限 | 部分 | ingest 纪律 + 回 L1 |
-| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **部分** | T1c + Multi slug AB **done** · slug B W 3/4（test_strategy 缺口） |
+| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **部分** | Multi slug AB **done**；Wiki Loop A1/A2 已补 `test_strategy` ingest（slug B 示范 `query-rewrite-observability`） |
 
 ---
 
@@ -126,7 +126,8 @@
 | --- | --- | --- | --- |
 | P0 试点关账 | 无（收口，不新建） | `task_wiki_ctx_ab_v1` 等 **done** | ✅ 2026-05-26；**T1c 起需 active task** |
 | P1 T1c | **无** | **done** · `done/task_coding_wiki_t1c_test_archive_v1.md` | ✅ 2026-05-26 关账 |
-| P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ 部分外推 |
+| P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ 部分外推；A1/A2 补 test_strategy |
+| Wiki Loop A1–A4 | **无** | **done** · `done/task_harness_wiki_loop_a1_a4_v1.md` · 2026-05-26 | ✅ 单 PR `task/wiki-loop-a1-a4-v1` |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | planned | 未来 task |
 | P3 前端 parity | 前端仓 | 远期 | 不在本仓 |
@@ -152,14 +153,14 @@
 | --- | --- | --- |
 | ✅ | ~20 项 | 试点核心、AB 签收、Schema、读序 |
 | ⚠️ | ~10 项 | 概念网、lint 自动化、文档漂移 |
-| ❌ | ~8 项 | entities 网、T1c 交付、多 slug AB、manifest |
+| ❌ | ~6 项 | entities 网、manifest 等（T1c / 多 slug AB **done**） |
 | ⏸ | ~4 项 | sources、qmd、P1-4、外部 Raw |
 
 ```text
 应然（SPEC / CODING_WIKI）→ 已验收（done task + conclusion）→ 未开工（§5.1，无 active task）
 ```
 
-**建议顺序**：~~P0 关账~~（**done** 2026-05-26）→ **新建 T1c active task**（§5.1 P1）→ 工具链 L2 与 T1c **并行**、不混单。
+**建议顺序**：~~P0 关账~~（**done**）→ ~~T1c / 多 slug AB~~（**done** 2026-05-26）→ Wiki Loop A1–A4（ingest 纪律）→ 工具链 L2 **并行**。
 
 ---
 
@@ -169,3 +170,4 @@
 | --- | --- |
 | 2026-05-26 | v1.0：自对话与试点文档蒸馏的 52 项对比表 |
 | 2026-05-26 | v1.1：P0 关账勾选；§7 task 分工；建议顺序更新 |
+| 2026-05-26 | v1.2：#12 T1c done · #46 Wiki Loop A1/A2 test_strategy · §7/§9 同步（A3） |
