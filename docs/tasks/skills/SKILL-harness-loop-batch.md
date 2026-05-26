@@ -1,7 +1,7 @@
 # SKILL：Harness Loop Batch（母单 + 多子 task · 单 PR）
 
 > **SKILL ID**：`harness-loop-batch`  
-> **状态**：`draft`（人审前草案；**未**经第二次 Loop 验证前 **不得**标 `accepted`）  
+> **状态**：`draft` — 两 Loop 实例（A1–A4、B-Q3 Recheck）+ meta-reinspect **条件通过**；C3 第二 Loop 已绿，**C2 仍 FAIL**（R2/R3 的 30/40/50 stub）。晋升 `accepted` **阻塞**，须第三次 Loop C2 全绿或 meta-reinspect **C1–C7 全 pass**。  
 > **适用阶段**：10 帽 **Batch 一次** → 各子 round **22→30→40→50→关账** → 母单 **META** 关账；**禁止**执行阶段再开 10。  
 > **Cursor 项目 skill**：[`.cursor/skills/harness-loop-batch/SKILL.md`](../../../.cursor/skills/harness-loop-batch/SKILL.md)。
 
@@ -11,7 +11,8 @@
 
 | 层级 | 说明 | 路径 |
 |------|------|------|
-| **实例（试点）** | 第一次完整 Loop 的落盘与关账证据 | task：[`../done/task_harness_wiki_loop_a1_a4_v1.md`](../done/task_harness_wiki_loop_a1_a4_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-a1-a4/`](../../harness/invokes/by-task/wiki-loop-a1-a4/) |
+| **实例 1（试点）** | 第一次完整 Loop | task：[`../done/task_harness_wiki_loop_a1_a4_v1.md`](../done/task_harness_wiki_loop_a1_a4_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-a1-a4/`](../../harness/invokes/by-task/wiki-loop-a1-a4/) |
+| **实例 2（第二 Loop）** | B-Q3 Recheck + meta-reinspect | task：[`../done/task_harness_wiki_loop_bq3_recheck_v1.md`](../done/task_harness_wiki_loop_bq3_recheck_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-bq3-recheck/`](../../harness/invokes/by-task/wiki-loop-bq3-recheck/) · meta-reinspect：[`../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) |
 | **新 Loop 实例** | 从试点 **复制改编** 到 | `docs/harness/invokes/by-task/<loop-slug>/` |
 | **本 SKILL** | 模式与字段真值；**不**替代实例目录内 Prompt 正文 | 本文 |
 
@@ -193,9 +194,23 @@
 
 **排期（RECENT 等）**：试点 Wiki Loop 由 **R4 / META** 改 `RECENT_TASK_SCHEDULE` — **仅该实例约定**。**须**在母 task 写清「哪 round 改哪张表」；**禁止**从 SKILL 推断全局「永远最后一轮改排期」。
 
-**invoke 质量**：§3 须 **全文**（含元信息表），禁止仅一行标题 stub。
+**invoke 质量（概要）**：§3 须 **全文**（含元信息表），禁止仅一行标题 stub；**可执行标准**见下节 **invoke 质量门禁（C2）**。
 
 **commit**：每帽结束 **须 commit** 后再戴下一帽（[`HANDOFF_AUTO_COMMIT.md`](../../harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md)）。
+
+### invoke 质量门禁（C2 · 可执行）
+
+> cross-round【授权】**不降低** 30/40/50 invoke 质量；**每换帽**须独立生成该帽 §3 全文，禁止「续跑摘要一行 + commit」。
+
+| 检查 | pass 条件 |
+|------|-----------|
+| **元信息表** | 含 `round` / `hat` / `task` / `task_slug` / `freeze_id` / `git_branch` |
+| **§3 正文** | ` ```text ` 块内为 **可复制 Prompt**（引用对应 `prompts/hats/{22,30,40,50}-*.md` + 本 round `PROMPT_LOOP` 步骤节），**非**交付摘要 |
+| **行数 / 体量** | §3 正文 **≥ 15 行**；或 invoke 文件 **≥ 800 B**（二者满足其一；meta-reinspect 抽检常用 **≥ 15 行**） |
+| **semi_auto 续跑** | R2…Rn 的 30/40/50 **与 R1 同标准**；禁止 `R2·30 交付：… commit。` 式 stub |
+| **40 / 50 额外** | 须含 task 内 VERIFY 项或 `reinspect_*` 落盘路径（可抄 `PROMPT_LOOP` 步骤 3/4） |
+
+**FAIL 时**：50 或 META meta-reinspect 标 **C2 fail**；**不要求** retrofix 已合并 Loop 的 stub invoke（记入过程债）；**下一 Loop** 或全 pass 复检须达标。
 
 ---
 
@@ -223,35 +238,50 @@
 
 ## SKILL 合规自检（META / 开 PR 前）
 
-> 对照 **目标态**；试点首次 Loop **未全绿** 见下节「过程债」。
+> 对照 **目标态**；实例 1/2 **未全绿** 见下节「两 Loop 过程债矩阵」。
 
 | # | 检查 | pass 条件 |
 |---|------|-----------|
 | C1 | 母闸 | 母 task 中 `HG-LOOP-BATCH`：**人**改字段 `pending`→`approved`（**禁止** Agent）；**建议**单独 commit |
-| C2 | invoke 链 | 每 **Rn** 有 22/30/40/50/CLOSE invoke；**§3 或等价全文**（非仅标题行） |
+| C2 | invoke 链 | 每 **Rn** 有 22/30/40/50/CLOSE invoke；各 invoke §3 **满足 invoke 质量门禁**（见上节）。抽检：任一 30/40/50 若 §3 **< 15 行**或元信息表缺 `task_slug` → **FAIL** |
 | C3 | cross-round | 首份 **R1·22** invoke 元信息含 `cross_round_semi_auto: true`（若走 **B** 全链） |
 | C4 | 占位 | MANIFEST 所列 PLACEHOLDER 在下一 Rn **22 前**已替换 |
 | C5 | 50 | 各子 task 有 `reinspect_*`（Loop 子单 **建议** 50，与 `ACCEPTANCE_LANDING` docs 关账一致） |
 | C6 | 排期 | 仅母 task 指定 round 改 `RECENT` / `_views` |
 | C7 | diff 纪律 | 单 PR diff 无母 task 禁止路径（`api/`、`tests/`、prompts 正文等） |
 
-**晋升 `accepted`**（人审）：**≥2** 次独立 Loop 实例 **或** 1 次 Loop + [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) 元复检 **pass**。
+**晋升 `accepted`**（**人审** · 须 **C1–C7 全 pass**，非「条件通过」）：
+
+```text
+accepted 须同时满足其一：
+1. ≥2 次独立 Loop 实例，且至少一次 C1–C7 全 pass（含 C2 invoke 质量门禁）；或
+2. 1 次 Loop + harness-meta-reinspect 元复检，且 C1–C7 全 pass。
+
+当前阻塞（仍 draft）：
+- 实例 1 A1–A4：C2 stub（A2–A4 30 等）· C3 缺 cross_round 字段
+- 实例 2 B-Q3：C3 ✅ · C2 ❌（R2/R3 的 30/40/50 stub）
+→ 下一动作：第三次 Loop（C2 前置清单）或 meta-reinspect 全 pass 复检。
+```
+
+已合并 Loop 的 stub invoke **不要求 retrofix**；债记入过程债矩阵，下轮或复检须达标。
 
 ---
 
-## 试点过程债（Wiki Loop · 已知 · 勿复制）
+## 两 Loop 过程债矩阵（已知 · 勿复制）
 
-| 项 | 试点实跑 | 目标态（本 SKILL） |
-|----|----------|-------------------|
-| A2–A4 部分 **30** invoke | 1～5 行 stub | §3 全文 |
-| R1·22 invoke | 未写 `cross_round_semi_auto` 字段 | § cross-round 硬约束 |
-| 交付 / 关账 | 四子 + META **done/**、单 PR 可开 | 不受影响 |
+| 项 | 实例 1 · A1–A4 | 实例 2 · B-Q3 Recheck | 目标态（本 SKILL） |
+|----|----------------|----------------------|-------------------|
+| **C3** cross_round 字段 | R1·22 **缺** | R1·22 **有** ✅ | 首份 R1·22 invoke |
+| 首 round 30/40/50 | R1 部分合格 | R1 基本合格 | invoke 质量门禁 |
+| **跨 round 续跑 30/40/50** | A2–A4 **stub** | R2/R3 **全 stub** ❌ | C2 |
+| 业务关账 / 单 PR | done ✅ | done ✅ | 不受影响 |
+| meta-reinspect | 无 | **条件通过**（C2 fail） | C1–C7 全 pass 方可 accepted |
 
-> **⚠️ 晋升 `accepted` 的硬门槛（下轮 Loop 或 meta-reinspect 必查）**  
-> **C2 + C3 须全 pass**。试点 Wiki Loop **未**满足（stub invoke、缺 `cross_round_semi_auto`）→ **不得**因「交付 done」 alone 将本 SKILL 标 `accepted`。  
-> 试点 invoke 债 **不要求** retrofix；**下轮**或复检须达标。
+> **⚠️ 晋升 `accepted` 硬门槛**  
+> **C2 + C3 须全 pass**（见合规自检表）。**不得**因「子 task done / PR 已 merge」 alone 标 `accepted`。  
+> 过程债 **不要求** retrofix 已合并 invoke；**下轮 Loop** 或 **全 pass meta-reinspect** 须达标。
 
-第二次 Loop 或 meta-reinspect 应 **显式核对 C2/C3**；若仅记录债而不阻断晋升，须在 reinspect 中写「accepted 阻塞：C2/C3」。
+第二次 Loop + meta-reinspect 已 **显式核对 C2/C3**；B-Q3 复检结论：**accepted 阻塞：C2**（见 [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md)）。
 
 ---
 
@@ -260,7 +290,9 @@
 | 偏差 | 纠正 |
 |------|------|
 | R1 关账后停，要求「新对话贴 R2 Prompt」 | 已【授权】cross-round → 读 MANIFEST 同会话续 |
-| invoke 仅标题、无 §3 | 换帽前写满 invoke，与 R1 首份对齐 |
+| invoke 仅标题、无 §3 | 换帽前写满 invoke，与 R1·22 / R1·30 全文对齐 |
+| cross-round 续跑时 30/40/50 只写「交付摘要 + commit」 | 换帽前从 `PROMPT_LOOP` **步骤 2/3/4** 展开 §3；**每帽同标准** |
+| R1·22 全文、后续帽 stub | semi_auto 不断链 **也不断质** |
 | 【授权】写在 PROMPT_LOOP 模板 | 迁至 PROMPT_START；模板只描述单 round |
 | 多帽结束不 commit | 每帽 HANDOFF_AUTO_COMMIT |
 | 每 round 改 RECENT | **仅**母 task 指定 round 改排期 |
@@ -273,7 +305,7 @@
 |-------|------|
 | [`docs-governance`](SKILL-docs-governance.md) | 子 task 若为纯 docs，范围/非范围可叠加 |
 | [`harness-task`](SKILL-harness-task.md) | 改 prompts/模板用 harness-task，非本 SKILL |
-| [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | **可选**：META 关账 / PR 合并后做流程元复检（invoke 链、gate commit diff）；Wiki Loop 试点 **未**落盘 meta 复检 |
+| [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | META 关账 / PR 合并后 **可选**流程元复检；B-Q3 已落盘 [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) → **条件通过**（C2 fail，**不**等于 accepted） |
 
 ---
 
@@ -286,3 +318,4 @@
 | 2026-05-26 | v1.2：META 关账约定、Batch-only 入口、合规自检 C1–C7、试点过程债、accepted 晋升条件 |
 | 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
 | 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
+| 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
