@@ -53,6 +53,26 @@
 
 ---
 
+## Batch-10 Prompt 正文必含（`PROMPT_BATCH_10_<loop-slug>_v1` §3）
+
+> 新 Loop **不必**从试点实例反推；按下列字段写 ` ```text ` 可复制块即可。
+
+| 块 | 必含内容 |
+|----|----------|
+| **角色与纪律** | 10 帽 Batch；引用 `10-requirements`、`TASK_TEMPLATE`、`SKILL-docs-governance`、HARNESS §5；**禁止**本 Prompt 内执行 22/30 |
+| **开帽** | invoke 落盘路径 `invoke_*_10_batch_*` |
+| **背景 1 段** | 为何 Loop、单 PR、N 个子 task 主题（业务相关） |
+| **须落盘文件列表** | **1 母 + N 子** `docs/tasks/active/task_*.md`（路径 + freeze_id + task_slug） |
+| **母 task 字段** | `HG-LOOP-BATCH` = **`pending`**；子单顺序 R1…Rn→META；链 MANIFEST / PROMPT_LOOP |
+| **每子 task 字段** | Harness 表、`not_applicable`、继承母闸、跳过 10、范围/非范围/验收 `- [ ]`/failure_paths/自检空表 |
+| **占位** | 若 Rx 依赖 R(x-1)：子 task 内 `<!-- PLACEHOLDER:... -->` 块 |
+| **commit** | 五（或 N+1）task + invoke；message 含母 `freeze_id` |
+| **停** | 勿执行 22；下一棒 = 人批闸 → `PROMPT_START_*_full_chain` 或 `PROMPT_LOOP` round=R1 |
+
+**示例一句（背景）**：「Multi 结论建议补 ingest 字段；本 Batch 起草 N 个 docs 子单，执行走 Loop。」
+
+---
+
 ## Harness 默认值
 
 ### 母 task（编排）
@@ -64,7 +84,15 @@
 | **semi_auto** | `true` |
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/<loop-slug>-v1`（示例） |
-| **human_gate** | `HG-LOOP-BATCH` · 仅母 task；子 task 写「继承母闸」 |
+| **human_gate** | `HG-LOOP-BATCH` · **仅母 task**；子 task 写「继承母闸」 |
+
+**`HG-LOOP-BATCH` 人批口径（统一）**：
+
+1. **仅人** 将母 task 表中 `HG-LOOP-BATCH` 的 `status` 从 `pending` 改为 `approved`（**禁止** Agent 代填）。  
+2. **建议** 该字段变更 **单独一次 commit**（便于 `git blame` 指向人）；可与其它 docs 同 PR，但 **不得**与 Agent 代填混在同一语义 commit。  
+3. 子 task **不**再设 pending 的 `HG-LOOP-BATCH`；写「继承母闸 · 母 task 已 approved 后方可 22」。
+
+**与其它 `human_gate` 的关系**：本 Loop 模式 **只定义** `HG-LOOP-BATCH`。若某 round **越界**改 `api/`（违反母 task 非范围），**不**触发「另开 HG-CODE-REVIEW」等未声明闸 — 按 **F4** **50 fail / revert / 拆出 Loop**；整 Loop 仍以 docs-only 为前提。
 
 ### 子 task（docs / 治理）
 
@@ -84,7 +112,7 @@
 ```text
 [A · Batch 一次 · 必做（每个 Loop 一次）]
   PROMPT_BATCH_10_<loop-slug> → 母 + N 子 active/task_*.md + invoke_10_batch → commit
-  HG-LOOP-BATCH = pending → 人 approved → commit（建议人单独 commit gate）
+  人：母 task 内 HG-LOOP-BATCH pending→approved（建议单独 commit）→ 再启 Loop
 
 [B · 全链一次 · 推荐]
   PROMPT_START_<loop-slug>_full_chain §3（含 §2【授权】cross-round）
@@ -100,7 +128,14 @@
 
 **试点**：Wiki Loop 采用 **B**（单会话 R1→R4→META）；非唯一合法形态。
 
-**META round（母单关账）**：子 round **R1…Rn 均 `done/`** 后执行。试点 **未**对母单再跑 22→50，仅 **关账 + `HANDOFF_CLOSE_TRACE` + `_views/done.md`**（invoke `CLOSE_*`）。若母单 `audit_profile: full` 或含 `api/` 子单，须在母 task **单独写明** META 是否也要 22→50。
+**META round（母单关账）**：子 round **R1…Rn 均 `done/`** 后执行。
+
+| 条件 | META 帽链 |
+|------|-----------|
+| 默认（本 SKILL · docs-only Loop） | **仅关账**：invoke `CLOSE_*` + `HANDOFF_CLOSE_TRACE` + `_views/done.md`；**不**强制 22→50 |
+| 母 task `audit_profile: full` | META **须** 22→30→40→50→关账（与 [`harness-task`](SKILL-harness-task.md) 一致） |
+| 任一子 round 交付含 **`api/` / `tests/` / CI** 变更 | META **须** 22→50；且该 Loop **可能不应**使用本 SKILL（见 §何时选用） |
+| 试点 Wiki Loop | docs-only · META **仅关账**（已验证） |
 
 ---
 
@@ -171,7 +206,8 @@
 | F1 | `HG-LOOP-BATCH` = `pending` | 拒执行任一子 22/30 |
 | F2 | 子 task 跳过 MANIFEST 顺序 | 22 阻塞，列依赖 |
 | F3 | 占位未回填即开下一子 22 | 拒开工 |
-| F4 | 误改 api/tests/prompts/CI | 50 fail / revert |
+| F4 | 误改 api/tests/prompts/CI | 50 fail / revert；**不**以 HG-LOOP-BATCH 替代代码审查闸 — 应拆单或终止 Loop |
+| F5 | 子 round 需 `HG-*` 未在母 task 声明 | 22 **阻塞**；Loop 只认 `HG-LOOP-BATCH` |
 
 ---
 
@@ -191,7 +227,7 @@
 
 | # | 检查 | pass 条件 |
 |---|------|-----------|
-| C1 | 母闸 | `HG-LOOP-BATCH` 由 **人** commit 为 `approved`（非 Agent 代填） |
+| C1 | 母闸 | 母 task 中 `HG-LOOP-BATCH`：**人**改字段 `pending`→`approved`（**禁止** Agent）；**建议**单独 commit |
 | C2 | invoke 链 | 每 **Rn** 有 22/30/40/50/CLOSE invoke；**§3 或等价全文**（非仅标题行） |
 | C3 | cross-round | 首份 **R1·22** invoke 元信息含 `cross_round_semi_auto: true`（若走 **B** 全链） |
 | C4 | 占位 | MANIFEST 所列 PLACEHOLDER 在下一 Rn **22 前**已替换 |
@@ -211,7 +247,11 @@
 | R1·22 invoke | 未写 `cross_round_semi_auto` 字段 | § cross-round 硬约束 |
 | 交付 / 关账 | 四子 + META **done/**、单 PR 可开 | 不受影响 |
 
-第二次 Loop 或 meta-reinspect 应 **显式修 C2/C3**，或在 reinspect 中记「invoke 债已接受、下轮必满」。
+> **⚠️ 晋升 `accepted` 的硬门槛（下轮 Loop 或 meta-reinspect 必查）**  
+> **C2 + C3 须全 pass**。试点 Wiki Loop **未**满足（stub invoke、缺 `cross_round_semi_auto`）→ **不得**因「交付 done」 alone 将本 SKILL 标 `accepted`。  
+> 试点 invoke 债 **不要求** retrofix；**下轮**或复检须达标。
+
+第二次 Loop 或 meta-reinspect 应 **显式核对 C2/C3**；若仅记录债而不阻断晋升，须在 reinspect 中写「accepted 阻塞：C2/C3」。
 
 ---
 
@@ -244,3 +284,4 @@
 | 2026-05-26 | v1：自 Wiki Loop 关账蒸馏 · 人审前草案 |
 | 2026-05-26 | v1.1：人审泛化 — 模式文件名、R1…Rn、三选一流程、排期母 task 明示、模板/实例目录 |
 | 2026-05-26 | v1.2：META 关账约定、Batch-only 入口、合规自检 C1–C7、试点过程债、accepted 晋升条件 |
+| 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
