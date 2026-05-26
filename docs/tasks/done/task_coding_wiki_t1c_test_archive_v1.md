@@ -1,6 +1,6 @@
 # Task：Coding Wiki T1c — 测试迭代过程档案（v1）
 
-> **状态**：`in_progress`  
+> **状态**：`done（2026-05-26 验收通过 · CODING-WIKI-T1C@2026-05-26）`  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)（**T1c** · §5.1 P1）  
 > **关联对比表**：[`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)  
 > **前置（done）**：[`task_coding_wiki_pilot_v1.md`](../done/task_coding_wiki_pilot_v1.md) · [`task_wiki_ctx_ab_v1.md`](../done/task_wiki_ctx_ab_v1.md)
@@ -128,8 +128,8 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 - [x] `decisions/` ≥1 文件；`concepts/test-strategy-ink-backend.md` 存在且在 `index.md` 登记。  
 - [x] 2 张新 synthesis 含 `## 测试变更` 与有效 `source_task`。  
 - [x] 40 VERIFY 全 pass；50 建议关账无阻塞。  
-- [ ] `git diff` 无 `api/`、无 `docs/harness/prompts/`。  
-- [ ] task 关账：`done/` + `_views/done.md` + §6.6 T1c **done**。
+- [x] `git diff` 无 `api/`、无 `docs/harness/prompts/`。  
+- [x] task 关账：`done/` + `_views/done.md` + §6.6 T1c **done**。
 
 ---
 
@@ -164,3 +164,24 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 ## 给 Cursor
 
 `task_coding_wiki_t1c_test_archive_v1`、`CODING-WIKI-T1C`、`T1c`、`测试迭代档案`、`decisions`、`test-strategy`、`semi_auto`、`coding-wiki-t1c`
+
+---
+
+## 执行路线与 Commit 回溯（关账 · 2026-05-26）
+
+| 序号 | 帽 | 关键动作 | 落盘工件 | commit |
+|------|-----|----------|----------|--------|
+| 1 | **22 R1** | 零阻塞合同审 | `reviews/by-task/coding-wiki-t1c/..._audit_R1_20260526.md` | `api-python@e9af40d` |
+| 2 | **30** | T1c Wiki 交付 | `docs/coding_wiki/decisions/`、`concepts/`、2× `syntheses/` | `api-python@de2d05b` |
+| 3 | **40** | VERIFY (1)–(6) pass | task `### 自检结论` | `api-python@25d4647` |
+| 4 | **50** | 建议关账 | `reinspect_coding_wiki_t1c_20260526_v1.md` | `api-python@b8cc396` |
+| 5 | **关账** | `git mv` → `done/`、排期 §6.6 | 本文件、`_views/done.md` | （本 commit） |
+
+### api-python（`task/coding-wiki-t1c-v1`）
+
+- `b8cc396` docs(harness): 50 复检 T1c 建议关账  
+- `25d4647` docs(harness): 40 自检 T1c VERIFY pass  
+- `de2d05b` docs(coding_wiki): T1c 测试过程档案交付  
+- `e9af40d` docs(harness): 22 R1 audit Coding Wiki T1c  
+
+**关闭回溯**：50 → `docs/tasks/reinspect_results/reinspect_coding_wiki_t1c_20260526_v1.md`
