@@ -31,6 +31,7 @@ test -f docs/tasks/active/task_coding_wiki_ingest_test_strategy_v1.md || test -f
 ```text
 【授权】semi_auto 跨 round：A1 关账后无需停、无需人开新对话；按 LOOP_MANIFEST 依次执行 A2→A3→A4→META 关账。
 每帽仍须：invoke §3 全文落盘 + 该帽工件（review/reinspect/task）+ git commit（见 HANDOFF_AUTO_COMMIT）。
+cross-round 续跑 A2+ 时 invoke 质量 **与 A1·22 同级**（§3 ≥15 行 · 非 stub；见 SKILL §invoke 质量门禁）。
 ```
 
 ---
@@ -57,6 +58,8 @@ test -f docs/tasks/active/task_coding_wiki_ingest_test_strategy_v1.md || test -f
 
 【授权】semi_auto 跨 round：A1 关账后无需停、无需人开新对话；按 LOOP_MANIFEST 依次执行 A2→A3→A4→META 关账。每帽仍须 invoke 落盘 + commit。
 
+【invoke C2】A2+ 各帽 invoke 质量 = A1·22 同级；§3 ≥15 行、元信息表含 task_slug、非「交付摘要」（SKILL §invoke 质量门禁）。
+
 【commit 硬纪律】每一帽（22/30/40/50/关账）结束 before 下一帽：git add 本轮路径 → commit（HEREDOC message）→ 回复末尾一行 `已提交：@ <short-hash>`。禁止跨帽堆积未提交改动。
 
 （其余步骤与 docs/harness/invokes/by-task/wiki-loop-a1-a4/PROMPT_LOOP_22_to_CLOSE_v1.md §3 相同；A1 步骤 0 跳过。关账后按 MANIFEST 自动续 A2，勿要求用户再贴 Prompt。）
@@ -73,3 +76,4 @@ test -f docs/tasks/active/task_coding_wiki_ingest_test_strategy_v1.md || test -f
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：自 PROMPT_LOOP 迁出跨 round【授权】；全链只粘贴一次 |
+| 2026-05-26 | v1.1：第三批 · invoke C2 / A2+ 不断质 |

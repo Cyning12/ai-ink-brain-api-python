@@ -41,3 +41,7 @@
 | `PROMPT_START_loop_a1_full_chain_v1.md` §2（会话级，一次） | `PROMPT_LOOP_22_to_CLOSE_v1.md` §3 模板正文 |
 
 断点凭据：首份 A1·22 invoke 元信息 `cross_round_semi_auto: true`。
+
+## invoke C2（第三批）
+
+换帽前自检见 [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) 步骤 1–5 · [`SKILL-harness-loop-batch`](../../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁。

@@ -19,8 +19,13 @@
 | 子 round 数 | 4（A1–A4） | 3（R1–R3） |
 | 改 scorecard 主表 | 否 | 否 · 仅 **§Recheck** addendum |
 
+## invoke C2（第三批）
+
+换帽前自检见 [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) 步骤 1–5 · [`SKILL-harness-loop-batch`](../../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁。
+
 ## 修订记录
 
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：Batch-10 起草 · 扫描 SPEC/对比表/RECENT 合并为 R1–R3 |
+| 2026-05-26 | 第三批：PROMPT_LOOP / PROMPT_START invoke C2 联动 |

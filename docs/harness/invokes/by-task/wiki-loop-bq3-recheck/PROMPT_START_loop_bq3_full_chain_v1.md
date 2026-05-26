@@ -28,6 +28,7 @@ rg -n 'test_strategy' docs/coding_wiki/syntheses/query-rewrite-observability.md
 ```text
 【授权】semi_auto 跨 round：R1 关账后无需停、无需人开新对话；按 LOOP_MANIFEST 依次执行 R2→R3→META 关账。
 每帽仍须：invoke §3 全文落盘 + 该帽工件 + git commit（见 HANDOFF_AUTO_COMMIT）。
+cross-round 续跑 R2+ 时 invoke 质量 **与 R1·22 同级**（§3 ≥15 行 · 非 stub；见 SKILL §invoke 质量门禁）。
 ```
 
 ---
@@ -53,6 +54,8 @@ rg -n 'test_strategy' docs/coding_wiki/syntheses/query-rewrite-observability.md
 
 【授权】semi_auto 跨 round：R1 关账后按 MANIFEST 续 R2→R3→META。每帽 invoke + commit。
 
+【invoke C2】R2+ 各帽 invoke 质量 = R1·22 同级；§3 ≥15 行、元信息表含 task_slug、非「交付摘要」（SKILL §invoke 质量门禁）。
+
 【commit 硬纪律】每帽结束 before 下一帽：git add → commit → 回复 `已提交：@ <short-hash>`。
 
 （其余步骤与 docs/harness/invokes/by-task/wiki-loop-bq3-recheck/PROMPT_LOOP_22_to_CLOSE_v1.md §3 相同；R1 步骤 0 跳过。）
@@ -67,3 +70,4 @@ rg -n 'test_strategy' docs/coding_wiki/syntheses/query-rewrite-observability.md
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | v1：第二 Loop 全链启动 |
+| 2026-05-26 | v1.1：第三批 · invoke C2 / R2+ 不断质 |

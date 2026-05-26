@@ -14,6 +14,7 @@
 | P2 | **不须人审**：同 Agent 可 **自动戴下一棒**；但 **下一棒 §3 Prompt 须先落盘**（`invokes/`）并 **commit**，再切换角色执行。 |
 | P3 | **审核节奏**：见 **§3 `audit_profile`**——`full` 多轮 `22`；`post_close` 开头轻闸 + 关账后统一人审（§4）。 |
 | P4 | **Git 形态**：半自动链式执行 **强烈建议** 在 **任务专用分支** 上进行（§5），`main` 仅通过 PR / 人签合并。 |
+| P5 | **Loop Batch**：`semi_auto` cross-round 续跑 **不降低** invoke 质量；30/40/50 换帽前仍须 §3 全文（≥15 行）+ commit（见 [`SKILL-harness-loop-batch`](../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁） |
 
 ---
 
@@ -162,6 +163,43 @@
 | **30→40→50** | 本棒交付含命令/pytest 结论摘要；50 后下一棒常为 **关账** |
 | **阻塞** | **仅** 输出状态栏 + 须改的 `gate_id` 与文件路径，**禁止** 代填 approved |
 
+### 3.5 换帽上下文（同会话 · 旧 Prompt 是否仍影响新帽）
+
+> **适用**：所有 `semi_auto: true` 帽链（单 task、Loop Batch、cross-round 均含）。Loop 实例可链 [`SKILL-harness-loop-batch`](../../tasks/skills/SKILL-harness-loop-batch.md)，**不**在本节重复 Loop 专有字段。
+
+#### 3.5.1 机制（须知晓）
+
+| 事实 | 含义 |
+|------|------|
+| 同 Agent **同会话** | 此前 user/assistant 消息 **仍在 LLM 上下文**；换帽 **不会** 自动「遗忘」旧帽 Prompt |
+| **不能**假设 | 「贴了 30 的 invoke，22 的禁止项就失效了」——须 **主动** 用新 invoke 重写当前角色与边界 |
+| **真值优先级** | **磁盘 + Git**（task、review、invoke、diff）> 对话记忆；复盘以 **invoke commit** 为准（§3.2） |
+
+#### 3.5.2 常见污染（须防）
+
+| 现象 | 常见原因 |
+|------|----------|
+| 30 不敢写 / 交付过薄 | 22「禁止改代码」仍在起作用 |
+| 30 越界扩 scope | 22 审查清单被当成实现清单 |
+| 50 走形式 | 仅复读 40 自检，未重跑 VERIFY / 未重读 diff |
+| 长链 cross-round 漂移 | 新 round 首份 invoke 未重新锚定 round / 非范围 |
+
+#### 3.5.3 Agent 换帽纪律（硬）
+
+1. **下一帽 invoke §3 须完整**（占位符已替换；Loop 见 SKILL §invoke 质量门禁），**禁止**对话里只写「继续 30」。  
+2. **invoke 开头显式 role switch**：写明 **当前帽编号 + 身份**（链 `hats/<N>-*.md`），并一句 **「上一帽已结束；本帽只按下文执行」**。  
+3. **30 / 40 / 50**：开干前 **重读** 本轮 task、`reviews/*`（若有）、**本棒相关 git diff**；结论写入 invoke 或交付 md，**禁止**仅引用对话摘要。  
+4. **50 独立复检**：须 **独立重跑** task / invoke 中的 VERIFY；**禁止**将 40 结论当作 50 证据（22 ≠ 50，见 `hats/22-task-audit.md`）。  
+5. **新会话续跑**：只贴 **最新 invoke §3**（或 `PROMPT_START` 全链启动）；**不必**重贴历史各帽 Prompt——物理上 context 更干净。
+
+#### 3.5.4 何时建议新开会话
+
+| 场景 | 建议 |
+|------|------|
+| 日常 22→30→40→50（职责清晰、invoke 完整） | **同会话 semi_auto 可接受** |
+| 50、关账 META、高风险跨仓 | **优先新会话** + 最新 invoke |
+| 实验类 **载荷 / 臂隔离**（如 Wiki-CTX-AB 每臂独立会话） | semi_auto 为 **工程便利**；**不等于**实验公平性真值——按题集要求另开 |
+
 ---
 
 ## 4. 审核节奏：`audit_profile`（并入 §3 两闸模型）
@@ -227,7 +265,7 @@
 |------|------------|
 | **10** | 产出 task 时 **列出** `human_gate` 初值与 `audit_profile` |
 | **22** | R1 通过时 **不得** 代改 `HG-AUDIT-R1`；终轮设 `HG-AUDIT-CLOSE` |
-| **30→40** | `post_close` 下可 auto；**30 前** 必查 `HG-AUDIT-R1` |
+| **30→40** | `post_close` 下可 auto；**30 前** 必查 `HG-AUDIT-R1`；换帽见 **§3.5** |
 | **50** | 常对应 `HG-GLOBAL-SIGNOFF`；通过后 CLOSE_TRACE |
 | **每帽结束** | 对话输出 **§3.4 版本 B 状态栏**；关账另用 CLOSE_TRACE |
 
@@ -239,10 +277,12 @@
 |------|------|
 | 2026-05-17 | v1：人工闸标识、自动戴帽前置 invoke+commit、audit_profile 两闸、多分支建议 |
 | 2026-05-22 | v1.1：§3.4 每棒状态栏（版本 B 对话默认 + 版本 C invoke 可选）；与 CLOSE_TRACE 分工 |
-| 2026-05-24 | v1.2：§2.3 增加「预批与二次确认」「优先由人单独 commit」「禁止混在业务 commit 中」
+| 2026-05-24 | v1.2：§2.3 增加「预批与二次确认」「优先由人单独 commit」「禁止混在业务 commit 中」 |
+| 2026-05-26 | v1.3：P5 Loop Batch invoke C2 — cross-round 不断质（第三批联动） |
+| 2026-05-26 | v1.4：§3.5 换帽上下文 — 同会话旧 Prompt 影响、污染表、换帽纪律、新会话建议 |
 
 ---
 
 ## 给 Cursor
 
-`handoff/HANDOFF_SEMI_AUTO`、`Harness 状态栏`、`版本 B`、`版本 C`、`human_gate`、`HG-`、`pending`、`approved`、`semi_auto`、`audit_profile`、`post_close`、`full`、自动戴帽、`invokes`、多分支、`task/`、`handoff/HANDOFF_CLOSE_TRACE`
+`handoff/HANDOFF_SEMI_AUTO`、`Harness 状态栏`、`版本 B`、`版本 C`、`§3.5`、`换帽上下文`、`role switch`、`human_gate`、`HG-`、`pending`、`approved`、`semi_auto`、`audit_profile`、`post_close`、`full`、自动戴帽、`invokes`、多分支、`task/`、`handoff/HANDOFF_CLOSE_TRACE`
