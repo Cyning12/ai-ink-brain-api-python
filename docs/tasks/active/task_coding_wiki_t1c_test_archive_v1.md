@@ -1,6 +1,6 @@
 # Task：Coding Wiki T1c — 测试迭代过程档案（v1）
 
-> **状态**：`pending`  
+> **状态**：`in_progress`  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)（**T1c** · §5.1 P1）  
 > **关联对比表**：[`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)  
 > **前置（done）**：[`task_coding_wiki_pilot_v1.md`](../done/task_coding_wiki_pilot_v1.md) · [`task_wiki_ctx_ab_v1.md`](../done/task_wiki_ctx_ab_v1.md)
@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 人扫 task 与 ingest 名单 |
-| HG-T1C-INGEST-SCOPE | pending | 30 | 人确认本期 **2** 个测试相关 done task（见下表） |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 人扫 task 与 ingest 名单 |
+| HG-T1C-INGEST-SCOPE | approved | 30 | 人确认本期 **2** 个测试相关 done task（见下表） |
 
 ### 前置条件（开工前自检）
 
@@ -36,7 +36,7 @@
 |---|------|------|
 | P1 | T1b pilot、`docs/coding_wiki/` 骨架存在 | **已满足** |
 | P2 | Wiki-CTX-AB P2 签收、默认读序已写 SPEC | **已满足** |
-| P3 | `HG-TASK-DRAFT`、`HG-T1C-INGEST-SCOPE` = `approved` | **须人签** |
+| P3 | `HG-TASK-DRAFT`、`HG-T1C-INGEST-SCOPE` = `approved` | **已满足**（2026-05-26 人签） |
 
 ---
 
