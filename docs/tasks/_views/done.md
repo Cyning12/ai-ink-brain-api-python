@@ -61,4 +61,5 @@
 - `../done/task_harness_in_repo_prompts_and_rules_v1.md`（2026-05-22 验收通过：Harness prompts/rules 内嵌后端仓，active→done 归档完成）
 - `../done/task_harness_p1_docs_consolidation_v1.md`（2026-05-23 验收通过：P1-3 human_gate 速查 + P1-2 skills 索引；路径 B 10→30→50 关账）
 - `../done/task_coding_wiki_pilot_v1.md`（2026-05-26 验收通过：Coding Wiki 试点 T1b · `docs/coding_wiki/` · 50 复检 `reinspect_coding_wiki_pilot_20260526_v1.md` · `freeze_id` `CODING-WIKI-PILOT@2026-05-25`）
+- `../done/task_harness_workspace_taxonomy_promote_v1.md`（2026-05-26：T3 工作区 Harness taxonomy 关账 · pointer → Projects `docs/harness/tasks/done/` · `HARNESS-TAXONOMY-T3@2026-05-25`）
 
