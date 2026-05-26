@@ -105,8 +105,9 @@ A1 已在 [`query-rewrite-observability.md`](../../coding_wiki/syntheses/query-r
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| rg test_strategy W payload | | |
-| scorecard §Recheck | | |
+| rg test_strategy W payload | **pass** | L78 frontmatter · L85/L105 正文 |
+| scorecard §Recheck | **pass** | B-Q3 pass · W 4/4 · 主表未改 |
+| git diff 无 api/tests/prompts | **pass** | 仅 experiments + task |
 
 ---
 
