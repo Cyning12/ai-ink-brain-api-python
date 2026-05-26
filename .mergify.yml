@@ -1,0 +1,38 @@
+# SPEC: docs/spec/governance/SPEC-Governance-PR-Post-CI-v1.md
+# 须在 GitHub 安装 Mergify App 后生效：https://mergify.com
+pull_request_rules:
+  - name: automerge docs-only (label automerge)
+    conditions:
+      - base = main
+      - label = automerge
+      - -label = no-automerge
+      - -draft
+      - check-success = pytest
+      - check-success = manifest_check
+      - check-success = contract_check
+      - -files~=^api/
+      - -files~=^tests/
+      - -files~=^\.github/workflows/
+      - -files~=^supabase/
+      - -files~=^requirements\.txt$
+    actions:
+      merge:
+        method: squash
+        commit_message_template: |
+          {{ title }} (#{{ number }})
+          {% for commit in commits %}
+          * {{ commit.message }}
+          {% endfor %}
+
+  - name: comment blocked automerge paths
+    conditions:
+      - label = automerge
+      - or:
+          - files ~= ^api/
+          - files ~= ^tests/
+          - files ~= ^\.github/workflows/
+    actions:
+      comment:
+        message: |
+          **Mergify**：本 PR 含 `api/`、`tests/` 或 workflow 变更，不满足 docs-only automerge。
+          请移除 `automerge` 标签并由人审查后 merge。见 `SPEC-Governance-PR-Post-CI-v1.md` §3.2。

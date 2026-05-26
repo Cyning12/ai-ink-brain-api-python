@@ -31,6 +31,7 @@
 | [`tech-graph-update`](SKILL-tech-graph-update.md) | 30 执行前 | 受影响 `.ai.md`、manifest/contract | 范围：维护轨 + 机器轨导出；验收含 `tech_graph_*_check` |
 | [`harness-task`](SKILL-harness-task.md) | 10 需求帽 | prompts/模板/rules 变更点 | 范围：Harness 工件；非范围：业务代码；**`audit_profile: full`** |
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
+| [`pr-post-ci`](SKILL-pr-post-ci.md) | 开 PR / push 后 | PR 号、是否 docs-only | CI 监听、body/Test plan 同步、`automerge` 白名单；见 `SPEC-Governance-PR-Post-CI-v1` |
 
 各类型详细预填段落见同目录 `SKILL-<id>.md`（随关账蒸馏增量维护；初版可与本表语义一致即可）。
 
@@ -77,6 +78,7 @@ docs/tasks/skills/
   SKILL-tech-graph-update.md
   SKILL-harness-task.md
   SKILL-harness-meta-reinspect.md
+  SKILL-pr-post-ci.md
 ```
 
 初版可仅维护 **README + 本表**；各 `SKILL-*.md` 随首个同类型 task 关账后按需增补。
