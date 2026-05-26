@@ -1,6 +1,6 @@
 # Task：Coding Wiki 试点（LLM Wiki 模式 · 后端 · v1）
 
-> **状态**：`draft`  
+> **状态**：`active`（`HG-TASK-DRAFT` / `HG-WIKI-INGEST-SCOPE` 已 **approved** · 可开 22 或 30）  
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（工程规约；本 task 不修改流程图正文）  
 > **关联 Issue/PR**：无  
 > **前端依赖**：无  
@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 人扫 task 与 `GUIDANCE_*` 后改 `approved` |
-| HG-WIKI-INGEST-SCOPE | pending | 30 | 人确认首期 ingest 的 2～3 个 `done` task 名单 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 人扫 task 与 `GUIDANCE_*` 后改 `approved` |
+| HG-WIKI-INGEST-SCOPE | approved | 30 | 人确认首期 ingest 的 2～3 个 `done` task 名单 |
 
 ### 前置条件（开工前自检）
 
@@ -37,9 +37,39 @@
 | P1 | 后端 Harness **P1-1～P1-3** 已收口 | **已满足**（见 `RECENT_TASK_SCHEDULE.md` §0.4） |
 | P2 | `docs/tasks/` 规整（INK-P6）已关 | **已满足**（`task_docs_tasks_reorg_move_v1` done · 2026-05-22） |
 | P3 | 工作区 Harness `active/` 无常驻改版 task | **已满足** |
-| P4 | 本 task `HG-TASK-DRAFT` = `approved` | **待人** |
+| P4 | 本 task `HG-TASK-DRAFT` = `approved` | **已满足** |
 
 > **说明**：**P1-4 前端 Harness parity** 为远期项，**不**作为本 task 硬前置。若你仍希望等「全栈 parity」，可将本 task 保持 `draft` 直至 P1-4 立项——与指导意见 §5 二选一，须在 `HG-TASK-DRAFT` 备注中写明。
+
+---
+
+## 帽子顺序（计划：**22 → 30 → 40 → 50 → 关账**）
+
+| 序 | 帽 | 启动 Prompt（子仓） |
+|----|-----|----------------------|
+| 1 | **22 R1** | `docs/harness/invokes/by-task/coding-wiki-pilot/PROMPT_22_startup_coding-wiki-pilot-v1.md` |
+| 2 | **30** | `…/PROMPT_30_startup_coding-wiki-pilot-v1.md` |
+| 3 | **40** | `…/PROMPT_40_startup_coding-wiki-pilot-v1.md` |
+| 4 | **50** | `…/PROMPT_50_startup_coding-wiki-pilot-v1.md` |
+| 5 | **关账** | `…/PROMPT_CLOSE_coding-wiki-pilot-v1.md` |
+
+| 帽 | 说明 |
+|----|------|
+| **10** | **跳过**（task 已完整；非新建 SPEC） |
+| **22** | **必须先做**；审查 md 落 `reviews/by-task/coding-wiki-pilot/` |
+| **30** | 交付 `docs/coding_wiki/` + ingest 三件套 |
+| **40** | 独立跑 VERIFY + 回填 §自检结论 |
+| **50** | 复检 + `docs/tasks/reinspect_results/`；纯文档仍 **建议做** |
+
+**纪律**：每帽 **新对话** + Open **`ai-ink-brain-api-python/`**；见 [`docs/harness/ACCEPTANCE_LANDING.md`](../harness/ACCEPTANCE_LANDING.md)。
+
+### 首期 ingest 名单（`HG-WIKI-INGEST-SCOPE` 已锁定）
+
+| # | done task（相对子仓根） |
+|---|-------------------------|
+| 1 | `docs/tasks/done/task_harness_p1_docs_consolidation_v1.md` |
+| 2 | `docs/tasks/done/task_engineering_tech_graph_gate_d_v2_tasks_v1.md` |
+| 3 | `docs/tasks/done/task_docs_tasks_reorg_move_v1.md` |
 
 ---
 
@@ -62,10 +92,7 @@
 - [ ] 新建 `docs/coding_wiki/` 骨架（见指导意见 §7）。
 - [ ] 编写 `CODING_WIKI.md`：L0/L1/L2 分工、ingest/query/lint、frontmatter 最小集、`[[wikilink]]` 与 pointer 规则。
 - [ ] 初始化 `index.md`、`log.md`（含 2026-05-25 试点启动条目）。
-- [ ] **Ingest**（首期 2～3 个，名单由 `HG-WIKI-INGEST-SCOPE` 锁定），建议候选：
-  - `docs/tasks/done/task_harness_p1_docs_consolidation_v1.md`
-  - `docs/tasks/done/task_engineering_tech_graph_gate_d_v2_tasks_v1.md`（若存在）
-  - 第三个由人择：ChatBI V3 某 `done` task 或 `task_docs_tasks_reorg_move_v1.md`
+- [ ] **Ingest** 上表 **3** 个 done task（`HG-WIKI-INGEST-SCOPE` 已锁定）
 - [ ] 每张 ingest 页含：`freeze_id` 或关账日期、链至 task / review（**摘要**，非全文复制）。
 - [ ] 在 `docs/tasks/README.md` 或 `docs/README.md` 增加 **一行** 入口链至 `coding_wiki/`（避免孤儿目录）。
 - [ ] 22 帽 R1（`audit_profile: post_close`）：审查 Wiki 与 Harness/图谱无双真值风险。
@@ -121,8 +148,12 @@
 
 | 类别 | 路径 |
 |------|------|
+| **task_slug** | `coding-wiki-pilot` |
+| **Open Folder** | **`ai-ink-brain-api-python/`**（交付物在本子仓；**不要**只开 Projects 写 `docs/coding_wiki/`） |
+| **帽链启动稿** | `docs/harness/invokes/by-task/coding-wiki-pilot/PROMPT_{22,30,40,50,CLOSE}_*` |
 | Wiki 根 | `docs/coding_wiki/` |
 | 入口 | `docs/README.md` 或 `docs/tasks/README.md` |
+| 治理 SPEC | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` **T1b** |
 
 ---
 
@@ -143,3 +174,5 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-25 | 初稿：对话归档后生成；状态 `draft`；前置 P1/P6 已满足 |
+| 2026-05-26 | `active`：帽子顺序表；ingest 三件套锁定；22/30 启动 Prompt 路径 |
+| 2026-05-26 | 帽链 22→30→40→50→关账；PROMPT_22 v1.2 + 40/50/CLOSE 启动稿 |
