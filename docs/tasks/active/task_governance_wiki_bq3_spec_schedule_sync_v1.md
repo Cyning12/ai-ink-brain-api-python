@@ -50,9 +50,9 @@ R1/R2 已更新实验证据与对比表。本 round **合并** 治理收口：SP
 
 ## 范围
 
-- [ ] 建议 R1–R2 已在 `done/`（非硬阻塞，但 22 应读 R2 交付）。  
-- [ ] 更新 SPEC §5.1 + 修订记录。  
-- [ ] 更新 RECENT §6.6 + §8 修订记录（若惯例需要）。  
+- [x] 建议 R1–R2 已在 `done/`（非硬阻塞，但 22 应读 R2 交付）。  
+- [x] 更新 SPEC §5.1 + 修订记录。  
+- [x] 更新 RECENT §6.6 + §8 修订记录（若惯例需要）。  
 - [ ] 关账时更新 `_views/done.md` 与本 Loop 三子 task 索引。  
 - [ ] 22/40/50 落盘。
 
@@ -86,8 +86,8 @@ R1/R2 已更新实验证据与对比表。本 round **合并** 治理收口：SP
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | |
-| RECENT 行文案 | |
+| 涉及文件 | `SPEC-Governance-Wiki-Harness-Roadmap-v1.md` · `RECENT_TASK_SCHEDULE.md` §6.6/§8 · `SKILL-harness-loop-batch.md` 修订记录 |
+| RECENT 行文案 | Wiki Loop B-Q3 Recheck · done · 单 PR `task/wiki-loop-bq3-recheck-v1` |
 
 ### 自检结论（执行者）
 

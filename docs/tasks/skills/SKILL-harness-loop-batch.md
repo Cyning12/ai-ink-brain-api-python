@@ -285,3 +285,4 @@
 | 2026-05-26 | v1.1：人审泛化 — 模式文件名、R1…Rn、三选一流程、排期母 task 明示、模板/实例目录 |
 | 2026-05-26 | v1.2：META 关账约定、Batch-only 入口、合规自检 C1–C7、试点过程债、accepted 晋升条件 |
 | 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
+| 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
