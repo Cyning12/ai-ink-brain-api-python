@@ -113,7 +113,7 @@ Multi slug AB 表明：W 臂禁止回读 L1 done task 时，`query-rewrite-obser
 | test_strategy 取值 | `recommended`（与 L1 `task_05_query_rewrite_observability.md` 一致） |
 | 关键 env | 无 |
 | 图谱变更点 | 无 |
-| 30 commit | （40 自检后回填 short-hash） |
+| 30 commit | `cbe181e` |
 
 ---
 
@@ -121,9 +121,9 @@ Multi slug AB 表明：W 臂禁止回读 L1 done task 时，`query-rewrite-obser
 
 | 项 | 结果 |
 |----|------|
-| 命令 | — |
-| 结论 | — |
-| 要点 | — |
+| 命令 | `rg -n test_strategy docs/coding_wiki/syntheses/query-rewrite-observability.md`；`pytest tests -m "not intent_eval and not intent_benchmark" -q` |
+| 结论 | **pass** |
+| 要点 | synthesis 含 `test_strategy: recommended`（L9/L16/L36）；无 api/tests/prompts diff；pytest 221 passed |
 
 ---
 
