@@ -93,8 +93,9 @@ R1/R2 已更新实验证据与对比表。本 round **合并** 治理收口：SP
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| SPEC §5.1 | | |
-| RECENT §6.6 | | |
+| SPEC §5.1 | **pass** | B-Q3 Recheck 行 + v1.8 修订 |
+| RECENT §6.6 | **pass** | Wiki Loop B-Q3 行 done |
+| SKILL status | **pass** | 仍 `draft` |
 
 ---
 
