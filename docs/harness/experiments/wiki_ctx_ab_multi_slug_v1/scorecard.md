@@ -65,3 +65,33 @@ v1 三题扩至 **v2 五题**；新增 **T004**（ChatBI/Text2SQL）与 **T005**
 > 该 task 的 `test_strategy` 与一句话理由？
 
 `test_strategy`：**载荷未提供**（synthesis frontmatter 无该字段）。理由（部分）：§测试变更表明改 `api/` 并新增 `tests/test_query_rewrite_compare_anchor.py` — **未命中 gold 要点 #1**。
+
+---
+
+## §Recheck（Wiki Loop B-Q3 · 2026-05-26）
+
+| 项 | 值 |
+| --- | --- |
+| **freeze_id** | `WIKI-BQ3-R1-PAYLOAD@2026-05-26` |
+| **round** | Loop R1 |
+| **W payload** | `payloads/W_query-rewrite-observability.md` |
+| **payload_char_count（新）** | **3625**（原 Multi 3395 · +230） |
+| **物化依据** | A1 ingest 后 synthesis 含 `test_strategy: recommended` |
+
+### Slug B · W 臂快检（载荷隔离 · 2026-05-26）
+
+| 题 | pass/fail | 要点摘要 |
+|----|-----------|----------|
+| B-Q1 | **pass** | `rag_conversation_logs.metadata.match`（raw vs rewrite 对比） |
+| B-Q2 | **pass** | `tests/test_query_rewrite_compare_anchor.py` |
+| B-Q3 | **pass** | `test_strategy: **recommended**`（frontmatter + §测试变更）；理由：改 `api/` 观测行为、须可失败单测 |
+| B-Q4 | **pass** | 前端 UI **不在** Epic 范围；synthesis「另起 task」 |
+
+### 汇总
+
+| 项 | 原 §Multi | §Recheck |
+|----|-----------|----------|
+| slug B W 正确性 | 3/4（B-Q3 fail） | **4/4** |
+| B-Q3 | fail | **pass** |
+
+> **注**：§Multi 主表行 **冻结**不改；本 addendum 为 Wiki Loop R1 复检证据。
