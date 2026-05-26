@@ -53,8 +53,8 @@ R1/R2 已更新实验证据与对比表。本 round **合并** 治理收口：SP
 - [x] 建议 R1–R2 已在 `done/`（非硬阻塞，但 22 应读 R2 交付）。  
 - [x] 更新 SPEC §5.1 + 修订记录。  
 - [x] 更新 RECENT §6.6 + §8 修订记录（若惯例需要）。  
-- [ ] 关账时更新 `_views/done.md` 与本 Loop 三子 task 索引。  
-- [ ] 22/40/50 落盘。
+- [x] 关账时更新 `_views/done.md` 与本 Loop 三子 task 索引。  
+- [x] 22/40/50 落盘。
 
 ## 非范围
 
@@ -76,9 +76,9 @@ R1/R2 已更新实验证据与对比表。本 round **合并** 治理收口：SP
 
 ## 验收标准
 
-- [ ] SPEC §5.1 链至本 Loop 母 task / done 路径。  
-- [ ] RECENT §6.6 有 B-Q3 Recheck 行且状态正确。  
-- [ ] SKILL status 仍为 `draft`（除非人另 commit）。
+- [x] SPEC §5.1 链至本 Loop 母 task / done 路径。  
+- [x] RECENT §6.6 有 B-Q3 Recheck 行且状态正确。  
+- [x] SKILL status 仍为 `draft`（除非人另 commit）。
 
 ---
 
