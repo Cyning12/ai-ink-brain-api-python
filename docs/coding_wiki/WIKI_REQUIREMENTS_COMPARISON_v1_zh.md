@@ -127,7 +127,7 @@
 | P0 试点关账 | 无（收口，不新建） | `task_wiki_ctx_ab_v1` 等 **done** | ✅ 2026-05-26；**T1c 起需 active task** |
 | P1 T1c | **无** | **done** · `done/task_coding_wiki_t1c_test_archive_v1.md` | ✅ 2026-05-26 关账 |
 | P1 多 slug AB | **无** | **done** · `done/task_wiki_ctx_ab_multi_slug_v1.md` · 2026-05-26 | ✅ 部分外推；A1/A2 补 test_strategy |
-| Wiki Loop A1–A4 | 母单 active | A1/A2 **done** · A3/A4 本批 | 单 PR `task/wiki-loop-a1-a4-v1` |
+| Wiki Loop A1–A4 | **无** | **done** · `done/task_harness_wiki_loop_a1_a4_v1.md` · 2026-05-26 | ✅ 单 PR `task/wiki-loop-a1-a4-v1` |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | planned | 未来 task |
 | P3 前端 parity | 前端仓 | 远期 | 不在本仓 |
