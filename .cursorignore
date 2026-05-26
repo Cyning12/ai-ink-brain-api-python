@@ -102,6 +102,7 @@ credentials.json
 *.log
 logs/
 tmp/
+!tmp/README.md
 temp/
 *.tmp
 .cache/
