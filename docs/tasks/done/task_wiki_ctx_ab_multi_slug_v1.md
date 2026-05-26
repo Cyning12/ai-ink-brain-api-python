@@ -1,6 +1,6 @@
 # Task：Wiki-CTX-AB 多 slug 对照（P2 扩域 · v1）
 
-> **状态**：`active` — 待 **22 R1** 与人工闸 `approved` 后执行  
+> **状态**：`done（2026-05-26 验收通过 · WIKI-CTX-AB-MULTI@2026-05-26 · 部分外推）`  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) **§5.1 P1 多 slug AB**  
 > **对比表**：[`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)（#46 单 Epic 外推局限）  
 > **前置（done）**：[`task_wiki_ctx_ab_v1.md`](../done/task_wiki_ctx_ab_v1.md) P2 accepted · [`task_coding_wiki_t1c_test_archive_v1.md`](../done/task_coding_wiki_t1c_test_archive_v1.md)  
@@ -28,9 +28,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | **pending** | 22-R1, 30 | 人扫 task、题集、slug 名单 |
-| HG-AB-MULTI-SLUGS | **pending** | 30 | 人确认本期 **恰好 2** 个 slug（见下表，勿擅自增删） |
-| HG-AB-P2-BASELINE | **pending** | 30 | 人确认 P2 单 slug 已 accepted（`conclusion_p2_zh.md`） |
+| HG-TASK-DRAFT | **approved** | 22-R1, 30 | 人扫 task、题集、slug 名单 |
+| HG-AB-MULTI-SLUGS | **approved** | 30 | 人确认本期 **恰好 2** 个 slug（见下表，勿擅自增删） |
+| HG-AB-P2-BASELINE | **approved** | 30 | 人确认 P2 单 slug 已 accepted（`conclusion_p2_zh.md`） |
 
 ### 本期锁定 slug（`HG-AB-MULTI-SLUGS` · 2 个）
 
@@ -81,11 +81,11 @@ P2 已在单 slug `harness-p1-docs-consolidation` 上证明 **H-lean vs W**（�
 
 ## 范围
 
-- [ ] 实验目录 `docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/`（payloads、scorecard、结论文）。  
-- [ ] 每 slug 物化 `H-lean_<slug>.md`、`W_<slug>.md`（W 可 `python tools/wiki_ctx_ab_materialize_w.py --slug <slug>`，输出 **复制** 至本实验 `payloads/`，**禁止覆盖** `wiki_ctx_ab_v1/payloads/` 既有文件）。  
-- [ ] H-lean 按本实验 [`payloads/TEMPLATE-H-lean.md`](../harness/experiments/wiki_ctx_ab_multi_slug_v1/payloads/TEMPLATE-H-lean.md) 摘录（done task + harness README 节选；**禁止** invoke/review 全文）。  
-- [ ] 跑题并填 `scorecard.md` §Multi（见题集）。  
-- [ ] `conclusion_multi_slug_zh.md` + 可选更新 SPEC §5.1 / 对比表 #46 一行结论（关账帽或人审后）。
+- [x] 实验目录 `docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/`（payloads、scorecard、结论文）。  
+- [x] 每 slug 物化 `H-lean_<slug>.md`、`W_<slug>.md`（W 可 `python tools/wiki_ctx_ab_materialize_w.py --slug <slug>`，输出 **复制** 至本实验 `payloads/`，**禁止覆盖** `wiki_ctx_ab_v1/payloads/` 既有文件）。  
+- [x] H-lean 按本实验 [`payloads/TEMPLATE-H-lean.md`](../harness/experiments/wiki_ctx_ab_multi_slug_v1/payloads/TEMPLATE-H-lean.md) 摘录（done task + harness README 节选；**禁止** invoke/review 全文）。  
+- [x] 跑题并填 `scorecard.md` §Multi（见题集）。  
+- [x] `conclusion_multi_slug_zh.md` + 可选更新 SPEC §5.1 / 对比表 #46 一行结论（关账帽或人审后）。
 
 ## 非范围
 
@@ -111,14 +111,14 @@ P2 已在单 slug `harness-p1-docs-consolidation` 上证明 **H-lean vs W**（�
 
 ## 验收标准
 
-- [ ] `HG-TASK-DRAFT`、`HG-AB-MULTI-SLUGS`、`HG-AB-P2-BASELINE` = **approved**。  
-- [ ] 22 R1 落盘 · 准许 30。  
-- [ ] 每 slug：`payloads/H-lean_*.md`、`payloads/W_*.md` 含 `payload_char_count`。  
-- [ ] `scorecard.md` §Multi：每题 × 每 slug × 两臂有 pass/fail + 字符数。  
-- [ ] `conclusion_multi_slug_zh.md` 含 SPEC 两问（每 slug + 汇总）。  
-- [ ] 40 VERIFY 全 pass；50 建议关账。  
-- [ ] `git diff` 无 `api/`、`docs/harness/prompts/`、`tests/`。  
-- [ ] 关账：`done/` + `_views/done.md` + `RECENT_TASK_SCHEDULE` §6.6。
+- [x] `HG-TASK-DRAFT`、`HG-AB-MULTI-SLUGS`、`HG-AB-P2-BASELINE` = **approved**。  
+- [x] 22 R1 落盘 · 准许 30。  
+- [x] 每 slug：`payloads/H-lean_*.md`、`payloads/W_*.md` 含 `payload_char_count`。  
+- [x] `scorecard.md` §Multi：每题 × 每 slug × 两臂有 pass/fail + 字符数。  
+- [x] `conclusion_multi_slug_zh.md` 含 SPEC 两问（每 slug + 汇总）。  
+- [x] 40 VERIFY 全 pass；50 建议关账。  
+- [x] `git diff` 无 `api/`、`docs/harness/prompts/`、`tests/`。  
+- [x] 关账：`done/` + `_views/done.md` + `RECENT_TASK_SCHEDULE` §6.6。
 
 ---
 
@@ -138,13 +138,26 @@ P2 已在单 slug `harness-p1-docs-consolidation` 上证明 **H-lean vs W**（�
 | 类别 | 路径 |
 |------|------|
 | 实验目录 | `docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/` |
-| invoke | `docs/harness/invokes/by-task/wiki-ctx-ab-multi/invoke_*` |
-| 22 R1 | `docs/harness/reviews/by-task/wiki-ctx-ab-multi/` |
-| 50 | `docs/tasks/reinspect_results/reinspect_wiki_ctx_ab_multi_*_v1.md` |
+| payloads | `H-lean_tech-graph-gate-d-v2-tasks.md`（21666）、`W_*`（2978/3395）等 4 文件 |
+| invoke | `invoke_20260526_{22,30,40,50}_wiki-ctx-ab-multi-v1.md` |
+| 22 R1 | `reviews/by-task/wiki-ctx-ab-multi/task_wiki_ctx_ab_multi_slug_v1_audit_R1_20260526.md` |
+| 50 | `reinspect_results/reinspect_wiki_ctx_ab_multi_20260526_v1.md` |
+| 结论文 | `conclusion_multi_slug_zh.md` · 部分外推（slug B W 3/4） |
 
 ### 自检结论（执行者）
 
-（40 帽填写 VERIFY 表）
+#### VERIFY 验收表（40 · 子仓根）
+
+| # | 检查项 | pass/fail | 证据 |
+|---|--------|-----------|------|
+| 1 | `conclusion_multi_slug_zh.md` 存在 | **pass** | `docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md` |
+| 2 | 两 slug 各有 H-lean + W payload 含 `payload_char_count` | **pass** | `payloads/H-lean_*.md`、`payloads/W_*.md` × 2 |
+| 3 | scorecard §Multi 已填 | **pass** | 2×4×2 条 + 汇总表 |
+| 4 | 未误改 `wiki_ctx_ab_v1/payloads/` | **pass** | `git diff --name-only -- docs/harness/experiments/wiki_ctx_ab_v1/payloads/` 为空 |
+| 5 | 未改 api/prompts/tests/CI | **pass** | diff 范围仅实验目录 + task + harness 落盘 |
+| 6 | conclusion 未全盘否定 P2 | **pass** | §2 明确「不推翻 P2」；slug B 为部分外推 |
+
+**40 结论**：**pass** — 准许 50。
 
 ---
 
