@@ -39,6 +39,7 @@
 | `PROMPT_BATCH_10_<loop-slug>_v1.md` | 一次性：母 task + **N** 个子 task 初稿（N 由 Batch 定义，非固定 4） |
 | `LOOP_MANIFEST.md` | round **R1…Rn + META** → task_path / slug / freeze_id / 占位回填 |
 | `PROMPT_START_<loop-slug>_full_chain_v1.md` | **全链启动（推荐）**：**R1** 粘贴一次 + 【授权】cross-round |
+| `PROMPT_START_<loop-slug>_batch10_only_v1.md` | **仅 Batch-10**（可选）：落盘 N+1 task 后 **停**；不链 22 |
 | `PROMPT_LOOP_22_to_CLOSE_v1.md` | **单 round 模板**（可跨 Loop 复用文件名；**无**会话级【授权】） |
 | `README.md` | 本实例流程索引 |
 
@@ -48,6 +49,7 @@
 |------|----------------------|
 | `PROMPT_BATCH_10_<loop-slug>_v1` | `PROMPT_BATCH_10_four_tasks_v1.md` |
 | `PROMPT_START_<loop-slug>_full_chain_v1` | `PROMPT_START_loop_a1_full_chain_v1.md` |
+| `PROMPT_START_<loop-slug>_batch10_only_v1` | `PROMPT_START_new_agent_batch10_only_v1.md` |
 
 ---
 
@@ -97,6 +99,8 @@
 ```
 
 **试点**：Wiki Loop 采用 **B**（单会话 R1→R4→META）；非唯一合法形态。
+
+**META round（母单关账）**：子 round **R1…Rn 均 `done/`** 后执行。试点 **未**对母单再跑 22→50，仅 **关账 + `HANDOFF_CLOSE_TRACE` + `_views/done.md`**（invoke `CLOSE_*`）。若母单 `audit_profile: full` 或含 `api/` 子单，须在母 task **单独写明** META 是否也要 22→50。
 
 ---
 
@@ -181,6 +185,36 @@
 
 ---
 
+## SKILL 合规自检（META / 开 PR 前）
+
+> 对照 **目标态**；试点首次 Loop **未全绿** 见下节「过程债」。
+
+| # | 检查 | pass 条件 |
+|---|------|-----------|
+| C1 | 母闸 | `HG-LOOP-BATCH` 由 **人** commit 为 `approved`（非 Agent 代填） |
+| C2 | invoke 链 | 每 **Rn** 有 22/30/40/50/CLOSE invoke；**§3 或等价全文**（非仅标题行） |
+| C3 | cross-round | 首份 **R1·22** invoke 元信息含 `cross_round_semi_auto: true`（若走 **B** 全链） |
+| C4 | 占位 | MANIFEST 所列 PLACEHOLDER 在下一 Rn **22 前**已替换 |
+| C5 | 50 | 各子 task 有 `reinspect_*`（Loop 子单 **建议** 50，与 `ACCEPTANCE_LANDING` docs 关账一致） |
+| C6 | 排期 | 仅母 task 指定 round 改 `RECENT` / `_views` |
+| C7 | diff 纪律 | 单 PR diff 无母 task 禁止路径（`api/`、`tests/`、prompts 正文等） |
+
+**晋升 `accepted`**（人审）：**≥2** 次独立 Loop 实例 **或** 1 次 Loop + [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) 元复检 **pass**。
+
+---
+
+## 试点过程债（Wiki Loop · 已知 · 勿复制）
+
+| 项 | 试点实跑 | 目标态（本 SKILL） |
+|----|----------|-------------------|
+| A2–A4 部分 **30** invoke | 1～5 行 stub | §3 全文 |
+| R1·22 invoke | 未写 `cross_round_semi_auto` 字段 | § cross-round 硬约束 |
+| 交付 / 关账 | 四子 + META **done/**、单 PR 可开 | 不受影响 |
+
+第二次 Loop 或 meta-reinspect 应 **显式修 C2/C3**，或在 reinspect 中记「invoke 债已接受、下轮必满」。
+
+---
+
 ## Agent 常见偏差（试点复盘 · 抽象表述）
 
 | 偏差 | 纠正 |
@@ -209,3 +243,4 @@
 |------|------|
 | 2026-05-26 | v1：自 Wiki Loop 关账蒸馏 · 人审前草案 |
 | 2026-05-26 | v1.1：人审泛化 — 模式文件名、R1…Rn、三选一流程、排期母 task 明示、模板/实例目录 |
+| 2026-05-26 | v1.2：META 关账约定、Batch-only 入口、合规自检 C1–C7、试点过程债、accepted 晋升条件 |

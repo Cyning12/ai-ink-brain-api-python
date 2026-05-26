@@ -39,4 +39,5 @@ disable-model-invocation: true
 
 ## 状态
 
-SKILL **`draft`** — 未第二次 Loop 验证前不宜标 accepted
+SKILL **`draft`** — 未第二次 Loop 验证前不宜标 `accepted`  
+META 关账 / 合规自检 C1–C7 / 试点过程债：见便携真值 **§META round、§SKILL 合规自检**

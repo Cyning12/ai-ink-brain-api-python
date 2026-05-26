@@ -95,3 +95,4 @@ docs/tasks/skills/
 | 2026-05-24 | 新增 `harness-meta-reinspect`；双轨 `.cursor/skills/` 说明（P2-1 元复检蒸馏） |
 | 2026-05-26 | 新增 `harness-loop-batch`（Wiki Loop 关账蒸馏 · `draft`） |
 | 2026-05-26 | `harness-loop-batch` v1.1：人审泛化（R1…Rn、模式文件名、三选一流程） |
+| 2026-05-26 | `harness-loop-batch` v1.2：META 关账、合规自检、试点过程债、accepted 晋升 |
