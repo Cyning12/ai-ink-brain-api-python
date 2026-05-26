@@ -1,6 +1,6 @@
 # Task：Governance A4 — RECENT 排期 Wiki Loop 同步（v1）
 
-> **状态**：`draft`  
+> **状态**：done（2026-05-26 验收通过 · GOV-WIKI-A4-SCHEDULE@2026-05-26）  
 > **母 Loop**：[`task_harness_wiki_loop_a1_a4_v1.md`](task_harness_wiki_loop_a1_a4_v1.md) · round **A4**  
 > **排期真值**：[`docs/tasks/RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) **§1**、**§6.6**
 
@@ -52,12 +52,12 @@ Wiki Loop A1–A4 将新增/移动多个 `active/` task 并最终归档；`RECEN
 
 ## 范围
 
-- [ ] 更新 `RECENT_TASK_SCHEDULE.md` **§1** 现状快照：`active/` 文件数、§1.1 清单（含或不含 Loop 五 task 的最终态）。  
-- [ ] 更新 **§1**「近期当前」：Wiki Loop **done** 后指向合理下一棒（如 P1-4 远期或 V3 队列）。  
-- [ ] 更新 **§6.6**：增补 **Wiki Loop A1–A4** 行（进行中 → **done**，链母 task + 四子 done task）。  
-- [ ] 确认 §6.6 **Multi slug**、**T1c** 行仍为 **done**（若无漂移则保留）。  
-- [ ] §8 修订记录追加 2026-05-26 Loop 关账摘要。  
-- [ ] 22/40/50 落盘；关账 `done/`。
+- [x] 更新 `RECENT_TASK_SCHEDULE.md` **§1** 现状快照：`active/` 文件数、§1.1 清单（含或不含 Loop 五 task 的最终态）。  
+- [x] 更新 **§1**「近期当前」：Wiki Loop **done** 后指向合理下一棒（如 P1-4 远期或 V3 队列）。  
+- [x] 更新 **§6.6**：增补 **Wiki Loop A1–A4** 行（进行中 → **done**，链母 task + 四子 done task）。  
+- [x] 确认 §6.6 **Multi slug**、**T1c** 行仍为 **done**（若无漂移则保留）。  
+- [x] §8 修订记录追加 2026-05-26 Loop 关账摘要。  
+- [x] 22/40/50 落盘；关账 `done/`。
 
 ## 非范围
 
@@ -93,11 +93,11 @@ Wiki Loop A1–A4 将新增/移动多个 `active/` task 并最终归档；`RECEN
 
 ## 验收标准
 
-- [ ] `ls docs/tasks/active/task_harness_wiki_loop*.md docs/tasks/active/task_coding_wiki_*test_strategy*.md docs/tasks/active/task_governance_wiki_*` **无结果**（Loop 五 task 均已 `done/`）。  
-- [ ] §1 active 数量与 §1.1 表格一致。  
-- [ ] §6.6 含 Wiki Loop A1–A4 **done** 行（或关账前明确「进行中」+ 链 active 路径）。  
-- [ ] 22 R1 落盘 `reviews/by-task/wiki-a4-recent-schedule/`。  
-- [ ] 50 复检 pass；本 task 在 `done/`。
+- [x] `ls docs/tasks/active/task_harness_wiki_loop*.md docs/tasks/active/task_coding_wiki_*test_strategy*.md docs/tasks/active/task_governance_wiki_*` **无结果**（Loop 五 task 均已 `done/`）。  
+- [x] §1 active 数量与 §1.1 表格一致。  
+- [x] §6.6 含 Wiki Loop A1–A4 **done** 行（或关账前明确「进行中」+ 链 active 路径）。  
+- [x] 22 R1 落盘 `reviews/by-task/wiki-loop-a1-a4/`。  
+- [x] 50 复检 pass；本 task 在 `done/`。
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`。
 
@@ -116,9 +116,9 @@ Wiki Loop A1–A4 将新增/移动多个 `active/` task 并最终归档；`RECEN
 
 | 项 | 结果 |
 |----|------|
-| 命令 | — |
-| 结论 | — |
-| 要点 | — |
+| 命令 | `ls docs/tasks/active/task_harness_wiki_loop*.md`（关账前母单仍在 active）；`grep Wiki Loop docs/tasks/RECENT_TASK_SCHEDULE.md` |
+| 结论 | **pass** |
+| 要点 | §6.6 Wiki Loop **done**；§8 修订已追加 |
 
 ---
 
