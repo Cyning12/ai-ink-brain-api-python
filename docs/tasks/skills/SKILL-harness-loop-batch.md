@@ -322,3 +322,4 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
 | 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
 | 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |
+| 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |

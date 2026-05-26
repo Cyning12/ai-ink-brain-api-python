@@ -89,7 +89,10 @@ rg 'Loop C2 Verify' docs/tasks/RECENT_TASK_SCHEDULE.md
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `RECENT_TASK_SCHEDULE.md` §6.6/§8 · 可选 `SKILL-harness-loop-batch.md` 修订记录 |
+| 涉及文件 | `RECENT_TASK_SCHEDULE.md` §6.6/§8 · `SKILL-harness-loop-batch.md` 修订记录 |
+| RECENT §6.6 | 增 **Wiki Loop C2 Verify** 行 · 状态 **in_progress** · 链母 task active |
+| §8 修订 | 2026-05-26 R1 draft 行注记 |
+| SKILL | 修订记录「第三 Loop C2 Verify 试点 @2026-05-26」（status 未改） |
 
 ### 自检结论（执行者）
 
