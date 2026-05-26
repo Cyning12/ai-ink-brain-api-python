@@ -31,7 +31,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | 痛点 | 应对 |
 | --- | --- |
 | `invokes/`、`reviews/` 随 Epic 膨胀，Agent 扫历史 → **上下文爆炸** | L2 **Coding Wiki**（ingest 摘要 + index） |
-| 工作区 `docs/harness/` 仍为扁平旧布局，后端已 **by-task** | **延后全仓推广**，待 AB 结论 |
+| 工作区 `docs/harness/` 曾为扁平旧布局 | **T3 已推广**（by-task + pointer/MIGRATION · 2026-05-26）；前端 **P1-4 parity** 仍远期 |
 | 需证明 taxonomy / Wiki **疗效** | **Wiki-CTX-AB** 两阶段实验 |
 
 **目标**：在 **不改动 Harness 执行链 / CI** 前提下，确定 (1) 全项目 Harness taxonomy 是否推广；(2) 是否将 `coding_wiki/` 写入 Agent 默认读序。
@@ -40,19 +40,22 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 
 ## 2. 时间线（强制顺序）
 
-| 阶段 | 代号 | 内容 | 状态（2026-05-25） |
+| 阶段 | 代号 | 内容 | 状态（2026-05-26） |
 | --- | --- | --- | --- |
 | **T0** | Harness-taxonomy | 本仓 `docs/harness/`：`prompts/{hats,templates,handoff}`、`invokes/by-task/`、`reviews/by-task/` | **done** |
 | **T1a** | Wiki-CTX-AB **P1** | H-full vs H-lean；**不依赖** `coding_wiki/` | **done**（[`conclusion_p1_zh.md`](../../harness/experiments/wiki_ctx_ab_v1/conclusion_p1_zh.md) · 2026-05-25） |
-| **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **交付中**（40 已过 · 待 50/关账 · `task_coding_wiki_pilot_v1`） |
-| **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **blocked by T1b** 最小 ingest |
-| **T3** | Harness 全仓推广 | 工作区 `docs/harness/` + 前端 parity（P1-4） | **可开工** — 工作区 [`task_harness_workspace_taxonomy_promote_v1.md`](../../../../docs/harness/tasks/active/task_harness_workspace_taxonomy_promote_v1.md)（子仓 [pointer](../../tasks/active/task_harness_workspace_taxonomy_promote_v1.md)） |
-| **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | `planned` |
+| **T3** | Harness 工作区推广 | 工作区 `docs/harness/` taxonomy（pointer/MIGRATION · §2.1） | **done**（工作区 [`task_harness_workspace_taxonomy_promote_v1.md`](../../../../docs/harness/tasks/done/task_harness_workspace_taxonomy_promote_v1.md) · 2026-05-26；子仓 [pointer](../../tasks/done/task_harness_workspace_taxonomy_promote_v1.md)） |
+| **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **done**（2026-05-26 · [`task_coding_wiki_pilot_v1.md`](../../tasks/done/task_coding_wiki_pilot_v1.md)） |
+| **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **可开工**（依赖 T1b **done**） |
+| **P1-4** | 前端 Harness parity | `ai-ink-brain` 模板/rsync/规则 | **远期**（≠ T3 工作区交付） |
+| **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | **planned** |
 
 ```text
-T0 ──► T1a（P1 AB）──┬──► T3（推广 Harness）
-                     │
-         T1b（pilot）─┴──► T2（P2 AB）──► T3 是否默认 coding_wiki
+T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
+         │
+         T1b（pilot）──► T2（P2 AB）──► 是否默认 coding_wiki 读序
+         │
+         P1-4（前端 parity）· 远期
 ```
 
 **并行**：T1a 与 T1b **可同时进行**（不同分支/工作树）；T2 **必须在** 同一 `task_slug` 的 Wiki 页存在后。
@@ -74,8 +77,8 @@ T0 ──► T1a（P1 AB）──┬──► T3（推广 Harness）
 
 | 结论条件 | 动作 |
 | --- | --- |
-| P1：H-lean 相对 H-full token 降且正确性可接受 | 执行 **T3** Harness 推广 |
-| P2：W 相对 H-lean 再优 | T3 读序增加 **先 `coding_wiki/index`** |
+| P1：H-lean 相对 H-full token 降且正确性可接受 | **T3 已执行**（2026-05-26 工作区关账） |
+| P2：W 相对 H-lean 再优 | 读序增加 **先 `coding_wiki/index`**（待 T2 签收） |
 | P2：W 无优势 | 仅 **关账后可选** ingest；不写默认读序 |
 | P1 失败 | 先修 README/消费纪律，**不推广** by-task |
 
@@ -97,7 +100,7 @@ T0 ──► T1a（P1 AB）──┬──► T3（推广 Harness）
 
 - 图即记忆 T/K/H 全栈、Neo4j（INK-P7）、改 `docs/harness/prompts/` 帽子正文。  
 - 将 invoke/review 全文迁入 SPEC 或 `graph.json`。  
-- 在 P2 结论前全仓 `git mv` 工作区 harness（可与 T1b 并行准备 pointer 草案，但不升为默认消费）。
+- 在 P2 结论前将 **`coding_wiki/` 升为 Agent 默认读序**（T3 工作区 harness 已关账；T1b/T2 仍管 Wiki 疗效）。
 
 ---
 
@@ -116,6 +119,7 @@ T0 ──► T1a（P1 AB）──┬──► T3（推广 Harness）
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-25 | v1：整体安排表；T0～T4；Wiki-CTX-AB P1/P2 闸口 |
+| 2026-05-26 | v1.1：T3 **done**；T1b **active**；P1-4 自 T3 行拆出；与 `RECENT_TASK_SCHEDULE` §6.6 对齐 |
 
 ---
 

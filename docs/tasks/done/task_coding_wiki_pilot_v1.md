@@ -1,6 +1,6 @@
 # Task：Coding Wiki 试点（LLM Wiki 模式 · 后端 · v1）
 
-> **状态**：`active`（`HG-TASK-DRAFT` / `HG-WIKI-INGEST-SCOPE` 已 **approved** · 可开 22 或 30）  
+> **状态**：`done（2026-05-26 验收通过）`  
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（工程规约；本 task 不修改流程图正文）  
 > **关联 Issue/PR**：无  
 > **前端依赖**：无  
@@ -36,7 +36,7 @@
 |---|------|-----------------|
 | P1 | 后端 Harness **P1-1～P1-3** 已收口 | **已满足**（见 `RECENT_TASK_SCHEDULE.md` §0.4） |
 | P2 | `docs/tasks/` 规整（INK-P6）已关 | **已满足**（`task_docs_tasks_reorg_move_v1` done · 2026-05-22） |
-| P3 | 工作区 Harness `active/` 无常驻改版 task | **已满足** |
+| P3 | 工作区 Harness `active/` 无常驻改版 task | **已满足**（T3 已关账至工作区 `done/` · 2026-05-26） |
 | P4 | 本 task `HG-TASK-DRAFT` = `approved` | **已满足** |
 
 > **说明**：**P1-4 前端 Harness parity** 为远期项，**不**作为本 task 硬前置。若你仍希望等「全栈 parity」，可将本 task 保持 `draft` 直至 P1-4 立项——与指导意见 §5 二选一，须在 `HG-TASK-DRAFT` 备注中写明。
@@ -140,7 +140,7 @@
 - [x] ≥2 张 Wiki 页链回真实 `done` task 路径（相对路径，无绝对本机路径）。
 - [x] `docs/harness/prompts/` **未改**（本 task 未改 Harness 执行链；见 40 自检 `git diff`）。
 - [x] 22 R1 落盘 `docs/harness/reviews/by-task/coding-wiki-pilot/task_coding_wiki_pilot_v1_audit_R1_20260526.md`。
-- [ ] （可选）同一问题对比：仅读 Wiki index+2 页 vs 扫 3 个 done task 的 context 行数（留 50 或关账会话）。
+- [x] （可选）同一问题对比：仅读 Wiki index+2 页 vs 扫 3 个 done task 的 context 行数 — **跳过**（50 复检 §5 建议关账会话或 Wiki-CTX-AB P2）。
 
 ---
 
@@ -155,7 +155,7 @@
 | Wiki 根 | `docs/coding_wiki/`（3× `syntheses/` + 1× `concepts/`） |
 | 入口 | `docs/README.md`、`docs/tasks/README.md` 各一行 |
 | 治理 SPEC | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` **T1b** |
-| **下一棒** | **50** + 关账 → `PROMPT_50_*`、`PROMPT_CLOSE_*`（新 Agent） |
+| **下一棒** | **无**（50 建议关账 · 2026-05-26；本单已 `done/`） |
 
 ---
 
@@ -163,7 +163,7 @@
 
 | 项 | 结果 |
 |----|------|
-| **帽** | 40（2026-05-26） |
+| **帽** | 40 + **50**（2026-05-26） |
 | **cwd** | `ai-ink-brain-api-python/` |
 | **test_strategy** | `not_applicable` — 纯文档；未跑 pytest（无代码路径） |
 
@@ -179,7 +179,7 @@ syntheses/*.md 计数                         → 3（≥2）
 git diff --quiet docs/harness/prompts/      → 0（未改 prompts）
 ```
 
-**验收摘要**：骨架、schema、三份 ingest、双入口、22 R1 零阻塞均已落盘。**待**：50 复检、关账 CLOSE_TRACE、task 归档 `done/`。
+**验收摘要**：骨架、schema、三份 ingest、双入口、22 R1 零阻塞均已落盘。**50** 复检 `reinspect_coding_wiki_pilot_20260526_v1.md` 建议关账（无阻塞）。**关账**：`HANDOFF_CLOSE_TRACE` · 归档 `docs/tasks/done/`（2026-05-26）。
 
 ---
 
@@ -203,3 +203,35 @@ git diff --quiet docs/harness/prompts/      → 0（未改 prompts）
 | 2026-05-26 | `active`：帽子顺序表；ingest 三件套锁定；22/30 启动 Prompt 路径 |
 | 2026-05-26 | 帽链 22→30→40→50→关账；PROMPT_22 v1.2 + 40/50/CLOSE 启动稿 |
 | 2026-05-26 | 22/30/40 已执行；Wiki 试点交付；50+关账留待新 Agent |
+| 2026-05-26 | **done**：50 复检通过；`git mv` → `done/`；`HANDOFF_CLOSE_TRACE` 关账 |
+
+---
+
+## 关闭回溯（HANDOFF_CLOSE_TRACE）
+
+**结论**：`freeze_id` `CODING-WIKI-PILOT@2026-05-25` · Coding Wiki 试点帽链 **22 → 30 → 40 → 50** 已完成；50 书面复检 **建议关账、无阻塞**；本 task 归档 **`docs/tasks/done/`**（2026-05-26）。
+
+### 执行路线表
+
+| 序号 | 阶段 / 帽子 | 关键动作 | 落盘工件（相对 `ai-ink-brain-api-python/`） | commit |
+|------|-------------|----------|---------------------------------------------|--------|
+| 0 | 预备 | 帽链启动 Prompt + `human_gate` approved | `docs/harness/invokes/by-task/coding-wiki-pilot/PROMPT_{22,30,40,50,CLOSE}_*` · `docs/tasks/active/task_coding_wiki_pilot_v1.md` | `api-python@e52a6a0` |
+| 1 | **22** R1 | 开工前合同审 · 零硬阻塞 | `docs/harness/reviews/by-task/coding-wiki-pilot/task_coding_wiki_pilot_v1_audit_R1_20260526.md` · `…/invoke_20260526_22_coding-wiki-pilot.md` | `api-python@92e4e64` |
+| 2 | **30** | `docs/coding_wiki/` 骨架 + 3× ingest + 入口 | `docs/coding_wiki/**` · `…/invoke_20260526_30_coding-wiki-pilot.md` | `api-python@92e4e64` |
+| 3 | **40** | VERIFY (1)–(5) · §自检结论 | `…/invoke_20260526_40_coding-wiki-pilot.md` · 本 task `### 自检结论` | `api-python@92e4e64` |
+| 4 | **50** | 独立复检 + 全局验收（T1b） | `docs/tasks/reinspect_results/reinspect_coding_wiki_pilot_20260526_v1.md` · `…/invoke_20260526_50_coding-wiki-pilot-v1.md` | `api-python@abb14d9` |
+| 5 | **关账** | `git mv` task · 排期/_views · 本回溯节 | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | `api-python@dceca3e` |
+
+### 分仓 Commit 索引（api-python · 从新到旧）
+
+```text
+### api-python（ai-ink-brain-api-python · branch task/coding-wiki-pilot-v1）
+- dceca3e docs(task): Coding Wiki pilot 关账 · CODING-WIKI-PILOT@2026-05-25
+- abb14d9 docs(harness): 50 复检 Coding Wiki pilot — 建议关账
+- 92e4e64 docs(coding-wiki): pilot 交付 L2 骨架与 22/30/40 Harness 落盘
+- e52a6a0 docs(harness): Coding Wiki pilot 帽链 22→30→40→50 启动 Prompt
+```
+
+**关联工件**：`freeze_id` `CODING-WIKI-PILOT@2026-05-25` · `task_slug` `coding-wiki-pilot` · 治理 SPEC [`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) **T1b**。
+
+**下一 Epic（非本 task）**：Wiki-CTX-AB **P2** — `docs/tasks/active/task_wiki_ctx_ab_v1.md`（依赖本 pilot 同 slug ingest · T2）。

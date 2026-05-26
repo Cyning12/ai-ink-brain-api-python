@@ -12,7 +12,7 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**Wiki-CTX-AB P1**（§6.6）∥ **Coding Wiki pilot** → P2 AB → Harness **全仓推广**；taxonomy 本仓 **done**（§6.4）；全仓 **P1-4 parity**（§0.4）。  
+> **近期当前（治理/工程）**：**Wiki-CTX-AB P2**（T2 · T1b **done** 2026-05-26）→ **Wiki-CTX-AB** `task_wiki_ctx_ab_v1`；工作区 **T3** taxonomy **done**（2026-05-26 · Projects）；本仓 taxonomy **done**（§6.4）；**P1-4 前端 parity** 远期（§0.4）。  
 > **V3 韧性**：P2-1a **done**（PR #52）；P2-1b/c **排队** — 属 ChatBI 实现子单，**与 Harness 改进无关**，**非**本表默认「当前棒」。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
@@ -80,7 +80,7 @@
 
 ---
 
-## 1. 现状快照（2026-05-25 更新）
+## 1. 现状快照（2026-05-26 更新）
 
 
 | 维度                    | 结论                                                                                             |
@@ -93,7 +93,7 @@
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
 | **V3 P1**             | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23）                                                 |
 | **Harness 前端 parity** | **下一棒（全仓）** · §0.4 P1-4 |
-| **近期当前** | **taxonomy 规划** + `task_coding_wiki_pilot_v1`（draft） |
+| **近期当前** | **Wiki-CTX-AB P2**（T2 · `task_wiki_ctx_ab_v1`）← T1b **done**（[`task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md) · 2026-05-26）；T3 工作区 **done** |
 | **V3 P2-1 韧性** | P2-1a **done**（PR #52）；P2-1b/c **排队**（非 Harness、非默认当前棒） |
 | **维护债** | Overview §3 文件若缺失则以母单 §子单状态为准 |
 
@@ -103,8 +103,7 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
-| **0** | **`task_wiki_ctx_ab_v1.md`** | **`draft`** | **Wiki-CTX-AB P1**（§6.6） | **近期（治理 · 先 P1）** |
-| **0b** | **`task_coding_wiki_pilot_v1.md`** | **`draft`** | **Coding Wiki 骨架**（∥ P1） | **近期（治理）** |
+| **0** | **`task_wiki_ctx_ab_v1.md`** | **`active`** | **Wiki-CTX-AB**（P1 **done** · P2 待开工） | **当前棒（治理）** |
 | 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | P2-1b 限流 | **V3 排队** · 非 Harness 近期 |
 | 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | V3 排队 · 1b 后 |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
@@ -129,7 +128,9 @@
 | ~~**当前**~~  | ~~§0.4 Harness P1-2 + P1-3~~                       | ~~**P1**~~ | **done**（PR #49 · 2026-05-23）                   |
 | ~~**当前**~~  | ~~**P2-1** Resilience 拆单~~                         | ~~**P2**~~ | **done**（PR #51 · 2026-05-24）                   |
 | ~~**当前**~~  | ~~**P2-1a** health/ready~~ | ~~**P2**~~ | **done**（PR #52 · `8f56d4a` · 2026-05-25） |
-| **当前** | T3 工作区 harness 推广 · Coding Wiki pilot | 治理 | `task_harness_workspace_taxonomy_promote_v1` · `task_coding_wiki_pilot_v1` |
+| ~~**当前**~~ | ~~T3 工作区 harness 推广~~ | ~~治理~~ | **done**（Projects 2026-05-26 · `task_harness_workspace_taxonomy_promote_v1` → 工作区 `done/`） |
+| ~~**当前**~~ | ~~Coding Wiki pilot（T1b）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md)） |
+| **当前** | Wiki-CTX-AB P2（T2） | 治理 | `task_wiki_ctx_ab_v1` |
 | **下一棒（全仓）** | `ai-ink-brain` Harness parity | P1 | §0.4 P1-4 |
 | **V3 排队** | P2-1b 限流 → P2-1c 熔断 | P2 | 按需立项；**非** Harness 改进近期项 |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
@@ -198,8 +199,8 @@ flowchart TD
 ### 4.1 全栈闭环线
 
 ```text
-① Harness taxonomy 定稿 + Coding Wiki pilot（本仓治理）  ← 近期
-② ai-ink-brain Harness parity（全仓）
+① Wiki-CTX-AB P2（T2）← T1b **done**（2026-05-26）  ← 近期
+② ai-ink-brain Harness parity（P1-4 · 全仓）
 ③ V3 排队：P2-1b → P2-1c（P2-1a 已 PR #52）
 ④ 低置信 §5.1 / P2-2 · P3 chain events（对照现网）
 ```
@@ -207,8 +208,8 @@ flowchart TD
 ### 4.2 纯后端线
 
 ```text
-① taxonomy + Coding Wiki（`task_coding_wiki_pilot_v1`）
-② 全仓 Harness parity（Ink）
+① Wiki-CTX-AB P2（`task_wiki_ctx_ab_v1`）← T1b done
+② 全仓 Harness parity（Ink · P1-4）
 ③ V3 韧性排队：P2-1b → P2-1c（母单 done/；P2-1a 见 done/）
 ④ task_ui_chain_events_backend 现网对照后再动
 ⑤ 按需 legacy/ 治理
@@ -309,13 +310,13 @@ flowchart TD
 
 | 阶段 | 任务 / 工件 | 状态 | 说明 |
 | --- | --- | --- | --- |
-| T0 | Harness taxonomy 本仓 | **done** | §6.4 #3 |
-| **T1a** | **`task_wiki_ctx_ab_v1`** · P1 | **done** | `conclusion_p1_zh.md` · 推荐 T3 |
-| **T3** | **`task_harness_workspace_taxonomy_promote_v1`** | **pending** | 工作区 harness pointer/README |
-| **T1b** | **`task_coding_wiki_pilot_v1`** | **draft** | 与 P1 **同 slug** ingest；∥ T1a |
-| T2 | P2 H-lean vs W | **blocked** | 依赖 T1b 最小 Wiki 页 |
-| T3 | 工作区 harness 推广 + 前端 P1-4 | **等待** | T1a + T2 结论 |
-| T4 | 图谱 `::documents` 等 | planned | SPEC §T4 |
+| T0 | Harness taxonomy 本仓 | **done** | §6.4 #3 · 2026-05-25 |
+| **T1a** | **`task_wiki_ctx_ab_v1`** · P1 | **done** | `conclusion_p1_zh.md` · 2026-05-25 |
+| **T3** | **`task_harness_workspace_taxonomy_promote_v1`** | **done** | 工作区 [`docs/harness/tasks/done/`](../../../../docs/harness/tasks/done/task_harness_workspace_taxonomy_promote_v1.md) · 2026-05-26 关账 |
+| **T1b** | **`task_coding_wiki_pilot_v1`** | **done** | 2026-05-26 关账 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md) |
+| T2 | P2 H-lean vs W | **可开工** | 依赖 T1b **done** + 最小 Wiki 页 |
+| P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
+| T4 | 图谱 `::documents` 等 | **planned** | SPEC §T4 |
 
 ---
 
@@ -353,6 +354,8 @@ flowchart TD
 | 2026-05-24 | **P2-1 拆单 done**（PR #51）；**当前棒 P2-1a**；子单母单路径指向 `done/`；分支 `task/chatbi-v3-p2-1a-health`          |
 | 2026-05-25 | P2-1a done（PR #52）；taxonomy §2.1；近期当前=治理+Wiki；P2-1b/c **V3 排队**（非 Harness 当前棒） |
 | 2026-05-25 | §6.6 + `docs/spec/governance/` + `wiki_ctx_ab_v1` P1 题集/模板；`task_wiki_ctx_ab_v1` 草案 |
+| 2026-05-26 | **T3 done**：工作区 taxonomy 关账；§1/§2/§6.6 与 SPEC 对齐；当前棒 **T1b** Coding Wiki |
+| 2026-05-26 | **T1b done**：Coding Wiki pilot 关账 · `CODING-WIKI-PILOT@2026-05-25`；当前棒 **T2** Wiki-CTX-AB P2 |
 
 
 ---
