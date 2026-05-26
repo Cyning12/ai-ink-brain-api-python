@@ -2,7 +2,7 @@
 
 > **帽链终点**：22 → 30 → 40 → 50 → **本 Prompt**  
 > **用法**：Open **`ai-ink-brain-api-python/`** → 新对话 → 50 建议关账无阻塞后复制下方代码块。  
-> **task**：`docs/tasks/active/task_wiki_ctx_ab_v1.md`
+> **task**：`docs/tasks/done/task_wiki_ctx_ab_v1.md`（已关账 · 2026-05-26）
 
 ---
 
@@ -18,7 +18,7 @@
 
 你必须完成：
 
-1. 将 task `git mv` 至 docs/tasks/done/task_wiki_ctx_ab_v1.md；状态 `done（YYYY-MM-DD 验收通过）`。
+1. ~~将 task `git mv` 至 done~~（**已完成**）；维护时仅核对状态与 §验收勾选。
 
 2. 勾选 §验收标准 P1/P2；文末 **关闭回溯（HANDOFF_CLOSE_TRACE）**（22/30/40/50 · invoke · commit）。
 

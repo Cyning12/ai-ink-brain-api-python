@@ -2,7 +2,8 @@
 
 > **freeze_id**：`CODING-WIKI-PILOT@2026-05-25`  
 > **治理 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)  
-> **指导意见**：工作区 `Projects/docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`
+> **指导意见**：工作区 `Projects/docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`  
+> **需求对比（理论 / SPEC / 交付 / 缺口）**：[`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)
 
 ---
 
@@ -146,3 +147,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 |------|------|
 | 2026-05-26 | 试点 v1：目录、frontmatter、ingest/query/lint |
 | 2026-05-26 | §7 试点定位；§8 测试迭代档案；§9 Raw/sources 启用条件 |
+| 2026-05-26 | 链出 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
