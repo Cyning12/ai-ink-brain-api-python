@@ -87,11 +87,11 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 ## 范围
 
-- [ ] 新建 `decisions/` 与首条决策记录（append-only）。  
-- [ ] 新建 `concepts/test-strategy-ink-backend.md`（frontmatter 合规）。  
-- [ ] 上表 2 个 done task → `syntheses/` + `index` + `log`。  
-- [ ] 每张新 synthesis 含：`source_task`、`## 测试变更`、pointer → `tests/` 与相关 `failure_paths` / 图谱节点（文字即可）。  
-- [ ] 22 R1 审查：无双真值、未复制 review 全文、未改 `docs/harness/prompts/`。
+- [x] 新建 `decisions/` 与首条决策记录（append-only）。  
+- [x] 新建 `concepts/test-strategy-ink-backend.md`（frontmatter 合规）。  
+- [x] 上表 2 个 done task → `syntheses/` + `index` + `log`。  
+- [x] 每张新 synthesis 含：`source_task`、`## 测试变更`、pointer → `tests/` 与相关 `failure_paths` / 图谱节点（文字即可）。  
+- [x] 22 R1 审查：无双真值、未复制 review 全文、未改 `docs/harness/prompts/`。
 
 ## 非范围
 
@@ -137,12 +137,24 @@ T1b/P2 已证明 **Coding Wiki** 可显著减少 Harness 历史回溯上下文�
 
 | 类型 | 路径 |
 |------|------|
-| Wiki | `docs/coding_wiki/decisions/`、`concepts/`、`syntheses/` |
-| Harness | `docs/harness/invokes/by-task/coding-wiki-t1c/`、`reviews/by-task/coding-wiki-t1c/` |
+| Wiki | `docs/coding_wiki/decisions/2026-05-26-unit-first-test-archive.md` |
+| Wiki | `docs/coding_wiki/concepts/test-strategy-ink-backend.md` |
+| Wiki | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |
+| Wiki | `docs/coding_wiki/syntheses/chatbi-v3-text2sql-tool-latency-obs.md` |
+| Wiki | `docs/coding_wiki/index.md`、`log.md`（ingest 登记） |
+| Harness | `docs/harness/invokes/by-task/coding-wiki-t1c/invoke_20260526_30_coding-wiki-t1c-v1.md` |
 
 ### 自检结论（执行者）
 
-（40 帽填写）
+**30 帽草稿**（40 将独立 VERIFY）：
+
+| # | VERIFY | 30 预期 |
+|---|--------|---------|
+| (1) | `decisions/*.md` ≥1 | pass |
+| (2) | `concepts/test-strategy-ink-backend.md` | pass |
+| (3) | 两张 T1c synthesis | pass |
+| (4) | `## 测试变更` | pass |
+| (5) | 无 `api/`、`docs/harness/prompts/` diff | pass（本 Epic 未改） |
 
 ---
 
