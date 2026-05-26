@@ -1,7 +1,7 @@
 # Task：治理同步 — SPEC / RECENT B-Q3 Recheck（R3 · 合并）
 
-> **状态**：draft  
-> **母 Loop**：[`task_harness_wiki_loop_bq3_recheck_v1.md`](task_harness_wiki_loop_bq3_recheck_v1.md) · round **R3**  
+> **状态**：`done（2026-05-26 验收通过 · GOV-WIKI-BQ3-SYNC@2026-05-26）`  
+> **母 Loop**：[`task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md) · round **R3**  
 > **说明**：合并 Loop A1–A4 的 A3+A4 职责为一 round（SPEC + 排期）
 
 > 落盘规则：验收通过后 `git mv` → `docs/tasks/done/`；**本 round 负责** `RECENT_TASK_SCHEDULE.md` §6.6。

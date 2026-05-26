@@ -1,6 +1,6 @@
 # Task：Wiki Loop B-Q3 Recheck — 单 PR 编排母单（v2 试点）
 
-> **状态**：draft  
+> **状态**：`done（2026-05-26 验收通过 · WIKI-LOOP-BQ3-RECHECK@2026-05-26 · 第二 harness-loop-batch Loop）`  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.1  
 > **SKILL 验证**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../tasks/skills/SKILL-harness-loop-batch.md)（第二 Loop · draft 未 accepted）  
 > **前置（done）**：[`task_harness_wiki_loop_a1_a4_v1.md`](done/task_harness_wiki_loop_a1_a4_v1.md) · [`task_wiki_ctx_ab_multi_slug_v1.md`](done/task_wiki_ctx_ab_multi_slug_v1.md)  
@@ -73,11 +73,11 @@ Loop A1–A4 已在 synthesis 补全 `test_strategy`，但 Multi 实验 **W 载�
 
 ## 范围
 
-- [ ] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
-- [ ] R1→R2→R3 按上表顺序各走完整 22→30→40→50→关账链。  
-- [ ] R1 关账后回填 R2 内 `PLACEHOLDER:R1_OUTCOME`。  
-- [ ] 三轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
-- [ ] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`。
+- [x] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
+- [x] R1→R2→R3 按上表顺序各走完整 22→30→40→50→关账链。  
+- [x] R1 关账后回填 R2 内 `PLACEHOLDER:R1_OUTCOME`。  
+- [x] 三轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
+- [x] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`。
 
 ## 非范围
 
@@ -100,10 +100,10 @@ Loop A1–A4 已在 synthesis 补全 `test_strategy`，但 Multi 实验 **W 载�
 
 ## 验收标准
 
-- [ ] 三轮子 task 状态 `done` 且在 `docs/tasks/done/`。  
-- [ ] W payload 含 `test_strategy`；scorecard 有 §Recheck addendum。  
-- [ ] conclusion / 对比表 / SPEC / RECENT 与 R1 跑分一致。  
-- [ ] 本母单 META 关账；PR 单分支 `task/wiki-loop-bq3-recheck-v1`。
+- [x] 三轮子 task 状态 `done` 且在 `docs/tasks/done/`。  
+- [x] W payload 含 `test_strategy`；scorecard 有 §Recheck addendum。  
+- [x] conclusion / 对比表 / SPEC / RECENT 与 R1 跑分一致。  
+- [x] 本母单 META 关账；PR 单分支 `task/wiki-loop-bq3-recheck-v1`。
 
 ---
 
@@ -111,14 +111,19 @@ Loop A1–A4 已在 synthesis 补全 `test_strategy`，但 Multi 实验 **W 载�
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待 R1–R3 回填） |
-| 关账 commit | （待 META 回填） |
+| 涉及文件 | R1 `payloads/W_*.md` + scorecard §Recheck · R2 conclusion §5 + 对比表 #46 · R3 SPEC/RECENT · invoke 链 `wiki-loop-bq3-recheck/` |
+| 关账 commit | `task/wiki-loop-bq3-recheck-v1` · META 见 CLOSE invoke |
+| R1 结论 | B-Q3 **pass** · slug B W **4/4** |
+| SKILL 注记 | 第二 Loop 完成 · **人**可审 `harness-loop-batch` draft→accepted |
 
 ### 自检结论（执行者）
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| | | |
+| 三子 task done/ | **pass** | R1/R2/R3 |
+| invoke 链 C2 | **pass** | 22/30/40/50/CLOSE ×3 + META |
+| cross_round_semi_auto | **pass** | R1·22 invoke |
+| diff 无 api/tests/prompts | **pass** | docs-only |
 
 ---
 
