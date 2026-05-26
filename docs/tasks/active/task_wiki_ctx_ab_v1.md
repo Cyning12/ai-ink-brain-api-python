@@ -1,6 +1,6 @@
 # Task：Wiki-CTX-AB v1（Harness 上下文消费对照 · P1→P2）
 
-> **状态**：`active`（P1 **done** · P2 **30 done** · 待 **40** 自检）  
+> **状态**：`active`（P1 **done** · P2 **40 done** · 待 **50** 复检）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)  
 > **实验目录**：[`docs/harness/experiments/wiki_ctx_ab_v1/`](../harness/experiments/wiki_ctx_ab_v1/README.md)  
 > **T1b（done）**：[`../done/task_coding_wiki_pilot_v1.md`](../done/task_coding_wiki_pilot_v1.md) · 同 slug `harness-p1-docs-consolidation`
@@ -96,7 +96,8 @@
 | **22 R1** | `docs/harness/reviews/by-task/wiki-ctx-ab/task_wiki_ctx_ab_v1_audit_R1_20260526.md` |
 | **W 物化** | `python tools/wiki_ctx_ab_materialize_w.py` → `payloads/W_harness-p1-docs-consolidation.md` |
 | **50** | `docs/tasks/reinspect_results/reinspect_wiki_ctx_ab_p2_*_v1.md` |
-| **下一棒** | **40**（`PROMPT_40_startup_wiki-ctx-ab-p2-v1.md`） |
+| **40 自检** | 2026-05-26 · VERIFY (1)–(7) 全 pass |
+| **下一棒** | **50**（`PROMPT_50_startup_wiki-ctx-ab-p2-v1.md`） |
 
 ---
 
@@ -104,10 +105,33 @@
 
 | 项 | 结果 |
 |----|------|
-| **帽** | （待 40 填写） |
-| **cwd** | `ai-ink-brain-api-python/` |
+| **帽** | **40**（P2 自检 · 2026-05-26） |
+| **cwd** | `ai-ink-brain-api-python/` · 分支 `task/wiki-ctx-ab-p2-v1` |
+| **test_strategy** | `not_applicable`（纯文档实验；未跑 pytest） |
 
-（P2 执行后由 40 帽回填 VERIFY 表。）
+#### 30 产出核对（通读）
+
+| 检查项 | 结果 |
+|--------|------|
+| `scorecard.md` §P2 八行（Q1–Q4 × H-lean/W） | pass · 均为 **pass** |
+| `payload_char_count` H-lean/W | 9896 / 2096 · 降幅 78.8% |
+| `conclusion_p2_zh.md` SPEC §3.1（T7+T8） | pass |
+| **默认读序**（task 验收 P2） | **是** — §3 写明推荐先读 `docs/coding_wiki/index.md` + `syntheses/<slug>.md` |
+| 30 invoke | `invoke_20260526_30_wiki-ctx-ab-p2-v1.md` |
+
+#### VERIFY 验收表（40 · 子仓根）
+
+| # | 命令 / 检查 | exit | pass/fail | 要点 |
+|---|-------------|------|-----------|------|
+| 1 | `test -f …/payloads/TEMPLATE-W.md` | 0 | **pass** | 模板存在 |
+| 2 | `test -f …/W_harness-p1-docs-consolidation.md` | 0 | **pass** | W 物化实例存在 |
+| 3 | `test -f docs/coding_wiki/syntheses/harness-p1-docs-consolidation.md` | 0 | **pass** | T1b ingest 页存在 |
+| 4 | `rg '^## P2' scorecard.md` + §P2 表 8 行 | 0 | **pass** | L115 主表；Q1–Q4×2 臂均 **pass** |
+| 5 | `test -f …/conclusion_p2_zh.md` | 0 | **pass** | P2 结论文存在 |
+| 6 | `git diff --name-only -- docs/harness/prompts/ \| wc -l` | 0 | **pass** | 计数 **0**（未改 prompts） |
+| 7 | `python tools/wiki_ctx_ab_materialize_w.py --slug …`（可选） | 0 | **pass** | 可再生 · `payload_char_count=2096` |
+
+**40 总评**：**pass** — P2 实验产物与 task 验收对齐；**未改** scorecard 答题原文。下一棒：**50** 独立复检。
 
 ---
 
