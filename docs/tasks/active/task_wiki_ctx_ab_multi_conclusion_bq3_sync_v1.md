@@ -2,7 +2,7 @@
 
 > **状态**：draft  
 > **母 Loop**：[`task_harness_wiki_loop_bq3_recheck_v1.md`](task_harness_wiki_loop_bq3_recheck_v1.md) · round **R2**  
-> **依赖 round**：R1 · [`task_wiki_ctx_ab_multi_bq3_recheck_v1.md`](task_wiki_ctx_ab_multi_bq3_recheck_v1.md)
+> **依赖 round**：R1 · [`task_wiki_ctx_ab_multi_bq3_recheck_v1.md`](done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md)
 
 > 落盘规则：验收通过后 `git mv` → `docs/tasks/done/`。
 
@@ -39,7 +39,13 @@
 ## R1 交付摘要（22 前须已回填）
 
 <!-- PLACEHOLDER:R1_OUTCOME -->
-**待回填**（R1 关账后）：B-Q3 pass/fail、slug B W 臂 4/4 与否、scorecard §Recheck 路径、R1 关账 commit  Chunk。
+**R1 关账摘要（2026-05-26 · `WIKI-BQ3-R1-PAYLOAD@2026-05-26`）**：
+
+- **B-Q3**：**pass** — W 载荷 frontmatter `test_strategy: recommended` + §测试变更 api/pytest 理由
+- **slug B W 臂**：**4/4**（§Recheck；原 §Multi 3/4 冻结不改）
+- **scorecard**：`docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/scorecard.md` §Recheck
+- **W payload**：3625 chars（+230 vs 原 3395）
+- **R1 关账 commit**：`28080ea`（50 复检）链 22→30→40→50
 <!-- /PLACEHOLDER:R1_OUTCOME -->
 
 ---

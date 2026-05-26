@@ -1,6 +1,6 @@
 # Task：Wiki-CTX-AB Multi — B-Q3 Recheck 载荷与 scorecard（R1）
 
-> **状态**：draft  
+> **状态**：`done（2026-05-26 验收通过 · WIKI-BQ3-R1-PAYLOAD@2026-05-26）`  
 > **母 Loop**：[`task_harness_wiki_loop_bq3_recheck_v1.md`](task_harness_wiki_loop_bq3_recheck_v1.md) · round **R1**  
 > **关联实验**：[`docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/)  
 > **题面**：[`questions.md`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/questions.md) · slug B **B-Q3**
@@ -52,7 +52,7 @@ A1 已在 [`query-rewrite-observability.md`](../../coding_wiki/syntheses/query-r
 - [x] 独立会话或 50 帽模拟：依据 **仅 W 载荷** 答 B-Q3；记录 pass/fail 与要点对齐 [`questions.md`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/questions.md) gold。  
 - [x] `scorecard.md` 末尾 **§Recheck（Wiki Loop B-Q3 · 2026-05-26）**：新 payload 字符量、B-Q1–Q4 W 臂 pass/fail、B-Q3 原文摘要。  
 - [x] VERIFY：`rg -n test_strategy docs/harness/experiments/wiki_ctx_ab_multi_slug_v1/payloads/W_query-rewrite-observability.md`  
-- [ ] 关账回填 R2 `PLACEHOLDER:R1_OUTCOME`；`git mv` 至 `done/`。
+- [x] 关账回填 R2 `PLACEHOLDER:R1_OUTCOME`；`git mv` 至 `done/`。
 
 ## 非范围
 
@@ -86,10 +86,10 @@ A1 已在 [`query-rewrite-observability.md`](../../coding_wiki/syntheses/query-r
 
 ## 验收标准
 
-- [ ] W payload 更新且 VERIFY 通过。  
-- [ ] scorecard §Recheck 存在且与答题一致。  
-- [ ] R2 占位已回填。  
-- [ ] 22/40/50 落盘。
+- [x] W payload 更新且 VERIFY 通过。  
+- [x] scorecard §Recheck 存在且与答题一致。  
+- [x] R2 占位已回填。  
+- [x] 22/40/50 落盘。
 
 ---
 
