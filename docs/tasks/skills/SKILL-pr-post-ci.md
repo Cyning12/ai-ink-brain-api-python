@@ -26,6 +26,27 @@
 
 ---
 
+## 教训 · PR #60（docs/wiki · 2026-05-26）
+
+| 现象 | 根因 | 正确做法 |
+| --- | --- | --- |
+| **未 automerge** | PR **无** `automerge` 标签；PR checks 仅 Vercel，**无** `pytest` / `manifest_check` / `contract_check` success → Mergify 条件 M3 不满足 | docs-only 也要等三项 Required 全绿；**人**打 `automerge` 后由 Mergify **squash**（勿用 `gh pr merge --merge` 绕过） |
+| **Test plan 未勾选** | `pr-post-ci` 仅在上述三项 **全绿且 PR 仍 OPEN** 时勾 `## Test plan`；合并过早或 Required 未挂上 PR 则 bot 不改 body | **全绿后、merge 前** 看 body 是否已出现 `## CI 状态（自动 · pr-post-ci）` 与已勾项；可本地 `python tools/pr_post_ci_update_body.py --pr <N>` |
+| **「合入后」仍 `[ ]`** | 符合预期：含 **合入后** / **可选** 的条目 **不** 自动勾（SPEC §3.1） | Test plan 拆成「CI 项（可自动勾）」与「合入后验收（保留 `[ ]`）」 |
+
+**时序（硬）**：
+
+```text
+push 定稿 → 等 pytest + manifest_check + contract_check 全绿
+  → pr-post-ci 更新 body（Test plan + CI 表）
+  → 人/Agent 补 Summary → （可选）人打 automerge
+  → merge（Mergify squash 或人触发）
+```
+
+**禁止**：仅 Vercel 绿就 merge；合并后再指望 bot 改已关 PR 的 Test plan。
+
+---
+
 ## 流程
 
 ```text
@@ -85,3 +106,4 @@ gh pr edit <N> --body-file /tmp/body.md
 | --- | --- |
 | 2026-05-26 | v1：方案 C 落盘 |
 | 2026-05-26 | v1.1：对齐 #56 修订（Test plan / CI 表 / 已关闭 PR） |
+| 2026-05-26 | v1.2：教训 PR #60（全绿后 merge 前改 body · automerge 条件） |
