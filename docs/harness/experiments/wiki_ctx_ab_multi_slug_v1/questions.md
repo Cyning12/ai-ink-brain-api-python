@@ -112,6 +112,8 @@
 | 1 | **`required`**（或 task 头部实际值） |
 | 2 | 理由含：改 **`api/`** 行为 / 需可失败自动化测试（表述不必逐字） |
 
+> **footnote（post-A1 · 2026-05-26）**：synthesis 现蒸馏 `test_strategy: recommended`（非 gold 字面 `required`）；gold 允许「task 实际值」→ §Recheck B-Q3 **pass**。
+
 ### B-Q4 — 前端 UI（陷阱）
 
 **提问**

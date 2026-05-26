@@ -60,8 +60,23 @@
 
 ---
 
+## 5. Recheck（Wiki Loop B-Q3 · 2026-05-26）
+
+> **证据**：[`scorecard.md`](./scorecard.md) §Recheck · R1 [`task_wiki_ctx_ab_multi_bq3_recheck_v1.md`](../../../tasks/done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md)
+
+| 项 | 原 §1 slug B | §Recheck 后 |
+| --- | --- | --- |
+| W 正确性 | 3/4（B-Q3 fail） | **4/4** |
+| B-Q3 | synthesis 无 `test_strategy` | **pass** · frontmatter `recommended` + §测试变更 |
+| 外推结论 | T8 部分 fail | **T7+T8 均 pass**（slug B 单域） |
+
+**增量签收**：A1 ingest 后重物化 W 载荷，slug B **W 臂可 4/4**；**不推翻** §1–§4 Multi accepted 历史（原 3/4 为 A1 前快照）。
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-26 | Multi accepted · 部分外推 · 推荐默认读序附 ingest 条件 |
+| 2026-05-26 | §5 Recheck · Wiki Loop B-Q3 · slug B W 4/4（链 scorecard §Recheck） |
