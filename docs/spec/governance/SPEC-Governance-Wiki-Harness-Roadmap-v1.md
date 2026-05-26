@@ -7,7 +7,7 @@
 | **freeze_id** | `GOV-WIKI-HARNESS-ROADMAP@2026-05-25` |
 | **排期同步** | [`docs/tasks/RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md) §0、§1、§6.6 |
 | **实验** | [`docs/harness/experiments/wiki_ctx_ab_v1/`](../../harness/experiments/wiki_ctx_ab_v1/README.md) |
-| **任务** | [`task_coding_wiki_pilot_v1.md`](../../tasks/active/task_coding_wiki_pilot_v1.md) · [`task_wiki_ctx_ab_v1.md`](../../tasks/active/task_wiki_ctx_ab_v1.md) |
+| **任务** | [`task_coding_wiki_pilot_v1.md`](../../tasks/done/task_coding_wiki_pilot_v1.md) · [`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md) |
 | **工作区指导意见** | `Projects/docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md` · `COMPARISON_tech_graph_coding_wiki_graph_memory_v1_zh.md` |
 
 ---
@@ -46,14 +46,14 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | **T1a** | Wiki-CTX-AB **P1** | H-full vs H-lean；**不依赖** `coding_wiki/` | **done**（[`conclusion_p1_zh.md`](../../harness/experiments/wiki_ctx_ab_v1/conclusion_p1_zh.md) · 2026-05-25） |
 | **T3** | Harness 工作区推广 | 工作区 `docs/harness/` taxonomy（pointer/MIGRATION · §2.1） | **done**（工作区 [`task_harness_workspace_taxonomy_promote_v1.md`](../../../../docs/harness/tasks/done/task_harness_workspace_taxonomy_promote_v1.md) · 2026-05-26；子仓 [pointer](../../tasks/done/task_harness_workspace_taxonomy_promote_v1.md)） |
 | **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **done**（2026-05-26 · [`task_coding_wiki_pilot_v1.md`](../../tasks/done/task_coding_wiki_pilot_v1.md)） |
-| **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **可开工**（依赖 T1b **done**） |
+| **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **done**（2026-05-26 · [`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | **P1-4** | 前端 Harness parity | `ai-ink-brain` 模板/rsync/规则 | **远期**（≠ T3 工作区交付） |
 | **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | **planned** |
 
 ```text
 T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
          │
-         T1b（pilot）──► T2（P2 AB）──► 是否默认 coding_wiki 读序
+         T1b（pilot）──► T2（P2 AB）✓ ──► 默认 coding_wiki 读序（2026-05-26 签收）
          │
          P1-4（前端 parity）· 远期
 ```
@@ -71,14 +71,14 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 
 - **Gold slug（锁定）**：`harness-p1-docs-consolidation`  
 - **题集 / 模板**：[`wiki_ctx_ab_v1/questions.md`](../../harness/experiments/wiki_ctx_ab_v1/questions.md)  
-- **任务单**：[`task_wiki_ctx_ab_v1.md`](../../tasks/active/task_wiki_ctx_ab_v1.md)
+- **任务单**：[`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md)
 
 ### 3.1 推广签收（草案）
 
 | 结论条件 | 动作 |
 | --- | --- |
 | P1：H-lean 相对 H-full token 降且正确性可接受 | **T3 已执行**（2026-05-26 工作区关账） |
-| P2：W 相对 H-lean 再优 | 读序增加 **先 `coding_wiki/index`**（待 T2 签收） |
+| P2：W 相对 H-lean 再优 | **done**（2026-05-26）· 读序增加 **先 `docs/coding_wiki/index.md` + `syntheses/<slug>.md`**（[`conclusion_p2_zh.md`](../../harness/experiments/wiki_ctx_ab_v1/conclusion_p2_zh.md) accepted · W 降幅 78.8%、4/4 pass） |
 | P2：W 无优势 | 仅 **关账后可选** ingest；不写默认读序 |
 | P1 失败 | 先修 README/消费纪律，**不推广** by-task |
 
@@ -91,7 +91,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **本 SPEC** | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` | 整体安排、阶段闸口 |
 | **排期表** | `docs/tasks/RECENT_TASK_SCHEDULE.md` | 状态勾选、与 V3 队列并列 |
 | **Wiki 试点 task** | `docs/tasks/active/task_coding_wiki_pilot_v1.md` | 交付 `coding_wiki/` |
-| **AB task** | `docs/tasks/active/task_wiki_ctx_ab_v1.md` | scorecard + conclusion |
+| **AB task** | `docs/tasks/done/task_wiki_ctx_ab_v1.md` | scorecard + conclusion（P1+P2 **done**） |
 | **ChatBI SDD** | `docs/spec/v3-agent/*` | 业务行为；**不**替代治理线 |
 
 ---
@@ -119,7 +119,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-25 | v1：整体安排表；T0～T4；Wiki-CTX-AB P1/P2 闸口 |
-| 2026-05-26 | v1.1：T3 **done**；T1b **active**；P1-4 自 T3 行拆出；与 `RECENT_TASK_SCHEDULE` §6.6 对齐 |
+| 2026-05-26 | v1.2：T2 **done** · SPEC §3.1 P2 签收 · 推荐默认 `coding_wiki/` 读序 |
 
 ---
 
