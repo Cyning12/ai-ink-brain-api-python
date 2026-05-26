@@ -111,7 +111,7 @@ T1c 与 Multi slug AB 均已关账，但 **SPEC §2 时间线** 仍标 T1c 为 `
 | 项 | 内容 |
 |----|------|
 | 涉及文件 | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`、`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
-| 30 commit | `待关账回填` |
+| 30 commit | `9847251` |
 | 图谱变更点 | 无 |
 
 ---
