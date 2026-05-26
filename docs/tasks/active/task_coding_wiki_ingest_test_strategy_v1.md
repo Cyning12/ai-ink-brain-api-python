@@ -109,9 +109,11 @@ Multi slug AB 表明：W 臂禁止回读 L1 done task 时，`query-rewrite-obser
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | `docs/coding_wiki/syntheses/query-rewrite-observability.md`（+ 可选 `log.md`） |
+| 涉及文件 | `docs/coding_wiki/syntheses/query-rewrite-observability.md`、`docs/coding_wiki/log.md` |
+| test_strategy 取值 | `recommended`（与 L1 `task_05_query_rewrite_observability.md` 一致） |
 | 关键 env | 无 |
 | 图谱变更点 | 无 |
+| 30 commit | （40 自检后回填 short-hash） |
 
 ---
 
