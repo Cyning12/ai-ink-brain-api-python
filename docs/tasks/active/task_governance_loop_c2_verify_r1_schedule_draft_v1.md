@@ -98,8 +98,8 @@ rg 'Loop C2 Verify' docs/tasks/RECENT_TASK_SCHEDULE.md
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| RECENT §6.6 | | |
-| invoke C2 | | |
+| RECENT §6.6 | **pass** | `rg 'Loop C2 Verify'` 命中 §6.6 行 · 状态 **in_progress**（非 done） |
+| invoke C2 | **pass（初检）** | 22/30 invoke 已落盘 · §3 ≥15 行 · 元信息含 task_slug；50 独立复检 |
 
 ---
 
