@@ -28,7 +28,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | **pending** | 22-R1, 30, 40, 50 | **人批**后四子 task 方可启动 Loop（各子 task 写「继承母闸」） |
+| HG-LOOP-BATCH | **approved** | 22-R1, 30, 40, 50 | **人批**后四子 task 方可启动 Loop（各子 task 写「继承母闸」） |
 
 ---
 
