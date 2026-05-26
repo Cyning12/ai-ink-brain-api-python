@@ -110,27 +110,14 @@ htmlcov/
 pyrightconfig.json
 .pyre/
 
-# --- Local docs (do not commit/push) ---
-# 注意：docs/_tech_graph/ 是项目架构唯一可信来源，必须提交
-docs/*
-!docs/_tech_graph/
+# --- 本机-only：统一落点 tmp/（见 tmp/README.md）---
+tmp/*
+!tmp/README.md
 
-# Task specs and tech graph must be tracked
-!docs/tasks/
-!docs/tech_graph/
-!docs/_tech_graph/
-
-!docs/text2sql/
-# v2-agent SPEC（与 docs/* 例外并列；否则新文件需 git add -f）
-!docs/spec/
-
-# Harness：任务审核 reviews、invoke 快照（与工作区 harness/invokes 约定对齐）
-!docs/harness/
-
-# Rubric 演示暂存 + jsonPKmermaid 主实验协议（与 task 审核 `docs/harness/reviews` 分离）
-!docs/diary/
-# diary 草稿/tmp：不提交；Agent 默认不扫描（见 .cursor/rules/08-docs-diary.mdc）
+# --- docs/ 内永不提交（真值子树正常 git add；勿依赖 git add -f）---
+docs/delivery/
+docs/_staging/
 docs/diary/tmp/
-!docs/diary/jsonPKmermaid/
-!docs/_staging/
-!docs/_staging/jsonPKmermaid-rubric-demo/
+docs/diary/test/
+docs/diary/jsonPKmermaid/runs/
+docs/diary/jsonPKmermaid/**/raw/

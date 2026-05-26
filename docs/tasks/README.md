@@ -23,6 +23,8 @@
 
 本目录 **`docs/tasks/`** 仅承载 **本后端仓** 任务；invoke / review 落盘见 **`docs/harness/invokes/`**、**`docs/harness/reviews/`**。
 
+**Coding Wiki（关账后编译层 · L2）**：[`../coding_wiki/index.md`](../coding_wiki/index.md)
+
 ---
 
 ## 目录结构（以当前仓为准）

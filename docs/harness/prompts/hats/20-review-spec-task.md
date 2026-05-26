@@ -20,7 +20,8 @@
 
 ## 输入假设
 
-- 输入为 **待审 SPEC 或 task 全文** + 可选：相关 `HARNESS_V2_PLAN` §5 字段约定链接。
+- 输入为 **待审 SPEC 或 task 全文** + 可选：相关 `HARNESS_V2_PLAN` §5 字段约定链接。  
+- 若 SPEC 处于起草中：对照 [`docs/spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../../../spec/SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md) 检查 **轮 1 骨架 / 轮 2 L1** 是否缺 **失败语义、freeze_id 候选、test_strategy 建议**。
 
 ## 关联模板（对话发起 · 可选）
 

@@ -1,9 +1,0 @@
-{
-  "batch_id": "gate_ctx_ab_v1_batch_T003_ingest_admin_rpc_20260516_144300",
-  "rounds": 3,
-  "round_dirs": [
-    "round_01",
-    "round_02",
-    "round_03"
-  ]
-}

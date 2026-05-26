@@ -10,6 +10,6 @@ alwaysApply: true
 1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md)
 2. **模板**：`docs/harness/prompts/templates/TEMPLATE-*-invoke.md` §3；帽子在 `prompts/hats/`；`HANDOFF_*.md` 在 `prompts/handoff/`
 3. **落盘**：invoke → `docs/harness/invokes/by-task/<task_slug>/`；**22** → `docs/harness/reviews/by-task/<task_slug>/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）
-4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 例外见 `docs/tasks/README.md`「工作区 Harness 任务」
+4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 见工作区 `docs/harness/tasks/` — 须在 **Open `Projects/`** 下执行，遵守工作区 `05-harness-workspace.mdc`
 
 半自动续跑细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc)。
