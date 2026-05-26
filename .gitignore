@@ -124,6 +124,9 @@ docs/*
 # v2-agent SPEC（与 docs/* 例外并列；否则新文件需 git add -f）
 !docs/spec/
 
+# Coding Wiki（L2 编译层 · task_coding_wiki_pilot_v1）
+!docs/coding_wiki/
+
 # Harness：任务审核 reviews、invoke 快照（与工作区 harness/invokes 约定对齐）
 !docs/harness/
 

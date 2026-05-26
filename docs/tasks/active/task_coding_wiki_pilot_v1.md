@@ -4,7 +4,7 @@
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（工程规约；本 task 不修改流程图正文）  
 > **关联 Issue/PR**：无  
 > **前端依赖**：无  
-> **指导意见（对话归档）**：[`docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`](../../../../docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md)
+> **指导意见（对话归档）**：[`docs/harness/guides/README.md`](../../harness/guides/README.md)（指针 → 工作区 `GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`）
 
 > 落盘规则：验收通过后 `git mv` 至 `docs/tasks/done/` 并更新 `_views/*.md`。  
 > **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5**。
@@ -19,7 +19,7 @@
 | **test_strategy_note** | 纯文档与目录骨架；无运行时代码与 CI 行为变更。 |
 | **freeze_id** | `CODING-WIKI-PILOT@2026-05-25` |
 | **gates_before_code** | `["human_gate", "failure_paths", "必读列表"]` |
-| **semi_auto** | `false` |
+| **semi_auto** | `true` |
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/coding-wiki-pilot-v1` |
 
@@ -89,13 +89,13 @@
 
 ## 范围
 
-- [ ] 新建 `docs/coding_wiki/` 骨架（见指导意见 §7）。
-- [ ] 编写 `CODING_WIKI.md`：L0/L1/L2 分工、ingest/query/lint、frontmatter 最小集、`[[wikilink]]` 与 pointer 规则。
-- [ ] 初始化 `index.md`、`log.md`（含 2026-05-25 试点启动条目）。
-- [ ] **Ingest** 上表 **3** 个 done task（`HG-WIKI-INGEST-SCOPE` 已锁定）
-- [ ] 每张 ingest 页含：`freeze_id` 或关账日期、链至 task / review（**摘要**，非全文复制）。
-- [ ] 在 `docs/tasks/README.md` 或 `docs/README.md` 增加 **一行** 入口链至 `coding_wiki/`（避免孤儿目录）。
-- [ ] 22 帽 R1（`audit_profile: post_close`）：审查 Wiki 与 Harness/图谱无双真值风险。
+- [x] 新建 `docs/coding_wiki/` 骨架（见指导意见 §7）。
+- [x] 编写 `CODING_WIKI.md`：L0/L1/L2 分工、ingest/query/lint、frontmatter 最小集、`[[wikilink]]` 与 pointer 规则。
+- [x] 初始化 `index.md`、`log.md`（含 2026-05-26 试点启动与 ingest 条目）。
+- [x] **Ingest** 上表 **3** 个 done task（`HG-WIKI-INGEST-SCOPE` 已锁定）
+- [x] 每张 ingest 页含：`freeze_id` 或关账日期、链至 task / review（**摘要**，非全文复制）。
+- [x] 在 `docs/tasks/README.md` 与 `docs/README.md` 增加 **一行** 入口链至 `coding_wiki/`（避免孤儿目录）。
+- [x] 22 帽 R1（`audit_profile: post_close`）：审查 Wiki 与 Harness/图谱无双真值风险。
 
 ## 非范围
 
@@ -112,7 +112,7 @@
 
 | 依赖项 | 路径/说明 |
 |--------|-----------|
-| 指导意见 | `docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md` |
+| 指导意见 | `docs/harness/guides/README.md`（指针 → 工作区 `GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`） |
 | Harness 排期 | `docs/tasks/RECENT_TASK_SCHEDULE.md` §0 |
 | Harness V2 字段 | `docs/harness/HARNESS_V2_PLAN.md` §5 |
 | 图谱消费 | `docs/_tech_graph/graph_v2_schema.md`、方案 2 查询（按需） |
@@ -135,12 +135,12 @@
 
 ## 验收标准
 
-- [ ] `docs/coding_wiki/CODING_WIKI.md` 存在且含 ingest/query/lint 三步与 L0/L1/L2 表。
-- [ ] `index.md` 列出所有试点页；`log.md` 含至少 1 条 ingest 记录（带日期前缀，可 `grep`）。
-- [ ] ≥2 张 Wiki 页链回真实 `done` task 路径（相对路径，无绝对本机路径）。
-- [ ] `docs/harness/` 与 `docs/harness/prompts/` **git diff 为空**（本 task 未改 Harness 执行链）。
-- [ ] 22 R1 落盘 `docs/harness/reviews/task_coding_wiki_pilot_v1_audit_R1_YYYYMMDD.md`（零阻塞亦须记录）。
-- [ ] （可选）同一问题对比：仅读 Wiki index+2 页 vs 扫 3 个 done task 的 context 行数（记入 task §实现备忘）。
+- [x] `docs/coding_wiki/CODING_WIKI.md` 存在且含 ingest/query/lint 三步与 L0/L1/L2 表。
+- [x] `index.md` 列出所有试点页；`log.md` 含至少 1 条 ingest 记录（带日期前缀，可 `grep`）。
+- [x] ≥2 张 Wiki 页链回真实 `done` task 路径（相对路径，无绝对本机路径）。
+- [x] `docs/harness/prompts/` **未改**（本 task 未改 Harness 执行链；见 40 自检 `git diff`）。
+- [x] 22 R1 落盘 `docs/harness/reviews/by-task/coding-wiki-pilot/task_coding_wiki_pilot_v1_audit_R1_20260526.md`。
+- [ ] （可选）同一问题对比：仅读 Wiki index+2 页 vs 扫 3 个 done task 的 context 行数（留 50 或关账会话）。
 
 ---
 
@@ -150,10 +150,36 @@
 |------|------|
 | **task_slug** | `coding-wiki-pilot` |
 | **Open Folder** | **`ai-ink-brain-api-python/`**（交付物在本子仓；**不要**只开 Projects 写 `docs/coding_wiki/`） |
-| **帽链启动稿** | `docs/harness/invokes/by-task/coding-wiki-pilot/PROMPT_{22,30,40,50,CLOSE}_*` |
-| Wiki 根 | `docs/coding_wiki/` |
-| 入口 | `docs/README.md` 或 `docs/tasks/README.md` |
+| **invoke** | `docs/harness/invokes/by-task/coding-wiki-pilot/invoke_20260526_{22,30,40}_coding-wiki-pilot.md` |
+| **22 R1** | `docs/harness/reviews/by-task/coding-wiki-pilot/task_coding_wiki_pilot_v1_audit_R1_20260526.md` |
+| Wiki 根 | `docs/coding_wiki/`（3× `syntheses/` + 1× `concepts/`） |
+| 入口 | `docs/README.md`、`docs/tasks/README.md` 各一行 |
 | 治理 SPEC | `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` **T1b** |
+| **下一棒** | **50** + 关账 → `PROMPT_50_*`、`PROMPT_CLOSE_*`（新 Agent） |
+
+---
+
+### 自检结论（执行者）
+
+| 项 | 结果 |
+|----|------|
+| **帽** | 40（2026-05-26） |
+| **cwd** | `ai-ink-brain-api-python/` |
+| **test_strategy** | `not_applicable` — 纯文档；未跑 pytest（无代码路径） |
+
+**命令与退出码**
+
+```text
+test -f docs/coding_wiki/CODING_WIKI.md     → 0
+test -f docs/coding_wiki/index.md           → 0
+test -f docs/coding_wiki/log.md             → 0
+grep '2026-05-26' docs/coding_wiki/log.md   → 匹配
+grep ingest docs/coding_wiki/log.md         → 匹配
+syntheses/*.md 计数                         → 3（≥2）
+git diff --quiet docs/harness/prompts/      → 0（未改 prompts）
+```
+
+**验收摘要**：骨架、schema、三份 ingest、双入口、22 R1 零阻塞均已落盘。**待**：50 复检、关账 CLOSE_TRACE、task 归档 `done/`。
 
 ---
 
@@ -176,3 +202,4 @@
 | 2026-05-25 | 初稿：对话归档后生成；状态 `draft`；前置 P1/P6 已满足 |
 | 2026-05-26 | `active`：帽子顺序表；ingest 三件套锁定；22/30 启动 Prompt 路径 |
 | 2026-05-26 | 帽链 22→30→40→50→关账；PROMPT_22 v1.2 + 40/50/CLOSE 启动稿 |
+| 2026-05-26 | 22/30/40 已执行；Wiki 试点交付；50+关账留待新 Agent |

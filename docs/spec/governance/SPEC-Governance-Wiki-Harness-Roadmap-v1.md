@@ -44,7 +44,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | --- | --- | --- | --- |
 | **T0** | Harness-taxonomy | 本仓 `docs/harness/`：`prompts/{hats,templates,handoff}`、`invokes/by-task/`、`reviews/by-task/` | **done** |
 | **T1a** | Wiki-CTX-AB **P1** | H-full vs H-lean；**不依赖** `coding_wiki/` | **done**（[`conclusion_p1_zh.md`](../../harness/experiments/wiki_ctx_ab_v1/conclusion_p1_zh.md) · 2026-05-25） |
-| **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | `draft`（`task_coding_wiki_pilot_v1`） |
+| **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **交付中**（40 已过 · 待 50/关账 · `task_coding_wiki_pilot_v1`） |
 | **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **blocked by T1b** 最小 ingest |
 | **T3** | Harness 全仓推广 | 工作区 `docs/harness/` + 前端 parity（P1-4） | **可开工** — 工作区 [`task_harness_workspace_taxonomy_promote_v1.md`](../../../../docs/harness/tasks/active/task_harness_workspace_taxonomy_promote_v1.md)（子仓 [pointer](../../tasks/active/task_harness_workspace_taxonomy_promote_v1.md)） |
 | **T4** | 图谱桥接（可选） | `::documents` / `::evidence`、Wiki `graph_nodes` frontmatter | `planned` |
