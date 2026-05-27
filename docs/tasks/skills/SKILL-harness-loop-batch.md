@@ -1,7 +1,7 @@
 # SKILL：Harness Loop Batch（母单 + 多子 task · 单 PR）
 
 > **SKILL ID**：`harness-loop-batch`  
-> **状态**：`draft` — 两 Loop 实例（A1–A4、B-Q3 Recheck）+ meta-reinspect **条件通过**；C3 第二 Loop 已绿，**C2 仍 FAIL**（R2/R3 的 30/40/50 stub）。晋升 `accepted` **阻塞**，须第三次 Loop C2 全绿或 meta-reinspect **C1–C7 全 pass**。  
+> **状态**：`accepted` — 人审于 2026-05-27 晋升。三 Loop 实例（A1–A4、B-Q3 Recheck、C2 Verify）+ meta-reinspect；实例 3（C2 Verify）C1–C7 全 pass。第四轮真实业务 Loop 作为回归测试兼 SKILL 验收后首跑，进行中。  
 > **适用阶段**：10 帽 **Batch 一次** → 各子 round **22→30→40→50→关账** → 母单 **META** 关账；**禁止**执行阶段再开 10。  
 > **Cursor 项目 skill**：[`.cursor/skills/harness-loop-batch/SKILL.md`](../../../.cursor/skills/harness-loop-batch/SKILL.md)。
 
@@ -376,6 +376,7 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
 | 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
 | 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
+| 2026-05-27 | v1.7：第三 Loop（C2 Verify）C1–C7 全 pass · **人审晋升 `accepted`** · 启动第四轮真实业务 Loop 作为回归测试 |
 | 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |
 | 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |
 | 2026-05-26 | v1.6：§长 Loop 完成汇报 — `REPORT_completion_*` 落盘 §1～§5 · §6 仅对话；链 HANDOFF / PROMPT_LOOP 步骤 7 |
