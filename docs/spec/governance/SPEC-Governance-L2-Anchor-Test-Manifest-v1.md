@@ -147,7 +147,51 @@ docs/_tech_graph/_test_manifest.json    # 首选：与 _manifest 并列，便于
 | --- | --- |
 | **Phase A（本 SPEC 最小）** | `_test_manifest.json` **文档化存在** + 人工 REVIEW；**不** 阻塞 merge |
 | **Phase B（可选 follow-up）** | 新增 `tools/tech_graph_test_manifest_check.py`：ERR 在代码中出现则 manifest 须有项；对每条 `test_paths` 用 `fnmatch` 在仓库根展开，**至少匹配一个** `tests/**/*.py` |
-| **Phase C** | 与具体 Epic `failure_paths` task 字段双向校验（高成本，**非** v1） |
+| **Phase C** | **设计已落盘** · 见 **§4.4**；自动化实现 **另 task**（`test_strategy: required`） |
+
+### 4.4 Phase C（design · `GOV-L2-PHASE-C-DESIGN@2026-05-27`）
+
+> **状态**：**design only**（P2 Loop R2）· Phase B CI **done** · **禁止** 在本节承诺已实现双向校验脚本。
+
+#### 4.4.1 目标
+
+| 方向 | 规则 |
+| --- | --- |
+| **task → manifest** | 每个 `failure_paths` 行 `F#` 在关账前 **应** 有 `_test_manifest.entries[].id` 或显式 `manifest_exempt` 理由（实现期校验） |
+| **manifest → task** | 每个 `entries[].id` **应** 有 `failure_path_ref` 指向含对应 `F#` 的 task 锚点（或 Epic 级汇总 task） |
+| **命名** | 推荐 `FP-<EPIC>-<SHORT>`；task 表内 `F1` 与 manifest `id` **禁止** 仅同名不同义 |
+
+#### 4.4.2 字段对照（最小）
+
+| task `failure_paths` 列 | `_test_manifest.entries[]` | 一致性 |
+| --- | --- | --- |
+| 触发条件 | `notes`（人读） + 可选 `graph_nodes_optional` | 语义等价 |
+| 系统行为 / `error_codes` | `error_codes[]` | **必须** 集合相等（实现期） |
+| 可重试 | `notes` 或扩展字段（Phase C 实现） | 建议一致 |
+| — | `test_paths[]` | task **不** 替代；manifest 专责 pytest glob |
+
+#### 4.4.3 示例映射（2～3 条 · 摘自 Phase B manifest）
+
+| task `F#` / 锚点 | manifest `id` | `error_codes` |
+| --- | --- | --- |
+| `task_05` … F1（DB 不可用） | `FP-RAG-DB-DISCONNECT` | `DATABASE_DISCONNECT` |
+| `task_chatbi_v3_sql_ast` … F1 | `FP-SQL-GATE-DENIED` | `ChatBiSqlGateDenied` |
+| `task_chatbi_v3_p2_resilience` … F2 | `FP-CODE-RETRIEVAL-UNAUTHORIZED` | `Unauthorized` |
+
+#### 4.4.4 未来实现 task 验收口径（草案）
+
+| # | 项 | pass |
+| --- | --- | --- |
+| C1 | `tech_graph_test_manifest_check.py` 增 **双向** 模式（`--check-failure-paths` 或等价） | exit 0 |
+| C2 | 抽样 ≥3 Epic task 与 manifest 行 **一一对应** | 人工 + 脚本 |
+| C3 | 不改 Wiki coverage 真值边界（§4.2） | 审查 |
+
+**非范围（实现 task）**：全仓一次性扫所有历史 task；改 Harness 帽子正文。
+
+#### 4.4.5 Loop 链出
+
+- P2 编排：[`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) §2 R2  
+- 母单：[`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/active/task_harness_wiki_loop_p2_followup_v1.md)
 
 ---
 
@@ -235,6 +279,7 @@ python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')
 | --- | --- |
 | 2026-05-27 | v1 草案：锚点纪律 · `_test_manifest` schema · Phase A/B/C · VERIFY |
 | 2026-05-27 | v1.1：§4.1.1 图谱 CI 互操作 · `test_paths` 仅 glob |
+| 2026-05-27 | v1.2：§4.4 Phase C **design**（P2 Loop R2 · `GOV-L2-PHASE-C-DESIGN`） |
 
 ---
 

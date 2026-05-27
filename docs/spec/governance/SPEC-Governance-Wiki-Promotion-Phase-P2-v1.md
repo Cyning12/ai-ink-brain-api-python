@@ -34,7 +34,7 @@
 | round | task_slug | freeze_id | 交付 |
 | --- | --- | --- | --- |
 | **R1** | `gov-t4-spec-active` | `GOV-T4-SPEC-ACTIVE@2026-05-27` | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) **`draft→active`** · RECENT §6.6 T4 行 · Pilot/扩面 pointer  hygiene |
-| **R2** | `gov-l2-phase-c-design` | `GOV-L2-PHASE-C-DESIGN@2026-05-27` | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) 增 **Phase C** 设计节 · failure_paths ↔ manifest **口径** · **不** 新增校验脚本 |
+| **R2** | `gov-l2-phase-c-design` | `GOV-L2-PHASE-C-DESIGN@2026-05-27` | L2 SPEC **§4.4 Phase C design** · TASK_TEMPLATE pointer · **不** 新增校验脚本（实现另 task） |
 | **R3** | `gov-wiki-ingest-batch-2` | `GOV-WIKI-INGEST-BATCH-2@2026-05-27` | **5 slug** synthesis（累计 syntheses **≥20**）· `index.md` / `log.md` · lint |
 
 **顺序（硬）**：**R1 → R2 → R3 → META**

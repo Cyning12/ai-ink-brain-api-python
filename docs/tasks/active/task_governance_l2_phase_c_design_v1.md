@@ -37,9 +37,9 @@ Phase B manifest CI **done**。Phase C 目标：**task `failure_paths`** ↔ `_t
 
 ## 范围
 
-- [ ] `SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` 增 Phase C 设计（failure_paths 映射表 · 示例 2～3 条）  
-- [ ] `docs/tasks/templates/TASK_TEMPLATE.md` 可选一行 pointer（若已有 failure_paths 字段则链 SPEC）  
-- [ ] Roadmap / P2 SPEC 链回 Phase C 设计节  
+- [x] `SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` 增 Phase C 设计（§4.4 · 示例 3 条）  
+- [x] `docs/tasks/templates/TASK_TEMPLATE.md` pointer 链 §4.4  
+- [x] P2 SPEC §2 R2 行同步  
 
 ## 非范围
 
