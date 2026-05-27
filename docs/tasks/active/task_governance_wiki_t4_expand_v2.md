@@ -134,9 +134,9 @@ python tools/tech_graph_graph_export.py --check
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填） |
+| 涉及文件 | `docs/coding_wiki/syntheses/chatbi-v3-text2sql-tool-latency-obs.md` · `docs/coding_wiki/syntheses/tech-graph-gate-d-v2-tasks.md` · `docs/coding_wiki/CODING_WIKI.md` · `docs/tasks/RECENT_TASK_SCHEDULE.md` |
 | 图谱变更点 | **无**（仅 Wiki frontmatter；禁止手改 `graph.json`） |
-| node id 来源 | `graph_query` / `_manifest.json` 切片 · 22 帽记录 |
+| node id 来源 | `graph_query` 验证：T2S · SSE · U2 · CR1 · E2E_DOC |
 
 ---
 
@@ -144,9 +144,9 @@ python tools/tech_graph_graph_export.py --check
 
 | 项 | 结果 |
 |----|------|
-| 命令 | （待填） |
-| 结论 | pass / fail |
-| 要点 | （待填） |
+| 命令 | `rg -l '^graph_nodes:' docs/coding_wiki/syntheses/` + `graph_query neighbors <id>` ×5 + `manifest_check` + `graph_export --check` |
+| 结论 | **pass** |
+| 要点 | 3 synthesis 含 graph_nodes；5 ids 全 exit 0；manifest/graph_export 绿；未改 api/tests/prompts/CI |
 
 ---
 
