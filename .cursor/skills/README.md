@@ -18,6 +18,8 @@
 |------------|----------------------|
 | [`harness-meta-reinspect/`](harness-meta-reinspect/SKILL.md) | [`docs/tasks/skills/SKILL-harness-meta-reinspect.md`](../../docs/tasks/skills/SKILL-harness-meta-reinspect.md) |
 | [`harness-loop-batch/`](harness-loop-batch/SKILL.md) | [`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../docs/tasks/skills/SKILL-harness-loop-batch.md) |
+| [`docs-governance/`](docs-governance/SKILL.md) | [`docs/tasks/skills/SKILL-docs-governance.md`](../../docs/tasks/skills/SKILL-docs-governance.md) |
+| [`harness-task/`](harness-task/SKILL.md) | [`docs/tasks/skills/SKILL-harness-task.md`](../../docs/tasks/skills/SKILL-harness-task.md) |
 
 ## 修订记录
 
@@ -25,3 +27,4 @@
 |------|------|
 | 2026-05-24 | 初版：双轨说明 + `harness-meta-reinspect`（来源 P2-1 元复检） |
 | 2026-05-26 | 新增 `harness-loop-batch`（Wiki Loop A1–A4 蒸馏） |
+| 2026-05-27 | 新增 `docs-governance`、`harness-task`；`harness-loop-batch` 同步 v1.8 |

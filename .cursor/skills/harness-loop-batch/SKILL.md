@@ -11,8 +11,8 @@ disable-model-invocation: true
 
 # Harness Loop Batch（母单 + 多子 task · 单 PR）
 
-> **便携真值**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../../docs/tasks/skills/SKILL-harness-loop-batch.md)（**v1.5**）  
-> **实例 1**：[`wiki-loop-a1-a4/`](../../../docs/harness/invokes/by-task/wiki-loop-a1-a4/) · **实例 2**：[`wiki-loop-bq3-recheck/`](../../../docs/harness/invokes/by-task/wiki-loop-bq3-recheck/)
+> **便携真值**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../../docs/tasks/skills/SKILL-harness-loop-batch.md)（**v1.8**）  
+> **实例 1–4**：[`wiki-loop-a1-a4/`](../../../docs/harness/invokes/by-task/wiki-loop-a1-a4/) · [`wiki-loop-bq3-recheck/`](../../../docs/harness/invokes/by-task/wiki-loop-bq3-recheck/) · [`wiki-loop-c2-verify/`](../../../docs/harness/invokes/by-task/wiki-loop-c2-verify/) · [`wiki-loop-t4-l2/`](../../../docs/harness/invokes/by-task/wiki-loop-t4-l2/)
 
 ## 何时使用
 
@@ -26,7 +26,7 @@ disable-model-invocation: true
 2. 每帽：**invoke §3 全文（≥15 行 · 含元信息表）+ commit** 后再换帽；R2+ 与 R1 **同标准**，禁止 stub
 3. 新 Loop：复制 `invokes/by-task/<loop-slug>/`，模式名见 SKILL 工件表
 4. 排期/RECENT：**母 task 明示**哪 round 改；非全局定律
-5. **META 关账后**：落盘 `REPORT_completion_*`（§1～§5）；**§6 待你侧后续仅对话** — 见便携真值 §长 Loop 完成汇报
+5. **META 关账后**：落盘 `REPORT_completion_*`（§1～§5）；PR 前跑 [`docs-governance`](../docs-governance/SKILL.md) hygiene H1–H6
 
 ## 流程（三选一）
 
@@ -34,12 +34,14 @@ disable-model-invocation: true
 - **B** 全链一次 + cross-round（推荐；可单会话 R1→META）
 - **C** 断点续跑（PROMPT_LOOP + MANIFEST）
 
-## 可选
+## 相邻 SKILL
 
-- [`harness-meta-reinspect`](../../harness-meta-reinspect/SKILL.md) — META/PR 后流程元复检（C1–C7 全 pass 方可 accepted）
+| SKILL | 关系 |
+|-------|------|
+| [`docs-governance`](../docs-governance/SKILL.md) | 关账后 hygiene H1–H6 |
+| [`harness-task`](../harness-task/SKILL.md) | **单 task** 帽链（非 Loop） |
+| [`harness-meta-reinspect`](../harness-meta-reinspect/SKILL.md) | META/PR 后流程元复检 |
 
 ## 状态
 
-SKILL **`draft`** — 两 Loop + B-Q3 meta-reinspect **条件通过**；**C2 仍 FAIL**（R2/R3 30/40/50 stub），**不得**标 `accepted`  
-invoke 质量门禁 / 过程债矩阵 / 晋升决策树：见便携真值 **§invoke 质量门禁、§两 Loop 过程债矩阵**  
-**第三批已联动**：`PROMPT_LOOP` · `HANDOFF_AUTO_COMMIT` · `HANDOFF_SEMI_AUTO`（见便携真值 §invoke 质量门禁 · 执行层）
+SKILL **`accepted`**（v1.7 第三 Loop C2 Verify）· v1.8 增实例 4 T4+L2 + hygiene 链 · 便携真值见修订记录

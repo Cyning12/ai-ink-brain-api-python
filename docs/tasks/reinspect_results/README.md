@@ -18,8 +18,12 @@
 
 ## 命名
 
-- `reinspect_<主题简写>_YYYYMMDD_vN.md`  
-- 例：`reinspect_docs_tasks_p0_20260522_v1.md`
+- **推荐**：`reinspect_{task_slug}_YYYYMMDD_vN.md`（`task_slug` 与 task 头字段 / invoke 元信息 **一致**）  
+- **示例**：`reinspect_wiki-t4-r1-pilot_20260527_v1.md` · `reinspect_gov-l2-r3-test-manifest_20260527_v1.md`  
+- **禁止**：`reinspec_`（缺 `t`）等 typo；`_views/done.md` 链须与文件名一致  
+- **legacy**：`reinspect_<主题简写>_YYYYMMDD_vN.md`（旧 task 可保留，新 task **优先 task_slug**）
+
+详见 [`../skills/SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md) §H1。
 
 ---
 
