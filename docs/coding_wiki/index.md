@@ -44,7 +44,7 @@
 | `governance-wiki-agent-readorder` | [[syntheses/governance-wiki-agent-readorder]] | `docs/tasks/done/task_governance_wiki_agent_readorder_v1.md` |
 | `governance-wiki-ingest-batch` | [[syntheses/governance-wiki-ingest-batch]] | `docs/tasks/done/task_governance_wiki_ingest_batch_v1.md` |
 | `coding-wiki-t1c-test-archive` | [[syntheses/coding-wiki-t1c-test-archive]] | `docs/tasks/done/task_coding_wiki_t1c_test_archive_v1.md` |
-| `harness-wiki-loop-p2-followup` | [[syntheses/harness-wiki-loop-p2-followup]] | `docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md` |
+| `harness-wiki-loop-p2-followup` | [[syntheses/harness-wiki-loop-p2-followup]] | `docs/tasks/done/task_harness_wiki_loop_p2_followup_v1.md` |
 
 ---
 

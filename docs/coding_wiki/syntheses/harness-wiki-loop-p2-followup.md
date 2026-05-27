@@ -2,7 +2,7 @@
 title: Wiki Loop P2 后续（编排母单）
 slug: harness-wiki-loop-p2-followup
 layer: L2
-source_task: docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md
+source_task: docs/tasks/done/task_harness_wiki_loop_p2_followup_v1.md
 freeze_id: WIKI-LOOP-P2-FOLLOWUP@2026-05-27
 closed_date: 2026-05-27
 status: compiled
@@ -16,5 +16,5 @@ status: compiled
 
 ## 指针（L1）
 
-→ `docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md`（META 关账后改 `done/`）  
+→ `docs/tasks/done/task_harness_wiki_loop_p2_followup_v1.md`  
 → `docs/spec/governance/SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`
