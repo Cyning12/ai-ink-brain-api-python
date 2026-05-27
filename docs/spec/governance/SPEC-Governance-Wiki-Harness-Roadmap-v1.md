@@ -101,7 +101,9 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **Wiki 试点 task** | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | 交付 `coding_wiki/`（**done**） |
 | **AB task** | `docs/tasks/done/task_wiki_ctx_ab_v1.md` | scorecard + conclusion（P1+P2 **done**） |
 | **T4 专文** | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | Wiki↔图谱桥接（**draft**） |
-| **L2 工具链专文** | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | 锚点/测试 manifest（**draft**） |
+| **L2 工具链专文** | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | 锚点/测试 manifest · Phase B **done** |
+| **Agent 读序** | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) | P2 签收 → `AGENTS.md` 常模化 |
+| **Ingest 批量** | [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-v1.md) | 10 slug · syntheses≥15 |
 | **ChatBI SDD** | `docs/spec/v3-agent/*` | 业务行为；**不**替代治理线 |
 
 ---
@@ -123,8 +125,10 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P1** | T1c 扩域 | 选 1～2 个 **测试相关 done task** ingest；可选 `concepts/test-strategy-ink-backend`；`decisions/` 首条 append | `CODING_WIKI` §8 |
 | **P1** | 多 slug AB | 对 `tech-graph-gate-d-v2-tasks` 等再跑 **对照实验二**（精简 Harness 包 vs 仅 Wiki），削弱「单 Epic 外推」局限 | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md) · B-Q3 Recheck 后 slug B W 4/4） |
 | **P1** | B-Q3 Recheck Loop | 重物化 W 载荷 + conclusion/#46 同步 | **done**（2026-05-26 · [`task_harness_wiki_loop_bq3_recheck_v1.md`](../../tasks/done/task_harness_wiki_loop_bq3_recheck_v1.md)） |
-| **P2** | L2 工具链 | 锚点 + `_test_manifest` | **draft** · [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) |
-| **P2** | T4 | Wiki `graph_nodes` ↔ L0 | **draft** · [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) |
+| **P2** | L2 工具链 Phase B | manifest CI | **done** · [`task_governance_l2_manifest_ci_v1.md`](../../tasks/done/task_governance_l2_manifest_ci_v1.md) |
+| **P2** | T4 | Wiki `graph_nodes` ↔ L0 | 扩面 **done** · SPEC **draft** |
+| **P1** | Agent 读序 | `AGENTS.md` 常模化 | **active** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/active/task_governance_wiki_agent_readorder_v1.md) |
+| **P1** | Ingest 批量 | 10 slug | **active** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/active/task_governance_wiki_ingest_batch_v1.md) |
 | **P3** | P1-4 | 前端 Harness parity | 远期 |
 
 ---
