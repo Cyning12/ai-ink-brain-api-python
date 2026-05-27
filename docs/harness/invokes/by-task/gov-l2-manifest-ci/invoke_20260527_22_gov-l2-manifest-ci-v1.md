@@ -4,7 +4,7 @@
 > | 字段 | 值 |
 > |------|-----|
 > | hat | 22 |
-> | task | `docs/tasks/active/task_governance_l2_manifest_ci_v1.md` |
+> | task | `docs/tasks/done/task_governance_l2_manifest_ci_v1.md` |
 > | task_slug | gov-l2-manifest-ci |
 > | freeze_id | GOV-L2-MANIFEST-CI@2026-05-27 |
 > | git_branch | task/gov-l2-manifest-ci-v1 |
@@ -46,6 +46,27 @@
 
 审查文档：`docs/harness/reviews/by-task/gov-l2-manifest-ci/task_governance_l2_manifest_ci_audit_R1_20260527.md`
 
+### 3.1 审查结论摘要
+
+- **结论**：无阻塞 · 可进入 30 执行编码。
+- **SPEC 对齐**：L2 §4.3 Phase B — manifest 扩面、脚本 schema/glob、`--strict` 可选、CI 同 job Required。
+- **人工闸**：HG-TASK-DRAFT / HG-AUDIT-R1 / HG-CI-WORKFLOW 均已 approved。
+
+### 3.2 关键核对项（12/12 pass）
+
+| 域 | 核对 |
+|----|------|
+| 范围 | 6→≥12 entries · 新脚本 · pytest · workflow step · 99_spec |
+| 非范围 | 不改 api/ 业务 · 不手改 graph.json · 不碰 prompts |
+| 前置 | Phase A 6 entries 已存在 · `tech_graph_manifest_check.py` 可参照 |
+| 验收 | task §VERIFY 7 条命令可执行 · test_strategy=recommended → 50 必须 |
+
+### 3.3 对应 commit
+
+| 帽 | commit | 摘要 |
+|----|--------|------|
+| 22 | `13d58d7` | review + invoke_22 落盘 |
+
 ---
 
 ## §4 执行路线
@@ -66,7 +87,7 @@
 你正在执行 gov-l2-manifest-ci **30 执行编码**。
 
 【必读】
-- docs/tasks/active/task_governance_l2_manifest_ci_v1.md
+- docs/tasks/done/task_governance_l2_manifest_ci_v1.md
 - docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md §4.3 Phase B
 - docs/_tech_graph/_test_manifest.json（现有 6 entries）
 - tools/tech_graph_manifest_check.py（参照脚本）

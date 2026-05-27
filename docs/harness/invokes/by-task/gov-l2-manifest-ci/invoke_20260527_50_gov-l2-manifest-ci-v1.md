@@ -4,7 +4,7 @@
 > | 字段 | 值 |
 > |------|-----|
 > | hat | 50 |
-> | task | `docs/tasks/active/task_governance_l2_manifest_ci_v1.md` |
+> | task | `docs/tasks/done/task_governance_l2_manifest_ci_v1.md` |
 > | task_slug | gov-l2-manifest-ci |
 > | freeze_id | GOV-L2-MANIFEST-CI@2026-05-27 |
 > | git_branch | task/gov-l2-manifest-ci-v1 |
@@ -46,7 +46,37 @@
 
 ---
 
-## §3 下一棒
+## §3 关账指引
 
-**关账**：git mv → done/ + `_views/done.md` 更新 + CLOSE invoke + hygiene H1–H5。
+| 帽 | commit | 摘要 |
+|----|--------|------|
+| 50 | `40f6b28` | 独立复检 7/7 pass · 建议合并 |
 
+### 3.1 ST5 关账 checklist（原执行 · PR #70 已 merge）
+
+- [x] reinspect 落盘
+- [x] invoke_50 落盘
+- [x] `git mv` → `docs/tasks/done/`
+- [x] `_views/done.md` 索引
+- [x] CLOSE invoke + HANDOFF_CLOSE_TRACE
+- [x] task 头部 `done` + 验收 `- [x]` → **hygiene 补债已完成**（PR #70 后 · `PROMPT_RETRO` Part A）
+
+### 3.2 下一棒
+
+**关账**（原链已完成）→ 业务 PR #70 已 merge；后续仅补 Harness hygiene 文档债。
+
+---
+
+## §4 状态栏
+
+```text
+📋 Harness 状态栏（版本 B）
+├── 当前帽：50 · 独立复检
+├── task：task_governance_l2_manifest_ci_v1.md · audit_profile：post_close
+├── 分支：task/gov-l2-manifest-ci-v1
+├── human_gate：HG-TASK-DRAFT approved · HG-AUDIT-R1 approved · HG-CI-WORKFLOW approved
+├── 本棒交付：7/7 VERIFY pass · reinspect 落盘 · 建议合并
+├── 下一棒：关账（原链）· hygiene 补债（追溯）
+├── 推荐：PR #70 已 merge
+└── 阻塞：无
+```
