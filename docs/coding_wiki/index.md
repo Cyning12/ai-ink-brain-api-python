@@ -40,6 +40,11 @@
 | `harness-wiki-loop-c2-verify` | [[syntheses/harness-wiki-loop-c2-verify]] | `docs/tasks/done/task_harness_wiki_loop_c2_verify_v1.md` |
 | `governance-wiki-t4-r1-pilot` | [[syntheses/governance-wiki-t4-r1-pilot]] | `docs/tasks/done/task_governance_wiki_t4_r1_pilot_v1.md` |
 | `wiki-ctx-ab-multi-slug` | [[syntheses/wiki-ctx-ab-multi-slug]] | `docs/tasks/done/task_wiki_ctx_ab_multi_slug_v1.md` |
+| `wiki-ctx-ab-representative` | [[syntheses/wiki-ctx-ab-representative]] | `docs/tasks/done/task_governance_wiki_ctx_ab_representative_v1.md` |
+| `governance-wiki-agent-readorder` | [[syntheses/governance-wiki-agent-readorder]] | `docs/tasks/done/task_governance_wiki_agent_readorder_v1.md` |
+| `governance-wiki-ingest-batch` | [[syntheses/governance-wiki-ingest-batch]] | `docs/tasks/done/task_governance_wiki_ingest_batch_v1.md` |
+| `coding-wiki-t1c-test-archive` | [[syntheses/coding-wiki-t1c-test-archive]] | `docs/tasks/done/task_coding_wiki_t1c_test_archive_v1.md` |
+| `harness-wiki-loop-p2-followup` | [[syntheses/harness-wiki-loop-p2-followup]] | `docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md` |
 
 ---
 

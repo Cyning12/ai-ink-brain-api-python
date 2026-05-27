@@ -1,6 +1,6 @@
 # Task：治理 — Coding Wiki 批量 Ingest 第二批（5 slug · P2 Loop · R3）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-WIKI-INGEST-BATCH-2@2026-05-27）  
 > **round**：**R3** · 母单 [`task_harness_wiki_loop_p2_followup_v1.md`](task_harness_wiki_loop_p2_followup_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](../spec/governance/SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) §3 · Batch-1 [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](../spec/governance/SPEC-Governance-Wiki-Ingest-Batch-v1.md)
 
@@ -55,9 +55,9 @@ Batch-1 后 syntheses **15** 篇。本 round 再 ingest **5 slug**，累计 **�
 
 ## 验收标准
 
-- [ ] `HG-INGEST-BATCH-2-SCOPE` **approved**  
-- [ ] syntheses 文件数 **≥20**  
-- [ ] invoke C2 全绿 · task **`done/`**  
+- [x] `HG-INGEST-BATCH-2-SCOPE` **approved**（母单）  
+- [x] syntheses 文件数 **≥20**（20）  
+- [x] invoke C2 全绿 · task **`done/`**  
 
 ---
 
