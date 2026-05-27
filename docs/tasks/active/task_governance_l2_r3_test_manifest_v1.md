@@ -97,11 +97,18 @@ python tools/tech_graph_graph_export.py --check
 
 | 项 | 内容 |
 | --- | --- |
-| entry ids | |
-| commits | |
+| entry ids | FP-RAG-DB-DISCONNECT, FP-UNIFIED-INVALID-JSON, FP-CODE-RETRIEVAL-UNAUTHORIZED, FP-SQL-GATE-DENIED, FP-QUERY-REWRITE-ANCHOR-LOST, FP-HEALTH-PROBE-FAIL |
+| commits | b3c7770 (30 交付), 23e01c6 (30 invoke) |
 
 ### 自检结论（执行者）
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| | | |
+| _test_manifest.json 存在 | pass | `test -f` exit 0 |
+| entries ≥ 5 | pass | 6 entries |
+| manifest_check | pass | exit 0 |
+| graph_export --check | pass | exit 0 |
+| 99_spec 测试 manifest 小节 | pass | `+L2 · _test_manifest` 小节 |
+| CODING_WIKI §8 链 L2 SPEC | pass | 1 行替换 |
+| RECENT §6.6 done | pass | T4+L2 → done |
+| graph_nodes_optional ≥ 1 | pass | 3 条（C1, RAG） |
