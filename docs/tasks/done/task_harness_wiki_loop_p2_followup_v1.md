@@ -1,7 +1,7 @@
 # Task：Wiki Loop P2 后续 — 单 PR 编排母单（第五轮 · 推广线）
 
-> **状态**：draft  
-> **META 关账日期**：（三轮子 task 均 `done/` 后）  
+> **状态**：done（2026-05-27 · WIKI-LOOP-P2-FOLLOWUP@2026-05-27）  
+> **META 关账日期**：2026-05-27  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)（第五轮 · **T4 active + L2 Phase C 设计 + Ingest-2**）  
 > **治理 SPEC**：[`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](../spec/governance/SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md)  
 > **10 帽 Batch**：[`docs/harness/invokes/by-task/wiki-loop-p2-followup/PROMPT_BATCH_10_p2_followup_v1.md`](../harness/invokes/by-task/wiki-loop-p2-followup/PROMPT_BATCH_10_p2_followup_v1.md)

@@ -89,4 +89,5 @@
 - `../done/task_governance_t4_spec_active_v1.md`（2026-05-27 验收通过：P2 Loop R1 · T4 Bridge SPEC draft→active · `reinspect_gov-t4-spec-active_20260527_v1.md` · `freeze_id` `GOV-T4-SPEC-ACTIVE@2026-05-27` · 单 PR `task/wiki-loop-p2-followup-v1`）
 - `../done/task_governance_l2_phase_c_design_v1.md`（2026-05-27 验收通过：P2 Loop R2 · L2 Phase C design §4.4 · `reinspect_gov-l2-phase-c-design_20260527_v1.md` · `GOV-L2-PHASE-C-DESIGN@2026-05-27`）
 - `../done/task_governance_wiki_ingest_batch_2_v1.md`（2026-05-27 验收通过：P2 Loop R3 · Batch-2 5 slug · syntheses 20 · `reinspect_gov-wiki-ingest-batch-2_20260527_v1.md` · `GOV-WIKI-INGEST-BATCH-2@2026-05-27`）
+- `../done/task_harness_wiki_loop_p2_followup_v1.md`（2026-05-27 验收通过：P2 Loop 母单 META · R1–R3 · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · REPORT `wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md`）
 
