@@ -1,6 +1,6 @@
 # Task：治理 — Wiki-CTX-AB 代表性扩面（6 slug · P2）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 验收通过 · WIKI-CTX-AB-REP@2026-05-27 · accepted 部分外推）  
 > **前置**：P2 [`conclusion_p2_zh.md`](../harness/experiments/wiki_ctx_ab_v1/conclusion_p2_zh.md) · Multi [`task_wiki_ctx_ab_multi_slug_v1.md`](../done/task_wiki_ctx_ab_multi_slug_v1.md) · 读序+ingest **done**  
 > **SPEC**：[`SPEC-Governance-Wiki-CTX-AB-Representative-v1.md`](../spec/governance/SPEC-Governance-Wiki-CTX-AB-Representative-v1.md)  
 > **SKILL**：[`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · [`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md)
@@ -66,12 +66,12 @@
 
 ## 范围
 
-- [ ] 6 slug × H-lean/W 物化（`docs/harness/experiments/wiki_ctx_ab_representative_v1/payloads/`）
-- [ ] 按 [`questions.md`](../harness/experiments/wiki_ctx_ab_representative_v1/questions.md) 跑题填表
-- [ ] [`scorecard.md`](../harness/experiments/wiki_ctx_ab_representative_v1/scorecard.md) 聚合 T7/T8
-- [ ] [`conclusion_representative_zh.md`](../harness/experiments/wiki_ctx_ab_representative_v1/conclusion_representative_zh.md)
-- [ ] 更新 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` #46 行（附条件外推）
-- [ ] 22/30/40/50 + reinspect + 关账
+- [x] 6 slug × H-lean/W 物化（`docs/harness/experiments/wiki_ctx_ab_representative_v1/payloads/`）
+- [x] 按 [`questions.md`](../harness/experiments/wiki_ctx_ab_representative_v1/questions.md) 跑题填表
+- [x] [`scorecard.md`](../harness/experiments/wiki_ctx_ab_representative_v1/scorecard.md) 聚合 T7/T8
+- [x] [`conclusion_representative_zh.md`](../harness/experiments/wiki_ctx_ab_representative_v1/conclusion_representative_zh.md)
+- [x] 更新 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` #46 行（附条件外推）
+- [x] 22/30/40/50 + reinspect + 关账
 
 ## 非范围
 
@@ -137,8 +137,8 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 结果 |
 |----|------|
-| 命令 | 30 帽填表；40 帽 `ls payloads` + `test -f conclusion` + `tech_graph_manifest_check` |
-| 结论 | pass（30 草稿） |
+| 命令 | `ls …/H-lean_*.md \| wc -l` → 6；`ls …/W_*.md \| wc -l` → 6；`test -f conclusion_representative_zh.md` → ok；`python tools/tech_graph_manifest_check.py` → OK |
+| 结论 | **pass** |
 
 ---
 
