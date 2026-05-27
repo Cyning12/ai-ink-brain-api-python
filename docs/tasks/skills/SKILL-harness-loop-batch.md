@@ -1,7 +1,7 @@
 # SKILL：Harness Loop Batch（母单 + 多子 task · 单 PR）
 
 > **SKILL ID**：`harness-loop-batch`  
-> **状态**：`accepted` — 人审于 2026-05-27 晋升。三 Loop 实例（A1–A4、B-Q3 Recheck、C2 Verify）+ meta-reinspect；实例 3（C2 Verify）C1–C7 全 pass。第四轮真实业务 Loop 作为回归测试兼 SKILL 验收后首跑，进行中。  
+> **状态**：`accepted` — 人审于 2026-05-27 晋升。实例 1–3 + **实例 4（T4+L2 · 2026-05-27）** C1–C7 全 pass（Claude Code 全链续跑验证）。关账 hygiene 通用项见 [`SKILL-docs-governance.md`](SKILL-docs-governance.md) §关账后文档 hygiene。  
 > **适用阶段**：10 帽 **Batch 一次** → 各子 round **22→30→40→50→关账** → 母单 **META** 关账；**禁止**执行阶段再开 10。  
 > **Cursor 项目 skill**：[`.cursor/skills/harness-loop-batch/SKILL.md`](../../../.cursor/skills/harness-loop-batch/SKILL.md)。
 
@@ -13,6 +13,8 @@
 |------|------|------|
 | **实例 1（试点）** | 第一次完整 Loop | task：[`../done/task_harness_wiki_loop_a1_a4_v1.md`](../done/task_harness_wiki_loop_a1_a4_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-a1-a4/`](../../harness/invokes/by-task/wiki-loop-a1-a4/) |
 | **实例 2（第二 Loop）** | B-Q3 Recheck + meta-reinspect | task：[`../done/task_harness_wiki_loop_bq3_recheck_v1.md`](../done/task_harness_wiki_loop_bq3_recheck_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-bq3-recheck/`](../../harness/invokes/by-task/wiki-loop-bq3-recheck/) · meta-reinspect：[`../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) |
+| **实例 3（第三 Loop）** | C2 Verify · invoke C2 门禁 | task：[`../done/task_harness_wiki_loop_c2_verify_v1.md`](../done/task_harness_wiki_loop_c2_verify_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-c2-verify/`](../../harness/invokes/by-task/wiki-loop-c2-verify/) · REPORT：[`REPORT_completion_20260526_v1.md`](../../harness/invokes/by-task/wiki-loop-c2-verify/REPORT_completion_20260526_v1.md) |
+| **实例 4（第四 Loop）** | T4+L2 真实业务 · 3 round | task：[`../done/task_harness_wiki_loop_t4_l2_v1.md`](../done/task_harness_wiki_loop_t4_l2_v1.md) · invoke：[`../../harness/invokes/by-task/wiki-loop-t4-l2/`](../../harness/invokes/by-task/wiki-loop-t4-l2/) · REPORT：[`REPORT_completion_20260527_v1.md`](../../harness/invokes/by-task/wiki-loop-t4-l2/REPORT_completion_20260527_v1.md) |
 | **新 Loop 实例** | 从试点 **复制改编** 到 | `docs/harness/invokes/by-task/<loop-slug>/` |
 | **本 SKILL** | 模式与字段真值；**不**替代实例目录内 Prompt 正文 | 本文 |
 
@@ -246,7 +248,7 @@ docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md
 |---|------|----------|
 | **1** | 任务定位 | 分支 · 执行模式（semi_auto/cross-round）· 主验收目标 · 业务性质（docs-only 等） |
 | **2** | 核心成果 | 按 round 或主题列交付（如 C2、RECENT、README、invoke 链） |
-| **3** | Harness 工件链 | review / reinspect / invoke 数量与目录 |
+| **3** | Harness 工件链 | review / reinspect / invoke 数量与目录（**计数**：N×(22/30/40/50) + N×CLOSE + **META CLOSE**；不含 Batch-10 invoke） |
 | **4** | Commit 回溯 | 帽链 commit 表或「见 META CLOSE invoke」+ 关键 short-hash |
 | **5** | 验收项核对 | task §验收 / VERIFY 命令结果 · pass/fail 表 |
 
@@ -267,6 +269,15 @@ docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md
 - [ ] META CLOSE invoke 与 REPORT 互相链接  
 
 **首份样例**：[`wiki-loop-c2-verify/REPORT_completion_20260526_v1.md`](../../harness/invokes/by-task/wiki-loop-c2-verify/REPORT_completion_20260526_v1.md)
+
+**第二份样例（真实业务 · 3 round）**：[`wiki-loop-t4-l2/REPORT_completion_20260527_v1.md`](../../harness/invokes/by-task/wiki-loop-t4-l2/REPORT_completion_20260527_v1.md)
+
+### Loop 关账后 hygiene（PR 前）
+
+| 层 | 动作 |
+|----|------|
+| **通用** | [`SKILL-docs-governance.md`](SKILL-docs-governance.md) §关账后文档 hygiene **H1–H6**（reinspect 名、`_views`、RECENT §8/§6.6 等） |
+| **Loop 专有** | 本实例 `README.md` 验收说明 + 链 `REPORT_completion_*`；META 后 **禁止**把 §6（开 PR 等）写入 REPORT |
 
 ---
 
@@ -353,6 +364,8 @@ accepted 须同时满足其一：
 | 【授权】写在 PROMPT_LOOP 模板 | 迁至 PROMPT_START；模板只描述单 round |
 | 多帽结束不 commit | 每帽 HANDOFF_AUTO_COMMIT |
 | 每 round 改 RECENT | **仅**母 task 指定 round 改排期 |
+| 非 Cursor Agent 续跑失败 | R1·22 含 `cross_round_semi_auto`；**各 round CLOSE invoke §3** 含下一 round task/slug/freeze_id（实例 4 验证） |
+| META 后索引 typo / RECENT 漏改 | PR 前跑 [`SKILL-docs-governance`](SKILL-docs-governance.md) hygiene |
 
 ---
 
@@ -360,8 +373,8 @@ accepted 须同时满足其一：
 
 | SKILL | 关系 |
 |-------|------|
-| [`docs-governance`](SKILL-docs-governance.md) | 子 task 若为纯 docs，范围/非范围可叠加 |
-| [`harness-task`](SKILL-harness-task.md) | 改 prompts/模板用 harness-task，非本 SKILL |
+| [`docs-governance`](SKILL-docs-governance.md) | 子 task 纯 docs **+ META/关账后 hygiene H1–H6** |
+| [`harness-task`](SKILL-harness-task.md) | **单 task** 帽链；改 prompts/模板用 harness-task，非本 SKILL |
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | META 关账 / PR 合并后 **可选**流程元复检；B-Q3 已落盘 [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) → **条件通过**（C2 fail，**不**等于 accepted） |
 
 ---
@@ -376,7 +389,8 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.3：三方测评吸收 — Batch-10 §必含、META 判定表、HG-LOOP-BATCH 口径、F5、C2/C3 阻断警告 |
 | 2026-05-26 | v1.4：第二 Loop 试点关账（Wiki Loop B-Q3 Recheck · `task/wiki-loop-bq3-recheck-v1`）— **status 仍 draft** |
 | 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
-| 2026-05-27 | v1.7：第三 Loop（C2 Verify）C1–C7 全 pass · **人审晋升 `accepted`** · 启动第四轮真实业务 Loop 作为回归测试 |
+| 2026-05-27 | v1.7：第三 Loop（C2 Verify）C1–C7 全 pass · **人审晋升 `accepted`** |
+| 2026-05-27 | v1.8：实例 4 T4+L2 · 链 `docs-governance` hygiene · `harness-task` 单 task 索引 · REPORT invoke 计数 · 非 Cursor 续跑 |
 | 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |
 | 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |
 | 2026-05-26 | v1.6：§长 Loop 完成汇报 — `REPORT_completion_*` 落盘 §1～§5 · §6 仅对话；链 HANDOFF / PROMPT_LOOP 步骤 7 |

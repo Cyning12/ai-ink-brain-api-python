@@ -1,7 +1,7 @@
 # CODING_WIKI.md — LLM Wiki Schema（本仓）
 
 > **freeze_id**：`CODING-WIKI-PILOT@2026-05-25`  
-> **治理 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)  
+> **治理 SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) · **T4 桥接**：[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md)  
 > **指导意见**：工作区 `Projects/docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`  
 > **需求对比（理论 / SPEC / 交付 / 缺口）**：[`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)
 
@@ -47,6 +47,7 @@ docs/coding_wiki/
 | `source_task` | syntheses 必填 | 相对子仓根，指向 `docs/tasks/done/...` |
 | `closed_date` 或 `freeze_id` | 至少其一 | 关账锚点 |
 | `status` | 是 | `compiled` \| `stub` \| `deprecated` |
+| `graph_nodes` | 否 | **T4** 可选；`id` + `relation` + 可选 `note` / `manifest_ref`（见 T4 SPEC §3） |
 
 ---
 
@@ -62,8 +63,9 @@ docs/coding_wiki/
 ### 4.2 Query
 
 1. 先读 `index.md` → 按主题打开 1～3 页。  
-2. 需影响面/依赖遍历 → **并行** 使用 `python tools/tech_graph_graph_query.py`（L0），不以 Wiki 替代。  
-3. 答案可写回 Wiki 时：小改直接编辑；大改走新 task + 再 ingest。
+2. 若 frontmatter 含 `graph_nodes`：记下种子 `id`，对每个 id 执行 `python tools/tech_graph_graph_query.py neighbors <id>`，再按需 `downstream`/`upstream`。  
+3. 需影响面/依赖遍历 → **并行** 使用 `graph_query`（L0），不以 Wiki 替代。  
+4. 答案可写回 Wiki 时：小改直接编辑；大改走新 task + 再 ingest。
 
 ### 4.3 Lint
 
@@ -73,6 +75,8 @@ docs/coding_wiki/
 | `source_task` 404 | 修正路径或标 `deprecated` |
 | 与 `freeze_id` 矛盾 | 标「待人工」，禁止 syntheses 当真值 |
 | 复制 Harness `prompts/` 全文 | 删正文，改 pointer |
+| `graph_nodes[].id` 不在 graph_v2 | `graph_query neighbors <id>` exit 4 → 修 id 或删项 |
+| `graph_nodes[].relation` 非法 | 须在 T4 SPEC §3.1 表内 |
 
 ---
 
@@ -91,6 +95,7 @@ docs/coding_wiki/
 | `docs/harness/prompts/` 帽子全文 | `concepts/` 流程概念 + 链 README |
 | `reviews/` 全文 | 摘要 + `→ docs/harness/reviews/by-task/...` |
 | Mermaid 边 / `graph.json` | prose + 链 `_tech_graph`；影响集用 graph_query |
+| `graph_nodes` 机器轨 | frontmatter 种子 + `graph_query`；**禁止** 手改 `graph.json` |
 
 ---
 
@@ -121,7 +126,7 @@ Wiki **不**执行、不替代 pytest / CI / 覆盖率统计，也**不**维护�
 | `concepts/` | 跨 Epic 测试策略演进（如 ChatBI 分级闸门、smoke → e2e） |
 | `log.md` | `YYYY-MM-DD \| ingest \| <slug> \| 测试 +2 -1` |
 
-**与图谱测评 L2 工具链的关系**（见治理仓 `11_REVIEW_L3_L2理论层缺口分析`）：`_test_manifest`、锚点校验等负责 **机器校验**；Wiki 负责 **人/Agent 读懂「为何这样测」** 并 pointer 到 L0 `ERR_*` 与 L1 `failure_paths`。
+**与图谱测评 L2 工具链的关系**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) · `_test_manifest.json`、锚点校验等负责 **机器校验**；Wiki 负责 **人/Agent 读懂「为何这样测」** 并 pointer 到 L0 `ERR_*` 与 L1 `failure_paths`。
 
 **ingest 纪律**：仅 **done** 且与测试交付相关的 task 写入 synthesis；进行中调整只记 `log.md` 一行。
 
@@ -162,3 +167,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-26 | §7 试点定位；§8 测试迭代档案；§9 Raw/sources 启用条件 |
 | 2026-05-26 | 链出 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
 | 2026-05-26 | §8.1 `api/` Epic `test_strategy` ingest 纪律（Wiki Loop A2 · `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`） |
+| 2026-05-27 | T4：`graph_nodes` frontmatter · query/lint · 链 Bridge SPEC |

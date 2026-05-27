@@ -27,9 +27,9 @@
 | [`api-endpoint`](SKILL-api-endpoint.md) | 30 执行前 | 路由契约、`_contract_manifest` 切片、关联 SPEC | 范围：路由 + handler + 测试 + 契约同步；`test_strategy: required` |
 | [`bug-fix`](SKILL-bug-fix.md) | 30 执行前 | 复现步骤、日志/失败测试 | 范围：根因 + 最小修复 + 回归测试；禁止顺带重构 |
 | [`refactor-module`](SKILL-refactor-module.md) | 10 / 22 规划 | 模块边界、调用点清单 | 范围：迁移 + 测试适配；非范围：业务逻辑/API 契约变更；`test_strategy: recommended` |
-| [`docs-governance`](SKILL-docs-governance.md) | 10 / 30 | 目录/索引变更范围 | 范围：文档移动 + 链接修复；非范围：代码/CI；`test_strategy: not_applicable` + note |
-| [`tech-graph-update`](SKILL-tech-graph-update.md) | 30 执行前 | 受影响 `.ai.md`、manifest/contract | 范围：维护轨 + 机器轨导出；验收含 `tech_graph_*_check` |
-| [`harness-task`](SKILL-harness-task.md) | 10 需求帽 | prompts/模板/rules 变更点 | 范围：Harness 工件；非范围：业务代码；**`audit_profile: full`** |
+| [`docs-governance`](SKILL-docs-governance.md) | 10 / 30 / **关账 hygiene** | 目录/索引变更范围 | 范围：文档 + `_views`/RECENT/reinspect 名；`test_strategy: not_applicable` · **v1 草案** |
+| [`tech-graph-update`](SKILL-tech-graph-update.md) | 30 执行前 | 受影响 `.ai.md`、manifest/contract | 范围：维护轨 + 机器轨导出；验收含 `tech_graph_*_check`（文件待建） |
+| [`harness-task`](SKILL-harness-task.md) | **22 起 · 单 task** | active task + Harness 模板 | 帽链索引 · 落盘路径 · 关账 checklist · **非 Loop** · **v1 草案** |
 | [`harness-loop-batch`](SKILL-harness-loop-batch.md) | 10 Batch + Loop 执行 | 母单 + N 子 task、单 PR、`LOOP_MANIFEST` | Batch-10 一次；22→关账 × N；`HG-LOOP-BATCH`；cross-round 授权仅 `PROMPT_START` |
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
 | [`pr-post-ci`](SKILL-pr-post-ci.md) | 开 PR / push 后 | PR 号、是否 docs-only | CI 监听、body/Test plan 同步、`automerge` 白名单；见 `SPEC-Governance-PR-Post-CI-v1` |
@@ -96,3 +96,4 @@ docs/tasks/skills/
 | 2026-05-26 | 新增 `harness-loop-batch`（Wiki Loop 关账蒸馏 · `draft`） |
 | 2026-05-26 | `harness-loop-batch` v1.1：人审泛化（R1…Rn、模式文件名、三选一流程） |
 | 2026-05-26 | `harness-loop-batch` v1.2：META 关账、合规自检、试点过程债、accepted 晋升 |
+| 2026-05-27 | 新增 `SKILL-docs-governance`、`SKILL-harness-task` 草案（T4+L2 Loop 蒸馏）；`reinspect_results/README` 命名；loop-batch v1.8 |
