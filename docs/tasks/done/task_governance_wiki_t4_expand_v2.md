@@ -1,6 +1,6 @@
 # Task：治理 — T4 Wiki `graph_nodes` 扩面（Post-Pilot）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-T4-EXPAND@2026-05-27）  
 > **前置**：Wiki Loop T4+L2 **实例 4** R1 Pilot · [`task_governance_wiki_t4_r1_pilot_v1.md`](../done/task_governance_wiki_t4_r1_pilot_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md)  
 > **SKILL**：[`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md) · [`SKILL-harness-task.md`](../skills/SKILL-harness-task.md)（**单 task**，非 Loop）
@@ -62,11 +62,11 @@ Loop 实例 4 **R1** 仅完成 **1 篇** Pilot（`query-rewrite-observability`�
 
 ### 交付清单
 
-- [ ] 上述 2 篇 `docs/coding_wiki/syntheses/*.md`：`graph_nodes` + 一行 L0 pointer（Bridge SPEC §4.1 读序）。  
-- [ ] [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md)：§3/§4 增「T4 扩面覆盖表」或更新 lint 说明（列出已覆盖 slug）。  
-- [ ] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §6.6 T4 行 + §8 修订一行。  
-- [ ] 22/30/40/50 invoke + review + reinspect（单 task 标准 · invoke §3 ≥15 行）。  
-- [ ] 关账 hygiene：[`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md) H1–H5。
+- [x] 上述 2 篇 `docs/coding_wiki/syntheses/*.md`：`graph_nodes` + 一行 L0 pointer（Bridge SPEC §4.1 读序）。  
+- [x] [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md)：§3/§4 增「T4 扩面覆盖表」或更新 lint 说明（列出已覆盖 slug）。  
+- [x] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §6.6 T4 行 + §8 修订一行。  
+- [x] 22/30/40/50 invoke + review + reinspect（单 task 标准 · invoke §3 ≥15 行）。  
+- [x] 关账 hygiene：[`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md) H1–H5。
 
 ### 可选（有余力）
 
@@ -107,13 +107,13 @@ Loop 实例 4 **R1** 仅完成 **1 篇** Pilot（`query-rewrite-observability`�
 
 ## 验收标准
 
-- [ ] `rg -l '^graph_nodes:' docs/coding_wiki/syntheses/*.md | wc -l` **≥ 3**  
-- [ ] 扩面 2 slug 各 ≥2 个合法 `graph_nodes` 项  
-- [ ] 对每个新增 id：`python tools/tech_graph_graph_query.py neighbors <id>` → **exit 0**  
-- [ ] `python tools/tech_graph_manifest_check.py` · `graph_export --check` 仍绿（未误改 L0）  
-- [ ] `docs/harness/reviews/by-task/gov-wiki-t4-expand/` 有 22 R1  
-- [ ] `docs/tasks/reinspect_results/reinspect_gov-wiki-t4-expand_YYYYMMDD_v1.md`  
-- [ ] 关账：`done/` + `_views/done.md` + RECENT §8
+- [x] `rg -l '^graph_nodes:' docs/coding_wiki/syntheses/*.md | wc -l` **≥ 3**  
+- [x] 扩面 2 slug 各 ≥2 个合法 `graph_nodes` 项  
+- [x] 对每个新增 id：`python tools/tech_graph_graph_query.py neighbors <id>` → **exit 0**  
+- [x] `python tools/tech_graph_manifest_check.py` · `graph_export --check` 仍绿（未误改 L0）  
+- [x] `docs/harness/reviews/by-task/gov-wiki-t4-expand/` 有 22 R1  
+- [x] `docs/tasks/reinspect_results/reinspect_gov-wiki-t4-expand_YYYYMMDD_v1.md`  
+- [x] 关账：`done/` + `_views/done.md` + RECENT §8
 
 **VERIFY（40 帽）**：
 
