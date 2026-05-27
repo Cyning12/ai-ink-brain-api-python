@@ -12,7 +12,7 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**P1-4 前端 Harness parity**（**active** · 工作区 task · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md)）；**并行 draft**：**P2 后续 Loop**（[`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](../spec/governance/SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md)）；工作区 **T3** taxonomy **done**；本仓 **读序 + Batch-1 + AB-REP done**。  
+> **近期当前（治理/工程）**：**P1-4 前端 Harness parity** **done**（2026-05-27 · 工作区 task · Ink PR #44 · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md)）；**P2 后续 Loop** **done**；工作区 **T3** taxonomy **done**；本仓 **读序 + Batch-1 + AB-REP done**。下一棒见 Roadmap §5.1（**T4** 等）。  
 > **V3 韧性**：P2-1a **done**（PR #52）；P2-1b/c **排队** — 属 ChatBI 实现子单，**与 Harness 改进无关**，**非**本表默认「当前棒」。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
@@ -92,8 +92,8 @@
 | **Harness 改进**        | **done**（P0+P1 收口；`[HARNESS_V2_PLAN](../harness/HARNESS_V2_PLAN.md)` `accepted`）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
 | **V3 P1**             | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23）                                                 |
-| **Harness 前端 parity** | **下一棒（全仓）** · §0.4 P1-4 |
-| **近期当前** | **P1-4 前端 Harness parity**（全仓 · 远期）← **T2 done**（[`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · 2026-05-26 · 推荐默认 `coding_wiki/` 读序） |
+| **Harness 前端 parity** | **done**（2026-05-27 · Ink PR #44 · 工作区 task `done/`） |
+| **近期当前** | **T4** 图谱桥接等（见 Roadmap §5.1）← P1-4 parity **done** |
 | **V3 P2-1 韧性** | P2-1a **done**（PR #52）；P2-1b/c **排队**（非 Harness、非默认当前棒） |
 | **维护债** | Overview §3 文件若缺失则以母单 §子单状态为准 |
 
@@ -130,7 +130,7 @@
 | ~~**当前**~~ | ~~T3 工作区 harness 推广~~ | ~~治理~~ | **done**（Projects 2026-05-26 · `task_harness_workspace_taxonomy_promote_v1` → 工作区 `done/`） |
 | ~~**当前**~~ | ~~Coding Wiki pilot（T1b）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md)） |
 | ~~**当前**~~ | ~~Wiki-CTX-AB P2（T2）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
-| **当前** | `ai-ink-brain` Harness parity | P1 | §0.4 P1-4 · 全仓 · 远期 |
+| ~~**当前**~~ | ~~`ai-ink-brain` Harness parity~~ | ~~P1~~ | **done**（2026-05-27 · Ink PR #44 · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md)） |
 | **V3 排队** | P2-1b 限流 → P2-1c 熔断 | P2 | 按需立项；**非** Harness 改进近期项 |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周**      | 对照现网后再定 `task_ui_chain_events_backend`             | P3         | 避免与 SSE 重复                                      |
@@ -317,7 +317,7 @@ flowchart TD
 | **Wiki Loop A1–A4** | **`task_harness_wiki_loop_a1_a4_v1`** + 四子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_a1_a4_v1.md`](done/task_harness_wiki_loop_a1_a4_v1.md) · test_strategy ingest + SPEC/排期同步 · 单 PR `task/wiki-loop-a1-a4-v1` |
 | **Wiki Loop B-Q3 Recheck** | **`task_harness_wiki_loop_bq3_recheck_v1`** + 三子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md)（关账后）· B-Q3 Recheck · 单 PR `task/wiki-loop-bq3-recheck-v1` · 第二 Loop 试点 |
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
-| **P1-4** | **前端 Harness parity** | **active（当前主棒）** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/active/task_harness_frontend_p1_4_wiki_parity_v1.md) · Open **`Projects/`** |
+| **P1-4** | **前端 Harness parity** | **done** | 2026-05-27 · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) · Ink PR #44 |
 | **P2 Loop** | **Wiki Loop P2 后续** | **done** | [`task_harness_wiki_loop_p2_followup_v1.md`](done/task_harness_wiki_loop_p2_followup_v1.md) · R1–R3 关账 · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · `REPORT_completion_wiki_loop_p2_followup_v1.md` |
 | T4 | 图谱桥接 / `graph_nodes` | **active** | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · `GOV-T4-SPEC-ACTIVE@2026-05-27` · 扩面 3 synthesis · `gov-wiki-t4-expand` **done** |
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
@@ -325,7 +325,7 @@ flowchart TD
 | **L2 Phase B** | **`task_governance_l2_manifest_ci_v1`** | **done** | manifest ≥12 + `tech_graph_test_manifest_check` + CI · 单 task · 分支 `task/gov-l2-manifest-ci-v1` · `GOV-L2-MANIFEST-CI@2026-05-27` |
 | **Agent 读序** | **`task_governance_wiki_agent_readorder_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_agent_readorder_v1.md`](done/task_governance_wiki_agent_readorder_v1.md) · `GOV-WIKI-AGENT-READORDER@2026-05-27` · AGENTS 必读第 5 条 + `11-coding-wiki-readorder.mdc` |
 | **Ingest 批量** | **`task_governance_wiki_ingest_batch_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_ingest_batch_v1.md`](done/task_governance_wiki_ingest_batch_v1.md) · syntheses **15** · `GOV-WIKI-INGEST-BATCH@2026-05-27` |
-| **AB 代表性扩面** | **`task_governance_wiki_ctx_ab_representative_v1`** | **done** | 2026-05-27 关账 · 6 slug · T7/T8 pass · [`done/task_governance_wiki_ctx_ab_representative_v1.md`](done/task_governance_wiki_ctx_ab_representative_v1.md) · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · 建议 P1-4 立项 |
+| **AB 代表性扩面** | **`task_governance_wiki_ctx_ab_representative_v1`** | **done** | 2026-05-27 关账 · 6 slug · T7/T8 pass · [`done/task_governance_wiki_ctx_ab_representative_v1.md`](done/task_governance_wiki_ctx_ab_representative_v1.md) · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · P1-4 已关账 |
 
 ---
 
@@ -382,6 +382,7 @@ flowchart TD
 | 2026-05-27 | **AB 代表性扩面 done**：6 slug · `WIKI-CTX-AB-REP@2026-05-27` · accepted 部分外推 · 前端 P1-4 证据轨 |
 | 2026-05-27 | **推广 runway 冻结**：P1-4 SPEC + 工作区 task/Prompt · P2 Loop SPEC + 三子 task 草案 · Roadmap §5.2 |
 | 2026-05-27 | **P2 Loop R1–R3 + META done**：T4 active · L2 Phase C design · Batch-2 ingest · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · PR #76 |
+| 2026-05-27 | **P1-4 前端 Harness parity done**：工作区关账 · Ink PR #44 · SPEC/Roadmap/§6.6 索引同步 |
 
 
 ---
