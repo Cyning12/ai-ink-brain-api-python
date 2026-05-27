@@ -97,11 +97,17 @@ python tools/tech_graph_graph_export.py --check
 
 | 项 | 内容 |
 | --- | --- |
-| graph_nodes ids | |
-| commits | |
+| graph_nodes ids | C1, RAG, RAG_DOC, FTS |
+| commits | b1afaf6 (22 review), f2f7505 (30 交付), e4a58d3 (30 invoke) |
 
 ### 自检结论（执行者）
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| | | |
+| graph_nodes frontmatter 存在 | pass | `rg '^graph_nodes:' query-rewrite-observability.md` line 10 |
+| CODING_WIKI 引用 graph_nodes | pass | 5 处命中（§3 字段、§4.2 读序、§4.3 lint、§6 边界、修订记录） |
+| seed id 存在 graph_v2 | pass | C1/RAG/RAG_DOC/FTS 全部 `graph_query neighbors` exit 0 |
+| graph_export --check | pass | exit 0 |
+| CODING_WIKI 链 Bridge SPEC | pass | 头部 T4 桥接 SPEC 链接 |
+| RECENT §6.6 in_progress | pass | line 322 T4+L2 in_progress 行 |
+| 99_spec T4 指针 | pass | `+Wiki↔图谱桥接（T4·叙事指针）` 小节 |
