@@ -3,8 +3,8 @@
 > **元信息**
 > | 字段 | 值 |
 > |------|-----|
-> | round | R1 |
 > | hat | CLOSE |
+> | note | 单 task · 无 round |
 > | task | `docs/tasks/done/task_governance_wiki_t4_expand_v2.md` |
 > | task_slug | gov-wiki-t4-expand |
 > | freeze_id | GOV-T4-EXPAND@2026-05-27 |
@@ -20,10 +20,11 @@ gov-wiki-t4-expand 关账完成。全部验收通过，无阻塞。
 
 | 序号 | 阶段 / 帽子 | 关键动作 | 落盘工件 | 对应 commit |
 |------|-------------|----------|----------|-------------|
-| 1 | 30 执行编码 | graph_nodes 扩面 2 slug + CODING_WIKI + RECENT | 4 文件 | api-python@baf86bc |
-| 2 | 40 自检 | VERIFY 全绿 + task 回填 + 50 Prompt | task 自检结论 + `invoke_20260527_40_*` | api-python@4c4e73a |
-| 3 | 50 独立复检 | 重跑 VERIFY + 复检报告 + CLOSE_TRACE | `reinspec_*_20260527_v1.md` + `invoke_20260527_50_*` | api-python@f0052ce |
-| 4 | **关账** | git mv → done/ + _views 更新 | `done/task_*` + `_views/done.md` | 本 commit |
+| 1 | 22 任务审核 | review + invoke 落盘 | `reviews/by-task/gov-wiki-t4-expand/*` | api-python@dc67ec6 |
+| 2 | 30 执行编码 | graph_nodes 扩面 2 slug + CODING_WIKI + RECENT | 4 文件 | api-python@baf86bc |
+| 3 | 40 自检 | VERIFY 全绿 + task 回填 + 50 Prompt | task 自检结论 + `invoke_20260527_40_*` | api-python@4c4e73a |
+| 4 | 50 独立复检 | 重跑 VERIFY + 复检报告 + CLOSE_TRACE | `reinspect_*_20260527_v1.md` + `invoke_20260527_50_*` | api-python@f0052ce |
+| 5 | **关账** | git mv → done/ + _views 更新 | `done/task_*` + `_views/done.md` | 本 commit |
 
 ### 分仓 Commit 索引
 

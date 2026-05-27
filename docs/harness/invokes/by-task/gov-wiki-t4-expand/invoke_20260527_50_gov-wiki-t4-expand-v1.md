@@ -3,8 +3,8 @@
 > **元信息**
 > | 字段 | 值 |
 > |------|-----|
-> | round | R1 |
 > | hat | 50 |
+> | note | 单 task · 无 round |
 > | task | `docs/tasks/active/task_governance_wiki_t4_expand_v2.md` |
 > | task_slug | gov-wiki-t4-expand |
 > | freeze_id | GOV-T4-EXPAND@2026-05-27 |
