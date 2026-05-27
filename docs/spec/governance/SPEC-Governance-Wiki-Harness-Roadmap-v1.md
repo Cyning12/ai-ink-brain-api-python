@@ -31,7 +31,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | 痛点 | 应对 |
 | --- | --- |
 | `invokes/`、`reviews/` 随 Epic 膨胀，Agent 扫历史 → **上下文爆炸** | L2 **Coding Wiki**（ingest 摘要 + index） |
-| 工作区 `docs/harness/` 曾为扁平旧布局 | **T3 已推广**（by-task + pointer/MIGRATION · 2026-05-26）；前端 **P1-4 parity** 仍远期 |
+| 工作区 `docs/harness/` 曾为扁平旧布局 | **T3 已推广**（by-task + pointer/MIGRATION · 2026-05-26）；前端 **P1-4 parity** **done**（2026-05-27） |
 | 需证明 taxonomy / Wiki **疗效** | **Wiki-CTX-AB** 两阶段实验 |
 
 **目标**：在 **不改动 Harness 执行链 / CI** 前提下，确定 (1) 全项目 Harness taxonomy 是否推广；(2) 是否将 `coding_wiki/` 写入 Agent 默认读序。
@@ -47,7 +47,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | **T3** | Harness 工作区推广 | 工作区 `docs/harness/` taxonomy（pointer/MIGRATION · §2.1） | **done**（工作区 [`task_harness_workspace_taxonomy_promote_v1.md`](../../../../docs/harness/tasks/done/task_harness_workspace_taxonomy_promote_v1.md) · 2026-05-26；子仓 [pointer](../../tasks/done/task_harness_workspace_taxonomy_promote_v1.md)） |
 | **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **done**（2026-05-26 · [`task_coding_wiki_pilot_v1.md`](../../tasks/done/task_coding_wiki_pilot_v1.md)） |
 | **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **done**（2026-05-26 · [`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
-| **P1-4** | 前端 Harness parity | `ai-ink-brain` 模板/rsync/规则 | **远期**（≠ T3 工作区交付） |
+| **P1-4** | 前端 Harness parity | `ai-ink-brain` 读序 + harness 对照 | **done**（2026-05-27 · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) · Ink PR #44） |
 | **T4** | 图谱桥接 | `::documents` / `::evidence`、Wiki `graph_nodes` | **active** · [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | **T1c** | Wiki 扩域（过程档案） | 测试迭代 `syntheses`/`decisions`/`concepts`；见 [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §8 | **done**（2026-05-26 · [`task_coding_wiki_t1c_test_archive_v1.md`](../../tasks/done/task_coding_wiki_t1c_test_archive_v1.md)） |
 | **Multi slug** | Wiki-CTX-AB 多 slug | 2 slug · 部分外推；链 [`conclusion_multi_slug_zh.md`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md) | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1.md`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md)） |
@@ -63,7 +63,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
          Wiki Loop A1–A4（ingest test_strategy）✓
          Wiki Loop B-Q3 Recheck ✓
          T4（图谱桥接）· active SPEC
-         P1-4（前端 parity）· 远期
+         P1-4（前端 parity）✓
 ```
 
 **并行**：T1a 与 T1b **可同时进行**（不同分支/工作树）；T2 **必须在** 同一 `task_slug` 的 Wiki 页存在后。
@@ -131,7 +131,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P1** | Agent 读序 | `AGENTS.md` 常模化 | **done** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/done/task_governance_wiki_agent_readorder_v1.md) |
 | **P1** | Ingest 批量 | 10 slug | **done** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_v1.md) |
 | **P1** | AB 代表性扩面 | 6 slug P2 | **done** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/done/task_governance_wiki_ctx_ab_representative_v1.md) |
-| **P1** | **P1-4 前端 parity** | Harness + 读序 | **active（当前推广主棒）** · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task |
+| **P1** | **P1-4 前端 parity** | Harness + 读序 | **done**（2026-05-27）· [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task `done/` · Ink PR #44 |
 | **P2** | **P2 后续 Loop** | T4 active + L2 Phase C 设计 + Ingest-2 | **done** · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) · [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/done/task_harness_wiki_loop_p2_followup_v1.md) |
 
 ---
@@ -142,7 +142,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 
 | 轨道 | 当前状态 | Open Folder | 入口 |
 | --- | --- | --- | --- |
-| **主棒 · 前端 P1-4** | **active** | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) → 工作区 `PROMPT_START_full_chain_v1.md` |
+| **前端 P1-4** | **done**（2026-05-27） | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task [`done/`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) · Ink PR #44 |
 | **并行 · 后端 P2 Loop** | **done**（2026-05-27 · PR #76） | **`ai-ink-brain-api-python/`** | [`REPORT_completion_wiki_loop_p2_followup_v1.md`](../../harness/invokes/by-task/wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md) |
 | **后端推广收口** | 读序 + Batch-1/2 + AB-REP + P2 Loop **done** | 本仓 | §5.1 上表 |
 
@@ -174,6 +174,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 2026-05-26 | v1.8：§2 Wiki Loop B-Q3 Recheck **done** · §5.1 B-Q3 行 · 链第二 harness-loop-batch Loop |
 | 2026-05-27 | v1.9：T4 / L2 工具链 **draft 专文** · §2 §4 §5.1 链出 |
 | 2026-05-27 | v2.0：§5.1 AB-REP **done** · **§5.2 推广常模** · P1-4 / P2 Loop SPEC 链出 |
+| 2026-05-27 | v2.1：P1-4 前端 parity **done** · §2 / §5.1 / §5.2 索引同步 |
 
 ---
 

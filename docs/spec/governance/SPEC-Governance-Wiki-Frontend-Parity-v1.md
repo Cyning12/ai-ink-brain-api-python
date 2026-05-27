@@ -2,12 +2,12 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `active` |
+| **状态** | `done`（2026-05-27 · 工作区关账 + Ink PR [#44](https://github.com/Cyning12/ai-ink-brain/pull/44)） |
 | **freeze_id** | `GOV-WIKI-FRONTEND-PARITY@2026-05-27` |
-| **Roadmap** | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.2 · **当前推广主棒** |
+| **Roadmap** | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.2 |
 | **实验依据** | [`docs/harness/experiments/wiki_ctx_ab_representative_v1/conclusion_representative_zh.md`](../../harness/experiments/wiki_ctx_ab_representative_v1/conclusion_representative_zh.md) §4 · [`scorecard.md`](../../harness/experiments/wiki_ctx_ab_representative_v1/scorecard.md) |
 | **后端读序（done）** | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) · **本 Epic 镜像，不重复 ingest** |
-| **执行 task（工作区）** | [`Projects/docs/harness/tasks/active/task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/active/task_harness_frontend_p1_4_wiki_parity_v1.md) |
+| **执行 task（工作区）** | [`Projects/docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) |
 | **Agent 入口 Prompt** | [`Projects/docs/harness/invokes/by-task/harness-frontend-p1-4-parity/PROMPT_START_full_chain_v1.md`](../../../../docs/harness/invokes/by-task/harness-frontend-p1-4-parity/PROMPT_START_full_chain_v1.md) |
 
 ---
@@ -63,11 +63,11 @@
 
 ## 4. 验收标准（SPEC 级）
 
-- [ ] 工作区 task **`done/`** 且 `_views/done.md` 已链
-- [ ] `ai-ink-brain/AGENTS.md` 含 **Coding Wiki 读序** 一条（与后端 §2.1 语义等价）
-- [ ] 前端 harness 与后端 taxonomy **对照表** 落盘（task 或 `content/harness/README.md`）
-- [ ] **≥3** 前端 gold slug 锁定且 **不** 与后端 Batch-1 10 slug 重复
-- [ ] PR 描述引用 AB-REP scorecard 降幅与 5/6 W 4/4
+- [x] 工作区 task **`done/`** 且 `_views/done.md` 已链
+- [x] `ai-ink-brain/AGENTS.md` 含 **Coding Wiki 读序** 一条（与后端 §2.1 语义等价）
+- [x] 前端 harness 与后端 taxonomy **对照表** 落盘（`content/harness/README.md`）
+- [x] **≥3** 前端 基准 slug 锁定且 **不** 与后端 Batch-1 10 slug 重复
+- [x] PR 描述引用 AB-REP scorecard 降幅与 5/6 W 4/4（Ink PR #44）
 
 ---
 
@@ -86,6 +86,7 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-27 | v1：AB-REP 签收后冻结 P1-4；链工作区 task + PROMPT |
+| 2026-05-27 | v1.1：关账 · task `done/` · Ink PR #44 · 索引链修正 |
 
 ---
 
