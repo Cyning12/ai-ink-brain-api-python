@@ -34,6 +34,8 @@
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
 | [`pr-post-ci`](SKILL-pr-post-ci.md) | 开 PR / push 后 | PR 号、是否 docs-only | CI 监听、body/Test plan 同步、`automerge` 白名单；见 `SPEC-Governance-PR-Post-CI-v1` |
 
+**跨平台执行测评（实验轨）**：[`docs/harness/experiments/skill_cross_platform_v1/README.md`](../../harness/experiments/skill_cross_platform_v1/README.md) — 记录 SKILL 在 Claude Code 等平台的 scorecard，**非** SKILL 正文真值。
+
 各类型详细预填段落见同目录 `SKILL-<id>.md`（随关账蒸馏增量维护；初版可与本表语义一致即可）。
 
 ---

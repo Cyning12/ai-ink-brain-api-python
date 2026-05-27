@@ -72,6 +72,8 @@ docs/harness/
 
 **实验（P1 题集 / payload 模板）**：[`experiments/wiki_ctx_ab_v1/`](experiments/wiki_ctx_ab_v1/README.md) · SPEC [`docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)。
 
+**实验（SKILL 跨平台执行测评）**：[`experiments/skill_cross_platform_v1/`](experiments/skill_cross_platform_v1/README.md) · 通用 SKILL 在非 Cursor 平台的 scorecard / rubric · 首 case：`gov-l2-manifest-ci` · Claude Code。
+
 ---
 
 ## 3. 关账最低要求（摘要）
