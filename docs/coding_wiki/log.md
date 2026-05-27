@@ -8,3 +8,13 @@
 | 2026-05-26 | **文档**：`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`（理论/SPEC/交付 52 项对比） |
 | 2026-05-26 | **T1c ingest** · `decisions/` 首条 + `concepts/test-strategy-ink-backend` · 测试 +2 syntheses（`query-rewrite-observability`、`chatbi-v3-text2sql-tool-latency-obs`）· `freeze_id` `CODING-WIKI-T1C@2026-05-26` |
 | 2026-05-26 | **A1 ingest** · `syntheses/query-rewrite-observability` 补 `test_strategy: recommended`（Wiki-CTX-AB Multi slug B-Q3）· `CODING-WIKI-A1-TEST-STRATEGY@2026-05-26` |
+| 2026-05-27 | **batch-ingest** · `governance-l2-manifest-ci` · L2 Phase B manifest CI |
+| 2026-05-27 | **batch-ingest** · `governance-wiki-t4-expand` · T4 graph_nodes 扩面 task |
+| 2026-05-27 | **batch-ingest** · `governance-l2-r3-test-manifest` · Loop R3 manifest 草案 |
+| 2026-05-27 | **batch-ingest** · `harness-wiki-loop-t4-l2` · T4+L2 Loop 母单 |
+| 2026-05-27 | **batch-ingest** · `wiki-ctx-ab-v1` · Wiki-CTX-AB P1+P2 |
+| 2026-05-27 | **batch-ingest** · `coding-wiki-pilot` · T1b 试点 |
+| 2026-05-27 | **batch-ingest** · `chatbi-v3-p2-health-ready` · P2-1a live/ready |
+| 2026-05-27 | **batch-ingest** · `harness-wiki-loop-c2-verify` · C2 Loop |
+| 2026-05-27 | **batch-ingest** · `governance-wiki-t4-r1-pilot` · T4 R1 Pilot |
+| 2026-05-27 | **batch-ingest** · `wiki-ctx-ab-multi-slug` · Multi-slug AB |
