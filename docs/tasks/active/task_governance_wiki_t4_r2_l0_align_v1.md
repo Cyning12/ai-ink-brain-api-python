@@ -95,10 +95,22 @@ python tools/tech_graph_graph_export.py --check
 
 | 项 | 内容 |
 | --- | --- |
-| commits | |
+| commits | 2f6431e (22 review), e34aa6b (30 invoke/VERIFY) |
 
 ### 自检结论（执行者）
 
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
-| | | |
+| 99_spec T4 小节存在 | pass | `rg` line 42, exit 0 |
+| manifest_check | pass | exit 0 |
+| drift_check | **fail** | exit 1；已知历史债务，非 R2 引入（见下） |
+| contract_check | pass | exit 0 |
+| graph_export --check | pass | exit 0 |
+| Pilot graph_nodes lint | pass | C1/RAG/RAG_DOC/FTS 全部 exit 0 |
+
+**drift_check 已知债务**：
+- `/api/py/live`、`/api/py/ready` — P2-1a health/ready
+- `chatbi_access_tokens` — P1-3 分级闸门
+- `SUPABASE_HTTP_RETRIES` 等 — P2-1a
+- `TEXT2SQL_DISTINCT_*` — P0 Text2SQL
+- 以上均 **非本 round 引入**，task §非范围 "不改 .ai.md 拓扑（无业务变更时）"
