@@ -87,4 +87,5 @@
 - `../done/task_governance_wiki_ingest_batch_v1.md`（2026-05-27 验收通过：Coding Wiki 批量 ingest 10 slug · syntheses 15 · `reinspect_gov-wiki-ingest-batch_20260527_v1.md` · `freeze_id` `GOV-WIKI-INGEST-BATCH@2026-05-27`）
 - `../done/task_governance_wiki_ctx_ab_representative_v1.md`（2026-05-27 验收通过：Wiki-CTX-AB 6 slug 代表性扩面 · T7/T8 pass · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · `freeze_id` `WIKI-CTX-AB-REP@2026-05-27` · 建议前端 P1-4 立项）
 - `../done/task_governance_t4_spec_active_v1.md`（2026-05-27 验收通过：P2 Loop R1 · T4 Bridge SPEC draft→active · `reinspect_gov-t4-spec-active_20260527_v1.md` · `freeze_id` `GOV-T4-SPEC-ACTIVE@2026-05-27` · 单 PR `task/wiki-loop-p2-followup-v1`）
+- `../done/task_governance_l2_phase_c_design_v1.md`（2026-05-27 验收通过：P2 Loop R2 · L2 Phase C design §4.4 · `reinspect_gov-l2-phase-c-design_20260527_v1.md` · `GOV-L2-PHASE-C-DESIGN@2026-05-27`）
 

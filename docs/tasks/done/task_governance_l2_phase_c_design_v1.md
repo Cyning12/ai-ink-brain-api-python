@@ -1,6 +1,6 @@
 # Task：治理 — L2 Phase C 设计落盘（P2 Loop · R2）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-L2-PHASE-C-DESIGN@2026-05-27）  
 > **round**：**R2** · 母单 [`task_harness_wiki_loop_p2_followup_v1.md`](task_harness_wiki_loop_p2_followup_v1.md)  
 > **SPEC**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) · Phase B **done**
 
@@ -50,8 +50,19 @@ Phase B manifest CI **done**。Phase C 目标：**task `failure_paths`** ↔ `_t
 
 ## 验收标准
 
-- [ ] Phase C 设计节可读、可独立立项实现 task  
-- [ ] invoke C2 全绿 · task **`done/`**  
+- [x] Phase C 设计节可读、可独立立项实现 task  
+- [x] invoke C2 全绿 · task **`done/`**  
+
+---
+
+### 自检结论（执行者）
+
+| 项 | 结果 |
+| --- | --- |
+| §4.4 存在 | pass · L152 |
+| TASK_TEMPLATE 链 §4.4 | pass |
+| `_test_manifest.json` 解析 | pass · 12 entries |
+| 未改 tools/tests/CI | pass |
 
 ---
 
