@@ -1,6 +1,6 @@
 # Task：治理 — 后端 Agent Coding Wiki 默认读序常模化（v1）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-WIKI-AGENT-READORDER@2026-05-27）  
 > **前置**：Wiki-CTX-AB P2 **accepted** · L2 Phase B **done** · [`task_governance_l2_manifest_ci_v1.md`](../done/task_governance_l2_manifest_ci_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md)  
 > **SKILL**：[`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · [`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md)
@@ -70,11 +70,11 @@ P2 实验已签收 **推荐默认读序**（`coding_wiki/index` + `syntheses`）
 
 ## 范围
 
-- [ ] 按 SPEC §2.3 更新 `AGENTS.md`  
-- [ ] （推荐）新增 `.cursor/rules/11-coding-wiki-readorder.mdc`  
-- [ ] `docs/coding_wiki/CODING_WIKI.md` §7 同步一句「Agent 默认读序见 SPEC」  
-- [ ] 22/30/40/50 invoke + review + reinspect + CLOSE  
-- [ ] RECENT §6.6 增 **Agent 读序** 行 + §8
+- [x] 按 SPEC §2.3 更新 `AGENTS.md`  
+- [x] （推荐）新增 `.cursor/rules/11-coding-wiki-readorder.mdc`  
+- [x] `docs/coding_wiki/CODING_WIKI.md` §7 同步一句「Agent 默认读序见 SPEC」  
+- [x] 22/30/40/50 invoke + review + reinspect + CLOSE  
+- [x] RECENT §6.6 增 **Agent 读序** 行 + §8
 
 ## 非范围
 
@@ -107,10 +107,10 @@ P2 实验已签收 **推荐默认读序**（`coding_wiki/index` + `syntheses`）
 
 ## 验收标准
 
-- [ ] SPEC §4 VERIFY 全过  
-- [ ] `rg 'coding_wiki|Coding Wiki' AGENTS.md` 有命中  
-- [ ] 22 review + 50 reinspect 落盘  
-- [ ] 关账：`done/` + `_views` + ST1–ST6
+- [x] SPEC §4 VERIFY 全过  
+- [x] `rg 'coding_wiki|Coding Wiki' AGENTS.md` 有命中  
+- [x] 22 review + 50 reinspect 落盘  
+- [x] 关账：`done/` + `_views` + ST1–ST6
 
 **VERIFY（40 帽）**：
 
@@ -126,7 +126,7 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填） |
+| 涉及文件 | `AGENTS.md` · `.cursor/rules/11-coding-wiki-readorder.mdc` · `docs/coding_wiki/CODING_WIKI.md` · Harness invoke/review/reinspect |
 
 ---
 
@@ -134,8 +134,8 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 结果 |
 |----|------|
-| 命令 | （待填） |
-| 结论 | pass / fail |
+| 命令 | `rg` AGENTS · `tech_graph_manifest_check.py` · rules 存在性 |
+| 结论 | **pass**（见 `invoke_20260527_40_*` · `reinspect_*_20260527_v1.md`） |
 
 ---
 
