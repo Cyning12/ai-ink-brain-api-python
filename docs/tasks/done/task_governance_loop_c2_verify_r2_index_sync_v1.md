@@ -1,6 +1,6 @@
 # Task：治理 — invoke README / _views 索引同步（R2 · 烟雾）
 
-> **状态**：draft  
+> **状态**：done（2026-05-26 验收通过 · `WIKI-C2-R2-INDEX@2026-05-26`）  
 > **母 Loop**：[`task_harness_wiki_loop_c2_verify_v1.md`](task_harness_wiki_loop_c2_verify_v1.md) · round **R2**  
 > **依赖**：R1 须在 `done/` 且 RECENT §6.6 含 Loop C2 Verify draft 行
 
@@ -49,10 +49,10 @@ R1 已在 RECENT §6.6 写入 Loop C2 Verify draft 行。本 round 补全 invoke
 
 ## 范围
 
-- [ ] 22 前确认 R1 在 `docs/tasks/done/`。  
-- [ ] 更新 invoke README 验收说明（若 R1 Batch 已写骨架则 **补全/确认** 一行结论位）。  
-- [ ] 关账：RECENT §6.6 done + `_views/done.md`。  
-- [ ] 22/30/40/50 invoke **C2 全绿**（§3 ≥15 行 · **R2 各帽禁止 stub**）。
+- [x] 22 前确认 R1 在 `docs/tasks/done/`。  
+- [x] 更新 invoke README 验收说明（若 R1 Batch 已写骨架则 **补全/确认** 一行结论位）。  
+- [x] 关账：RECENT §6.6 done + `_views/done.md`。  
+- [x] 22/30/40/50 invoke **C2 全绿**（§3 ≥15 行 · **R2 各帽禁止 stub**）。
 
 ## 非范围
 
@@ -73,10 +73,10 @@ R1 已在 RECENT §6.6 写入 Loop C2 Verify draft 行。本 round 补全 invoke
 
 ## 验收标准
 
-- [ ] invoke README 含 C2 verify 验收说明。  
-- [ ] RECENT §6.6 本 Loop 行状态 **done**。  
-- [ ] `_views/done.md` 含 R1/R2 条目。  
-- [ ] **R2 全链 invoke C2 pass**（对比 B-Q3 R2/R3 stub 债）。
+- [x] invoke README 含 C2 verify 验收说明。  
+- [x] RECENT §6.6 本 Loop 行状态 **done**。  
+- [x] `_views/done.md` 含 R1/R2 条目。  
+- [x] **R2 全链 invoke C2 pass**（对比 B-Q3 R2/R3 stub 债）。
 
 **VERIFY**：
 
@@ -99,7 +99,7 @@ rg 'Loop C2 Verify.*done' docs/tasks/RECENT_TASK_SCHEDULE.md
 | 检查项 | 结果 | 备注 |
 |--------|------|------|
 | README 验收说明 | **pass** | `rg 'C2 verify\|C2 Verify'` 命中 README |
-| RECENT done | **待关账** | 50 建议关账后由 CLOSE 改 done |
+| RECENT done | **pass** | §6.6 行 **done**（R2 关账） |
 | R2 invoke C2 | **pass** | 22/30/40/50 §3 ≥15 行 · 非 stub |
 
 ---

@@ -23,6 +23,8 @@
 
 换帽前自检见 [`PROMPT_LOOP_22_to_CLOSE_v1.md`](./PROMPT_LOOP_22_to_CLOSE_v1.md) 步骤 1–5 · [`SKILL-harness-loop-batch`](../../../tasks/skills/SKILL-harness-loop-batch.md) §invoke 质量门禁。
 
+**完成汇报**：[`REPORT_completion_20260526_v1.md`](./REPORT_completion_20260526_v1.md)（META 关账后 · §1～§5 落盘）
+
 **验收说明（R2 回填 · 2026-05-26）**：本 Loop **主验收** = 各 round **invoke C2 质量全绿**（22/30/40/50/CLOSE · §3 ≥15 行 · 元信息含 `task_slug` · **非 stub**）。对照第二 Loop meta-reinspect [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](../../../tasks/reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md) **C2 FAIL** 基线；R1/R2 全链 invoke 已按 PROMPT_LOOP C2 自检落盘。母 META 关账后 **人** 可审 SKILL `draft`→`accepted`（Agent **不得**代改）。
 
 ## 修订记录
@@ -31,3 +33,4 @@
 | --- | --- |
 | 2026-05-26 | v1：Batch-10 起草 · 2 round docs 烟雾 + C2 Verify |
 | 2026-05-26 | 第三批：PROMPT_LOOP / PROMPT_START invoke C2 联动 |
+| 2026-05-26 | `REPORT_completion_20260526_v1.md` · SKILL §长 Loop 完成汇报首份样例 |

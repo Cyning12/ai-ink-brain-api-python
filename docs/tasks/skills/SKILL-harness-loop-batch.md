@@ -43,6 +43,7 @@
 | `PROMPT_START_<loop-slug>_batch10_only_v1.md` | **仅 Batch-10**（可选）：落盘 N+1 task 后 **停**；不链 22 |
 | `PROMPT_LOOP_22_to_CLOSE_v1.md` | **单 round 模板**（可跨 Loop 复用文件名；**无**会话级【授权】） |
 | `README.md` | 本实例流程索引 |
+| `REPORT_completion_YYYYMMDD_v1.md` | **长 Loop** META 关账后 **完成汇报**（§1～§5 落盘；§6 仅对话） |
 
 **试点实例对照**（仅示例）：
 
@@ -191,6 +192,7 @@
 | 22/30/40/50/关账 | `docs/harness/invokes/by-task/<loop-slug>/invoke_*_{22,30,40,50,CLOSE}_*.md` |
 | 50 | `docs/tasks/reinspect_results/reinspect_<slug>_*.md` |
 | 关账 | `git mv` → `docs/tasks/done/` · `_views/done.md` · 排期/索引 **若** 本 round 职责含此项 |
+| **META 完成汇报** | `docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md`（见下节 **§长 Loop 完成汇报**） |
 
 **排期（RECENT 等）**：试点 Wiki Loop 由 **R4 / META** 改 `RECENT_TASK_SCHEDULE` — **仅该实例约定**。**须**在母 task 写清「哪 round 改哪张表」；**禁止**从 SKILL 推断全局「永远最后一轮改排期」。
 
@@ -216,6 +218,58 @@
 
 ---
 
+## 长 Loop 完成汇报（落盘 · META 关账后）
+
+> **适用**：`harness-loop-batch` 全链 **META 关账** 且子 round **≥2**（或母 task 明示「长 Loop」）时 **必须** 落盘。  
+> **与 [`HANDOFF_CLOSE_TRACE`](../../harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md) 分工**：CLOSE_TRACE = commit 回溯 + 执行路线表（写在 META `invoke_*_CLOSE_*-META` 内）；**完成汇报** = 人读成果摘要 + 验收核对 + 与上一 Loop 对比。**互补，不互相替代。**
+
+### 何时落盘
+
+| 时机 | 动作 |
+|------|------|
+| META 关账 commit **之后** | 落盘 `REPORT_completion_*` → **单独 commit**（可紧随 META 关账同一轮对话） |
+| 单 round 关账 | **不要求** 完成汇报（仅 META） |
+| 断点续跑 META | 若已有 `REPORT_completion_*` 且内容仍真，**勿**重复落盘 |
+
+### 落盘路径与命名
+
+```text
+docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md
+```
+
+- 文首 **元信息表**：`loop_slug` · 母 `freeze_id` · `git_branch` · `invoke_meta_close`（链 META CLOSE invoke 路径）  
+- 文首 **链** META CLOSE invoke，**禁止**整表重复粘贴 CLOSE_TRACE 全文（可写「commit 详见 CLOSE invoke §执行路线」）
+
+### 正文结构（§1～§5 **须落盘**）
+
+| § | 标题 | 必含内容 |
+|---|------|----------|
+| **1** | 任务定位 | 分支 · 执行模式（semi_auto/cross-round）· 主验收目标 · 业务性质（docs-only 等） |
+| **2** | 核心成果 | 按 round 或主题列交付（如 C2、RECENT、README、invoke 链） |
+| **3** | Harness 工件链 | review / reinspect / invoke 数量与目录 |
+| **4** | Commit 回溯 | 帽链 commit 表或「见 META CLOSE invoke」+ 关键 short-hash |
+| **5** | 验收项核对 | task §验收 / VERIFY 命令结果 · pass/fail 表 |
+
+### §6 待你侧后续（**禁止落盘**）
+
+以下内容 **仅** 在 Agent **对话** 输出，**不得**写入 `REPORT_completion_*` 或 task/review 正文：
+
+- 开 PR / push 提醒  
+- 可选 meta-reinspect、SKILL `draft`→`accepted`（人审）  
+- 其他「建议你接下来…」类跟进  
+
+**对话** 可在汇报摘要中口头覆盖 §1～§5；**不要求**与落盘全文逐字一致。
+
+### 验收（母 task / meta-reinspect 可抽检）
+
+- [ ] `REPORT_completion_*` 存在且 §1～§5 非空  
+- [ ] 无「待你侧后续」「开 PR」「accepted」等 §6 专属段落写入文件  
+- [ ] META CLOSE invoke 与 REPORT 互相链接  
+
+**首份样例**：[`wiki-loop-c2-verify/REPORT_completion_20260526_v1.md`](../../harness/invokes/by-task/wiki-loop-c2-verify/REPORT_completion_20260526_v1.md)
+
+---
+
 ## failure_paths 模板（母 task）
 
 | # | 触发 | 行为 |
@@ -235,6 +289,7 @@
 - [ ] invoke 链可追溯（22→…→CLOSE × n + META）
 - [ ] 单 PR；Required CI 绿（或平台 incident 时本地 pytest + 延后 merge）
 - [ ] META 关账含 `HANDOFF_CLOSE_TRACE`
+- [ ] 长 Loop：**META 后** 落盘 `REPORT_completion_*`（§1～§5；§6 仅对话）
 
 ---
 
@@ -323,3 +378,4 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.5：第二 Loop + meta-reinspect 吸收 — invoke 质量门禁（C2）、两 Loop 过程债矩阵、晋升决策树澄清；**status 仍 draft** |
 | 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |
 | 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |
+| 2026-05-26 | v1.6：§长 Loop 完成汇报 — `REPORT_completion_*` 落盘 §1～§5 · §6 仅对话；链 HANDOFF / PROMPT_LOOP 步骤 7 |

@@ -60,7 +60,7 @@ cross-round 续跑 R2+ 时 invoke 质量 **与 R1·22 同级**（§3 ≥15 行 �
 
 【commit 硬纪律】每帽结束 before 下一帽：git add → commit → 回复 `已提交：@ <short-hash>`。
 
-（其余步骤与 docs/harness/invokes/by-task/wiki-loop-c2-verify/PROMPT_LOOP_22_to_CLOSE_v1.md §3 相同；R1 步骤 0 跳过。）
+（其余步骤与 docs/harness/invokes/by-task/wiki-loop-c2-verify/PROMPT_LOOP_22_to_CLOSE_v1.md §3 相同；R1 步骤 0 跳过；**META 关账后执行步骤 7** 落盘 `REPORT_completion_*`。）
 
 硬约束：单 PR · 不改 api/tests/prompts/CI · **C2 全绿**为本 Loop 主验收
 ```
@@ -73,3 +73,4 @@ cross-round 续跑 R2+ 时 invoke 质量 **与 R1·22 同级**（§3 ≥15 行 �
 | --- | --- |
 | 2026-05-26 | v1：第三 Loop C2 Verify 全链启动 |
 | 2026-05-26 | v1.1：第三批 · invoke C2 / R2+ 不断质 |
+| 2026-05-26 | v1.2：链 PROMPT_LOOP 步骤 7 · REPORT_completion |

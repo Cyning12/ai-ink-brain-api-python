@@ -1,6 +1,6 @@
 # Task：Wiki Loop C2 Verify — 单 PR 编排母单（v3 试点）
 
-> **状态**：draft  
+> **状态**：done（2026-05-26 验收通过 · `WIKI-LOOP-C2-VERIFY@2026-05-26`）  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../tasks/skills/SKILL-harness-loop-batch.md)（第三 Loop · **C2 Verify** · draft 未 accepted）  
 > **前置（done）**：[`task_harness_wiki_loop_a1_a4_v1.md`](done/task_harness_wiki_loop_a1_a4_v1.md) · [`task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md) · meta-reinspect [`reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md`](reinspect_results/reinspect_wiki-loop-bq3-recheck-meta_20260526_v1.md)（**C2 FAIL**）  
 > **10 帽 Batch**：2026-05-26 · invoke [`docs/harness/invokes/by-task/wiki-loop-c2-verify/invoke_20260526_10_batch_c2_verify_v1.md`](../harness/invokes/by-task/wiki-loop-c2-verify/invoke_20260526_10_batch_c2_verify_v1.md)
@@ -72,11 +72,11 @@ Loop A1–A4 与 B-Q3 Recheck 均已关账；meta-reinspect 对第二 Loop **条
 
 ## 范围
 
-- [ ] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
-- [ ] R1→R2 按上表顺序各走完整 22→30→40→50→关账链。  
-- [ ] 各 round invoke **C2 全绿**（非 stub）。  
-- [ ] 两轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
-- [ ] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`。
+- [x] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
+- [x] R1→R2 按上表顺序各走完整 22→30→40→50→关账链。  
+- [x] 各 round invoke **C2 全绿**（非 stub）。  
+- [x] 两轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
+- [x] 母 task META 关账：输出 `HANDOFF_CLOSE_TRACE`。
 
 ## 非范围
 
@@ -99,10 +99,10 @@ Loop A1–A4 与 B-Q3 Recheck 均已关账；meta-reinspect 对第二 Loop **条
 
 ## 验收标准
 
-- [ ] 两轮子 task 状态 `done` 且在 `docs/tasks/done/`。  
-- [ ] 各 round 22/30/40/50/CLOSE invoke **§3 ≥15 行**（C2 pass）。  
-- [ ] RECENT §6.6 含 Loop C2 Verify 行且关账时标 done。  
-- [ ] 本母单 META 关账；PR 单分支 `task/wiki-loop-c2-verify-v1`。
+- [x] 两轮子 task 状态 `done` 且在 `docs/tasks/done/`。  
+- [x] 各 round 22/30/40/50/CLOSE invoke **§3 ≥15 行**（C2 pass）。  
+- [x] RECENT §6.6 含 Loop C2 Verify 行且关账时标 done。  
+- [x] 本母单 META 关账；PR 单分支 `task/wiki-loop-c2-verify-v1`。
 
 ---
 
@@ -117,8 +117,8 @@ Loop A1–A4 与 B-Q3 Recheck 均已关账；meta-reinspect 对第二 Loop **条
 
 | 项 | 结果 |
 |----|------|
-| C2 invoke 链 | （40/50 回填） |
-| META CLOSE_TRACE | （关账回填） |
+| C2 invoke 链 | **pass** · R1/R2 各 22/30/40/50/CLOSE · §3 ≥15 行 · 非 stub |
+| META CLOSE_TRACE | **pass** · 见 CLOSE invoke |
 
 ---
 

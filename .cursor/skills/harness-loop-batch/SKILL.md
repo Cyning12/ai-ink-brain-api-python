@@ -26,6 +26,7 @@ disable-model-invocation: true
 2. 每帽：**invoke §3 全文（≥15 行 · 含元信息表）+ commit** 后再换帽；R2+ 与 R1 **同标准**，禁止 stub
 3. 新 Loop：复制 `invokes/by-task/<loop-slug>/`，模式名见 SKILL 工件表
 4. 排期/RECENT：**母 task 明示**哪 round 改；非全局定律
+5. **META 关账后**：落盘 `REPORT_completion_*`（§1～§5）；**§6 待你侧后续仅对话** — 见便携真值 §长 Loop 完成汇报
 
 ## 流程（三选一）
 
