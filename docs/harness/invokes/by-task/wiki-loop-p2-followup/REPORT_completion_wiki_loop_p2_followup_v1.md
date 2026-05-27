@@ -28,3 +28,7 @@
 
 - MANIFEST：`LOOP_MANIFEST.md`  
 - P2 SPEC：`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`
+
+## §5.1 invoke C2 hygiene（retrofix）
+
+R2/R3 部分 invoke 曾合并 commit 导致 §3 stub；已单开 hygiene commit 扩写 **22–50 + CLOSE（含 META）** 与 `reinspect_*`，满足 `SKILL-harness-loop-batch` C2（§3 ≥15 行 / ≥800B）。
