@@ -80,6 +80,8 @@
 | F1 | <例：Supabase 不可用> | `500 DATABASE_DISCONNECT` | 是 | 服务暂不可用提示 |
 | F2 | <例：参数非法> | `422` + 结构化 `detail` | 否 | 字段级错误说明 |
 
+> **L2 Phase C（设计）**：`F#` 与 `_test_manifest.json` `entries[].id` 对齐规则见 [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) **§4.4**（实现期双向校验 **另 task**）。
+
 ---
 
 ## 验收标准

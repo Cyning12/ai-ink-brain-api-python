@@ -48,7 +48,7 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 | **T1b** | Coding-Wiki-pilot | `docs/coding_wiki/` 骨架 + 与 P1 **同 slug** ingest | **done**（2026-05-26 · [`task_coding_wiki_pilot_v1.md`](../../tasks/done/task_coding_wiki_pilot_v1.md)） |
 | **T2** | Wiki-CTX-AB **P2** | H-lean vs **W**（仅 Wiki 载荷） | **done**（2026-05-26 · [`task_wiki_ctx_ab_v1.md`](../../tasks/done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | **P1-4** | 前端 Harness parity | `ai-ink-brain` 模板/rsync/规则 | **远期**（≠ T3 工作区交付） |
-| **T4** | 图谱桥接 | `::documents` / `::evidence`、Wiki `graph_nodes` | **draft** · [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) |
+| **T4** | 图谱桥接 | `::documents` / `::evidence`、Wiki `graph_nodes` | **active** · [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | **T1c** | Wiki 扩域（过程档案） | 测试迭代 `syntheses`/`decisions`/`concepts`；见 [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §8 | **done**（2026-05-26 · [`task_coding_wiki_t1c_test_archive_v1.md`](../../tasks/done/task_coding_wiki_t1c_test_archive_v1.md)） |
 | **Multi slug** | Wiki-CTX-AB 多 slug | 2 slug · 部分外推；链 [`conclusion_multi_slug_zh.md`](../../harness/experiments/wiki_ctx_ab_multi_slug_v1/conclusion_multi_slug_zh.md) | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1.md`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md)） |
 | **Wiki Loop** | A1–A4 ingest 纪律 | `test_strategy` synthesis + `CODING_WIKI` §8.1 + SPEC/排期同步；单 PR | **done**（2026-05-26 · [`task_harness_wiki_loop_a1_a4_v1.md`](../../tasks/done/task_harness_wiki_loop_a1_a4_v1.md)） |
@@ -62,7 +62,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
          T1c（测试过程档案）✓ · Multi slug AB ✓
          Wiki Loop A1–A4（ingest test_strategy）✓
          Wiki Loop B-Q3 Recheck ✓
-         T4（图谱桥接）· draft SPEC
+         T4（图谱桥接）· active SPEC
          P1-4（前端 parity）· 远期
 ```
 
@@ -100,7 +100,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **排期表** | `docs/tasks/RECENT_TASK_SCHEDULE.md` | 状态勾选、与 V3 队列并列 |
 | **Wiki 试点 task** | `docs/tasks/done/task_coding_wiki_pilot_v1.md` | 交付 `coding_wiki/`（**done**） |
 | **AB task** | `docs/tasks/done/task_wiki_ctx_ab_v1.md` | scorecard + conclusion（P1+P2 **done**） |
-| **T4 专文** | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | Wiki↔图谱桥接（**draft**） |
+| **T4 专文** | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | Wiki↔图谱桥接（**active** · `GOV-T4-SPEC-ACTIVE@2026-05-27`） |
 | **L2 工具链专文** | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | 锚点/测试 manifest · Phase B **done** |
 | **Agent 读序** | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) | P2 签收 → `AGENTS.md` 常模化 |
 | **Ingest 批量** | [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-v1.md) | 10 slug · syntheses≥15 |
@@ -127,11 +127,26 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P1** | 多 slug AB | 对 `tech-graph-gate-d-v2-tasks` 等再跑 **对照实验二**（精简 Harness 包 vs 仅 Wiki），削弱「单 Epic 外推」局限 | **done**（2026-05-26 · [`task_wiki_ctx_ab_multi_slug_v1`](../../tasks/done/task_wiki_ctx_ab_multi_slug_v1.md) · B-Q3 Recheck 后 slug B W 4/4） |
 | **P1** | B-Q3 Recheck Loop | 重物化 W 载荷 + conclusion/#46 同步 | **done**（2026-05-26 · [`task_harness_wiki_loop_bq3_recheck_v1.md`](../../tasks/done/task_harness_wiki_loop_bq3_recheck_v1.md)） |
 | **P2** | L2 工具链 Phase B | manifest CI | **done** · [`task_governance_l2_manifest_ci_v1.md`](../../tasks/done/task_governance_l2_manifest_ci_v1.md) |
-| **P2** | T4 | Wiki `graph_nodes` ↔ L0 | 扩面 **done** · SPEC **draft** |
+| **P2** | T4 | Wiki `graph_nodes` ↔ L0 | 扩面 **done** · SPEC **active** · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | **P1** | Agent 读序 | `AGENTS.md` 常模化 | **done** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/done/task_governance_wiki_agent_readorder_v1.md) |
 | **P1** | Ingest 批量 | 10 slug | **done** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_v1.md) |
-| **P1** | AB 代表性扩面 | 6 slug P2 | **active** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/active/task_governance_wiki_ctx_ab_representative_v1.md) |
-| **P3** | P1-4 | 前端 Harness parity | **待 AB-REP 签收** 后立项 |
+| **P1** | AB 代表性扩面 | 6 slug P2 | **done** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/done/task_governance_wiki_ctx_ab_representative_v1.md) |
+| **P1** | **P1-4 前端 parity** | Harness + 读序 | **active（当前推广主棒）** · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task |
+| **P2** | **P2 后续 Loop** | T4 active + L2 Phase C 设计 + Ingest-2 | **done** · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) · [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/done/task_harness_wiki_loop_p2_followup_v1.md) |
+
+---
+
+## 5.2 推广阶段常模（2026-05-27 · AB-REP 签收后）
+
+> **其他 Agent 入口**：不依赖会话窗口；读本节 + 链出 SPEC/task 即可续跑。
+
+| 轨道 | 当前状态 | Open Folder | 入口 |
+| --- | --- | --- | --- |
+| **主棒 · 前端 P1-4** | **active** | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) → 工作区 `PROMPT_START_full_chain_v1.md` |
+| **并行 · 后端 P2 Loop** | **done**（2026-05-27 · PR #76） | **`ai-ink-brain-api-python/`** | [`REPORT_completion_wiki_loop_p2_followup_v1.md`](../../harness/invokes/by-task/wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md) |
+| **后端推广收口** | 读序 + Batch-1/2 + AB-REP + P2 Loop **done** | 本仓 | §5.1 上表 |
+
+**硬规则**：前端大包 **禁止** 在后端仓改 `ai-ink-brain/`；后端 P2 Loop **禁止** 重复 Batch-1 ingest slug。
 
 ---
 
@@ -158,6 +173,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 2026-05-26 | v1.7：§2 T1c/Multi slug **done** · Wiki Loop 行（A3 同步） |
 | 2026-05-26 | v1.8：§2 Wiki Loop B-Q3 Recheck **done** · §5.1 B-Q3 行 · 链第二 harness-loop-batch Loop |
 | 2026-05-27 | v1.9：T4 / L2 工具链 **draft 专文** · §2 §4 §5.1 链出 |
+| 2026-05-27 | v2.0：§5.1 AB-REP **done** · **§5.2 推广常模** · P1-4 / P2 Loop SPEC 链出 |
 
 ---
 
