@@ -104,6 +104,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **L2 工具链专文** | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | 锚点/测试 manifest · Phase B **done** |
 | **Agent 读序** | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) | P2 签收 → `AGENTS.md` 常模化 |
 | **Ingest 批量** | [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-v1.md) | 10 slug · syntheses≥15 |
+| **AB 代表性扩面** | [`SPEC-Governance-Wiki-CTX-AB-Representative-v1.md`](./SPEC-Governance-Wiki-CTX-AB-Representative-v1.md) | 6 slug P2 · 前端 P1-4 证据 |
 | **ChatBI SDD** | `docs/spec/v3-agent/*` | 业务行为；**不**替代治理线 |
 
 ---
@@ -127,9 +128,10 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P1** | B-Q3 Recheck Loop | 重物化 W 载荷 + conclusion/#46 同步 | **done**（2026-05-26 · [`task_harness_wiki_loop_bq3_recheck_v1.md`](../../tasks/done/task_harness_wiki_loop_bq3_recheck_v1.md)） |
 | **P2** | L2 工具链 Phase B | manifest CI | **done** · [`task_governance_l2_manifest_ci_v1.md`](../../tasks/done/task_governance_l2_manifest_ci_v1.md) |
 | **P2** | T4 | Wiki `graph_nodes` ↔ L0 | 扩面 **done** · SPEC **draft** |
-| **P1** | Agent 读序 | `AGENTS.md` 常模化 | **active** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/active/task_governance_wiki_agent_readorder_v1.md) |
-| **P1** | Ingest 批量 | 10 slug | **active** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/active/task_governance_wiki_ingest_batch_v1.md) |
-| **P3** | P1-4 | 前端 Harness parity | 远期 |
+| **P1** | Agent 读序 | `AGENTS.md` 常模化 | **done** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/done/task_governance_wiki_agent_readorder_v1.md) |
+| **P1** | Ingest 批量 | 10 slug | **done** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_v1.md) |
+| **P1** | AB 代表性扩面 | 6 slug P2 | **active** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/active/task_governance_wiki_ctx_ab_representative_v1.md) |
+| **P3** | P1-4 | 前端 Harness parity | **待 AB-REP 签收** 后立项 |
 
 ---
 

@@ -45,6 +45,7 @@
 | `gov-l2-manifest-ci` | `docs/harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_START_full_chain_v1.md` |
 | `gov-wiki-agent-readorder` | `docs/harness/invokes/by-task/gov-wiki-agent-readorder/PROMPT_START_full_chain_v1.md` |
 | `gov-wiki-ingest-batch` | `docs/harness/invokes/by-task/gov-wiki-ingest-batch/PROMPT_START_full_chain_v1.md` |
+| `wiki-ctx-ab-representative` | `docs/harness/invokes/by-task/wiki-ctx-ab-representative/PROMPT_START_full_chain_v1.md` |
 
 **已执行后 hygiene / 复盘**（非 START）：
 
