@@ -130,10 +130,10 @@ python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填） |
+| 涉及文件 | `docs/_tech_graph/_test_manifest.json`、`tools/tech_graph_test_manifest_check.py`、`tests/test_tech_graph_test_manifest_check.py`、`.github/workflows/tech-graph.yml`、`docs/_tech_graph/99_spec.md`、`docs/tasks/RECENT_TASK_SCHEDULE.md` |
 | 新增 env | 无 |
-| CI 变更 | `tech-graph.yml` manifest_check step |
-| 图谱变更点 | `99_spec.md` 指针；**不**手改 `graph.json` |
+| CI 变更 | `tech-graph.yml` manifest_check job 增 step「Tech Graph test manifest check」 |
+| 图谱变更点 | `99_spec.md` 测试 manifest 小节补脚本与 VERIFY；**不**手改 `graph.json` |
 
 ---
 
