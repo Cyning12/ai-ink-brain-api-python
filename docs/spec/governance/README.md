@@ -5,7 +5,7 @@
 | 文件 | 状态 | 说明 |
 | --- | --- | --- |
 | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) | `active` | **整体安排表**（T0～T4、Wiki-CTX-AB P1/P2） |
-| [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | `draft` | **T4** Wiki `graph_nodes` ↔ L0 / `graph_query` 桥接 |
+| [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | `active` | **T4** Wiki `graph_nodes` ↔ L0 / `graph_query` 桥接 · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | `draft` | **L2 工具链** 锚点 + `_test_manifest`（≠ `coding_wiki/` L2 层） |
 | [`SPEC-Governance-PR-Post-CI-v1.md`](./SPEC-Governance-PR-Post-CI-v1.md) | `active` | PR 后 CI 更新 body + Mergify 条件 automerge（方案 C） |
 | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) | `active` | **P1-4** 前端 Harness parity · **当前推广主棒** |

@@ -2,8 +2,9 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `draft` |
-| **freeze_id** | `GOV-WIKI-T4-BRIDGE@2026-05-27` |
+| **状态** | `active` |
+| **freeze_id** | `GOV-T4-SPEC-ACTIVE@2026-05-27` |
+| **扩面 task** | [`task_governance_wiki_t4_expand_v2.md`](../../tasks/done/task_governance_wiki_t4_expand_v2.md) · `GOV-T4-EXPAND@2026-05-27` |
 | **Roadmap** | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §2 **T4** |
 | **姊妹 SPEC** | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md)（锚点/测试 manifest · 可同 Epic 不同 round） |
 | **L0 真值** | `docs/_tech_graph/` · `tools/tech_graph_graph_query.py` |
@@ -184,7 +185,7 @@ python tools/tech_graph_graph_export.py --check
 
 | # | 验收项 | 通过条件 |
 | --- | --- | --- |
-| A1 | SPEC 状态 | 本文件 `active` 或 task 冻结 `GOV-WIKI-T4-BRIDGE@*` |
+| A1 | SPEC 状态 | 本文件 `active` · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | A2 | Pilot frontmatter | ≥1 synthesis 含合法 `graph_nodes` |
 | A3 | 读序文档 | `CODING_WIKI.md` 已更新 lint/字段 |
 | A4 | L0 指针 | `99_spec` 或 `00_main` 含 Wiki 桥接链 |
@@ -210,6 +211,18 @@ python tools/tech_graph_graph_export.py --check
 | **Loop Batch** | 可作为 **R1/R2** 子 round 主题；母单须链本 SPEC + [`SKILL-harness-loop-batch.md`](../../tasks/skills/SKILL-harness-loop-batch.md) |
 | **关账** | 须 `REPORT_completion_*` §1～§5 落盘（§6 后续仅对话） |
 
+### 9.1 扩面 synthesis 索引（`graph_nodes` · ≥3 篇）
+
+Post-Pilot 扩面 **done**（`GOV-T4-EXPAND@2026-05-27`）。Agent 从 Wiki 跳转 L0 时优先打开：
+
+| synthesis slug | `freeze_id`（页 frontmatter） | 种子 `id`（示例） |
+| --- | --- | --- |
+| [`query-rewrite-observability`](../../coding_wiki/syntheses/query-rewrite-observability.md) | `task_05_query_rewrite_obs@2026-05-22` | `C1` · `RAG` · `RAG_DOC` · `FTS` |
+| [`chatbi-v3-text2sql-tool-latency-obs`](../../coding_wiki/syntheses/chatbi-v3-text2sql-tool-latency-obs.md) | `CHATBI-V3-TEXT2SQL-OBS@2026-05-11` | `T2S` · `SSE` · `U2` |
+| [`tech-graph-gate-d-v2-tasks`](../../coding_wiki/syntheses/tech-graph-gate-d-v2-tasks.md) | `TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0` | `CR1` · `E2E_DOC` |
+
+汇总页：[`governance-wiki-t4-expand`](../../coding_wiki/syntheses/governance-wiki-t4-expand.md)。
+
 ---
 
 ## 10. 修订记录
@@ -218,6 +231,7 @@ python tools/tech_graph_graph_export.py --check
 | --- | --- |
 | 2026-05-27 | v1 草案：T4 专文 · `graph_nodes` · 读序/lint/VERIFY · Pilot |
 | 2026-05-27 | v1.1：§3.1 协议对照 · lint 写死 `graph_query neighbors` · 读序修正 |
+| 2026-05-27 | v2 **active**：P2 Loop R1 · `GOV-T4-SPEC-ACTIVE@2026-05-27` · §9.1 扩面 synthesis 索引 |
 
 ---
 

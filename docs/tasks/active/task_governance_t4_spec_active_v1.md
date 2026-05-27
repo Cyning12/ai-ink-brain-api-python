@@ -35,10 +35,10 @@ T4 Pilot + 扩面 **done**；bridge SPEC 仍为 **draft**。本 round 将 SPEC *
 
 ## 范围
 
-- [ ] `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` draft→active + 修订记录  
-- [ ] `docs/spec/governance/README.md` T4 行状态  
-- [ ] RECENT §6.6 T4 行：`draft` → **active**  
-- [ ] 链出 3+ 扩面 synthesis（已有 `graph_nodes`）  
+- [x] `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` draft→active + 修订记录  
+- [x] `docs/spec/governance/README.md` T4 行状态  
+- [x] RECENT §6.6 T4 行：`draft` → **active** · P2 Loop **in_progress**  
+- [x] 链出 3+ 扩面 synthesis（已有 `graph_nodes`）· Bridge SPEC §9.1  
 
 ## 非范围
 

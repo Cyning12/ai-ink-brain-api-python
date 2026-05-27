@@ -318,8 +318,8 @@ flowchart TD
 | **Wiki Loop B-Q3 Recheck** | **`task_harness_wiki_loop_bq3_recheck_v1`** + 三子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md)（关账后）· B-Q3 Recheck · 单 PR `task/wiki-loop-bq3-recheck-v1` · 第二 Loop 试点 |
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
 | **P1-4** | **前端 Harness parity** | **active（当前主棒）** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/active/task_harness_frontend_p1_4_wiki_parity_v1.md) · Open **`Projects/`** |
-| **P2 Loop** | **Wiki Loop P2 后续** | **draft** | [`task_harness_wiki_loop_p2_followup_v1.md`](active/task_harness_wiki_loop_p2_followup_v1.md) · T4 active + L2 Phase C 设计 + Ingest-2 · `HG-LOOP-BATCH` **pending** |
-| T4 | 图谱桥接 / `graph_nodes` | **draft**（Pilot done → 3 slug 扩面） | 链 `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` · Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks` · `gov-wiki-t4-expand` |
+| **P2 Loop** | **Wiki Loop P2 后续** | **in_progress** | [`task_harness_wiki_loop_p2_followup_v1.md`](active/task_harness_wiki_loop_p2_followup_v1.md) · R1→R3 · `HG-LOOP-BATCH` **approved** · `task/wiki-loop-p2-followup-v1` |
+| T4 | 图谱桥接 / `graph_nodes` | **active** | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · `GOV-T4-SPEC-ACTIVE@2026-05-27` · 扩面 3 synthesis · `gov-wiki-t4-expand` **done** |
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
 | **T4 expand** | **`task_governance_wiki_t4_expand_v2`** | **done** | Post-Pilot · 3 篇 synthesis `graph_nodes` · 单 task · 分支 `task/gov-t4-l2-followup-v1` · `GOV-T4-EXPAND@2026-05-27` |
 | **L2 Phase B** | **`task_governance_l2_manifest_ci_v1`** | **done** | manifest ≥12 + `tech_graph_test_manifest_check` + CI · 单 task · 分支 `task/gov-l2-manifest-ci-v1` · `GOV-L2-MANIFEST-CI@2026-05-27` |
@@ -381,6 +381,7 @@ flowchart TD
 | 2026-05-27 | **gov-wiki-ingest-batch done**：10 slug batch ingest · syntheses 5→15 · `reinspect_gov-wiki-ingest-batch_20260527_v1.md` |
 | 2026-05-27 | **AB 代表性扩面 done**：6 slug · `WIKI-CTX-AB-REP@2026-05-27` · accepted 部分外推 · 前端 P1-4 证据轨 |
 | 2026-05-27 | **推广 runway 冻结**：P1-4 SPEC + 工作区 task/Prompt · P2 Loop SPEC + 三子 task 草案 · Roadmap §5.2 |
+| 2026-05-27 | **P2 Loop R1 in_progress**：T4 Bridge SPEC **active** · `GOV-T4-SPEC-ACTIVE@2026-05-27` · `gov-t4-spec-active` 30 交付 |
 
 
 ---
