@@ -3,7 +3,7 @@
 > **元信息**
 > | 字段 | 值 |
 > |------|-----|
-> | task | `docs/tasks/active/task_governance_t4_spec_active_v1.md` |
+> | task | `docs/tasks/done/task_governance_t4_spec_active_v1.md` |
 > | task_slug | `gov-t4-spec-active` |
 > | freeze_id | `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 > | round | R1 |

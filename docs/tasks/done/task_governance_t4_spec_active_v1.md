@@ -1,6 +1,6 @@
 # Task：治理 — T4 Bridge SPEC draft→active（P2 Loop · R1）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-T4-SPEC-ACTIVE@2026-05-27）  
 > **round**：**R1** · 母单 [`task_harness_wiki_loop_p2_followup_v1.md`](task_harness_wiki_loop_p2_followup_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](../spec/governance/SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md)
 
@@ -50,7 +50,7 @@ T4 Pilot + 扩面 **done**；bridge SPEC 仍为 **draft**。本 round 将 SPEC *
 ## 验收标准
 
 - [x] T4 SPEC **active** 且 freeze_id 与扩面 task 一致 pointer（SPEC `GOV-T4-SPEC-ACTIVE` · 链 `GOV-T4-EXPAND`）  
-- [ ] invoke C2 全绿 · task **`done/`**（50 + 关账后）  
+- [x] invoke C2 全绿 · task **`done/`**  
 
 ---
 
