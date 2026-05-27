@@ -150,6 +150,21 @@ docs/harness/invokes/by-task/wiki-loop-c2-verify/invoke_YYYYMMDD_CLOSE_{{TASK_SL
 
 - 📋 Harness 状态栏（版本 B）
 - round = META：整链 CLOSE_TRACE · **无下一棒**
+- round = META：对话可摘要完成汇报 §1～§5；**§6 待你侧后续仅对话、禁止落盘**
+
+---
+
+### 步骤 7 · 长 Loop 完成汇报（**仅 `{{LOOP_ROUND}}` = META**）
+
+> 真值：docs/tasks/skills/SKILL-harness-loop-batch.md §长 Loop 完成汇报
+
+1. META 关账 commit（步骤 5 · 母单）**已完成** 后执行
+2. 落盘：docs/harness/invokes/by-task/wiki-loop-c2-verify/REPORT_completion_YYYYMMDD_v1.md
+   - **须含 §1～§5**（任务定位、核心成果、Harness 工件、Commit 回溯、验收核对）
+   - 文首链 invoke_*_CLOSE_*-META-v1.md；**禁止**整段复制 CLOSE_TRACE
+   - **禁止**写入 §6（开 PR、meta-reinspect、SKILL accepted 等 → **仅步骤 6 对话**）
+3. `git add` 仅 REPORT · commit · message 含母 freeze_id（WIKI-LOOP-C2-VERIFY@…）
+4. 更新本实例 README「完成汇报」链一行（若尚无）
 
 硬约束：Open ai-ink-brain-api-python/ · 分支 {{GIT_BRANCH}} · 单 PR 纪律 · **C2 invoke 质量全绿**为本 Loop 主验收
 ```
@@ -162,3 +177,4 @@ docs/harness/invokes/by-task/wiki-loop-c2-verify/invoke_YYYYMMDD_CLOSE_{{TASK_SL
 | --- | --- |
 | 2026-05-26 | v1：自 wiki-loop-bq3-recheck 复制改编 · 2 round + META · C2 Verify 主题 |
 | 2026-05-26 | v1.1：第三批 · invoke C2 自检句（步骤 1–5）+ R2 RECENT/_views 特例 |
+| 2026-05-26 | v1.2：步骤 7 · META 后 `REPORT_completion_*`（§6 仅对话） |

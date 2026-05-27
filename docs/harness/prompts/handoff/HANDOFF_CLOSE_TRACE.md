@@ -79,6 +79,18 @@ git -C ai-ink-brain-api-python log --oneline -20 -- docs/tasks/active/task_<slug
 
 **无下一棒时**：审查 md **可不**含 **「下一棒可复制 Prompt」** 小节；**禁止**用「无」占位糊弄，应 **省略该节** 并 **必有** 本章回溯节。
 
+### 2.5 长 Loop 完成汇报（`harness-loop-batch` · META 关账后）
+
+> 真值：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../../tasks/skills/SKILL-harness-loop-batch.md) **§长 Loop 完成汇报**。
+
+| 项 | 约定 |
+|----|------|
+| **何时** | 母单 META 关账 commit **之后**（子 round ≥2 或母 task 明示长 Loop） |
+| **落盘** | `docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md` |
+| **正文** | **§1～§5** 落盘（定位、成果、工件、commit、验收） |
+| **§6** | **待你侧后续**（开 PR、meta-reinspect、SKILL accepted 等）**仅对话**，**禁止**写入 REPORT |
+| **与 CLOSE_TRACE** | META `invoke_*_CLOSE_*-META` 保留 commit 表；REPORT 链该 invoke，不整段复制 |
+
 ---
 
 ## 3. 与各帽子的分工
@@ -108,6 +120,7 @@ git -C ai-ink-brain-api-python log --oneline -20 -- docs/tasks/active/task_<slug
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-17 | v1：流程关闭时执行路线 + commit 回溯通则 |
+| 2026-05-26 | v1.1：§2.5 长 Loop `REPORT_completion_*`（SKILL-loop-batch · §6 仅对话） |
 
 ---
 
