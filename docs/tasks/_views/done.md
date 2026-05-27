@@ -77,4 +77,5 @@
 - `../done/task_governance_loop_c2_verify_r1_schedule_draft_v1.md`（2026-05-26 验收通过：Wiki Loop C2 Verify R1 · RECENT §6.6 in_progress 行 · invoke C2 全绿 · `reinspect_wiki-c2-r1-schedule-draft_20260526_v1.md` · `freeze_id` `WIKI-C2-R1-SCHEDULE@2026-05-26`）
 - `../done/task_governance_loop_c2_verify_r2_index_sync_v1.md`（2026-05-26 验收通过：Wiki Loop C2 Verify R2 · invoke README 验收说明 · RECENT §6.6 done · `reinspect_wiki-c2-r2-index-sync_20260526_v1.md` · `freeze_id` `WIKI-C2-R2-INDEX@2026-05-26`）
 - `../done/task_harness_wiki_loop_c2_verify_v1.md`（2026-05-26 验收通过：Wiki Loop C2 Verify 母单 · 第三 harness-loop-batch Loop · invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · `WIKI-LOOP-C2-VERIFY@2026-05-26`）
+- `../done/task_governance_wiki_t4_r1_pilot_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R1 · T4 Pilot · graph_nodes + CODING_WIKI + 99_spec + RECENT · 50 复检 `reinspect_wiki-t4-r1-pilot_20260527_v1.md` · `freeze_id` `GOV-T4-R1-PILOT@2026-05-27`）
 
