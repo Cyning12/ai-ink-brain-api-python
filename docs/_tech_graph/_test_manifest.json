@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "freeze_id": "GOV-L2-ANCHOR-TEST-MANIFEST@2026-05-27",
+  "entries": [
+    {
+      "id": "FP-RAG-DB-DISCONNECT",
+      "failure_path_ref": "docs/tasks/done/task_05_query_rewrite_observability.md#failure_paths",
+      "error_codes": ["DATABASE_DISCONNECT"],
+      "pytest_markers": ["integration"],
+      "test_paths": ["tests/test_chatbi_principal_network.py"],
+      "graph_nodes_optional": ["C1"],
+      "notes": "Supabase 不可用时返回 DATABASE_DISCONNECT；见 api/index.py:541、api/chatbi_principal.py:61"
+    },
+    {
+      "id": "FP-UNIFIED-INVALID-JSON",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_planning_after_resume_v1.md#failure_paths",
+      "error_codes": ["Invalid JSON"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_unified_chat_backend_v1.py"],
+      "graph_nodes_optional": ["C1"],
+      "notes": "POST 请求体 JSON 解析失败；见 api/unified_chat.py:819、api/chain_chat.py:74"
+    },
+    {
+      "id": "FP-CODE-RETRIEVAL-UNAUTHORIZED",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md#failure_paths",
+      "error_codes": ["Unauthorized"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_code_api_routes.py"],
+      "notes": "API 认证失败 401；见 api/index.py:190、api/code_retrieval.py:235"
+    },
+    {
+      "id": "FP-SQL-GATE-DENIED",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md#failure_paths",
+      "error_codes": ["ChatBiSqlGateDenied"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_chatbi_sql_ast_gate_v1.py"],
+      "graph_nodes_optional": ["RAG"],
+      "notes": "SQL AST 闸门拒绝危险查询；见 api/chatbi_sql_gate.py:18"
+    },
+    {
+      "id": "FP-QUERY-REWRITE-ANCHOR-LOST",
+      "failure_path_ref": "docs/tasks/done/task_05_query_rewrite_observability.md#failure_paths",
+      "error_codes": ["QUERY_REWRITE_ANCHOR_LOST"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_query_rewrite_compare_anchor.py"],
+      "graph_nodes_optional": ["C1", "RAG"],
+      "notes": "rewrite 后关键实体丢失；query_compare 可观测；R1 Pilot graph_nodes"
+    },
+    {
+      "id": "FP-HEALTH-PROBE-FAIL",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md#failure_paths",
+      "error_codes": ["HEALTH_PROBE_FAIL"],
+      "pytest_markers": ["integration"],
+      "test_paths": ["tests/test_health_probe_routes.py"],
+      "notes": "/live /ready 健康探针失败；P2-1a"
+    }
+  ]
+}

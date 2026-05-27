@@ -17,7 +17,7 @@
 |-------|------|----------|
 | **R1** | T4 Pilot | `query-rewrite-observability` · `graph_nodes` · `CODING_WIKI` · RECENT in_progress |
 | **R2** | T4 L0 | `99_spec` Wiki 桥接小节 · VERIFY |
-| **R3** | L2 manifest | `_test_manifest.json` · RECENT **done** |
+| **R3** | L2 manifest | `_test_manifest.json` · RECENT **done** · `reinspect_gov-l2-r3-test-manifest_20260527_v1.md` |
 | **META** | 母关账 | CLOSE_TRACE · `REPORT_completion_*` |
 
 ## SPEC 真值

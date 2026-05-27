@@ -49,6 +49,16 @@ flowchart TD
 | **Agent** | `graph_nodes` 仅作 **种子**；影响面须 `python tools/tech_graph_graph_query.py`（`neighbors` / `downstream` / `upstream`） |
 | **Pilot（2026-05-27）** | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |
 
+### 测试 manifest（L2 · `_test_manifest`）
+
+| 项 | 约定 |
+| --- | --- |
+| **专文** | [`docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) |
+| **文件** | `docs/_tech_graph/_test_manifest.json`（与 `_manifest.json` 并列） |
+| **Phase** | A（文档化存在）→ B（`tech_graph_test_manifest_check.py` 可选）→ C（双向校验） |
+| **边界** | `_test_manifest.json` **不得** 手改 `graph.json`；CI  workflow 须显式排除（白名单仅 `graph.json`、`_manifest.json`、`_contract_manifest.json`） |
+| **与 Wiki** | `CODING_WIKI.md` §8 负责 **叙事**；`_test_manifest` 负责 **机器校验** |
+
 ```mermaid
 flowchart TD
   %% Env Truth Table（变量 -> 影响节点）

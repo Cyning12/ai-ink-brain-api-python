@@ -126,7 +126,7 @@ Wiki **不**执行、不替代 pytest / CI / 覆盖率统计，也**不**维护�
 | `concepts/` | 跨 Epic 测试策略演进（如 ChatBI 分级闸门、smoke → e2e） |
 | `log.md` | `YYYY-MM-DD \| ingest \| <slug> \| 测试 +2 -1` |
 
-**与图谱测评 L2 工具链的关系**（见治理仓 `11_REVIEW_L3_L2理论层缺口分析`）：`_test_manifest`、锚点校验等负责 **机器校验**；Wiki 负责 **人/Agent 读懂「为何这样测」** 并 pointer 到 L0 `ERR_*` 与 L1 `failure_paths`。
+**与图谱测评 L2 工具链的关系**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) · `_test_manifest.json`、锚点校验等负责 **机器校验**；Wiki 负责 **人/Agent 读懂「为何这样测」** 并 pointer 到 L0 `ERR_*` 与 L1 `failure_paths`。
 
 **ingest 纪律**：仅 **done** 且与测试交付相关的 task 写入 synthesis；进行中调整只记 `log.md` 一行。
 

@@ -319,7 +319,7 @@ flowchart TD
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
 | P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
 | T4 | 图谱 `::documents` 等 | **planned** | SPEC §T4 |
-| **T4+L2** | **Wiki Loop T4+L2** | **in_progress** | `task_harness_wiki_loop_t4_l2_v1` · R1 Pilot · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
+| **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
 
 ---
 
