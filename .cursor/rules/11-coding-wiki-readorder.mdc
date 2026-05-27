@@ -1,0 +1,27 @@
+---
+description: Coding Wiki L2 默认读序 — 关账回顾先 index/syntheses；改代码仍 L0 图谱优先
+alwaysApply: true
+---
+
+# Coding Wiki 默认读序（L2 · 非 L0 真值）
+
+> **SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../../docs/spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md) · **Schema**：[`docs/coding_wiki/CODING_WIKI.md`](../../docs/coding_wiki/CODING_WIKI.md)
+
+## 何时必须先读 Coding Wiki
+
+| 场景 | 读序 |
+| --- | --- |
+| **关账回顾**、验收对照、跨 Epic「上次做了什么」 | ① `docs/coding_wiki/index.md` → ② `syntheses/<slug>.md`（1～3 页）→ ③ pointer 打开 L1 `docs/tasks/done/…` |
+| **改 `api/` / 表 / 契约 / 流程拓扑** | **仍** L0：`graph_query` + `_manifest` / `_contract` + 对应 `10_flow_*.ai.md`；Wiki **不** 替代 |
+| **执行 `docs/tasks/active/` 单 task** | L1 task 正文 + Harness invoke（按 `task_slug` / `by-task/`）；Wiki **仅** 背景 |
+| **失败路径 / ERR 与测试映射** | L2 `docs/_tech_graph/_test_manifest.json` + `python tools/tech_graph_test_manifest_check.py`；叙事见 Wiki §8 pointer |
+
+## 禁止项
+
+- **禁止** 为答题或影响分析 **仅** 读 Wiki 而不跑 `graph_query`（当 task 涉拓扑时）。
+- **禁止** 将 Wiki 标为 L0 架构真值；与 `freeze_id` / manifest 矛盾时 **L0/L1 为准**。
+- **禁止** 默认 `glob` 整个 `docs/harness/invokes/`（按 task_slug、README、pointer 精读）。
+
+## Reminder（T4 · 可选）
+
+synthesis frontmatter 含 `graph_nodes` 时：打开页后对每个 `id` 跑 `python tools/tech_graph_graph_query.py neighbors <id>`。

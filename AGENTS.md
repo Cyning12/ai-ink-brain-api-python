@@ -21,11 +21,15 @@
    - `99_mermaid_protocol.md` — Mermaid 拓扑协议（Python/FastAPI 适配版）
 4. **`docs/tasks/`**：任务规格（实现与验收口径）；**近期排期** 先读 [`docs/tasks/RECENT_TASK_SCHEDULE.md`](docs/tasks/RECENT_TASK_SCHEDULE.md)  
    - **蒸馏 SKILL（跨 Agent 便携真值）**：[`docs/tasks/skills/README.md`](docs/tasks/skills/README.md)；Harness 流程元复检见 [`SKILL-harness-meta-reinspect.md`](docs/tasks/skills/SKILL-harness-meta-reinspect.md)（Cursor 快捷入口：`.cursor/skills/harness-meta-reinspect/`）
-5. **`docs/harness/`**：Harness（10→**人择** 22 或 30→40→50；落盘可查收）
+5. **Coding Wiki（L2 编译层 · 关账回顾默认读序）**：[`docs/coding_wiki/CODING_WIKI.md`](docs/coding_wiki/CODING_WIKI.md) · [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](docs/spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md) · [`index.md`](docs/coding_wiki/index.md)  
+   - **读序**：`index.md` → `syntheses/<slug>.md` → 按需 pointer 打开 L1 `docs/tasks/done/…`；**改代码 / 拓扑仍 L0**（`graph_query` + `_manifest` / `_contract`），Wiki **不** 替代。  
+   - **禁止**：默认 `glob` 整个 `docs/harness/invokes/`；**禁止** 仅读 Wiki 作答影响分析（涉拓扑时须 `graph_query`）。  
+   - **L2 测试映射**：ERR↔测试见 `docs/_tech_graph/_test_manifest.json` · [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md)
+6. **`docs/harness/`**：Harness（10→**人择** 22 或 30→40→50；落盘可查收）
    - 入口：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/ACCEPTANCE_LANDING.md`](docs/harness/ACCEPTANCE_LANDING.md)
    - **22 审核**（仅本仓）：`docs/harness/reviews/` · **50 复检**：`docs/tasks/reinspect_results/`
    - 10 下一棒：**两条** Prompt（A=22，B=30），见 `TEMPLATE-requirements-invoke` §3
-6. **多子仓协作**（总设职责、任务单规范与落盘路径）见工作区根 `Projects/AGENTS.md` **§2**，跨仓任务按该约定先写任务初稿再分派子 Agent 丰富。
+7. **多子仓协作**（总设职责、任务单规范与落盘路径）见工作区根 `Projects/AGENTS.md` **§2**，跨仓任务按该约定先写任务初稿再分派子 Agent 丰富。
 
 ---
 
@@ -159,9 +163,10 @@
 1. **先读** task 文首 `semi_auto`、`human_gate`、`audit_profile`；通则见本仓 `docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`（及 `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE`）；入口 [`docs/harness/README.md`](docs/harness/README.md)。
 2. **无阻塞则连续跑**：凡 `human_gate` 对下一棒 **非** `pending`（或 `blocks_hats` 不含该帽），**同会话**自动戴下一帽；**禁止**每棒要求用户重贴 `TEMPLATE-*` §3。
 3. **下一棒前必落盘**：将下一棒 §3 全文写入本仓 `docs/harness/invokes/invoke_*.md`（本仓 `docs/tasks/` 任务 **禁止** 只写工作区 invokes），再 **commit** 本轮路径，然后执行。
-4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。
+4. **人工闸**：仅 **人** 可将 `pending`→`approved`；遇 `pending` **停**，只输出须改的 `gate_id` 与文件路径，**不得**代填、不得标 `done`。**预批场景**：若用户声称 gate 已预批但文件仍为 `pending`，Agent 须**二次确认**（向用户指出并请求明确文字授权），获授权后方可代填，且 commit message 须注明；**强烈建议**由人单独 commit 改 gate，使 `git blame` 指向人。
 5. **新会话续跑**：读 task + **最新** `docs/harness/invokes/` 下与本 task 相关的 invoke，按其中 §3 继续；用户可说「按 semi_auto 继续」。
 6. **关账**：无下一棒时输出 **执行路线与 Commit 回溯**（`HANDOFF_CLOSE_TRACE`），非空 Prompt。
+7. **每棒结束**：回复末尾输出 **`📋 Harness 状态栏（版本 B）`**（见 `handoff/HANDOFF_SEMI_AUTO.md` §3.4）；关账时另用 CLOSE_TRACE，不互相替代。
 
 ---
 
@@ -174,9 +179,9 @@
 执行 Harness 流程、复制帽子 Prompt、`semi_auto` 续跑时：
 
 1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md)
-2. **模板**：`docs/harness/prompts/templates/TEMPLATE-*-invoke.md` §3；帽子 `10`～`50` 与同目录 `HANDOFF_*.md`
-3. **落盘**：invoke → `docs/harness/invokes/`；**22** → `docs/harness/reviews/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）
-4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 例外见 `docs/tasks/README.md`「工作区 Harness 任务」
+2. **模板**：`docs/harness/prompts/templates/TEMPLATE-*-invoke.md` §3；帽子在 `prompts/hats/`；`HANDOFF_*.md` 在 `prompts/handoff/`
+3. **落盘**：invoke → `docs/harness/invokes/by-task/<task_slug>/`；**22** → `docs/harness/reviews/by-task/<task_slug>/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）。**长 Loop**（`harness-loop-batch` META 关账后）：另落 `REPORT_completion_*`（§1～§5；§6 仅对话）— 见 [`SKILL-harness-loop-batch`](../../docs/tasks/skills/SKILL-harness-loop-batch.md) §长 Loop 完成汇报、`handoff/HANDOFF_CLOSE_TRACE.md` §2.5
+4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 见工作区 `docs/harness/tasks/` — 须在 **Open `Projects/`** 下执行，遵守工作区 `05-harness-workspace.mdc`
 
 半自动续跑细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc)。
 
@@ -184,17 +189,36 @@
 
 ## Git Workflow
 
-> 本地不在 main 上改/提交；远程合入 main 须 PR
+> Git 分支与 PR — 本地不在 main 上改代码/提交；远程合并须 PR
 
 # Git 工作流（本仓）
 
-- **远程**：合并 **`main`** **必须 PR**。
-- **本地**：**一切任务**（代码、文档、Harness 等）**不要在 `main` 上**直接修改或 `commit`；若在 `main`，先 **切换已有 `task/*` 分支** 或 **`git checkout -b task/<slug>`** 再动手。
-- 用户仅说「commit」时：先确认/切换任务分支，再提交。
-- **不**默认 `git push`。
-- Harness 半自动多帽落盘同样只在任务分支（`HANDOFF_SEMI_AUTO` §5）。
+## 原则（全任务适用）
 
-细则见 [`.cursor/rules/07-git-workflow.mdc`](.cursor/rules/07-git-workflow.mdc)。
+- **远程**：合并进 **`main`**（及 `production`）**必须经 PR**；禁止假设可直推 `main`。
+- **本地**：**不要在 `main` 分支上**做日常修改、`git add`、`git commit` 等操作（不便区分子任务，也与 PR 流程脱节）。
+- **范围**：适用于**本仓一切任务**（代码、文档、Harness、图谱、diary 已跟踪文件等），**非**仅 Harness 文档。
+
+## Agent 开干前（硬）
+
+1. 执行 `git branch --show-current`（或等价）确认当前分支。  
+2. 若在 **`main`** / **`production`**：  
+   - 有进行中任务 → `git checkout` 到对应 **`task/<slug>`**（或 `feat/<slug>`）；  
+   - 无则 **`git checkout -b task/<简短主题>`**（从最新 `origin/main` 或本地 `main` 拉出，按仓库习惯）。  
+3. **确认已在任务分支后**再改文件、再 commit。
+
+用户仅说「commit」且未指定分支时：先完成 §2，再提交。
+
+## 提交与合并
+
+- 所有 commit 落在 **任务分支**；通过 **PR** 合入 `main`。  
+- **不**默认 `git push`；用户要求开 PR 或推送时再执行。  
+- **例外**：用户明文「就在当前 main 上提交」或紧急 hotfix 流程已说明。
+
+## Harness（与上节一致）
+
+- 半自动多帽、invoke/review 落盘：同样**只在任务分支** commit（`HANDOFF_SEMI_AUTO` §5）。  
+- PR 合并前：满足 `AGENTS.md` 合并前必绿（如 `pytest`）。
 
 ---
 
@@ -208,7 +232,7 @@
 
 - **非必读**：`docs/diary/` **全树**不纳入日常必读链路；**非需要不主动读取**（不预加载、不 glob 遍历、不在无关任务中引用）。
 - **何时可读**：用户 `@` 明确路径；当前 **task / invoke** 依赖列出 diary 路径；排障、复盘、实验复现且范围已锁定到**具体文件**。
-- **`docs/diary/tmp/`**：**不纳入 Git**（`.gitignore`）；Agent **禁止**默认 glob/grep/遍历；仅用户或 task **单独指明**具体文件时可读。
+- **`tmp/diary/`（强制 · 仓库根）**：草稿与未冻结文稿的**本机落点**（整棵 `tmp/` 不纳入 Git）；Agent **禁止**默认 `glob`/`grep`/遍历；仅当用户或 task **单独指明** `tmp/diary/…` 时可读。遗留路径 `docs/diary/tmp/` 仍 ignore、勿用。
 - **真值优先级**：实现与架构以 `docs/_tech_graph/`、`docs/meta/`、`docs/tasks/`、`docs/spec/` 为准；diary **不得**覆盖或替代上述真值。
 
 ## 落盘纪律（写什么进 diary）
@@ -217,17 +241,40 @@
 - **长期真值不得滞留**：结论已冻结并写入 `_tech_graph/`、`docs/tasks/done/`、`docs/tech_graph/SPEC/` 等稳定位置后，diary 内文稿仅作 **历史回溯**；Agent 默认 **不再**以其叙述作为实现依据。
 - **新增沉淀**：优先落在 `docs/diary/`（按 `DIARY_GUIDE.md` 命名）；若内容将长期引用，须同步提炼进真值表 / 图谱 / task，而非仅堆在 diary。
 
+## 草稿轨：`tmp/diary/`（非 Git · 非默认扫描）
+
+| 项 | 约定 |
+| --- | --- |
+| **性质** | 评价稿、Prompt 草稿、排期对比等 **未冻结** 文稿 |
+| **Git** | **不跟踪**（`tmp/`）；结论沉淀后写入 `docs/diary/YYYY-MM-DD-*.md` 或 `docs/harness/` / `docs/tasks/` 再提交 |
+| **Agent** | **禁止**日常任务中主动打开；须用户或 task 显式路径 |
+
 ## 实验轨：`docs/diary/jsonPKmermaid/`（非必读）
 
 | 项 | 约定 |
 | --- | --- |
-| **性质** | 图谱 **行为实验 / 闸口对照** 的脚本、`fixtures/`、`reports/`、`runs/` 等 |
+| **性质** | 图谱 **行为实验 / 闸口对照** 的 `fixtures/`、`reports/`（Git）；`runs/` **不提交**（本机或 `tmp/jsonPKmermaid-runs/`） |
 | **读取** | **非必读**；仅在做 jsonPKmermaid 复现、闸口实验、或 task 显式引用其中路径时，打开 **最小必要文件集** |
 | **与生产轨** | accepted 结论的 **执行真值** 在 `docs/_tech_graph/`、`tools/tech_graph*.py` 与 CI；**禁止**为日常改代码默认遍历 `jsonPKmermaid/` |
 
 ## 日期总结（`YYYY-MM-DD.md`）
 
 - 按 `docs/diary/DIARY_GUIDE.md` 写的后端知识总结同属 diary，同样 **按需** 读取，作为归总素材而非实现依据。
+
+---
+
+## Pr Post Ci
+
+> PR 后 CI — body 同步、automerge 白名单、禁止未绿 merge
+
+# PR Post-CI（本仓）
+
+真值：[`docs/spec/governance/SPEC-Governance-PR-Post-CI-v1.md`](docs/spec/governance/SPEC-Governance-PR-Post-CI-v1.md) · SKILL：[`docs/tasks/skills/SKILL-pr-post-ci.md`](docs/tasks/skills/SKILL-pr-post-ci.md)
+
+- **push 后**：须对照 `gh pr diff` 更新 PR **Summary**；Test plan 可由 `pr-post-ci` workflow 勾选，**不**替代 Summary。
+- **禁止** Required checks 未全绿时 `gh pr merge`。
+- **`automerge` 标签**：仅 **人** 可打；且 diff **不得** 含 `api/`、`tests/`、`.github/workflows/`（见 `.mergify.yml`）。
+- **多主题 PR**：Summary 须分节，禁止仅依赖 bot 统计表。
 
 ---
 
@@ -322,6 +369,35 @@ docs/_tech_graph/
 
 ---
 
+## Coding Wiki Readorder
+
+> Coding Wiki L2 默认读序 — 关账回顾先 index/syntheses；改代码仍 L0 图谱优先
+
+# Coding Wiki 默认读序（L2 · 非 L0 真值）
+
+> **SPEC**：[`docs/spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../../docs/spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md) · **Schema**：[`docs/coding_wiki/CODING_WIKI.md`](../../docs/coding_wiki/CODING_WIKI.md)
+
+## 何时必须先读 Coding Wiki
+
+| 场景 | 读序 |
+| --- | --- |
+| **关账回顾**、验收对照、跨 Epic「上次做了什么」 | ① `docs/coding_wiki/index.md` → ② `syntheses/<slug>.md`（1～3 页）→ ③ pointer 打开 L1 `docs/tasks/done/…` |
+| **改 `api/` / 表 / 契约 / 流程拓扑** | **仍** L0：`graph_query` + `_manifest` / `_contract` + 对应 `10_flow_*.ai.md`；Wiki **不** 替代 |
+| **执行 `docs/tasks/active/` 单 task** | L1 task 正文 + Harness invoke（按 `task_slug` / `by-task/`）；Wiki **仅** 背景 |
+| **失败路径 / ERR 与测试映射** | L2 `docs/_tech_graph/_test_manifest.json` + `python tools/tech_graph_test_manifest_check.py`；叙事见 Wiki §8 pointer |
+
+## 禁止项
+
+- **禁止** 为答题或影响分析 **仅** 读 Wiki 而不跑 `graph_query`（当 task 涉拓扑时）。
+- **禁止** 将 Wiki 标为 L0 架构真值；与 `freeze_id` / manifest 矛盾时 **L0/L1 为准**。
+- **禁止** 默认 `glob` 整个 `docs/harness/invokes/`（按 task_slug、README、pointer 精读）。
+
+## Reminder（T4 · 可选）
+
+synthesis frontmatter 含 `graph_nodes` 时：打开页后对每个 `id` 跑 `python tools/tech_graph_graph_query.py neighbors <id>`。
+
+---
+
 ## Tech Graph Update
 
 > 图谱增量更新 — 改 .ai.md 后导出 graph.json 与 manifest/contract
@@ -408,51 +484,3 @@ docs/_tech_graph/
   - 缺少关键环境变量或密钥
   - 修改可能影响未在请求中提及的模块
   - 数据库 schema 变更无迁移脚本
-
----
-
-## Cursor Cloud specific instructions
-
-### Environment
-
-- **Python**: 3.12 (system), venv at `.venv/`
-- **Deps**: `pip install -r requirements.txt` (no lockfile; update script handles this)
-- **No Docker/Node/npm required** — pure Python backend
-
-### Running Tests
-
-```bash
-source .venv/bin/activate
-export SILICONFLOW_API_KEY=sf-dummy-ci \
-  NEXT_PUBLIC_SUPABASE_URL=http://supabase.test \
-  SUPABASE_SERVICE_ROLE_KEY=service-role-dummy \
-  NEXT_PUBLIC_ADMIN_SECRET=secret-token-1234567890 \
-  API_KEY=api-key-123 \
-  TEXT2SQL_DATABASE_URL=postgresql://u:p@localhost:5432/postgres
-pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short
-```
-
-All tests use mocks; no real Supabase/SiliconFlow needed.
-
-### Running the Dev Server
-
-```bash
-source .venv/bin/activate
-export SILICONFLOW_API_KEY=sf-dummy-ci \
-  NEXT_PUBLIC_SUPABASE_URL=http://supabase.test \
-  SUPABASE_SERVICE_ROLE_KEY=service-role-dummy \
-  NEXT_PUBLIC_ADMIN_SECRET=secret-token-1234567890 \
-  TEXT2SQL_DATABASE_URL=postgresql://u:p@localhost:5432/postgres
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-- Health check: `GET /api/py/health` → `{"ok":true,...}`
-- Auth for chat: `Authorization: Bearer <NEXT_PUBLIC_ADMIN_SECRET>` or `x-blog-admin-token` header
-- Chat body format: `{"messages": [{"role":"user","content":"..."}], "session_id":"..."}`
-- With dummy keys the server starts and responds; upstream LLM/DB calls will fail gracefully
-
-### Gotchas
-
-- `python3.12-venv` must be installed via apt (`sudo apt-get install -y python3.12-venv`) on fresh Ubuntu 24.04 VMs before creating `.venv`
-- The `conftest.py` overrides intent-eval env vars; do **not** set `CHATBI_PYTEST_KEEP_INTENT_ENV=1` for normal test runs
-- CI uses Python 3.11 but 3.12 works locally without issues

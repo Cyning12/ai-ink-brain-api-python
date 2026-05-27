@@ -109,7 +109,8 @@ docs/coding_wiki/
 | 实体/概念织网 | `concepts/`、`entities/` **可选**；表/RPC/依赖以 **L0 图谱** 为准 |
 | Wiki 即唯一真值 | **禁止**；与 L0/L1 矛盾时以 L0/L1 为准 |
 
-**读序（关账后默认）**：`index.md` → `syntheses/<slug>.md` → 按需 pointer 打开 L1 → 改代码/拓扑必 L0。
+**读序（关账后默认）**：`index.md` → `syntheses/<slug>.md` → 按需 pointer 打开 L1 → 改代码/拓扑必 L0。  
+**Agent 默认读序常模**：见 [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../spec/governance/SPEC-Governance-Wiki-Agent-Readorder-v1.md) · `AGENTS.md` 必读链第 5 条。
 
 ---
 
@@ -169,3 +170,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-26 | §8.1 `api/` Epic `test_strategy` ingest 纪律（Wiki Loop A2 · `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`） |
 | 2026-05-27 | T4：`graph_nodes` frontmatter · query/lint · 链 Bridge SPEC |
 | 2026-05-27 | T4 扩面：3 slug 含 `graph_nodes`（Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks`）|
+| 2026-05-27 | Agent 读序常模：链 Readorder SPEC · `AGENTS.md` 必读第 5 条 |

@@ -83,4 +83,5 @@
 - `../done/task_harness_wiki_loop_t4_l2_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 母单 · 单 PR `task/gov-spec-t4-l2-v1` · `WIKI-LOOP-T4-L2@2026-05-27`）
 - `../done/task_governance_wiki_t4_expand_v2.md`（2026-05-27 验收通过：T4 扩面 Post-Pilot · 3 synthesis 含 `graph_nodes` · CODING_WIKI + RECENT 同步 · 50 复检 `reinspect_gov-wiki-t4-expand_20260527_v1.md` · `freeze_id` `GOV-T4-EXPAND@2026-05-27`）
 - `../done/task_governance_l2_manifest_ci_v1.md`（2026-05-27 验收通过：L2 Phase B · manifest ≥12 + `tech_graph_test_manifest_check.py` + pytest + CI workflow · 50 复检 `reinspect_gov-l2-manifest-ci_20260527_v1.md` · `freeze_id` `GOV-L2-MANIFEST-CI@2026-05-27`）
+- `../done/task_governance_wiki_agent_readorder_v1.md`（2026-05-27 验收通过：Agent Coding Wiki 默认读序 · AGENTS 必读第 5 条 · `reinspect_gov-wiki-agent-readorder_20260527_v1.md` · `freeze_id` `GOV-WIKI-AGENT-READORDER@2026-05-27`）
 

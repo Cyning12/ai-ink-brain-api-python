@@ -322,7 +322,7 @@ flowchart TD
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
 | **T4 expand** | **`task_governance_wiki_t4_expand_v2`** | **done** | Post-Pilot · 3 篇 synthesis `graph_nodes` · 单 task · 分支 `task/gov-t4-l2-followup-v1` · `GOV-T4-EXPAND@2026-05-27` |
 | **L2 Phase B** | **`task_governance_l2_manifest_ci_v1`** | **done** | manifest ≥12 + `tech_graph_test_manifest_check` + CI · 单 task · 分支 `task/gov-l2-manifest-ci-v1` · `GOV-L2-MANIFEST-CI@2026-05-27` |
-| **Agent 读序** | **`task_governance_wiki_agent_readorder_v1`** | **draft** | `AGENTS.md` 常模化 · 长链 semi_auto · `task/gov-wiki-agent-readorder-v1` |
+| **Agent 读序** | **`task_governance_wiki_agent_readorder_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_agent_readorder_v1.md`](done/task_governance_wiki_agent_readorder_v1.md) · `GOV-WIKI-AGENT-READORDER@2026-05-27` · AGENTS 必读第 5 条 + `11-coding-wiki-readorder.mdc` |
 | **Ingest 批量** | **`task_governance_wiki_ingest_batch_v1`** | **draft** | 10 slug · syntheses≥15 · `task/gov-wiki-ingest-batch-v1` |
 
 ---
@@ -375,6 +375,7 @@ flowchart TD
 | 2026-05-27 | **gov-wiki-t4-expand done**：T4 扩面 3 synthesis graph_nodes · reinspect pass · Harness 帽链追溯补全 |
 | 2026-05-27 | **gov-l2-manifest-ci 30 编码**：manifest 12 entries + `tech_graph_test_manifest_check.py` + pytest + workflow + 99_spec VERIFY |
 | 2026-05-27 | **gov-l2-manifest-ci done**：PR #70 merge · L2 Phase B CI · Harness hygiene Part A（task done 正文 · invoke §3 · H5 引用） |
+| 2026-05-27 | **gov-wiki-agent-readorder done**：P2 读序常模化 · AGENTS 必读第 5 条 · rules `11-coding-wiki-readorder.mdc` · `reinspect_gov-wiki-agent-readorder_20260527_v1.md` |
 
 
 ---
