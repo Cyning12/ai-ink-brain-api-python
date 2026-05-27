@@ -39,6 +39,16 @@ flowchart TD
 
 - **drift_check 字面量锚点（勿删）**：下列字符串须保留在 `_tech_graph` 某处，供脚本子串匹配与 `api/*.py` 中 `os.getenv` 关键 DEBUG 对齐：`DEBUG_AGENT_DB_LOG` `DEBUG_INTENT_CACHE` `DEBUG_ROUTER_EVIDENCE` `DEBUG_ROUTER_EVIDENCE_DB` `DEBUG_ROUTER_TRACE_DB`。
 
+### Wiki ↔ 图谱桥接（T4 · 叙事指针）
+
+| 项 | 约定 |
+| --- | --- |
+| **专文** | [`docs/spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) |
+| **L2 字段** | `docs/coding_wiki/syntheses/*.md` 可选 frontmatter `graph_nodes`（`id` + `relation`） |
+| **机器轨** | 拓扑真值仍为 `.ai.md` → `graph.json`；**禁止** 手改 `graph.json` |
+| **Agent** | `graph_nodes` 仅作 **种子**；影响面须 `python tools/tech_graph_graph_query.py`（`neighbors` / `downstream` / `upstream`） |
+| **Pilot（2026-05-27）** | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |
+
 ```mermaid
 flowchart TD
   %% Env Truth Table（变量 -> 影响节点）

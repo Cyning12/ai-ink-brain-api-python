@@ -7,6 +7,19 @@ freeze_id: task_05_query_rewrite_obs@2026-05-22
 closed_date: 2026-05-22
 status: compiled
 test_strategy: recommended
+graph_nodes:
+  - id: C1
+    relation: documents
+    note: POST /api/py/chat · query_compare 观测入口（T4 Pilot）
+  - id: RAG
+    relation: triggers
+    note: RAG 子流程 · metadata.match 写入
+  - id: RAG_DOC
+    relation: documents
+    note: 向量召回与 documents 表
+  - id: FTS
+    relation: branches
+    note: keyword 路与 FTS 并行计数（仅观测）
 ---
 
 # Rewrite 可观测性（query_compare）
@@ -41,7 +54,7 @@ test_strategy: recommended
 | **验收命令** | `pytest tests/test_query_rewrite_compare_anchor.py -q`（L1 验收）；全仓见 task 自检 `pytest tests -m "not intent_eval and not intent_benchmark"` |
 | **未新增** | Supabase 集成 e2e、改 SQL（L1 非范围） |
 
-**图谱**：行为隐含于 → `docs/_tech_graph/10_flow_rag.md`（本 Epic 未改图正文）。
+**图谱**：行为隐含于 → `docs/_tech_graph/10_flow_rag.md`（本 Epic 未改图正文）。**T4 种子**：见本页 frontmatter `graph_nodes`；影响面须 `python tools/tech_graph_graph_query.py neighbors <id>`（[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md)）。
 
 **实现 pointer**：→ `api/index.py`、`api/keyword_fallback.py`、`api/rag_logging.py`（见 L1 实现备忘）。
 
