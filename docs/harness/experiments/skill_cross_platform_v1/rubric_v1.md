@@ -1,7 +1,7 @@
 # SKILL 跨平台测评 · 评分量表 v1
 
 > **freeze_id**：`SKILL-CROSS-PLATFORM-RUBRIC@2026-05-27`  
-> **适用**：`skill_cross_platform_v1/cases/*` 填表时对照；可与 [`SKILL-harness-task.md`](../../tasks/skills/SKILL-harness-task.md) §ST1–ST6 叠加。
+> **适用**：`skill_cross_platform_v1/cases/*` 填表时对照；可与 [`SKILL-harness-task.md`](../../../tasks/skills/SKILL-harness-task.md) §ST1–ST6 叠加。
 
 ---
 
