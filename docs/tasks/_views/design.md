@@ -5,6 +5,8 @@
 
 ## 设计中
 
+- [`../active/task_governance_wiki_t4_expand_v2.md`](../active/task_governance_wiki_t4_expand_v2.md) — T4 `graph_nodes` 扩面（2 synthesis）· `draft` · 分支 `task/gov-wiki-t4-expand-v1`
+- [`../active/task_governance_l2_manifest_ci_v1.md`](../active/task_governance_l2_manifest_ci_v1.md) — L2 manifest Phase B + CI · `draft` · 分支 `task/gov-l2-manifest-ci-v1`
 - [`../active/task_coding_wiki_pilot_v1.md`](../active/task_coding_wiki_pilot_v1.md) — Coding Wiki 试点（LLM Wiki 模式）· `draft` · 指导意见 [`docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md`](../../../../docs/harness/guides/GUIDANCE_coding_wiki_llm_wiki_insert_v1_zh.md)
 
 ## Pending（排期参考 · 索引在 backlog）
