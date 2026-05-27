@@ -25,8 +25,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22, 30 | 本 task + 扩面 slug 列表人扫 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘 `docs/harness/reviews/by-task/gov-wiki-t4-expand/` 后人签 |
+| HG-TASK-DRAFT | approved | 22, 30 | 本 task + 扩面 slug 列表人扫 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 落盘 `docs/harness/reviews/by-task/gov-wiki-t4-expand/` 后人签 |
 
 ---
 
@@ -35,7 +35,7 @@
 | 序 | 帽 | 启动 |
 |----|-----|------|
 | 0（可选） | **10** | 需求帽 · 若 task 已冻结可 **跳过** |
-| 1–5 | **22→50→关账** | [`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · invoke 落盘 `docs/harness/invokes/by-task/gov-wiki-t4-expand/` |
+| 1–5 | **22→50→关账** | [`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · invoke · [`PROMPT_START_full_chain_v1.md`](../../harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_START_full_chain_v1.md) |
 
 ---
 

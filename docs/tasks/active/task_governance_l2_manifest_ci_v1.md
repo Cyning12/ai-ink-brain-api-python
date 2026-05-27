@@ -25,9 +25,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22, 30 | manifest 扩面条目 + CI 接入方案人扫 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘后人签 |
-| HG-CI-WORKFLOW | pending | 30 | 若将 check 升为 **Required**，人确认 workflow diff |
+| HG-TASK-DRAFT | approved | 22, 30 | manifest 扩面条目 + CI 接入方案人扫 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 落盘后人签 |
+| HG-CI-WORKFLOW | approved | 30 | 若将 check 升为 **Required**，人确认 workflow diff |
 
 ---
 
@@ -36,7 +36,7 @@
 | 序 | 帽 | 启动 |
 |----|-----|------|
 | 0（可选） | **10** | 需求帽 · task 已冻结可跳过 |
-| 1–5 | **22→50→关账** | invoke · `docs/harness/invokes/by-task/gov-l2-manifest-ci/` |
+| 1–5 | **22→50→关账** | [`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · invoke · [`PROMPT_START_full_chain_v1.md`](../../harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_START_full_chain_v1.md) |
 
 ---
 

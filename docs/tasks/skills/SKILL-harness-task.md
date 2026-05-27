@@ -37,6 +37,15 @@
 
 **非 Cursor Agent**：须 **显式 @ 或粘贴** 上表路径；**无** `.mdc` 自动加载。
 
+**Claude Code 全链入口（单 task · 范例）**：
+
+| task_slug | 目录 |
+|-----------|------|
+| `gov-wiki-t4-expand` | `docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_START_full_chain_v1.md` |
+| `gov-l2-manifest-ci` | `docs/harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_START_full_chain_v1.md` |
+
+模式：`PROMPT_START_full_chain_v1.md`（一次粘贴）+ `PROMPT_TASK_22_to_CLOSE_v1.md`（§3 逐步帽链）；**非** Loop 的 `PROMPT_LOOP` / `HG-LOOP-BATCH`。
+
 ---
 
 ## task 字段默认值
@@ -100,6 +109,7 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账 checklist |
+| 2026-05-27 | v1.1：Claude Code 范例 · PROMPT_START + PROMPT_TASK_22_to_CLOSE（gov-wiki-t4-expand / gov-l2-manifest-ci） |
 
 ---
 
