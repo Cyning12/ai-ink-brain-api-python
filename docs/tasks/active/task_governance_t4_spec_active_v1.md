@@ -49,8 +49,22 @@ T4 Pilot + 扩面 **done**；bridge SPEC 仍为 **draft**。本 round 将 SPEC *
 
 ## 验收标准
 
-- [ ] T4 SPEC **active** 且 freeze_id 与扩面 task 一致 pointer  
-- [ ] invoke C2 全绿 · task **`done/`**  
+- [x] T4 SPEC **active** 且 freeze_id 与扩面 task 一致 pointer（SPEC `GOV-T4-SPEC-ACTIVE` · 链 `GOV-T4-EXPAND`）  
+- [ ] invoke C2 全绿 · task **`done/`**（50 + 关账后）  
+
+---
+
+### 自检结论（执行者）
+
+| # | 项 | 结果 | 证据 |
+| --- | --- | --- | --- |
+| 1 | Bridge SPEC `active` | pass | 头表 L5 |
+| 2 | governance README T4 active | pass | README L8 |
+| 3 | ≥3 synthesis `graph_nodes` | pass | query-rewrite / text2sql / gate-d |
+| 4 | `graph_query neighbors` C1 T2S CR1 | pass | exit 0 |
+| 5 | `graph_export --check` | pass | exit 0 |
+| 6 | RECENT §6.6 P2 in_progress + T4 active | pass | 40 目视 |
+| 7 | 未改 api/tests/prompts/CI | pass | diff docs-only |
 
 ---
 
