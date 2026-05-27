@@ -408,3 +408,51 @@ docs/_tech_graph/
   - 缺少关键环境变量或密钥
   - 修改可能影响未在请求中提及的模块
   - 数据库 schema 变更无迁移脚本
+
+---
+
+## Cursor Cloud specific instructions
+
+### Environment
+
+- **Python**: 3.12 (system), venv at `.venv/`
+- **Deps**: `pip install -r requirements.txt` (no lockfile; update script handles this)
+- **No Docker/Node/npm required** — pure Python backend
+
+### Running Tests
+
+```bash
+source .venv/bin/activate
+export SILICONFLOW_API_KEY=sf-dummy-ci \
+  NEXT_PUBLIC_SUPABASE_URL=http://supabase.test \
+  SUPABASE_SERVICE_ROLE_KEY=service-role-dummy \
+  NEXT_PUBLIC_ADMIN_SECRET=secret-token-1234567890 \
+  API_KEY=api-key-123 \
+  TEXT2SQL_DATABASE_URL=postgresql://u:p@localhost:5432/postgres
+pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short
+```
+
+All tests use mocks; no real Supabase/SiliconFlow needed.
+
+### Running the Dev Server
+
+```bash
+source .venv/bin/activate
+export SILICONFLOW_API_KEY=sf-dummy-ci \
+  NEXT_PUBLIC_SUPABASE_URL=http://supabase.test \
+  SUPABASE_SERVICE_ROLE_KEY=service-role-dummy \
+  NEXT_PUBLIC_ADMIN_SECRET=secret-token-1234567890 \
+  TEXT2SQL_DATABASE_URL=postgresql://u:p@localhost:5432/postgres
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+- Health check: `GET /api/py/health` → `{"ok":true,...}`
+- Auth for chat: `Authorization: Bearer <NEXT_PUBLIC_ADMIN_SECRET>` or `x-blog-admin-token` header
+- Chat body format: `{"messages": [{"role":"user","content":"..."}], "session_id":"..."}`
+- With dummy keys the server starts and responds; upstream LLM/DB calls will fail gracefully
+
+### Gotchas
+
+- `python3.12-venv` must be installed via apt (`sudo apt-get install -y python3.12-venv`) on fresh Ubuntu 24.04 VMs before creating `.venv`
+- The `conftest.py` overrides intent-eval env vars; do **not** set `CHATBI_PYTEST_KEEP_INTENT_ENV=1` for normal test runs
+- CI uses Python 3.11 but 3.12 works locally without issues
