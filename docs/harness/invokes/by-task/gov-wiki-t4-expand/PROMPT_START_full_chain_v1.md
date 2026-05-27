@@ -11,6 +11,7 @@
 | **freeze_id** | `GOV-T4-EXPAND@2026-05-27` |
 | **SPEC** | `docs/spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` |
 | **帽链真值** | [`PROMPT_TASK_22_to_CLOSE_v1.md`](./PROMPT_TASK_22_to_CLOSE_v1.md) §3 |
+| **复盘 / hygiene** | [`PROMPT_RETRO_hygiene_bc_v1.md`](./PROMPT_RETRO_hygiene_bc_v1.md)（**非** START） |
 | **SKILL** | [`SKILL-harness-task.md`](../../../tasks/skills/SKILL-harness-task.md) · [`SKILL-docs-governance.md`](../../../tasks/skills/SKILL-docs-governance.md) |
 
 ---
@@ -38,6 +39,18 @@ test -f docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_TASK_22_to_CLOSE_
 本 Epic 为单 task：22→30→40→50→关账 同会话连续执行，无需新对话。
 每帽仍须：invoke §3 全文（≥15 行 · 元信息含 task_slug）+ 该帽工件 + git commit（HANDOFF_AUTO_COMMIT）。
 禁止 stub：30/40/50 与 22 同级 invoke 质量（对齐 Loop C2 门禁 · 见 SKILL-harness-task）。
+
+【禁止跳帽 · 硬】
+- 未落盘当前帽 invoke + commit → 禁止进入下一帽（即使业务已写完）
+- 关账前须逐项勾选 SKILL-harness-task §ST1–ST6（见下）
+
+【关账前自检 ST1–ST6】（关账 commit 前在 invoke 或对话中勾选）
+- [ ] ST1 22 review + invoke_22
+- [ ] ST2 invoke_30
+- [ ] ST3 invoke_40 + task §自检
+- [ ] ST4 reinspect + invoke_50
+- [ ] ST5 done 头部 + git mv + _views + CLOSE invoke
+- [ ] ST6 RECENT §6.6/§8 + hygiene H1–H5；invoke 无 round 字段
 ```
 
 ---
@@ -113,3 +126,4 @@ python tools/tech_graph_graph_export.py --check
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-27 | v1：单 task 全链 · Claude Code · SKILL-harness-task |
+| 2026-05-27 | v1.1：禁止跳帽 · 关账前 ST1–ST6 · 链 PROMPT_RETRO |

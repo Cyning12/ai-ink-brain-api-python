@@ -37,6 +37,9 @@ test -f docs/harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_TASK_22_to_CLOSE_
 ```text
 22→30→40→50→关账 同会话连续；每帽 invoke §3 ≥15 行 + commit。
 本 task 含 tools/tests/workflow：test_strategy recommended · 50 须重跑 pytest。
+
+【禁止跳帽】未落盘当前帽 invoke + commit → 禁止下一帽。
+【关账前 ST1–ST6】见 SKILL-harness-task §ST1–ST6（22/30/40/50/CLOSE + RECENT + hygiene H1–H5）。
 ```
 
 ---

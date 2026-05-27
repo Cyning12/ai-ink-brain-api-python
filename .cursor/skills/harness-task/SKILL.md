@@ -22,7 +22,9 @@ disable-model-invocation: true
 1. **Loop 勿用本文** — 多 round 见 [`harness-loop-batch`](../harness-loop-batch/SKILL.md)
 2. 每帽：**invoke §3 全文 + commit**（[`HANDOFF_AUTO_COMMIT`](../../../docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md)）
 3. 关账：`git mv` + `_views/done.md` **同一 commit**；PR 前跑 [`docs-governance`](../docs-governance/SKILL.md) H1–H5
-4. **非 Cursor**：须显式 `@` 模板路径（无 `.mdc` 自动加载）
+4. **关账前 ST1–ST6**（真值见便携 SKILL §ST1–ST6）：22/30/40/50/CLOSE + RECENT + hygiene
+5. **禁止跳帽**：未 invoke+commit 不得进下一帽
+6. **非 Cursor**：须显式 `@` 模板路径（无 `.mdc` 自动加载）
 
 ## 落盘速查
 
