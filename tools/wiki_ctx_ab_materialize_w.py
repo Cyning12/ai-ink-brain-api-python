@@ -7,10 +7,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SLUG = "harness-p1-docs-consolidation"
-OUT_DIR = REPO_ROOT / "docs/harness/experiments/wiki_ctx_ab_v1/payloads"
+DEFAULT_OUT_DIR = REPO_ROOT / "docs/harness/experiments/wiki_ctx_ab_v1/payloads"
+DEFAULT_FREEZE_ID = "WIKI-CTX-AB@2026-05-25"
 
 
-def materialize(slug: str) -> Path:
+def materialize(
+    slug: str,
+    *,
+    out_dir: Path = DEFAULT_OUT_DIR,
+    freeze_id: str = DEFAULT_FREEZE_ID,
+) -> Path:
     files = [
         REPO_ROOT / "docs/coding_wiki/index.md",
         REPO_ROOT / f"docs/coding_wiki/syntheses/{slug}.md",
@@ -35,7 +41,7 @@ def materialize(slug: str) -> Path:
 | --- | --- |
 | **arm** | `W` |
 | **task_slug** | `{slug}` |
-| **freeze_id** | `WIKI-CTX-AB@2026-05-25` |
+| **freeze_id** | `{freeze_id}` |
 | **generated** | 见运行日 · `python tools/wiki_ctx_ab_materialize_w.py` |
 
 ## Agent 约束
@@ -58,7 +64,9 @@ def materialize(slug: str) -> Path:
 | `file_count` | {len(files)} |
 | `notes` | P2 仅 Wiki：`index.md` + `syntheses/{slug}.md` |
 """
-    out = OUT_DIR / f"W_{slug}.md"
+    out_dir = out_dir.resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"W_{slug}.md"
     out.write_text(header + body + footer, encoding="utf-8")
     print(f"{out.relative_to(REPO_ROOT)}  payload_char_count={total}")
     return out
@@ -67,8 +75,19 @@ def materialize(slug: str) -> Path:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Materialize Wiki-CTX-AB W arm payload")
     parser.add_argument("--slug", default=DEFAULT_SLUG)
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=DEFAULT_OUT_DIR,
+        help="Output directory for W_<slug>.md",
+    )
+    parser.add_argument(
+        "--freeze-id",
+        default=DEFAULT_FREEZE_ID,
+        help="freeze_id in payload header",
+    )
     args = parser.parse_args()
-    materialize(args.slug)
+    materialize(args.slug, out_dir=args.out_dir, freeze_id=args.freeze_id)
 
 
 if __name__ == "__main__":

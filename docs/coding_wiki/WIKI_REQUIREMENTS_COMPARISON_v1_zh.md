@@ -116,7 +116,7 @@
 | 43 | 不需排期全文 | ⚠️ 依赖 synthesis 蒸馏 | 漏写 → 回 L1 |
 | 44 | 不需 invoke/review 全文 | ✅（实验二） | 日常可按 by-task 片段 |
 | 45 | Wiki 完整性可消「边界靠摘要」局限 | 部分 | ingest 纪律 + 回 L1 |
-| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **附条件全满足** | Multi slug AB **done**；A1 ingest + **B-Q3 Recheck**（2026-05-26）slug B W **4/4**；仍仅 2 slug |
+| 46 | 多 slug + L1/L0 兜底「单 Epic 外推」局限 | **附条件全满足（6 slug）** | **Representative AB done**（2026-05-27 · `WIKI-CTX-AB-REP`）：6/6 T7≥30% · 6/6 T8≥3/4 · 5/6 W 臂 4/4；[`conclusion_representative_zh.md`](../harness/experiments/wiki_ctx_ab_representative_v1/conclusion_representative_zh.md)；前端 P1-4 **建议立项**（非自动） |
 
 ---
 
@@ -172,3 +172,4 @@
 | 2026-05-26 | v1.0：自对话与试点文档蒸馏的 52 项对比表 |
 | 2026-05-26 | v1.1：P0 关账勾选；§7 task 分工；建议顺序更新 |
 | 2026-05-26 | v1.2：#12 T1c done · #46 Wiki Loop A1/A2 test_strategy · §7/§9 同步（A3） |
+| 2026-05-27 | v1.3：#46 六 slug Representative AB accepted（部分外推）· 链 P1-4 证据 |

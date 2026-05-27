@@ -128,8 +128,8 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 内容 |
 |----|------|
-| 物化方式 | （待填：脚本/手工 · 参照 wiki_ctx_ab_v1 TEMPLATE） |
-| 聚合降幅 | （待填） |
+| 物化方式 | `tools/wiki_ctx_ab_materialize_w.py` + `tools/wiki_ctx_ab_materialize_h_lean.py`（`--out-dir` 本实验 `payloads/`） |
+| 聚合降幅 | 6/6 slug 降幅 60.8%–77.3%；T7/T8 pass · 见 `scorecard.md` |
 
 ---
 
@@ -137,8 +137,8 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 结果 |
 |----|------|
-| 命令 | （待填） |
-| 结论 | pass / fail |
+| 命令 | 30 帽填表；40 帽 `ls payloads` + `test -f conclusion` + `tech_graph_manifest_check` |
+| 结论 | pass（30 草稿） |
 
 ---
 

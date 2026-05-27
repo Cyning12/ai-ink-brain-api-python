@@ -13,8 +13,8 @@
 | --- | --- |
 | [`questions.md`](./questions.md) | Gold 题（6 slug） |
 | [`scorecard.md`](./scorecard.md) | 执行时填 |
-| `payloads/` | H-lean_* · W_* ×6 |
-| `conclusion_representative_zh.md` | 30 帽产出 |
+| [`payloads/`](./payloads/) | H-lean_* · W_* ×6（2026-05-27 物化） |
+| [`conclusion_representative_zh.md`](./conclusion_representative_zh.md) | accepted（部分外推） |
 
 ## 执行
 
