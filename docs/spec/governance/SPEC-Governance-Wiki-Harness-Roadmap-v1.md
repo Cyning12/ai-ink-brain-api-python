@@ -130,8 +130,23 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P2** | T4 | Wiki `graph_nodes` ↔ L0 | 扩面 **done** · SPEC **draft** |
 | **P1** | Agent 读序 | `AGENTS.md` 常模化 | **done** · [`task_governance_wiki_agent_readorder_v1.md`](../../tasks/done/task_governance_wiki_agent_readorder_v1.md) |
 | **P1** | Ingest 批量 | 10 slug | **done** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_v1.md) |
-| **P1** | AB 代表性扩面 | 6 slug P2 | **active** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/active/task_governance_wiki_ctx_ab_representative_v1.md) |
-| **P3** | P1-4 | 前端 Harness parity | **待 AB-REP 签收** 后立项 |
+| **P1** | AB 代表性扩面 | 6 slug P2 | **done** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/done/task_governance_wiki_ctx_ab_representative_v1.md) |
+| **P1** | **P1-4 前端 parity** | Harness + 读序 | **active（当前推广主棒）** · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task |
+| **P2** | **P2 后续 Loop** | T4 active + L2 Phase C 设计 + Ingest-2 | **draft Loop** · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) · 与 P1-4 **并行** |
+
+---
+
+## 5.2 推广阶段常模（2026-05-27 · AB-REP 签收后）
+
+> **其他 Agent 入口**：不依赖会话窗口；读本节 + 链出 SPEC/task 即可续跑。
+
+| 轨道 | 当前状态 | Open Folder | 入口 |
+| --- | --- | --- | --- |
+| **主棒 · 前端 P1-4** | **active** | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) → 工作区 `PROMPT_START_full_chain_v1.md` |
+| **并行 · 后端 P2 Loop** | **draft**（待 `HG-LOOP-BATCH`） | **`ai-ink-brain-api-python/`** | [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) → `wiki-loop-p2-followup/` |
+| **后端推广收口** | 读序 + Batch-1 + AB-REP **done** | 本仓 | §5.1 上表 P1 行 |
+
+**硬规则**：前端大包 **禁止** 在后端仓改 `ai-ink-brain/`；后端 P2 Loop **禁止** 重复 Batch-1 ingest slug。
 
 ---
 
@@ -158,6 +173,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 2026-05-26 | v1.7：§2 T1c/Multi slug **done** · Wiki Loop 行（A3 同步） |
 | 2026-05-26 | v1.8：§2 Wiki Loop B-Q3 Recheck **done** · §5.1 B-Q3 行 · 链第二 harness-loop-batch Loop |
 | 2026-05-27 | v1.9：T4 / L2 工具链 **draft 专文** · §2 §4 §5.1 链出 |
+| 2026-05-27 | v2.0：§5.1 AB-REP **done** · **§5.2 推广常模** · P1-4 / P2 Loop SPEC 链出 |
 
 ---
 

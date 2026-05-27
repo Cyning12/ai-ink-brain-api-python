@@ -8,6 +8,11 @@
 | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | `draft` | **T4** Wiki `graph_nodes` ↔ L0 / `graph_query` 桥接 |
 | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | `draft` | **L2 工具链** 锚点 + `_test_manifest`（≠ `coding_wiki/` L2 层） |
 | [`SPEC-Governance-PR-Post-CI-v1.md`](./SPEC-Governance-PR-Post-CI-v1.md) | `active` | PR 后 CI 更新 body + Mergify 条件 automerge（方案 C） |
+| [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) | `active` | **P1-4** 前端 Harness parity · **当前推广主棒** |
+| [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) | `active` | **P2 后续** 三 round Loop 编排 |
+| [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) | `active` | 后端 Agent Coding Wiki 读序 |
+| [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-v1.md) | `active` | Batch-1 ingest（10 slug） |
+| [`SPEC-Governance-Wiki-CTX-AB-Representative-v1.md`](./SPEC-Governance-Wiki-CTX-AB-Representative-v1.md) | `active` | AB 代表性扩面 |
 
 **SDD 起草**（全仓 SPEC 通用）：[`../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)
 
