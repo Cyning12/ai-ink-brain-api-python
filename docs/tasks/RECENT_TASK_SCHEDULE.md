@@ -318,8 +318,10 @@ flowchart TD
 | **Wiki Loop B-Q3 Recheck** | **`task_harness_wiki_loop_bq3_recheck_v1`** + 三子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md)（关账后）· B-Q3 Recheck · 单 PR `task/wiki-loop-bq3-recheck-v1` · 第二 Loop 试点 |
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
 | P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
-| T4 | 图谱桥接 / `graph_nodes` | **draft**（Pilot done） | 链 `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` · Pilot `query-rewrite-observability` · Loop T4+L2 R1/R2 |
+| T4 | 图谱桥接 / `graph_nodes` | **draft**（Pilot done → 3 slug 扩面） | 链 `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` · Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks` · `gov-wiki-t4-expand` |
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
+| **T4 expand** | **`task_governance_wiki_t4_expand_v2`** | **done** | Post-Pilot · 3 篇 synthesis `graph_nodes` · 单 task · 分支 `task/gov-t4-l2-followup-v1` · `GOV-T4-EXPAND@2026-05-27` |
+| **L2 Phase B** | **`task_governance_l2_manifest_ci_v1`** | **draft** | manifest ≥12 + `tech_graph_test_manifest_check` + CI · 单 task · 分支 `task/gov-l2-manifest-ci-v1` |
 
 ---
 
@@ -367,6 +369,8 @@ flowchart TD
 | 2026-05-26 | **Wiki Loop C2 Verify in_progress**：R1 RECENT §6.6 draft 行 · `WIKI-C2-R1-SCHEDULE@2026-05-26` · 第三 Loop invoke C2 试点 |
 | 2026-05-26 | **Wiki Loop C2 Verify done**：R2 RECENT §6.6 done + invoke README · `WIKI-C2-R2-INDEX@2026-05-26` · R1/R2 invoke C2 全绿 |
 | 2026-05-27 | **Wiki Loop T4+L2 done**：R1→R3 子 task + 母单关账 · §6.6 T4+L2 行 · `WIKI-LOOP-T4-L2@2026-05-27` · 第四 harness-loop-batch 真实业务 Loop |
+| 2026-05-27 | **T4 扩面 + L2 Phase B 拆单**：`task_governance_wiki_t4_expand_v2` · `task_governance_l2_manifest_ci_v1` · 两单 task 并行（非 Loop） |
+| 2026-05-27 | **gov-wiki-t4-expand done**：T4 扩面 3 synthesis graph_nodes · reinspect pass · Harness 帽链追溯补全 |
 
 
 ---

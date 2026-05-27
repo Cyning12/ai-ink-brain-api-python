@@ -81,4 +81,5 @@
 - `../done/task_governance_wiki_t4_r2_l0_align_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R2 · T4 L0 对齐 · VERIFY + drift 已知债务标注 · 50 复检 `reinspect_wiki-t4-r2-l0-align_20260527_v1.md` · `freeze_id` `GOV-T4-R2-L0-ALIGN@2026-05-27`）
 - `../done/task_governance_l2_r3_test_manifest_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R3 · L2 manifest 草案 · `_test_manifest.json` 6 entries + 99_spec + CODING_WIKI + RECENT done · 50 复检 `reinspect_gov-l2-r3-test-manifest_20260527_v1.md` · `freeze_id` `GOV-L2-R3-TEST-MANIFEST@2026-05-27`）
 - `../done/task_harness_wiki_loop_t4_l2_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 母单 · 单 PR `task/gov-spec-t4-l2-v1` · `WIKI-LOOP-T4-L2@2026-05-27`）
+- `../done/task_governance_wiki_t4_expand_v2.md`（2026-05-27 验收通过：T4 扩面 Post-Pilot · 3 synthesis 含 `graph_nodes` · CODING_WIKI + RECENT 同步 · 50 复检 `reinspect_gov-wiki-t4-expand_20260527_v1.md` · `freeze_id` `GOV-T4-EXPAND@2026-05-27`）
 

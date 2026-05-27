@@ -52,8 +52,8 @@
 |---|--------|------|------|
 | H1 | **reinspect 文件名** | `reinspect_{task_slug}_YYYYMMDD_vN.md`；**禁止** `reinspec_` 等 typo | 本节 + [`reinspect_results/README.md`](../reinspect_results/README.md) |
 | H2 | **`_views/done.md`** | 新增一行链 `../done/task_*.md`（含 reinspect 路径若适用） | [`../README.md`](../README.md) §归档 |
-| H3 | **`RECENT_TASK_SCHEDULE` §8** | 修订记录增一行（日期 + task/Loop 摘要） | 与 §6.6 状态一致 |
-| H4 | **§6.6 / Roadmap 行** | 若交付了 SPEC 阶段（如 T4 Pilot），同步 **planned → draft/done**；**勿删** Loop 专用行 | 治理 SPEC / 母 task |
+| H3 | **`RECENT_TASK_SCHEDULE` §8** | 修订记录增一行（日期 + task/Loop 摘要） | 与 §6.6 状态一致；**建议与 ST5/git mv 同批或下一 commit** |
+| H4 | **§6.6 / Roadmap 行** | 若交付了 SPEC 阶段（如 T4 Pilot），同步 **planned → draft/done**；**勿删** Loop 专用行 | 治理 SPEC / 母 task；**与 task 头部 done 同步** |
 | H5 | **交叉引用** | `_views`、invoke、reinspect 内链指向 **rename 后** 路径 | `rg` 旧文件名 |
 | H6 | **SPEC 状态** | `draft`→`active` **仅人审**；Agent 可准备正文不改 status | 各 SPEC 文首 |
 

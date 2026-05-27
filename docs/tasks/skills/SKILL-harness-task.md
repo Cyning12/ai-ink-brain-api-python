@@ -37,6 +37,21 @@
 
 **非 Cursor Agent**：须 **显式 @ 或粘贴** 上表路径；**无** `.mdc` 自动加载。
 
+**Claude Code 全链入口（单 task · 范例）**：
+
+| task_slug | 目录 |
+|-----------|------|
+| `gov-wiki-t4-expand` | `docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_START_full_chain_v1.md` |
+| `gov-l2-manifest-ci` | `docs/harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_START_full_chain_v1.md` |
+
+**已执行后 hygiene / 复盘**（非 START）：
+
+| task_slug | 文件 |
+|-----------|------|
+| `gov-wiki-t4-expand` | `docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_RETRO_hygiene_bc_v1.md` |
+
+模式：`PROMPT_START_full_chain_v1.md`（一次粘贴）+ `PROMPT_TASK_22_to_CLOSE_v1.md`（§3 逐步帽链）；**非** Loop 的 `PROMPT_LOOP` / `HG-LOOP-BATCH`。
+
 ---
 
 ## task 字段默认值
@@ -74,6 +89,25 @@
 
 ---
 
+## 单 task 合规自检（ST1–ST6 · 关账前必过）
+
+> **蒸馏来源**：gov-wiki-t4-expand 复盘（2026-05-27）。**缺任一项 = 不得关账**（与 loop-batch C2 同级精神，非 C1–C7 全表）。
+
+| # | 检查 | pass 条件 |
+|---|------|-----------|
+| **ST1** | **22** | `reviews/by-task/<slug>/` 有 R1 audit；`invoke_*_22_*` 存在 · §3 ≥15 行 |
+| **ST2** | **30** | `invoke_*_30_*` 存在 · 与 git 业务 commit 可对应 |
+| **ST3** | **40** | `invoke_*_40_*` + task §自检结论已回填 |
+| **ST4** | **50** | `reinspect_<slug>_YYYYMMDD_vN.md` + `invoke_*_50_*` |
+| **ST5** | **关账** | task 头部 `done（…）` · `git mv` done/ · `_views/done.md` · `invoke_*_CLOSE_*` |
+| **ST6** | **索引** | RECENT §6.6/§8 · docs-governance H1–H5；invoke **无** `round: R1` 等 Loop 字段 |
+
+**禁止跳帽**：不得在未落盘当前帽 invoke + commit 的情况下进入下一帽（即使 semi_auto）。
+
+**Claude Code**：关账前须显式勾选 ST1–ST6；见各 task `PROMPT_START` §关账前自检。
+
+---
+
 ## 关账 checklist
 
 1. §验收 `- [x]` · 头部 `done（日期 · freeze_id）`  
@@ -100,6 +134,8 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账 checklist |
+| 2026-05-27 | v1.1：Claude Code 范例 · PROMPT_START + PROMPT_TASK_22_to_CLOSE（gov-wiki-t4-expand / gov-l2-manifest-ci） |
+| 2026-05-27 | v1.2：§ST1–ST6 单 task 合规自检 · PROMPT_RETRO 与 START 分工 · gov-wiki-t4-expand 复盘 |
 
 ---
 
