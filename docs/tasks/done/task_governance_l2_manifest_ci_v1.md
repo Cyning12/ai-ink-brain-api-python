@@ -1,6 +1,6 @@
 # Task：治理 — L2 `_test_manifest` Phase B（扩面 + CI 校验）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-L2-MANIFEST-CI@2026-05-27）  
 > **前置**：Wiki Loop T4+L2 **实例 4** R3 · [`task_governance_l2_r3_test_manifest_v1.md`](../done/task_governance_l2_r3_test_manifest_v1.md)  
 > **SPEC**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) §4.3 **Phase B**  
 > **SKILL**：[`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md) · [`SKILL-harness-task.md`](../skills/SKILL-harness-task.md)（**单 task**，非 Loop）
@@ -58,16 +58,16 @@ Loop R3 已落盘 **`_test_manifest.json` v1 草案**（6 entries · Phase A · 
 
 ## 范围
 
-- [ ] 扩展 [`docs/_tech_graph/_test_manifest.json`](../../_tech_graph/_test_manifest.json)：**≥12 entries**（在现有 6 条上增量；`id` 稳定、带 Epic 前缀）。  
-- [ ] 新增 `tools/tech_graph_test_manifest_check.py`（L2 SPEC §4.3 Phase B 行为）：  
+- [x] 扩展 [`docs/_tech_graph/_test_manifest.json`](../../_tech_graph/_test_manifest.json)：**≥12 entries**（在现有 6 条上增量；`id` 稳定、带 Epic 前缀）。  
+- [x] 新增 `tools/tech_graph_test_manifest_check.py`（L2 SPEC §4.3 Phase B 行为）：  
   - JSON schema / 必填字段；  
   - 每条 `test_paths`：`fnmatch` 在仓库根至少匹配一个 `tests/**/*.py`；  
   - （v1 最小）抽样校验 `error_codes` 在 `api/` 有字符串出现（可配置 `--strict`）。  
-- [ ] 新增 `tests/test_tech_graph_test_manifest_check.py`（≥3 cases：合法 manifest、坏 glob、缺字段）。  
-- [ ] [`.github/workflows/tech-graph.yml`](../../.github/workflows/tech-graph.yml)：`manifest_check` job 增 step 跑新脚本。  
-- [ ] [`docs/_tech_graph/99_spec.md`](../../_tech_graph/99_spec.md) 测试 manifest 小节补脚本与 VERIFY。  
-- [ ] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §6.6 增 **L2 Phase B** 行 + §8 修订。  
-- [ ] 22/30/40/50 + reinspect + 关账 hygiene H1–H5。
+- [x] 新增 `tests/test_tech_graph_test_manifest_check.py`（≥3 cases：合法 manifest、坏 glob、缺字段）。  
+- [x] [`.github/workflows/tech-graph.yml`](../../.github/workflows/tech-graph.yml)：`manifest_check` job 增 step 跑新脚本。  
+- [x] [`docs/_tech_graph/99_spec.md`](../../_tech_graph/99_spec.md) 测试 manifest 小节补脚本与 VERIFY。  
+- [x] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §6.6 增 **L2 Phase B** 行 + §8 修订。  
+- [x] 22/30/40/50 + reinspect + 关账 hygiene H1–H5。
 
 ## 非范围
 
@@ -104,13 +104,13 @@ Loop R3 已落盘 **`_test_manifest.json` v1 草案**（6 entries · Phase A · 
 
 ## 验收标准
 
-- [ ] `python tools/tech_graph_test_manifest_check.py` → **exit 0**  
-- [ ] `pytest tests/test_tech_graph_test_manifest_check.py -q` → 全绿  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` → 全绿  
-- [ ] `python tools/tech_graph_manifest_check.py` · `contract_check` · `graph_export --check` → 绿  
-- [ ] `_test_manifest.json`：`len(entries) >= 12`  
-- [ ] GitHub Actions `manifest_check` job 含新 step 且 PR 上 **pass**  
-- [ ] 关账：`done/` + `_views` + reinspect + RECENT §8
+- [x] `python tools/tech_graph_test_manifest_check.py` → **exit 0**  
+- [x] `pytest tests/test_tech_graph_test_manifest_check.py -q` → 全绿  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` → 全绿  
+- [x] `python tools/tech_graph_manifest_check.py` · `contract_check` · `graph_export --check` → 绿  
+- [x] `_test_manifest.json`：`len(entries) >= 12`  
+- [x] GitHub Actions `manifest_check` job 含新 step 且 PR 上 **pass**（PR #70）  
+- [x] 关账：`done/` + `_views` + reinspect + RECENT §8
 
 **VERIFY（40 帽 · 合并前必跑）**：
 

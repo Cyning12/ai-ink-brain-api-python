@@ -33,6 +33,7 @@
 | H3 | CLOSE invoke 落盘 | ✅ |
 | H4 | RECENT §8 修订 | ✅（30 commit 中已完成） |
 | H5 | hygiene：无意外文件残留 | ✅（未改 api/ 业务逻辑 / 未手改 graph.json） |
+| H6 | task 头部 done + 验收 `- [x]` | ✅（hygiene Part A · `task/gov-l2-manifest-ci-hygiene-v1`） |
 
 ---
 

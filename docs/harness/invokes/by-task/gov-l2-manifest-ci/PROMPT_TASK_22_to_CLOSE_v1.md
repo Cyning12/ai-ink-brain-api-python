@@ -9,7 +9,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| **task** | `docs/tasks/active/task_governance_l2_manifest_ci_v1.md` |
+| **task** | `docs/tasks/done/task_governance_l2_manifest_ci_v1.md`（**done** · PR #70） |
 | **task_slug** | `gov-l2-manifest-ci` |
 | **freeze_id** | `GOV-L2-MANIFEST-CI@2026-05-27` |
 | **git_branch** | `task/gov-l2-manifest-ci-v1` |

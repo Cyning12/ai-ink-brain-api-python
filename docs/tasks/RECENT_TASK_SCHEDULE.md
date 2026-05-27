@@ -372,6 +372,7 @@ flowchart TD
 | 2026-05-27 | **T4 扩面 + L2 Phase B 拆单**：`task_governance_wiki_t4_expand_v2` · `task_governance_l2_manifest_ci_v1` · 两单 task 并行（非 Loop） |
 | 2026-05-27 | **gov-wiki-t4-expand done**：T4 扩面 3 synthesis graph_nodes · reinspect pass · Harness 帽链追溯补全 |
 | 2026-05-27 | **gov-l2-manifest-ci 30 编码**：manifest 12 entries + `tech_graph_test_manifest_check.py` + pytest + workflow + 99_spec VERIFY |
+| 2026-05-27 | **gov-l2-manifest-ci done**：PR #70 merge · L2 Phase B CI · Harness hygiene Part A（task done 正文 · invoke §3 · H5 引用） |
 
 
 ---

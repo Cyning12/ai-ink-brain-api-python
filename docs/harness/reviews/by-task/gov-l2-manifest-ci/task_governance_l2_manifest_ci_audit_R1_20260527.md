@@ -2,7 +2,7 @@
 
 > **task_slug**: gov-l2-manifest-ci
 > **freeze_id**: GOV-L2-MANIFEST-CI@2026-05-27
-> **task**: `docs/tasks/active/task_governance_l2_manifest_ci_v1.md`
+> **task**: `docs/tasks/done/task_governance_l2_manifest_ci_v1.md`
 > **SPEC**: `docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` §4.3 Phase B
 > **invoke_snapshot**: `docs/harness/invokes/by-task/gov-l2-manifest-ci/invoke_20260527_22_gov-l2-manifest-ci-v1.md`
 
@@ -55,7 +55,7 @@
 你正在执行 gov-l2-manifest-ci **30 执行编码**。
 
 【必读】
-- docs/tasks/active/task_governance_l2_manifest_ci_v1.md
+- docs/tasks/done/task_governance_l2_manifest_ci_v1.md
 - docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md §4.3 Phase B
 - docs/_tech_graph/_test_manifest.json（现有 6 entries）
 - tools/tech_graph_manifest_check.py（参照脚本）

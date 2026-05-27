@@ -1,6 +1,6 @@
 # 新 Agent 入口 · 单 task 全链（22→关账 · 仅粘贴一次）
 
-> **用途**：**gov-l2-manifest-ci**（L2 `_test_manifest` Phase B）完整帽链 · **前置** T4 扩面已 merge（PR #69 · `GOV-T4-EXPAND@2026-05-27`）。  
+> **状态**：**done**（PR #70 · `GOV-L2-MANIFEST-CI@2026-05-27`）· 本 Prompt 为**历史全链入口**；已 merge 后 hygiene 见 [`PROMPT_RETRO_hygiene_bc_v1.md`](./PROMPT_RETRO_hygiene_bc_v1.md)。  
 > **性质**：**单 task**（`SKILL-harness-task`）· **非** Loop Batch。  
 > **分支（硬）**：`task/gov-l2-manifest-ci-v1` · Open **`ai-ink-brain-api-python/`**
 
@@ -157,3 +157,4 @@ python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')
 | --- | --- |
 | 2026-05-27 | v1：L2 Phase B 单 task 全链 · Claude Code |
 | 2026-05-27 | v1.1：T4 已 merge · ST1–ST6 · 禁止跳帽 · 22/30/40/50 逐步交付 · VERIFY 全表 |
+| 2026-05-27 | v1.2：PR #70 merge · task **done** · hygiene 见 [`PROMPT_RETRO_hygiene_bc_v1.md`](./PROMPT_RETRO_hygiene_bc_v1.md) |
