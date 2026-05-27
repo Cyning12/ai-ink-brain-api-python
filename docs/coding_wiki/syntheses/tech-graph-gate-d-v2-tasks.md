@@ -6,6 +6,13 @@ source_task: docs/tasks/done/task_engineering_tech_graph_gate_d_v2_tasks_v1.md
 freeze_id: TECH_GRAPH_GATE_D_V2_TASKS_FREEZE_20260520_V1_0
 closed_date: 2026-05-21
 status: compiled
+graph_nodes:
+  - id: CR1
+    relation: documents
+    note: Code Query · graph_query v2 消费与题集扩域（T4 扩面）
+  - id: E2E_DOC
+    relation: documents
+    note: E2E 边界文档 · 闸口 D v2 五题验证基线
 ---
 
 # 闸口 D — v2 题集扩域
@@ -25,6 +32,8 @@ status: compiled
 - Task：→ `docs/tasks/done/task_engineering_tech_graph_gate_d_v2_tasks_v1.md`  
 - 50 复检：→ `docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_reinspect_R1_20260521.md`（历史路径；新审查看 `by-task/`）  
 - 方法论：治理仓 `AGENT_GRAPH_CONSUMPTION` §6.1
+
+**T4**：frontmatter `graph_nodes`（CR1/E2E_DOC）· 读序见 [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) §4.1。
 
 ## 相关
 

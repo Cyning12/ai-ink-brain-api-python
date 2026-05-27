@@ -168,3 +168,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-26 | 链出 `WIKI_REQUIREMENTS_COMPARISON_v1_zh.md` |
 | 2026-05-26 | §8.1 `api/` Epic `test_strategy` ingest 纪律（Wiki Loop A2 · `CODING-WIKI-A2-SCHEMA-RULE@2026-05-26`） |
 | 2026-05-27 | T4：`graph_nodes` frontmatter · query/lint · 链 Bridge SPEC |
+| 2026-05-27 | T4 扩面：3 slug 含 `graph_nodes`（Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks`）|

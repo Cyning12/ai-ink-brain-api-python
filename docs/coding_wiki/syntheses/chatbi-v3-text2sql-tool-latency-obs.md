@@ -6,6 +6,16 @@ source_task: docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md
 freeze_id: CHATBI-V3-TEXT2SQL-OBS@2026-05-11
 closed_date: 2026-05-11
 status: compiled
+graph_nodes:
+  - id: T2S
+    relation: documents
+    note: Text2SQL 子流程 · SSE 子阶段延迟与可观测性（T4 扩面）
+  - id: SSE
+    relation: triggers
+    note: SSE 流式输出 · text2sql.phase.* 子阶段触发
+  - id: U2
+    relation: documents
+    note: Unified SSE 契约 · X-ChatBI-Sse-Contract
 ---
 
 # ChatBI V3 Text2SQL 工具链延迟与可观测性
@@ -32,6 +42,7 @@ status: compiled
 **失败/超时语义**：`LLM_API_TIMEOUT` + 可选 `detail.phase` = `llm_sql` / `llm_summary`（→ L1 §拍板 #5）。
 
 **图谱**：→ `docs/_tech_graph/11_flow_text2sql.md` / `.ai.md`（L1 要求与实现一致）。
+**T4**：frontmatter `graph_nodes`（T2S/SSE/U2）· 读序见 [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) §4.1。
 
 **RUNBOOK**：→ `docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1_RUNBOOK.md`（流程细则，禁止复制全文）。
 
