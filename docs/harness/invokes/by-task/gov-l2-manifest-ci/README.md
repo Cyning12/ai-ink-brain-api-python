@@ -1,7 +1,7 @@
 # 单 task · L2 manifest Phase B + CI
 
 > **task**：[`docs/tasks/active/task_governance_l2_manifest_ci_v1.md`](../../../../tasks/active/task_governance_l2_manifest_ci_v1.md)  
-> **分支**：`task/gov-l2-manifest-ci-v1` · **非 Loop** · **建议 Task A 关账后再开**
+> **分支**：`task/gov-l2-manifest-ci-v1` · **非 Loop** · 前置 T4 扩面 **done**（PR #69 · main）
 
 | 步骤 | 文件 |
 |------|------|
