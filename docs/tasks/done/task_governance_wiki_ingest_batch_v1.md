@@ -81,7 +81,7 @@
 ## 非范围
 
 - 已有 5 篇 synthesis **正文重做**（仅允许补 frontmatter/§测试变更）  
-- Agent 必读链（→ [`task_governance_wiki_agent_readorder_v1.md`](../done/task_governance_wiki_agent_readorder_v1.md) · 可并行 PR）  
+- Agent 必读链（→ [`task_governance_wiki_agent_readorder_v1.md`](../done/task_governance_wiki_agent_readorder_v1.md) · PR #73 已合并）  
 - `api/` · `tests/` · workflow  
 
 ---
