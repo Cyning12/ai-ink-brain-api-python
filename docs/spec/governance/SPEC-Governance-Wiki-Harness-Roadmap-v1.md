@@ -132,7 +132,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **P1** | Ingest 批量 | 10 slug | **done** · [`task_governance_wiki_ingest_batch_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_v1.md) |
 | **P1** | AB 代表性扩面 | 6 slug P2 | **done** · [`task_governance_wiki_ctx_ab_representative_v1.md`](../../tasks/done/task_governance_wiki_ctx_ab_representative_v1.md) |
 | **P1** | **P1-4 前端 parity** | Harness + 读序 | **active（当前推广主棒）** · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task |
-| **P2** | **P2 后续 Loop** | T4 active + L2 Phase C 设计 + Ingest-2 | **in_progress** · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) · `wiki-loop-p2-followup` · 与 P1-4 **并行** |
+| **P2** | **P2 后续 Loop** | T4 active + L2 Phase C 设计 + Ingest-2 | **done** · [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) · [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/done/task_harness_wiki_loop_p2_followup_v1.md) |
 
 ---
 
@@ -143,8 +143,8 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 轨道 | 当前状态 | Open Folder | 入口 |
 | --- | --- | --- | --- |
 | **主棒 · 前端 P1-4** | **active** | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) → 工作区 `PROMPT_START_full_chain_v1.md` |
-| **并行 · 后端 P2 Loop** | **in_progress**（`HG-LOOP-BATCH` approved） | **`ai-ink-brain-api-python/`** | [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) → `wiki-loop-p2-followup/` |
-| **后端推广收口** | 读序 + Batch-1 + AB-REP **done** | 本仓 | §5.1 上表 P1 行 |
+| **并行 · 后端 P2 Loop** | **done**（2026-05-27 · PR #76） | **`ai-ink-brain-api-python/`** | [`REPORT_completion_wiki_loop_p2_followup_v1.md`](../../harness/invokes/by-task/wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md) |
+| **后端推广收口** | 读序 + Batch-1/2 + AB-REP + P2 Loop **done** | 本仓 | §5.1 上表 |
 
 **硬规则**：前端大包 **禁止** 在后端仓改 `ai-ink-brain/`；后端 P2 Loop **禁止** 重复 Batch-1 ingest slug。
 

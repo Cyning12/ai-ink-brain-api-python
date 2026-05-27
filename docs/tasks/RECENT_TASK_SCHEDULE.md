@@ -381,7 +381,7 @@ flowchart TD
 | 2026-05-27 | **gov-wiki-ingest-batch done**：10 slug batch ingest · syntheses 5→15 · `reinspect_gov-wiki-ingest-batch_20260527_v1.md` |
 | 2026-05-27 | **AB 代表性扩面 done**：6 slug · `WIKI-CTX-AB-REP@2026-05-27` · accepted 部分外推 · 前端 P1-4 证据轨 |
 | 2026-05-27 | **推广 runway 冻结**：P1-4 SPEC + 工作区 task/Prompt · P2 Loop SPEC + 三子 task 草案 · Roadmap §5.2 |
-| 2026-05-27 | **P2 Loop R1 in_progress**：T4 Bridge SPEC **active** · `GOV-T4-SPEC-ACTIVE@2026-05-27` · `gov-t4-spec-active` 30 交付 |
+| 2026-05-27 | **P2 Loop R1–R3 + META done**：T4 active · L2 Phase C design · Batch-2 ingest · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · PR #76 |
 
 
 ---
