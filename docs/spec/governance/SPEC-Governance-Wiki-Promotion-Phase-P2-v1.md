@@ -53,7 +53,7 @@
 | 4 | `harness-wiki-loop-p2-followup` | 本 Loop META（关账后补页或 R3 前占位 synthesis 骨架） |
 | 5 | `coding-wiki-concepts-harness` | T1c / 概念页 pointer（按 R3 task 锁定） |
 
-**R3 启动前**：`HG-INGEST-BATCH-2-SCOPE` 须 **approved** 并锁定上表（允许 ±1 替换，须写 invoke 理由）。
+**R3 启动前**：母单 [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/active/task_harness_wiki_loop_p2_followup_v1.md) `human_gate` 中 `HG-INGEST-BATCH-2-SCOPE` 须 **approved** 并锁定上表（允许 ±1 替换，须写 invoke 理由）。
 
 ---
 

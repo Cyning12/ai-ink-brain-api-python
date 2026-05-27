@@ -17,6 +17,7 @@
 ```bash
 git branch --show-current   # 须 task/wiki-loop-p2-followup-v1
 grep -n 'HG-LOOP-BATCH.*approved' docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md
+grep -n 'HG-INGEST-BATCH-2-SCOPE' docs/tasks/active/task_harness_wiki_loop_p2_followup_v1.md
 test -f docs/tasks/active/task_governance_t4_spec_active_v1.md
 test -f docs/harness/invokes/by-task/wiki-loop-p2-followup/PROMPT_LOOP_22_to_CLOSE_v1.md
 ```
@@ -28,7 +29,7 @@ test -f docs/harness/invokes/by-task/wiki-loop-p2-followup/PROMPT_LOOP_22_to_CLO
 ```text
 【授权】semi_auto 跨 round：R1 关账后无需停、无需人开新对话；按 LOOP_MANIFEST 依次执行 R2→R3→META 关账。
 每帽仍须：invoke §3 全文落盘 + 该帽工件 + git commit（见 HANDOFF_AUTO_COMMIT）。
-顺序硬约束：R1→R2→R3；R3 启动前 HG-INGEST-BATCH-2-SCOPE 须 approved。
+顺序硬约束：R1→R2→R3；**R3 启动前** 母单 `HG-INGEST-BATCH-2-SCOPE` 须 approved（真值见母单 human_gate 表）。
 ```
 
 ---

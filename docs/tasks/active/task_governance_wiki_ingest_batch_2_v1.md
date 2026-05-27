@@ -21,8 +21,10 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | **pending** | 22, 30 | 继承母单 · **R2 须在 done/** |
-| HG-INGEST-BATCH-2-SCOPE | **pending** | 30 | **锁定** §3 候选 slug 表 |
+| HG-LOOP-BATCH | **pending** | 22, 30 | **继承母单** · **R2 须在 done/** |
+| HG-INGEST-BATCH-2-SCOPE | **pending** | 30 | **继承母单** · **锁定** §3 slug 表 · R3·30 前须 approved |
+
+> 改 `pending`/`approved` **只改母单** [`task_harness_wiki_loop_p2_followup_v1.md`](task_harness_wiki_loop_p2_followup_v1.md) `human_gate` 表。
 
 ---
 
