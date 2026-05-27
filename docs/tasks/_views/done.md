@@ -79,5 +79,6 @@
 - `../done/task_harness_wiki_loop_c2_verify_v1.md`（2026-05-26 验收通过：Wiki Loop C2 Verify 母单 · 第三 harness-loop-batch Loop · invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · `WIKI-LOOP-C2-VERIFY@2026-05-26`）
 - `../done/task_governance_wiki_t4_r1_pilot_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R1 · T4 Pilot · graph_nodes + CODING_WIKI + 99_spec + RECENT · 50 复检 `reinspect_wiki-t4-r1-pilot_20260527_v1.md` · `freeze_id` `GOV-T4-R1-PILOT@2026-05-27`）
 - `../done/task_governance_wiki_t4_r2_l0_align_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R2 · T4 L0 对齐 · VERIFY + drift 已知债务标注 · 50 复检 `reinspect_wiki-t4-r2-l0-align_20260527_v1.md` · `freeze_id` `GOV-T4-R2-L0-ALIGN@2026-05-27`）
-- `../done/task_governance_l2_r3_test_manifest_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R3 · L2 manifest 草案 · `_test_manifest.json` 6 entries + 99_spec + CODING_WIKI + RECENT done · 50 复检 `reinspec_gov-l2-r3-test-manifest_20260527_v1.md` · `freeze_id` `GOV-L2-R3-TEST-MANIFEST@2026-05-27`）
+- `../done/task_governance_l2_r3_test_manifest_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 R3 · L2 manifest 草案 · `_test_manifest.json` 6 entries + 99_spec + CODING_WIKI + RECENT done · 50 复检 `reinspect_gov-l2-r3-test-manifest_20260527_v1.md` · `freeze_id` `GOV-L2-R3-TEST-MANIFEST@2026-05-27`）
+- `../done/task_harness_wiki_loop_t4_l2_v1.md`（2026-05-27 验收通过：Wiki Loop T4+L2 母单 · 单 PR `task/gov-spec-t4-l2-v1` · `WIKI-LOOP-T4-L2@2026-05-27`）
 

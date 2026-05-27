@@ -318,7 +318,7 @@ flowchart TD
 | **Wiki Loop B-Q3 Recheck** | **`task_harness_wiki_loop_bq3_recheck_v1`** + 三子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_bq3_recheck_v1.md`](done/task_harness_wiki_loop_bq3_recheck_v1.md)（关账后）· B-Q3 Recheck · 单 PR `task/wiki-loop-bq3-recheck-v1` · 第二 Loop 试点 |
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
 | P1-4 | 前端 Harness parity | **远期** | `ai-ink-brain` · 与 T3 工作区交付 **解耦** |
-| T4 | 图谱 `::documents` 等 | **planned** | SPEC §T4 |
+| T4 | 图谱桥接 / `graph_nodes` | **draft**（Pilot done） | 链 `SPEC-Governance-Wiki-TechGraph-Bridge-v1.md` · Pilot `query-rewrite-observability` · Loop T4+L2 R1/R2 |
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
 
 ---
@@ -366,6 +366,7 @@ flowchart TD
 | 2026-05-26 | **Wiki Loop B-Q3 Recheck done**：R1–R3 子 task + 母单关账 · §6.6 同步 · `WIKI-LOOP-BQ3-RECHECK@2026-05-26` · 第二 harness-loop-batch Loop |
 | 2026-05-26 | **Wiki Loop C2 Verify in_progress**：R1 RECENT §6.6 draft 行 · `WIKI-C2-R1-SCHEDULE@2026-05-26` · 第三 Loop invoke C2 试点 |
 | 2026-05-26 | **Wiki Loop C2 Verify done**：R2 RECENT §6.6 done + invoke README · `WIKI-C2-R2-INDEX@2026-05-26` · R1/R2 invoke C2 全绿 |
+| 2026-05-27 | **Wiki Loop T4+L2 done**：R1→R3 子 task + 母单关账 · §6.6 T4+L2 行 · `WIKI-LOOP-T4-L2@2026-05-27` · 第四 harness-loop-batch 真实业务 Loop |
 
 
 ---

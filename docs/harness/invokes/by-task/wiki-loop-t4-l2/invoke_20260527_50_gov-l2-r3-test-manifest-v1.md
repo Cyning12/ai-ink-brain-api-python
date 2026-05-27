@@ -32,7 +32,7 @@
 
 ### 2.2 验收表
 
-10 项全部 pass（详见 `docs/tasks/reinspect_results/reinspec_gov-l2-r3-test-manifest_20260527_v1.md`）。
+10 项全部 pass（详见 `docs/tasks/reinspect_results/reinspect_gov-l2-r3-test-manifest_20260527_v1.md`）。
 
 ## §3 关账（无下一棒）
 

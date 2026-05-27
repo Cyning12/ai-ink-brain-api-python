@@ -1,6 +1,7 @@
 # Task：Wiki Loop T4 + L2 工具链 — 单 PR 编排母单（第四轮 · 真实业务）
 
-> **状态**：active  
+> **状态**：done  
+> **META 关账日期**：2026-05-27  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../tasks/skills/SKILL-harness-loop-batch.md)（第四轮 · **T4 桥接 + L2 test manifest**）  
 > **治理 SPEC（draft）**：[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) · [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md)  
 > **10 帽 Batch**：见 [`docs/harness/invokes/by-task/wiki-loop-t4-l2/PROMPT_BATCH_10_t4_l2_v1.md`](../harness/invokes/by-task/wiki-loop-t4-l2/PROMPT_BATCH_10_t4_l2_v1.md) · invoke [`invoke_20260527_10_batch_t4_l2_v1.md`](../harness/invokes/by-task/wiki-loop-t4-l2/invoke_20260527_10_batch_t4_l2_v1.md)
@@ -74,10 +75,10 @@
 ## 范围
 
 - [x] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
-- [ ] R1→R2→R3 按上表顺序各走完整 22→30→40→50→关账链。  
-- [ ] 各 round invoke **C2 全绿**。  
-- [ ] 三轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
-- [ ] 母 task META 关账 + `REPORT_completion_*` §1～§5 落盘。
+- [x] R1→R2→R3 按上表顺序各走完整 22→30→40→50→关账链。  
+- [x] 各 round invoke **C2 全绿**。  
+- [x] 三轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  
+- [x] 母 task META 关账 + `REPORT_completion_*` §1～§5 落盘。
 
 ## 非范围
 
