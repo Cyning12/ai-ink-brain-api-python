@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | **pending** | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task 继承后可启动全链 |
-| HG-INGEST-BATCH-2-SCOPE | **pending** | 22-R3, 30 | **R3 启动前** 锁定 5 slug · 真值 [`task_governance_wiki_ingest_batch_2_v1.md`](task_governance_wiki_ingest_batch_2_v1.md) §3 · P2 SPEC §3 |
+| HG-LOOP-BATCH | **approved** | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task 继承后可启动全链 |
+| HG-INGEST-BATCH-2-SCOPE | **approved** | 22-R3, 30 | **R3 启动前** 锁定 5 slug · 真值 [`task_governance_wiki_ingest_batch_2_v1.md`](task_governance_wiki_ingest_batch_2_v1.md) §3 · P2 SPEC §3 |
 
 > **子 task 继承**：R1/R2 仅继承 `HG-LOOP-BATCH`；R3 另受 `HG-INGEST-BATCH-2-SCOPE` 约束。**改 status 以母单为准**，子单勿单独漂移。
 
