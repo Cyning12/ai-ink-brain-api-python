@@ -27,7 +27,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | **pending** | 22-R1, 30, 40, 50 | **人批**后子 task 方可启动 Loop（各子 task 写「继承母闸」） |
+| HG-LOOP-BATCH | **approved** | 22-R1, 30, 40, 50 | 人批 2026-05-27；子 task 继承后可启动全链 |
 
 ---
 
@@ -73,7 +73,7 @@
 
 ## 范围
 
-- [ ] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
+- [x] `HG-LOOP-BATCH` 由 **人** 改 `approved` 后启动 R1 Loop。  
 - [ ] R1→R2→R3 按上表顺序各走完整 22→30→40→50→关账链。  
 - [ ] 各 round invoke **C2 全绿**。  
 - [ ] 三轮子 task 均 `git mv` 至 `docs/tasks/done/` 并更新索引。  

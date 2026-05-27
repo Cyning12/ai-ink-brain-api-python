@@ -23,9 +23,9 @@
 
 同步落盘：`LOOP_MANIFEST.md` · `PROMPT_LOOP_22_to_CLOSE_v1.md` · `PROMPT_START_loop_t4_l2_full_chain_v1.md` · `README.md`。
 
-**母闸**：`HG-LOOP-BATCH` = **pending** — 人批后方可 `PROMPT_START` 全链。
+**母闸**：`HG-LOOP-BATCH` = **approved**（2026-05-27 · commit 见 gate 专提交）。
 
-**下一棒**：人改 `HG-LOOP-BATCH` → `approved`（建议单独 commit）→ 粘贴 [`PROMPT_START_loop_t4_l2_full_chain_v1.md`](./PROMPT_START_loop_t4_l2_full_chain_v1.md) §3。
+**下一棒**：粘贴 [`PROMPT_START_loop_t4_l2_full_chain_v1.md`](./PROMPT_START_loop_t4_l2_full_chain_v1.md) §3 启动 R1 全链。
 
 **禁止**：本 invoke 后继续 22（须等全链启动）。
 
