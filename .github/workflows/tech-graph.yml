@@ -24,6 +24,9 @@ jobs:
       - name: Tech Graph manifest check
         run: python tools/tech_graph_manifest_check.py
 
+      - name: Tech Graph test manifest check
+        run: python tools/tech_graph_test_manifest_check.py
+
       - name: Tech graph graph.json drift check (graph_v2 export)
         run: python tools/tech_graph_graph_export.py --check
 

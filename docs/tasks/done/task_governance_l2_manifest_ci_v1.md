@@ -130,10 +130,10 @@ python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填） |
+| 涉及文件 | `docs/_tech_graph/_test_manifest.json`、`tools/tech_graph_test_manifest_check.py`、`tests/test_tech_graph_test_manifest_check.py`、`.github/workflows/tech-graph.yml`、`docs/_tech_graph/99_spec.md`、`docs/tasks/RECENT_TASK_SCHEDULE.md` |
 | 新增 env | 无 |
-| CI 变更 | `tech-graph.yml` manifest_check step |
-| 图谱变更点 | `99_spec.md` 指针；**不**手改 `graph.json` |
+| CI 变更 | `tech-graph.yml` manifest_check job 增 step「Tech Graph test manifest check」 |
+| 图谱变更点 | `99_spec.md` 测试 manifest 小节补脚本与 VERIFY；**不**手改 `graph.json` |
 
 ---
 
@@ -141,9 +141,9 @@ python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')
 
 | 项 | 结果 |
 |----|------|
-| 命令 | （待填） |
-| 结论 | pass / fail |
-| 要点 | （待填） |
+| 命令 | `python tools/tech_graph_test_manifest_check.py` · `pytest tests/test_tech_graph_test_manifest_check.py -q` · `pytest tests -m "not intent_eval and not intent_benchmark" -q` · `python tools/tech_graph_manifest_check.py` · `python tools/tech_graph_contract_check.py` · `python tools/tech_graph_graph_export.py --check` · `python -c "assert len(entries)>=12"` |
+| 结论 | **pass** |
+| 要点 | 7/7 VERIFY 全绿；233 passed 1 skipped；test_manifest 12 entries；严格模式仅 2 个已有 Phase A 条目的 error_code 不在 api/ 中（符合 SPEC 预期） |
 
 ---
 

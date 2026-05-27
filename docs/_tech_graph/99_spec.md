@@ -58,6 +58,20 @@ flowchart TD
 | **Phase** | A（文档化存在）→ B（`tech_graph_test_manifest_check.py` 可选）→ C（双向校验） |
 | **边界** | `_test_manifest.json` **不得** 手改 `graph.json`；CI  workflow 须显式排除（白名单仅 `graph.json`、`_manifest.json`、`_contract_manifest.json`） |
 | **与 Wiki** | `CODING_WIKI.md` §8 负责 **叙事**；`_test_manifest` 负责 **机器校验** |
+| **脚本** | `python tools/tech_graph_test_manifest_check.py`（JSON schema / glob 匹配 / 可选 `--strict` error_code 扫描） |
+
+**VERIFY（`_test_manifest`）**：
+
+```bash
+# 基础校验（非严格）
+python tools/tech_graph_test_manifest_check.py
+
+# 严格模式（error_codes 须在 api/*.py 出现）
+python tools/tech_graph_test_manifest_check.py --strict
+
+# 条目数
+python -c "import json; m=json.load(open('docs/_tech_graph/_test_manifest.json')); assert len(m['entries'])>=12"
+```
 
 ```mermaid
 flowchart TD

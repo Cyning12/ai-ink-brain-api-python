@@ -53,6 +53,55 @@
       "pytest_markers": ["integration"],
       "test_paths": ["tests/test_health_probe_routes.py"],
       "notes": "/live /ready 健康探针失败；P2-1a"
+    },
+    {
+      "id": "FP-PROMPT-GUARD-BLOCKED",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_prompt_guard_v1.md#failure_paths",
+      "error_codes": ["RULE_IGNORE_PREV", "RULE_FAKE_SYSTEM", "RULE_EXFIL_SECRET", "RULE_AUDIT_WIPE", "RULE_DATA_EXFIL"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_chatbi_prompt_guard_*.py"],
+      "graph_nodes_optional": ["C1"],
+      "notes": "ChatBI V3 P1-2 Prompt Guard 规则命中；见 api/chatbi_prompt_guard.py"
+    },
+    {
+      "id": "FP-ADMIN-INGEST-INVALID-TYPE",
+      "failure_path_ref": "docs/tasks/done/task_admin_ingest_route_v1.md#failure_paths",
+      "error_codes": ["Invalid ingest type"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_admin_ingest_route.py"],
+      "notes": "/api/py/admin/ingest 非法 type 参数；见 api/index.py"
+    },
+    {
+      "id": "FP-CHAIN-CHAT-MISSING-FIELD",
+      "failure_path_ref": "docs/tasks/done/task_ui_chain_events_backend.md#failure_paths",
+      "error_codes": ["Missing required field: query"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_chain_chat_events.py"],
+      "notes": "chain_chat 缺少 query 字段；见 api/chain_chat.py"
+    },
+    {
+      "id": "FP-CLIENT-CLOSED-REQUEST",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_planning_after_resume_v1.md#failure_paths",
+      "error_codes": ["Client Closed Request"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_unified_chat_backend_v1.py"],
+      "notes": "SSE 流式响应客户端断开；见 api/index.py"
+    },
+    {
+      "id": "FP-TOKEN-INVALID",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md#failure_paths",
+      "error_codes": ["Invalid token id", "Invalid access_level in token row"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_chatbi_access_verify.py", "tests/test_chatbi_access_hash.py"],
+      "notes": "ChatBI principal token 校验失败；见 api/chatbi_principal.py"
+    },
+    {
+      "id": "FP-SUPABASE-RETRY-EXHAUSTED",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md#failure_paths",
+      "error_codes": ["Connection reset by peer"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_supabase_http_retry.py"],
+      "notes": "Supabase HTTP 重试耗尽；见 api/rag_env.py"
     }
   ]
 }
