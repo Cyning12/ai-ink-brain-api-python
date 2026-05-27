@@ -1,6 +1,6 @@
 # Task：治理 — Coding Wiki 批量 Ingest（10 slug · v1）
 
-> **状态**：draft  
+> **状态**：done（2026-05-27 · GOV-WIKI-INGEST-BATCH@2026-05-27）  
 > **前置**：T1b/T1c **done** · T4 扩面 **done** · L2 Phase B **done**  
 > **SPEC**：[`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](../spec/governance/SPEC-Governance-Wiki-Ingest-Batch-v1.md)  
 > **SKILL**：[`SKILL-harness-task.md`](../skills/SKILL-harness-task.md) · [`SKILL-docs-governance.md`](../skills/SKILL-docs-governance.md)
@@ -65,23 +65,23 @@
 
 ## 范围（10 slug · 与 SPEC §2 一致）
 
-- [ ] `governance-l2-manifest-ci` ← `task_governance_l2_manifest_ci_v1.md`
-- [ ] `governance-wiki-t4-expand` ← `task_governance_wiki_t4_expand_v2.md`
-- [ ] `governance-l2-r3-test-manifest` ← `task_governance_l2_r3_test_manifest_v1.md`
-- [ ] `harness-wiki-loop-t4-l2` ← `task_harness_wiki_loop_t4_l2_v1.md`
-- [ ] `wiki-ctx-ab-v1` ← `task_wiki_ctx_ab_v1.md`
-- [ ] `coding-wiki-pilot` ← `task_coding_wiki_pilot_v1.md`
-- [ ] `chatbi-v3-p2-health-ready` ← `task_chatbi_v3_p2_resilience_health_ready_v1.md`
-- [ ] `harness-wiki-loop-c2-verify` ← `task_harness_wiki_loop_c2_verify_v1.md`
-- [ ] `governance-wiki-t4-r1-pilot` ← `task_governance_wiki_t4_r1_pilot_v1.md`
-- [ ] `wiki-ctx-ab-multi-slug` ← `task_wiki_ctx_ab_multi_slug_v1.md`
-- [ ] 更新 `index.md` · `log.md`（10 行）
-- [ ] 22/30/40/50 + reinspect + 关账
+- [x] `governance-l2-manifest-ci` ← `task_governance_l2_manifest_ci_v1.md`
+- [x] `governance-wiki-t4-expand` ← `task_governance_wiki_t4_expand_v2.md`
+- [x] `governance-l2-r3-test-manifest` ← `task_governance_l2_r3_test_manifest_v1.md`
+- [x] `harness-wiki-loop-t4-l2` ← `task_harness_wiki_loop_t4_l2_v1.md`
+- [x] `wiki-ctx-ab-v1` ← `task_wiki_ctx_ab_v1.md`
+- [x] `coding-wiki-pilot` ← `task_coding_wiki_pilot_v1.md`
+- [x] `chatbi-v3-p2-health-ready` ← `task_chatbi_v3_p2_resilience_health_ready_v1.md`
+- [x] `harness-wiki-loop-c2-verify` ← `task_harness_wiki_loop_c2_verify_v1.md`
+- [x] `governance-wiki-t4-r1-pilot` ← `task_governance_wiki_t4_r1_pilot_v1.md`
+- [x] `wiki-ctx-ab-multi-slug` ← `task_wiki_ctx_ab_multi_slug_v1.md`
+- [x] 更新 `index.md` · `log.md`（10 行）
+- [x] 22/30/40/50 + reinspect + 关账
 
 ## 非范围
 
 - 已有 5 篇 synthesis **正文重做**（仅允许补 frontmatter/§测试变更）  
-- Agent 必读链（→ [`task_governance_wiki_agent_readorder_v1.md`](task_governance_wiki_agent_readorder_v1.md)）  
+- Agent 必读链（→ [`task_governance_wiki_agent_readorder_v1.md`](../done/task_governance_wiki_agent_readorder_v1.md) · 可并行 PR）  
 - `api/` · `tests/` · workflow  
 
 ---
@@ -100,10 +100,10 @@
 
 ## 验收标准
 
-- [ ] SPEC §4 VERIFY 全过  
-- [ ] `ls docs/coding_wiki/syntheses/*.md \| wc -l` **≥15**  
-- [ ] 10 个锁定 slug 均在 `index.md`  
-- [ ] 关账 + reinspect + RECENT
+- [x] SPEC §4 VERIFY 全过  
+- [x] `ls docs/coding_wiki/syntheses/*.md \| wc -l` **≥15**  
+- [x] 10 个锁定 slug 均在 `index.md`  
+- [x] 关账 + reinspect + RECENT
 
 **VERIFY（40 帽）**：
 
@@ -124,7 +124,7 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填：10× syntheses + index + log） |
+| 涉及文件 | `docs/coding_wiki/syntheses/` ×10 新增 · `index.md` · `log.md` |
 
 ---
 
@@ -132,8 +132,8 @@ python tools/tech_graph_manifest_check.py
 
 | 项 | 结果 |
 |----|------|
-| 命令 | （待填） |
-| 结论 | pass / fail |
+| 命令 | wc -l=15 · index assert · manifest_check |
+| 结论 | **pass** |
 
 ---
 
