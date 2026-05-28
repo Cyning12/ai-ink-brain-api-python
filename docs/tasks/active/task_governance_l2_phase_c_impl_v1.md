@@ -26,9 +26,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | SPEC §4.4 + 本 task 人扫 · **开工前须 approved** |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 后人签 |
-| HG-REINSPECT | pending | done | 50 后人签 · **PR-B 合并前** |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | SPEC §4.4 + 本 task 人扫 · **开工前须 approved** |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 后人签 |
+| HG-REINSPECT | approved | done | 50 后人签 · **PR-B 合并前** |
 
 ---
 
