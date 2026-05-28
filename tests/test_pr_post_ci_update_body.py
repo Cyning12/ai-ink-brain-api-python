@@ -93,3 +93,17 @@ def test_render_ci_table_no_mergify_row():
 )
 def test_should_auto_tick_test_line(line: str, expected: bool):
     assert mod.should_auto_tick_test_line(line) is expected
+
+
+def test_fetch_changed_files_prefers_pr_view_files(monkeypatch):
+    calls: list[list[str]] = []
+
+    def fake_run(cmd: list[str], *, check: bool = True) -> str:
+        calls.append(cmd)
+        if cmd[:4] == ["gh", "pr", "view", str(78)] and "files" in cmd:
+            return "docs/a.md\napi/b.py\n"
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    monkeypatch.setattr(mod, "_run", fake_run)
+    assert mod.fetch_changed_files(78) == ["docs/a.md", "api/b.py"]
+    assert len(calls) == 1
