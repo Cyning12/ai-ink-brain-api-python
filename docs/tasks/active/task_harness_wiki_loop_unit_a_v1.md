@@ -27,8 +27,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | pending | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task 继承 |
-| HG-INGEST-BATCH-3-SCOPE | pending | 22-R3, 30 | **R3 前** 锁定 Batch-3 五 slug · [`SPEC-Governance-Wiki-Ingest-Batch-3-v1.md`](../spec/governance/SPEC-Governance-Wiki-Ingest-Batch-3-v1.md) §1 |
+| HG-LOOP-BATCH | approved | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task 继承 |
+| HG-INGEST-BATCH-3-SCOPE | approved | 22-R3, 30 | **R3 前** 锁定 Batch-3 五 slug · [`SPEC-Governance-Wiki-Ingest-Batch-3-v1.md`](../spec/governance/SPEC-Governance-Wiki-Ingest-Batch-3-v1.md) §1 |
 
 > **子 task 继承**：R1/R2 仅继承 `HG-LOOP-BATCH`；R3 另受 `HG-INGEST-BATCH-3-SCOPE` 约束。**改 status 以本母单为准**。
 
