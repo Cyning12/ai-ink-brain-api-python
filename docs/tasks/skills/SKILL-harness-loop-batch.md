@@ -109,6 +109,31 @@
 
 ---
 
+## 执行铁律（Loop 运行期 · hard rules）
+
+> 无论 Batch-10 已多完整、无论人/Agent 以何种方式启动 round，**执行首步**必须是：
+
+1. **打开当前 round 的 active task**
+2. **扫描 `human_gate` 表**
+3. 若任一 gate `status: pending` 且 `blocks_hats` 含当前计划帽子：
+   - **硬停**。输出 `📋 Harness 状态栏（版本 B）`，阻塞项写清 `gate_id` + 文件路径 + 须改字段
+   - **禁止**写 review、禁止改代码、禁止落盘 invoke
+   - 等待人改 `pending` → `approved`（或人明确文字授权代填，commit message 须注明）
+
+**此规则不因为以下情况失效**：
+
+| 常见误推 | 实际规则 |
+|----------|----------|
+| 用户粘贴了完整 `PROMPT_LOOP` §3 | Prompt 只描述「做什么」，不替代 gate 「能否做」 |
+| `semi_auto: true` | 自动戴帽只在 **A2（无 pending 阻塞）** 时成立（`HANDOFF_SEMI_AUTO.md` §3.1） |
+| `audit_profile: post_close` | post_close 只影响 **22 审核深度**（轻闸），不豁免 gate |
+| 母 task `HG-LOOP-BATCH` 已 approved | 子 task 的继承闸仍需 **验证文件状态**，不得以「母单已批」跳过读文件 |
+| 用户说「执行」/「继续」/「开始」 | 对话指令 **≠** gate 状态变更；须见文件 `approved` 或人明确授权 |
+
+真值：`HANDOFF_SEMI_AUTO.md` §2.3、`HANDOFF_SEMI_AUTO.md` §3.4.2 阻塞版状态栏。
+
+---
+
 ## 流程（三选一 · 勿写死「三会话」）
 
 人/Agent 按场景择一；**可**在同一物理会话内完成多段（如 Batch 后立即全链）。
@@ -120,6 +145,7 @@
 
 [B · 全链一次 · 推荐]
   PROMPT_START_<loop-slug>_full_chain §3（含 §2【授权】cross-round）
+  → **验证 R1 task human_gate，pending 则停**（见上节「执行铁律」）
   → 同会话 semi_auto：R1→…→Rn 各 22→30→40→50→关账 → META 关账
   → 每帽：invoke §3 全文落盘 + commit（HANDOFF_AUTO_COMMIT）
   → 某 round 关账：按 MANIFEST 回填下一子 PLACEHOLDER（若有）
