@@ -59,7 +59,8 @@
 
 ### 2.3 Agent 行为（硬规则）
 
-1. 开帽前扫描 **task + 本轮关联 `reviews/*`** 中全部 `human_gate`。  
+0. **机器门禁（合入级）**：`python tools/harness_human_gate_check.py` — 见 [`tools/harness_human_gate_check.py`](../../../tools/harness_human_gate_check.py)。PR 若含 Harness **执行产物**（review、`invoke_*`、reinspect、新 synthesis 等）而 task 闸仍为 `pending`，**CI 失败**；与对话 Prompt 无关。  
+1. 开帽前扫描 **task + 本轮关联 `reviews/*`** 中全部 `human_gate`（Loop 子 task **须读母单**）。  
 2. 若下一计划帽子 ∈ 某闸的 `blocks_hats` 且该闸 `status: pending` → **仅输出**：阻塞说明、**须人修改的路径与标识**、当前 gate 表；**禁止**写业务代码、禁止自动戴帽。  
 3. **禁止**将 `pending` 改为 `approved`；**禁止**替用户勾选「已人工审核」。  
 4. 人改后 **新会话或同会话用户明示「HG-xxx 已 approved」** 方可继续；Agent 须 **复读** 工件确认 `status: approved` 后再落盘下一 invoke。  

@@ -8,6 +8,7 @@
 
 ## 只做什么
 
+- **开帽前（硬）**：`python tools/harness_human_gate_check.py --task <本 round task 路径>` 须 **exit 0**（Loop 含母单；pending 则 **禁止** 写 review）。  
 - 阅读 task 全文及关联 SPEC / `HARNESS_V2_PLAN` §5 字段；对照 **验收标准**、**failure_paths**、**test_strategy**、必读链接。  
 - **必须** 落盘一篇审查文档（命名与版本见 [`../reviews/README.md`](../reviews/README.md)）：  
   - 待审 task 在 **本仓** `docs/tasks/` 下：**全文只写** 本仓 **`docs/harness/reviews/`**（见 [`../reviews/README.md`](../reviews/README.md)）。**禁止**把非本后端 task 的审查落入本目录。  

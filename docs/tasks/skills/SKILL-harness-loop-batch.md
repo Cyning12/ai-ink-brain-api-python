@@ -133,6 +133,15 @@
 
 真值：`HANDOFF_SEMI_AUTO.md` §2.3、`HANDOFF_SEMI_AUTO.md` §3.4.2 阻塞版状态栏。
 
+### 机器门禁（硬 · 与 Prompt 无关）
+
+| 时机 | 命令 | 行为 |
+| --- | --- | --- |
+| **开 22 前（本地）** | `python tools/harness_human_gate_check.py --task <子task或母task路径>` | 任一相关 gate `pending` → **exit 1** |
+| **PR / CI** | `python tools/harness_human_gate_check.py --pr-diff` | diff 含 review / `invoke_*` / reinspect / 新 synthesis 等 **执行产物** 时，关联 active task（含母单）不得有 `pending` |
+
+**无** `approved` 文件状态 → **不得**产生可合入的执行产物；Agent 对话 / 【授权】 / `semi_auto` **不能**绕过此脚本。
+
 ---
 
 ## 流程（三选一 · 勿写死「三会话」）
@@ -423,3 +432,4 @@ accepted 须同时满足其一：
 | 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |
 | 2026-05-26 | v1.6：§长 Loop 完成汇报 — `REPORT_completion_*` 落盘 §1～§5 · §6 仅对话；链 HANDOFF / PROMPT_LOOP 步骤 7 |
 | 2026-05-28 | v1.9：§执行铁律 — human_gate 首步硬停 · 继承闸须读母 task · 流程 B 前置验证；链 cc 误跑修补 |
+| 2026-05-28 | v1.10：`tools/harness_human_gate_check.py` + CI `--pr-diff` · 执行产物合入级硬门禁 |
