@@ -326,7 +326,7 @@ flowchart TD
 | **Agent 读序** | **`task_governance_wiki_agent_readorder_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_agent_readorder_v1.md`](done/task_governance_wiki_agent_readorder_v1.md) · `GOV-WIKI-AGENT-READORDER@2026-05-27` · AGENTS 必读第 5 条 + `11-coding-wiki-readorder.mdc` |
 | **Ingest 批量** | **`task_governance_wiki_ingest_batch_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_ingest_batch_v1.md`](done/task_governance_wiki_ingest_batch_v1.md) · syntheses **15** · `GOV-WIKI-INGEST-BATCH@2026-05-27` |
 | **AB 代表性扩面** | **`task_governance_wiki_ctx_ab_representative_v1`** | **done** | 2026-05-27 关账 · 6 slug · T7/T8 pass · [`done/task_governance_wiki_ctx_ab_representative_v1.md`](done/task_governance_wiki_ctx_ab_representative_v1.md) · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · P1-4 已关账 |
-| **Wiki Loop Unit A** | **`task_harness_wiki_loop_unit_a_v1`** + R1–R3 | **in_progress** | [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) · 分支 `task/wiki-unit-ab-plan-v1` · **PR-A** · cc |
+| **Wiki Loop Unit A** | **`task_harness_wiki_loop_unit_a_v1`** + R1–R3 | **done** | `SPEC-Governance-Wiki-Unit-AB-Plan-v1.md` · 分支 `task/wiki-unit-ab-plan-v1` · **PR-A** · cc · `WIKI-LOOP-UNIT-A@2026-05-28` |
 | **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **pending** | 单元 **B** · **PR-B** · `required` · 同分支续跑 |
 
 ---

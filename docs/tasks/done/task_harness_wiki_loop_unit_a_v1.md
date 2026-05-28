@@ -1,6 +1,6 @@
 # Task：Wiki Loop 单元 A — 单 PR 编排母单（第六轮 · docs-only）
 
-> **状态**：pending  
+> **状态**：done（2026-05-28）  
 > **关联 SPEC**：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md)  
 > **关联 SKILL**：[`SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)（第六轮）  
 > **执行备注**：**Claude Code（cc）** · 分支 **`task/wiki-unit-ab-plan-v1`** · 与单元 B **同分支、分两 PR**（本单 → **PR-A**）
