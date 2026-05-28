@@ -5,7 +5,7 @@
 | **状态** | `active` |
 | **freeze_id** | `GOV-WIKI-P2-FOLLOWUP@2026-05-27` |
 | **Roadmap** | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.2 · **P1-4 并行 / 后端 P2 Loop** |
-| **Loop 母单** | [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/active/task_harness_wiki_loop_p2_followup_v1.md) |
+| **Loop 母单** | [`task_harness_wiki_loop_p2_followup_v1.md`](../../tasks/done/task_harness_wiki_loop_p2_followup_v1.md) |
 | **SKILL** | [`SKILL-harness-loop-batch.md`](../../tasks/skills/SKILL-harness-loop-batch.md) · **第五轮** · 推广 P2 后续 |
 
 ---

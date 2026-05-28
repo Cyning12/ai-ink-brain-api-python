@@ -2,8 +2,8 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **版本** | v1.0 |
-| **日期** | 2026-05-26 |
+| **版本** | v1.4 |
+| **日期** | 2026-05-28 |
 | **状态** | `active` — 随试点/T1c 演进时增量修订 |
 | **用途** | Karpathy 理论、治理 SPEC、本仓 Schema、实验结论、对话共识的 **逐项对照** |
 | **关联** | [`CODING_WIKI.md`](CODING_WIKI.md) · [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) · [`wiki_ctx_ab_v1/`](../harness/experiments/wiki_ctx_ab_v1/README.md) |
@@ -99,8 +99,8 @@
 | 33 | 对照实验二 | T2 | 再优且不降 | **-78.8%**（相对臂 B），4/4 | ✅；**单 slug** |
 | 34 | 默认 Agent 读序 | P2 签收 | 关账先 Wiki | conclusion_p2 | ✅ |
 | 35 | 测试过程扩域 | **T1c** | CODING_WIKI §8 | **done** 2026-05-26 | ✅ `task_coding_wiki_t1c_test_archive_v1` |
-| 36 | Wiki↔图谱 frontmatter | T4 | graph_nodes | planned | ❌ P2 |
-| 37 | 前端 Harness parity | P1-4 | 前端仓 | 远期 | ⏸ |
+| 36 | Wiki↔图谱 frontmatter | T4 | graph_nodes | active+扩面 | ✅ 3 synthesis graph_nodes done |
+| 37 | 前端 Harness parity | P1-4 | 前端仓 | done | ✅ 2026-05-27 · Ink PR #44 |
 | 38 | 多 slug 对照实验二 | SPEC §5.1 P1 | 削弱外推局限 | **done** · Multi slug AB 2026-05-26 | ✅ `task_wiki_ctx_ab_multi_slug_v1` |
 | 39 | 试点关账 P0 | SPEC §5.1 | 归档、排期、diary | task 在 `done/`；`_views`；diary 已发布 | ✅ 2026-05-26 |
 | 40 | SPEC §4 pilot 路径 | SPEC §4 | 与 done 一致 | 已改 `done/task_coding_wiki_pilot_v1` | ✅ |
@@ -130,8 +130,8 @@
 | Wiki Loop B-Q3 | **无** | R1–R2 **done** · `done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md` 等 | ✅ 单 PR `task/wiki-loop-bq3-recheck-v1` |
 | Wiki Loop A1–A4 | **无** | **done** · `done/task_harness_wiki_loop_a1_a4_v1.md` · 2026-05-26 | ✅ 单 PR `task/wiki-loop-a1-a4-v1` |
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
-| P2 T4 | **无** | planned | 未来 task |
-| P3 前端 parity | 前端仓 | 远期 | 不在本仓 |
+| P2 T4 | **无** | **done** · `task_governance_wiki_t4_expand_v2` · 2026-05-27 | ✅ 扩面 3 synthesis graph_nodes |
+| P3 前端 parity | 前端仓 | **done** · Ink PR #44 · 2026-05-27 | ✅ 不在本仓但已完成 |
 
 ---
 
@@ -173,3 +173,4 @@
 | 2026-05-26 | v1.1：P0 关账勾选；§7 task 分工；建议顺序更新 |
 | 2026-05-26 | v1.2：#12 T1c done · #46 Wiki Loop A1/A2 test_strategy · §7/§9 同步（A3） |
 | 2026-05-27 | v1.3：#46 六 slug Representative AB accepted（部分外推）· 链 P1-4 证据 |
+| 2026-05-28 | v1.4：#36 T4 active+扩面 · #37 P1-4 done · §7 P2 T4/前端同步（R1 hygiene） |
