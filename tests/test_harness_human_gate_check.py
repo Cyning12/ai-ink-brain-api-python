@@ -18,11 +18,29 @@ def _run(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_pending_gate_fails_on_mother_task() -> None:
+def test_mother_approved_passes() -> None:
     proc = _run("--task", "docs/tasks/active/task_harness_wiki_loop_unit_a_v1.md")
+    assert proc.returncode == 0, proc.stderr
+
+
+def test_pending_gate_fails(tmp_path: Path) -> None:
+    task = tmp_path / "task_pending.md"
+    task.write_text(
+        """
+### 人工闸 `human_gate`
+| human_gate_id | status | blocks_hats | 说明 |
+| HG-LOOP-BATCH | pending | 30 | test |
+""",
+        encoding="utf-8",
+    )
+    proc = _run("--task", str(task))
     assert proc.returncode == 1
     assert "HG-LOOP-BATCH" in proc.stderr
-    assert "pending" in proc.stderr.lower() or "HARNESS_HUMAN_GATE_FAIL" in proc.stderr
+
+
+def test_inherited_gate_uses_mother_approved() -> None:
+    proc = _run("--task", "docs/tasks/active/task_governance_wiki_docs_hygiene_v1.md")
+    assert proc.returncode == 0, proc.stderr
 
 
 def test_parse_approved_tmp_task(tmp_path: Path) -> None:

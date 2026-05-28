@@ -94,12 +94,47 @@ def parse_gates(text: str, source_label: str) -> list[GateFinding]:
     return findings
 
 
+def _gate_status_in_file(path: Path, gate_id: str) -> str | None:
+    for line in _read(path).splitlines():
+        m = TABLE_ROW.match(line.strip())
+        if m and m.group(1) == gate_id:
+            return m.group(2).lower()
+    return None
+
+
 def gates_in_file(path: Path) -> list[GateFinding]:
     if not path.is_file():
         return []
+    text = _read(path)
     rel = path.relative_to(REPO_ROOT) if path.is_relative_to(REPO_ROOT) else path
-    raw = parse_gates(_read(path), str(rel))
-    return [GateFinding(path, f.gate_id, f.status, f.source) for f in raw]
+    mothers = mother_task_paths(path, text)
+    findings: list[GateFinding] = []
+    for line in text.splitlines():
+        m = TABLE_ROW.match(line.strip())
+        if m:
+            gid, status = m.group(1), m.group(2).lower()
+            if status != "pending":
+                continue
+            # 子单「继承母闸」：以母单 human_gate 为准（与 SKILL / 母单正文一致）
+            if "继承母" in line and mothers:
+                mom_status = None
+                for mp in mothers:
+                    mom_status = _gate_status_in_file(mp, gid)
+                    if mom_status == "approved":
+                        break
+                if mom_status == "approved":
+                    continue
+                if mom_status == "pending":
+                    for mp in mothers:
+                        findings.append(GateFinding(mp, gid, "pending", "table"))
+                    continue
+            findings.append(GateFinding(path, gid, status, "table"))
+        m2 = HTML_GATE.search(line)
+        if m2 and m2.group("status").lower() == "pending":
+            findings.append(
+                GateFinding(path, m2.group("id"), "pending", "html"),
+            )
+    return findings
 
 
 def mother_task_paths(child_path: Path, text: str) -> list[Path]:
