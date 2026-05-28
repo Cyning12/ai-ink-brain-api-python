@@ -60,9 +60,26 @@ P2 Loop / P1-4 / AB-REP 已关账，但 [`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`
 
 ## 验收标准
 
-- [ ] 上表范围勾选完成  
-- [ ] invoke C2 全绿  
+- [x] 上表范围勾选完成
+- [x] invoke C2 全绿
 - [ ] `git mv` → `docs/tasks/done/`
+
+---
+
+### 自检结论（执行者）
+
+| # | 检查项 | 结果 |
+| --- | --- | --- |
+| 1 | 对比表 #36 T4 active+扩面 | ✅ pass · v1.4 |
+| 2 | 对比表 #37 P1-4 done | ✅ pass |
+| 3 | 对比表 §7 P2 T4/前端同步 | ✅ pass |
+| 4 | P2 SPEC 母单链 `done/` | ✅ pass · 文件存在 |
+| 5 | RECENT §6.6 Unit A in_progress | ✅ pass |
+| 6 | Roadmap §5.2 A/B 双 PR 行 | ✅ pass |
+| 7 | invoke C2（22=2800 B / 30=2747 B） | ✅ pass · §3 ≥15 行 |
+| 8 | 无 api/tests/tools 改动 | ✅ pass |
+
+**结论：全部验收项通过 · 零阻塞 · 2026-05-28**
 
 ---
 
