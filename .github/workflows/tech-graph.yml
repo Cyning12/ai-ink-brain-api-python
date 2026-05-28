@@ -24,8 +24,11 @@ jobs:
       - name: Tech Graph manifest check
         run: python tools/tech_graph_manifest_check.py
 
-      - name: Tech Graph test manifest check
+      - name: Tech Graph test manifest check (Phase B)
         run: python tools/tech_graph_test_manifest_check.py
+
+      - name: Tech Graph test manifest check (Phase C · failure paths)
+        run: python tools/tech_graph_test_manifest_check.py --check-failure-paths
 
       - name: Harness human_gate check (PR execution artifacts)
         run: python tools/harness_human_gate_check.py --pr-diff --base origin/main

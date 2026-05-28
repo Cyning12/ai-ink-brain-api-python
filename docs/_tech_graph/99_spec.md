@@ -55,7 +55,7 @@ flowchart TD
 | --- | --- |
 | **专文** | [`docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) |
 | **文件** | `docs/_tech_graph/_test_manifest.json`（与 `_manifest.json` 并列） |
-| **Phase** | A（文档化存在）→ B（`tech_graph_test_manifest_check.py` 可选）→ C（双向校验） |
+| **Phase** | A（文档化）→ B（默认 manifest check）→ C（`--check-failure-paths` · **CI `tech-graph.yml` Required**） |
 | **边界** | `_test_manifest.json` **不得** 手改 `graph.json`；CI  workflow 须显式排除（白名单仅 `graph.json`、`_manifest.json`、`_contract_manifest.json`） |
 | **与 Wiki** | `CODING_WIKI.md` §8 负责 **叙事**；`_test_manifest` 负责 **机器校验** |
 | **脚本** | `python tools/tech_graph_test_manifest_check.py`（JSON schema / glob 匹配 / 可选 `--strict` error_code 扫描） |

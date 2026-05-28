@@ -147,11 +147,11 @@ docs/_tech_graph/_test_manifest.json    # 首选：与 _manifest 并列，便于
 | --- | --- |
 | **Phase A（本 SPEC 最小）** | `_test_manifest.json` **文档化存在** + 人工 REVIEW；**不** 阻塞 merge |
 | **Phase B（可选 follow-up）** | 新增 `tools/tech_graph_test_manifest_check.py`：ERR 在代码中出现则 manifest 须有项；对每条 `test_paths` 用 `fnmatch` 在仓库根展开，**至少匹配一个** `tests/**/*.py` |
-| **Phase C** | **设计已落盘** · 见 **§4.4**；自动化实现 **另 task**（`test_strategy: required`） |
+| **Phase C** | `tech_graph_test_manifest_check.py --check-failure-paths` · **CI Required**（`tech-graph.yml`）· 实现见 **§4.4** · task `gov-l2-phase-c-impl` **done** |
 
 ### 4.4 Phase C（design · `GOV-L2-PHASE-C-DESIGN@2026-05-27`）
 
-> **状态**：**design only**（P2 Loop R2）· Phase B CI **done** · **禁止** 在本节承诺已实现双向校验脚本。
+> **状态**：**implemented**（`GOV-L2-PHASE-C-IMPL@2026-05-28` · PR #80）· Phase B + **Phase C CI**（`--check-failure-paths`）· 本节为实现真值摘要。
 
 #### 4.4.1 目标
 
