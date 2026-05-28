@@ -114,8 +114,8 @@
 > 无论 Batch-10 已多完整、无论人/Agent 以何种方式启动 round，**执行首步**必须是：
 
 1. **打开当前 round 的 active task**
-2. **扫描 `human_gate` 表**
-3. 若任一 gate `status: pending` 且 `blocks_hats` 含当前计划帽子：
+2. **扫描 `human_gate` 表**；若子 task 写「继承母闸」，**同时**打开 **母 task** 表，**以母单 `status` 为准**（禁止只读子单副本）
+3. 若任一 gate（子单或母单）`status: pending` 且 `blocks_hats` 含当前计划帽子：
    - **硬停**。输出 `📋 Harness 状态栏（版本 B）`，阻塞项写清 `gate_id` + 文件路径 + 须改字段
    - **禁止**写 review、禁止改代码、禁止落盘 invoke
    - 等待人改 `pending` → `approved`（或人明确文字授权代填，commit message 须注明）
@@ -129,6 +129,7 @@
 | `audit_profile: post_close` | post_close 只影响 **22 审核深度**（轻闸），不豁免 gate |
 | 母 task `HG-LOOP-BATCH` 已 approved | 子 task 的继承闸仍需 **验证文件状态**，不得以「母单已批」跳过读文件 |
 | 用户说「执行」/「继续」/「开始」 | 对话指令 **≠** gate 状态变更；须见文件 `approved` 或人明确授权 |
+| 子 task 写「继承母闸」 | 仍须 **打开母 task** 复读 `human_gate`；子单 `pending` 与母单 **任一为 pending** 即硬停 |
 
 真值：`HANDOFF_SEMI_AUTO.md` §2.3、`HANDOFF_SEMI_AUTO.md` §3.4.2 阻塞版状态栏。
 
@@ -392,6 +393,7 @@ accepted 须同时满足其一：
 | 每 round 改 RECENT | **仅**母 task 指定 round 改排期 |
 | 非 Cursor Agent 续跑失败 | R1·22 含 `cross_round_semi_auto`；**各 round CLOSE invoke §3** 含下一 round task/slug/freeze_id（实例 4 验证） |
 | META 后索引 typo / RECENT 漏改 | PR 前跑 [`SKILL-docs-governance`](SKILL-docs-governance.md) hygiene |
+| **未人批即开 22**（cc 等） | 首步 Gate 硬停；`PROMPT_START` 须 `grep approved`；见 §执行铁律 |
 
 ---
 
@@ -420,3 +422,4 @@ accepted 须同时满足其一：
 | 2026-05-26 | v1.5.1：第三批联动 — `PROMPT_LOOP` / `PROMPT_START` / `HANDOFF_*` 已写入 C2 自检（执行层；**非** accepted） |
 | 2026-05-26 | 第三 Loop C2 Verify 试点 @2026-05-26（invoke C2 全绿目标 · **status 仍 draft**） |
 | 2026-05-26 | v1.6：§长 Loop 完成汇报 — `REPORT_completion_*` 落盘 §1～§5 · §6 仅对话；链 HANDOFF / PROMPT_LOOP 步骤 7 |
+| 2026-05-28 | v1.9：§执行铁律 — human_gate 首步硬停 · 继承闸须读母 task · 流程 B 前置验证；链 cc 误跑修补 |

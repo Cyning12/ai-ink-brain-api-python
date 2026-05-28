@@ -18,7 +18,7 @@ R3 额外：Batch-3 五 slug 见 SPEC-Governance-Wiki-Ingest-Batch-3-v1.md §1�
 
 **执行步骤（hard rules · 每帽换前须落盘 + commit）**
 
-1. **Gate 验证**：打开 `<TASK_PATH>`，扫描 `human_gate` 表。若有 `pending` 阻塞当前帽 → **硬停**，输出 `📋 Harness 状态栏（版本 B）`（阻塞版），不写 review / 不改代码 / 不落盘 invoke。真值：`HANDOFF_SEMI_AUTO.md` §2.3。
+1. **Gate 验证**：打开 `<TASK_PATH>`，扫描 `human_gate` 表；若写「继承母闸」，**同时**打开 `docs/tasks/active/task_harness_wiki_loop_unit_a_v1.md`（**以母单 status 为准**）。子单或母单任一 relevant gate 为 `pending` 且阻塞当前帽 → **硬停**，输出 `📋 Harness 状态栏（版本 B）`（阻塞版），不写 review / 不改代码 / 不落盘 invoke。真值：`HANDOFF_SEMI_AUTO.md` §2.3 · `SKILL-harness-loop-batch.md` §执行铁律。
 2. **22 审核**：读 task + 关联 SPEC / 前置 task，产出 `docs/harness/reviews/by-task/<SLUG>/task_*_audit_R<ROUND>_*.md`。post_close 轻闸；无阻塞则写「零阻塞·可执行」+ 下一棒 30 Prompt。
 3. **30 执行**：按 task 范围改文档；遵守「范围 / 非范围」；每文件改动后自核链接、状态、freeze_id 一致性。
 4. **40 自检**：逐条对照 task 验收标准，运行 VERIFY 命令，粘贴输出要点；回填 task 内 `### 自检结论（执行者）`。

@@ -45,7 +45,7 @@
 
 1. 选定 **task_slug** + **platform** + 使用的 **SKILL ID** 列表。
 2. 在 `cases/` 下建目录，复制 [`cases/_TEMPLATE/scorecard.md`](./cases/_TEMPLATE/scorecard.md) 骨架。
-3. 填 **三维评分**（见 `rubric_v1.md`）+ **ST1–ST6** 勾选 + 证据链（commit / PR / invoke 路径）。
+3. 填 **三维评分**（见 `rubric_v1.md`）+ **ST0–ST6** 勾选（**ST0** = 开工前 human_gate 已 approved）+ 证据链（commit / PR / invoke 路径）。
 4. 写 `conclusion_zh.md`：根因、对 SKILL/PROMPT 的改进建议（若已落盘则链 commit）。
 5. （可选）在 [`docs/harness/README.md`](../README.md) §2 实验索引增一行。
 

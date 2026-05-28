@@ -1,7 +1,7 @@
 # SKILL 跨平台测评 · 评分量表 v1
 
 > **freeze_id**：`SKILL-CROSS-PLATFORM-RUBRIC@2026-05-27`  
-> **适用**：`skill_cross_platform_v1/cases/*` 填表时对照；可与 [`SKILL-harness-task.md`](../../../tasks/skills/SKILL-harness-task.md) §ST1–ST6 叠加。
+> **适用**：`skill_cross_platform_v1/cases/*` 填表时对照；可与 [`SKILL-harness-task.md`](../../../tasks/skills/SKILL-harness-task.md) §ST 叠加；Loop 须对照 [`SKILL-harness-loop-batch.md`](../../../tasks/skills/SKILL-harness-loop-batch.md) §执行铁律。
 
 ---
 
@@ -23,10 +23,11 @@ Harness 落盘  ██████████████░░░░░░  70
 
 ---
 
-## 2. ST1–ST6 合规（单 task · 与 harness-task 对齐）
+## 2. ST0–ST6 合规（单 task / Loop · 与 harness-task + loop-batch 对齐）
 
 | # | 检查 | pass |
 | --- | --- | --- |
+| **ST0** | **human_gate**：开工前 task（+ Loop 时 **母 task**）相关闸均为 **approved**；若 pending 即 22/30 → **fail** | |
 | ST1 | 22 review + invoke_22 · §3 ≥15 行 | |
 | ST2 | invoke_30 + 业务 commit 可对应 | |
 | ST3 | invoke_40 + task §自检结论回填 | |
@@ -44,6 +45,7 @@ Harness 落盘  ██████████████░░░░░░  70
 | --- | --- |
 | **rules 加载** | Cursor 自动 `.mdc` vs 他平台显式读 SKILL |
 | **semi_auto 连续** | 是否同会话 22→关账 vs 中断/跳步 |
+| **ST0 Gate** | pending 未批即 22/30 · 是否读母 task（Loop） |
 | **invoke §3 质量** | stub / &lt;15 行 / 达标 |
 | **关账顺序** | git mv 先于 task done 正文等已知债 |
 | **改进已落盘** | PROMPT_RETRO / SKILL 修订 · 链 commit/PR |
@@ -58,6 +60,7 @@ Harness 落盘  ██████████████░░░░░░  70
 | invoke §3 stub | invoke 质量硬约束 · 范例 invoke |
 | active→done 引用残留 | `SKILL-docs-governance` H5 |
 | 无 `.mdc` 漏读 HANDOFF | `PROMPT_START` 必读路径表 · Claude Code 范例 |
+| **ST0 fail**（未批即执行） | `SKILL-harness-loop-batch` §执行铁律 · `PROMPT_START` Gate 自检 |
 
 ---
 
@@ -66,3 +69,4 @@ Harness 落盘  ██████████████░░░░░░  70
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-27 | v1：三维 + ST1–ST6 + 平台偏差 · 源自 gov-l2-manifest-ci 审计 |
+| 2026-05-28 | v1.1：增 **ST0** human_gate（含 Loop 母 task）· cc 误跑对照 |
