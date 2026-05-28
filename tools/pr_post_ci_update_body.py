@@ -106,6 +106,27 @@ def all_required_green(checks: list[dict]) -> bool:
 
 
 def fetch_changed_files(pr: int) -> list[str]:
+    """变更文件列表。
+
+    CI 使用 actions/checkout 浅克隆 PR merge ref 时，`gh pr diff` 常因本地
+    缺少 base/head 引用而失败；优先走 GraphQL files 列表（与权限模型一致）。
+    """
+    raw = _run(
+        [
+            "gh",
+            "pr",
+            "view",
+            str(pr),
+            "--json",
+            "files",
+            "-q",
+            ".files[].path",
+        ]
+    )
+    lines = [line for line in raw.splitlines() if line.strip()]
+    if lines:
+        return lines
+    # 极少数 gh 版本 files 为空时回退
     raw = _run(["gh", "pr", "diff", str(pr), "--name-only"])
     return [line for line in raw.splitlines() if line.strip()]
 
