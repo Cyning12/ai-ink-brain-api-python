@@ -1,6 +1,6 @@
 # Task：治理 — Wiki 文档 hygiene（单元 A · R1）
 
-> **状态**：pending  
+> **状态**：done（2026-05-28）  
 > **round**：**R1** · 母单 [`task_harness_wiki_loop_unit_a_v1.md`](task_harness_wiki_loop_unit_a_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §2 R1
 
