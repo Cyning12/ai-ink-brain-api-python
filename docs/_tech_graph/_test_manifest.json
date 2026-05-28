@@ -13,7 +13,7 @@
     },
     {
       "id": "FP-UNIFIED-INVALID-JSON",
-      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_planning_after_resume_v1.md#failure_paths",
+      "failure_path_ref": "docs/tasks/done/task_governance_l2_manifest_ci_v1.md#failure_paths",
       "error_codes": ["Invalid JSON"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_unified_chat_backend_v1.py"],
@@ -40,23 +40,23 @@
     {
       "id": "FP-QUERY-REWRITE-ANCHOR-LOST",
       "failure_path_ref": "docs/tasks/done/task_05_query_rewrite_observability.md#failure_paths",
-      "error_codes": ["QUERY_REWRITE_ANCHOR_LOST"],
+      "error_codes": ["is_key_entity_lost"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_query_rewrite_compare_anchor.py"],
       "graph_nodes_optional": ["C1", "RAG"],
-      "notes": "rewrite 后关键实体丢失；query_compare 可观测；R1 Pilot graph_nodes"
+      "notes": "rewrite 后关键实体丢失（metadata is_key_entity_lost）；query_compare 可观测；R1 Pilot graph_nodes"
     },
     {
       "id": "FP-HEALTH-PROBE-FAIL",
       "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md#failure_paths",
-      "error_codes": ["HEALTH_PROBE_FAIL"],
+      "error_codes": ["503"],
       "pytest_markers": ["integration"],
       "test_paths": ["tests/test_health_probe_routes.py"],
       "notes": "/live /ready 健康探针失败；P2-1a"
     },
     {
       "id": "FP-PROMPT-GUARD-BLOCKED",
-      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_p2_prompt_guard_v1.md#failure_paths",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md#failure_paths",
       "error_codes": ["RULE_IGNORE_PREV", "RULE_FAKE_SYSTEM", "RULE_EXFIL_SECRET", "RULE_AUDIT_WIPE", "RULE_DATA_EXFIL"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_chatbi_prompt_guard_*.py"],
@@ -65,7 +65,7 @@
     },
     {
       "id": "FP-ADMIN-INGEST-INVALID-TYPE",
-      "failure_path_ref": "docs/tasks/done/task_admin_ingest_route_v1.md#failure_paths",
+      "failure_path_ref": "docs/tasks/done/task_governance_l2_manifest_ci_v1.md#failure_paths",
       "error_codes": ["Invalid ingest type"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_admin_ingest_route.py"],
@@ -73,7 +73,7 @@
     },
     {
       "id": "FP-CHAIN-CHAT-MISSING-FIELD",
-      "failure_path_ref": "docs/tasks/done/task_ui_chain_events_backend.md#failure_paths",
+      "failure_path_ref": "docs/tasks/done/task_governance_l2_manifest_ci_v1.md#failure_paths",
       "error_codes": ["Missing required field: query"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_chain_chat_events.py"],
@@ -81,7 +81,7 @@
     },
     {
       "id": "FP-CLIENT-CLOSED-REQUEST",
-      "failure_path_ref": "docs/tasks/done/task_chatbi_v3_planning_after_resume_v1.md#failure_paths",
+      "failure_path_ref": "docs/tasks/done/task_governance_l2_manifest_ci_v1.md#failure_paths",
       "error_codes": ["Client Closed Request"],
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_unified_chat_backend_v1.py"],

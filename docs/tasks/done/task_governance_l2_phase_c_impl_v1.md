@@ -1,6 +1,6 @@
 # Task：治理 — L2 Phase C 双向校验实现（单元 B · 单 task 全链）
 
-> **状态**：in_progress（2026-05-28 · PR-A 已合 **main** · [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79)）  
+> **状态**：done（2026-05-28 · 单元 B 关账 · PR-B 待开）  
 > **单元**：**B** · [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §3  
 > **设计真值**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) §4.4  
 > **执行入口**：[`PROMPT_START_full_chain_v1.md`](../../harness/invokes/by-task/gov-l2-phase-c-impl/PROMPT_START_full_chain_v1.md) · [`PROMPT_TASK_22_to_CLOSE_v1.md`](../../harness/invokes/by-task/gov-l2-phase-c-impl/PROMPT_TASK_22_to_CLOSE_v1.md)  
@@ -48,10 +48,10 @@ P2 Loop R2 仅落盘 **Phase C design**（§4.4）。本 task 在 **Phase B** `t
 
 ## 范围
 
-- [ ] `--check-failure-paths` 实现 + 默认检查仍绿  
-- [ ] pytest 绿（AGENTS.md 合并前命令）  
-- [ ] 22→30→40→**50**→关账 · `reinspect_gov-l2-phase-c-impl_<date>_v1.md`  
-- [ ] **PR-B** diff 仅 `tools/`、`tests/`、`docs/_tech_graph/`（manifest / 99_spec）
+- [x] `--check-failure-paths` 实现 + 默认检查仍绿  
+- [x] pytest 绿（AGENTS.md 合并前命令）  
+- [x] 22→30→40→**50**→关账 · `reinspect_gov-l2-phase-c-impl_20260528_v1.md`  
+- [x] **PR-B** diff 仅 `tools/`、`tests/`、`docs/_tech_graph/`（manifest / 99_spec）
 
 ## 非范围
 
@@ -83,9 +83,9 @@ P2 Loop R2 仅落盘 **Phase C design**（§4.4）。本 task 在 **Phase B** `t
 
 ## 验收标准（SPEC §4.4.4）
 
-- [ ] **C1**：`--check-failure-paths` exit 0 · CI `tech-graph.yml` 仍绿  
-- [ ] **C2**：上表 3 Epic 对照表在 review/invoke  
-- [ ] **C3**：§4.2 Wiki≠coverage 审查通过  
+- [x] **C1**：`--check-failure-paths` exit 0 · CI `tech-graph.yml` 仍绿  
+- [x] **C2**：上表 3 Epic 对照表在 review/invoke  
+- [x] **C3**：§4.2 Wiki≠coverage 审查通过  
 - [x] **PR-A 已合 main**（#79）  
 - [ ] （建议）`skill_cross_platform_v1` case `gov-l2-phase-c-impl_claude-code_<date>`
 

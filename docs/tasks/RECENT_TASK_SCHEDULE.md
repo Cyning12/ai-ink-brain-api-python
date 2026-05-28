@@ -327,7 +327,7 @@ flowchart TD
 | **Ingest 批量** | **`task_governance_wiki_ingest_batch_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_ingest_batch_v1.md`](done/task_governance_wiki_ingest_batch_v1.md) · syntheses **15** · `GOV-WIKI-INGEST-BATCH@2026-05-27` |
 | **AB 代表性扩面** | **`task_governance_wiki_ctx_ab_representative_v1`** | **done** | 2026-05-27 关账 · 6 slug · T7/T8 pass · [`done/task_governance_wiki_ctx_ab_representative_v1.md`](done/task_governance_wiki_ctx_ab_representative_v1.md) · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · P1-4 已关账 |
 | **Wiki Loop Unit A** | **`task_harness_wiki_loop_unit_a_v1`** + R1–R3 | **done** | `SPEC-Governance-Wiki-Unit-AB-Plan-v1.md` · 分支 `task/wiki-unit-ab-plan-v1` · **PR-A** · cc · `WIKI-LOOP-UNIT-A@2026-05-28` |
-| **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **in_progress** | 单元 **B** · **PR-B** · `required` · PR-A [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79) 已合 · `gov-l2-phase-c-impl/PROMPT_TASK_22_to_CLOSE` · 人批 `HG-TASK-DRAFT` 后 cc |
+| **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **done** | 2026-05-28 · 单元 **B** · **PR-B** · `GOV-L2-PHASE-C-IMPL@2026-05-28` · `--check-failure-paths` · [`done/task_governance_l2_phase_c_impl_v1.md`](done/task_governance_l2_phase_c_impl_v1.md) · `reinspect_gov-l2-phase-c-impl_20260528_v1.md` |
 
 ---
 
