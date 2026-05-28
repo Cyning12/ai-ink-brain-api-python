@@ -30,6 +30,17 @@
 
 ---
 
+## 待跑 case（单元 A/B · cc）
+
+| 建议目录 | 触发时机 |
+| --- | --- |
+| `wiki-loop-unit-a_claude-code_<YYYYMMDD>/` | **PR-A** META 关账后 |
+| `gov-l2-phase-c-impl_claude-code_<YYYYMMDD>/` | **PR-B** 关账后 |
+
+规划真值：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../../../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 步骤 6。
+
+---
+
 ## 新增 case 流程
 
 1. 选定 **task_slug** + **platform** + 使用的 **SKILL ID** 列表。
