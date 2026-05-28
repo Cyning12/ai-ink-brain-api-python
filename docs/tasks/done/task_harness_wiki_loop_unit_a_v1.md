@@ -76,7 +76,7 @@
 - [ ] R1→R2→R3 各走 22→关账 · invoke C2 全绿  
 - [ ] syntheses **≥25** · T4 铺量完成（见 R2 task）  
 - [ ] **PR-A** 合 `main` · META `REPORT_completion_wiki_loop_unit_a_v1.md` 落盘  
-- [ ] （建议）`skill_cross_platform_v1` case 落盘  
+- [x] `skill_cross_platform_v1` case 落盘 · [`wiki-loop-unit-a_claude-code_20260528`](../../harness/experiments/skill_cross_platform_v1/cases/wiki-loop-unit-a_claude-code_20260528/)  
 
 ---
 
