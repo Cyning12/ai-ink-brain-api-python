@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_wiki_ctx_ab_v1.md
 freeze_id: WIKI-CTX-AB@2026-05-25
 closed_date: 2026-05-26
 status: compiled
+graph_nodes:
+  - id: RAG
+    relation: evidence
 ---
 
 # Wiki-CTX-AB v1

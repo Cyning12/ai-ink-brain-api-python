@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_governance_l2_r3_test_manifest_v1.md
 freeze_id: GOV-L2-R3-TEST-MANIFEST@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes:
+  - id: E2E_DOC
+    relation: documents
 ---
 
 # L2 _test_manifest 草案（R3）

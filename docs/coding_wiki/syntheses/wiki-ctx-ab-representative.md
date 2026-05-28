@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_governance_wiki_ctx_ab_representative_v1.md
 freeze_id: WIKI-CTX-AB-REP@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes:
+  - id: RAG
+    relation: evidence
 ---
 
 # Wiki-CTX-AB 代表性扩面

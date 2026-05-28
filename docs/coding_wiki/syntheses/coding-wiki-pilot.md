@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_coding_wiki_pilot_v1.md
 freeze_id: CODING-WIKI-PILOT@2026-05-25
 closed_date: 2026-05-26
 status: compiled
+graph_nodes:
+  - id: RAG_DOC
+    relation: documents
 ---
 
 # Coding Wiki 试点（T1b）

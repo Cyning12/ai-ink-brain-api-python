@@ -6,6 +6,7 @@ source_task: docs/tasks/done/task_harness_wiki_loop_p2_followup_v1.md
 freeze_id: WIKI-LOOP-P2-FOLLOWUP@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes: []
 ---
 
 # Wiki Loop P2 后续

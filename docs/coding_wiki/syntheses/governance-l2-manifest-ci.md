@@ -7,6 +7,9 @@ freeze_id: GOV-L2-MANIFEST-CI@2026-05-27
 closed_date: 2026-05-27
 status: compiled
 test_strategy: recommended
+graph_nodes:
+  - id: E2E_DOC
+    relation: documents
 ---
 
 # L2 _test_manifest Phase B

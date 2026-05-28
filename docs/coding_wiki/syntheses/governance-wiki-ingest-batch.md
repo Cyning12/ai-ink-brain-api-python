@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_governance_wiki_ingest_batch_v1.md
 freeze_id: GOV-WIKI-INGEST-BATCH@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes:
+  - id: CR1
+    relation: documents
 ---
 
 # Coding Wiki 批量 Ingest（Batch-1）
