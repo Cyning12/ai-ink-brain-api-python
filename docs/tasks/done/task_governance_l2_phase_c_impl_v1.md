@@ -1,6 +1,6 @@
 # Task：治理 — L2 Phase C 双向校验实现（单元 B · 单 task 全链）
 
-> **状态**：done（2026-05-28 · 单元 B 关账 · PR-B 待开）  
+> **状态**：done（2026-05-28 · 单元 B 关账 · PR-B [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80) · CI [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81)）  
 > **单元**：**B** · [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §3  
 > **设计真值**：[`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) §4.4  
 > **执行入口**：[`PROMPT_START_full_chain_v1.md`](../../harness/invokes/by-task/gov-l2-phase-c-impl/PROMPT_START_full_chain_v1.md) · [`PROMPT_TASK_22_to_CLOSE_v1.md`](../../harness/invokes/by-task/gov-l2-phase-c-impl/PROMPT_TASK_22_to_CLOSE_v1.md)  

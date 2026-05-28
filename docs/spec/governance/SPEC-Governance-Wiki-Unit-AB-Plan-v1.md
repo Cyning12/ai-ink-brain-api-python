@@ -31,10 +31,10 @@
 
 | round | task_slug | task 文件 | freeze_id |
 | --- | --- | --- | --- |
-| **R1** | `gov-wiki-docs-hygiene` | [`task_governance_wiki_docs_hygiene_v1.md`](../../tasks/active/task_governance_wiki_docs_hygiene_v1.md) | `GOV-WIKI-DOCS-HYGIENE@2026-05-28` |
-| **R2** | `gov-wiki-t4-rollout` | [`task_governance_wiki_t4_rollout_v1.md`](../../tasks/active/task_governance_wiki_t4_rollout_v1.md) | `GOV-WIKI-T4-ROLLOUT@2026-05-28` |
-| **R3** | `gov-wiki-ingest-batch-3` | [`task_governance_wiki_ingest_batch_3_v1.md`](../../tasks/active/task_governance_wiki_ingest_batch_3_v1.md) | `GOV-WIKI-INGEST-BATCH-3@2026-05-28` |
-| **META** | `wiki-loop-unit-a` | [`task_harness_wiki_loop_unit_a_v1.md`](../../tasks/active/task_harness_wiki_loop_unit_a_v1.md) | `WIKI-LOOP-UNIT-A@2026-05-28` |
+| **R1** | `gov-wiki-docs-hygiene` | [`task_governance_wiki_docs_hygiene_v1.md`](../../tasks/done/task_governance_wiki_docs_hygiene_v1.md) | `GOV-WIKI-DOCS-HYGIENE@2026-05-28` |
+| **R2** | `gov-wiki-t4-rollout` | [`task_governance_wiki_t4_rollout_v1.md`](../../tasks/done/task_governance_wiki_t4_rollout_v1.md) | `GOV-WIKI-T4-ROLLOUT@2026-05-28` |
+| **R3** | `gov-wiki-ingest-batch-3` | [`task_governance_wiki_ingest_batch_3_v1.md`](../../tasks/done/task_governance_wiki_ingest_batch_3_v1.md) | `GOV-WIKI-INGEST-BATCH-3@2026-05-28` |
+| **META** | `wiki-loop-unit-a` | [`task_harness_wiki_loop_unit_a_v1.md`](../../tasks/done/task_harness_wiki_loop_unit_a_v1.md) | `WIKI-LOOP-UNIT-A@2026-05-28` |
 
 **SPEC**：Batch-3 名单 [`SPEC-Governance-Wiki-Ingest-Batch-3-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-3-v1.md)  
 **Harness**：[`docs/harness/invokes/by-task/wiki-loop-unit-a/`](../../harness/invokes/by-task/wiki-loop-unit-a/LOOP_MANIFEST.md)
@@ -51,7 +51,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| **task** | [`task_governance_l2_phase_c_impl_v1.md`](../../tasks/active/task_governance_l2_phase_c_impl_v1.md) |
+| **task** | [`task_governance_l2_phase_c_impl_v1.md`](../../tasks/done/task_governance_l2_phase_c_impl_v1.md) |
 | **freeze_id** | `GOV-L2-PHASE-C-IMPL@2026-05-28` |
 | **范围** | `tools/tech_graph_test_manifest_check.py` 双向模式 · pytest · `99_spec` VERIFY 行 · **禁止** 改 Wiki 为 coverage 真值 |
 
@@ -70,10 +70,12 @@ Open Folder：ai-ink-brain-api-python/
 | --- | --- | --- |
 | 1 | 人批母单 A：`HG-LOOP-BATCH` · `HG-INGEST-BATCH-3-SCOPE` | **done** |
 | 2 | cc 跑 **单元 A** → **PR-A** → `main` | **done** · [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79) |
-| 3 | `git pull origin main`（同分支 `task/wiki-unit-ab-plan-v1`） | **当前棒** |
-| 4 | 人批单元 B：`HG-TASK-DRAFT` → `HG-AUDIT-R1`（22 后）→ `HG-REINSPECT`（50 后） | **pending** |
-| 5 | cc 跑 **单元 B** → **PR-B** | **待执行** |
-| 6 | **SKILL 测评** | A：`wiki-loop-unit-a_claude-code_20260528` **done** · B：`gov-l2-phase-c-impl_claude-code_*` 待关账 |
+| 3 | `git pull origin main`（同分支 `task/wiki-unit-ab-plan-v1`） | **done** |
+| 4 | 人批单元 B：`HG-TASK-DRAFT` → `HG-AUDIT-R1`（22 后）→ `HG-REINSPECT`（50 后） | **done** |
+| 5 | cc 跑 **单元 B** → **PR-B** → `main` | **done** · [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80) |
+| 5b | Phase C CI：`check-failure-paths` Required | **done** · [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81) |
+| 6 | **SKILL 测评** | A：[`wiki-loop-unit-a_claude-code_20260528`](../../harness/experiments/skill_cross_platform_v1/cases/wiki-loop-unit-a_claude-code_20260528/) · B：[`gov-l2-phase-c-impl_claude-code_20260528`](../../harness/experiments/skill_cross_platform_v1/cases/gov-l2-phase-c-impl_claude-code_20260528/) **done** |
+| 7 | **叙事收口**（本 SPEC / Roadmap / RECENT / 对比表） | **done** · [`task_governance_wiki_unit_ab_closeout_v1.md`](../../tasks/done/task_governance_wiki_unit_ab_closeout_v1.md) |
 
 **PR-A diff 白名单（硬）**：`docs/coding_wiki/`、`docs/spec/governance/`、`docs/tasks/`、`docs/harness/invokes/`、`docs/tasks/RECENT_TASK_SCHEDULE.md`（若 R1 改）  
 **禁止 PR-A 含**：`api/`、`tests/`（除 invoke 引用）、`tools/`、`.github/workflows/`
@@ -96,6 +98,7 @@ Open Folder：ai-ink-brain-api-python/
 | --- | --- |
 | 2026-05-28 | v1：A/B 拆解 · 同分支双 PR · cc + SKILL 测评备注 |
 | 2026-05-28 | v1.1：PR-A #79 done · 单元 B 执行入口与 C2 抽样表 |
+| 2026-05-28 | v1.2：PR-B #80 · Phase C CI #81 · SKILL B 臂 case · 收口 task **done** |
 
 ---
 

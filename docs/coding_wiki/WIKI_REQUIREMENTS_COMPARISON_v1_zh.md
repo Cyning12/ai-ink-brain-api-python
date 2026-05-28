@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **版本** | v1.4 |
+| **版本** | v1.5 |
 | **日期** | 2026-05-28 |
 | **状态** | `active` — 随试点/T1c 演进时增量修订 |
 | **用途** | Karpathy 理论、治理 SPEC、本仓 Schema、实验结论、对话共识的 **逐项对照** |
@@ -43,7 +43,7 @@
 | 5 | 三层：Raw / Wiki / Schema | A | 三层分离 | L1=原文、L2=Wiki、Schema=`CODING_WIKI` | ⚠️ **有意裁剪**；见 §4 |
 | 6 | 与图谱分工：拓扑 vs 叙事 | C、D | 表/RPC/依赖走 L0 | `llm-wiki-layers` | ✅ |
 | 7 | 测试「过程存档」非 coverage 真值 | D、C §8 | Wiki 记变更史/意图 | §8 + `decisions/` + 2× synthesis §测试变更 | ✅ **T1c done** |
-| 8 | 测试↔`ERR_*` 机器校验 | D | `_test_manifest` 等 | 未建 | ❌ **工具链 L2**；SPEC §5.1 P2 |
+| 8 | 测试↔`ERR_*` 机器校验 | D | `_test_manifest` + `--check-failure-paths` | Phase B **done** · Phase C **impl+CI**（#80/#81） | ⚠️ **工具链 L2** 已落地双向校验；Wiki 仍非 coverage 真值 |
 
 ---
 
@@ -132,6 +132,9 @@
 | P2 锚点/test manifest | **无** | 11_REVIEW | 独立 engineering task |
 | P2 T4 | **无** | **done** · `task_governance_wiki_t4_expand_v2` · 2026-05-27 | ✅ 扩面 3 synthesis graph_nodes |
 | P3 前端 parity | 前端仓 | **done** · Ink PR #44 · 2026-05-27 | ✅ 不在本仓但已完成 |
+| **Unit A/B 双 PR** | **无** | **done** · #79 docs-only · #80 `required` · 2026-05-28 | ✅ [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 |
+| **L2 Phase C impl** | **无** | **done** · [`task_governance_l2_phase_c_impl_v1.md`](../tasks/done/task_governance_l2_phase_c_impl_v1.md) · PR #80 | ✅ `--check-failure-paths` |
+| **L2 Phase C CI** | **无** | **done** · PR #81 · `tech-graph.yml` | ✅ Required 与 `99_spec` 一致 |
 
 ---
 
@@ -174,3 +177,4 @@
 | 2026-05-26 | v1.2：#12 T1c done · #46 Wiki Loop A1/A2 test_strategy · §7/§9 同步（A3） |
 | 2026-05-27 | v1.3：#46 六 slug Representative AB accepted（部分外推）· 链 P1-4 证据 |
 | 2026-05-28 | v1.4：#36 T4 active+扩面 · #37 P1-4 done · §7 P2 T4/前端同步（R1 hygiene） |
+| 2026-05-28 | v1.5：§1 #8 Phase C · §7 Unit A/B + Phase C impl/CI（#79–#81 收口） |

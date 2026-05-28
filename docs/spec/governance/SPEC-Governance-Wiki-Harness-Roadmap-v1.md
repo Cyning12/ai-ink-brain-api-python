@@ -145,7 +145,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | **前端 P1-4** | **done**（2026-05-27） | **`Projects/`** | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 task [`done/`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) · Ink PR #44 |
 | **并行 · 后端 P2 Loop** | **done**（2026-05-27 · PR #76） | **`ai-ink-brain-api-python/`** | [`REPORT_completion_wiki_loop_p2_followup_v1.md`](../../harness/invokes/by-task/wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md) |
 | **后端推广收口** | 读序 + Batch-1/2 + AB-REP + P2 Loop **done** | 本仓 | §5.1 上表 |
-| **后端 P2 收口（A/B 双 PR）** | **in_progress** · 单元 A R1 hygiene | 本仓 | [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](./SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) · PR-A docs-only + PR-B `required` |
+| **后端 P2 收口（A/B 双 PR）** | **done**（2026-05-28 · #79/#80/#81） | 本仓 | [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](./SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) · [`task_governance_wiki_unit_ab_closeout_v1.md`](../../tasks/done/task_governance_wiki_unit_ab_closeout_v1.md) |
 
 **硬规则**：前端大包 **禁止** 在后端仓改 `ai-ink-brain/`；后端 P2 Loop **禁止** 重复 Batch-1 ingest slug。
 
@@ -176,6 +176,7 @@ T0 ──► T1a（P1 AB）──► T3（工作区 Harness）✓
 | 2026-05-27 | v1.9：T4 / L2 工具链 **draft 专文** · §2 §4 §5.1 链出 |
 | 2026-05-27 | v2.0：§5.1 AB-REP **done** · **§5.2 推广常模** · P1-4 / P2 Loop SPEC 链出 |
 | 2026-05-27 | v2.1：P1-4 前端 parity **done** · §2 / §5.1 / §5.2 索引同步 |
+| 2026-05-28 | v2.2：§5.2 后端 A/B 双 PR **done**（#79–#81）· 链收口 task |
 
 ---
 

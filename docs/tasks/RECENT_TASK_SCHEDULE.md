@@ -12,7 +12,7 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**P1-4 前端 Harness parity** **done**（2026-05-27 · 工作区 task · Ink PR #44 · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md)）；**P2 后续 Loop** **done**；工作区 **T3** taxonomy **done**；本仓 **读序 + Batch-1 + AB-REP done**。下一棒见 Roadmap §5.1（**T4** 等）。  
+> **近期当前（治理/工程）**：**Wiki 单元 A/B + L2 Phase C（#79–#81）** **done**（2026-05-28）；**P2 后续 Loop** · **P1-4 前端 parity** · **读序 + Batch-1/2/3 + AB-REP** **done**。下一棒：**T4 运营扩面**（[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md)）或 **Batch-4 ingest**（另单 · 非本表默认当前棒）。  
 > **V3 韧性**：P2-1a **done**（PR #52）；P2-1b/c **排队** — 属 ChatBI 实现子单，**与 Harness 改进无关**，**非**本表默认「当前棒」。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
@@ -326,8 +326,10 @@ flowchart TD
 | **Agent 读序** | **`task_governance_wiki_agent_readorder_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_agent_readorder_v1.md`](done/task_governance_wiki_agent_readorder_v1.md) · `GOV-WIKI-AGENT-READORDER@2026-05-27` · AGENTS 必读第 5 条 + `11-coding-wiki-readorder.mdc` |
 | **Ingest 批量** | **`task_governance_wiki_ingest_batch_v1`** | **done** | 2026-05-27 · [`done/task_governance_wiki_ingest_batch_v1.md`](done/task_governance_wiki_ingest_batch_v1.md) · syntheses **15** · `GOV-WIKI-INGEST-BATCH@2026-05-27` |
 | **AB 代表性扩面** | **`task_governance_wiki_ctx_ab_representative_v1`** | **done** | 2026-05-27 关账 · 6 slug · T7/T8 pass · [`done/task_governance_wiki_ctx_ab_representative_v1.md`](done/task_governance_wiki_ctx_ab_representative_v1.md) · `reinspect_wiki-ctx-ab-representative_20260527_v1.md` · P1-4 已关账 |
-| **Wiki Loop Unit A** | **`task_harness_wiki_loop_unit_a_v1`** + R1–R3 | **done** | `SPEC-Governance-Wiki-Unit-AB-Plan-v1.md` · 分支 `task/wiki-unit-ab-plan-v1` · **PR-A** · cc · `WIKI-LOOP-UNIT-A@2026-05-28` |
-| **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **done** | 2026-05-28 · 单元 **B** · **PR-B** · `GOV-L2-PHASE-C-IMPL@2026-05-28` · `--check-failure-paths` · [`done/task_governance_l2_phase_c_impl_v1.md`](done/task_governance_l2_phase_c_impl_v1.md) · `reinspect_gov-l2-phase-c-impl_20260528_v1.md` |
+| **Wiki Loop Unit A** | **`task_harness_wiki_loop_unit_a_v1`** + R1–R3 | **done** | 2026-05-28 · **PR-A [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79)** · cc · `WIKI-LOOP-UNIT-A@2026-05-28` · [`done/task_harness_wiki_loop_unit_a_v1.md`](done/task_harness_wiki_loop_unit_a_v1.md) |
+| **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **done** | 2026-05-28 · 单元 **B** · **PR-B [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80)** · `GOV-L2-PHASE-C-IMPL@2026-05-28` · [`done/task_governance_l2_phase_c_impl_v1.md`](done/task_governance_l2_phase_c_impl_v1.md) · `reinspect_gov-l2-phase-c-impl_20260528_v1.md` |
+| **L2 Phase C CI** | **tech-graph.yml `check-failure-paths`** | **done** | 2026-05-28 · **PR [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81)** · Required 步与 `99_spec` VERIFY 一致 |
+| **Wiki Unit AB closeout** | **`task_governance_wiki_unit_ab_closeout_v1`** | **done** | 2026-05-28 · docs-only 叙事收口 · SKILL B 臂 case · `GOV-WIKI-UNIT-AB-CLOSEOUT@2026-05-28` · [`done/task_governance_wiki_unit_ab_closeout_v1.md`](done/task_governance_wiki_unit_ab_closeout_v1.md) |
 
 ---
 
@@ -387,6 +389,7 @@ flowchart TD
 | 2026-05-27 | **P1-4 前端 Harness parity done**：工作区关账 · Ink PR #44 · SPEC/Roadmap/§6.6 索引同步 |
 | 2026-05-28 | **Wiki Loop Unit A R1 hygiene**：对比表 #36/#37 同步 · P2 SPEC 母单链 `done/` · RECENT §6.6 Unit A in_progress · `GOV-WIKI-DOCS-HYGIENE@2026-05-28` |
 | 2026-05-28 | **PR-A #79 合 main** · 单元 **B** `in_progress` · `PROMPT_TASK_22_to_CLOSE` · C2 抽样表 · `git merge origin/main` |
+| 2026-05-28 | **Unit AB closeout done**：#79–#81 叙事对齐 · Roadmap §5.2 · `gov-l2-phase-c-impl` SKILL case · `GOV-WIKI-UNIT-AB-CLOSEOUT@2026-05-28` |
 
 
 ---

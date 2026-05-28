@@ -1,11 +1,11 @@
 # Task：治理 — Wiki 单元 A/B 推广收口（P0 · docs-only）
 
-> **状态**：pending  
+> **状态**：done（2026-05-28）  
 > **前置**：PR-A [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79)、PR-B [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80)、Phase C CI [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81) **已合 `main`**  
 > **规划 SPEC**：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md)  
 > **执行入口**：[`PROMPT_TASK_22_to_CLOSE_v1.md`](../../harness/invokes/by-task/gov-wiki-unit-ab-closeout/PROMPT_TASK_22_to_CLOSE_v1.md)
 
-> 落盘：验收后 `git mv` → `docs/tasks/done/`；更新 `docs/tasks/_views/done.md` · `RECENT_TASK_SCHEDULE.md` §6.6。
+> 落盘：**done** · `docs/tasks/_views/done.md` · `RECENT_TASK_SCHEDULE.md` §6.6 · `reinspect_gov-wiki-unit-ab-closeout_20260528_v1.md`
 
 ---
 
@@ -27,9 +27,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 人扫本 task + §范围 文件清单 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘后人签 |
-| HG-REINSPECT | pending | done | 50 落盘后人签 · 合并 PR 前 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 人扫本 task + §范围 文件清单 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 落盘后人签 |
+| HG-REINSPECT | approved | done | 50 落盘后人签 · 合并 PR 前 |
 
 ---
 
@@ -49,17 +49,17 @@
 
 ### 必须改（勾选验收）
 
-- [ ] [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 步骤 3–6 → **done**；§3 `task_governance_l2_phase_c_impl` 链至 `docs/tasks/done/`；修订记录 +1 行（#79–#81）  
-- [ ] [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.2「后端 P2 收口（A/B 双 PR）」→ **done**（PR #79/#80/#81）；§0「下一棒」改为 **T4 运营 / Batch-4 可选**（勿写 Unit B 待执行）  
-- [ ] [`docs/tasks/RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0 首段「近期当前」与 §6.6 一致；§8 修订记录增 **Unit AB closeout** 行；§6.6 增本 task **done** 行（关账时填）  
-- [ ] [`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md)：补 **Unit A/B**、**L2 Phase C impl**、**Phase C CI #81** 与 main 一致（至少 §7 表或新增行；版本号 +0.1）  
-- [ ] [`docs/harness/experiments/skill_cross_platform_v1/`](../../harness/experiments/skill_cross_platform_v1/)：新建 `cases/gov-l2-phase-c-impl_claude-code_20260528/`（`scorecard.md` + `conclusion_zh.md`）；[`README.md`](../../harness/experiments/skill_cross_platform_v1/README.md) §已收录 case 增一行  
-- [ ] Harness：22 review · 30/40 invoke · `reinspect_gov-wiki-unit-ab-closeout_<date>_v1.md` · 关账 hygiene
+- [x] [`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 步骤 3–7 → **done**；§3 `task_governance_l2_phase_c_impl` 链至 `docs/tasks/done/`；修订记录 v1.2（#79–#81）  
+- [x] [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](../spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md) §5.2「后端 P2 收口（A/B 双 PR）」→ **done**（PR #79/#80/#81）；RECENT §0「下一棒」→ **T4 / Batch-4 可选**  
+- [x] [`docs/tasks/RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0 · §6.6 · §8 **Unit AB closeout**  
+- [x] [`docs/coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md) v1.5 · §7 Unit A/B + Phase C  
+- [x] [`docs/harness/experiments/skill_cross_platform_v1/`](../../harness/experiments/skill_cross_platform_v1/) · `gov-l2-phase-c-impl_claude-code_20260528/`  
+- [x] Harness：22 review · 30/40 invoke · `reinspect_gov-wiki-unit-ab-closeout_20260528_v1.md`
 
 ### 建议核对（无矛盾即可）
 
-- [ ] `docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` §4.3 已与 #81 一致（**勿**回退为 design-only）  
-- [ ] `docs/tasks/done/task_governance_l2_phase_c_impl_v1.md` 头部无 `active/` 断链
+- [x] `SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` §4.3 与 #81 一致（未改 design-only）  
+- [x] `task_governance_l2_phase_c_impl_v1.md` 头部 PR #80/#81 链
 
 ## 非范围
 
@@ -97,14 +97,14 @@
 
 ## 验收标准
 
-- [ ] §范围「必须改」全部勾选  
-- [ ] **零阻塞**：`rg` 在下列路径无「单元 B 待执行」「PR-B 待」「步骤 5 待」等残留（允许历史修订记录 **叙述** 过去态）  
+- [x] §范围「必须改」全部勾选  
+- [x] **零阻塞**：`rg` 在下列路径无「单元 B 待执行」「PR-B 待」「步骤 5 待」等残留（允许历史修订记录 **叙述** 过去态）  
   - `docs/spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`  
   - `docs/spec/governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md` §5.2  
   - `docs/tasks/RECENT_TASK_SCHEDULE.md` §0（非 §8 历史表）  
-- [ ] SKILL case 目录存在且 README 已索引  
-- [ ] 22→50 落盘完整 · `semi_auto` 链式执行  
-- [ ] 合并前：`pytest` 绿（本仓常模 · 无代码变更亦须绿）
+- [x] SKILL case 目录存在且 README 已索引  
+- [x] 22→50 落盘完整 · `semi_auto` 链式执行  
+- [x] 合并前：`pytest` 绿（242 passed）
 
 **VERIFY**：
 
@@ -126,7 +126,7 @@ python tools/tech_graph_test_manifest_check.py
 python tools/tech_graph_test_manifest_check.py --check-failure-paths
 
 # 5) 关账前人闸（task 路径在 active/ 时）
-python tools/harness_human_gate_check.py --task docs/tasks/active/task_governance_wiki_unit_ab_closeout_v1.md
+python tools/harness_human_gate_check.py --task docs/tasks/done/task_governance_wiki_unit_ab_closeout_v1.md
 ```
 
 ---
@@ -146,9 +146,10 @@ python tools/harness_human_gate_check.py --task docs/tasks/active/task_governanc
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （30 回填） |
-| PR | （合并后填 #） |
-| SKILL case | `cases/gov-l2-phase-c-impl_claude-code_YYYYMMDD/` |
+| 涉及文件 | 见 `invoke_20260528_30_*` §2 |
+| PR | 待开（本 task docs-only）· 前置 #79/#80/#81 已合 `main` |
+| SKILL case | `cases/gov-l2-phase-c-impl_claude-code_20260528/` |
+| reinspect | `reinspect_gov-wiki-unit-ab-closeout_20260528_v1.md` |
 
 ---
 
@@ -156,9 +157,9 @@ python tools/harness_human_gate_check.py --task docs/tasks/active/task_governanc
 
 | 项 | 结果 |
 |----|------|
-| VERIFY §1 `rg` 残留扫描 | |
-| VERIFY §2–§4 | |
-| 结论 | pass / fail |
+| VERIFY §1 `rg` 残留扫描 | **pass**（无命中） |
+| VERIFY §2–§4 | **pass**（CI L31 · pytest 242 · manifest×2） |
+| 结论 | **pass** |
 
 ---
 
