@@ -1,6 +1,6 @@
 # Task：治理 — Coding Wiki 批量 Ingest 第三批（5 slug · 单元 A · R3）
 
-> **状态**：pending  
+> **状态**：done（2026-05-28）  
 > **round**：**R3** · 母单 [`task_harness_wiki_loop_unit_a_v1.md`](task_harness_wiki_loop_unit_a_v1.md)  
 > **SPEC**：[`SPEC-Governance-Wiki-Ingest-Batch-3-v1.md`](../spec/governance/SPEC-Governance-Wiki-Ingest-Batch-3-v1.md)
 
