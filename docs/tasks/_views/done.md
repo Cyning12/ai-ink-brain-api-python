@@ -91,4 +91,5 @@
 - `../done/task_governance_wiki_ingest_batch_2_v1.md`（2026-05-27 验收通过：P2 Loop R3 · Batch-2 5 slug · syntheses 20 · `reinspect_gov-wiki-ingest-batch-2_20260527_v1.md` · `GOV-WIKI-INGEST-BATCH-2@2026-05-27`）
 - `../done/task_harness_wiki_loop_p2_followup_v1.md`（2026-05-27 验收通过：P2 Loop 母单 META · R1–R3 · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · REPORT `wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md`）
 - `../done/task_governance_wiki_docs_hygiene_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A R1 · 对比表 #36/#37 同步 · P2 SPEC 母单链 done · RECENT §6.6 in_progress · 50 复检 `reinspect_gov-wiki-docs-hygiene_20260528_v1.md` · `freeze_id` `GOV-WIKI-DOCS-HYGIENE@2026-05-28`）
+- `../done/task_governance_wiki_t4_rollout_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A R2 · T4 graph_nodes 铺量 14 篇 · 20/20 synthesis 含 frontmatter · 50 复检 `reinspect_gov-wiki-t4-rollout_20260528_v1.md` · `freeze_id` `GOV-WIKI-T4-ROLLOUT@2026-05-28`）
 
