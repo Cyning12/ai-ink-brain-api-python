@@ -1,31 +1,44 @@
 # 单元 B · L2 Phase C 实现全链（cc · PR-B）
 
-> **前置**：**PR-A**（单元 A）已合 `main`；`git checkout task/wiki-unit-ab-plan-v1 && git pull origin main`  
+> **前置**：**PR-A 已合 `main`** ([#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79))  
 > **分支**：`task/wiki-unit-ab-plan-v1`（**不换分支**）
 
 | 项 | 值 |
 |----|-----|
 | **task** | `docs/tasks/active/task_governance_l2_phase_c_impl_v1.md` |
 | **SPEC** | `docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md` §4.4 |
+| **Unit AB** | `docs/spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md` §3 |
+| **SKILL** | `SKILL-harness-task.md` · `SKILL-docs-governance.md` |
+| **22→关账** | [`PROMPT_TASK_22_to_CLOSE_v1.md`](./PROMPT_TASK_22_to_CLOSE_v1.md) |
 | **test_strategy** | `required` → **须 50** |
 
 ---
 
-## 可复制 Prompt（cc）
+## 1. 执行前自检
 
-```text
-执行 task_governance_l2_phase_c_impl_v1（单元 B · PR-B）。
-分支 task/wiki-unit-ab-plan-v1；test_strategy required；须 22→30→40→50→关账。
+```bash
+git checkout task/wiki-unit-ab-plan-v1
+git pull origin main
 
-必读 @：
-- docs/tasks/skills/SKILL-harness-task.md
-- docs/spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md §4.4
-- docs/spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md §3
-- docs/harness/prompts/hats/22-task-audit.md … 50-independent-reinspect.md
-- HANDOFF_SEMI_AUTO.md、HANDOFF_AUTO_COMMIT.md
+grep -E 'HG-TASK-DRAFT.*approved' docs/tasks/active/task_governance_l2_phase_c_impl_v1.md \
+  || { echo 'BLOCK: HG-TASK-DRAFT not approved'; exit 1; }
 
-禁止：改 docs/coding_wiki/ 批量 ingest；与 PR-A 混单 PR。
-VERIFY：tech_graph_test_manifest_check（含双向模式）+ pytest（AGENTS.md 合并前命令）。
-
-关账后建议 skill_cross_platform_v1 case：gov-l2-phase-c-impl_claude-code_<date>。
+python tools/harness_human_gate_check.py --task docs/tasks/active/task_governance_l2_phase_c_impl_v1.md
 ```
+
+---
+
+## 2. 可复制 Prompt（cc · 全文）
+
+见 [`PROMPT_TASK_22_to_CLOSE_v1.md`](./PROMPT_TASK_22_to_CLOSE_v1.md) §3。
+
+---
+
+## 3. PR-B diff 白名单（硬）
+
+| 允许 | 禁止 |
+|------|------|
+| `tools/tech_graph_test_manifest_check.py` | `docs/coding_wiki/` 批量 |
+| `tests/test_*phase*c*` 或等价 | `docs/harness/prompts/` 帽子正文 |
+| `docs/_tech_graph/_test_manifest.json`（可选增量） | 与 PR-A 重复的 docs-only 大范围 |
+| `docs/_tech_graph/99_spec.md` VERIFY 行 | |

@@ -66,14 +66,14 @@
 Open Folder：ai-ink-brain-api-python/
 ```
 
-| 步骤 | 动作 |
-| --- | --- |
-| 1 | 人批母单 A：`HG-LOOP-BATCH` · `HG-INGEST-BATCH-3-SCOPE`（见母单 `human_gate`） |
-| 2 | cc 跑 **单元 A** 全链 → commit → **PR-A** → `main` |
-| 3 | `git pull origin main`（在 **同一分支名** 上 rebase/merge main，**不** 换新分支） |
-| 4 | 人批单元 B：`HG-TASK-DRAFT` 等（见 B task） |
-| 5 | cc 跑 **单元 B** → **PR-B** |
-| 6 | **SKILL 测评**：`skill_cross_platform_v1` 新增 case `wiki-loop-unit-a_claude-code_YYYYMMDD`（或 `gov-l2-phase-c-impl_…` 若 B 先测）· 填 `rubric_v1` + ST1–ST6 |
+| 步骤 | 动作 | 状态 |
+| --- | --- | --- |
+| 1 | 人批母单 A：`HG-LOOP-BATCH` · `HG-INGEST-BATCH-3-SCOPE` | **done** |
+| 2 | cc 跑 **单元 A** → **PR-A** → `main` | **done** · [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79) |
+| 3 | `git pull origin main`（同分支 `task/wiki-unit-ab-plan-v1`） | **当前棒** |
+| 4 | 人批单元 B：`HG-TASK-DRAFT` → `HG-AUDIT-R1`（22 后）→ `HG-REINSPECT`（50 后） | **pending** |
+| 5 | cc 跑 **单元 B** → **PR-B** | **待执行** |
+| 6 | **SKILL 测评** | A：`wiki-loop-unit-a_claude-code_20260528` **done** · B：`gov-l2-phase-c-impl_claude-code_*` 待关账 |
 
 **PR-A diff 白名单（硬）**：`docs/coding_wiki/`、`docs/spec/governance/`、`docs/tasks/`、`docs/harness/invokes/`、`docs/tasks/RECENT_TASK_SCHEDULE.md`（若 R1 改）  
 **禁止 PR-A 含**：`api/`、`tests/`（除 invoke 引用）、`tools/`、`.github/workflows/`
@@ -95,6 +95,7 @@ Open Folder：ai-ink-brain-api-python/
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-28 | v1：A/B 拆解 · 同分支双 PR · cc + SKILL 测评备注 |
+| 2026-05-28 | v1.1：PR-A #79 done · 单元 B 执行入口与 C2 抽样表 |
 
 ---
 

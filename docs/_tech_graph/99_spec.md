@@ -63,8 +63,11 @@ flowchart TD
 **VERIFY（`_test_manifest`）**：
 
 ```bash
-# 基础校验（非严格）
+# 基础校验（非严格 · Phase B）
 python tools/tech_graph_test_manifest_check.py
+
+# Phase C 双向 failure_path_ref / task 表对照
+python tools/tech_graph_test_manifest_check.py --check-failure-paths
 
 # 严格模式（error_codes 须在 api/*.py 出现）
 python tools/tech_graph_test_manifest_check.py --strict
