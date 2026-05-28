@@ -6,6 +6,7 @@ source_task: docs/tasks/done/task_harness_p1_docs_consolidation_v1.md
 freeze_id: HARNESS-P1-DOCS@2026-05-23
 closed_date: 2026-05-23
 status: compiled
+graph_nodes: []
 ---
 
 # Harness P1 文档巩固

@@ -30,11 +30,21 @@
 
 ---
 
+## 待跑 case（单元 B · cc）
+
+| 建议目录 | 触发时机 |
+| --- | --- |
+| `gov-l2-phase-c-impl_claude-code_<YYYYMMDD>/` | **PR-B** 关账后 |
+
+规划真值：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../../../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 步骤 6。
+
+---
+
 ## 新增 case 流程
 
 1. 选定 **task_slug** + **platform** + 使用的 **SKILL ID** 列表。
 2. 在 `cases/` 下建目录，复制 [`cases/_TEMPLATE/scorecard.md`](./cases/_TEMPLATE/scorecard.md) 骨架。
-3. 填 **三维评分**（见 `rubric_v1.md`）+ **ST1–ST6** 勾选 + 证据链（commit / PR / invoke 路径）。
+3. 填 **三维评分**（见 `rubric_v1.md`）+ **ST0–ST6** 勾选（**ST0** = 开工前 human_gate 已 approved）+ 证据链（commit / PR / invoke 路径）。
 4. 写 `conclusion_zh.md`：根因、对 SKILL/PROMPT 的改进建议（若已落盘则链 commit）。
 5. （可选）在 [`docs/harness/README.md`](../README.md) §2 实验索引增一行。
 
@@ -47,6 +57,7 @@
 | case | 平台 | SKILL | 业务 PR | hygiene PR | 摘要 |
 | --- | --- | --- | --- | --- | --- |
 | [`gov-l2-manifest-ci_claude-code_20260527`](./cases/gov-l2-manifest-ci_claude-code_20260527/) | Claude Code | harness-task · docs-governance | [#70](https://github.com/Cyning12/ai-ink-brain-api-python/pull/70) | [#71](https://github.com/Cyning12/ai-ink-brain-api-python/pull/71) | 单 task 22→关账 · ST5 关账正文债 · hygiene 后补 |
+| [`wiki-loop-unit-a_claude-code_20260528`](./cases/wiki-loop-unit-a_claude-code_20260528/) | Claude Code | harness-loop-batch · docs-governance | PR-A 待开 | — | Loop R1→META · ST0 过程债已收口 · C2 全绿 |
 
 ---
 
@@ -55,3 +66,4 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-27 | v1：实验目录 + rubric + 首 case（gov-l2-manifest-ci · Claude Code） |
+| 2026-05-28 | 收录 `wiki-loop-unit-a_claude-code_20260528` · 单元 A cc 全链验收 |

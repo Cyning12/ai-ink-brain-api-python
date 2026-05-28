@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_wiki_ctx_ab_multi_slug_v1.md
 freeze_id: WIKI-CTX-AB-MULTI@2026-05-26
 closed_date: 2026-05-26
 status: compiled
+graph_nodes:
+  - id: CR1
+    relation: evidence
 ---
 
 # Wiki-CTX-AB Multi-slug

@@ -5,6 +5,7 @@ layer: L2
 source_task: docs/tasks/done/task_docs_tasks_reorg_move_v1.md
 closed_date: 2026-05-22
 status: compiled
+graph_nodes: []
 ---
 
 # docs/tasks 目录规整

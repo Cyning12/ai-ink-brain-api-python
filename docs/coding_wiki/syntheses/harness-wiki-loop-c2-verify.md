@@ -6,6 +6,9 @@ source_task: docs/tasks/done/task_harness_wiki_loop_c2_verify_v1.md
 freeze_id: WIKI-LOOP-C2-VERIFY@2026-05-26
 closed_date: 2026-05-26
 status: compiled
+graph_nodes:
+  - id: E2E_DOC
+    relation: documents
 ---
 
 # Wiki Loop C2 Verify

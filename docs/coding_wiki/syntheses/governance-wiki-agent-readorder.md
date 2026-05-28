@@ -6,6 +6,7 @@ source_task: docs/tasks/done/task_governance_wiki_agent_readorder_v1.md
 freeze_id: GOV-WIKI-AGENT-READORDER@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes: []
 ---
 
 # Agent Coding Wiki 默认读序

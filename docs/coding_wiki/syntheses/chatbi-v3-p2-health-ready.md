@@ -7,6 +7,7 @@ freeze_id: SPEC-ChatBI-V3-Resilience-Ops@2026-05-11
 closed_date: 2026-05-25
 status: compiled
 test_strategy: required
+graph_nodes: []
 ---
 
 # P2-1a 健康探针

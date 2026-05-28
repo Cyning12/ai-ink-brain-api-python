@@ -45,6 +45,11 @@
 | `governance-wiki-ingest-batch` | [[syntheses/governance-wiki-ingest-batch]] | `docs/tasks/done/task_governance_wiki_ingest_batch_v1.md` |
 | `coding-wiki-t1c-test-archive` | [[syntheses/coding-wiki-t1c-test-archive]] | `docs/tasks/done/task_coding_wiki_t1c_test_archive_v1.md` |
 | `harness-wiki-loop-p2-followup` | [[syntheses/harness-wiki-loop-p2-followup]] | `docs/tasks/done/task_harness_wiki_loop_p2_followup_v1.md` |
+| `harness-wiki-loop-a1-a4` | [[syntheses/harness-wiki-loop-a1-a4]] | `docs/tasks/done/task_harness_wiki_loop_a1_a4_v1.md` |
+| `harness-wiki-loop-bq3-recheck` | [[syntheses/harness-wiki-loop-bq3-recheck]] | `docs/tasks/done/task_harness_wiki_loop_bq3_recheck_v1.md` |
+| `coding-wiki-ingest-test-strategy` | [[syntheses/coding-wiki-ingest-test-strategy]] | `docs/tasks/done/task_coding_wiki_ingest_test_strategy_v1.md` |
+| `governance-recent-schedule-wiki-sync` | [[syntheses/governance-recent-schedule-wiki-sync]] | `docs/tasks/done/task_governance_recent_schedule_wiki_sync_v1.md` |
+| `wiki-ctx-ab-multi-bq3-recheck` | [[syntheses/wiki-ctx-ab-multi-bq3-recheck]] | `docs/tasks/done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md` |
 
 ---
 

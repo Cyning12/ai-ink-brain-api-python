@@ -90,4 +90,8 @@
 - `../done/task_governance_l2_phase_c_design_v1.md`（2026-05-27 验收通过：P2 Loop R2 · L2 Phase C design §4.4 · `reinspect_gov-l2-phase-c-design_20260527_v1.md` · `GOV-L2-PHASE-C-DESIGN@2026-05-27`）
 - `../done/task_governance_wiki_ingest_batch_2_v1.md`（2026-05-27 验收通过：P2 Loop R3 · Batch-2 5 slug · syntheses 20 · `reinspect_gov-wiki-ingest-batch-2_20260527_v1.md` · `GOV-WIKI-INGEST-BATCH-2@2026-05-27`）
 - `../done/task_harness_wiki_loop_p2_followup_v1.md`（2026-05-27 验收通过：P2 Loop 母单 META · R1–R3 · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · REPORT `wiki-loop-p2-followup/REPORT_completion_wiki_loop_p2_followup_v1.md`）
+- `../done/task_governance_wiki_docs_hygiene_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A R1 · 对比表 #36/#37 同步 · P2 SPEC 母单链 done · RECENT §6.6 in_progress · 50 复检 `reinspect_gov-wiki-docs-hygiene_20260528_v1.md` · `freeze_id` `GOV-WIKI-DOCS-HYGIENE@2026-05-28`）
+- `../done/task_governance_wiki_t4_rollout_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A R2 · T4 graph_nodes 铺量 14 篇 · 20/20 synthesis 含 frontmatter · 50 复检 `reinspect_gov-wiki-t4-rollout_20260528_v1.md` · `freeze_id` `GOV-WIKI-T4-ROLLOUT@2026-05-28`）
+- `../done/task_governance_wiki_ingest_batch_3_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A R3 · Batch-3 5 slug ingest · syntheses 25 · 50 复检 `reinspect_gov-wiki-ingest-batch-3_20260528_v1.md` · `freeze_id` `GOV-WIKI-INGEST-BATCH-3@2026-05-28`）
+- `../done/task_harness_wiki_loop_unit_a_v1.md`（2026-05-28 验收通过：Wiki Loop 单元 A 母单 META · R1–R3 全关账 · 单 PR `task/wiki-unit-ab-plan-v1` · `WIKI-LOOP-UNIT-A@2026-05-28` · REPORT `REPORT_completion_wiki_loop_unit_a_v1.md`）
 
