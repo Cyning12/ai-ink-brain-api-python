@@ -29,7 +29,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | **pending** | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task **继承母闸** |
+| HG-LOOP-BATCH | **approved** | 22-R1, 30, 40, 50 | **人** 批后启动 R1；子 task **继承母闸** |
 
 > **子 task 继承**：R1/R2 仅继承 `HG-LOOP-BATCH`。**改 status 以母单为准**。
 
