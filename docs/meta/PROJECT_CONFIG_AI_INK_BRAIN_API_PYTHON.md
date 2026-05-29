@@ -63,6 +63,9 @@
 | `CHATBI_V2_DEBUG_LLM_PROMPTS` | V2 Unified：SSE/JSON 是否附带完整 LLM messages（`agent.debug.llm_prompts` 等） | 可选 | `api/unified_chat.py:_debug_llm_prompts_enabled()` | `1`/`true`/`yes`/`on` 开启；与请求体 **`debug_llm_prompts: true`** 任一满足即生效；含 system 指令，生产慎用 | 与项目无关 |
 | `CHATBI_JSON_LOG` | V3 P0-2：是否输出 **单行 JSON** 结构化日志（`chatbi.obs`：`text2sql_phase_end` / `text2sql_tool_call_end`；根字段含 **`request_id`/`run_id`**，与 SSE `meta.run_id` 对齐；**`text2sql_phases_ms`** 与 `ToolResult.data` 同形） | 可选 | `api/chatbi_json_log.py`、`api/tools.py::text2sql_execute`、`api/agent.py`（`ChatBIAgent`） | 默认 **关闭**；`1`/`true`/`yes`/`on` 开启；见 `SPEC-ChatBI-V3-Logging-Trace.md` | 与项目无关 |
 | `CHATBI_PROMPT_GUARD_MODE` | V3 P1-2：Unified **JSON** 与 **SSE**（`/unified/chat/stream`）路径上对用户 `query` 的 Prompt 注入 PoC | 可选 | `api/chatbi_prompt_guard.py`、`api/unified_chat.py::handle_unified_chat`、`handle_unified_chat_stream` | 默认 **`off`**；`warn` 命中时写 **`prompt_guard_warn`** 并继续下游；`block` 命中时写 **`prompt_guard_deny`** 并 **不调用**上游 LLM（JSON：`events` 内 `error`；SSE：`chain` 内 `error` + `done.ok=false`）；见 `docs/tasks/active/task_chatbi_v3_prompt_injection_guard_poc_v1.md` | 与项目无关 |
+| `CHATBI_RATE_LIMIT_ENABLED` | V3 P2-1b：是否对 `POST /api/py/chat` 与 `POST /api/py/unified/chat/stream` 启用按 **客户端 IP** 限流 | 可选 | `api/chatbi_rate_limit.py`（middleware） | 默认 **开启**；`0`/`false`/`no`/`off` 关闭；`CHATBI_RATE_LIMIT_MAX_REQUESTS=0` 时等同关闭 | 与项目无关 |
+| `CHATBI_RATE_LIMIT_MAX_REQUESTS` | 滑动窗口内允许的最大请求数（每 IP） | 可选 | `api/chatbi_rate_limit.py` | 默认 **`60`**；非法值回退默认并 **日志告警** | 与项目无关 |
+| `CHATBI_RATE_LIMIT_WINDOW_SEC` | 滑动窗口长度（秒） | 可选 | `api/chatbi_rate_limit.py` | 默认 **`60`**；非法值回退默认并 **日志告警** | 与项目无关 |
 | `CHATBI_ACCESS_TOKEN_PEPPER` | 可选全局 pepper：参与 `SHA256(pepper_bytes + 明文 token)`，须与运维本地脚本 `docs/diary/local_chatbi_access_token_gen.py` 及 Supabase 插入的 `key_hash` **一致** | 可选 | `api/chatbi_access_hash.py`、`api/chatbi_principal.py`；本地脚本 `docs/diary/local_chatbi_access_token_gen.py` | 留空则 pepper 为空字节串；**勿**把 pepper 提交进 Git | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
@@ -147,13 +150,13 @@
 | `GET /api/py/live` | 进程存活探针（轻量 200；`ok=true`；不做重依赖外呼） |
 | `GET /api/py/ready` | 依赖就绪探针（检查 Supabase 配置与 `SILICONFLOW_API_KEY`；失败返回 `503` + `components[]`） |
 | `GET /api/py/health` | 兼容历史探针，当前与 `/api/py/live` 返回语义保持一致 |
-| `POST /api/py/chat` | **流式** `text/plain`；检索 hybrid；失败降级策略见下 |
+| `POST /api/py/chat` | **流式** `text/plain`；检索 hybrid；失败降级策略见下；超限时 **429** JSON（`error_code=RATE_LIMIT_EXCEEDED`，可选 `retry_after`） |
 | `GET /api/py/chat/history` | 按 `session_id` 拉取 `rag_conversation_logs`；**鉴权**：Ink admin（`_require_auth`）**或**请求头 **`X-ChatBI-Access-Token`**（DB 明文，与 Next BFF 对齐；实现见 `api/index.py::_require_rag_history_auth`） |
 | `GET /api/py/chatbi/access/verify` | ChatBI 明文 token **探活**（JSON：`ok` / `access_level` / `principal_kind` / `token_id`）；**鉴权**：与 Unified 相同，**仅** `Authorization: Bearer <明文>` → `require_chatbi_principal` |
 | `POST /api/py/admin/ingest` | 同步扫描内容并写入 `documents`（重删再插策略） |
 | `POST /api/py/admin/sync` + `GET /api/py/admin/sync?jobId=` | 异步任务（内存队列，serverless 不保证持久） |
 | `POST /api/py/unified/chat` | Unified 非流式：`events[]` JSON；字段与锚点以 **`docs/_tech_graph/_contract_manifest.json`** 为准；**鉴权**：仅 **`Authorization: Bearer`** + `public.chatbi_access_tokens`（见 `api/chatbi_principal.py`），**不再**接受与 Legacy 相同的 `API_KEY` 明文并行校验 |
-| `POST /api/py/unified/chat/stream` | Unified SSE：链式事件流；契约同上；**鉴权**同上 |
+| `POST /api/py/unified/chat/stream` | Unified SSE：链式事件流；契约同上；**鉴权**同上；超限时 **429** JSON（`error_code=RATE_LIMIT_EXCEEDED`，可选 `retry_after`） |
 
 ### F.1 流式回答 + 证据链（Task04）
 
