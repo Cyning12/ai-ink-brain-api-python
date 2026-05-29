@@ -1,7 +1,8 @@
 # Task：ChatBI V3 P2-1b 高消耗端点限流
 
 > **状态**：in_progress  
-> **schedule_ref**：RECENT §1.1 #0b · **V3 业务当前棒**  
+> **Loop 承接**：**R1 关账** [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) · 已合 **PR #86** · **勿** 独立开分支  
+> **schedule_ref**：RECENT §1.1 #0b · ~~V3 业务当前棒~~ → Loop R1 归档  
 > **epic**：ChatBI V3 · P2 韧性  
 > **blocked_by**：P2-1a done（PR #52）  
 > **blocks**：P2-1c 熔断  

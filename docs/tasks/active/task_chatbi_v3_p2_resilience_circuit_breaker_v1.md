@@ -1,8 +1,13 @@
 # Task：ChatBI V3 P2-1c 外呼熔断与降级
 
 > **状态**：todo  
-> **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
-> **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §3
+> **schedule_ref**：RECENT §1.1 #L1-R2 · **P2 Loop R2**  
+> **epic**：ChatBI V3 · P2 韧性  
+> **blocked_by**：Loop **R1** 关账（#0b/#W1 已 `done/`）  
+> **Loop 母单**：[`task_chatbi_v3_p2_resilience_loop_v1.md`](task_chatbi_v3_p2_resilience_loop_v1.md) · round **R2**  
+> **关联母单（拆单）**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
+> **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §3  
+> **排期**：[`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) · 单 PR `task/chatbi-v3-p2-loop-v1`
 
 ---
 
@@ -15,7 +20,12 @@
 | gates_before_code | `["failure_paths","验收标准","必读列表"]` |
 | semi_auto | `true` |
 | audit_profile | `post_close` |
-| git_branch | `task/chatbi-v3-p2-1c-circuit-breaker`（待开分支） |
+| git_branch | `task/chatbi-v3-p2-loop-v1`（与 Loop 母单 **同 PR**） |
+| worktree_root | 主仓 `ai-ink-brain-api-python/` |
+| task_slug | `chatbi-v3-p2-loop-r2-circuit-breaker` |
+| human_gate | **继承母单** `HG-LOOP-BATCH` |
+
+**帽子顺序**：跳过 10 · 链 `docs/harness/invokes/by-task/chatbi-v3-p2-loop/PROMPT_LOOP_22_to_CLOSE_v1.md` · round=**R2**
 
 ---
 

@@ -34,18 +34,27 @@ graph_nodes: []
 
 ## Epic 分区（2026-05-29 快照）
 
-### ChatBI V3 · 业务当前棒
+### ChatBI V3 · P2 韧性 — **当前 Loop（单 PR）**
 
 | RECENT | task | 状态 | 说明 |
 |--------|------|------|------|
-| §1.1 #0b | [`task_chatbi_v3_p2_resilience_rate_limit_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md) | `todo` | **P2-1b 限流** · 下一实施 |
-| §1.1 #0c | [`task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md) | `todo` | P2-1c · 1b 后 |
-| §1.1 #3 | [`task_chatbi_v3_planning_after_resume_v1.md`](../../tasks/active/task_chatbi_v3_planning_after_resume_v1.md) | `planning` | V3 统筹索引 |
-| §1.1 #4–#6 | 低置信 / 多轮欠债 / Intent | `backlog` | P2–P4 队列 |
+| §1.1 **#L1** | [`task_chatbi_v3_p2_resilience_loop_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_loop_v1.md) | `in_progress` | **母单** · `task/chatbi-v3-p2-loop-v1` |
+| §1.1 L1-R1 | [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](../../tasks/active/task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) | `todo` | 归档 #0b/#W1（#86/#87 已合） |
+| §1.1 #0c | [`task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md) | `todo` | **Loop R2** 熔断 |
+| invoke | [`chatbi-v3-p2-loop/`](../../harness/invokes/by-task/chatbi-v3-p2-loop/) | — | PROMPT_START · MANIFEST |
+
+**已合 main、待 R1 归档**：P2-1b（#86）· W1（#87）
 
 **母单 / 已关账**：→ [[../syntheses/chatbi-v3-p2-health-ready]]（P2-1a）· [[../syntheses/chatbi-v3-text2sql-tool-latency-obs]]
 
-**图谱种子（改 ChatBI 路径时）**：`T2S` · `SSE` · `U2`（见对应 synthesis `graph_nodes`）
+**图谱种子（改 ChatBI 路径时）**：`T2S` · `SSE` · `U2`
+
+### ChatBI V3 · 队列（非本 Loop）
+
+| task | 状态 |
+|------|------|
+| [`task_chatbi_v3_planning_after_resume_v1.md`](../../tasks/active/task_chatbi_v3_planning_after_resume_v1.md) | `planning` |
+| 低置信 / 多轮欠债 / Intent | `backlog` · P2–P4 |
 
 ### RAG / 探索
 
@@ -53,15 +62,14 @@ graph_nodes: []
 |------|------|
 | [`task_rag_graphrag_pilot_explore_v1.md`](../../tasks/active/task_rag_graphrag_pilot_explore_v1.md) | 按需 |
 
-### 治理 · Wiki / Harness（**已收口** · 2026-05-29）
+### 治理 · Wiki / Harness（**已收口**）
 
 | 里程碑 | pointer |
 |--------|---------|
-| T4 ops + lint | [[../syntheses/governance-wiki-t4-expand]] · `done/task_governance_wiki_t4_ops_v1.md` |
-| Unit A/B + Phase C | [[../syntheses/governance-l2-manifest-ci]] · PR #79–#81 |
-| Wiki 验收留证 | → `docs/diary/2026-05-29-wiki-milestone-acceptance.md` |
+| T4 ops + lint | [[../syntheses/governance-wiki-t4-expand]] |
+| Wiki 验收留证 | [`docs/diary/2026-05-29-wiki-milestone-acceptance.md`](../../diary/2026-05-29-wiki-milestone-acceptance.md) |
 
-**可选后续**：Batch-4 ingest · P3 lint CI · 不挡业务线。
+**可选后续**：Batch-4 ingest · P3 lint CI
 
 ### 其它 active
 
@@ -77,12 +85,12 @@ graph_nodes: []
 
 | 字段 | 示例 | 说明 |
 |------|------|------|
-| **schedule_ref** | `RECENT §1.1 #0b` | 本仓排期表锚点 |
+| **schedule_ref** | `RECENT §1.1 #L1-R2` | 本仓排期表锚点 |
 | **epic** | `ChatBI V3 · P2 韧性` | Epic 归属 |
-| **blocked_by** | `P2-1a done` | 前置条件 |
-| **blocks** | `P2-1c` | 阻塞下游（可选） |
+| **blocked_by** | `Loop R1 done` | 前置条件 |
+| **blocks** | `P2-2` | 阻塞下游（可选） |
 
-已有 `task_slug` · `git_branch` · `freeze_id` · 链图谱路径（改 api 时）保持不变。
+与 Harness 元信息 `task_slug` · `git_branch` · `freeze_id` · 链图谱路径（改 api 时）保持不变。
 
 ---
 
@@ -93,7 +101,7 @@ graph_nodes: []
 | 新开 active task | RECENT §1.1 增行 + §8 修订 |
 | task 关账 | `git mv` done/ · `_views/done.md` · RECENT 改 done |
 | Epic 里程碑 | §6.6 或 diary 留证 |
-| 本页 active 表 | **随 RECENT §1.1 同步**（纯 docs hygiene） |
+| 本页 active 表 | **随 RECENT §1.1 同步** |
 
 ---
 
@@ -101,6 +109,7 @@ graph_nodes: []
 
 - 排期真值：[`RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md)  
 - Task 落盘规则：[`docs/tasks/README.md`](../../tasks/README.md)  
-- 三方读序 smoke（accepted）：[`conclusion_smoke_zh.md`](../../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md) · Claude Code · Kimi-code · 4/4  
+- P2 Loop SKILL：[`SKILL-harness-loop-batch.md`](../../tasks/skills/SKILL-harness-loop-batch.md)  
+- 三方读序 smoke：[`conclusion_smoke_zh.md`](../../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md)  
 - 三层总览：[[llm-wiki-layers]]  
 - 需求对比：[[../WIKI_REQUIREMENTS_COMPARISON_v1_zh.md]]
