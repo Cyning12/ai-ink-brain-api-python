@@ -1,0 +1,19 @@
+{
+  "schema": "harness_structured_error_registry_v1",
+  "freeze_id": "GOV-HARNESS-THEORY-ALIGN-P1@2026-05-29",
+  "description": "P1-3 首条领域 Linter：ChatBI 韧性路径结构化错误响应必填键（候选 C）",
+  "required_keys": ["ok", "error_code", "message"],
+  "cases": [
+    {
+      "id": "rate_limit_429",
+      "module": "api.chatbi_rate_limit",
+      "factory": "rate_limit_response_body_sample"
+    },
+    {
+      "id": "circuit_breaker_open",
+      "module": "api.chatbi_circuit_breaker",
+      "factory": "circuit_breaker_open_error_body_sample"
+    }
+  ],
+  "remediation": "失败时改 api/ 实现、tests/ 或本 registry；禁止在 Linter 内硬编码绕过。"
+}

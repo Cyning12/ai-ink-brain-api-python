@@ -55,9 +55,10 @@
 2. 输出 **验收表**（每项 pass/fail + 证据：命令名/测试名/日志摘录）；fail 时写明是否可重试（环境/flaky）。
 3. 将 **`### 自检结论（执行者）`** 写入 **{{TASK_PATH}}** 指向的 task 正文（若尚无该小节则新增；位置与团队习惯一致即可）：含命令列表、退出码、验收摘要、已知未测项。
 4. 禁止：凭记忆声称「测过」；把独立复检的深度走查塞进本帽（本帽以命令与验收表为主）。
+5. **Fresh Context（P1）**：交接 50/22 时 **禁止**粘贴 30 invoke 全文；仅交 diff 要点、验收表、`### 自检结论`。
 
 对话回复：生成可以完整复制的 Prompt，用于直接交给下一棒执行；须兼顾打回、二次审查等情形，下一棒也可能是上一棒（由其修复问题）。
-5. **自动 commit**：在输出下一棒 Prompt 且 task 内「### 自检结论（执行者）」已写入后，按 docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md 分仓 commit（仅本轮路径；对话报 short-hash）。用户写明「不要 commit」则跳过。
+6. **自动 commit**：在输出下一棒 Prompt 且 task 内「### 自检结论（执行者）」已写入后，按 docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md 分仓 commit（仅本轮路径；对话报 short-hash）。用户写明「不要 commit」则跳过。
 ```
 
 ---
