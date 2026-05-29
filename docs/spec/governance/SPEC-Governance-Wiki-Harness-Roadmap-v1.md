@@ -40,6 +40,8 @@ SDD 行为规格     docs/spec/v3-agent/（ChatBI 等）
 
 ## 2. 时间线（强制顺序）
 
+> **2026-05-29 插队（最高优先）**：[`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](./SPEC-Governance-Harness-Theory-Align-P0-v1.md) → [`P1`](./SPEC-Governance-Harness-Theory-Align-P1-v1.md) — 见 [`RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md) **§0.5**；**未完成 P0 前**，下表 T4 等业务推广 **让路**。
+
 | 阶段 | 代号 | 内容 | 状态（2026-05-26） |
 | --- | --- | --- | --- |
 | **T0** | Harness-taxonomy | 本仓 `docs/harness/`：`prompts/{hats,templates,handoff}`、`invokes/by-task/`、`reviews/by-task/` | **done** |

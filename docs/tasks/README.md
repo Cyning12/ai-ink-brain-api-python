@@ -121,6 +121,20 @@ docs/tasks/
 
 ---
 
+## `test_strategy` 默认表（理论对齐 P0）
+
+> 真值：[`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) **§4**；task 头可覆盖，**22 须核对合理性**。
+
+| 变更类型 | 默认 |
+|----------|------|
+| 鉴权、计费、SSE/流式背压、核心算法回归 | `required` |
+| 一般 API/功能 | `recommended` |
+| 纯文档、图谱排版、无行为注释 | `not_applicable` + `test_strategy_note` |
+
+**50 硬规则**（`required` + `api/`/契约）：关账前须有 `reinspect_results/` 落盘，见 RECENT **§0.0**。
+
+---
+
 ## Harness V2 · 任务单扩展字段
 
 **模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。

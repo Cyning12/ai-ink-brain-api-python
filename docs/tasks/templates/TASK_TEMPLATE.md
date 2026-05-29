@@ -89,6 +89,7 @@
 - [ ] <验收项 1>
 - [ ] <验收项 2>
 - [ ] <验收项 3>
+- [ ] PR 上 `pytest` workflow 全绿（本地等价：`pytest tests -m "not intent_eval and not intent_benchmark"`）
 
 **测试 / TDD（与 `test_strategy` 对齐）**：
 

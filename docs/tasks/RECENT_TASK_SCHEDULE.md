@@ -29,6 +29,20 @@
 
 **硬规则**（与 [`ACCEPTANCE_LANDING.md`](../harness/ACCEPTANCE_LANDING.md) 一致）：凡 **`test_strategy: required`** 且合并前关账，**40 之后须有 50 书面复检**；禁止仅以对话「过了」归档。
 
+### 0.5 理论对齐 Harness（**最高优先** · 2026-05-29）
+
+> **来源**：培训讲义 Harness/Ralph 与 Ink 落地对照 · [`ai_coding_governance/lib/COMPARISON_Harness-Ralph理论_vs_Ink落地_v1_zh.md`](../../../../ai_coding_governance/lib/COMPARISON_Harness-Ralph理论_vs_Ink落地_v1_zh.md)  
+> **说明**：§0.2～0.4 的 **2026-05-22 Harness 改进 P0/P1 已 done**；本节为 **新一轮** 理论收口，**优先于** §1.1 业务 active 与 V3 P2/P3 队列，直至 P0 关账。
+
+| 阶段 | SPEC | 状态 | 关账 task（计划） |
+| --- | --- | --- | --- |
+| **P0** | [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) | **in_progress**（实现已落盘 · 待 PR） | `active/task_harness_theory_align_p0_v1.md` |
+| **P1** | [`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md) | **blocked**（依赖 P0） | `active/task_harness_theory_align_p1_v1.md` |
+
+**P0 要点（执行顺序）**：22 清单增补 → AGENTS ≤120 行 → active task Harness 字段回填 → 样例 22 审查。
+
+**卷三公众稿**：可按 P0/P1 SPEC **应然** 起草；需仓库实测的句子标 `【待后端 P0/P1 验收后核对】`（见 narrative vol3 **§0.4**）。
+
 ### 0.1 阶段 0 — Git / 分支
 
 
@@ -89,7 +103,7 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **6** 个任务相关文件（含 1 附属 AGENT_PROMPT） |
+| **active/**           | **8** 个任务相关文件（含理论对齐 P0/P1 + 1 附属 AGENT_PROMPT） |
 | **done/**             | **61+** 个 `.md`（含 P2 Loop R1/R2/META） |
 | **_views/done.md**    | 随关账同步                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
@@ -111,6 +125,8 @@
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
+| 8     | `task_harness_theory_align_p0_v1.md`                                  | `in_progress`  | **理论对齐 P0**   | **§0.5 最高**                        |
+| 9     | `task_harness_theory_align_p1_v1.md`                                  | `blocked`  | **理论对齐 P1**   | P0 后                                |
 
 
 ---
@@ -120,6 +136,8 @@
 
 | 时段          | 行动                                                 | 优先级        | 说明                                              |
 | ----------- | -------------------------------------------------- | ---------- | ----------------------------------------------- |
+| **当前**    | **§0.5 理论对齐 P0**（22 清单 · AGENTS 瘦身 · active 回填） | **P0 最高** | SPEC `GOV-HARNESS-THEORY-ALIGN-P0@2026-05-29` |
+| **下一**    | §0.5 理论对齐 **P1**（Fresh Context · 首条领域 Linter） | **P1**     | P0 done 后启动 |
 | ~~**当前**~~  | ~~§0 Harness P0-A + P0-C（`task_05`）~~              | ~~**P0**~~ | **done**（PR #45、#46）                            |
 | ~~**立即**~~  | ~~归档 `task_harness_in_repo` + 补 `_views/done.md`~~ | ~~P0 治理~~  | **done**（2026-05-23）                            |
 | ~~**当前**~~  | ~~§0.4 P1-1 工作区 `Projects/` reviews pointer~~      | ~~**P1**~~ | **done**（Projects `c8f3d8c` · 2026-05-23）       |

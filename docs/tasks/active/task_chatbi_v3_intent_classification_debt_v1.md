@@ -1,10 +1,37 @@
 # Task：ChatBI V3 —— 意图识别欠债（预留 **Intent vNext** 版本升级）
 
 > **状态**：`backlog`（**不阻塞**当前 Text2SQL / RAG 主线；后续单独开 **Intent 升级** 批次时以此单为母索引）  
+> **schedule_ref**：RECENT §1.1 #6  
 > **登记日期**：2026-05-13  
 > **统筹入口**：`docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md`  
 > **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md` **§3**（任务归拢表）；**P3+ 远期 Intent（多候选 + 裁判）** 见总规 **§2.1**  
 > **实现真值（当前）**：`api/intent_agent.py`（`decide_intent_v2` / `_llm_decide_v2`）、`api/intent_router.py`（V1 规则路由）、`api/agent.py`（`prefer` 覆盖与步进编排）
+
+---
+
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `not_applicable` |
+| **test_strategy_note** | Intent vNext 母单 backlog；implementation 另开 |
+| **semi_auto** | `false` |
+| **audit_profile** | `human_only` |
+| **git_branch** | — |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | approved | — | backlog 母单 |
+
+---
+
+## 失败路径
+
+| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|----------|----------|--------|----------|
+| F1 | Intent 升级后路由漂移 | 见 implementation 子 task | — | — |
 
 ---
 
@@ -61,6 +88,7 @@
 
 - [ ] 另开 **Intent vNext** implementation 任务单时，须 **回链本文件 §2** 并勾选子项。  
 - [ ] 若对外契约变更（新 `chain.type` / intent 载荷），须 **`_contract_manifest.json` + `tech_graph_contract_check` + 前端 SSE 消费** 同 PR 规则。
+- [ ] PR 上 `pytest` workflow 全绿（纯文档：`pytest tests -m "not intent_eval and not intent_benchmark"` 本地等价）
 
 ---
 
