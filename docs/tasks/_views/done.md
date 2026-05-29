@@ -98,5 +98,7 @@
 - `../done/task_governance_wiki_unit_ab_closeout_v1.md`（2026-05-28 验收通过：Wiki 单元 A/B 叙事收口 · #79–#81 对齐 · SKILL B 臂 case · `reinspect_gov-wiki-unit-ab-closeout_20260528_v1.md` · `GOV-WIKI-UNIT-AB-CLOSEOUT@2026-05-28`）
 - `../done/task_governance_wiki_t4_ops_v1.md`（2026-05-29 验收通过：T4 运营化 · lint · 25/25 graph_nodes · PR #83 · `GOV-WIKI-T4-OPS@2026-05-29`）
 - `../done/task_governance_task_schedule_wiki_bridge_v1.md`（2026-05-29 验收通过：排期 Wiki hub · `concepts/task-schedule-ink-backend` · `GOV-TASK-SCHEDULE-WIKI@2026-05-29`）
+- `../done/task_chatbi_v3_p2_resilience_rate_limit_v1.md`（2026-05-29 验收通过：P2-1b 限流 · PR #86 · 50 复检 `reinspect_chatbi_v3_p2_1b_rate_limit_20260529_v1.md` · Loop R1 归档）
+- `../done/task_governance_wiki_milestone_acceptance_expand_v1.md`（2026-05-29 验收通过：Wiki 里程碑验收 diary 扩充 · PR #87 · Loop R1 归档 · `GOV-WIKI-MILESTONE-ACCEPT@2026-05-29`）
 - `../done/task_governance_wiki_t4_ops_v1.md`（2026-05-29 验收通过：T4 运营化 · `coding_wiki_graph_nodes_lint.py` · syntheses 25/25 · Bridge §5.1 · `reinspect_gov-wiki-t4-ops_20260529_v1.md` · `GOV-WIKI-T4-OPS@2026-05-29`）
 

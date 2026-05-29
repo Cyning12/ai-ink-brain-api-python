@@ -33,12 +33,12 @@ P2-1b（限流）与 W1（Wiki 验收稿扩充）已分别合入 **#86** / **#87
 
 ## 范围
 
-- [ ] **`git mv`** 至 `done/`（文首 `done（2026-05-29）` 与 mv **同一提交**）：
+- [x] **`git mv`** 至 `done/`（文首 `done（2026-05-29）` 与 mv **同一提交**）：
   - `task_chatbi_v3_p2_resilience_rate_limit_v1.md`（链 [`reinspect_chatbi_v3_p2_1b_rate_limit_20260529_v1.md`](../reinspect_results/reinspect_chatbi_v3_p2_1b_rate_limit_20260529_v1.md)）
   - `task_governance_wiki_milestone_acceptance_expand_v1.md`
-- [ ] 更新 [`docs/tasks/_views/done.md`](../_views/done.md) 两条索引
-- [ ] 更新 [`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`](done/task_chatbi_v3_p2_resilience_v1.md) **§子单状态**（P2-1b/W1 **done**）
-- [ ] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §1.1：#0b/#W1 → done；删除 §1.2 双轨 worktree
+- [x] 更新 [`docs/tasks/_views/done.md`](../_views/done.md) 两条索引
+- [x] 更新 [`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`](done/task_chatbi_v3_p2_resilience_v1.md) **§子单状态**（P2-1b/W1 **done**）
+- [x] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §1.1：#0b/#W1 → done；删除 §1.2 双轨 worktree
 - [ ] 可选 50：[`reinspect_chatbi_v3_p2_loop_r1_closeout_20260529_v1.md`](../reinspect_results/reinspect_chatbi_v3_p2_loop_r1_closeout_20260529_v1.md)（docs 摘要）
 
 ## 非范围
@@ -81,4 +81,9 @@ P2-1b（限流）与 W1（Wiki 验收稿扩充）已分别合入 **#86** / **#87
 
 | 项 | 结果 |
 |----|------|
-| （30 回填） | |
+| 执行日期 | 2026-05-29 |
+| 执行帽 | 30 · R1 |
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 结论 | `exit_code=0`（docs-only 关账；合并前必绿） |
+| 涉及文件 | `git mv` #0b/#W1 → `done/`；`_views/done.md`；`RECENT_TASK_SCHEDULE.md` §1.1（删 §1.2）；`done/task_chatbi_v3_p2_resilience_v1.md` §子单 |
+| 验收 | 两 task 已迁 `done/`；RECENT 当前棒 → **R2（0c）**；无 `api/` diff |

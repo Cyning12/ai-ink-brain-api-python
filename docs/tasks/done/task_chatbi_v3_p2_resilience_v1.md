@@ -34,13 +34,13 @@
 | HG-AUDIT-R1 | approved | 30 | 全自动试验：允许跳过 22 或 22 仅零阻塞 record |
 | HG-REINSPECT | approved | done | 50 复检 + PR 前人签 |
 
-### 子单状态（2026-05-25 · 与排期表同步）
+### 子单状态（2026-05-29 · Loop R1 关账后同步）
 
 | 子 ID | task | 状态 | 备注 |
 |-------|------|------|------|
 | **P2-1a** | `docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md` | **done** | PR #52 · `/live` + `/ready` |
-| P2-1b | `docs/tasks/active/task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | V3 排队；非 Harness 近期 |
-| P2-1c | `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | V3 排队 |
+| **P2-1b** | `docs/tasks/done/task_chatbi_v3_p2_resilience_rate_limit_v1.md` | **done** | PR #86 · Loop R1 归档 · 50 `reinspect_chatbi_v3_p2_1b_rate_limit_20260529_v1.md` |
+| P2-1c | `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | **Loop R2** · `task/chatbi-v3-p2-loop-v1` |
 
 ---
 

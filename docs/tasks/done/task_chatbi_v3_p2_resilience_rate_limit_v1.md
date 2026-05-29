@@ -1,15 +1,13 @@
 # Task：ChatBI V3 P2-1b 高消耗端点限流
 
-> **状态**：in_progress  
-> **Loop 承接**：**R1 关账** [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) · 已合 **PR #86** · **勿** 独立开分支  
-> **schedule_ref**：RECENT §1.1 #0b · ~~V3 业务当前棒~~ → Loop R1 归档  
+> **状态**：done（2026-05-29 · PR #86 · Loop R1 归档）  
+> **Loop 承接**：R1 关账 [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](../done/task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) · 已合 **PR #86**  
+> **schedule_ref**：RECENT §1.1 #0b · **done**  
 > **epic**：ChatBI V3 · P2 韧性  
 > **blocked_by**：P2-1a done（PR #52）  
 > **blocks**：P2-1c 熔断  
 > **排期**：见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) · Wiki hub [`task-schedule-ink-backend`](../../coding_wiki/concepts/task-schedule-ink-backend.md)  
-> **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`（P2-1a 已 **done** · PR #52）  
-> **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §2  
-> **并行**：与 `task/gov-wiki-milestone-acceptance-expand-v1` 并行 · 见 RECENT §1.2
+> **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`（P2-1a 已 **done** · PR #52）
 
 ---
 

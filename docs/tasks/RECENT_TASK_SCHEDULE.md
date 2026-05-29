@@ -89,14 +89,14 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **9** 个任务相关文件（含 1 附属 AGENT_PROMPT · 1 Wiki 验收扩充） |
-| **done/**             | **56+** 个 `.md`（含 T4 ops · task-schedule bridge） |
+| **active/**           | **7** 个任务相关文件（含 1 附属 AGENT_PROMPT） |
+| **done/**             | **58+** 个 `.md`（含 T4 ops · task-schedule bridge · P2-1b/W1 R1 归档） |
 | **_views/done.md**    | 随关账同步                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
-| **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿）· W1 关账归 **Loop R1** |
-| **近期当前**            | **P2 Loop** `in_progress`（`task/chatbi-v3-p2-loop-v1` · §1.1 #L1） |
-| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b **done**（#86 · R1 待归档）；P2-1c **todo**（Loop **R2**） |
+| **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿 · W1 **done** Loop R1） |
+| **近期当前**            | **P2 Loop** `in_progress`（`task/chatbi-v3-p2-loop-v1` · §1.1 **R2** 当前棒） |
+| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b **done**（#86 · R1 已归档）；P2-1c **todo**（Loop **R2**） |
 
 
 ### 1.1 active/ 任务清单
@@ -105,10 +105,10 @@
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
 | **L1** | `task_chatbi_v3_p2_resilience_loop_v1.md` | `in_progress` | **P2 Loop 母单** | **当前棒** · `task/chatbi-v3-p2-loop-v1` · 单 PR |
-| L1-R1 | `task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md` | `todo` | Loop R1 · #0b/#W1 归档 | PR #86/#87 已合 · R1 首棒 |
-| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `in_progress` | P2-1b 限流 | **R1 归档**（勿独立 PR） |
-| W1    | `task_governance_wiki_milestone_acceptance_expand_v1.md` | `in_progress` | Wiki 验收扩充 | **R1 归档**（勿 worktree） |
-| 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | **Loop R2** · R1 后 |
+| ~~L1-R1~~ | ~~`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`~~ | **done** | Loop R1 · #0b/#W1 归档 | PR #86/#87 · 2026-05-29 |
+| ~~0b~~ | ~~`task_chatbi_v3_p2_resilience_rate_limit_v1.md`~~ | **done** | P2-1b 限流 | PR #86 · Loop R1 |
+| ~~W1~~ | ~~`task_governance_wiki_milestone_acceptance_expand_v1.md`~~ | **done** | Wiki 验收扩充 | PR #87 · Loop R1 |
+| **0c** | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | **Loop R2 当前棒** · R1 已关账 |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
 | 3     | `task_chatbi_v3_planning_after_resume_v1.md`                            | `planning` | V3 统筹索引           | P4                                   |
@@ -117,17 +117,6 @@
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
-
-### 1.2 当前分支（Loop 单轨 · 2026-05-29）
-
-| 项 | 值 |
-| --- | --- |
-| **分支** | `task/chatbi-v3-p2-loop-v1` |
-| **worktree** | 主仓 `ai-ink-brain-api-python/` |
-| **task_slug** | `chatbi-v3-p2-loop` |
-| **Harness** | [`docs/harness/invokes/by-task/chatbi-v3-p2-loop/`](../harness/invokes/by-task/chatbi-v3-p2-loop/) |
-
-**纪律**：~~双轨 worktree~~ 已取消；R1（docs）→ R2（`api/` + **50**）→ META **同一 PR**。
 
 ---
 
@@ -146,7 +135,7 @@
 | ~~**当前**~~ | ~~Coding Wiki pilot（T1b）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md)） |
 | ~~**当前**~~ | ~~Wiki-CTX-AB P2（T2）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | ~~**当前**~~ | ~~`ai-ink-brain` Harness parity~~ | ~~P1~~ | **done**（2026-05-27 · Ink PR #44 · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md)） |
-| **当前** | **P2 Loop**（R1 关账 → R2 熔断 → META） | **P2** | `task/chatbi-v3-p2-loop-v1` · §1.2 |
+| **当前** | **P2 Loop**（~~R1 关账~~ **done** → **R2 熔断** → META） | **P2** | `task/chatbi-v3-p2-loop-v1` · §1.1 **0c** |
 | ~~**当前 · 并行**~~ | ~~P2-1b ∥ W1~~ | — | **已整合**入 Loop（#86/#87 已合） |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周**      | 对照现网后再定 `task_ui_chain_events_backend`             | P3         | 避免与 SSE 重复                                      |
