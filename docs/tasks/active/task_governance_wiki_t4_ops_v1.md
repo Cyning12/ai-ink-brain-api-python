@@ -27,9 +27,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 人扫本 task + §范围 + lint 行为（是否仅 syntheses） |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘后人签 |
-| HG-REINSPECT | pending | done | 50 落盘后人签 · 合并 PR 前 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 人扫本 task + §范围 + lint 行为（是否仅 syntheses） |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 落盘后人签 |
+| HG-REINSPECT | approved | done | 50 落盘后人签 · 合并 PR 前 |
 
 ---
 
