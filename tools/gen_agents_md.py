@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Generate AGENTS.md rules section from .cursor/rules/*.mdc files.
 
-Reads all .mdc rule files, strips YAML frontmatter, and writes the
-concatenated result into AGENTS.md after the ``<!-- RULES_AUTO_GENERATED -->``
-marker.  The hand-maintained header above the marker is preserved unchanged.
+Default (**地图化**): index table after ``<!-- RULES_AUTO_GENERATED -->``.
+``--full``: append full rule bodies (legacy / non-Cursor platforms).
 
 Usage::
 
-    python tools/gen_agents_md.py           # regenerate
+    python tools/gen_agents_md.py           # regenerate index
+    python tools/gen_agents_md.py --full    # index + full rule bodies
     python tools/gen_agents_md.py --check   # CI: exit 1 if AGENTS.md is stale
 """
 
@@ -50,8 +50,8 @@ def _section_name(stem: str) -> str:
     return " ".join(w.capitalize() for w in words)
 
 
-def generate() -> str:
-    """Return the full AGENTS.md content (header + marker + rules)."""
+def generate(*, full: bool = False) -> str:
+    """Return the full AGENTS.md content (header + marker + rules index or full)."""
     if not RULES_DIR.is_dir():
         sys.exit(f"Rules directory not found: {RULES_DIR}")
 
@@ -62,25 +62,38 @@ def generate() -> str:
         if MARKER in existing:
             header = existing.split(MARKER)[0].rstrip()
         else:
-            # No marker yet — treat whole file as header
             header = existing.rstrip()
 
-    # Collect .mdc files in sorted order
     mdc_files = sorted(RULES_DIR.glob("*.mdc"))
     if not mdc_files:
         sys.exit(f"No .mdc files found in {RULES_DIR}")
 
+    rows: list[str] = []
     sections: list[str] = []
     for mdc in mdc_files:
         body, fm = _parse_frontmatter(mdc.read_text(encoding="utf-8"))
         title = _section_name(mdc.stem)
         desc = fm.get("description", "")
-        heading = f"## {title}"
-        if desc:
-            heading += f"\n\n> {desc}"
-        sections.append(f"{heading}\n\n{body}")
+        rows.append(f"| `{mdc.name}` | {title} | {desc or '—'} |")
+        if full:
+            heading = f"## {title}"
+            if desc:
+                heading += f"\n\n> {desc}"
+            sections.append(f"{heading}\n\n{body}")
 
-    generated = "\n\n---\n\n".join(sections)
+    index = (
+        "## 规则索引（`.cursor/rules/`）\n\n"
+        "> Cursor 自动注入；非 Cursor 按需打开下表文件。**禁止**假定 AGENTS 含全文。\n\n"
+        "| 文件 | 主题 | 说明 |\n"
+        "| --- | --- | --- |\n"
+        + "\n".join(rows)
+        + "\n\n"
+        + "全文附录：`python tools/gen_agents_md.py --full`"
+    )
+
+    generated = index
+    if full:
+        generated = index + "\n\n---\n\n" + "\n\n---\n\n".join(sections)
 
     return f"{header}\n\n{MARKER}\n\n{generated}\n"
 
@@ -88,13 +101,18 @@ def generate() -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate AGENTS.md from .mdc rules")
     parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Append full rule bodies after the index (legacy)",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help="Exit 1 if AGENTS.md differs from generated content (CI mode)",
     )
     args = parser.parse_args()
 
-    new_content = generate()
+    new_content = generate(full=args.full)
 
     if args.check:
         if not AGENTS_MD.exists():

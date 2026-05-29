@@ -36,7 +36,7 @@
 
 | 阶段 | SPEC | 状态 | 关账 task（计划） |
 | --- | --- | --- | --- |
-| **P0** | [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) | **active** | `active/task_harness_theory_align_p0_v1.md` |
+| **P0** | [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) | **in_progress**（实现已落盘 · 待 PR） | `active/task_harness_theory_align_p0_v1.md` |
 | **P1** | [`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md) | **blocked**（依赖 P0） | `active/task_harness_theory_align_p1_v1.md` |
 
 **P0 要点（执行顺序）**：22 清单增补 → AGENTS ≤120 行 → active task Harness 字段回填 → 样例 22 审查。
@@ -125,7 +125,7 @@
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
-| 8     | `task_harness_theory_align_p0_v1.md`                                  | `pending`  | **理论对齐 P0**   | **§0.5 最高**                        |
+| 8     | `task_harness_theory_align_p0_v1.md`                                  | `in_progress`  | **理论对齐 P0**   | **§0.5 最高**                        |
 | 9     | `task_harness_theory_align_p1_v1.md`                                  | `blocked`  | **理论对齐 P1**   | P0 后                                |
 
 

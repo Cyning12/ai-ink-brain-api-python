@@ -1,6 +1,7 @@
 # Task：ChatBI V3 — 低置信方案预览、用户确认与编排方案 B（后 P1-4）
 
 > **状态**：`backlog`（**整单**：与 `SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md` 对齐的完整 implementation 仍待后续 PR；**首包「方案 B」**：见 **§5.0**，**已验收** **2026-05-13**）  
+> **schedule_ref**：RECENT §1.1 #4  
 > **登记日期**：2026-05-12  
 > **需求真值（L1）**：`docs/spec/v3-agent/SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`  
 > **执行 Agent 交代（可复制 Prompt）**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md)（首包仅 **`api/agent.py`** 方案 B + pytest）  
@@ -8,6 +9,34 @@
 > **多轮母单**：`docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`  
 > **前置（done）**：`docs/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`（P1-4 澄清短路）  
 > **代码入口（预期）**：`api/agent.py`（澄清与 `step1_tool` / `router.decision` 顺序）、`api/intent_agent.py`、`api/unified_chat.py`；前端 **`ai-ink-brain`**：澄清总任务见 **`Projects/ai-ink-brain/content/tasks/active/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`**；方案 B 首包 **前端烟测步骤** 见本文 **§5.0.1**
+
+---
+
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `required` |
+| **semi_auto** | `false` |
+| **audit_profile** | `full` |
+| **git_branch** | `task/chatbi-v3-low-confidence-plan` |
+| **reinspect** | 母单剩余项关账前 **必须** 50 |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | pending | 22-R1,30 | backlog → active 前 |
+
+---
+
+## 失败路径
+
+| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|----------|----------|--------|----------|
+| F1 | 低置信未确认即执行 | 澄清 / 预览 SSE，不升格 | 是 | 需用户确认 |
+| F2 | 确认令牌无效 | `403` + 结构化错误 | 否 | 确认失效 |
+| F3 | 预览生成失败 | `error` chain 事件 | 是 | 方案生成失败 |
 
 ---
 
@@ -91,6 +120,8 @@ python tools/tech_graph_contract_check.py
 ---
 
 ### 5.1 母单大项（与 §5.0 全量验收 / SPEC 全文对齐）— **仍 backlog**
+
+> **合并前必绿**（后续 implementation PR）：`pytest tests -m "not intent_eval and not intent_benchmark"`
 
 | # | 原 §5 项 | 状态 |
 |---|----------|------|

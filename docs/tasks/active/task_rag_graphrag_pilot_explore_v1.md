@@ -1,11 +1,29 @@
 # Task：博客 RAG — GraphRAG 试点探索（小范围 / 可选独立页）
 
 > **状态**：`backlog`（**不阻塞**现有 Hybrid RAG 主线；仅供了解实际使用与成本，待排期后小范围试点）  
+> **schedule_ref**：RECENT §1.1 #2  
 > **登记日期**：2026-05-18  
 > **分支**：`docs/rag-graphrag-pilot-backlog-v1`（自 `main` 拉出，需求池落盘）  
 > **背景对照**：[`docs/diary/jsonPKmermaid/Ink博客RAG_vs_GraphRAG_对照.md`](../diary/jsonPKmermaid/Ink博客RAG_vs_GraphRAG_对照.md)  
 > **关联图谱**：`docs/_tech_graph/10_flow_rag.md`、`01_struct.md`  
 > **前端依赖**：可选（见 §4.2「独立页」）；首阶段可仅后端 dev 路由
+
+---
+
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `recommended` |
+| **semi_auto** | `false` |
+| **audit_profile** | `full` |
+| **git_branch** | `task/rag-graphrag-pilot` |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | pending | 22-R1,30 | 进入 active 实施前 |
 
 ---
 
@@ -71,15 +89,26 @@ Ink 博客 RAG 当前为 **chunk + 向量 + FTS + RRF**（经典 Hybrid RAG）�
 - [ ] dev/admin 路由在鉴权下可跑通三种 `recall_mode`（至少 hybrid + 一种 graphrag）。  
 - [ ] 报告含：离线 LLM 调用次数估算、P95 延迟、≥10 条黄金问句结果表。  
 - [ ] 明确书面结论：**是否值得进入 active 实施**；若否，写明搁置理由。
+- [ ] PR 上 `pytest` workflow 全绿（本地等价：`pytest tests -m "not intent_eval and not intent_benchmark"`）
 
 ---
 
-## 6. Harness
+## 失败路径
+
+| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|----------|----------|--------|----------|
+| F1 | 建图 / 索引失败 | 降级 `hybrid` 召回 | 是 | 结构化降级提示 |
+| F2 | GraphRAG 0 hit | 结构化错误码，不 silent 空答 | 是 | 无相关上下文 |
+| F3 | admin 鉴权失败 | `401` / `403` | 否 | 未授权 |
+
+---
+
+## 6. Harness（历史节 · 见头部元信息表）
 
 | 字段 | 值 |
 | --- | --- |
 | `test_strategy` | `recommended`（试点须有可失败 pytest 或脚本断言，至少覆盖路由鉴权与空图降级） |
-| `failure_paths` | 建图失败 → 降级 hybrid；GraphRAG 0 hit → 结构化错误码，不 silent 空答 |
+| `failure_paths` | 见上表 F1～F3 |
 
 ---
 

@@ -111,11 +111,11 @@ task 头可覆盖默认值，**22 须核对合理性**。
 
 ## 6. 验收标准（本 SPEC 关账）
 
-- [ ] `22-task-audit.md` 含 **§3.1～3.3** 检查表（或等效 checklist 节）
-- [ ] `AGENTS.md` 行数 ≤120（`wc -l` 截图或自检表记录）
-- [ ] `docs/tasks/active/` 内业务相关 task（§1.1 表 #1～#6）已回填 Harness 表 + CI 验收条，或显式标 `draft` 且 **blocks 30**
-- [ ] 至少 **1 份** 22 审查 md 样例引用新清单（可挂在 P0 关账 task）
-- [ ] `RECENT_TASK_SCHEDULE.md` **§0.5** 标 **done**
+- [x] `22-task-audit.md` 含 **§3.1～3.3** 检查表（或等效 checklist 节）
+- [x] `AGENTS.md` 行数 ≤120（`wc -l` → **89** 行，2026-05-29）
+- [x] `docs/tasks/active/` 内业务相关 task（§1.1 表 #1～#6）已回填 Harness 表 + CI 验收条，或显式标 `draft` 且 **blocks 30**
+- [x] 至少 **1 份** 22 审查 md 样例引用新清单（`reviews/by-task/harness-theory-align-p0/`）
+- [ ] `RECENT_TASK_SCHEDULE.md` **§0.5** 标 **done**（PR 合并后）
 
 ---
 

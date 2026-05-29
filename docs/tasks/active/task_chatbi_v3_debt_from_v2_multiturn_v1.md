@@ -1,11 +1,45 @@
 # Task：ChatBI V3 —— V2 多轮 / Text2SQL 值域相关**欠债**（承接自已完结子任务）
 
 > **状态**：`backlog`（**仅在 V3 排期中考虑**；不阻塞 V2 主线）  
+> **schedule_ref**：RECENT §1.1 #5  
 > **来源（已归档）**：`docs/tasks/done/task_chatbi_v2_text2sql_multiturn_grounding_v1.md`（V2 本子任务 **done**，A/B/C 与 PR1/PR2 已交付）  
 > **统筹入口**：`docs/tasks/active/task_chatbi_v3_planning_after_resume_v1.md`  
 > **V3 总规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§3** 任务归拢；**§2** 多轮技术债支柱）  
 > **L1 子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Multiturn-Debt.md`  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Multiturn-Semantics.md`（§4.3 澄清）、`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`
+
+---
+
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `not_applicable` |
+| **test_strategy_note** | 欠债母单；子 task 立项时再定 `required`/`recommended` |
+| **semi_auto** | `false` |
+| **audit_profile** | `human_only` |
+| **git_branch** | — |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | approved | — | backlog 母单 |
+
+---
+
+## 失败路径
+
+| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|----------|----------|--------|----------|
+| F1 | （母单级） | 子 task 定义 | — | — |
+
+---
+
+## 验收标准
+
+- [ ] 子 task 立项时回链本文件 §1/§2
+- [ ] PR 上 `pytest` workflow 全绿（纯文档：`pytest tests -m "not intent_eval and not intent_benchmark"` 本地等价）
 
 ---
 
@@ -53,5 +87,6 @@
 
 ## 3. 验收与关键词
 
-- **本文件**：不要求单独 CI；**被 V3 子任务引用时**再写验收 `- [ ]`。  
+- **Harness 验收**：见文首 **验收标准**（含合并前 pytest 条）。  
+- **子 task**：被 V3 子任务引用时再写实现级 `- [ ]`。  
 - **关键词**：V3、技术债、多轮澄清、§4.3、value_hints、DISTINCT、提成结构、`_tech_graph`、**Intent vNext**、`task_chatbi_v3_intent_classification_debt_v1`、低置信方案预览、`SPEC-ChatBI-V3-LowConfidence-Plan-Confirm`、`task_chatbi_v3_low_confidence_plan_preview_confirm_v1`
