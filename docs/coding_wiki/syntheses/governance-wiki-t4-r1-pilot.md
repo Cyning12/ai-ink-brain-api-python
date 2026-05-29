@@ -6,9 +6,12 @@ source_task: docs/tasks/done/task_governance_wiki_t4_r1_pilot_v1.md
 freeze_id: GOV-T4-R1-PILOT@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes: []
 ---
 
 # T4 R1 Pilot
+
+纯叙事 · T4 索引页（R1 Pilot 汇总；Pilot 页见 pointer）。
 
 ## 摘要
 

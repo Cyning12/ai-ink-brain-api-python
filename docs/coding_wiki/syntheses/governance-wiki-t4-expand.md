@@ -6,9 +6,12 @@ source_task: docs/tasks/done/task_governance_wiki_t4_expand_v2.md
 freeze_id: GOV-T4-EXPAND@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes: []
 ---
 
 # T4 graph_nodes 扩面
+
+纯叙事 · T4 索引页（Post-Pilot 扩面汇总；不绑单 L0 种子）。
 
 ## 摘要
 

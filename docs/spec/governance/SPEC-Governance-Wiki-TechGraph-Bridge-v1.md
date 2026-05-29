@@ -143,11 +143,12 @@ python tools/tech_graph_graph_query.py neighbors <pilot-node-id>
 
 ### 5.1 范围
 
-- [ ] 本 SPEC 定稿（`draft` → `active`）并链入 Roadmap §2 T4。  
-- [ ] 更新 `CODING_WIKI.md` §3/§6（`graph_nodes` 字段 + lint 行）。  
-- [ ] **Pilot**：≥1 页 `syntheses/*.md` 带 `graph_nodes`（建议 slug：`query-rewrite-observability` 或当前默认读序 slug）。  
-- [ ] `docs/_tech_graph/99_spec.md` 或 `00_main.md` **增一小节 pointer** 链回 Wiki 桥接（≤30 行）。  
-- [ ] 验收脚本或文档化 VERIFY（§7）。  
+- [x] 本 SPEC 定稿（`draft` → `active`）并链入 Roadmap §2 T4。  
+- [x] 更新 `CODING_WIKI.md` §3/§6（`graph_nodes` 字段 + lint 行）。  
+- [x] **Pilot**：≥1 页 `syntheses/*.md` 带 `graph_nodes`（建议 slug：`query-rewrite-observability` 或当前默认读序 slug）。  
+- [x] `docs/_tech_graph/99_spec.md` 或 `00_main.md` **增一小节 pointer** 链回 Wiki 桥接（≤30 行）。  
+- [x] 验收脚本或文档化 VERIFY（§7）。  
+- [x] **T4 ops（2026-05-29）**：`tools/coding_wiki_graph_nodes_lint.py` + syntheses **25/25** `graph_nodes` 键。  
 
 ### 5.2 非范围
 
@@ -181,6 +182,10 @@ rg -n 'graph_nodes' docs/coding_wiki/CODING_WIKI.md
 # V3 · 图谱 CI 仍绿（未改 api 时亦应绿）
 python tools/tech_graph_manifest_check.py
 python tools/tech_graph_graph_export.py --check
+
+# V4 · syntheses graph_nodes lint（T4 ops）
+python tools/coding_wiki_graph_nodes_lint.py
+pytest tests/test_coding_wiki_graph_nodes_lint.py -q --tb=short
 ```
 
 | # | 验收项 | 通过条件 |
@@ -232,6 +237,7 @@ Post-Pilot 扩面 **done**（`GOV-T4-EXPAND@2026-05-27`）。Agent 从 Wiki 跳�
 | 2026-05-27 | v1 草案：T4 专文 · `graph_nodes` · 读序/lint/VERIFY · Pilot |
 | 2026-05-27 | v1.1：§3.1 协议对照 · lint 写死 `graph_query neighbors` · 读序修正 |
 | 2026-05-27 | v2 **active**：P2 Loop R1 · `GOV-T4-SPEC-ACTIVE@2026-05-27` · §9.1 扩面 synthesis 索引 |
+| 2026-05-29 | v2.1 T4 ops：§5.1 全勾 · §7 V4 lint VERIFY · `GOV-WIKI-T4-OPS@2026-05-29` |
 
 ---
 

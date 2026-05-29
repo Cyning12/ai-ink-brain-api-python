@@ -6,9 +6,12 @@ source_task: docs/tasks/done/task_harness_wiki_loop_t4_l2_v1.md
 freeze_id: WIKI-LOOP-T4-L2@2026-05-27
 closed_date: 2026-05-27
 status: compiled
+graph_nodes: []
 ---
 
 # Wiki Loop T4+L2 母单
+
+纯叙事 · T4 索引页（Loop 母叙事 · pointer 为主；子 round 见下表）。
 
 ## 摘要
 
