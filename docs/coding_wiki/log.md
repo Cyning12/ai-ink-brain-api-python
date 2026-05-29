@@ -20,3 +20,4 @@
 | 2026-05-27 | **batch-ingest** · `wiki-ctx-ab-multi-slug` · Multi-slug AB |
 | 2026-05-27 | **batch-ingest-2** · 5 slug（含 `harness-wiki-loop-p2-followup` 骨架）· syntheses **≥20** · `GOV-WIKI-INGEST-BATCH-2@2026-05-27` |
 | 2026-05-28 | **batch-ingest-3** · 5 slug · syntheses **25** · `GOV-WIKI-INGEST-BATCH-3@2026-05-28` · T4 graph_nodes 铺量 R2 完成 · 单元 A R1–R3 关账 |
+| 2026-05-29 | **concept** · `task-schedule-ink-backend` · 排期 hub · 链 RECENT · `GOV-TASK-SCHEDULE-WIKI@2026-05-29` |

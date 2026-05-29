@@ -12,8 +12,7 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**Batch-4 ingest** 另单 · 可并行不同分支；T4 ops **done**（lint · `GOV-WIKI-T4-OPS@2026-05-29`）；Unit A/B + Phase C **done**（#79–#81）。  
-> **V3 韧性**：P2-1a **done**（PR #52）；P2-1b/c **排队** — 属 ChatBI 实现子单，**与 Harness 改进无关**，**非**本表默认「当前棒」。
+> **近期当前（治理/工程）**：**V3 P2-1b 限流** 为业务 **当前棒**（见 §1.1 #0b）；Wiki 排期 hub **done**（`concepts/task-schedule-ink-backend` · `GOV-TASK-SCHEDULE-WIKI@2026-05-29`）；T4 ops **done**（#83）；Batch-4 ingest 另单。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
 
@@ -80,22 +79,21 @@
 
 ---
 
-## 1. 现状快照（2026-05-26 更新）
+## 1. 现状快照（2026-05-29 更新）
 
 
 | 维度                    | 结论                                                                                             |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
-| **active/**           | **8** 个任务相关文件（+1 治理 `task_governance_wiki_t4_ops_v1`；Wiki Loop 已归档）                                                               |
-| **done/**             | **55+** 个 `.md`（含 P2-1a，[PR #52](https://github.com/Cyning12/ai-ink-brain-api-python/pull/52)） |
-| **_views/done.md**    | 已含 P2-1a 索引行                                                                                   |
-| **Harness 改进**        | **done**（P0+P1 收口；`[HARNESS_V2_PLAN](../harness/HARNESS_V2_PLAN.md)` `accepted`）               |
+| **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
+| **active/**           | **8** 个任务相关文件（含 1 附属 AGENT_PROMPT）                                                               |
+| **done/**             | **56+** 个 `.md`（含 T4 ops · task-schedule bridge） |
+| **_views/done.md**    | 随关账同步                                                                                   |
+| **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
-| **V3 P1**             | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23）                                                 |
-| **Harness 前端 parity** | **done**（2026-05-27 · Ink PR #44 · 工作区 task `done/`） |
-| **近期当前** | **Batch-4 ingest** 另单 · T4 ops **done** · Unit AB closeout **done**（#82） |
-| **V3 P2-1 韧性** | P2-1a **done**（PR #52）；P2-1b/c **排队**（非 Harness、非默认当前棒） |
-| **维护债** | Overview §3 文件若缺失则以母单 §子单状态为准 |
+| **Wiki 治理**           | **阶段收口**（#83 · diary 验收草案） |
+| **近期当前 · 业务**     | **V3 P2-1b 限流**（`task_chatbi_v3_p2_resilience_rate_limit_v1`） |
+| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b/c **active/todo** |
 
 
 ### 1.1 active/ 任务清单
@@ -103,7 +101,7 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
-| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | P2-1b 限流 | **V3 排队** · 非 Harness 近期 |
+| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | P2-1b 限流 | **V3 当前棒** · 见 Wiki hub |
 | 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | V3 排队 · 1b 后 |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
@@ -330,7 +328,8 @@ flowchart TD
 | **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **done** | 2026-05-28 · 单元 **B** · **PR-B [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80)** · `GOV-L2-PHASE-C-IMPL@2026-05-28` · [`done/task_governance_l2_phase_c_impl_v1.md`](done/task_governance_l2_phase_c_impl_v1.md) · `reinspect_gov-l2-phase-c-impl_20260528_v1.md` |
 | **L2 Phase C CI** | **tech-graph.yml `check-failure-paths`** | **done** | 2026-05-28 · **PR [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81)** · Required 步与 `99_spec` VERIFY 一致 |
 | **Wiki Unit AB closeout** | **`task_governance_wiki_unit_ab_closeout_v1`** | **done** | 2026-05-28 · **PR [#82](https://github.com/Cyning12/ai-ink-brain-api-python/pull/82)** · docs-only · `GOV-WIKI-UNIT-AB-CLOSEOUT@2026-05-28` |
-| **T4 ops** | **`task_governance_wiki_t4_ops_v1`** | **done** | lint + 99_spec · 25/25 · **PR 待开** · `GOV-WIKI-T4-OPS@2026-05-29` · [`done/task_governance_wiki_t4_ops_v1.md`](done/task_governance_wiki_t4_ops_v1.md) |
+| **T4 ops** | **`task_governance_wiki_t4_ops_v1`** | **done** | lint + 99_spec · PR [#83](https://github.com/Cyning12/ai-ink-brain-api-python/pull/83) · `GOV-WIKI-T4-OPS@2026-05-29` |
+| **Task schedule hub** | **`task_governance_task_schedule_wiki_bridge_v1`** | **done** | `concepts/task-schedule-ink-backend` · 防 RECENT/active 孤岛 · `GOV-TASK-SCHEDULE-WIKI@2026-05-29` |
 
 ---
 
@@ -392,7 +391,8 @@ flowchart TD
 | 2026-05-28 | **PR-A #79 合 main** · 单元 **B** `in_progress` · `PROMPT_TASK_22_to_CLOSE` · C2 抽样表 · `git merge origin/main` |
 | 2026-05-28 | **Unit AB closeout done**：PR #82 · #79–#81 叙事对齐 · SKILL B 臂 case |
 | 2026-05-29 | **T4 ops 立项**：`task_governance_wiki_t4_ops_v1` · lint + 99_spec pointer · §6.6 in_progress |
-| 2026-05-29 | **T4 ops done**：`coding_wiki_graph_nodes_lint.py` · 25/25 · Bridge §5.1 · `reinspect_gov-wiki-t4-ops_20260529_v1.md` |
+| 2026-05-29 | **T4 ops done**：PR #83 · diary 验收草案 |
+| 2026-05-29 | **Task schedule Wiki hub done**：`concepts/task-schedule-ink-backend` · V3 P2-1b 当前棒 |
 
 
 ---

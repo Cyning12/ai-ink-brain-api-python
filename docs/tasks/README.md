@@ -8,6 +8,18 @@
 
 **近期执行顺序、Harness P0、active 清单与时间线** 以 **[`RECENT_TASK_SCHEDULE.md`](RECENT_TASK_SCHEDULE.md)** 为准；规划或 `@task` 前先读该表，再打开具体 `active/task_*.md`。
 
+**Wiki 排期导航（L2 · 防孤岛）**：[`../coding_wiki/concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) — pointer 至 RECENT，**不**替代排期真值。
+
+### active task 头建议字段（2026-05-29 起）
+
+| 字段 | 说明 |
+|------|------|
+| **schedule_ref** | RECENT 锚点，如 `§1.1 #0b` |
+| **epic** | Epic 归属，如 `ChatBI V3 · P2 韧性` |
+| **blocked_by** / **blocks** | 任务先后（技术依赖仍走 L0 `graph_query`） |
+
+与 Harness 元信息 `task_slug` · `git_branch` · `freeze_id` 并列维护。
+
 ---
 
 ## 工作区 Harness 任务（不在本目录）
