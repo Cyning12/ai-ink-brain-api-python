@@ -1,7 +1,7 @@
 # Task：ChatBI P2 Loop R1 — 已合 PR 关账与排期 hygiene
 
-> **状态**：todo  
-> **schedule_ref**：RECENT §1.1 #L1-R1  
+> **状态**：done（2026-05-29）  
+> **schedule_ref**：RECENT §1.1 ~~#L1-R1~~ **done**  
 > **epic**：ChatBI V3 · P2 韧性 Loop  
 > **Loop 母单**：[`task_chatbi_v3_p2_resilience_loop_v1.md`](task_chatbi_v3_p2_resilience_loop_v1.md)  
 > **round**：**R1** · 见 [`LOOP_MANIFEST.md`](../../harness/invokes/by-task/chatbi-v3-p2-loop/LOOP_MANIFEST.md)
@@ -61,10 +61,10 @@ P2-1b（限流）与 W1（Wiki 验收稿扩充）已分别合入 **#86** / **#87
 
 ## 验收标准
 
-- [ ] 两 task 仅在 `done/`，`active/` 无 #0b/#W1
-- [ ] `_views/done.md` 与 `done/` 计数一致
-- [ ] RECENT §1.1 反映 **done** + 当前棒指向 Loop **R2**
-- [ ] `python tools/coding_wiki_graph_nodes_lint.py` OK（若 touch Wiki 路径）
+- [x] 两 task 仅在 `done/`，`active/` 无 #0b/#W1
+- [x] `_views/done.md` 与 `done/` 计数一致
+- [x] RECENT §1.1 反映 **done** + 当前棒指向 Loop **R2**
+- [x] `python tools/coding_wiki_graph_nodes_lint.py` OK（若 touch Wiki 路径）
 
 ---
 
@@ -82,8 +82,11 @@ P2-1b（限流）与 W1（Wiki 验收稿扩充）已分别合入 **#86** / **#87
 | 项 | 结果 |
 |----|------|
 | 执行日期 | 2026-05-29 |
-| 执行帽 | 30 · R1 |
-| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
-| 结论 | `exit_code=0`（docs-only 关账；合并前必绿） |
-| 涉及文件 | `git mv` #0b/#W1 → `done/`；`_views/done.md`；`RECENT_TASK_SCHEDULE.md` §1.1（删 §1.2）；`done/task_chatbi_v3_p2_resilience_v1.md` §子单 |
-| 验收 | 两 task 已迁 `done/`；RECENT 当前棒 → **R2（0c）**；无 `api/` diff |
+| 40 帽 | 独立复检 |
+| 命令 1 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` |
+| 结论 1 | `253 passed, 1 skipped, 2 deselected` · exit 0 |
+| 命令 2 | `python tools/coding_wiki_graph_nodes_lint.py` |
+| 结论 2 | OK |
+| 归档核对 | `active/` 无 #0b/#W1；`done/` 含 rate_limit + wiki_milestone + 本 R1 task |
+| RECENT | §1.2 已删；§1.1 当前棒 **0c / R2** |
+| 结论 | **pass** · R1 关账完成 · 可进入 R2 |
