@@ -66,6 +66,10 @@
 | `CHATBI_RATE_LIMIT_ENABLED` | V3 P2-1b：是否对 `POST /api/py/chat` 与 `POST /api/py/unified/chat/stream` 启用按 **客户端 IP** 限流 | 可选 | `api/chatbi_rate_limit.py`（middleware） | 默认 **开启**；`0`/`false`/`no`/`off` 关闭；`CHATBI_RATE_LIMIT_MAX_REQUESTS=0` 时等同关闭 | 与项目无关 |
 | `CHATBI_RATE_LIMIT_MAX_REQUESTS` | 滑动窗口内允许的最大请求数（每 IP） | 可选 | `api/chatbi_rate_limit.py` | 默认 **`60`**；非法值回退默认并 **日志告警** | 与项目无关 |
 | `CHATBI_RATE_LIMIT_WINDOW_SEC` | 滑动窗口长度（秒） | 可选 | `api/chatbi_rate_limit.py` | 默认 **`60`**；非法值回退默认并 **日志告警** | 与项目无关 |
+| `CHATBI_CIRCUIT_BREAKER_ENABLED` | V3 P2-1c：是否对外呼（LLM / Supabase）启用熔断 | 可选 | `api/chatbi_circuit_breaker.py` | 默认 **开启**；`0`/`false` 关闭 | 与项目无关 |
+| `CHATBI_CB_FAILURE_THRESHOLD` | 连续失败次数阈值（达到后 **open**） | 可选 | `api/chatbi_circuit_breaker.py` | 默认 **`3`** | 与项目无关 |
+| `CHATBI_CB_RECOVERY_TIMEOUT_SEC` | **open** 状态恢复窗口（秒），超时后进入 **half-open** 探测 | 可选 | `api/chatbi_circuit_breaker.py` | 默认 **`30`** | 与项目无关 |
+| `CHATBI_CB_HALF_OPEN_SUCCESS_THRESHOLD` | **half-open** 连续成功次数（达到后回到 **closed**） | 可选 | `api/chatbi_circuit_breaker.py` | 默认 **`1`** | 与项目无关 |
 | `CHATBI_ACCESS_TOKEN_PEPPER` | 可选全局 pepper：参与 `SHA256(pepper_bytes + 明文 token)`，须与运维本地脚本 `docs/diary/local_chatbi_access_token_gen.py` 及 Supabase 插入的 `key_hash` **一致** | 可选 | `api/chatbi_access_hash.py`、`api/chatbi_principal.py`；本地脚本 `docs/diary/local_chatbi_access_token_gen.py` | 留空则 pepper 为空字节串；**勿**把 pepper 提交进 Git | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |

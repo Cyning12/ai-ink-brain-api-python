@@ -49,8 +49,9 @@ from .query_rewrite import rewrite_query_with_history
 from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
-from .rag_env import admin_secret, pick_supabase_service_key, pick_supabase_url
+from .rag_env import admin_secret, llm_execute_with_circuit_breaker, pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from .chatbi_rate_limit import register_rate_limit_middleware
+from .chatbi_circuit_breaker import CircuitBreakerOpenError
 
 app = FastAPI(title="AI-Ink-Brain RAG API")
 register_rate_limit_middleware(app)
@@ -78,8 +79,8 @@ def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> li
     if not qt:
         return []
     try:
-        res = (
-            sb.rpc(
+        res = supabase_execute_with_retry(
+            lambda: sb.rpc(
                 "keyword_documents",
                 {
                     "query_text": qt,
@@ -91,6 +92,8 @@ def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> li
         )
         if isinstance(res, list):
             return [r for r in res if isinstance(r, dict)]
+    except CircuitBreakerOpenError:
+        raise
     except Exception as exc:  # noqa: BLE001
         _rag_log(f"keyword_documents error: {exc!s}")
     return []
@@ -746,8 +749,10 @@ async def chat(
         }
         if "Qwen3-Embedding" in SILICONFLOW_EMBEDDING_MODEL:
             emb_kw["dimensions"] = SILICONFLOW_EMBEDDING_DIMENSIONS
-        emb_res = oai.embeddings.create(**emb_kw)
+        emb_res = llm_execute_with_circuit_breaker(lambda: oai.embeddings.create(**emb_kw))
         vec = list(emb_res.data[0].embedding)
+    except CircuitBreakerOpenError as exc:
+        raise HTTPException(status_code=503, detail=exc.to_error_body()) from exc
     except Exception as exc:  # noqa: BLE001
         embedding_error = str(exc)
         _rag_log(f"embedding failed, fallback to keyword-only: {embedding_error}")

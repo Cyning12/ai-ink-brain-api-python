@@ -34,16 +34,15 @@ graph_nodes: []
 
 ## Epic 分区（2026-05-29 快照）
 
-### ChatBI V3 · P2 韧性 — **当前 Loop（单 PR）**
+### ChatBI V3 · P2 韧性 — **Loop done（2026-05-29）**
 
 | RECENT | task | 状态 | 说明 |
 |--------|------|------|------|
-| §1.1 **#L1** | [`task_chatbi_v3_p2_resilience_loop_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_loop_v1.md) | `in_progress` | **母单** · `task/chatbi-v3-p2-loop-v1` |
-| §1.1 L1-R1 | [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](../../tasks/active/task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) | `todo` | 归档 #0b/#W1（#86/#87 已合） |
-| §1.1 #0c | [`task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`](../../tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md) | `todo` | **Loop R2** 熔断 |
-| invoke | [`chatbi-v3-p2-loop/`](../../harness/invokes/by-task/chatbi-v3-p2-loop/) | — | PROMPT_START · MANIFEST |
+| §5 | [`task_chatbi_v3_p2_resilience_loop_v1.md`](../../tasks/done/task_chatbi_v3_p2_resilience_loop_v1.md) | **done** | 母单 · 单 PR `task/chatbi-v3-p2-loop-v1` |
+| §5 P2-1b/c | rate_limit · circuit_breaker | **done** | #86 · Loop R2 |
+| invoke | [`chatbi-v3-p2-loop/`](../../harness/invokes/by-task/chatbi-v3-p2-loop/) | — | REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` |
 
-**已合 main、待 R1 归档**：P2-1b（#86）· W1（#87）
+**下一业务棒**：低置信 §5.1 backlog · P3 chain events（见 RECENT §1.1）
 
 **母单 / 已关账**：→ [[../syntheses/chatbi-v3-p2-health-ready]]（P2-1a）· [[../syntheses/chatbi-v3-text2sql-tool-latency-obs]]
 

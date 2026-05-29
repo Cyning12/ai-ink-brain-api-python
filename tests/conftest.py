@@ -22,3 +22,24 @@ if not _KEEP:
     os.environ["CHATBI_V2_INTENT_LLM"] = "false"
     # P1-4：避免 shell/.env 误开 clarify 导致未 monkeypatch 的 v2 agent 用例短路（仍可由单测 setenv 覆盖）
     os.environ["CHATBI_V3_LOW_CONFIDENCE_CLARIFY"] = ""
+
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _reset_chatbi_circuit_breakers_for_isolation():
+    """单测间隔离全局 supabase/llm 熔断器状态，避免顺序依赖。"""
+    try:
+        from api.chatbi_circuit_breaker import reset_all_circuit_breakers_for_tests
+
+        reset_all_circuit_breakers_for_tests()
+    except Exception:  # noqa: BLE001
+        pass
+    yield
+    try:
+        from api.chatbi_circuit_breaker import reset_all_circuit_breakers_for_tests
+
+        reset_all_circuit_breakers_for_tests()
+    except Exception:  # noqa: BLE001
+        pass
