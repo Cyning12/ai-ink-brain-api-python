@@ -68,9 +68,10 @@ pytest tests/test_coding_wiki_graph_nodes_lint.py -q
 ### 4.2 Query
 
 1. 先读 `index.md` → 按主题打开 1～3 页。  
-2. 若 frontmatter 含 `graph_nodes`：记下种子 `id`，对每个 id 执行 `python tools/tech_graph_graph_query.py neighbors <id>`，再按需 `downstream`/`upstream`。  
-3. 需影响面/依赖遍历 → **并行** 使用 `graph_query`（L0），不以 Wiki 替代。  
-4. 答案可写回 Wiki 时：小改直接编辑；大改走新 task + 再 ingest。
+2. **任务规划 / 开工前**：读 [`concepts/task-schedule-ink-backend`](concepts/task-schedule-ink-backend.md) 或 L1 [`RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) §0·§1.1，再打开目标 `active/task_*.md`（排期真值 **不** 以 Wiki 替代 RECENT）。  
+3. 若 frontmatter 含 `graph_nodes`：记下种子 `id`，对每个 id 执行 `python tools/tech_graph_graph_query.py neighbors <id>`，再按需 `downstream`/`upstream`。  
+4. 需影响面/依赖遍历 → **并行** 使用 `graph_query`（L0），不以 Wiki 替代。  
+5. 答案可写回 Wiki 时：小改直接编辑；大改走新 task + 再 ingest。
 
 ### 4.3 Lint
 
@@ -182,3 +183,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-27 | T4 扩面：3 slug 含 `graph_nodes`（Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks`）|
 | 2026-05-27 | Agent 读序常模：链 Readorder SPEC · `AGENTS.md` 必读第 5 条 |
 | 2026-05-29 | T4 运营化：syntheses **25/25** `graph_nodes` 键 · `tools/coding_wiki_graph_nodes_lint.py` |
+| 2026-05-29 | 排期 hub：`concepts/task-schedule-ink-backend` · 链 RECENT · 防 task 孤岛 |

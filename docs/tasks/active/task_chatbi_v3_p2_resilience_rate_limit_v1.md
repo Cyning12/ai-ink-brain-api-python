@@ -1,7 +1,11 @@
 # Task：ChatBI V3 P2-1b 高消耗端点限流
 
 > **状态**：todo  
-> **排期**：V3 韧性子单 · **排队**（见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md)）；**非** Harness 改进近期项。  
+> **schedule_ref**：RECENT §1.1 #0b · **V3 当前棒**  
+> **epic**：ChatBI V3 · P2 韧性  
+> **blocked_by**：P2-1a done（PR #52）  
+> **blocks**：P2-1c 熔断  
+> **排期**：见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) · Wiki hub [`task-schedule-ink-backend`](../../coding_wiki/concepts/task-schedule-ink-backend.md)  
 > **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`（P2-1a 已 **done** · PR #52）  
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §2
 
