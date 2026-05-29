@@ -88,9 +88,22 @@
 
 | 项 | 结果 |
 |----|------|
+| 复核帽 | **40**（2026-05-29）· 分支 `task/chatbi-v3-p2-1b-rate-limit` · 实现基线 `f803f87` |
 | 命令 1 | `pytest tests/test_rate_limit_routes.py` |
-| 结论 1 | `exit_code=0`；`4 passed`（`/api/py/chat` 与 `/api/py/unified/chat/stream` 超阈值 429；`/api/py/live` 不限流；`MAX_REQUESTS=0` 关闭限流） |
+| 结论 1 | `exit_code=0`；`4 passed`（`test_chat_route_returns_429_after_threshold` · `test_unified_stream_returns_429_after_threshold` · `test_live_probe_not_rate_limited` · `test_rate_limit_disabled_when_max_requests_zero`） |
 | 命令 2 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
-| 结论 2 | `exit_code=0`；`253 passed, 1 skipped, 2 deselected` |
-| 证据归因 | 429 body 含 `error_code=RATE_LIMIT_EXCEEDED` 与 `retry_after`；响应头 `Retry-After` 与 body 一致 |
+| 结论 2 | `exit_code=0`；`253 passed, 1 skipped, 2 deselected`（cwd：`ai-ink-brain-api-python/`） |
+| 验收摘要 | 四条验收 **pass**（见下表；由 pytest 覆盖，未跑 `hey`） |
+| 证据归因 | 429 body：`error_code=RATE_LIMIT_EXCEEDED`、`retry_after`（int ≥1）；响应头 `Retry-After` 与 body 一致 |
+| 已知未测项 | 未做 `hey` 压测；未测 **按 API Key** 分桶（MVP 为 IP）；多副本部署下内存桶 **不共享**（运维须知） |
+
+#### 验收表（40 · 命令证据）
+
+| 验收项 | pass/fail | 证据 |
+|--------|-----------|------|
+| pytest/桩可稳定触发 429 | pass | `tests/test_rate_limit_routes.py` 两条 POST 路径第 3 次请求 `status_code==429` |
+| 429 含 `error_code`、可选 `retry_after` | pass | `_assert_rate_limit_body` 断言 `RATE_LIMIT_EXCEEDED` + `retry_after` |
+| env 可调且行为可复现 | pass | `CHATBI_RATE_LIMIT_MAX_REQUESTS=0` 时 4 次 POST 均非 429；`MAX=2` 时第 3 次 429 |
+| 覆盖 chat + unified stream | pass | `test_chat_route_*` + `test_unified_stream_*` |
+| F3 双端点均覆盖 | pass | 同上两条测试；`/api/py/live` 探针 `test_live_probe_not_rate_limited` |
 
