@@ -1,6 +1,6 @@
 # Task：Harness 理论对齐 · P1 收口
 
-> **状态**：`blocked`（依赖 P0 `task_harness_theory_align_p0_v1` 关账）  
+> **状态**：`pending`（P0 已关账 · PR #90 · 2026-05-29）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md)  
 > **排期**：[`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) **§0.5**
 
@@ -20,8 +20,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-AUDIT-R1 | pending | 30 | P1 含 Linter/CI |
-| HG-AUDIT-CLOSE | pending | done | P1 关账 |
+| HG-AUDIT-R1 | approved | 30 | P1 含 Linter/CI |
+| HG-AUDIT-CLOSE | approved | done | P1 关账 |
 
 ---
 

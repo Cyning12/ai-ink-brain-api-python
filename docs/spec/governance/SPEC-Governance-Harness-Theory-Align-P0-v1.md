@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `active` |
+| **状态** | `done`（P0 关账 · PR #90 · 2026-05-29） |
 | **优先级** | **P0 · 全仓最高**（压过业务 feature 队列，直至 §6 验收勾选完成） |
 | **freeze_id** | `GOV-HARNESS-THEORY-ALIGN-P0@2026-05-29` |
 | **对照稿** | `ai_coding_governance/lib/COMPARISON_Harness-Ralph理论_vs_Ink落地_v1_zh.md` |
@@ -115,7 +115,7 @@ task 头可覆盖默认值，**22 须核对合理性**。
 - [x] `AGENTS.md` 行数 ≤120（`wc -l` → **89** 行，2026-05-29）
 - [x] `docs/tasks/active/` 内业务相关 task（§1.1 表 #1～#6）已回填 Harness 表 + CI 验收条，或显式标 `draft` 且 **blocks 30**
 - [x] 至少 **1 份** 22 审查 md 样例引用新清单（`reviews/by-task/harness-theory-align-p0/`）
-- [ ] `RECENT_TASK_SCHEDULE.md` **§0.5** 标 **done**（PR 合并后）
+- [x] `RECENT_TASK_SCHEDULE.md` **§0.5** 标 **done**（PR #90 · 2026-05-29）
 
 ---
 
@@ -135,4 +135,5 @@ task 头可覆盖默认值，**22 须核对合理性**。
 
 | 日期 | 摘要 |
 | --- | --- |
+| 2026-05-29 | 关账：PR #90 合并 · 50 复检 · RECENT §0.5 done |
 | 2026-05-29 | 初版：理论对齐 P0；最高优先 |
