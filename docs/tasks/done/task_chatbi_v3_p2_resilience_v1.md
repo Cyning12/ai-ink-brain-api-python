@@ -40,7 +40,7 @@
 |-------|------|------|------|
 | **P2-1a** | `docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md` | **done** | PR #52 · `/live` + `/ready` |
 | **P2-1b** | `docs/tasks/done/task_chatbi_v3_p2_resilience_rate_limit_v1.md` | **done** | PR #86 · Loop R1 归档 · 50 `reinspect_chatbi_v3_p2_1b_rate_limit_20260529_v1.md` |
-| P2-1c | `docs/tasks/active/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | **Loop R2** · `task/chatbi-v3-p2-loop-v1` |
+| **P2-1c** | `docs/tasks/done/task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | **done** | Loop R2 · `chatbi_circuit_breaker.py` · 50 `reinspect_chatbi_v3_p2_loop_r2_circuit_breaker_20260529_v1.md` |
 
 ---
 

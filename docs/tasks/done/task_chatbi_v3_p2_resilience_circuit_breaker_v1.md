@@ -1,7 +1,7 @@
 # Task：ChatBI V3 P2-1c 外呼熔断与降级
 
-> **状态**：todo  
-> **schedule_ref**：RECENT §1.1 #L1-R2 · **P2 Loop R2**  
+> **状态**：done（2026-05-29 · Loop R2）  
+> **schedule_ref**：RECENT §1.1 ~~#0c~~ **done**  
 > **epic**：ChatBI V3 · P2 韧性  
 > **blocked_by**：Loop **R1** 关账（#0b/#W1 已 `done/`）  
 > **Loop 母单**：[`task_chatbi_v3_p2_resilience_loop_v1.md`](task_chatbi_v3_p2_resilience_loop_v1.md) · round **R2**  
