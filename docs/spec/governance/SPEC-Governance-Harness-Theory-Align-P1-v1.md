@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `active` |
+| **状态** | `done`（P1 关账 · PR #92 · 2026-05-29） |
 | **优先级** | **P1**（**依赖 P0 关账** 后启动；见 [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](./SPEC-Governance-Harness-Theory-Align-P0-v1.md)） |
 | **freeze_id** | `GOV-HARNESS-THEORY-ALIGN-P1@2026-05-29` |
 | **对照稿** | `ai_coding_governance/lib/COMPARISON_Harness-Ralph理论_vs_Ink落地_v1_zh.md` |
@@ -91,11 +91,11 @@
 
 ## 6. 验收标准（本 SPEC 关账）
 
-- [ ] P0 已 **done**（`RECENT_TASK_SCHEDULE` §0.5 P0 勾选）  
-- [ ] P1-1 四份 prompt 已增补 Fresh Context 条款  
-- [ ] P1-3 首条 Linter **CI 绿** 或 PR 附 workflow 链接  
-- [ ] P1-2 README 含半自动决策表  
-- [ ] `RECENT_TASK_SCHEDULE.md` **§0.5** P1 标 **done**
+- [x] P0 已 **done**（`RECENT_TASK_SCHEDULE` §0.5 P0 勾选）  
+- [x] P1-1 四份 prompt 已增补 Fresh Context 条款  
+- [x] P1-3 首条 Linter **CI 绿**（PR #92 · 2026-05-29）  
+- [x] P1-2 README 含半自动决策表  
+- [x] `RECENT_TASK_SCHEDULE.md` **§0.5** P1 标 **done**
 
 ---
 
@@ -114,4 +114,5 @@
 
 | 日期 | 摘要 |
 | --- | --- |
+| 2026-05-29 | 关账：PR #92 合并 · 50 复检 · RECENT §0.5 done |
 | 2026-05-29 | 初版：理论对齐 P1 |

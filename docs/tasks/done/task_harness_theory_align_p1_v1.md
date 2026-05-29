@@ -1,6 +1,6 @@
 # Task：Harness 理论对齐 · P1 收口
 
-> **状态**：`in_progress`  
+> **状态**：done（2026-05-29 验收通过 · PR #92）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md)  
 > **排期**：[`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) **§0.5**
 
@@ -22,7 +22,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
 | HG-AUDIT-R1 | approved | 30 | P1 含 Linter/CI |
-| HG-AUDIT-CLOSE | pending | done | P1 关账（PR 合并后） |
+| HG-AUDIT-CLOSE | approved | done | PR #92 合并 + 50 复检关账（2026-05-29） |
 
 ---
 
@@ -47,7 +47,7 @@ P0 完成后落实 **Fresh Context**、半自动推广、**首条** 领域结构
 - [x] P1-2：`docs/tasks/README.md` 半自动决策表
 - [x] P1-3：首条 Linter + CI 绿（`harness_structured_error_shape_check`）
 - [x] P1-4：README `test_strategy` 季度抽检说明
-- [ ] `RECENT_TASK_SCHEDULE.md` §0.5 P1 → done（PR 合并后）
+- [x] `RECENT_TASK_SCHEDULE.md` §0.5 P1 → done（PR #92 合并后）
 
 ## 非范围
 
@@ -57,8 +57,8 @@ P0 完成后落实 **Fresh Context**、半自动推广、**首条** 领域结构
 
 ## 验收标准
 
-- [ ] SPEC **§6** 全部勾选
-- [ ] PR 上 `pytest` workflow 全绿
+- [x] SPEC **§6** 全部勾选
+- [x] PR 上 `pytest` workflow 全绿（PR #92）
 
 ---
 
@@ -68,7 +68,15 @@ P0 完成后落实 **Fresh Context**、半自动推广、**首条** 领域结构
 |----|------|
 | 命令 | `python tools/harness_structured_error_shape_check.py` · `pytest tests/test_harness_structured_error_shape_check.py` |
 | 结论 | pass |
-| 要点 | 结构化错误 registry 覆盖 rate_limit + circuit_breaker |
+| 要点 | 结构化错误 registry 覆盖 rate_limit + circuit_breaker；全量 pytest 261 passed |
+
+---
+
+## 关账引用
+
+- **22 CLOSE**：`docs/harness/reviews/by-task/harness-theory-align-p1/task_harness_theory_align_p1_v1_audit_CLOSE_20260529.md`
+- **50**：`docs/tasks/reinspect_results/reinspect_harness_theory_align_p1_20260529_v1.md`
+- **PR**：[#92](https://github.com/Cyning12/ai-ink-brain-api-python/pull/92) · `5c33dec`
 
 ---
 
