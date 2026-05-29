@@ -1,6 +1,6 @@
 # Task：Harness 理论对齐 · P0 收口
 
-> **状态**：`in_progress`  
+> **状态**：done（2026-05-29 验收通过 · PR #90）  
 > **关联 SPEC**：[`docs/spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md)  
 > **对照稿**：`ai_coding_governance/lib/COMPARISON_Harness-Ralph理论_vs_Ink落地_v1_zh.md`  
 > **排期**：[`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) **§0.5**
@@ -23,7 +23,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | SPEC/task 人扫（2026-05-29 人批） |
-| HG-AUDIT-CLOSE | pending | done | P0 关账签收 |
+| HG-AUDIT-CLOSE | approved | done | PR #90 合并 + 50 复检关账（2026-05-29） |
 
 ---
 
@@ -48,7 +48,7 @@
 - [x] `docs/tasks/active/` 业务 task 回填（§1.1 #1～#6）
 - [x] `docs/tasks/README.md`：`test_strategy` 默认表
 - [x] 样例 22 审查：`reviews/by-task/harness-theory-align-p0/task_harness_theory_align_p0_v1_audit_R1_20260529.md`
-- [ ] `RECENT_TASK_SCHEDULE.md` §0.5 P0 → done（PR 合并后）
+- [x] `RECENT_TASK_SCHEDULE.md` §0.5 P0 → done（PR #90 合并后）
 
 ## 非范围
 
@@ -58,8 +58,26 @@
 
 ## 验收标准
 
-- [ ] SPEC [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) **§6** 全部勾选
-- [ ] PR 上 `pytest` workflow 全绿（纯文档变更：`pytest tests -m "not intent_eval and not intent_benchmark"` 本地等价）
+- [x] SPEC [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md) **§6** 全部勾选
+- [x] PR 上 `pytest` workflow 全绿（PR #90 · 本地 260 passed）
+
+---
+
+## 自检结论（执行者 · 40 帽回填）
+
+| 项 | 结果 |
+|----|------|
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 结论 | pass |
+| 要点 | 260 passed；PR #90 CI pytest SUCCESS |
+
+---
+
+## 关账引用
+
+- **22 CLOSE**：`docs/harness/reviews/by-task/harness-theory-align-p0/task_harness_theory_align_p0_v1_audit_CLOSE_20260529.md`
+- **50**：`docs/tasks/reinspect_results/reinspect_harness_theory_align_p0_20260529_v1.md`
+- **PR**：[#90](https://github.com/Cyning12/ai-ink-brain-api-python/pull/90) · `f1c73f8`
 
 ---
 
