@@ -13,9 +13,9 @@
 | 机器门禁（§3 VERIFY） | **pass** | 本机 `main` 六条命令全绿（见 §3 留证） |
 | AB 证据链 | **pass** | P1 → P2 → Multi → Representative 均已 accepted |
 | 工程化交付 | **pass** | syntheses **25/25** · `coding_wiki_graph_nodes_lint` · L2 manifest Phase C CI |
-| Wiki 治理线阶段收口 | **建议批准** | 可切业务线；后续 ingest 按 `CODING_WIKI.md` §4 关账纪律 |
+| Wiki 治理线阶段收口 | **pass** | 可切业务线；后续 ingest 按 `CODING_WIKI.md` §4 关账纪律 |
 
-**验收人签字**：________________ · 日期：________________
+**验收人签字**：已批准 · 日期：2026-05-29
 
 ---
 
@@ -204,3 +204,4 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 | 2026-05-29 | 初稿：VERIFY 本机留证 + AB 数字表 + 阶段收口建议 |
 | 2026-05-29 | §7：公众稿系列落点 + 扩充清单 + 三轨分工表 |
 | 2026-05-29 | §6：task schedule read smoke · Claude Code · Kimi-code · 4/4 accepted |
+| 2026-05-29 | §1：Wiki 治理线阶段收口 **pass** · 里程碑验收批准 |

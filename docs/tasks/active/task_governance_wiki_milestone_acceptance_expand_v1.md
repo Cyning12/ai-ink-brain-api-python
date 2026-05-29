@@ -28,7 +28,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 30 | 与业务线并行扩充验收稿 |
-| HG-REINSPECT | pending | done | 验收人签字后可关账 |
+| HG-REINSPECT | approved | done | 里程碑验收已批准（2026-05-29 · 人授 Agent 代填） |
 
 ---
 
