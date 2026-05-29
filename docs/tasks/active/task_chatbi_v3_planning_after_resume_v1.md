@@ -4,6 +4,7 @@
 **V3 规格真值（初版）**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Overview.md`（**§0 L1 子规索引**）；目录 `docs/spec/v3-agent/README.md`；L1 文件含 `SPEC-ChatBI-V3-Observability-Text2SQL.md`、`SPEC-ChatBI-V3-Logging-Trace.md`、`SPEC-ChatBI-V3-Security.md`、`SPEC-ChatBI-V3-Identity-Access.md`、`SPEC-ChatBI-V3-Resilience-Ops.md`、`SPEC-ChatBI-V3-Multiturn-Debt.md`、`SPEC-ChatBI-V3-Evaluation.md`  
 **权威叙述边界**：`docs/diary/简历评估意见-2026-5-9.md`（**§三 状态分层**、**§四 技术表述**、**§五 时间线**、**§七 文档结构**）  
 **企业路线图**：`docs/spec/SPEC-ChatBI-Enterprise-Gap.md`  
+**P2 韧性当前 Loop（2026-05-29）**：[`task_chatbi_v3_p2_resilience_loop_v1.md`](task_chatbi_v3_p2_resilience_loop_v1.md) · `task/chatbi-v3-p2-loop-v1` · RECENT §1.1 **#L1**（R1 关账 #86/#87 → R2 P2-1c）  
 **已存在 V3 子单**：`docs/tasks/done/task_chatbi_v3_text2sql_tool_latency_obs_v1.md`（Text2SQL 工具链延迟与可观测，**done 2026-05-11**；**B+C 留证收口** 见 `docs/spec/v3-agent/P0/阶段B-留证-curl-stream-b-smoke-2026-05-11.md`、`…/阶段B-前端输出.md` **§归档结论**）；**分级闸门（P1-3）**：`docs/tasks/done/task_chatbi_level_gate_v1.md`（**done 2026-05-13**）；**P1-1 SQL AST**：`docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（**done 2026-05-14**）；**P1-2 Prompt 注入 PoC**：`docs/tasks/done/task_chatbi_v3_prompt_injection_guard_poc_v1.md`（**done 2026-05-20 · PR #40 · 22 CLOSE**）；**V2 多轮/值域未纳入交付的欠债**：`task_chatbi_v3_debt_from_v2_multiturn_v1.md`（澄清 §4.3、同义词语义等，**V3 再考虑**）；**意图识别欠债（Intent vNext）**：`task_chatbi_v3_intent_classification_debt_v1.md`（复合意图 / prompt 边界等，**backlog**）
 
 ---

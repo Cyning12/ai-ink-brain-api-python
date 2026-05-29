@@ -12,9 +12,9 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（双轨并行 · 2026-05-29）**：  
-> - **业务棒**：V3 **P2-1b 限流**（`task/chatbi-v3-p2-1b-rate-limit` · 见 §1.1 #0b）  
-> - **治理棒**：Wiki **验收文档扩充**（`task/gov-wiki-milestone-acceptance-expand-v1` · 见 §1.1 #W1 · worktree 见 §1.2）  
+> **近期当前（单 Loop · 2026-05-29 整合）**：  
+> - **ChatBI P2 Loop**：`task/chatbi-v3-p2-loop-v1` · 母单 [`task_chatbi_v3_p2_resilience_loop_v1.md`](active/task_chatbi_v3_p2_resilience_loop_v1.md) · **R1** 关账（#86/#87 已合）→ **R2** 熔断 → **META**  
+> - ~~双轨并行~~（#0b/#W1）已并入 Loop **R1**；invoke [`chatbi-v3-p2-loop/`](../harness/invokes/by-task/chatbi-v3-p2-loop/)  
 > Wiki 排期 hub **done**（#85）；T4 ops **done**（#83）；Batch-4 ingest 另单。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
@@ -94,10 +94,9 @@
 | **_views/done.md**    | 随关账同步                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
-| **Wiki 治理**           | **阶段收口**（#83 · diary 验收草案）· **验收扩充 in_progress**（#W1） |
-| **近期当前 · 业务**     | **V3 P2-1b 限流** `in_progress`（`task/chatbi-v3-p2-1b-rate-limit`） |
-| **近期当前 · 治理**     | **Wiki 验收文档扩充** `in_progress`（`task/gov-wiki-milestone-acceptance-expand-v1`） |
-| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b **in_progress** · P2-1c **todo** |
+| **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿）· W1 关账归 **Loop R1** |
+| **近期当前**            | **P2 Loop** `in_progress`（`task/chatbi-v3-p2-loop-v1` · §1.1 #L1） |
+| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b **done**（#86 · R1 待归档）；P2-1c **todo**（Loop **R2**） |
 
 
 ### 1.1 active/ 任务清单
@@ -105,9 +104,11 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
-| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `in_progress` | P2-1b 限流 | **V3 业务当前棒** · `task/chatbi-v3-p2-1b-rate-limit` |
-| W1    | `task_governance_wiki_milestone_acceptance_expand_v1.md` | `in_progress` | Wiki 验收文档扩充 | **治理并行棒** · worktree 见 §1.2 |
-| 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | V3 排队 · 1b 后 |
+| **L1** | `task_chatbi_v3_p2_resilience_loop_v1.md` | `in_progress` | **P2 Loop 母单** | **当前棒** · `task/chatbi-v3-p2-loop-v1` · 单 PR |
+| L1-R1 | `task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md` | `todo` | Loop R1 · #0b/#W1 归档 | PR #86/#87 已合 · R1 首棒 |
+| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `in_progress` | P2-1b 限流 | **R1 归档**（勿独立 PR） |
+| W1    | `task_governance_wiki_milestone_acceptance_expand_v1.md` | `in_progress` | Wiki 验收扩充 | **R1 归档**（勿 worktree） |
+| 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | **Loop R2** · R1 后 |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
 | 3     | `task_chatbi_v3_planning_after_resume_v1.md`                            | `planning` | V3 统筹索引           | P4                                   |
@@ -117,14 +118,16 @@
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
 
-### 1.2 并行分支与 worktree（2026-05-29）
+### 1.2 当前分支（Loop 单轨 · 2026-05-29）
 
-| 轨 | 分支 | worktree | task_slug | 说明 |
-| --- | --- | --- | --- | --- |
-| **业务** | `task/chatbi-v3-p2-1b-rate-limit` | 主仓（本目录） | `chatbi-v3-p2-1b-rate-limit` | `test_strategy: required` · 改 `api/` |
-| **治理** | `task/gov-wiki-milestone-acceptance-expand-v1` | `../ai-ink-brain-api-python-wt-wiki-accept` | `gov-wiki-milestone-acceptance-expand` | 纯 docs · diary 验收扩充 |
+| 项 | 值 |
+| --- | --- |
+| **分支** | `task/chatbi-v3-p2-loop-v1` |
+| **worktree** | 主仓 `ai-ink-brain-api-python/` |
+| **task_slug** | `chatbi-v3-p2-loop` |
+| **Harness** | [`docs/harness/invokes/by-task/chatbi-v3-p2-loop/`](../harness/invokes/by-task/chatbi-v3-p2-loop/) |
 
-**纪律**：两轨 **禁止** 在同一 worktree 切换分支混改；RECENT 变更由先关账者 merge 后另一方 rebase。
+**纪律**：~~双轨 worktree~~ 已取消；R1（docs）→ R2（`api/` + **50**）→ META **同一 PR**。
 
 ---
 
@@ -143,8 +146,8 @@
 | ~~**当前**~~ | ~~Coding Wiki pilot（T1b）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md)） |
 | ~~**当前**~~ | ~~Wiki-CTX-AB P2（T2）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | ~~**当前**~~ | ~~`ai-ink-brain` Harness parity~~ | ~~P1~~ | **done**（2026-05-27 · Ink PR #44 · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md)） |
-| **当前 · 并行** | P2-1b 限流 ∥ Wiki 验收文档扩充 | **P2 + 治理** | 双分支 + worktree（§1.2） |
-| **V3 排队** | P2-1c 熔断 | P2 | P2-1b 后 |
+| **当前** | **P2 Loop**（R1 关账 → R2 熔断 → META） | **P2** | `task/chatbi-v3-p2-loop-v1` · §1.2 |
+| ~~**当前 · 并行**~~ | ~~P2-1b ∥ W1~~ | — | **已整合**入 Loop（#86/#87 已合） |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周**      | 对照现网后再定 `task_ui_chain_events_backend`             | P3         | 避免与 SSE 重复                                      |
 | **V3 排期**   | 低置信 §5.1 预览确认拆分                                    | P2         | §5.0 已验收                                        |
@@ -212,7 +215,7 @@ flowchart TD
 
 ```text
 ① ai-ink-brain Harness parity（P1-4 · 全仓 · 远期）  ← 近期
-② V3 排队：P2-1b → P2-1c（P2-1a 已 PR #52）
+② **P2 Loop**：R1 关账 → R2 P2-1c（单 PR `task/chatbi-v3-p2-loop-v1`）
 ③ 低置信 §5.1 / P2-2 · P3 chain events（对照现网）
 ```
 
@@ -220,7 +223,7 @@ flowchart TD
 
 ```text
 ① 全仓 Harness parity（Ink · P1-4 · 远期）
-② V3 韧性排队：P2-1b → P2-1c（母单 done/；P2-1a 见 done/）
+② **P2 Loop**：R1 关账 → R2 P2-1c（`task/chatbi-v3-p2-loop-v1`）
 ③ task_ui_chain_events_backend 现网对照后再动
 ④ 按需 legacy/ 治理
 ```
@@ -251,8 +254,9 @@ flowchart TD
 | **P1-4**  | 低置信澄清 §4.3       | 后端 `done`；前端 **done**（2026-05-23 · Ink 烟测；`ai-ink-brain/content/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`） |
 | **P2-1**  | 拆单母单             | **done**（`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md` · PR #51）                                                                    |
 | **P2-1a** | health / ready   | **done**（`docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md` · PR #52）                                                       |
-| **P2-1b** | 限流 | **in_progress** · `task/chatbi-v3-p2-1b-rate-limit` · `task_chatbi_v3_p2_resilience_rate_limit_v1.md` |
-| **P2-1c** | 熔断               | `**todo`** · `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`                                                                          |
+| **P2-1b** | 限流 | **done**（PR **#86**）· Loop **R1** 待 `git mv` · `task_chatbi_v3_p2_resilience_rate_limit_v1.md` |
+| **P2-1c** | 熔断 | **todo** · Loop **R2** · `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` · 单 PR `task/chatbi-v3-p2-loop-v1` |
+| **P2 Loop** | 编排母单 | **in_progress** · `task_chatbi_v3_p2_resilience_loop_v1.md` |
 | **P2-2**  | 评估烟测集            | **待拆**                                                                                                                                     |
 | **P2-3**  | multiturn §2 工程债 | `backlog` 母单                                                                                                                               |
 | **P2 延伸** | 低置信预览确认 §5.1     | `backlog`（§5.0 已验收 2026-05-13）                                                                                                             |
@@ -410,6 +414,7 @@ flowchart TD
 | 2026-05-29 | **Task schedule Wiki hub done**：`concepts/task-schedule-ink-backend` · V3 P2-1b 当前棒 |
 | 2026-05-29 | **Task schedule read smoke accepted**：Claude Code · Kimi-code · 4/4 · `harness/experiments/task_schedule_read_smoke_v1/` |
 | 2026-05-29 | **双轨并行启动**：P2-1b 限流 + Wiki 验收文档扩充 · §1.2 worktree |
+| 2026-05-29 | **任务整合**：P2 Loop 母单 + R1/R2 · #86/#87 归 R1 关账 · 单 PR `task/chatbi-v3-p2-loop-v1` |
 
 
 ---

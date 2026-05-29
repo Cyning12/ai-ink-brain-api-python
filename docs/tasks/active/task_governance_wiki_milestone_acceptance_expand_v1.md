@@ -1,7 +1,8 @@
 # Task：治理 — Wiki 里程碑验收文档扩充
 
 > **状态**：in_progress  
-> **schedule_ref**：RECENT §1.1 #W1 · **与 P2-1b 并行**  
+> **Loop 承接**：**R1 关账** [`task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md`](task_chatbi_v3_p2_loop_r1_closeout_hygiene_v1.md) · 已合 **PR #87** · **勿** 独立 worktree  
+> **schedule_ref**：RECENT §1.1 #W1 · ~~与 P2-1b 并行~~ → Loop R1 归档  
 > **epic**：治理 · Wiki / 验收留证  
 > **blocked_by**：无（#83 · #85 已合 `main`）  
 > **blocks**：无（不阻塞 V3 业务线）  
