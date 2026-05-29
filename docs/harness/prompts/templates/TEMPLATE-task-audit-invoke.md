@@ -59,6 +59,7 @@
 3. 落盘一篇审查文档至 **上表路径**（与 `reviews/README.md`、`hats/22-task-audit.md` 子仓规则一致）。
 4. 文内结构：元信息 → 审查结论摘要 → 阻塞 / 非阻塞 → 需任务帽回填清单（若有）→ 是否建议执行帽开工 → 「签收 / 关闭」→ 收尾二选一：**有下一棒** → **「下一棒可复制 Prompt」**（`text` 围栏，§3 全文）；**终轮无下一棒** → **「执行路线与 Commit 回溯」**（见 docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md，含阶段表 + 分仓 commit 列表）。
 5. 禁止仅在对话里说「过了」而不写 reviews；禁止在仍有阻塞时指示执行帽开工。
+6. **Fresh Context（P1）**：**新对话**开帽；**禁止**要求阅读 30 invoke 全文；输入限于 task、reviews、40 自检、diff 摘要。
 6. 不要写业务实现代码；不要擅自改写 task 正文。
 7. **对话与归档**：与步骤 4 审查 md 末节 **逐字或语义一致**——有下一棒则对话输出完整 Prompt；无下一棒则输出完整回溯表，**禁止**用空 Prompt 占位。
 8. **自动 commit**：完成步骤 3–7 后，按 docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md 在相关 git 根分别 commit（仅本轮路径；对话末尾一行报 short-hash）。用户本轮写明「不要 commit」则跳过。

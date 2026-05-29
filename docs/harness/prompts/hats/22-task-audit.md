@@ -62,6 +62,7 @@
 - **禁止**仅在对话里口头「过了」而不写 **`docs/harness/reviews/task_*_audit_*.md`**。  
 - 不在未落盘审查文档时，指示执行帽对 **尚有阻塞** 的 task 开工。  
 - 不代替 **独立复检帽** 做逐条代码证据复核（本帽停在 **task 与文档层**）。
+- **Fresh Context（P1）**：**禁止**要求 22 阅读 **30 执行 invoke 全文** 或粘贴思考链；复审输入限于 **task、reviews、40 `### 自检结论`、diff 摘要**（见 [`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../../../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md) §4）。
 
 ## 输入假设
 

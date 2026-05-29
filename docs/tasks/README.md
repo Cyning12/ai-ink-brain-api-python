@@ -133,6 +133,21 @@ docs/tasks/
 
 **50 硬规则**（`required` + `api/`/契约）：关账前须有 `reinspect_results/` 落盘，见 RECENT **§0.0**。
 
+**22 抽检（P1 运维）**：每季度抽查 1～2 份 active task 的 `test_strategy` 是否与上表及变更类型一致（见 P1 SPEC §4）。
+
+---
+
+## `semi_auto` 决策表（理论对齐 P1）
+
+> 真值：[`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md) **§5**；通则 [`HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
+
+| `semi_auto` | 适用场景 | 链式帽序 | 仍须人做 |
+|-------------|----------|----------|----------|
+| `true` | 小改动、纯文档、单文件治理；无 `pending` 人工闸 | `10→30→40→22`（无闸时同会话） | 终轮 **22 签收**、合并 PR、`human_gate: approved` |
+| `false` | 契约 / 跨仓 / 架构 / `test_strategy: required` 含 `api/` | 每帽可新会话；默认经 **22 R1** | 各 `HG-*` 按表；**50** 关账 |
+
+task 头 **须**显式 `semi_auto` + `audit_profile`；22 R1 核对合理性。
+
 ---
 
 ## Harness V2 · 任务单扩展字段

@@ -17,6 +17,7 @@
 
 - 不替执行者改代码（除非任务明确要求复检提交 patch）。  
 - 不顺杆爬补需求；缺口退回 **需求/审查帽**。
+- **Fresh Context（P1）**：**须新对话**开帽；输入仅 **task、reviews、diff 摘要、40 自检三件**；**禁止**附带 30 invoke 全文（见 [`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](../../../spec/governance/SPEC-Governance-Harness-Theory-Align-P1-v1.md) §4）。
 
 ### 输入假设
 

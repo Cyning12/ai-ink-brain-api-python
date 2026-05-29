@@ -69,6 +69,7 @@
 9. **半自动下一棒（可选）**：若 task `semi_auto: true` 且下一棒（如 40）无 `human_gate` 阻塞：先将 **下一棒 §3 全文** 落盘新 invoke 并 commit，再切换角色执行；规则见 HANDOFF_SEMI_AUTO.md §3。否则仅输出下一棒 Prompt 供人开新会话。
 
 禁止：在未读完必读与 failure_paths 的情况下改路由/契约；删除与 task 无关的大段重构；口头宣称「已测过」而无命令输出。
+**Fresh Context（P1）**：40→50/22 交接时 **禁止**粘贴本帽 invoke 全文或长思考链；仅交 diff 要点、验收表、`### 自检结论`。
 ```
 
 ---

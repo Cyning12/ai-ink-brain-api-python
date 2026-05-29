@@ -86,6 +86,16 @@ docs/harness/
 4. **`human_gate`** → `approved`（人改）  
 5. CI 绿（**Required**：`pytest` + tech-graph；`verify-fast` 见排期表 §6.5，**非**默认 Required）
 
+### 3.1 领域结构 Linter（P1 · Sensors）
+
+| 项 | 命令 |
+|----|------|
+| **结构化错误响应 shape**（候选 C） | `python tools/harness_structured_error_shape_check.py` |
+| 注册表 | [`linters/structured_error_registry_v1.json`](linters/structured_error_registry_v1.json) |
+| CI | 经 `pytest` → `tests/test_harness_structured_error_shape_check.py` |
+
+**失败时**：改 `api/`、测试或 registry；**禁止**在 Linter 内硬编码绕过（见 P1 SPEC §3.2）。
+
 ---
 
 ## 4. 上游同步（**仅维护者** · 非 Agent 路径）
