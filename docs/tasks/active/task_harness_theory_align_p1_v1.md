@@ -20,8 +20,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-AUDIT-R1 | pending | 30 | P1 含 Linter/CI |
-| HG-AUDIT-CLOSE | pending | done | P1 关账 |
+| HG-AUDIT-R1 | approved | 30 | P1 含 Linter/CI |
+| HG-AUDIT-CLOSE | approved | done | P1 关账 |
 
 ---
 
