@@ -399,6 +399,7 @@ flowchart TD
 | 2026-05-29 | **Task schedule read smoke accepted**：Claude Code · Kimi-code · 4/4 · `harness/experiments/task_schedule_read_smoke_v1/` |
 | 2026-05-29 | **双轨并行启动**：P2-1b 限流 + Wiki 验收文档扩充 · §1.2 worktree |
 | 2026-05-29 | **任务整合**：P2 Loop 母单 + R1/R2 · #86/#87 归 R1 关账 · 单 PR `task/chatbi-v3-p2-loop-v1` |
+| 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
 
 
 ---
