@@ -60,14 +60,33 @@
 
 ## 验收标准
 
-- [ ] 注入下游错误后，日志可观测到 `closed -> open` 迁移。
-- [ ] open 状态下请求快速失败，响应含结构化 `error_code`。
-- [ ] 恢复窗口后可触发 half-open 探测，成功后回到 closed。
-- [ ] pytest 覆盖最小状态机转移路径（失败、恢复、再次失败）。
+- [x] 注入下游错误后，日志可观测到 `closed -> open` 迁移。
+- [x] open 状态下请求快速失败，响应含结构化 `error_code`。
+- [x] 恢复窗口后可触发 half-open 探测，成功后回到 closed。
+- [x] pytest 覆盖最小状态机转移路径（失败、恢复、再次失败）。
 
 ---
 
-## 给执行帽的必读列表
+## 实现备忘（30 回填）
+
+| 项 | 内容 |
+|----|------|
+| 涉及文件 | `api/chatbi_circuit_breaker.py`；`api/rag_env.py`（Supabase/LLM 钩子）；`api/index.py`（embedding + keyword RPC）；`tests/test_circuit_breaker.py`；`tests/conftest.py`；`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
+| env | `CHATBI_CIRCUIT_BREAKER_ENABLED`、`CHATBI_CB_FAILURE_THRESHOLD`、`CHATBI_CB_RECOVERY_TIMEOUT_SEC`、`CHATBI_CB_HALF_OPEN_SUCCESS_THRESHOLD` |
+
+---
+
+### 自检结论（执行者）
+
+| 项 | 结果 |
+|----|------|
+| 执行日期 | 2026-05-29 |
+| 30 帽 | 实现 + 单测 |
+| 命令 1 | `pytest tests/test_circuit_breaker.py -v` |
+| 结论 1 | `7 passed` |
+| 命令 2 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` |
+| 结论 2 | `260 passed, 1 skipped, 2 deselected` |
+| 要点 | 状态迁移日志键 `chatbi_circuit_breaker: {name} closed -> open`；503 body 含 `CIRCUIT_BREAKER_OPEN` |
 
 1. 本 task 全文  
 2. `docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  

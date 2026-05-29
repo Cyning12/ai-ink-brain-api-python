@@ -175,6 +175,12 @@ def _supabase_http_retry_params() -> tuple[int, float]:
 
 def supabase_execute_with_retry(fn: Callable[[], T]) -> T:
     """对任意同步 Supabase（PostgREST）调用做有限次重试；每次调用 fn() 内宜新建 client。"""
+    from .chatbi_circuit_breaker import execute_with_circuit_breaker
+
+    return execute_with_circuit_breaker("supabase", lambda: _supabase_execute_with_retry_inner(fn))
+
+
+def _supabase_execute_with_retry_inner(fn: Callable[[], T]) -> T:
     retries, delay_base = _supabase_http_retry_params()
     last: BaseException | None = None
     for attempt in range(retries):
@@ -186,6 +192,13 @@ def supabase_execute_with_retry(fn: Callable[[], T]) -> T:
                 raise
             time.sleep(min(3.0, delay_base * (2**attempt)))
     raise RuntimeError("supabase_execute_with_retry: exhausted") from last
+
+
+def llm_execute_with_circuit_breaker(fn: Callable[[], T]) -> T:
+    """LLM / Embedding 外呼熔断包装。"""
+    from .chatbi_circuit_breaker import execute_with_circuit_breaker
+
+    return execute_with_circuit_breaker("llm", fn)
 
 
 def supabase_table_insert_with_retry(table: str, row: dict[str, Any]) -> None:
