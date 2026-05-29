@@ -30,13 +30,9 @@
 
 ---
 
-## 待跑 case（单元 B · cc）
+## 待跑 case
 
-| 建议目录 | 触发时机 |
-| --- | --- |
-| `gov-l2-phase-c-impl_claude-code_<YYYYMMDD>/` | **PR-B** 关账后 |
-
-规划真值：[`SPEC-Governance-Wiki-Unit-AB-Plan-v1.md`](../../../spec/governance/SPEC-Governance-Wiki-Unit-AB-Plan-v1.md) §4 步骤 6。
+（无 · 单元 A/B cc 样本已齐；下一 case 随新 task 关账追加。）
 
 ---
 
@@ -57,7 +53,8 @@
 | case | 平台 | SKILL | 业务 PR | hygiene PR | 摘要 |
 | --- | --- | --- | --- | --- | --- |
 | [`gov-l2-manifest-ci_claude-code_20260527`](./cases/gov-l2-manifest-ci_claude-code_20260527/) | Claude Code | harness-task · docs-governance | [#70](https://github.com/Cyning12/ai-ink-brain-api-python/pull/70) | [#71](https://github.com/Cyning12/ai-ink-brain-api-python/pull/71) | 单 task 22→关账 · ST5 关账正文债 · hygiene 后补 |
-| [`wiki-loop-unit-a_claude-code_20260528`](./cases/wiki-loop-unit-a_claude-code_20260528/) | Claude Code | harness-loop-batch · docs-governance | PR-A 待开 | — | Loop R1→META · ST0 过程债已收口 · C2 全绿 |
+| [`wiki-loop-unit-a_claude-code_20260528`](./cases/wiki-loop-unit-a_claude-code_20260528/) | Claude Code | harness-loop-batch · docs-governance | [#79](https://github.com/Cyning12/ai-ink-brain-api-python/pull/79) | — | Loop R1→META · ST0 过程债已收口 · C2 全绿 |
+| [`gov-l2-phase-c-impl_claude-code_20260528`](./cases/gov-l2-phase-c-impl_claude-code_20260528/) | Claude Code | harness-task · docs-governance | [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80) | [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81) | 单元 B · `--check-failure-paths` · ST0 pass |
 
 ---
 
@@ -67,3 +64,4 @@
 | --- | --- |
 | 2026-05-27 | v1：实验目录 + rubric + 首 case（gov-l2-manifest-ci · Claude Code） |
 | 2026-05-28 | 收录 `wiki-loop-unit-a_claude-code_20260528` · 单元 A cc 全链验收 |
+| 2026-05-28 | 收录 `gov-l2-phase-c-impl_claude-code_20260528` · 单元 B · closeout 收口 |
