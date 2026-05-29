@@ -1,6 +1,6 @@
 # Task：治理 — T4 运营化（lint + L0 pointer + 汇总页 hygiene）
 
-> **状态**：pending  
+> **状态**：done（2026-05-29）  
 > **前置**：T4 SPEC **active** · Pilot/扩面/Unit A R2 铺量 **done**（syntheses **25** · 含 `graph_nodes` 决策 **22** 篇 · 纯叙事 `[]` **8** 篇）  
 > **规划 SPEC**：[`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) §4.3 · §5.1 未勾项  
 > **排期**：[`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0「T4 运营扩面」
@@ -53,13 +53,13 @@ T4 **Pilot → 扩面 → Unit A R2 铺量** 已完成：`graph_nodes` 已在绝
 
 ### 必须改
 
-- [ ] **Lint 工具** `tools/coding_wiki_graph_nodes_lint.py`  
+- [x] **Lint 工具** `tools/coding_wiki_graph_nodes_lint.py`  
   - CLI：`python tools/coding_wiki_graph_nodes_lint.py`（默认 `docs/coding_wiki/syntheses/`）  
   - 缺省 `graph_nodes` 键 → **warn**（汇总页除外见下表）或 **fail**（30 帽在 invoke 说明取舍；**推荐** 对 syntheses **强制** 存在键）  
   - 空数组 `graph_nodes: []` → **pass**  
   - 非空：逐 id 调 `tech_graph_graph_query`（或 subprocess 等价）· relation 白名单  
-- [ ] **pytest** `tests/test_coding_wiki_graph_nodes_lint.py`  
-- [ ] **`99_spec.md`** Wiki 桥接小节（pointer only · 不改 VERIFY 表 Phase C 行）  
+- [x] **pytest** `tests/test_coding_wiki_graph_nodes_lint.py`
+- [x] **`99_spec.md`** Wiki 桥接小节（pointer only · 不改 VERIFY 表 Phase C 行）
 - [ ] **汇总页 frontmatter**（3 篇 · 纯叙事 `[]`）：
 
 | synthesis slug | 理由 |
@@ -68,14 +68,14 @@ T4 **Pilot → 扩面 → Unit A R2 铺量** 已完成：`graph_nodes` 已在绝
 | `governance-wiki-t4-r1-pilot` | R1 Pilot 索引 |
 | `harness-wiki-loop-t4-l2` | Loop 母叙事 · pointer 为主 |
 
-- [ ] [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §3/§4：25/25 覆盖表 + lint 命令行  
-- [ ] [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) §5.1 勾选 + §7 VERIFY 增 lint 行 + 修订记录  
-- [ ] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0 · §6.6 · §8  
-- [ ] Harness：22 review · 30/40 invoke · `reinspect_gov-wiki-t4-ops_<date>_v1.md`
+- [x] [`CODING_WIKI.md`](../../coding_wiki/CODING_WIKI.md) §3/§4：25/25 覆盖表 + lint 命令行
+- [x] [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) §5.1 勾选 + §7 VERIFY 增 lint 行 + 修订记录
+- [x] [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) §0 · §6.6 · §8
+- [x] Harness：22 review · 30/40 invoke · `reinspect_gov-wiki-t4-ops_20260529_v1.md`
 
 ### 建议核对（无矛盾即可）
 
-- [ ] 既有 **17** 篇含非空 `graph_nodes` 的 synthesis：lint 全绿（若 fail → 修 id 或降级为 `[]` + 文内说明）  
+- [x] 既有 **17** 篇含非空 `graph_nodes` 的 synthesis：lint 全绿（若 fail → 修 id 或降级为 `[]` + 文内说明）  
 - [ ] `docs/coding_wiki/concepts/test-strategy-ink-backend.md`：**暂不** 强制 graph_nodes（留 Batch/T4+ 概念网）
 
 ## 非范围
@@ -113,12 +113,12 @@ T4 **Pilot → 扩面 → Unit A R2 铺量** 已完成：`graph_nodes` 已在绝
 
 ## 验收标准
 
-- [ ] §范围「必须改」全部勾选  
-- [ ] `python tools/coding_wiki_graph_nodes_lint.py` **exit 0**（main 树）  
-- [ ] `pytest tests/test_coding_wiki_graph_nodes_lint.py -q` 绿  
-- [ ] 合并前常模：`pytest tests -m "not intent_eval and not intent_benchmark" -q` 绿  
-- [ ] 图谱门禁不退化：`tech_graph_graph_export.py --check` · `tech_graph_manifest_check.py` 绿  
-- [ ] 22→50 落盘 · `semi_auto` 链式执行  
+- [x] §范围「必须改」全部勾选
+- [x] `python tools/coding_wiki_graph_nodes_lint.py` **exit 0**（main 树）
+- [x] `pytest tests/test_coding_wiki_graph_nodes_lint.py -q` 绿
+- [x] 合并前常模：`pytest tests -m "not intent_eval and not intent_benchmark" -q` 绿
+- [x] 图谱门禁不退化：`tech_graph_graph_export.py --check` · `tech_graph_manifest_check.py` 绿
+- [x] 22→50 落盘 · `semi_auto` 链式执行
 
 **VERIFY**：
 
@@ -172,9 +172,9 @@ python tools/harness_human_gate_check.py --task docs/tasks/active/task_governanc
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （30 回填） |
-| PR | （合并后填 #） |
-| lint 行为 | missing key: warn/fail · concepts 扫描: 是/否 |
+| 涉及文件 | `tools/coding_wiki_graph_nodes_lint.py` · `tests/test_coding_wiki_graph_nodes_lint.py` · 3 synthesis · `CODING_WIKI.md` · `99_spec.md` · Bridge SPEC · RECENT · Harness |
+| PR | （待开） |
+| lint 行为 | missing key: **fail** · concepts 扫描: **否** |
 
 ---
 
@@ -182,9 +182,9 @@ python tools/harness_human_gate_check.py --task docs/tasks/active/task_governanc
 
 | 项 | 结果 |
 |----|------|
-| VERIFY §1–§4 | |
-| VERIFY §5–§6 | |
-| 结论 | pass / fail |
+| VERIFY §1–§4 | pass |
+| VERIFY §5–§6 | pass |
+| 结论 | **pass** |
 
 ---
 

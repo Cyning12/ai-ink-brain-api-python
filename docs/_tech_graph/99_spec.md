@@ -47,6 +47,7 @@ flowchart TD
 | **L2 字段** | `docs/coding_wiki/syntheses/*.md` 可选 frontmatter `graph_nodes`（`id` + `relation`） |
 | **机器轨** | 拓扑真值仍为 `.ai.md` → `graph.json`；**禁止** 手改 `graph.json` |
 | **Agent** | `graph_nodes` 仅作 **种子**；影响面须 `python tools/tech_graph_graph_query.py`（`neighbors` / `downstream` / `upstream`） |
+| **Lint** | `python tools/coding_wiki_graph_nodes_lint.py`（syntheses frontmatter · T4 ops） |
 | **Pilot（2026-05-27）** | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |
 
 ### 测试 manifest（L2 · `_test_manifest`）

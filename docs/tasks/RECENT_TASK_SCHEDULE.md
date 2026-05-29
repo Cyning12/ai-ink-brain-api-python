@@ -12,7 +12,7 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**T4 运营化** **in_progress** · [`task_governance_wiki_t4_ops_v1.md`](active/task_governance_wiki_t4_ops_v1.md)（lint + `99_spec` pointer · `GOV-WIKI-T4-OPS@2026-05-29`）；Unit A/B + Phase C **done**（#79–#81）。**Batch-4 ingest** 另单 · 可并行不同分支。  
+> **近期当前（治理/工程）**：**Batch-4 ingest** 另单 · 可并行不同分支；T4 ops **done**（lint · `GOV-WIKI-T4-OPS@2026-05-29`）；Unit A/B + Phase C **done**（#79–#81）。  
 > **V3 韧性**：P2-1a **done**（PR #52）；P2-1b/c **排队** — 属 ChatBI 实现子单，**与 Harness 改进无关**，**非**本表默认「当前棒」。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
@@ -93,7 +93,7 @@
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
 | **V3 P1**             | **全批次闭环**（含 Ink **P1-4 §4.3** 前端烟测，2026-05-23）                                                 |
 | **Harness 前端 parity** | **done**（2026-05-27 · Ink PR #44 · 工作区 task `done/`） |
-| **近期当前** | **T4 ops** lint + L0 pointer ← Unit AB closeout **done**（#82） |
+| **近期当前** | **Batch-4 ingest** 另单 · T4 ops **done** · Unit AB closeout **done**（#82） |
 | **V3 P2-1 韧性** | P2-1a **done**（PR #52）；P2-1b/c **排队**（非 Harness、非默认当前棒） |
 | **维护债** | Overview §3 文件若缺失则以母单 §子单状态为准 |
 
@@ -319,7 +319,7 @@ flowchart TD
 | **Wiki Loop C2 Verify** | **`task_harness_wiki_loop_c2_verify_v1`** + 两子 task | **done** | 2026-05-26 · [`done/task_harness_wiki_loop_c2_verify_v1.md`](done/task_harness_wiki_loop_c2_verify_v1.md)（META 关账后）· invoke C2 全绿 · 单 PR `task/wiki-loop-c2-verify-v1` · 第三 Loop |
 | **P1-4** | **前端 Harness parity** | **done** | 2026-05-27 · [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](../spec/governance/SPEC-Governance-Wiki-Frontend-Parity-v1.md) · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1.md`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md) · Ink PR #44 |
 | **P2 Loop** | **Wiki Loop P2 后续** | **done** | [`task_harness_wiki_loop_p2_followup_v1.md`](done/task_harness_wiki_loop_p2_followup_v1.md) · R1–R3 关账 · `WIKI-LOOP-P2-FOLLOWUP@2026-05-27` · `REPORT_completion_wiki_loop_p2_followup_v1.md` |
-| T4 | 图谱桥接 / `graph_nodes` | **active** · **ops 当前棒** | Bridge SPEC · syntheses 25/25 决策 · [`task_governance_wiki_t4_ops_v1.md`](active/task_governance_wiki_t4_ops_v1.md) **in_progress** |
+| T4 | 图谱桥接 / `graph_nodes` | **done** · lint | Bridge SPEC · syntheses **25/25** · [`task_governance_wiki_t4_ops_v1.md`](done/task_governance_wiki_t4_ops_v1.md) **done** · `GOV-WIKI-T4-OPS@2026-05-29` |
 | **T4+L2** | **Wiki Loop T4+L2** | **done** | `task_harness_wiki_loop_t4_l2_v1` · R1→R2→R3 全关账 · freeze `WIKI-LOOP-T4-L2@2026-05-27` |
 | **T4 expand** | **`task_governance_wiki_t4_expand_v2`** | **done** | Post-Pilot · 3 篇 synthesis `graph_nodes` · 单 task · 分支 `task/gov-t4-l2-followup-v1` · `GOV-T4-EXPAND@2026-05-27` |
 | **L2 Phase B** | **`task_governance_l2_manifest_ci_v1`** | **done** | manifest ≥12 + `tech_graph_test_manifest_check` + CI · 单 task · 分支 `task/gov-l2-manifest-ci-v1` · `GOV-L2-MANIFEST-CI@2026-05-27` |
@@ -330,7 +330,7 @@ flowchart TD
 | **L2 Phase C impl** | **`task_governance_l2_phase_c_impl_v1`** | **done** | 2026-05-28 · 单元 **B** · **PR-B [#80](https://github.com/Cyning12/ai-ink-brain-api-python/pull/80)** · `GOV-L2-PHASE-C-IMPL@2026-05-28` · [`done/task_governance_l2_phase_c_impl_v1.md`](done/task_governance_l2_phase_c_impl_v1.md) · `reinspect_gov-l2-phase-c-impl_20260528_v1.md` |
 | **L2 Phase C CI** | **tech-graph.yml `check-failure-paths`** | **done** | 2026-05-28 · **PR [#81](https://github.com/Cyning12/ai-ink-brain-api-python/pull/81)** · Required 步与 `99_spec` VERIFY 一致 |
 | **Wiki Unit AB closeout** | **`task_governance_wiki_unit_ab_closeout_v1`** | **done** | 2026-05-28 · **PR [#82](https://github.com/Cyning12/ai-ink-brain-api-python/pull/82)** · docs-only · `GOV-WIKI-UNIT-AB-CLOSEOUT@2026-05-28` |
-| **T4 ops** | **`task_governance_wiki_t4_ops_v1`** | **in_progress** | lint + `99_spec` pointer · 3 汇总页 `graph_nodes: []` · `GOV-WIKI-T4-OPS@2026-05-29` · [`active/task_governance_wiki_t4_ops_v1.md`](active/task_governance_wiki_t4_ops_v1.md) |
+| **T4 ops** | **`task_governance_wiki_t4_ops_v1`** | **done** | lint + 99_spec · 25/25 · **PR 待开** · `GOV-WIKI-T4-OPS@2026-05-29` · [`done/task_governance_wiki_t4_ops_v1.md`](done/task_governance_wiki_t4_ops_v1.md) |
 
 ---
 
@@ -392,6 +392,7 @@ flowchart TD
 | 2026-05-28 | **PR-A #79 合 main** · 单元 **B** `in_progress` · `PROMPT_TASK_22_to_CLOSE` · C2 抽样表 · `git merge origin/main` |
 | 2026-05-28 | **Unit AB closeout done**：PR #82 · #79–#81 叙事对齐 · SKILL B 臂 case |
 | 2026-05-29 | **T4 ops 立项**：`task_governance_wiki_t4_ops_v1` · lint + 99_spec pointer · §6.6 in_progress |
+| 2026-05-29 | **T4 ops done**：`coding_wiki_graph_nodes_lint.py` · 25/25 · Bridge §5.1 · `reinspect_gov-wiki-t4-ops_20260529_v1.md` |
 
 
 ---

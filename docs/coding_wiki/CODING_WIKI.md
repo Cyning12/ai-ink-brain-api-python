@@ -49,7 +49,12 @@ docs/coding_wiki/
 | `status` | 是 | `compiled` \| `stub` \| `deprecated` |
 | `graph_nodes` | 否 | **T4** 可选；`id` + `relation` + 可选 `note` / `manifest_ref`（见 T4 SPEC §3） |
 
----
+**T4 覆盖（syntheses · 2026-05-29）**：**25/25** 页 frontmatter 均含 `graph_nodes` 键（非空种子 **17** · 纯叙事 `[]` **8**）。机器校验：
+
+```bash
+python tools/coding_wiki_graph_nodes_lint.py
+pytest tests/test_coding_wiki_graph_nodes_lint.py -q
+```
 
 ## 4. 三操作
 
@@ -77,8 +82,13 @@ docs/coding_wiki/
 | 复制 Harness `prompts/` 全文 | 删正文，改 pointer |
 | `graph_nodes[].id` 不在 graph_v2 | `graph_query neighbors <id>` exit 4 → 修 id 或删项 |
 | `graph_nodes[].relation` 非法 | 须在 T4 SPEC §3.1 表内 |
+| syntheses 缺 `graph_nodes` 键 | `python tools/coding_wiki_graph_nodes_lint.py` exit 1 |
 
----
+**VERIFY**：
+
+```bash
+python tools/coding_wiki_graph_nodes_lint.py
+```
 
 ## 5. 链接规则
 
@@ -171,3 +181,4 @@ pointer（1 行 → L1）→ synthesis（摘要）→ 按需打开 L1 片段 →
 | 2026-05-27 | T4：`graph_nodes` frontmatter · query/lint · 链 Bridge SPEC |
 | 2026-05-27 | T4 扩面：3 slug 含 `graph_nodes`（Pilot `query-rewrite-observability` + `chatbi-v3-text2sql-tool-latency-obs` + `tech-graph-gate-d-v2-tasks`）|
 | 2026-05-27 | Agent 读序常模：链 Readorder SPEC · `AGENTS.md` 必读第 5 条 |
+| 2026-05-29 | T4 运营化：syntheses **25/25** `graph_nodes` 键 · `tools/coding_wiki_graph_nodes_lint.py` |
