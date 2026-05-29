@@ -115,7 +115,28 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 
 ---
 
-## 6. 边界与后续（非本验收阻塞）
+## 6. 任务排期读序 smoke（2026-05-29 · accepted）
+
+> **实验轨**：`docs/harness/experiments/task_schedule_read_smoke_v1/` · **非** L0 真值  
+> **freeze_id**：`TASK-SCHEDULE-READ-SMOKE@2026-05-29` · 关联 `GOV-TASK-SCHEDULE-WIKI@2026-05-29`
+
+| 项 | 结果 |
+| --- | --- |
+| Agent 平台 | Claude Code |
+| model | Kimi-code |
+| Prompt | 无路径引导 §3（未写 RECENT/concept 路径） |
+| Q1 当前棒 | **pass** · P2-1b 限流 |
+| Q2 P2 先后 | **pass** · 限流 → 熔断 |
+| Q3 L1 vs L2 | **pass** · RECENT 真值 · Wiki 叙事 |
+| Q4 陷阱 | **pass** · Wiki/T4 **非**当前棒 |
+| **汇总** | **4/4 pass** · smoke **通过** |
+
+**观测**：本 run 经 **RECENT / AGENTS / 母单** 可达真值；concept hub 为增强导航，**非唯一入口**。  
+**证据**：[`scorecard.md`](../harness/experiments/task_schedule_read_smoke_v1/scorecard.md) · [`conclusion_smoke_zh.md`](../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md)
+
+---
+
+## 7. 边界与后续（非本验收阻塞）
 
 | 可外推 | 不可外推 |
 | --- | --- |
@@ -129,12 +150,12 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 
 ---
 
-## 7. 公众稿蒸馏 · 系列落点与扩充清单（草案）
+## 8. 公众稿蒸馏 · 系列落点与扩充清单（草案）
 
 > **用途**：指导《AI 编程可闭环协作》公众连载如何从本里程碑取材；**不**直接复制进公众稿。  
 > **Skill**：私仓 `public-narrative-zh` · 公众仓 OUTLINE 卷四 §14–15 已链本文件。
 
-### 7.1 系列落点（推荐）
+### 8.1 系列落点（推荐）
 
 | 优先级 | 卷 · 节 | 用法 |
 | --- | --- | --- |
@@ -146,7 +167,7 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 
 **写作顺序**：卷三关账指针 → 卷四 §14 → 卷四 §15（主文）→ 卷五 FAQ（可选复述数字）。
 
-### 7.2 公众稿扩充清单（定稿前必勾）
+### 8.2 公众稿扩充清单（定稿前必勾）
 
 - [ ] **术语**：按 `public-narrative-zh`；正文不用 L0/L1/L2、freeze_id、slug 作主语；表头注明「笔者项目示例（不唯一）」
 - [ ] **通俗名对照**：技术图谱（地图轨）· 协作过程留痕（Harness 轨）· **关账编译摘要**（Coding Wiki 轨，卷四展开）
@@ -157,7 +178,7 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 - [ ] **OUTLINE**：公众仓 `ARTICLE_*_OUTLINE` 卷四 §14–15 标注素材来源（本文件）
 - [ ] **核心句保留**：Wiki **不替代** 技术图谱；图谱答「改哪里」，编译摘要答「关账后少翻 invoke 全文」
 
-### 7.3 三轨分工表（公众稿可用草稿）
+### 8.3 三轨分工表（公众稿可用草稿）
 
 | 通俗名 | 回答什么 | 与本篇里程碑关系 |
 | --- | --- | --- |
@@ -166,19 +187,20 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 | **关账编译摘要** | 跨任务概念与决策（synthesis） | L2 · 本篇里程碑主题 · 关账后 ingest |
 | **产品 Wiki / PRD** | 产品语义 | 与上表不同域 · 卷二 §8.5 已述 |
 
-### 7.4 蒸馏状态
+### 8.4 蒸馏状态
 
 | 项 | 状态 |
 | --- | --- |
 | 对内里程碑（§1–6） | 草案 · 待验收人签字 |
-| 公众稿扩充清单（§7.2） | 已落盘 · 待卷四起草时逐项勾选 |
+| 公众稿扩充清单（§8.2） | 已落盘 · 待卷四起草时逐项勾选 |
 | 公众仓 OUTLINE 链 | 见同级 PR `ai-coding-closed-loop-articles` |
 
 ---
 
-## 8. 修订记录
+## 9. 修订记录
 
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-05-29 | 初稿：VERIFY 本机留证 + AB 数字表 + 阶段收口建议 |
 | 2026-05-29 | §7：公众稿系列落点 + 扩充清单 + 三轨分工表 |
+| 2026-05-29 | §6：task schedule read smoke · Claude Code · Kimi-code · 4/4 accepted |

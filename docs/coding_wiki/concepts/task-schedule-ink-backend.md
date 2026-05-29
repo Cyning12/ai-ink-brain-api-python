@@ -101,5 +101,6 @@ graph_nodes: []
 
 - 排期真值：[`RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md)  
 - Task 落盘规则：[`docs/tasks/README.md`](../../tasks/README.md)  
+- 三方读序 smoke（accepted）：[`conclusion_smoke_zh.md`](../../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md) · Claude Code · Kimi-code · 4/4  
 - 三层总览：[[llm-wiki-layers]]  
 - 需求对比：[[../WIKI_REQUIREMENTS_COMPARISON_v1_zh.md]]

@@ -393,6 +393,7 @@ flowchart TD
 | 2026-05-29 | **T4 ops 立项**：`task_governance_wiki_t4_ops_v1` · lint + 99_spec pointer · §6.6 in_progress |
 | 2026-05-29 | **T4 ops done**：PR #83 · diary 验收草案 |
 | 2026-05-29 | **Task schedule Wiki hub done**：`concepts/task-schedule-ink-backend` · V3 P2-1b 当前棒 |
+| 2026-05-29 | **Task schedule read smoke accepted**：Claude Code · Kimi-code · 4/4 · `harness/experiments/task_schedule_read_smoke_v1/` |
 
 
 ---

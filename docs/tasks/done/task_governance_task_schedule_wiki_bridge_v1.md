@@ -52,6 +52,7 @@
 - [x] `RECENT_TASK_SCHEDULE.md` §0/§1/§8 同步  
 - [x] P2-1b 头字段范例  
 - [x] `log.md` 追加
+- [x] 三方读序 smoke **4/4 pass**（Claude Code · Kimi-code · [`conclusion_smoke_zh.md`](../../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md)）
 
 ## 非范围
 
@@ -91,7 +92,8 @@ python tools/coding_wiki_graph_nodes_lint.py
 | 项 | 内容 |
 |----|------|
 | 涉及文件 | concept · index · CODING_WIKI · tasks/README · RECENT · P2-1b task · log.md · `harness/experiments/task_schedule_read_smoke_v1/` |
-| PR | （待开） |
+| PR | （待开 · 含 smoke 落盘 `fc6f69c`+） |
+| smoke | `TASK-SCHEDULE-READ-SMOKE@2026-05-29` · Claude Code · Kimi-code · **4/4 pass** |
 
 ---
 
