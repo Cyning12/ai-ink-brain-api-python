@@ -50,8 +50,10 @@ from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
 from .rag_env import admin_secret, pick_supabase_service_key, pick_supabase_url
+from .chatbi_rate_limit import register_rate_limit_middleware
 
 app = FastAPI(title="AI-Ink-Brain RAG API")
+register_rate_limit_middleware(app)
 
 DEFAULT_YEAR = int(os.getenv("CONTENT_DEFAULT_YEAR", "2026"))
 SILICONFLOW_BASE = os.getenv("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1").rstrip("/")
