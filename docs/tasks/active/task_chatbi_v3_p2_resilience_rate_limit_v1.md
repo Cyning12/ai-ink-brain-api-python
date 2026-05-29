@@ -1,13 +1,14 @@
 # Task：ChatBI V3 P2-1b 高消耗端点限流
 
-> **状态**：todo  
-> **schedule_ref**：RECENT §1.1 #0b · **V3 当前棒**  
+> **状态**：in_progress  
+> **schedule_ref**：RECENT §1.1 #0b · **V3 业务当前棒**  
 > **epic**：ChatBI V3 · P2 韧性  
 > **blocked_by**：P2-1a done（PR #52）  
 > **blocks**：P2-1c 熔断  
 > **排期**：见 [`RECENT_TASK_SCHEDULE.md`](../RECENT_TASK_SCHEDULE.md) · Wiki hub [`task-schedule-ink-backend`](../../coding_wiki/concepts/task-schedule-ink-backend.md)  
 > **关联母单**：`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`（P2-1a 已 **done** · PR #52）  
-> **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §2
+> **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md` §2  
+> **并行**：与 `task/gov-wiki-milestone-acceptance-expand-v1` 并行 · 见 RECENT §1.2
 
 ---
 
@@ -20,7 +21,8 @@
 | gates_before_code | `["failure_paths","验收标准","必读列表"]` |
 | semi_auto | `true` |
 | audit_profile | `post_close` |
-| git_branch | `task/chatbi-v3-p2-1b-rate-limit`（待开分支） |
+| git_branch | `task/chatbi-v3-p2-1b-rate-limit` |
+| worktree_root | 主仓 `ai-ink-brain-api-python/` |
 
 ---
 

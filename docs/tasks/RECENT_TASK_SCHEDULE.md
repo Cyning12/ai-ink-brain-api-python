@@ -12,7 +12,10 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（治理/工程）**：**V3 P2-1b 限流** 为业务 **当前棒**（见 §1.1 #0b）；Wiki 排期 hub **done**（`concepts/task-schedule-ink-backend` · `GOV-TASK-SCHEDULE-WIKI@2026-05-29`）；T4 ops **done**（#83）；Batch-4 ingest 另单。
+> **近期当前（双轨并行 · 2026-05-29）**：  
+> - **业务棒**：V3 **P2-1b 限流**（`task/chatbi-v3-p2-1b-rate-limit` · 见 §1.1 #0b）  
+> - **治理棒**：Wiki **验收文档扩充**（`task/gov-wiki-milestone-acceptance-expand-v1` · 见 §1.1 #W1 · worktree 见 §1.2）  
+> Wiki 排期 hub **done**（#85）；T4 ops **done**（#83）；Batch-4 ingest 另单。
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
 
@@ -86,14 +89,15 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **8** 个任务相关文件（含 1 附属 AGENT_PROMPT）                                                               |
+| **active/**           | **9** 个任务相关文件（含 1 附属 AGENT_PROMPT · 1 Wiki 验收扩充） |
 | **done/**             | **56+** 个 `.md`（含 T4 ops · task-schedule bridge） |
 | **_views/done.md**    | 随关账同步                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
-| **Wiki 治理**           | **阶段收口**（#83 · diary 验收草案） |
-| **近期当前 · 业务**     | **V3 P2-1b 限流**（`task_chatbi_v3_p2_resilience_rate_limit_v1`） |
-| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b/c **active/todo** |
+| **Wiki 治理**           | **阶段收口**（#83 · diary 验收草案）· **验收扩充 in_progress**（#W1） |
+| **近期当前 · 业务**     | **V3 P2-1b 限流** `in_progress`（`task/chatbi-v3-p2-1b-rate-limit`） |
+| **近期当前 · 治理**     | **Wiki 验收文档扩充** `in_progress`（`task/gov-wiki-milestone-acceptance-expand-v1`） |
+| **V3 P2-1 韧性** | P2-1a **done**（#52）；P2-1b **in_progress** · P2-1c **todo** |
 
 
 ### 1.1 active/ 任务清单
@@ -101,7 +105,8 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
-| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `todo` | P2-1b 限流 | **V3 当前棒** · 见 Wiki hub |
+| 0b    | `task_chatbi_v3_p2_resilience_rate_limit_v1.md` | `in_progress` | P2-1b 限流 | **V3 业务当前棒** · `task/chatbi-v3-p2-1b-rate-limit` |
+| W1    | `task_governance_wiki_milestone_acceptance_expand_v1.md` | `in_progress` | Wiki 验收文档扩充 | **治理并行棒** · worktree 见 §1.2 |
 | 0c    | `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md` | `todo` | P2-1c 熔断 | V3 排队 · 1b 后 |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
@@ -111,6 +116,15 @@
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
+
+### 1.2 并行分支与 worktree（2026-05-29）
+
+| 轨 | 分支 | worktree | task_slug | 说明 |
+| --- | --- | --- | --- | --- |
+| **业务** | `task/chatbi-v3-p2-1b-rate-limit` | 主仓（本目录） | `chatbi-v3-p2-1b-rate-limit` | `test_strategy: required` · 改 `api/` |
+| **治理** | `task/gov-wiki-milestone-acceptance-expand-v1` | `../ai-ink-brain-api-python-wt-wiki-accept` | `gov-wiki-milestone-acceptance-expand` | 纯 docs · diary 验收扩充 |
+
+**纪律**：两轨 **禁止** 在同一 worktree 切换分支混改；RECENT 变更由先关账者 merge 后另一方 rebase。
 
 ---
 
@@ -129,7 +143,8 @@
 | ~~**当前**~~ | ~~Coding Wiki pilot（T1b）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_coding_wiki_pilot_v1.md`](done/task_coding_wiki_pilot_v1.md)） |
 | ~~**当前**~~ | ~~Wiki-CTX-AB P2（T2）~~ | ~~治理~~ | **done**（2026-05-26 · [`done/task_wiki_ctx_ab_v1.md`](done/task_wiki_ctx_ab_v1.md) · 推荐默认 `coding_wiki/` 读序） |
 | ~~**当前**~~ | ~~`ai-ink-brain` Harness parity~~ | ~~P1~~ | **done**（2026-05-27 · Ink PR #44 · 工作区 [`task_harness_frontend_p1_4_wiki_parity_v1`](../../../../docs/harness/tasks/done/task_harness_frontend_p1_4_wiki_parity_v1.md)） |
-| **V3 排队** | P2-1b 限流 → P2-1c 熔断 | P2 | 按需立项；**非** Harness 改进近期项 |
+| **当前 · 并行** | P2-1b 限流 ∥ Wiki 验收文档扩充 | **P2 + 治理** | 双分支 + worktree（§1.2） |
+| **V3 排队** | P2-1c 熔断 | P2 | P2-1b 后 |
 | ~~**本周**~~  | ~~Ink **P1-4 §4.3** 前端烟测~~ | ~~P1 跨仓~~ | **done**（2026-05-23） |
 | **本周**      | 对照现网后再定 `task_ui_chain_events_backend`             | P3         | 避免与 SSE 重复                                      |
 | **V3 排期**   | 低置信 §5.1 预览确认拆分                                    | P2         | §5.0 已验收                                        |
@@ -236,7 +251,7 @@ flowchart TD
 | **P1-4**  | 低置信澄清 §4.3       | 后端 `done`；前端 **done**（2026-05-23 · Ink 烟测；`ai-ink-brain/content/tasks/done/task_chatbi_v3_multiturn_clarify_semantics_4_3_frontend_v1.md`） |
 | **P2-1**  | 拆单母单             | **done**（`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md` · PR #51）                                                                    |
 | **P2-1a** | health / ready   | **done**（`docs/tasks/done/task_chatbi_v3_p2_resilience_health_ready_v1.md` · PR #52）                                                       |
-| **P2-1b** | 限流 | **todo** · V3 排队 · `task_chatbi_v3_p2_resilience_rate_limit_v1.md` |
+| **P2-1b** | 限流 | **in_progress** · `task/chatbi-v3-p2-1b-rate-limit` · `task_chatbi_v3_p2_resilience_rate_limit_v1.md` |
 | **P2-1c** | 熔断               | `**todo`** · `task_chatbi_v3_p2_resilience_circuit_breaker_v1.md`                                                                          |
 | **P2-2**  | 评估烟测集            | **待拆**                                                                                                                                     |
 | **P2-3**  | multiturn §2 工程债 | `backlog` 母单                                                                                                                               |
@@ -394,6 +409,7 @@ flowchart TD
 | 2026-05-29 | **T4 ops done**：PR #83 · diary 验收草案 |
 | 2026-05-29 | **Task schedule Wiki hub done**：`concepts/task-schedule-ink-backend` · V3 P2-1b 当前棒 |
 | 2026-05-29 | **Task schedule read smoke accepted**：Claude Code · Kimi-code · 4/4 · `harness/experiments/task_schedule_read_smoke_v1/` |
+| 2026-05-29 | **双轨并行启动**：P2-1b 限流 + Wiki 验收文档扩充 · §1.2 worktree |
 
 
 ---
