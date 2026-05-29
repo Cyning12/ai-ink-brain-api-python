@@ -56,10 +56,10 @@
 
 ## 验收标准
 
-- [ ] 使用压测脚本（`hey` 或 pytest 并发桩）可稳定触发 429。
-- [ ] 429 响应体含 `error_code`，可选 `retry_after` 字段语义明确。
-- [ ] 阈值可通过 env 调整，调整后行为变化可复现。
-- [ ] 至少覆盖 `/api/py/unified/chat/stream` 与 `/api/py/chat` 两条路径。
+- [x] 使用压测脚本（`hey` 或 pytest 并发桩）可稳定触发 429。
+- [x] 429 响应体含 `error_code`，可选 `retry_after` 字段语义明确。
+- [x] 阈值可通过 env 调整，调整后行为变化可复现。
+- [x] 至少覆盖 `/api/py/unified/chat/stream` 与 `/api/py/chat` 两条路径。
 
 ---
 
@@ -68,5 +68,29 @@
 1. 本 task 全文  
 2. `docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`  
 3. `docs/spec/v3-agent/SPEC-ChatBI-V3-Resilience-Ops.md`  
-4. `api/index.py` + `api/unified_chat.py`
+4. `api/index.py` + `api/unified_chat.py`  
+5. `api/chatbi_rate_limit.py` · `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（`CHATBI_RATE_LIMIT_*`）
+
+---
+
+## 实现备忘（30 回填）
+
+| 项 | 内容 |
+|----|------|
+| 涉及文件 | `api/chatbi_rate_limit.py`；`api/index.py`（注册 middleware）；`tests/test_rate_limit_routes.py`；`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
+| 粒度 | MVP：**每客户端 IP**（`X-Forwarded-For` 首跳，否则 `request.client.host`） |
+| F2 拍板 | env 非法 → **回退默认** + `logger.warning`（非启动失败） |
+| env | `CHATBI_RATE_LIMIT_ENABLED`（默认开）、`CHATBI_RATE_LIMIT_MAX_REQUESTS`（默认 60）、`CHATBI_RATE_LIMIT_WINDOW_SEC`（默认 60） |
+
+---
+
+### 自检结论（执行者）
+
+| 项 | 结果 |
+|----|------|
+| 命令 1 | `pytest tests/test_rate_limit_routes.py` |
+| 结论 1 | `exit_code=0`；`4 passed`（`/api/py/chat` 与 `/api/py/unified/chat/stream` 超阈值 429；`/api/py/live` 不限流；`MAX_REQUESTS=0` 关闭限流） |
+| 命令 2 | `pytest tests -m "not intent_eval and not intent_benchmark"` |
+| 结论 2 | `exit_code=0`；`253 passed, 1 skipped, 2 deselected` |
+| 证据归因 | 429 body 含 `error_code=RATE_LIMIT_EXCEEDED` 与 `retry_after`；响应头 `Retry-After` 与 body 一致 |
 
