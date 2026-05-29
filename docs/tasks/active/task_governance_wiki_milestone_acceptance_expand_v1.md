@@ -78,6 +78,34 @@ Wiki 治理线机器门禁与 AB 证据已收口（#83 · diary 草案）；本 
 
 ---
 
+## 自检结论（执行者）
+
+| 项 | 结果 |
+|----|------|
+| 执行日期 | 2026-05-29 |
+| 执行帽 | 30 · R1 |
+| 修改文件 | `docs/diary/2026-05-29-wiki-milestone-acceptance.md` |
+| 验证命令 | `python tools/coding_wiki_graph_nodes_lint.py` |
+| 验证结果 | **OK** |
+
+### 修改摘要
+
+- §1：追加「可签字确认」小结（VERIFY 留证完整、AB 证据链可链、工程交付已关账）
+- §3.2：追加「留证完整」结语（本机 main · 2026-05-29 · 六命令全绿）
+- §6：追加「可签字确认」小结（smoke 4/4 pass · freeze_id 已标注）
+- §7：追加「可签字确认」小结（边界表已列明、业务线同步按 §4.1 ingest）
+- §8.2：6/8 项勾选（附依据备注）、2/8 defer（附理由）
+- §9：追加「10→30 扩充」一行修订记录
+
+### 验收标准核对
+
+- [x] diary §1 四项均有 pass/边界说明且可签字 — §1 已追加可签字确认小结
+- [x] §8.2 至少 5/8 项已勾选或显式 defer 理由 — **6/8 已勾选、2/8 defer**
+- [x] `coding_wiki_graph_nodes_lint.py` 仍 OK — 验证通过
+- [ ] 关账 `git mv` + `_views/done.md` — 不在本 10→30 链范围（可选 50 或人手动）
+
+---
+
 ## 给 Cursor
 
 `gov-wiki-milestone-acceptance-expand`、diary 验收、公众稿扩充清单、与 P2-1b 并行

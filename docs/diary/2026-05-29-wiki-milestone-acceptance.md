@@ -17,6 +17,8 @@
 
 **验收人签字**：已批准 · 日期：2026-05-29
 
+> **可签字确认**：本里程碑 §1–§7 结论经 VERIFY 留证（§3 六命令全绿）、AB 证据链仓内可链、工程交付已关账（#83）、边界与后续已列明；验收人确认属实。
+
 ---
 
 ## 2. 对外一句话
@@ -64,6 +66,8 @@ coding_wiki_graph_nodes_lint: OK
 OK: manifest matches code/SQL truth (endpoints/rpc/tables/env + anchors resolvable).
 OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 ```
+
+> **留证完整**：本机 `main` · 2026-05-29 · 六命令全绿；跳过项已知非阻塞，warnings 非本里程碑阻塞。
 
 ---
 
@@ -134,6 +138,8 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 **观测**：本 run 经 **RECENT / AGENTS / 母单** 可达真值；concept hub 为增强导航，**非唯一入口**。  
 **证据**：[`scorecard.md`](../harness/experiments/task_schedule_read_smoke_v1/scorecard.md) · [`conclusion_smoke_zh.md`](../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md)
 
+> **可签字确认**：task schedule read smoke 4/4 pass，freeze_id 已标注，实验轨结论 accepted。
+
 ---
 
 ## 7. 边界与后续（非本验收阻塞）
@@ -147,6 +153,8 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 **业务线同步 Wiki**：无自动同步；**done task 关账后 ingest**（`CODING_WIKI.md` §4.1）· 批量可开 Batch-N · 可选 P3 lint 升 CI。
 
 **可选后续（不挡业务开工）**：Batch-4 ingest · P3 lint CI Required · Roadmap/RECENT hygiene 小 PR。
+
+> **可签字确认**：边界表已列明可外推/不可外推范围；业务线同步 Wiki 按 `CODING_WIKI.md` §4.1 关账后 ingest，不自动同步。
 
 ---
 
@@ -169,14 +177,14 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 
 ### 8.2 公众稿扩充清单（定稿前必勾）
 
-- [ ] **术语**：按 `public-narrative-zh`；正文不用 L0/L1/L2、freeze_id、slug 作主语；表头注明「笔者项目示例（不唯一）」
-- [ ] **通俗名对照**：技术图谱（地图轨）· 协作过程留痕（Harness 轨）· **关账编译摘要**（Coding Wiki 轨，卷四展开）
-- [ ] **数字边界**：每条指标附 **题集规模 + 单后端仓 + 关账回顾**；写明 **字符降幅 ≠ API token 账单**
-- [ ] **失败样本**：`harness-wiki-loop-t4-l2` **3/4** 须进正文（母单 `test_strategy` 未 ingest）作诚实边界范本
-- [ ] **脱敏**：公众稿不写 PR #、freeze 锚点、仓内路径；pytest 条数改「合并前机器验收全绿」或脚注「对内另备验收单」
-- [ ] **与卷二划界**：三列小表——**产品 Wiki** / **技术图谱** / **关账编译摘要**（勿与卷二 §8.5 产品 Wiki 混为一谈）
-- [ ] **OUTLINE**：公众仓 `ARTICLE_*_OUTLINE` 卷四 §14–15 标注素材来源（本文件）
-- [ ] **核心句保留**：Wiki **不替代** 技术图谱；图谱答「改哪里」，编译摘要答「关账后少翻 invoke 全文」
+- [x] **术语**：按 `public-narrative-zh`；正文不用 L0/L1/L2、freeze_id、slug 作主语；表头注明「笔者项目示例（不唯一）」— §8.1/8.3 已按原则编排
+- [x] **通俗名对照**：技术图谱（地图轨）· 协作过程留痕（Harness 轨）· **关账编译摘要**（Coding Wiki 轨，卷四展开）— §8.3 三轨分工表已提供
+- [x] **数字边界**：每条指标附 **题集规模 + 单后端仓 + 关账回顾**；写明 **字符降幅 ≠ API token 账单**— §2/§4 已附限定语
+- [x] **失败样本**：`harness-wiki-loop-t4-l2` **3/4** 须进正文（母单 `test_strategy` 未 ingest）作诚实边界范本— §4.2 已列
+- [ ] **脱敏**：公众稿不写 PR #、freeze 锚点、仓内路径；pytest 条数改「合并前机器验收全绿」或脚注「对内另备验收单」— *defer：公众稿起草阶段执行；对内稿保留 PR#/freeze 锚点为留证需要*
+- [ ] **与卷二划界**：三列小表——**产品 Wiki** / **技术图谱** / **关账编译摘要**（勿与卷二 §8.5 产品 Wiki 混为一谈）— *defer：OUTLINE 标注时执行；§8.1 已列「勿主放卷二 §8.5」*
+- [x] **OUTLINE**：公众仓 `ARTICLE_*_OUTLINE` 卷四 §14–15 标注素材来源（本文件）— §8.1/8.4 已提及公众仓同级 PR
+- [x] **核心句保留**：Wiki **不替代** 技术图谱；图谱答「改哪里」，编译摘要答「关账后少翻 invoke 全文」— §2/§8.3 已多次强调
 
 ### 8.3 三轨分工表（公众稿可用草稿）
 
@@ -205,3 +213,4 @@ OK: test manifest valid (12 entries, test_paths globs resolved) [failure-paths].
 | 2026-05-29 | §7：公众稿系列落点 + 扩充清单 + 三轨分工表 |
 | 2026-05-29 | §6：task schedule read smoke · Claude Code · Kimi-code · 4/4 accepted |
 | 2026-05-29 | §1：Wiki 治理线阶段收口 **pass** · 里程碑验收批准 |
+| 2026-05-29 | §1–§7 可签字小结、§8.2 6/8 勾选、§9 补录 — 10→30 扩充验收稿
