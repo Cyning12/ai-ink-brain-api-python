@@ -1,7 +1,7 @@
 # Task：ChatBI V3 P2 韧性 Loop — 关账 + 熔断（单 PR 编排母单）
 
-> **状态**：in_progress  
-> **schedule_ref**：RECENT §1.1 #L1 · **V3 当前棒（整合 Loop）**  
+> **状态**：done（2026-05-29 · META 关账）  
+> **schedule_ref**：RECENT §5 · P2 Loop **done**  
 > **epic**：ChatBI V3 · P2 韧性  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)（**混合 Loop**：R1 docs · R2 `api/`）  
 > **关联母单（拆单）**：[`docs/tasks/done/task_chatbi_v3_p2_resilience_v1.md`](done/task_chatbi_v3_p2_resilience_v1.md)  
@@ -91,10 +91,10 @@
 
 ## 验收标准
 
-- [ ] `HG-LOOP-BATCH` = **approved** 后启动 R1  
-- [ ] R1：#0b/#W1 已 `git mv` → `done/` · `_views/done.md` · P2-1 母单子表同步  
-- [ ] R2：熔断实现 + pytest + **50 落盘**  
-- [ ] META：`REPORT_completion_chatbi_v3_p2_loop_v1.md` · RECENT §0/§1/§5 与 Wiki hub 一致  
+- [x] `HG-LOOP-BATCH` = **approved** 后启动 R1  
+- [x] R1：#0b/#W1 已 `git mv` → `done/` · `_views/done.md` · P2-1 母单子表同步  
+- [x] R2：熔断实现 + pytest + **50 落盘**  
+- [x] META：`REPORT_completion_chatbi_v3_p2_loop_v1.md` · RECENT §0/§1/§5 与 Wiki hub 一致  
 
 ---
 
