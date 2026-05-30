@@ -10,7 +10,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOL = REPO_ROOT / "tools" / "harness_task_validate.py"
-R1_TASK = REPO_ROOT / "docs/tasks/active/task_harness_p0_task_validate_v1.md"
+R1_TASK = REPO_ROOT / "docs/tasks/done/task_harness_p0_task_validate_v1.md"
 
 
 def _run(*args: str) -> subprocess.CompletedProcess[str]:
