@@ -41,6 +41,21 @@
 
 **P0 要点（执行顺序）**：22 清单增补 → AGENTS ≤120 行 → active task Harness 字段回填 → 样例 22 审查。
 
+### 0.6 P0 OpenSpec 写法 × TDD 纪律 Loop（**当前** · 2026-05-30）
+
+> **分支**：`task/harness-p0-openspec-tdd` · **单 PR**  
+> **SPEC**：[`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)  
+> **Step 0 done**：`TASK_TEMPLATE` Delta/Scenario/规划 artifact（首 commit）  
+> **Manifest**：[`docs/harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md`](../harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md)  
+> **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](active/task_harness_p0_openspec_tdd_loop_v1.md) · **闸**：`HG-LOOP-BATCH` **approved**
+
+| round | task | 交付 |
+| ----- | ---- | ---- |
+| R1 | `task_harness_p0_task_validate_v1.md` | `tools/harness_task_validate.py` + pytest |
+| R2 | `task_harness_p0_audit_selfcheck_v1.md` | 22/40 帽补丁 |
+| R3 | `task_harness_p0_status_cursor_v1.md` | `change_status --json` + Cursor commands |
+| META | 母单关账 + `REPORT_completion_*` | 三轮均 `done/` 后 |
+
 **卷三公众稿**：可按 P0/P1 SPEC **应然** 起草；需仓库实测的句子标 `【待后端 P0/P1 验收后核对】`（见 narrative vol3 **§0.4**）。
 
 ### 0.1 阶段 0 — Git / 分支
@@ -103,7 +118,7 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **6** 个任务相关文件（含 1 附属 AGENT_PROMPT） |
+| **active/**           | **10** 个任务相关文件（含 P0 Loop 母+3 子 + 1 附属 AGENT_PROMPT） |
 | **done/**             | **61+** 个 `.md`（含 P2 Loop R1/R2/META） |
 | **_views/done.md**    | 随关账同步                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
@@ -118,6 +133,7 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
+| **0** | `task_harness_p0_openspec_tdd_loop_v1.md` + R1–R3 子单 | `in_progress` / `pending` | **P0 OpenSpec×TDD Loop** | **§0.6 当前** |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
 | 3     | `task_chatbi_v3_planning_after_resume_v1.md`                            | `planning` | V3 统筹索引           | P4                                   |

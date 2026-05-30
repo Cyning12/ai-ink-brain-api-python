@@ -55,6 +55,17 @@
 
 审查 md **须**在上表勾选或等效清单中留痕（可复制进「已核对项」）。
 
+### OpenSpec × TDD 勾选项（P0 · Loop R2 · T1+T2）
+
+> 真值：[`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) **§4.2** · 机械校验：`python tools/harness_task_validate.py <task路径>`
+
+| # | 检查项 | 通过 |
+|---|--------|------|
+| 1 | `test_strategy` 与变更类型一致（触达 `api/` 时 **非** `not_applicable`） | ☐ |
+| 2 | §行为变更 Delta 已填 **或** 显式「无」 | ☐ |
+| 3 | `failure_paths` 含 **Scenario ID** 列且非空 | ☐ |
+| 4 | 验收含 **合并前 pytest** 条（或 task 模板等价表述） | ☐ |
+
 ---
 
 ## 禁止什么
@@ -103,6 +114,7 @@
 | 2026-05-15 | v1.5：输出形状与「交接物」对齐——审查 md **须**含 **「下一棒可复制 Prompt」** 小节，与对话输出逐字一致 |
 | 2026-05-17 | v1.6：交接物链 [`handoff/HANDOFF_AUTO_COMMIT.md`](handoff/HANDOFF_AUTO_COMMIT.md) |
 | 2026-05-17 | v1.7：终轮无下一棒 → [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md) 执行路线与 commit 回溯 |
+| 2026-05-30 | v1.8：OpenSpec×TDD 勾选项表（Loop R2 · SPEC §4.2 · 链 validate CLI） |
 
 ---
 
