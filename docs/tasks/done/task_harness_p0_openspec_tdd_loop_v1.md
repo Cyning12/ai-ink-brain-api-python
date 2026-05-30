@@ -1,6 +1,6 @@
 # Task：Harness P0 — OpenSpec 写法 × TDD 纪律 Loop 母单
 
-> **状态**：in_progress  
+> **状态**：done（2026-05-30 验收通过 · HARNESS-P0-OPENSPEC-TDD-LOOP@2026-05-30）  
 > **schedule_ref**：RECENT §0.6  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)  
 > **执行安排真值**：[`docs/spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)  
@@ -56,9 +56,9 @@ OpenSpec 对比与 TDD 架构评估结论：**O1–O3 模板已完成**；Sprint
 ## 范围
 
 - [x] 人批 `HG-LOOP-BATCH` → `approved` 后启动 R1。  
-- [ ] R1→R2→R3 各走 22→30→40→50→关账（或 R2/R3 按 task 省略 50）。  
-- [ ] 单 PR · 分支 `task/harness-p0-openspec-tdd`。  
-- [ ] Step 0（O1–O3 模板）已在本分支首 commit。
+- [x] R1→R2→R3 各走 22→30→40→50→关账（或 R2/R3 按 task 省略 50）。  
+- [x] 单 PR · 分支 `task/harness-p0-openspec-tdd`。  
+- [x] Step 0（O1–O3 模板）已在本分支首 commit。
 
 ## 非范围
 
@@ -80,11 +80,11 @@ OpenSpec 对比与 TDD 架构评估结论：**O1–O3 模板已完成**；Sprint
 
 ## 验收标准
 
-- [ ] R1–R3 均在 `docs/tasks/done/`。  
-- [ ] `python tools/harness_task_validate.py --all-active` 可运行（R1）。  
-- [ ] 22/40 帽含 test_strategy / 三维自检条目（R2）。  
-- [ ] `harness_change_status.py --json` + `.cursor/commands/harness-*.md`（R3）。  
-- [ ] PR pytest Required 全绿。
+- [x] R1–R3 均在 `docs/tasks/done/`。  
+- [x] `python tools/harness_task_validate.py --all-active` 可运行（R1）。  
+- [x] 22/40 帽含 test_strategy / 三维自检条目（R2）。  
+- [x] `harness_change_status.py --json` + `.cursor/commands/harness-*.md`（R3）。  
+- [x] PR pytest Required 全绿。
 
 ---
 
