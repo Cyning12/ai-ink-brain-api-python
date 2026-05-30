@@ -108,4 +108,6 @@
 - `../done/task_governance_wiki_t4_ops_v1.md`（2026-05-29 验收通过：T4 运营化 · `coding_wiki_graph_nodes_lint.py` · syntheses 25/25 · Bridge §5.1 · `reinspect_gov-wiki-t4-ops_20260529_v1.md` · `GOV-WIKI-T4-OPS@2026-05-29`）
 - `../done/task_harness_p0_task_validate_v1.md`（2026-05-30 验收通过：P0 Loop R1 · `harness_task_validate` CLI + pytest · 50 `reinspect_p0-task-validate_20260530_v1.md` · `HARNESS-P0-TASK-VALIDATE@2026-05-30`）
 - `../done/task_harness_p0_audit_selfcheck_v1.md`（2026-05-30 验收通过：P0 Loop R2 · 22/40 帽 OpenSpec×TDD 补丁 · R3 预审查 · `HARNESS-P0-AUDIT-SELFCHECK@2026-05-30`）
+- `../done/task_harness_p0_status_cursor_v1.md`（2026-05-30 验收通过：P0 Loop R3 · change_status JSON + Cursor commands · `HARNESS-P0-STATUS-CURSOR@2026-05-30`）
+- `../done/task_harness_p0_openspec_tdd_loop_v1.md`（2026-05-30 验收通过：P0 OpenSpec×TDD Loop 母单 META · R1–R3 · REPORT `p0-openspec-tdd/REPORT_completion_20260530_v1.md` · `HARNESS-P0-OPENSPEC-TDD-LOOP@2026-05-30`）
 
