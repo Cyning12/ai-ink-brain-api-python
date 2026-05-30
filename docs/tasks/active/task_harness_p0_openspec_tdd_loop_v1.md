@@ -28,7 +28,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | pending | 22-R1, 30, 40, 50 | 人批 Batch 后启动 R1 全链 |
+| HG-LOOP-BATCH | approved | 22-R1, 30, 40, 50 | 人批 Batch 后启动 R1 全链 |
 
 ---
 
@@ -55,7 +55,7 @@ OpenSpec 对比与 TDD 架构评估结论：**O1–O3 模板已完成**；Sprint
 
 ## 范围
 
-- [ ] 人批 `HG-LOOP-BATCH` → `approved` 后启动 R1。  
+- [x] 人批 `HG-LOOP-BATCH` → `approved` 后启动 R1。  
 - [ ] R1→R2→R3 各走 22→30→40→50→关账（或 R2/R3 按 task 省略 50）。  
 - [ ] 单 PR · 分支 `task/harness-p0-openspec-tdd`。  
 - [ ] Step 0（O1–O3 模板）已在本分支首 commit。
