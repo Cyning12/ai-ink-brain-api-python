@@ -1,6 +1,6 @@
 # Task：Harness P0 R1 — task_validate（OpenSpec Delta + TDD test_strategy）
 
-> **状态**：pending  
+> **状态**：done（2026-05-30 验收通过 · HARNESS-P0-TASK-VALIDATE@2026-05-30）  
 > **schedule_ref**：RECENT §0.6 · Loop R1  
 > **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](task_harness_p0_openspec_tdd_loop_v1.md)  
 > **freeze_id**：`HARNESS-P0-TASK-VALIDATE@2026-05-30`
@@ -39,10 +39,10 @@
 
 ## 范围
 
-- [ ] 新增 `tools/harness_task_validate.py`（规则见 [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) §4.1）。  
-- [ ] 新增 `tests/test_harness_task_validate.py`。  
-- [ ] 支持 `--json`、`--all-active`、单文件路径。  
-- [ ] CI：经 pytest 覆盖（不新增 Required workflow 本 round）。
+- [x] 新增 `tools/harness_task_validate.py`（规则见 [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) §4.1）。  
+- [x] 新增 `tests/test_harness_task_validate.py`。  
+- [x] 支持 `--json`、`--all-active`、单文件路径。  
+- [x] CI：经 pytest 覆盖（不新增 Required workflow 本 round）。
 
 ## 非范围
 
@@ -62,10 +62,29 @@
 
 ## 验收标准
 
-- [ ] `pytest tests/test_harness_task_validate.py` 绿。  
-- [ ] `python tools/harness_task_validate.py docs/tasks/active/task_harness_p0_task_validate_v1.md` exit 0。  
-- [ ] 全量 `pytest -m "not intent_eval and not intent_benchmark"` 绿。  
-- [ ] 50 复检落盘（本 task `required`）。
+- [x] `pytest tests/test_harness_task_validate.py` 绿。  
+- [x] `python tools/harness_task_validate.py docs/tasks/active/task_harness_p0_task_validate_v1.md` exit 0。  
+- [x] 全量 `pytest -m "not intent_eval and not intent_benchmark"` 绿。  
+- [x] 50 复检落盘（本 task `required`）。
+
+---
+
+### 自检结论（执行者）
+
+| # | 验收项 | 结果 | 证据 |
+| --- | --- | --- | --- |
+| V1 | `pytest tests/test_harness_task_validate.py` | **pass** | 6 passed |
+| V2 | validate CLI 本 task exit 0 | **pass** | 输出 `OK` |
+| V3 | 全量 Required pytest | **pass** | 267 passed, 1 skipped |
+| V4 | invoke C2（22/30/40/50） | **pass** | `p0-openspec-tdd/invoke_20260530_*` 已落盘 |
+
+**命令记录**（cwd=仓根）：
+
+```bash
+pytest tests/test_harness_task_validate.py -v          # exit 0
+python tools/harness_task_validate.py docs/tasks/active/task_harness_p0_task_validate_v1.md  # exit 0
+pytest tests -m "not intent_eval and not intent_benchmark" -q  # exit 0
+```
 
 ---
 
@@ -74,6 +93,7 @@
 | 项 | 内容 |
 |----|------|
 | 涉及文件 | `tools/harness_task_validate.py`、`tests/test_harness_task_validate.py` |
+| 规则 | SPEC §4.1 十条（error/warn）· CLI `--json` / `--all-active` / 单路径 |
 
 ---
 
