@@ -24,6 +24,8 @@
 
 22 帽 **R1** 须对照 task 执行 [`../prompts/hats/22-task-audit.md`](../prompts/hats/22-task-audit.md) **「理论对齐检查表」**（Harness 最小字段 · 合并前 CI · 50 触发）。阻塞项交 **10 帽** 回填后再 `R+1`。
 
+**OpenSpec × TDD 机械校验**（R1 validate 交付后）：`python tools/harness_task_validate.py docs/tasks/active/<task>.md` 或 `--all-active`（规则见 [`../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) §4.1）。
+
 ---
 
 ## 与 20 / 50 分工

@@ -50,6 +50,21 @@
 | 2026-05-13 | v1：初版 |
 | 2026-05-13 | v1.1：强制回填 task「自检结论」小节 |
 | 2026-05-14 | v1.2：链 [`templates/TEMPLATE-self-check-invoke.md`](templates/TEMPLATE-self-check-invoke.md)；占位符未替换则 Agent 须追问 |
+| 2026-05-30 | v1.3：OpenSpec×TDD 三维自检表（Completeness/Correctness/Coherence · Loop R2 T3） |
+
+---
+
+## OpenSpec × TDD 三维自检（P0 · Loop R2 · T3）
+
+> 真值：[`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) **§4.3** · 与 task §行为变更 / failure_paths 对照。
+
+| 维度 | 自问 |
+|------|------|
+| **Completeness** | 每个 Scenario / F# 有测例或命令证据？ |
+| **Correctness** | 错误码/边界与 task 一致？ |
+| **Coherence** | 实现与 Delta / SPEC 无 silent drift？ |
+
+回填 **`### 自检结论（执行者）`** 时须含上表 pass/fail 摘要（可附于验收表之后）。
 
 ---
 
