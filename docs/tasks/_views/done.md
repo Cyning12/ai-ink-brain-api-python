@@ -107,4 +107,5 @@
 - `../done/task_chatbi_v3_p2_resilience_loop_v1.md`（2026-05-29 验收通过：P2 Loop 母单 META · R1+R2 · `CHATBI-P2-LOOP@2026-05-29` · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md`）
 - `../done/task_governance_wiki_t4_ops_v1.md`（2026-05-29 验收通过：T4 运营化 · `coding_wiki_graph_nodes_lint.py` · syntheses 25/25 · Bridge §5.1 · `reinspect_gov-wiki-t4-ops_20260529_v1.md` · `GOV-WIKI-T4-OPS@2026-05-29`）
 - `../done/task_harness_p0_task_validate_v1.md`（2026-05-30 验收通过：P0 Loop R1 · `harness_task_validate` CLI + pytest · 50 `reinspect_p0-task-validate_20260530_v1.md` · `HARNESS-P0-TASK-VALIDATE@2026-05-30`）
+- `../done/task_harness_p0_audit_selfcheck_v1.md`（2026-05-30 验收通过：P0 Loop R2 · 22/40 帽 OpenSpec×TDD 补丁 · R3 预审查 · `HARNESS-P0-AUDIT-SELFCHECK@2026-05-30`）
 
