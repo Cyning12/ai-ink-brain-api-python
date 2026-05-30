@@ -20,7 +20,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-LOOP-BATCH | pending | 22-R1,30 | 继承母单 |
+| HG-LOOP-BATCH | approved | 22-R1,30 | 继承母单 |
 
 ---
 
@@ -39,7 +39,7 @@
 
 ## 范围
 
-- [ ] 新增 `tools/harness_task_validate.py`（规则见 execution-plan §4.1）。  
+- [ ] 新增 `tools/harness_task_validate.py`（规则见 [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) §4.1）。  
 - [ ] 新增 `tests/test_harness_task_validate.py`。  
 - [ ] 支持 `--json`、`--all-active`、单文件路径。  
 - [ ] CI：经 pytest 覆盖（不新增 Required workflow 本 round）。

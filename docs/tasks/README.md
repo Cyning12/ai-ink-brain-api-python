@@ -158,7 +158,7 @@ OpenSpec 对照（次要）：[`docs/diary/tmp/2026-05-30-Harness-TDD-OpenSpec-a
 > **不**引入 `openspec/` 目录；在 task 内用 **ADDED / MODIFIED / REMOVED** 描述相对 `docs/spec/` 的行为增量。  
 > 模板见 [`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md) **§行为变更**；关账时可手工合并进主 SPEC。  
 > 与 OpenSpec 差异对照：[`docs/diary/tmp/2026-05-30-Harness-vs-OpenSpec-diff-and-optimization.md`](../diary/tmp/2026-05-30-Harness-vs-OpenSpec-diff-and-optimization.md)。  
-> **P0 执行安排**（O1–O3 完成态 · Sprint A/B）：[`docs/diary/tmp/2026-05-30-P0-OpenSpec-TDD-execution-plan.md`](../diary/tmp/2026-05-30-P0-OpenSpec-TDD-execution-plan.md)。
+> **P0 执行安排**（O1–O3 完成态 · Loop R1–R3）：[`docs/spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)。
 
 ---
 

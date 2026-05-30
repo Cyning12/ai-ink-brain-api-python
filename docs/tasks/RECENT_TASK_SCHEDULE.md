@@ -44,9 +44,10 @@
 ### 0.6 P0 OpenSpec 写法 × TDD 纪律 Loop（**当前** · 2026-05-30）
 
 > **分支**：`task/harness-p0-openspec-tdd` · **单 PR**  
+> **SPEC**：[`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)  
 > **Step 0 done**：`TASK_TEMPLATE` Delta/Scenario/规划 artifact（首 commit）  
 > **Manifest**：[`docs/harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md`](../harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md)  
-> **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](active/task_harness_p0_openspec_tdd_loop_v1.md) · **闸**：`HG-LOOP-BATCH` pending
+> **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](active/task_harness_p0_openspec_tdd_loop_v1.md) · **闸**：`HG-LOOP-BATCH` **approved**
 
 | round | task | 交付 |
 | ----- | ---- | ---- |

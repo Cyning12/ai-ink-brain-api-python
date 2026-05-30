@@ -3,7 +3,7 @@
 > **状态**：in_progress  
 > **schedule_ref**：RECENT §0.6  
 > **关联 SKILL**：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../skills/SKILL-harness-loop-batch.md)  
-> **执行安排真值**：diary `docs/diary/tmp/2026-05-30-P0-OpenSpec-TDD-execution-plan.md`（tmp · 非 Git）  
+> **执行安排真值**：[`docs/spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)  
 > **10 帽 Batch**：本 commit 已落盘母单 + R1–R3 子单；invoke 见 [`docs/harness/invokes/by-task/p0-openspec-tdd/`](../harness/invokes/by-task/p0-openspec-tdd/)
 
 > 落盘规则：三轮子 task 均 `done/` 后本单 META 关账。  
