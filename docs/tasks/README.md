@@ -135,6 +135,31 @@ docs/tasks/
 
 **22 抽检（P1 运维）**：每季度抽查 1～2 份 active task 的 `test_strategy` 是否与上表及变更类型一致（见 P1 SPEC §4）。
 
+### 本仓 TDD 实践口径（2026-05-30）
+
+> **决策稿（主）**：[`docs/diary/tmp/2026-05-30-backend-TDD-architecture-assessment.md`](../diary/tmp/2026-05-30-backend-TDD-architecture-assessment.md) — 本仓架构是否加强 TDD、分层策略、优先路线（**非** OpenSpec 引入 TDD）。  
+> **现状**：制度支持分级 TDD；多数 task 为 `not_applicable`；CI 以 **全量 pytest 回归** 为主。  
+> **推荐模式**：**分层验证** — L1 纯逻辑可测试先行；L2 契约同 PR 补测；L3/L4 mock + 离线 eval；**不全员 strict red-green**。
+
+| 档位 | 本仓实际含义 |
+|------|--------------|
+| `required` | 安全/闸门/核心回归；须专用 pytest +（高敏）50 |
+| `recommended` | **`api/` 默认档**：实现 + 补测 + CI 绿 |
+| `not_applicable` | 文档/图谱/Harness 治理；**禁止**滥用于 `api/` 行为变更 |
+
+**Scenario ID**（`TASK_TEMPLATE` §失败路径）：可测场景命名，链 `_test_manifest.json`；**不要求** strict TDD 顺序。
+
+OpenSpec 对照（次要）：[`docs/diary/tmp/2026-05-30-Harness-TDD-OpenSpec-analysis.md`](../diary/tmp/2026-05-30-Harness-TDD-OpenSpec-analysis.md)。
+
+---
+
+## 行为变更 Delta（OpenSpec 借鉴 · 2026-05-30）
+
+> **不**引入 `openspec/` 目录；在 task 内用 **ADDED / MODIFIED / REMOVED** 描述相对 `docs/spec/` 的行为增量。  
+> 模板见 [`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md) **§行为变更**；关账时可手工合并进主 SPEC。  
+> 与 OpenSpec 差异对照：[`docs/diary/tmp/2026-05-30-Harness-vs-OpenSpec-diff-and-optimization.md`](../diary/tmp/2026-05-30-Harness-vs-OpenSpec-diff-and-optimization.md)。  
+> **P0 执行安排**（O1–O3 完成态 · Sprint A/B）：[`docs/diary/tmp/2026-05-30-P0-OpenSpec-TDD-execution-plan.md`](../diary/tmp/2026-05-30-P0-OpenSpec-TDD-execution-plan.md)。
+
 ---
 
 ## `semi_auto` 决策表（理论对齐 P1）
@@ -152,7 +177,7 @@ task 头 **须**显式 `semi_auto` + `audit_profile`；22 R1 核对合理性。
 
 ## Harness V2 · 任务单扩展字段
 
-**模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
+**模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、**行为变更 Delta**、**Scenario ID**、**规划 artifact**（大 task 可选）、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
 
 新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
 

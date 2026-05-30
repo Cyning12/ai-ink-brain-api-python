@@ -105,6 +105,8 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 
 **与 SDD 关系**：SPEC 定义行为与失败语义；`required` 将关键语义 **钉在测试** 上，避免「文档写了、代码没钉住」。
 
+**本仓实践口径（2026-05-30）**：制度上支持 strict red-green（`required`）；**实际上** 以 CI 回归 + 分层补测为主，**不全员 TDD**。**决策稿（主）**：`docs/diary/tmp/2026-05-30-backend-TDD-architecture-assessment.md`；OpenSpec 对照（次要）：`docs/diary/tmp/2026-05-30-Harness-TDD-OpenSpec-analysis.md`。task 模板已增 **行为变更 Delta** / **Scenario ID**。
+
 ### 5.2 `freeze_id`（可选）
 
 - 与根流程中的 **冻结点** 对应：实现本 task 时 **以某版 SPEC/task 为契约基准**。
@@ -193,6 +195,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 | 2026-05-14 | **Invoke 快照**：新增 [`invokes/README.md`](invokes/README.md)；§1 原则、`§8` 索引、`reviews` README 与 `docs/harness/README` 互链 |
 | 2026-05-14 | §3 表后脚注 **Invoke 快照**（链 §1、`invokes/`、`prompts` 各 `TEMPLATE-*-invoke` §3）；§4 **P2-6** 增补 `invokes/` 与 §1、§3 同步修订 |
 | 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
+| 2026-05-30 | §5.1 本仓 TDD 实践口径；task 模板 Delta/Scenario（OpenSpec 借鉴）；链 diary TDD 专项分析 |
 
 ---
 

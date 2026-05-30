@@ -6,7 +6,8 @@
 > **前端依赖**：`<前端任务文件名>`（如 API 变更需前端配合，否则填 "无"）
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
-> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5**；半自动 / 人工闸：[`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
+> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5**；半自动 / 人工闸：[`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。  
+> **行为变更 Delta / Scenario**（写法参考 · 非 OpenSpec 目录）：见下文 **§行为变更**、**§失败路径**；TDD 与分层测试决策见 [`docs/tasks/README.md`](../README.md) **§test_strategy** 及 diary [`2026-05-30-backend-TDD-architecture-assessment.md`](../../diary/tmp/2026-05-30-backend-TDD-architecture-assessment.md)。
 
 ---
 
@@ -59,6 +60,27 @@
 
 ---
 
+## 行为变更（Delta · 可选）
+
+> **相对** `docs/spec/` 或现网行为的增量描述（OpenSpec delta 语义；**不**建 `openspec/` 目录）。  
+> 无对外行为变更时填 **`无`**；关账时可合并进主 SPEC（见 task README）。
+
+### ADDED
+
+- **Requirement**：<新行为摘要，SHALL/MUST 可选>
+  - **Scenario**：<场景名> — GIVEN … WHEN … THEN …
+
+### MODIFIED
+
+- **Requirement**：<变更后行为>（Previously: <原行为>）
+  - **Scenario**：<场景名> — GIVEN … WHEN … THEN …
+
+### REMOVED
+
+- **Requirement**：<废弃行为>（理由：…）
+
+---
+
 ## 依赖与引用
 
 | 依赖项 | 路径/说明 |
@@ -73,14 +95,15 @@
 ## 失败路径
 
 > 每条建议：**触发条件** → **系统行为**（含错误码或 HTTP 状态）→ **是否可重试** → **用户可见类型**。  
+> **Scenario ID** 与 pytest / `_test_manifest.json` 互链（OpenSpec Scenario 语义；**不要求** strict TDD red-green，见 diary TDD 分析）。  
 > 缺失或不可操作化时，**30 执行帽拒开工**（仅输出缺口清单）。
 
-| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
-|---|----------|----------|--------|----------|
-| F1 | <例：Supabase 不可用> | `500 DATABASE_DISCONNECT` | 是 | 服务暂不可用提示 |
-| F2 | <例：参数非法> | `422` + 结构化 `detail` | 否 | 字段级错误说明 |
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 | 测试（可选） |
+|---|-------------|----------|----------|--------|----------|--------------|
+| F1 | `fp-db-disconnect` | <例：Supabase 不可用> | `500 DATABASE_DISCONNECT` | 是 | 服务暂不可用提示 | `tests/test_*.py::test_*` |
+| F2 | `fp-invalid-json` | <例：参数非法> | `422` + 结构化 `detail` | 否 | 字段级错误说明 | — |
 
-> **L2 Phase C（设计）**：`F#` 与 `_test_manifest.json` `entries[].id` 对齐规则见 [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) **§4.4**（实现期双向校验 **另 task**）。
+> **L2 Phase C（设计）**：`Scenario ID` / `F#` 与 `_test_manifest.json` `entries[].id` 对齐规则见 [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) **§4.4**（实现期双向校验 **另 task**）。
 
 ---
 
@@ -100,6 +123,28 @@
 | `not_applicable` | `test_strategy_note` 一行理由 |
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md`）。
+
+---
+
+## 规划 artifact（大 task · 可选）
+
+> Epic 级 task 可拆分「规划 / 设计 / 实施清单」，仍保持 **单文件** task 真源（OpenSpec 四件套语义）。
+
+### 规划摘要（proposal 等价）
+
+- **Intent**：<解决什么问题>
+- **Scope / 非范围**：见上文或摘要
+- **Approach**：<高层方案一句话>
+
+### 技术方案（design 等价）
+
+- <架构决策、数据流、涉及模块；**实现细节不进** `docs/spec/` 行为 SPEC>
+
+### 实施清单（tasks 等价）
+
+- [ ] 1.1 <子步骤>
+- [ ] 1.2 <子步骤>
+- [ ] 2.1 <子步骤>
 
 ---
 
@@ -129,4 +174,4 @@
 
 ## 给 Cursor
 
-`<task_slug>`、`test_strategy`、`failure_paths`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch`、`Harness`、`RECENT_TASK_SCHEDULE`
+`<task_slug>`、`test_strategy`、`failure_paths`、`行为变更 Delta`、`Scenario ID`、`semi_auto`、`human_gate`、`audit_profile`、`git_branch`、`Harness`、`RECENT_TASK_SCHEDULE`
