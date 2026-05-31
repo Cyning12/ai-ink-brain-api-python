@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 低置信 Text2SQL 预览 + 确认放行（§5-2 关账）
 
-> **状态**：`draft`（子 task 草案 · **未开 Harness**；人扫通过后改 `pending` 再开 00）  
+> **状态**：`pending`（子 task 草案 · **未开 Harness**；人扫通过后改 `pending` 再开 00）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-2**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.0 已验收 · §5.1 **5-2** 本单关账）  
@@ -29,9 +29,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1,30 | 本草案人扫通过后改 `approved` |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 后人签 |
-| HG-REINSPECT | pending | done | 50 通过后 merge 前人签 |
+| HG-TASK-DRAFT | approved | 22-R1,30 | 本草案人扫通过后改 `approved` |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 后人签 |
+| HG-REINSPECT | approved | done | 50 通过后 merge 前人签 |
 
 ---
 
