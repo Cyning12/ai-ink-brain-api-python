@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- `../done/task_chatbi_v3_lowconf_sql_preview_v1.md`（2026-05-31：§5-2 Text2SQL 预览+token · KPI 100% pass · `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31` · reinspect `reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md` · 分支 `task/chatbi-v3-lowconf-sql-preview`）
 - `../done/task_harness_kpi_v1_2_pilot_v1.md`（2026-05-31：KPI v1.2 试点 · 00 编排帽链 · Task_KPI% 100 pass · `KPI-RUBRIC-PILOT@2026-05-31` · reinspect `reinspect_harness-kpi-v1-2-pilot_20260531_v1.md`）
 - `../done/task_backend_improve_batch_a_p0_v1.md`（2026-05-31 验收通过：FAQ Batch A IMP-B-01/02/10/11/20 · PR #96 · 22 CLOSE `reviews/by-task/backend-improve-batch-a-p0/`）
 - `../done/task_tech_graph_p0_handoff_and_drift_check_v1.md`

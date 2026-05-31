@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 低置信 Text2SQL 预览 + 确认放行（§5-2 关账）
 
-> **状态**：`in_progress`（2026-05-31 · 00 开帽 · `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31`）  
+> **状态**：`done`（2026-05-31 · CLOSE · `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31` · Task_KPI% 100 pass）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-2**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.0 已验收 · §5.1 **5-2** 本单关账）  
@@ -20,7 +20,7 @@
 | **freeze_id** | `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31` |
 | **semi_auto** | `true` |
 | **audit_profile** | `post_close` |
-| **experience_capture** | `recommended` |
+| **experience_capture** | `required`（50 建议 · CLOSE 升格） |
 | **kpi_rubric** | `KPI_RUBRIC_v1_2` |
 | **kpi_aggregator** | `00` |
 | **git_branch** | `task/chatbi-v3-lowconf-sql-preview` |
@@ -33,8 +33,8 @@
 | 22 | done | R1 零阻塞 |
 | 30 | done | G1–G4 pytest 补齐 |
 | 40 | done | 自检回填 §10 |
-| 50 | pending | **须新会话** Fresh Context |
-| CLOSE | pending | 待 50 + HG-REINSPECT 人签 |
+| 50 | done | `reinspect_*_20260531_v1.md` · `8a8a17e` |
+| CLOSE | done | KPI §9 · G5 · CLOSE invoke |
 
 ### 人工闸 `human_gate`
 
@@ -81,8 +81,8 @@
 - [x] **G2 SSE parity**：`test_v3_plan_preview_sse_parity`（22：**必须 parity**，无 defer）
 - [x] **G3 预览失败（F3）**：`test_v3_plan_preview_fail_json_no_token`
 - [x] **G4 只读闸证据**：`test_v3_plan_preview_json_includes_plan_preview_and_ttl_notice` 内 `assert preview_only is True`
-- [ ] **G5 文档同步**：母单 [`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md) §5.1 **5-2** → **已验收** + 链本 PR；SPEC §6 Text2SQL 预览项勾选（若行为已满足）
-- [ ] **G6 Harness 落盘**：`invokes/by-task/chatbi-v3-lowconf-sql-preview/` · `reviews/…` · `reinspect_results/reinspect_chatbi-v3-lowconf-sql-preview_*` · task **`### KPI（00）`**
+- [x] **G5 文档同步**：母单 §5.1 **5-2** → **已验收**；SPEC §6 Text2SQL + 安全子集已勾选
+- [x] **G6 Harness 落盘**：invokes 00/22/30/40/50/CLOSE · review R1 · reinspect v1 · **§9 KPI（00）**
 
 ## 3. 非范围
 
@@ -147,12 +147,12 @@
 
 > **§6** · 关账核对清单
 
-- [ ] §2 **G1–G6** 全部满足或有 22 书面 **defer** 理由（须人签）  
-- [ ] 新增/扩展 pytest **先红后绿**（`test_strategy: required`）；触达契约时 **`python tools/tech_graph_contract_check.py`** 通过  
-- [ ] **`pytest tests -m "not intent_eval and not intent_benchmark"`** 全绿  
-- [ ] Harness：**00/22/30/40/50** invoke §3 ≥15 行 · review R1 · reinspect 建议合并  
-- [ ] task **`### KPI（00）`** 非空（`kpi_aggregator: 00`）  
-- [ ] **HG-REINSPECT** → `approved` 后 merge PR  
+- [x] §2 **G1–G6** 全部满足  
+- [x] 新增/扩展 pytest **先红后绿**；`tech_graph_contract_check` 通过  
+- [x] **`pytest tests -m "not intent_eval and not intent_benchmark"`** 全绿（50 复验 272 passed）  
+- [x] Harness：**00/22/30/40/50/CLOSE** · review R1 · reinspect 建议合并  
+- [x] task **`### KPI（00）`** 非空  
+- [x] **HG-REINSPECT** `approved`（`5c2b255` · cyning）  
 
 **建议验证命令（30/40/50 共用）**：
 
@@ -195,18 +195,48 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_s
 
 ## 9. ### KPI（00）
 
-> **rubric**: KPI_RUBRIC_v1_2 · **汇总**: 待 50 后 CLOSE · **状态**: pending-50 · **帽**: 00→22→30→40 已落盘
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **100%** · **状态**: **pass** · **帽**: 00→22→30→40→50→CLOSE
 
 | hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
 |----------|-------|------------|----|----|----|----|-----|----------------|
-| 00 | open | main_chat | pass | pass | pass | pass | — | 编排 22→30→40；50 交 Fresh Context |
-| 22 | R1 | main_chat | pass | pass | pass | pass | — | 零阻塞；G2 必须 SSE parity |
-| 30 | R1 | main_chat | pass | pass | pass | pass | pass | +3 pytest；272 passed；contract OK |
-| 40 | R1 | main_chat | pass | pass | pass | pass | — | 自检 §10；待 50 填 D5 |
-| 50 | — | — | — | — | — | — | — | **待新会话** |
-| CLOSE | — | — | — | — | — | — | — | 待 50 + G5 + HG-REINSPECT |
+| 00 | open | main_chat | 100 | 100 | 100 | 100 | — | 编排；50 Fresh Context |
+| 22 | R1 | main_chat | 100 | 100 | 100 | 100 | — | 零阻塞；G2 无 defer |
+| 30 | R1 | main_chat | 100 | 100 | 100 | 100 | 100 | +3 pytest；re-baseline 无 api 大改 |
+| 40 | R1 | main_chat | 100 | 100 | 100 | 100 | — | §10 自检 |
+| 50 | v1 | main_chat | 100 | 100 | 100 | 100 | 100 | `8a8a17e`；HG 预批时序已注记 |
+| CLOSE | close | main_chat | 100 | 100 | 100 | 100 | 100 | G5/SPEC/done 归档 |
 
-**Task_KPI%**：（50/CLOSE 后由 00 重算）
+**Task 维聚合**（KPI_RUBRIC §4.1–§4.2）：
+
+| 大维 | 聚合 | 得分 |
+|------|------|------|
+| D1 | avg | 100 |
+| D2 | min | 100 |
+| D3 | avg | 100 |
+| D4 | min | 100 |
+| D5 | min(30,50,CLOSE) | 100 |
+
+```text
+Task_KPI% = 100×20% + 100×30% + 100×15% + 100×15% + 100×20% = 100%
+blocked：无
+状态：pass（≥80）
+```
+
+**blocked 原因**：（无）
+
+**关闭回溯**：`docs/harness/invokes/by-task/chatbi-v3-lowconf-sql-preview/invoke_20260531_CLOSE_chatbi-v3-lowconf-sql-preview.md`
+
+---
+
+## 11. 经验摘要（experience_capture · required）
+
+> **00/CLOSE · 2026-05-31** · 首条 **业务** Harness + `kpi_aggregator: 00`
+
+1. **re-baseline**：母单「5-2 未做」≠ greenfield；`main` 已有预览/token，子 task 以 **pytest + Harness 关账** 为主。
+2. **帽链**：00 同会话链 22→30→40；**50 必须新会话** Fresh Context（已验证 reinspect 独立性）。
+3. **G2**：22 书面强制 SSE parity，**禁止 defer**；`test_v3_plan_preview_sse_parity` 落盘。
+4. **HG-REINSPECT**：`5c2b255` 人预批早于 50 名义时序；50 书面通过 + merge 前维护者确认预签可接受。
+5. **KPI**：业务 task 与 harness-kpi 试点同结构；`experience_capture` 关账升 **required** 防母单/SPEC 漂移。
 
 ---
 
@@ -229,8 +259,9 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_s
 | 项 | 结果 | 证据 |
 |----|------|------|
 | G1–G4 | pass | 见 §2 测例名 |
-| G5 母单 5-2 | pending | CLOSE 轮同步 |
-| G6 Harness | partial | 缺 50/reinspect |
+| G5 母单 5-2 | pass | CLOSE 已同步 |
+| G6 Harness | pass | reinspect `8a8a17e` |
+| 50 复检 | pass | 272 passed · gate_check OK |
 | pytest | pass | 见上表 |
 
 ### OpenSpec × TDD
@@ -248,6 +279,7 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_s
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-31 | v0.1 草案：§5-2 子 task · re-baseline · KPI v1.2 首条业务链 |
+| 2026-05-31 | v1.0 关账：00→50 · Task_KPI% 100 · G5/SPEC · `8a8a17e` |
 
 ---
 
