@@ -19,7 +19,7 @@
 
 ## Agent 读序
 
-1. **本 task 正文**：`human_gate` · `semi_auto` · `experience_capture` · `test_strategy` · `kpi_rubric`（若有）  
+1. **本 task 正文**：`human_gate` · `semi_auto` · `experience_capture` · `test_strategy` · **`kpi_rubric`** · **`kpi_aggregator`**（未写默认 **CLOSE**）  
 2. **本子仓 Harness 入口**：[`../../harness/README.md`](../../harness/README.md) §1  
 3. **帽链顺序**：[`../../harness/SDD_HAT_FLOW.md`](../../harness/SDD_HAT_FLOW.md)  
 4. **总则与字段**：[`../../harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5  
@@ -51,11 +51,12 @@
 - 各帽 **Judgment** 可建议升/降档位；**22 或人** 改 task 元信息。  
 - 判定矩阵：KPI_RUBRIC §6；关账核对：CLOSE_TRACE §4 步骤 6。
 
-### `kpi_rubric` / `### KPI（00）`
+### `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`
 
-- task 可写 **`kpi_rubric: KPI_RUBRIC_v1_2`**（v1.2 起默认口径）。  
-- **00 总调度** 或关账轮维护 task **`### KPI（00）`** 表；公式与 D1–D5 **仅以** KPI_RUBRIC 为准。  
-- **00** 为编排层，**不**替代 10–50 业务帽。
+- **新建 task（2026-05-31 起）**：**必填** `kpi_rubric: KPI_RUBRIC_v1_2`；关账前 **必填** `### KPI（00）`（含 Task_KPI%）。  
+- **`kpi_aggregator`**：**`CLOSE`**（默认，可省略字段行）\| `00` \| `50` \| `human` — 谁汇总 HatInstance 表。  
+- **00 可跳过**；未用 00 时由 **关账（CLOSE）** 读各帽 Judgment + 50/reinspect 填表。  
+- 公式与 D1–D5 **仅以** KPI_RUBRIC 为准；工作区 §5.8 与 CLOSE_TRACE §4 步骤 7 同步。
 
 ---
 
@@ -83,7 +84,8 @@
 | **semi_auto** | `true` | `true` |
 | **audit_profile** | `post_close` | **`full`** |
 | **experience_capture** | `recommended` 或 `not_applicable` | 常 `required` |
-| **kpi_rubric** | 可选 `KPI_RUBRIC_v1_2` | 建议显式 |
+| **kpi_rubric** | **`KPI_RUBRIC_v1_2`（必填）** | **`KPI_RUBRIC_v1_2`（必填）** |
+| **kpi_aggregator** | **`CLOSE`**（默认） | **`CLOSE`** 或 `00`（单窗口编排时） |
 
 业务类型预填叠加：[`SKILL-docs-governance.md`](SKILL-docs-governance.md) 等。
 
@@ -106,7 +108,7 @@
 | invoke | `docs/harness/invokes/by-task/<task_slug>/invoke_YYYYMMDD_{22,30,40,50,CLOSE}_*.md` |
 | 22 review | `docs/harness/reviews/by-task/<task_slug>/task_*_audit_R1_*.md` |
 | 50 | `docs/tasks/reinspect_results/reinspect_<task_slug>_YYYYMMDD_vN.md` |
-| KPI | task 正文 **`### KPI（00）`**（00 或关账轮维护） |
+| KPI | task **`### KPI（00）`**（按 `kpi_aggregator`；默认 **CLOSE**） |
 
 **invoke 质量**：§3 ≥15 行 · 元信息含 `task_slug` / `git_branch`（与 loop-batch C2 同级精神）。
 
@@ -140,6 +142,7 @@
 |------|------|
 | 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账（蒸馏） |
 | 2026-05-31 | v1.1：格式对齐六类 SKILL；KPI v1.2 / 00 / experience_capture 摘要；本仓相对路径 |
+| 2026-05-31 | v1.2：新建 task 必填 KPI；`kpi_aggregator` 默认 CLOSE |
 
 ---
 
