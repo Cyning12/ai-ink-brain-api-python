@@ -17,6 +17,8 @@
 | commit / 关账 | `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE` |
 | task 字段 | `HARNESS_V2_PLAN.md` §5 |
 | 流程 | `SDD_HAT_FLOW.md` |
+| **FAQ 改进 · 09 PLAN** | [`prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md`](prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md) |
+| **冷/温/热 术语** | [`guides/GUIDE_冷温热层_对内术语_v1_zh.md`](guides/GUIDE_冷温热层_对内术语_v1_zh.md) |
 | 新 invoke | `invokes/` |
 | **Harness 裁决共识（已接受）** | [`../diary/2026-05-22-harness-evaluation-improvement-response.md`](../diary/2026-05-22-harness-evaluation-improvement-response.md) **§九** |
 
