@@ -12,10 +12,10 @@
 
 > **改进工程状态**：P0 + P1 **done**（PR #45/#46/#49）；[`HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) 已 **`accepted`**。下文 §0.1～0.4 为**历史阶段记录**，不再表示「仍在试点/测试阶段」。  
 > **Git**：本地 **勿在 `main` 上改/提交**；远程合入须 **PR**。  
-> **近期当前（单 Loop · 2026-05-29 整合 · META done）**：  
-> - **ChatBI P2 Loop**：**done** · 母单 [`task_chatbi_v3_p2_resilience_loop_v1.md`](done/task_chatbi_v3_p2_resilience_loop_v1.md) · R1+R2 已关账 · REPORT [`REPORT_completion_chatbi_v3_p2_loop_v1.md`](../harness/invokes/by-task/chatbi-v3-p2-loop/REPORT_completion_chatbi_v3_p2_loop_v1.md)  
-> - 下一业务棒：见 §1.1 active（低置信 §5.1 / P3 chain events 等）  
-> Wiki 排期 hub **done**（#85）；T4 ops **done**（#83）；Batch-4 ingest 另单。
+> **近期当前（2026-05-30）**：  
+> - **P0 OpenSpec×TDD Loop**：**done** · PR [#94](https://github.com/Cyning12/ai-ink-brain-api-python/pull/94) · REPORT [`REPORT_completion_20260530_v1.md`](../harness/invokes/by-task/p0-openspec-tdd/REPORT_completion_20260530_v1.md)  
+> - **ChatBI P2 Loop**：**done** · 见 §5 P2-1 全完成  
+> - 下一业务棒：见 §1.1 active（低置信 §5.1 / P3 chain events 等）
 
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
 
@@ -41,22 +41,21 @@
 
 **P0 要点（执行顺序）**：22 清单增补 → AGENTS ≤120 行 → active task Harness 字段回填 → 样例 22 审查。
 
-### 0.6 P0 OpenSpec 写法 × TDD 纪律 Loop（**当前** · 2026-05-30）
+### 0.6 P0 OpenSpec 写法 × TDD 纪律 Loop（**done** · 2026-05-30）
 
-> **分支**：`task/harness-p0-openspec-tdd` · **单 PR**  
+> **PR**：[#94](https://github.com/Cyning12/ai-ink-brain-api-python/pull/94) · merge `d55f15d`  
 > **SPEC**：[`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](../spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)  
-> **Step 0 done**：`TASK_TEMPLATE` Delta/Scenario/规划 artifact（首 commit）  
-> **Manifest**：[`docs/harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md`](../harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md)  
-> **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](active/task_harness_p0_openspec_tdd_loop_v1.md) · **闸**：`HG-LOOP-BATCH` **approved**
+> **REPORT**：[`REPORT_completion_20260530_v1.md`](../harness/invokes/by-task/p0-openspec-tdd/REPORT_completion_20260530_v1.md)  
+> **母单**：[`task_harness_p0_openspec_tdd_loop_v1.md`](done/task_harness_p0_openspec_tdd_loop_v1.md)
 
-| round | task | 交付 |
+| round | task | 状态 |
 | ----- | ---- | ---- |
-| R1 | `task_harness_p0_task_validate_v1.md` | `tools/harness_task_validate.py` + pytest |
-| R2 | `task_harness_p0_audit_selfcheck_v1.md` | 22/40 帽补丁 |
-| R3 | `task_harness_p0_status_cursor_v1.md` | `change_status --json` + Cursor commands |
-| META | 母单关账 + `REPORT_completion_*` | 三轮均 `done/` 后 |
+| R1 | `task_harness_p0_task_validate_v1.md` | **done** · `harness_task_validate` + pytest |
+| R2 | `task_harness_p0_audit_selfcheck_v1.md` | **done** · 22/40 帽补丁 |
+| R3 | `task_harness_p0_status_cursor_v1.md` | **done** · `change_status --json` + Cursor commands |
+| META | 母单 | **done** |
 
-**卷三公众稿**：可按 P0/P1 SPEC **应然** 起草；需仓库实测的句子标 `【待后端 P0/P1 验收后核对】`（见 narrative vol3 **§0.4**）。
+**卷三公众稿**：P0 工具已落地；实测句可对照 validate/status 命令核对（见 narrative vol3 **§0.4**）。
 
 ### 0.1 阶段 0 — Git / 分支
 
@@ -111,20 +110,20 @@
 
 ---
 
-## 1. 现状快照（2026-05-29 更新）
+## 1. 现状快照（2026-05-30 更新）
 
 
 | 维度                    | 结论                                                                                             |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **10** 个任务相关文件（含 P0 Loop 母+3 子 + 1 附属 AGENT_PROMPT） |
-| **done/**             | **61+** 个 `.md`（含 P2 Loop R1/R2/META） |
-| **_views/done.md**    | 随关账同步                                                                                   |
+| **active/**           | **6** 个 task + 1 附属 AGENT_PROMPT |
+| **done/**             | **65+** 个 `.md`（含 P0 OpenSpec×TDD Loop 母+3 子） |
+| **_views/done.md**    | 随关账同步（含 P0 Loop 四单 · 2026-05-30）                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
 | **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿 · W1 **done** Loop R1） |
-| **近期当前**            | P2 Loop **done** · 见 §5 P2-1 全完成 |
+| **近期当前**            | P0 OpenSpec×TDD Loop **done**（#94）· P2 Loop **done** · 见 §1.1 业务 active |
 | **V3 P2-1 韧性** | P2-1a/b/c **done** · Loop **done** |
 
 
@@ -133,7 +132,6 @@
 
 | #     | 任务文件 | 状态 | 主题 | 排期 |
 | ----- | -------- | ---- | ---- | ---- |
-| **0** | `task_harness_p0_openspec_tdd_loop_v1.md` + R1–R3 子单 | `in_progress` / `pending` | **P0 OpenSpec×TDD Loop** | **§0.6 当前** |
 | 1     | `task_ui_chain_events_backend.md`                                       | `pending`  | Chain Events 统一事件 | P3                                   |
 | 2     | `task_rag_graphrag_pilot_explore_v1.md`                                 | （见 task 头） | GraphRAG 探索       | 按需                                   |
 | 3     | `task_chatbi_v3_planning_after_resume_v1.md`                            | `planning` | V3 统筹索引           | P4                                   |

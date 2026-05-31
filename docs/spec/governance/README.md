@@ -5,7 +5,7 @@
 | 文件 | 状态 | 说明 |
 | --- | --- | --- |
 | [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](./SPEC-Governance-Harness-Theory-Align-P0-v1.md) | **`done` · P0 最高** | 培训理论 vs 落地 · 任务单/AGENTS/22/50（**压过业务队列**） |
-| [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](./SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) | **`active` · Loop 当前** | OpenSpec 写法 × TDD 纪律 · validate/22/40/status · RECENT **§0.6** |
+| [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](./SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) | **`done` · #94** | OpenSpec 写法 × TDD 纪律 · validate/22/40/status · RECENT **§0.6** |
 | [`SPEC-Governance-Harness-Theory-Align-P1-v1.md`](./SPEC-Governance-Harness-Theory-Align-P1-v1.md) | `active`（依赖 P0） | Fresh Context、半自动推广、首条领域 Linter |
 | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) | `active` | **整体安排表**（T0～T4、Wiki-CTX-AB P1/P2） |
 | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | `active` | **T4** Wiki `graph_nodes` ↔ L0 / `graph_query` 桥接 · `GOV-T4-SPEC-ACTIVE@2026-05-27` |

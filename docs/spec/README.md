@@ -1,7 +1,7 @@
 # docs/spec（后端 SDD 规格目录）
 
 > **性质**：**行为/架构规格**（SDD）真值；与 `docs/tasks/`（执行单）、`docs/harness/`（过程工件）、`docs/_tech_graph/`（拓扑）分工。  
-> **排期**：**最高优先** 理论对齐见 [`governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md`](./governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md)（P1 链式依赖）；**当前 Loop** 见 [`governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](./governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)（RECENT **§0.6**）；Wiki 实验见 [`governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)；任务级顺序见 [`../tasks/RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) **§0.5**。
+> **排期**：理论对齐 [`SPEC-Governance-Harness-Theory-Align-P0-v1.md`](./governance/SPEC-Governance-Harness-Theory-Align-P0-v1.md)（done）；OpenSpec×TDD P0 [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](./governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md)（**done · #94**）；Wiki 实验见 [`governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./governance/SPEC-Governance-Wiki-Harness-Roadmap-v1.md)；任务级顺序见 [`../tasks/RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) **§0.5–§0.6**。
 
 ---
 
