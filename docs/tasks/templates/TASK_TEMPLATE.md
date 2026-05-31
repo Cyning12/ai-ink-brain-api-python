@@ -22,6 +22,10 @@
 | **semi_auto** | `true` / `false` — 无 `pending` 人工闸时允许同会话链式戴帽（见 HANDOFF_SEMI_AUTO） |
 | **audit_profile** | `full` / `post_close` / `human_only` — 审核节奏（见 HARNESS_V2 §5.5） |
 | **git_branch** | `task/<slug>` — 半自动与实现 **禁止** 在 `main` 上连续提交 |
+| **experience_capture** | `required` / `recommended` / `not_applicable` — 关账经验摘要档位（见 HARNESS_V2 §5.7） |
+| **experience_capture_note** | （仅 `not_applicable` 时 **必填** 一行理由） |
+| **kpi_rubric** | **`KPI_RUBRIC_v1_2`（2026-05-31 起新建 task 必填）** |
+| **kpi_aggregator** | `CLOSE`（默认，可省略）\| `00` \| `50` \| `human` — 谁汇总 `### KPI（00）`（见 HARNESS_V2 §5.8） |
 
 ### 人工闸 `human_gate`
 

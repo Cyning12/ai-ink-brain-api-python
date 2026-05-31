@@ -16,6 +16,8 @@
 | 半自动 / 人工闸 | `HANDOFF_SEMI_AUTO` |
 | commit / 关账 | `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE` |
 | task 字段 | `HARNESS_V2_PLAN.md` §5 |
+| **KPI 评分 v1.2** | [`guides/KPI_RUBRIC_v1_2.md`](guides/KPI_RUBRIC_v1_2.md) · HatInstance / Task_KPI% |
+| **总调度 00** | [`prompts/hats/00-orchestrator.md`](prompts/hats/00-orchestrator.md) · [`TEMPLATE-orchestrator-invoke`](prompts/templates/TEMPLATE-orchestrator-invoke.md) |
 | 流程 | `SDD_HAT_FLOW.md` |
 | **FAQ 改进 · 09 PLAN** | [`prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md`](prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md) |
 | **冷/温/热 术语** | [`guides/GUIDE_冷温热层_对内术语_v1_zh.md`](guides/GUIDE_冷温热层_对内术语_v1_zh.md) |
