@@ -2,12 +2,12 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `active`（Loop R1–R3 执行中 · Step 0 模板 done） |
+| **状态** | `done`（Loop 关账 · PR #94 · 2026-05-30） |
 | **freeze_id** | `GOV-HARNESS-OPENSPEC-TDD-P0@2026-05-30` |
 | **排期** | [`docs/tasks/RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md) **§0.6** |
-| **Loop 母单** | [`docs/tasks/active/task_harness_p0_openspec_tdd_loop_v1.md`](../../tasks/active/task_harness_p0_openspec_tdd_loop_v1.md) |
+| **Loop 母单** | [`docs/tasks/done/task_harness_p0_openspec_tdd_loop_v1.md`](../../tasks/done/task_harness_p0_openspec_tdd_loop_v1.md) |
 | **Manifest** | [`docs/harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md`](../../harness/invokes/by-task/p0-openspec-tdd/LOOP_MANIFEST.md) |
-| **分支** | `task/harness-p0-openspec-tdd`（单 PR） |
+| **REPORT** | [`REPORT_completion_20260530_v1.md`](../../harness/invokes/by-task/p0-openspec-tdd/REPORT_completion_20260530_v1.md) |
 
 > **背景**：OpenSpec / Harness 对比分析与 TDD 架构评估；**不**引入 `openspec/` 目录、不全员 strict TDD。  
 > **原则**：OpenSpec **写法 P0** 与 TDD **纪律 P0** **合并 Sprint A**（同一 `task_validate` + 22/40 补丁），不拆两波 PR。
@@ -16,7 +16,7 @@
 
 ## 1. O1～O3 是否完成态？
 
-**结论：模板级 ✅ 完成；全仓 adoption ❌ 未做。**
+**结论：模板级 ✅ 完成；工具与帽链 ✅ 完成（R1–R3 · #94）；全仓存量 adoption 仍可选（Sprint C）。**
 
 | ID | 内容 | 完成度 | 说明 |
 |----|------|--------|------|
@@ -25,14 +25,15 @@
 | **O3** | 大 task §规划 artifact（proposal/design/tasks 等价） | **✅ 模板完成** | 同文件 L129–147 |
 | — | README / HARNESS_V2 指针 | **✅ 文档完成** | [`docs/tasks/README.md`](../../tasks/README.md)、[`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5.1 |
 
-**尚未完成（不算 O1–O3 闭环）**：
+**Loop 已交付（#94）**：
 
-- [ ] 存量 `docs/tasks/active/*.md` **未回填** Delta/Scenario  
-- [ ] 22 帽 **未**增格式勾选项  
-- [ ] **无** `task_validate` 机械校验  
-- [ ] 关账合并 Delta → `docs/spec/` 的 checklist **未**写进 50/关账流  
+- [x] `tools/harness_task_validate.py` + pytest  
+- [x] 22/40 帽格式勾选项与三维自检  
+- [x] 关账合并 Delta → SPEC 的 checklist **仍可选**（OpenSpec P2 · O7）
 
-**因此**：对新 task Copy 模板即完成 Step 0；全仓 **Step 1–3** 由 Loop **R1–R3** 交付。
+**仍可选（Sprint C）**：
+
+- [ ] 存量 `docs/tasks/active/*.md` **未全量回填** Delta/Scenario  
 
 ---
 
@@ -45,18 +46,18 @@
 | O1 | Delta Spec 小节 | ✅ 模板 | — |
 | O2 | Scenario ID | ✅ 模板 | — |
 | O3 | 规划 artifact 分节 | ✅ 模板 | — |
-| O4 | `tools/harness_task_validate.py` | ⬜ 待做 | **R1** |
-| O5 | `tools/harness_change_status.py`（`--json`） | ⬜ 待做 | **R3** |
-| O6 | `.cursor/commands/harness-*.md` | ⬜ 待做 | **R3** |
+| O4 | `tools/harness_task_validate.py` | ✅ done | **R1** |
+| O5 | `tools/harness_change_status.py`（`--json`） | ✅ done | **R3** |
+| O6 | `.cursor/commands/harness-*.md` | ✅ done | **R3** |
 
 ### 2.2 TDD 纪律 P0
 
 | ID | 项 | 状态 | Loop |
 |----|-----|------|------|
-| T1 | 22 帽：`api/` 禁滥用 `not_applicable` | ⬜ 待做 | **R2** |
-| T2 | 22 帽：Scenario / test_strategy 勾选项 | ⬜ 待做 | **R2** |
-| T3 | 40 帽：Completeness/Correctness/Coherence 三维提示 | ⬜ 待做 | **R2** |
-| T4 | `task_validate` 内嵌 test_strategy 规则 | ⬜ 待做 | **R1**（与 O4 合并） |
+| T1 | 22 帽：`api/` 禁滥用 `not_applicable` | ✅ done | **R2** |
+| T2 | 22 帽：Scenario / test_strategy 勾选项 | ✅ done | **R2** |
+| T3 | 40 帽：Completeness/Correctness/Coherence 三维提示 | ✅ done | **R2** |
+| T4 | `task_validate` 内嵌 test_strategy 规则 | ✅ done | **R1**（与 O4 合并） |
 | T5 | 存量 active task 抽样回填 | ⬜ 可选 | Sprint C |
 
 ### 2.3 重叠说明
@@ -197,3 +198,4 @@ python tools/harness_task_validate.py --json docs/tasks/active/task_foo.md
 |------|------|
 | 2026-05-30 | 初版：O1–O3 完成态；Sprint A/B/C；O4 与 TDD P0 合并 |
 | 2026-05-30 | 自 `docs/diary/tmp/` 迁入 `docs/spec/governance/`；对齐 Loop R1–R3 与 RECENT §0.6 |
+| 2026-05-30 | Loop 关账 · PR #94 · 状态表 O4–T4 标 done；Sprint C 标可选 |

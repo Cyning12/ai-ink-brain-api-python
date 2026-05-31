@@ -32,11 +32,21 @@
 
 ## 失败路径
 
-| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
-|---|----------|----------|--------|----------|
-| F1 | 低置信未确认即执行 | 澄清 / 预览 SSE，不升格 | 是 | 需用户确认 |
-| F2 | 确认令牌无效 | `403` + 结构化错误 | 否 | 确认失效 |
-| F3 | 预览生成失败 | `error` chain 事件 | 是 | 方案生成失败 |
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|-------------|----------|----------|--------|----------|
+| F1 | `fp-lowconf-unconfirmed-exec` | 低置信未确认即执行 | 澄清 / 预览 SSE，不升格 | 是 | 需用户确认 |
+| F2 | `fp-lowconf-token-invalid` | 确认令牌无效 | `403` + 结构化错误 | 否 | 确认失效 |
+| F3 | `fp-lowconf-preview-fail` | 预览生成失败 | `error` chain 事件 | 是 | 方案生成失败 |
+
+---
+
+## 验收标准
+
+> 分项明细见 **§5**；本节供 Harness validate 与关账核对。
+
+- [ ] **§5.0** 方案 B 首包已验收（2026-05-13）；**§5.1** 母单大项仍 backlog，后续 PR 逐项关闭  
+- [ ] 合并前 **`pytest tests -m "not intent_eval and not intent_benchmark"`** 全绿；触达契约时 **`python tools/tech_graph_contract_check.py`** 通过  
+- [ ] 母单剩余 implementation 关账前 **50** 复检落盘（`reinspect_results/`）
 
 ---
 

@@ -55,13 +55,32 @@
 
 ---
 
+## 行为变更（Delta）
+
+### ADDED
+
+- **Requirement**：Chain Chat 最小事件流 API，响应含 `events[]` 时间线。  
+  - **Scenario**：`chain-events-happy` — GIVEN 合法请求 WHEN `POST /api/py/chain/chat` THEN `ok: true` 且 `events[]` 含 `assistant.message` / 工具与 `sql.result` 等约定 type。  
+- **Requirement**：错误路径仍返回结构化 `events[]`。  
+  - **Scenario**：`chain-events-error` — GIVEN 内部失败 WHEN 请求处理 THEN `events[]` 含 `error` 事件且 `ok: false`（或等价字段）。
+
+### MODIFIED
+
+无（Previously: 无统一 chain 事件 JSON 面）
+
+### REMOVED
+
+无
+
+---
+
 ## 失败路径
 
-| # | 触发条件 | 系统行为 | 可重试 | 用户可见 |
-|---|----------|----------|--------|----------|
-| F1 | 参数非法 | `422` + 结构化 `detail` | 否 | 字段级错误 |
-| F2 | Text2SQL / 工具内部错误 | `events[]` 含 `error` 事件，`ok: false` | 视错误 | 时间线错误节点 |
-| F3 | 数据库不可用 | `500 DATABASE_DISCONNECT` 或等价 | 是 | 服务暂不可用 |
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+|---|-------------|----------|----------|--------|----------|
+| F1 | `fp-chain-events-422` | 参数非法 | `422` + 结构化 `detail` | 否 | 字段级错误 |
+| F2 | `fp-chain-events-tool-error` | Text2SQL / 工具内部错误 | `events[]` 含 `error` 事件，`ok: false` | 视错误 | 时间线错误节点 |
+| F3 | `fp-chain-events-db-down` | 数据库不可用 | `500 DATABASE_DISCONNECT` 或等价 | 是 | 服务暂不可用 |
 
 ---
 
