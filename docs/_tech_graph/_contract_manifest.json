@@ -86,7 +86,7 @@
         "agent.step.start": ["step_number", "max_steps"],
         "agent.think": ["step_number", "thought", "selected_tool", "mode", "confidence"],
         "agent.clarify": ["step_number", "message", "prompt_for_user"],
-        "agent.plan.preview": ["plan_id", "tool", "sql_draft", "warnings", "plan_execution_token", "expires_in_sec"],
+        "agent.plan.preview": ["plan_id", "tool", "sql_draft", "rewrite_query", "planned_top_k", "preview_headlines", "warnings", "plan_execution_token", "expires_in_sec"],
         "agent.intent": ["tool", "mode", "reasoning", "confidence", "fallback", "cache", "cache_key_hash", "latency_ms"],
         "agent.step.end": ["step_number", "tool_used", "mode", "success", "next_action"],
         "agent.final": ["total_steps", "tools_used", "modes", "fallback_used"],

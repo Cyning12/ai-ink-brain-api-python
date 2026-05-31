@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 低置信 RAG 预览 + 确认放行（§5-3 · 全栈）
 
-> **状态**：`in_progress`（2026-05-31 · 00 开帽 · Ink FE+Harness 已就绪 · 本仓 **30 实现 G1–G7**）  
+> **状态**：`in_progress`（2026-05-31 · 00→40 本仓 G1–G7 已落地 · **50 Fresh Context 待续** · FE-5 联调待 E2E）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-3**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.2 已验收 · **5-3 本单**）  
@@ -29,12 +29,12 @@
 
 | 帽 | 状态 | 备注 |
 |----|------|------|
-| 00 | running | 本消息开帽 |
-| 22 | pending | |
-| 30 | pending | **G1–G7** · 对齐 Ink C1 契约 |
-| 40 | pending | |
-| 50 | pending | Fresh Context |
-| CLOSE | pending | |
+| 00 | done | `invoke_20260531_00_*` |
+| 22 | done | R1 零阻塞 · `task_*_audit_R1_20260531.md` |
+| 30 | done | G1–G7 · `clarify_plan_once` + RAG preview |
+| 40 | done | pytest 277 绿 · contract OK |
+| 50 | pending | **须新会话 Fresh Context** |
+| CLOSE | pending | 待 50 + FE-5 / HG-REINSPECT |
 
 ### 跨仓与 Harness 节奏
 
@@ -102,13 +102,13 @@ SPEC 要求：低置信 **`rag_search`** 场景下，用户在执行全链路 RA
 
 ### 2.1 后端（本仓 `ai-ink-brain-api-python`）
 
-- [ ] **G1 RAG 澄清预览**：低置信 + `rag_search` 候选时发出 **`agent.plan.preview`**（非仅 text2sql）
-- [ ] **G2 RAG 预览载荷**：payload 含 SPEC 对齐字段（至少：**改写后检索 query** 或等价、`tool`、**warnings**、**plan_execution_token**、**expires_in_sec**；轻量预检索摘要若实现须文档化）
-- [ ] **G3 token 放行 RAG**：合法 token 续跑 → `agent.think` 含放行语义 → 执行 **rag_search**（非误走 text2sql）；无效 token **deny**（pytest）
-- [ ] **G4 预览失败**：RAG 预览子路径失败时无 token，clarify 含失败说明（对齐 5-2 F3 模式）
-- [ ] **G5 JSON + SSE parity**：与 5-2 同级；**禁止** 22 defer SSE
-- [ ] **G6 契约**：更新 `_contract_manifest.json` + `tech_graph_contract_check`；必要时 `SPEC-ChatBI-V2-Events` 指针/§3.2.2 增补
-- [ ] **G7 pytest**：`test_strategy: required` · 先红后绿；触达契约必跑 contract check
+- [x] **G1 RAG 澄清预览**：低置信 + `rag_search` 候选时发出 **`agent.plan.preview`**（非仅 text2sql）
+- [x] **G2 RAG 预览载荷**：payload 含 `rewrite_query`、`planned_top_k`、`preview_headlines`（可选）+ 公共键
+- [x] **G3 token 放行 RAG**：合法 token 续跑跳过 clarify → **rag_search** + `rag.sources`；`verify` 分工具（pytest）
+- [x] **G4 预览失败**：`test_v3_rag_plan_preview_fail_json_no_token`
+- [x] **G5 JSON + SSE parity**：`test_v3_rag_plan_preview_sse_parity`（无 defer）
+- [x] **G6 契约**：`_contract_manifest.json` · `tech_graph_contract_check` OK
+- [x] **G7 pytest**：`test_v3_rag_plan_*` + 全量 `pytest tests` 绿
 
 ### 2.2 前端（Ink `ai-ink-brain` · 本 task **验收项**，非本仓 commit）
 
@@ -297,9 +297,18 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_r
 
 ## 10. ### 自检结论（执行者）
 
-（40 帽回填）
+| 项 | 结果 |
+|----|------|
+| 日期 | 2026-05-31 · 40 帽 |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | **277 passed**, 1 skipped |
+| `pytest … -k "v3_rag_plan or v3_plan"` | **9 passed**（含 5-2 回归） |
+| `python tools/tech_graph_contract_check.py` | **OK** |
+| `python tools/harness_task_validate.py` | 待 50 前复跑 |
+| 实现摘要 | `clarify_plan_once` token；`rag_search` 低置信预览 + bypass；`tools.rag_search_execute(preview_only)` |
+| 阻塞 | **50** 须 Fresh Context；**FE-5** E2E 样本待联调；**HG-REINSPECT** pending |
 
 ---
+
 
 ## 修订记录
 

@@ -64,6 +64,9 @@ _CONTRACT_ANCHOR_AGENT_PLAN_PREVIEW = _agent_chain(
         "plan_id": "",
         "tool": "text2sql_query",
         "sql_draft": "",
+        "rewrite_query": "",
+        "planned_top_k": 10,
+        "preview_headlines": [],
         "warnings": [],
         "plan_execution_token": "",
         "expires_in_sec": 120,
@@ -446,28 +449,51 @@ class ChatBIAgent:
         # 不得沿用「已切到 fallback 工具」的 step1_mode（常见 rag），否则 Timeline 像已转 RAG 却无任何工具执行。
         clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
         from .chatbi_plan_token import (
-            mint_clarify_text2sql_bypass_token,
+            mint_clarify_plan_bypass_token,
             plan_preview_confirm_enabled,
             plan_token_ttl_s,
-            verify_clarify_text2sql_bypass_token,
+            verify_clarify_plan_bypass_token,
         )
 
-        _plan_bypass = plan_preview_confirm_enabled() and verify_clarify_text2sql_bypass_token(
-            plan_execution_token, session_id=session_id, query=query
-        )
-        _clarify_eligible = (
+        _plan_bypass_tool: ToolName | None = None
+        if plan_preview_confirm_enabled():
+            if verify_clarify_plan_bypass_token(
+                plan_execution_token,
+                session_id=session_id,
+                query=query,
+                expected_tool="text2sql_query",
+            ):
+                _plan_bypass_tool = "text2sql_query"
+            elif verify_clarify_plan_bypass_token(
+                plan_execution_token,
+                session_id=session_id,
+                query=query,
+                expected_tool="rag_search",
+            ):
+                _plan_bypass_tool = "rag_search"
+
+        _clarify_tool: ToolName | None = None
+        if (
             clarify_gate
             and prefer == "auto"
             and intent is not None
-            and intent.tool == "text2sql_query"
             and intent.confidence < self._min_confidence
-            and not _plan_bypass
-        )
-        # 用户已持有效 plan_execution_token：本轮回放首步须回到意图候选 text2sql，而非低置信 fallback 的 rag。
-        if _plan_bypass:
-            step1_tool = "text2sql_query"
+            and _plan_bypass_tool is None
+        ):
+            if intent.tool == "text2sql_query":
+                _clarify_tool = "text2sql_query"
+            elif intent.tool == "rag_search":
+                _clarify_tool = "rag_search"
+        _clarify_eligible = _clarify_tool is not None
+
+        # 用户已持有效 plan_execution_token：本轮回放首步须回到确认时的工具，而非低置信 fallback。
+        if _plan_bypass_tool:
+            step1_tool = _plan_bypass_tool
             step1_mode = self._tool_to_mode(step1_tool)
-            step1_reasoning = "已校验 plan_execution_token，按用户确认放行执行 Text2SQL。"
+            if _plan_bypass_tool == "rag_search":
+                step1_reasoning = "已校验 plan_execution_token，按用户确认放行执行 RAG 检索。"
+            else:
+                step1_reasoning = "已校验 plan_execution_token，按用户确认放行执行 Text2SQL。"
 
         # Step 循环：必须多步（允许成功在 2 步内结束，但失败应触发继续）
         current_tool: ToolName = step1_tool
@@ -644,16 +670,30 @@ class ChatBIAgent:
                 )
             )
 
-        # P1-4 §4.3：低置信 + SQL 候选时可选「澄清短路」（默认关，避免改变现网行为）
-        if _clarify_eligible:
+        # P1-4 §4.3：低置信 + text2sql/rag 候选时可选「澄清短路」（默认关，避免改变现网行为）
+        if _clarify_eligible and _clarify_tool is not None:
             _cl_msg = "待您澄清（低置信度）"
             plan_preview_payload: dict[str, Any] | None = None
             plan_ttl_s = plan_token_ttl_s()
-            ttl_notice = (
-                f"若确认按预览 SQL 继续查数：请在 {plan_ttl_s} 秒内在**下一轮同一问题**的请求 JSON 中带 "
-                f"`\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。"
-                "若未及时附带令牌，本预览 SQL 与该令牌均失效，须**重新发起本问题**才能再次预览。"
-            )
+            _clarify_mode = self._tool_to_mode(_clarify_tool)
+            if _clarify_tool == "rag_search":
+                ttl_notice = (
+                    f"若确认按预览检索方案继续：请在 {plan_ttl_s} 秒内在**下一轮同一问题**的请求 JSON 中带 "
+                    f"`\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。"
+                    "若未及时附带令牌，本预览方案与该令牌均失效，须**重新发起本问题**才能再次预览。"
+                )
+                _preview_fail_hint = (
+                    "（本轮未能生成可放行的 RAG 方案预览，无法签发 plan_execution_token；请改问或补充检索范围。）"
+                )
+            else:
+                ttl_notice = (
+                    f"若确认按预览 SQL 继续查数：请在 {plan_ttl_s} 秒内在**下一轮同一问题**的请求 JSON 中带 "
+                    f"`\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。"
+                    "若未及时附带令牌，本预览 SQL 与该令牌均失效，须**重新发起本问题**才能再次预览。"
+                )
+                _preview_fail_hint = (
+                    "（本轮未能生成可放行的 SQL 预览，无法签发 plan_execution_token；请改问或使用 prefer=text2sql。）"
+                )
             use_reasoning = (os.getenv("CHATBI_V3_CLARIFY_PROMPT_USE_REASONING", "") or "").strip().lower() in (
                 "1",
                 "true",
@@ -673,35 +713,76 @@ class ChatBIAgent:
                 _cl_prompt = _generic
             if plan_preview_confirm_enabled():
                 _cl_prompt = (_cl_prompt.rstrip() + "\n\n" + ttl_notice).strip()
-                from .tools import text2sql_execute as _t2s_preview  # noqa: PLC0415
-
                 _prev_hist: list[dict[str, Any]] = turn_history[-6:]
-                _t2s_json_ctx: dict[str, Any] | None = None
-                if run_id:
-                    _t2s_json_ctx = {"request_id": run_id, "run_id": run_id, "session_id": session_id}
-                _pr = await _t2s_preview(
-                    query,
-                    history=_prev_hist,
-                    debug_llm_prompts=debug_llm_prompts,
-                    chain_emit=emit,
-                    chain_started_at=ts_ref,
-                    json_log_ctx=_t2s_json_ctx,
-                    preview_only=True,
-                )
-                sql_pv = ""
-                if _pr.success and isinstance(_pr.data, dict) and isinstance(_pr.data.get("sql"), str):
-                    sql_pv = (_pr.data.get("sql") or "").strip()
-                if sql_pv:
-                    exec_tok = mint_clarify_text2sql_bypass_token(session_id=session_id, query=query)
-                    plan_prev_id = str(uuid.uuid4()).replace("-", "")[:20]
-                    plan_preview_payload = {
-                        "plan_id": plan_prev_id,
-                        "tool": "text2sql_query",
-                        "sql_draft": sql_pv,
-                        "warnings": [ttl_notice],
-                        "plan_execution_token": exec_tok,
-                        "expires_in_sec": plan_ttl_s,
-                    }
+                plan_prev_id = str(uuid.uuid4()).replace("-", "")[:20]
+                if _clarify_tool == "text2sql_query":
+                    from .tools import text2sql_execute as _t2s_preview  # noqa: PLC0415
+
+                    _t2s_json_ctx: dict[str, Any] | None = None
+                    if run_id:
+                        _t2s_json_ctx = {"request_id": run_id, "run_id": run_id, "session_id": session_id}
+                    _pr = await _t2s_preview(
+                        query,
+                        history=_prev_hist,
+                        debug_llm_prompts=debug_llm_prompts,
+                        chain_emit=emit,
+                        chain_started_at=ts_ref,
+                        json_log_ctx=_t2s_json_ctx,
+                        preview_only=True,
+                    )
+                    sql_pv = ""
+                    if _pr.success and isinstance(_pr.data, dict) and isinstance(_pr.data.get("sql"), str):
+                        sql_pv = (_pr.data.get("sql") or "").strip()
+                    if sql_pv:
+                        exec_tok = mint_clarify_plan_bypass_token(
+                            session_id=session_id, query=query, tool="text2sql_query"
+                        )
+                        plan_preview_payload = {
+                            "plan_id": plan_prev_id,
+                            "tool": "text2sql_query",
+                            "sql_draft": sql_pv,
+                            "warnings": [ttl_notice],
+                            "plan_execution_token": exec_tok,
+                            "expires_in_sec": plan_ttl_s,
+                        }
+                else:
+                    from .tools import rag_search_execute as _rag_preview  # noqa: PLC0415
+
+                    _pr_rag = await _rag_preview(
+                        query,
+                        history=_prev_hist,
+                        debug_llm_prompts=debug_llm_prompts,
+                        preview_only=True,
+                    )
+                    rewrite_pv = ""
+                    planned_k = 10
+                    headlines: list[str] = []
+                    if _pr_rag.success and isinstance(_pr_rag.data, dict):
+                        rw = _pr_rag.data.get("rewritten")
+                        if isinstance(rw, str):
+                            rewrite_pv = rw.strip()
+                        try:
+                            planned_k = int(_pr_rag.data.get("planned_top_k") or 10)
+                        except Exception:  # noqa: BLE001
+                            planned_k = 10
+                        ph = _pr_rag.data.get("preview_headlines")
+                        if isinstance(ph, list):
+                            headlines = [str(x) for x in ph if x][:6]
+                    if rewrite_pv:
+                        exec_tok = mint_clarify_plan_bypass_token(
+                            session_id=session_id, query=query, tool="rag_search"
+                        )
+                        plan_preview_payload = {
+                            "plan_id": plan_prev_id,
+                            "tool": "rag_search",
+                            "rewrite_query": rewrite_pv,
+                            "planned_top_k": planned_k,
+                            "preview_headlines": headlines,
+                            "warnings": [ttl_notice],
+                            "plan_execution_token": exec_tok,
+                            "expires_in_sec": plan_ttl_s,
+                        }
+                if plan_preview_payload:
                     if emit is not None:
                         await emit(
                             _agent_chain(
@@ -718,15 +799,12 @@ class ChatBIAgent:
                             run_id=run_id,
                             session_id=session_id,
                             route="agent",
-                            mode="text2sql",
+                            mode=_clarify_mode,
                             plan_id=plan_prev_id,
                             gate_bypass_reason="plan_preview_token_minted",
                         )
                 else:
-                    _cl_prompt = (
-                        _cl_prompt.rstrip()
-                        + "\n\n（本轮未能生成可放行的 SQL 预览，无法签发 plan_execution_token；请改问或使用 prefer=text2sql。）"
-                    ).strip()
+                    _cl_prompt = (_cl_prompt.rstrip() + "\n\n" + _preview_fail_hint).strip()
 
             clarify_pl: dict[str, Any] = {"step_number": 1, "message": _cl_msg, "prompt_for_user": _cl_prompt}
             if chatbi_json_log_enabled() and run_id:
@@ -736,21 +814,21 @@ class ChatBIAgent:
                     run_id=run_id,
                     session_id=session_id,
                     route="agent",
-                    mode="text2sql",
-                    intent_tool="text2sql_query",
+                    mode=_clarify_mode,
+                    intent_tool=_clarify_tool,
                     intent_confidence=float(intent.confidence),
                     clarify_gate=True,
                 )
             _final_answer = (
                 "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；"
-                "也可改用 prefer=text2sql 强制路径或改写问题后重试。"
+                "也可改用 prefer=text2sql / prefer=rag 强制路径或改写问题后重试。"
             )
             final_cl = AgentFinalView(
                 answer=_final_answer,
-                mode="text2sql",
+                mode=_clarify_mode,
                 total_steps=0,
                 tools_used=[],
-                modes=["text2sql"],
+                modes=[_clarify_mode],
                 fallback_used=False,
             )
             if emit is not None:
