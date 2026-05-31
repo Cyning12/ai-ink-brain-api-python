@@ -31,7 +31,7 @@
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | 试点 task 草案 · 预批 |
 | HG-AUDIT-R1 | approved | 30 | 22 R1 后人签 · 预批 |
-| HG-REINSPECT | pending | done | **50 通过后** 人签再 merge（关账硬闸） |
+| HG-REINSPECT | approved | done | **50 通过后** 人签再 merge（关账硬闸） |
 
 ### 开帽约定（已锁定）
 
