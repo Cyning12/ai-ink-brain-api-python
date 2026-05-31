@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 低置信 Text2SQL 预览 + 确认放行（§5-2 关账）
 
-> **状态**：`pending`（子 task 草案 · **未开 Harness**；人扫通过后改 `pending` 再开 00）  
+> **状态**：`in_progress`（2026-05-31 · 00 开帽 · `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31`）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-2**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.0 已验收 · §5.1 **5-2** 本单关账）  
