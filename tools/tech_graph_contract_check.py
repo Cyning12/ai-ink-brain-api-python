@@ -2,12 +2,17 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
+_TOOLS_DIR = Path(__file__).resolve().parent
+if str(_TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOLS_DIR))
+
+from tech_graph_ci_stderr import CiIssue, print_ci_failure
 CONTRACT_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_contract_manifest.json"
 # vNext：`agent.llm.*` 等在 `api/agent.py` emit；须与 manifest 同 PR 纳入静态真值
 BACKEND_CONTRACT_SOURCES = [
@@ -41,17 +46,40 @@ def _diff_set(*, truth: set[str], declared: set[str]) -> Diff:
     return Diff(missing=missing, extra=extra)
 
 
-def _fmt_diff(title: str, d: Diff) -> str:
-    lines: list[str] = []
+def _summarize_items(items: list[str], *, limit: int = 8) -> str:
+    if not items:
+        return "（无）"
+    head = ", ".join(items[:limit])
+    if len(items) > limit:
+        return f"{head} … 共 {len(items)} 项"
+    return head
+
+
+def _diff_to_issue(
+    *,
+    location: str,
+    d: Diff,
+    missing_label: str,
+    extra_label: str,
+) -> list[CiIssue]:
+    issues: list[CiIssue] = []
     if d.missing:
-        lines.append(f"{title}: MISSING (contract -> truth)")
-        for x in d.missing[:80]:
-            lines.append(f"  - {x}")
+        issues.append(
+            CiIssue(
+                location=location,
+                declared=f"contract 声明但代码未覆盖: {_summarize_items(d.missing)}",
+                actual=missing_label,
+            )
+        )
     if d.extra:
-        lines.append(f"{title}: EXTRA (truth -> contract)")
-        for x in d.extra[:80]:
-            lines.append(f"  - {x}")
-    return "\n".join(lines).strip()
+        issues.append(
+            CiIssue(
+                location=location,
+                declared=extra_label,
+                actual=f"代码存在但 contract 未声明: {_summarize_items(d.extra)}",
+            )
+        )
+    return issues
 
 
 def _extract_string_keys_from_dict_literal(text: str) -> set[str]:
@@ -274,10 +302,22 @@ def main() -> int:
             missing_contract.append("contract.sse.done.data_keys must include: ok, mode, run_id, session_id, request_id")
         if not must_types.issubset(set(pkbt.keys())):
             missing_contract.append("contract.sse.chain.payload_min_keys_by_type must include: rag.sources, sql.result")
+
         if missing_contract:
-            print("FAIL: contract manifest incomplete.\n")
-            for x in missing_contract:
-                print(f"- {x}")
+            issues: list[CiIssue] = [
+                CiIssue(
+                    location="contract.sse (manifest 自检)",
+                    declared=x,
+                    actual="_contract_manifest.json 结构不完整",
+                )
+                for x in missing_contract
+            ]
+            print_ci_failure(
+                title="合并被阻塞：contract manifest 自身不完整",
+                check_name="tech_graph_contract_check",
+                local_command="python tools/tech_graph_contract_check.py",
+                issues=issues,
+            )
             return 1
 
         # Load backend truth（多文件合并，避免 chain.type 仅落在 agent.py 时漏检）
@@ -290,20 +330,31 @@ def main() -> int:
         backend_text = "\n\n".join(_read_text(p) for p in BACKEND_CONTRACT_SOURCES)
         bt = _backend_truth_from_unified_chat(backend_text)
 
-        problems: list[str] = []
+        issues = []
 
-        # backend_truth ⊇ contract
         d_ev = _diff_set(truth=set(bt["backend_events"]), declared=allowed_events)
-        if d_ev.missing:
-            problems.append(_fmt_diff("Backend SSE allowed events", d_ev))
+        issues += _diff_to_issue(
+            location="contract.sse.allowed_events ↔ api/unified_chat.py",
+            d=d_ev,
+            missing_label="后端 _sse() 未 emit 上述事件",
+            extra_label=f"contract 允许: {_summarize_items(sorted(allowed_events))}",
+        )
 
         d_types = _diff_set(truth=set(bt["chain_types"]), declared=chain_type_values)
-        if d_types.missing:
-            problems.append(_fmt_diff("Backend chain.type values", d_types))
+        issues += _diff_to_issue(
+            location="contract.sse.chain.type_values ↔ api/",
+            d=d_types,
+            missing_label="后端未 emit 上述 chain.type",
+            extra_label=f"contract 声明 type: {_summarize_items(sorted(chain_type_values))}",
+        )
 
         d_done = _diff_set(truth=set(bt["done_keys"]), declared=done_data_keys)
-        if d_done.missing:
-            problems.append(_fmt_diff("Backend done.data keys", d_done))
+        issues += _diff_to_issue(
+            location="contract.sse.done.data_keys ↔ api/unified_chat.py",
+            d=d_done,
+            missing_label="done 事件 payload 缺上述 key",
+            extra_label=f"contract 要求: {_summarize_items(sorted(done_data_keys))}",
+        )
 
         # payload keys: only check what we can statically extract
         payload_keys_by_type: dict[str, set[str]] = bt["payload_keys_by_type"]
@@ -312,8 +363,12 @@ def main() -> int:
                 if isinstance(required, list):
                     req = set([x for x in required if isinstance(x, str)])
                     d_meta = _diff_set(truth=set(bt["meta_payload_keys"]), declared=req)
-                    if d_meta.missing:
-                        problems.append(_fmt_diff("Backend payload keys for meta", d_meta))
+                    issues += _diff_to_issue(
+                        location="contract.sse.chain.payload_min_keys_by_type.meta",
+                        d=d_meta,
+                        missing_label="meta payload 缺 contract 要求的 key",
+                        extra_label=f"contract 要求: {_summarize_items(sorted(req))}",
+                    )
                 continue
             if typ == "rag.sources":
                 if not isinstance(required, dict):
@@ -323,14 +378,26 @@ def main() -> int:
                 req_ret_keys = set(required.get("retrieval_keys") or [])
 
                 d_rag_payload = _diff_set(truth=set(bt["rag_sources_payload_keys"]), declared=req_payload_keys)
-                if d_rag_payload.missing:
-                    problems.append(_fmt_diff("Backend rag.sources payload keys", d_rag_payload))
+                issues += _diff_to_issue(
+                    location="contract.sse.chain.payload_min_keys_by_type.rag.sources (payload)",
+                    d=d_rag_payload,
+                    missing_label="rag.sources payload 缺 key",
+                    extra_label=f"contract 要求: {_summarize_items(sorted(req_payload_keys))}",
+                )
                 d_rag_items = _diff_set(truth=set(bt["rag_sources_item_keys"]), declared=req_item_keys)
-                if d_rag_items.missing:
-                    problems.append(_fmt_diff("Backend rag.sources.source item keys", d_rag_items))
+                issues += _diff_to_issue(
+                    location="contract.sse.chain.payload_min_keys_by_type.rag.sources (items)",
+                    d=d_rag_items,
+                    missing_label="source item 缺 key",
+                    extra_label=f"contract 要求: {_summarize_items(sorted(req_item_keys))}",
+                )
                 d_rag_ret = _diff_set(truth=set(bt["rag_sources_retrieval_keys"]), declared=req_ret_keys)
-                if d_rag_ret.missing:
-                    problems.append(_fmt_diff("Backend rag.sources.retrieval keys", d_rag_ret))
+                issues += _diff_to_issue(
+                    location="contract.sse.chain.payload_min_keys_by_type.rag.sources (retrieval)",
+                    d=d_rag_ret,
+                    missing_label="retrieval 嵌套缺 key",
+                    extra_label=f"contract 要求: {_summarize_items(sorted(req_ret_keys))}",
+                )
                 continue
 
             if isinstance(required, list):
@@ -339,11 +406,21 @@ def main() -> int:
                 continue
             truth = payload_keys_by_type.get(typ)
             if not truth:
-                problems.append(f"Backend payload keys for type {typ!r}: MISSING (cannot find dict-literal payload)")
+                issues.append(
+                    CiIssue(
+                        location=f"contract.sse.chain.payload_min_keys_by_type.{typ}",
+                        declared=f"contract 要求 payload keys: {_summarize_items(sorted(req))}",
+                        actual=f"静态分析未在 api/ 找到 {typ!r} 的 payload dict-literal",
+                    )
+                )
                 continue
             d = _diff_set(truth=set(truth), declared=req)
-            if d.missing:
-                problems.append(_fmt_diff(f"Backend payload keys for {typ}", d))
+            issues += _diff_to_issue(
+                location=f"contract.sse.chain.payload_min_keys_by_type.{typ}",
+                d=d,
+                missing_label=f"{typ} payload 缺 contract 要求的 key",
+                extra_label=f"contract 要求: {_summarize_items(sorted(req))}",
+            )
 
         # frontend_expect ⊆ contract
         fa = contract.get("frontend_anchors")
@@ -370,8 +447,12 @@ def main() -> int:
 
         # Required handled events must be subset of allowed_events
         d_fe_events = _diff_set(truth=allowed_events, declared=set(fe["handled_events_required"]))
-        if d_fe_events.missing:
-            problems.append(_fmt_diff("Frontend handled events (required)", d_fe_events))
+        issues += _diff_to_issue(
+            location="contract.frontend_anchors.sse_consumer_files (required events)",
+            d=d_fe_events,
+            missing_label="前端 SSE consumer 处理了 contract 未允许的事件",
+            extra_label=f"contract allowed_events: {_summarize_items(sorted(allowed_events))}",
+        )
 
         # Keys used by frontend must be subset of contract (very lightweight)
         contract_key_union: set[str] = set()
@@ -424,15 +505,21 @@ def main() -> int:
 
         forbidden = sorted([x for x in used_union if x not in contract_key_union])
         if forbidden:
-            problems.append("Frontend forbidden keys (expect -> not in contract):\n" + "\n".join([f"  - {x}" for x in forbidden[:120]]))
+            issues.append(
+                CiIssue(
+                    location="contract.frontend_anchors.sse_consumer_files (field reads)",
+                    declared=f"contract 未声明字段: {_summarize_items(forbidden, limit=12)}",
+                    actual="前端 TS 读取了上述 obj/payload 字段",
+                )
+            )
 
-        if problems:
-            print("FAIL: cross-repo contract drift detected.\n")
-            for msg in problems:
-                if msg.strip():
-                    print(msg)
-                    print()
-            # Optional info
+        if issues:
+            print_ci_failure(
+                title="合并被阻塞：跨端 contract 与代码不一致",
+                check_name="tech_graph_contract_check",
+                local_command="python tools/tech_graph_contract_check.py",
+                issues=issues,
+            )
             opt = sorted(list(fe["handled_events_optional"]))
             if opt:
                 print("INFO: frontend also handles optional event names (not enforced):")

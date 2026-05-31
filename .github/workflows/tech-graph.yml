@@ -41,3 +41,58 @@ jobs:
 
       - name: Tech graph token estimate (Gate A appendix)
         run: python tools/tech_graph_token_estimate.py --json
+
+  task_validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Detect task file changes
+        id: tasks
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.base_ref }}"
+            git fetch origin "$BASE" --depth=1 2>/dev/null || true
+            CHANGED="$(git diff --name-only "origin/${BASE}...HEAD" -- 'docs/tasks/' || true)"
+          else
+            CHANGED="$(git diff --name-only HEAD~1 HEAD -- 'docs/tasks/' || true)"
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Task paths changed:"
+            echo "$CHANGED"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No docs/tasks/ changes; skipping task_validate."
+          fi
+
+      - name: Harness task validate (changed active tasks)
+        if: steps.tasks.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.base_ref }}"
+            FILES="$(git diff --name-only "origin/${BASE}...HEAD" -- 'docs/tasks/active/*.md' || true)"
+          else
+            FILES="$(git diff --name-only HEAD~1 HEAD -- 'docs/tasks/active/*.md' || true)"
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No active task .md changes."
+            exit 0
+          fi
+          for f in $FILES; do
+            if [[ "$f" == *_AGENT_PROMPT* ]]; then
+              continue
+            fi
+            echo "Validating $f"
+            python tools/harness_task_validate.py "$f"
+          done

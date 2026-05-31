@@ -56,8 +56,8 @@
 | IMP-B-11 | 22 Blocking 表 | ✅ 初稿 | `docs/harness/prompts/hats/22-task-audit.md` §Blocking |
 | IMP-B-20 | 冷/温/热术语卡 | ✅ 初稿 | `docs/harness/guides/GUIDE_冷温热层_对内术语_v1_zh.md` |
 | — | Agent Prompt | ✅ 初稿 | `docs/harness/prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md` |
-| IMP-B-01 | CI 红字 + Runbook | ⬜ 待做 | `tools/tech_graph_*_check.py` stderr · `docs/harness/guides/RUNBOOK_graph_contract_ci_red_v1.md` |
-| IMP-B-02 | task 路径 `task_validate` | ⬜ 待做 | `.github/workflows/verify-fast.yml` 或 `tech-graph.yml` |
+| IMP-B-01 | CI 红字 + Runbook | ✅ | `tools/tech_graph_*_check.py` stderr · `docs/harness/guides/RUNBOOK_graph_contract_ci_red_v1.md` |
+| IMP-B-02 | task 路径 `task_validate` | ✅ | `.github/workflows/tech-graph.yml` job `task_validate` |
 
 **Agent 可调**：若 IMP-B-01/02 过大，可拆子 PR 或降 scope（须在 review 说明）；**不可** 引入 FAQ 已拒项（`graph.auto.json`、PR `/approve` 唯一闸等，见 PROMPT）。
 
@@ -117,9 +117,9 @@
 ## 实施清单（Agent 可增删）
 
 - [ ] 1.1 读 PROMPT + 本 task；确认 **首包** 四文件是否需润色  
-- [ ] 1.2 **IMP-B-01**：改 check 脚本 stderr + 写 Runbook；本地/PR 故意红一次  
-- [ ] 1.3 **IMP-B-02**：workflow `paths: docs/tasks/**` + `harness_task_validate.py`  
-- [ ] 1.4 更新 `docs/harness/README.md`（Runbook 链）  
+- [x] 1.2 **IMP-B-01**：改 check 脚本 stderr + 写 Runbook；本地/PR 故意红一次  
+- [x] 1.3 **IMP-B-02**：workflow `paths: docs/tasks/**` + `harness_task_validate.py`  
+- [x] 1.4 更新 `docs/harness/README.md`（Runbook 链）  
 - [ ] 1.5 22 R1 → 30 实现 → 40 自检 → 22 CLOSE  
 - [ ] 1.6 更新治理仓 `09_PLAN` §2 IMP 状态列（可选 · 跨仓只读后人工或另 commit）
 
@@ -129,9 +129,9 @@
 
 | 项 | 内容 |
 |----|------|
-| 涉及文件 | （待填） |
-| workflow 变更 | （待填） |
-| 故意红 PR / commit | （待填 · 用于验收 IMP-B-01/02） |
+| 涉及文件 | `tools/tech_graph_ci_stderr.py` · `tools/tech_graph_manifest_check.py` · `tools/tech_graph_contract_check.py` · `docs/harness/guides/RUNBOOK_graph_contract_ci_red_v1.md` · `docs/harness/README.md` · `.github/workflows/tech-graph.yml` |
+| workflow 变更 | `tech-graph.yml` 增 job `task_validate`（`docs/tasks/active/*.md` 变更时跑 `harness_task_validate.py`） |
+| 故意红 PR / commit | 本地：`python tools/tech_graph_manifest_check.py` 改 `_manifest.json` 后应见三段式 stderr；task：删 test_strategy 后 `harness_task_validate.py` 应 FAIL |
 | 图谱变更点 | 无（预期） |
 
 ---

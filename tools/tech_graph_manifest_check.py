@@ -9,6 +9,12 @@ from pathlib import Path
 from typing import Any, Iterable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+_TOOLS_DIR = Path(__file__).resolve().parent
+if str(_TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOLS_DIR))
+
+from tech_graph_ci_stderr import CiIssue, print_ci_failure
+
 API_DIR = REPO_ROOT / "api"
 SQL_DIR = REPO_ROOT / "supabase" / "sql"
 DEFAULT_BACKEND_MANIFEST = REPO_ROOT / "docs" / "_tech_graph" / "_manifest.json"
@@ -200,70 +206,105 @@ def _set_diff(*, truth: set[str], declared: set[str]) -> dict[str, list[str]]:
     return {"missing": missing, "extra": extra}
 
 
-def _format_diff(title: str, d: dict[str, list[str]]) -> str:
-    parts: list[str] = []
+def _summarize_items(items: list[str], *, limit: int = 8) -> str:
+    if not items:
+        return "（无）"
+    head = ", ".join(items[:limit])
+    if len(items) > limit:
+        return f"{head} … 共 {len(items)} 项"
+    return head
+
+
+def _set_diff_issues(*, location: str, d: dict[str, list[str]]) -> list[CiIssue]:
+    issues: list[CiIssue] = []
     if d["missing"]:
-        parts.append("  缺失（truth->manifest）：")
-        for x in d["missing"][:60]:
-            parts.append(f"    - {x}")
-        if len(d["missing"]) > 60:
-            parts.append(f"    ... and {len(d['missing']) - 60} more")
+        issues.append(
+            CiIssue(
+                location=location,
+                declared=f"manifest 未声明: {_summarize_items(d['missing'])}",
+                actual=f"代码/SQL truth 存在: {_summarize_items(d['missing'])}",
+            )
+        )
     if d["extra"]:
-        parts.append("  多余（manifest->truth）：")
-        for x in d["extra"][:60]:
-            parts.append(f"    - {x}")
-        if len(d["extra"]) > 60:
-            parts.append(f"    ... and {len(d['extra']) - 60} more")
-    if not parts:
-        return f"{title}: OK"
-    return "\n".join([f"{title}: FAIL"] + parts)
+        issues.append(
+            CiIssue(
+                location=location,
+                declared=f"manifest 多余声明: {_summarize_items(d['extra'])}",
+                actual=f"代码/SQL truth 不存在上述项",
+            )
+        )
+    return issues
 
 
 def _endpoint_key(method: str, path: str) -> str:
     return f"{method.upper()} {path}"
 
 
-def _endpoint_diff(truth: list[EndpointTruth], declared: list[dict[str, Any]]) -> list[str]:
+def _endpoint_diff(truth: list[EndpointTruth], declared: list[dict[str, Any]]) -> list[CiIssue]:
     truth_map = {_endpoint_key(e.method, e.path): e for e in truth}
     declared_map: dict[str, dict[str, Any]] = {}
     for e in declared:
         k = _endpoint_key(str(e.get("method", "")).upper(), str(e.get("path", "")))
         declared_map[k] = e
 
-    missing = sorted([k for k in truth_map.keys() if k not in declared_map])
-    extra = sorted([k for k in declared_map.keys() if k not in truth_map])
-    changed: list[str] = []
+    issues: list[CiIssue] = []
+    for k in sorted([k for k in truth_map.keys() if k not in declared_map]):
+        te = truth_map[k]
+        issues.append(
+            CiIssue(
+                location=f"manifest.endpoints · {k}",
+                declared="manifest 未声明此 HTTP 路由",
+                actual=f"api/index.py handler={te.handler!r} @ L{te.line}",
+            )
+        )
+    for k in sorted([k for k in declared_map.keys() if k not in truth_map]):
+        handler = declared_map[k].get("handler", "?")
+        issues.append(
+            CiIssue(
+                location=f"manifest.endpoints · {k}",
+                declared=f"manifest handler={handler!r}",
+                actual="api/index.py 无对应路由装饰器",
+            )
+        )
     for k, te in truth_map.items():
         de = declared_map.get(k)
         if not de:
             continue
         handler = de.get("handler")
         if isinstance(handler, str) and handler != te.handler:
-            changed.append(f"{k}: handler truth={te.handler!r} manifest={handler!r}")
-
-    msgs: list[str] = []
-    if missing:
-        msgs.append("Routes 缺失（truth->manifest）：\n" + "\n".join([f"  - {x}" for x in missing]))
-    if extra:
-        msgs.append("Routes 多余（manifest->truth）：\n" + "\n".join([f"  - {x}" for x in extra]))
-    if changed:
-        msgs.append("Routes 不一致（同 method+path）：\n" + "\n".join([f"  - {x}" for x in changed]))
-    return msgs
+            issues.append(
+                CiIssue(
+                    location=f"manifest.endpoints · {k}",
+                    declared=f"manifest handler={handler!r}",
+                    actual=f"api/index.py handler={te.handler!r} @ L{te.line}",
+                )
+            )
+    return issues
 
 
-def _route_diff(truth: list[RouteTruth], declared: list[dict[str, Any]]) -> list[str]:
+def _route_diff(truth: list[RouteTruth], declared: list[dict[str, Any]]) -> list[CiIssue]:
     truth_keys = {_endpoint_key(r.method, r.path) for r in truth}
     declared_keys = {
         _endpoint_key(str(r.get("method", "")).upper(), str(r.get("path", ""))) for r in declared
     }
-    missing = sorted([k for k in truth_keys if k not in declared_keys])
-    extra = sorted([k for k in declared_keys if k not in truth_keys])
-    msgs: list[str] = []
-    if missing:
-        msgs.append("Routes 缺失（truth->manifest）：\n" + "\n".join([f"  - {x}" for x in missing]))
-    if extra:
-        msgs.append("Routes 多余（manifest->truth）：\n" + "\n".join([f"  - {x}" for x in extra]))
-    return msgs
+    issues: list[CiIssue] = []
+    for k in sorted([k for k in truth_keys if k not in declared_keys]):
+        issues.append(
+            CiIssue(
+                location=f"manifest.routes · {k}",
+                declared="manifest 未声明此 Next route",
+                actual="app/ 存在对应 route.ts",
+            )
+        )
+    for k in sorted([k for k in declared_keys if k not in truth_keys]):
+        issues.append(
+            CiIssue(
+                location=f"manifest.routes · {k}",
+                declared="manifest 声明了此 route",
+                actual="app/ 无对应 route.ts",
+            )
+        )
+    return issues
 
 
 def _is_route_group_segment(segment: str) -> bool:
@@ -375,48 +416,71 @@ def _run_backend_check(*, manifest_path: Path) -> int:
         tables_truth = set(sorted(table_truth | sql_tables))
         rpc_truth2 = set(sorted(rpc_truth | sql_funcs))
 
-        problems: list[str] = []
-        problems += _endpoint_diff(endpoint_truth, manifest_endpoints)
+        issues: list[CiIssue] = []
+        issues += _endpoint_diff(endpoint_truth, manifest_endpoints)
 
         d_tables = _set_diff(truth=tables_truth, declared=manifest_tables_set)
-        if d_tables["missing"] or d_tables["extra"]:
-            problems.append(_format_diff("Supabase tables", d_tables))
+        issues += _set_diff_issues(location="manifest.supabase.tables", d=d_tables)
 
         d_rpc = _set_diff(truth=rpc_truth2, declared=manifest_rpc_set)
-        if d_rpc["missing"] or d_rpc["extra"]:
-            problems.append(_format_diff("Supabase RPC (public functions)", d_rpc))
+        issues += _set_diff_issues(location="manifest.supabase.rpc", d=d_rpc)
 
         d_env = _set_diff(truth=env_truth, declared=manifest_env)
-        if d_env["missing"] or d_env["extra"]:
-            problems.append(_format_diff("Key env vars", d_env))
+        issues += _set_diff_issues(location="manifest.env", d=d_env)
 
         anchors = manifest.get("anchors")
         if not isinstance(anchors, list) or not all(isinstance(x, dict) for x in anchors):
-            problems.append("Anchors: FAIL\n  manifest.anchors must be list[object]")
+            issues.append(
+                CiIssue(
+                    location="manifest.anchors",
+                    declared="anchors 须为 list[object]",
+                    actual=f"当前类型: {type(anchors).__name__}",
+                )
+            )
         else:
             for i, a in enumerate(anchors):
                 p = a.get("path")
                 sym = a.get("symbol")
                 if not isinstance(p, str) or not isinstance(sym, str) or not p or not sym:
-                    problems.append(f"Anchors: FAIL\n  anchors[{i}] requires path/symbol string")
+                    issues.append(
+                        CiIssue(
+                            location=f"manifest.anchors[{i}]",
+                            declared="path + symbol 字符串",
+                            actual=f"path={p!r} symbol={sym!r}",
+                        )
+                    )
                     break
                 abs_p = (REPO_ROOT / p).resolve()
                 if not abs_p.exists():
-                    problems.append(f"Anchors: FAIL\n  anchors[{i}] path not found: {p}")
+                    issues.append(
+                        CiIssue(
+                            location=f"manifest.anchors[{i}] · {p}::{sym}",
+                            declared=f"锚点文件 {p}",
+                            actual="文件不存在",
+                        )
+                    )
                     break
                 try:
                     ln = _find_def_line(_read_text(abs_p), sym)
                 except Exception:  # noqa: BLE001
                     ln = None
                 if ln is None:
-                    problems.append(f"Anchors: FAIL\n  anchors[{i}] symbol not found: {p}::{sym}")
+                    issues.append(
+                        CiIssue(
+                            location=f"manifest.anchors[{i}] · {p}::{sym}",
+                            declared=f"symbol {sym!r}",
+                            actual=f"{p} 中未找到 def/class {sym!r}",
+                        )
+                    )
                     break
 
-        if problems:
-            print("FAIL: manifest drift detected.\n")
-            for msg in problems:
-                print(msg)
-                print()
+        if issues:
+            print_ci_failure(
+                title="合并被阻塞：manifest 锚点与代码不一致",
+                check_name="tech_graph_manifest_check",
+                local_command="python tools/tech_graph_manifest_check.py",
+                issues=issues,
+            )
             return 1
 
         ai_main = REPO_ROOT / "docs" / "_tech_graph" / "00_main.ai.md"
@@ -458,23 +522,26 @@ def _run_frontend_check(*, repo_root: Path, manifest_path: Path) -> int:
         routes_truth = _extract_frontend_routes(app_dir)
         env_truth = _extract_frontend_env_names(repo_root)
 
-        problems: list[str] = []
+        issues: list[CiIssue] = []
 
         d_pages = _set_diff(truth=pages_truth, declared=manifest_pages)
-        if d_pages["missing"] or d_pages["extra"]:
-            problems.append(_format_diff("Pages", d_pages))
+        issues += _set_diff_issues(location="manifest.pages", d=d_pages)
 
-        problems += _route_diff(routes_truth, manifest_routes)
+        issues += _route_diff(routes_truth, manifest_routes)
 
         d_env = _set_diff(truth=env_truth, declared=manifest_env)
-        if d_env["missing"] or d_env["extra"]:
-            problems.append(_format_diff("Key env vars", d_env))
+        issues += _set_diff_issues(location="manifest.env", d=d_env)
 
-        if problems:
-            print("FAIL: manifest drift detected.\n")
-            for msg in problems:
-                print(msg)
-                print()
+        if issues:
+            print_ci_failure(
+                title="合并被阻塞：frontend manifest 与代码不一致",
+                check_name="tech_graph_manifest_check --repo frontend",
+                local_command=(
+                    "python tools/tech_graph_manifest_check.py "
+                    "--repo frontend --repo-root <frontend-checkout>"
+                ),
+                issues=issues,
+            )
             return 1
 
         print(
