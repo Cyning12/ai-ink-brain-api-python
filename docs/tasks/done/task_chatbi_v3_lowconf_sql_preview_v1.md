@@ -240,6 +240,19 @@ blocked：无
 
 ---
 
+## 12. 联调标准样本（E2E · 2026-05-31）
+
+> Ink Unified Chat 两轮 Timeline + 截图；**FE-1 烟测** 可引用。
+
+| 路径 | 说明 |
+|------|------|
+| [`docs/diary/samples/chatbi-v3-lowconf-sql-preview/README.md`](../diary/samples/chatbi-v3-lowconf-sql-preview/README.md) | 索引 |
+| `round1_preview_clarify_timeline.json` | 预览 + 澄清 |
+| `round2_token_bypass_execute_timeline.json` | 按预览执行 · heros 10 条 |
+| `screenshots/*.png` | Timeline step-11/12 + 确认卡片 UI |
+
+---
+
 ## 10. ### 自检结论（执行者）
 
 > **40 帽 · 2026-05-31** · 分支 `task/chatbi-v3-lowconf-sql-preview`
