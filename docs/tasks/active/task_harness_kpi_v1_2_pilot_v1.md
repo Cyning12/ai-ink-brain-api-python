@@ -117,7 +117,7 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 - [ ] `reinspect_results/reinspect_harness-kpi-v1-2-pilot_YYYYMMDD_v1.md` 建议合并  
 - [ ] task **`### KPI（00）`** 完整（§6 演算级：HatInstance + Task_KPI% + blocked 判定）  
 - [ ] CLOSE_TRACE 含 experience + KPI 核对  
-- [ ] **HG-REINSPECT** → `approved` 后 merge PR  
+- [x] **HG-REINSPECT** → `approved` 后 merge PR（`a496d9b` 人签）  
 - [ ] 本地 `pytest tests -m "not intent_eval and not intent_benchmark"` 绿（回归）
 
 ---
@@ -181,10 +181,10 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 | §2 docs 变更 | pass | README / HARNESS_V2_PLAN §5.7–5.8 / TASK_TEMPLATE diff |
 | invoke §3 ≥15 行 | pass | `invokes/by-task/harness-kpi-v1-2-pilot/invoke_*` |
 | reviews R1 | pass | `reviews/by-task/.../task_*_audit_R1_20260531.md` |
-| reinspect | pending | 待 **50 新会话** |
+| reinspect | pass | `reinspect_harness-kpi-v1-2-pilot_20260531_v1.md` · commit `4df8add` |
 | ### KPI（00） | pending | 待 **00/CLOSE** |
 | pytest 回归 | pass | 见上表 |
-| HG-REINSPECT | pending | 人签后 merge |
+| HG-REINSPECT | approved | 人签 `a496d9b` |
 
 ### OpenSpec × TDD 三维
 
@@ -194,7 +194,7 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 | Correctness | pass — 纯 docs，Delta=无 |
 | Coherence | pass — 与 KPI_RUBRIC_v1_2 / 00 帽链一致 |
 
-**已知未测项**：50 独立复检、关账 KPI 汇总、RECENT 排期同步（C5 非阻塞）。
+**已知未测项**：关账 KPI 汇总、CLOSE_TRACE、RECENT 排期同步（C5 非阻塞）。
 
 ---
 
