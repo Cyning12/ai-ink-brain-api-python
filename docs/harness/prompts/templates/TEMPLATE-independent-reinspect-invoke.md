@@ -1,10 +1,29 @@
 # 独立复检 + 全局验收 · 对话调用模板（与 `50-independent-reinspect` 配套）
 
 > **用途**：复制下文 **§3 可复制 Prompt 正文** 到对话，替换 **§2 占位符** 后发起 **`50`**：**§一 独立复检** 与/或 **§二 全局验收**（人签 checklist 辅助）。  
-> **帽子真值**：[`hats/50-independent-reinspect.md`](hats/50-independent-reinspect.md)（复检输入裁剪、输出形状、全局验收禁止项）。  
-> **前置**：task 内 **`### 自检结论（执行者）`** 应已存在（见 [`hats/40-self-check.md`](hats/40-self-check.md)、[`templates/TEMPLATE-self-check-invoke.md`](templates/TEMPLATE-self-check-invoke.md)）；缺失则复检帽须在 **阻塞项** 首条写明。  
-> **可选输入**：20 帽短评路径（`docs/tasks/review_results/`）或 task 内签收节；无则填 **`无`**。  
-> **全量升级（可选）**：需要结构化输出节（`failure_paths` 逐项、`test_strategy` 专节、按子仓 checklist、PR 小结等）时，改用 [`templates/TEMPLATE-independent-reinspect-invoke-full.md`](templates/TEMPLATE-independent-reinspect-invoke-full.md)；占位符已填示例见 [`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md`](EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md)。**§3 短版仍为默认轻量入口**，全量模板不替代短版与 `50` 正文。
+> **帽子真值**：[`50-independent-reinspect.md`](50-independent-reinspect.md)（复检输入裁剪、输出形状、全局验收禁止项）。  
+> **前置**：task 内 **`### 自检结论（执行者）`** 应已存在（见 [`40-self-check.md`](40-self-check.md)、[`TEMPLATE-self-check-invoke.md`](TEMPLATE-self-check-invoke.md)）；缺失则复检帽须在 **阻塞项** 首条写明。  
+> **可选输入**：终轮任务审核 **`签收 / 关闭`** 节路径（`docs/harness/reviews/` 或子仓 `…/harness/reviews/` 下 `*_audit_*.md`）。  
+> **全量升级（可选）**：需要结构化输出节（`failure_paths` 逐项、`test_strategy` 专节、按子仓 checklist、PR 小结等）时，改用 [`TEMPLATE-independent-reinspect-invoke-full.md`](TEMPLATE-independent-reinspect-invoke-full.md)；占位符已填示例见 [`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md`](EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md)。**§3 短版仍为默认轻量入口**，全量模板不替代短版与 `50` 正文。  
+> **00 派发**：总调度经 `Task` 子代理发起 50 时，用下文 **§父侧 Task Handoff** + 本模板 §3 嵌入子代理 `prompt`；真值 [`00-orchestrator.md`](00-orchestrator.md)、[`../guides/KPI_RUBRIC_v1_2.md`](../guides/KPI_RUBRIC_v1_2.md)。
+
+---
+
+## 父侧 Task Handoff（00 → 50 子代理 · 维护者/00 填写）
+
+```text
+【Harness 50 · Task 子代理 Handoff】
+- 禁止：总 Chat 全文、30 执行过程、子代理历史
+- 必读：{{TASK_PATH}} · task 内 ### 自检结论（执行者）
+- diff：{{DIFF_RANGE_OR_NOTE}}
+- 审查：{{AUDIT_REVIEW_PATH_OR_NONE}}
+- 模式：{{REINSPECT_MODE}}
+- 子仓 cwd：{{SUBPROJECT_ROOT}}
+- 输出：验收表 + 合并建议 + Judgment（见下）+ 若 warn/fail 必填 judgment_notes
+- 评分：完成后 00 按 KPI_RUBRIC_v1_2 填 HatInstance 行（D1–D5）
+
+（以下为 50 帽 §3 正文，占位符须已替换）
+```
 
 ---
 
@@ -28,7 +47,6 @@
 | `{{REINSPECT_MODE}}` | **`独立复检`** \| **`全局验收`** \| **`两者`**（三选一，照抄其一） | `独立复检` |
 | `{{DIFF_RANGE_OR_NOTE}}` | 供复检对照的 diff 说明：如 `git diff origin/main...HEAD`、或 patch 路径、或 `无` | `origin/main...HEAD` |
 | `{{AUDIT_REVIEW_PATH_OR_NONE}}` | 任务审核终轮文档路径（读取 **签收/关闭**）；无则 **`无`** | `无` |
-| `{{REINSPECT_OUTPUT_PATH}}` | **复检报告落盘路径**（相对本仓根；须 under `docs/tasks/reinspect_results/`） | `docs/tasks/reinspect_results/reinspect_<slug>_20260522_v1.md` |
 
 ---
 
@@ -36,9 +54,9 @@
 
 ```text
 你正在扮演工作区 Harness「独立复检 + 全局验收帽」，严格遵循：
-- docs/harness/prompts/hats/50-independent-reinspect.md（§一 独立复检；§二 全局验收）
+- docs/harness/prompts/50-independent-reinspect.md（§一 独立复检；§二 全局验收）
 - docs/harness/HARNESS_V2_PLAN.md §5（test_strategy: required 时关注测试与实现关系）
-- 根目录 AGENTS.md §8、docs/harness/ACCEPTANCE_LANDING.md（落盘结构）
+- 根目录 AGENTS.md §8、docs/harness/HARNESS_V2_P0_ACCEPTANCE.md（若本次变更触及合并前必绿子仓）
 
 输入（已由人工替换占位符；若你仍看到 {{…}} 或 REINSPECT_MODE 非三选一字面，须先追问用户，不得开工）：
 - 主 task 路径：
@@ -56,20 +74,23 @@
 0. **Invoke 快照（开帽起点）**：在输出下列分节实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `Projects/docs/harness/invokes/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
 
 【当模式为「独立复检」或「两者」时 — 对应 hat §一】
-0. **落盘（硬）**：将完整复检正文写入 `{{REINSPECT_OUTPUT_PATH}}`（结构见 docs/harness/ACCEPTANCE_LANDING.md）；落盘并 commit 后再在对话给摘要。
 1. 读取 task 内「### 自检结论（执行者）」；若缺失 → 阻塞首条：要求先跑 TEMPLATE-self-check-invoke + 40。
 2. 输入裁剪：以 diff、命令输出要点、自检验收表为主；避免执行过程长文。
 3. 对 task 每条验收项输出表格：验收项 | pass/fail | 证据（文件:行 / 测试名 / 日志片段）| 备注；fail 须写复现步骤或缺失证据。
 4. 汇总阻塞合并项；给出是否建议合并（供维护者决策）。
 5. 禁止：替执行者改代码（除非用户明确要求复检提交 patch）；缺口退回需求/审查帽。
-6. **Fresh Context（P1）**：**新对话**开帽；**禁止**附带 30 invoke 全文；输入限于 task、reviews、40 自检、diff 摘要。
 
 【当模式为「全局验收」或「两者」时 — 对应 hat §二】
 6. 若 task 声明 freeze_id：核对 PR 变更是否在冻结基准内；契约升级是否在 SPEC/task 显式记录。
 7. 输出 checklist 表（项 / 状态 / 签注栏「待人工」）；不伪造已签核；不跳过 CI 红灯叙事。
 
-对话回复：若建议合并且无返工 → 输出「执行路线与 Commit 回溯」（docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md），勿编造下一棒 Prompt；若须打回 → 输出下一棒可复制 Prompt（含打回、二次审查、上一棒修复）。
-8. **自动 commit**：`reinspect_results` 报告 + 本轮 `invokes/`（若有）按 docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md commit。仅对话、零文件变更则不必空提交；用户写明「不要 commit」则跳过。
+对话回复：若建议合并且无返工 → 输出「执行路线与 Commit 回溯」（docs/harness/prompts/HANDOFF_CLOSE_TRACE.md），勿编造下一棒 Prompt；若须打回 → 输出下一棒可复制 Prompt（含打回、二次审查、上一棒修复）。
+8. **自动 commit**：落盘后按 docs/harness/prompts/HANDOFF_AUTO_COMMIT.md 分仓 commit。仅对话、零文件变更则不必空提交；用户写明「不要 commit」则跳过。
+
+Judgment（本帽 · 对话末尾必填；任一项 warn/fail 须写 judgment_notes）：
+- experience_capture: 维持 | 建议升级 required | 建议降 n/a | 维持 n/a（≤1 行理由）
+- gate/risk: 无 | 须人审:<HG-id> | 证据不足
+- hat_self: pass | pass-with-notes | blocked
 ```
 
 ---
@@ -79,7 +100,7 @@
 | 版本 | 文件 | 何时用 |
 |------|------|--------|
 | 短版（默认） | 本文 **§3** | token 紧、仅需 hat 级指令与最小输出条款 |
-| 全量（升级） | [`templates/TEMPLATE-independent-reinspect-invoke-full.md`](templates/TEMPLATE-independent-reinspect-invoke-full.md) **§3** | 需要 **A～D 输出节**、`failure_paths` / `test_strategy` 专节、按 `SUBPROJECT_ROOT` 拆 checklist、可选 `PR_OR_CI` |
+| 全量（升级） | [`TEMPLATE-independent-reinspect-invoke-full.md`](TEMPLATE-independent-reinspect-invoke-full.md) **§3** | 需要 **A～D 输出节**、`failure_paths` / `test_strategy` 专节、按 `SUBPROJECT_ROOT` 拆 checklist、可选 `PR_OR_CI` |
 | 已填示例 | [`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md`](EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1.md) | ChatBI P1-1；由全量模板复制后替换占位符 |
 
 ---
@@ -89,12 +110,13 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-14 | v1：与 `50-independent-reinspect` 关联；MODE 三选一；占位符未替换则 Agent 追问 |
-| 2026-05-14 | v1.1：链全量模板 `templates/TEMPLATE-independent-reinspect-invoke-full` 与 EXAMPLE；增 **§4 关系表** |
+| 2026-05-14 | v1.1：链全量模板 `TEMPLATE-independent-reinspect-invoke-full` 与 EXAMPLE；增 **§4 关系表** |
 | 2026-05-14 | v1.2：§3 对话收口改为「下一棒可复制 Prompt」（含打回、二次审查、上一棒修复） |
 | 2026-05-14 | v1.3：§3 可复制正文增第 **0** 条 **Invoke 快照（开帽起点）** |
+| 2026-05-31 | v1.4：§父侧 Task Handoff（00）；§3 Judgment + KPI 链 |
 
 ---
 
 ## 给 Cursor
 
-`Harness`、`templates/TEMPLATE-independent-reinspect-invoke`、`templates/TEMPLATE-independent-reinspect-invoke-full`、`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1`、`50-independent-reinspect`、`复检`、`全局验收`、`自检结论`、`reviews`、`占位符`、`追问`
+`Harness`、`TEMPLATE-independent-reinspect-invoke`、`TEMPLATE-independent-reinspect-invoke-full`、`EXAMPLE-invoke-independent-reinspect-both-chatbi-p1-1`、`50-independent-reinspect`、`复检`、`全局验收`、`自检结论`、`reviews`、`占位符`、`追问`
