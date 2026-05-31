@@ -1,6 +1,6 @@
 # Task：Harness KPI v1.2 试点 — 00 编排 + 帽链验证（docs）
 
-> **状态**：`pending`（**已拍板 · 新会话 00 开帽**；首棒执行后改 `in_progress`）  
+> **状态**：`in_progress`（2026-05-31 · 00 开帽 · `KPI-RUBRIC-PILOT@2026-05-31`）  
 > **schedule_ref**：RECENT §1.1（新增 · 待同步排期表）  
 > **登记日期**：2026-05-31  
 > **路线**：**B** — 与 `KPI_RUBRIC_v1_2` 分支 **同 PR** 交付（基建 + 试点关账）  
@@ -63,10 +63,10 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 
 ## 2. 范围
 
-- [ ] [`docs/harness/README.md`](../../harness/README.md) §1 增 **KPI_RUBRIC_v1_2**、**00-orchestrator** 索引  
-- [ ] [`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) 补 **§5.7** `experience_capture`、**§5.8** `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`  
-- [ ] [`docs/tasks/templates/TASK_TEMPLATE.md`](../templates/TASK_TEMPLATE.md) 增 `experience_capture`、`kpi_rubric`、`kpi_aggregator`  
-- [ ] Harness 帽链落盘：`invokes/by-task/harness-kpi-v1-2-pilot/`（含 **`invoke_*_00_*`**）、`reviews/…`、`reinspect_results/reinspect_harness-kpi-v1-2-pilot_*`  
+- [x] [`docs/harness/README.md`](../../harness/README.md) §1 增 **KPI_RUBRIC_v1_2**、**00-orchestrator** 索引  
+- [x] [`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) 补 **§5.7** `experience_capture`、**§5.8** `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`  
+- [x] [`docs/tasks/templates/TASK_TEMPLATE.md`](../templates/TASK_TEMPLATE.md) 增 `experience_capture`、`kpi_rubric`、`kpi_aggregator`  
+- [x] Harness 帽链落盘：`invokes/by-task/harness-kpi-v1-2-pilot/`（含 **`invoke_*_00_*`**）、`reviews/…`（`reinspect_results/` 待 **50**）  
 - [ ] 本 task **`### KPI（00）`** 由 **00** 关账轮填写（非空）  
 - [ ] **`experience_capture: required`** → CLOSE 含经验摘要或链 `docs/diary/`  
 - [ ] 关账：`done/` + `_views/done.md` + CLOSE_TRACE
@@ -97,7 +97,7 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 
 ---
 
-## 6. 失败路径
+## 失败路径
 
 | # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
 |---|-------------|----------|----------|--------|----------|
@@ -164,7 +164,37 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 
 ## 11. ### 自检结论（执行者）
 
-（40 帽回填）
+> **40 帽 · 2026-05-31** · 分支 `KPI_RUBRIC_v1_2`
+
+### 命令与退出码
+
+| 命令 | cwd | 退出码 | 要点 |
+|------|-----|--------|------|
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | 仓根 | 0 | 269 passed, 1 skipped |
+| `python tools/harness_task_validate.py docs/tasks/active/task_harness_kpi_v1_2_pilot_v1.md` | 仓根 | 0 | OK |
+| `python tools/harness_human_gate_check.py --task docs/tasks/active/task_harness_kpi_v1_2_pilot_v1.md` | 仓根 | 1 | **预期**：HG-REINSPECT pending（不阻塞 50；阻塞 merge） |
+
+### 验收表（§7 摘要）
+
+| 验收项 | 结果 | 证据 |
+|--------|------|------|
+| §2 docs 变更 | pass | README / HARNESS_V2_PLAN §5.7–5.8 / TASK_TEMPLATE diff |
+| invoke §3 ≥15 行 | pass | `invokes/by-task/harness-kpi-v1-2-pilot/invoke_*` |
+| reviews R1 | pass | `reviews/by-task/.../task_*_audit_R1_20260531.md` |
+| reinspect | pending | 待 **50 新会话** |
+| ### KPI（00） | pending | 待 **00/CLOSE** |
+| pytest 回归 | pass | 见上表 |
+| HG-REINSPECT | pending | 人签后 merge |
+
+### OpenSpec × TDD 三维
+
+| 维度 | 结论 |
+|------|------|
+| Completeness | pass — failure_paths F1–F5 + Scenario ID |
+| Correctness | pass — 纯 docs，Delta=无 |
+| Coherence | pass — 与 KPI_RUBRIC_v1_2 / 00 帽链一致 |
+
+**已知未测项**：50 独立复检、关账 KPI 汇总、RECENT 排期同步（C5 非阻塞）。
 
 ---
 
