@@ -1,12 +1,13 @@
 # Task：ChatBI V3 — 低置信 RAG 预览 + 确认放行（§5-3 · 全栈）
 
-> **状态**：`draft`（待 Harness 跨仓流程补齐后人拍板开跑）  
+> **状态**：`in_progress`（2026-05-31 · 00 开帽 · Ink FE+Harness 已就绪 · 本仓 **30 实现 G1–G7**）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-3**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.2 已验收 · **5-3 本单**）  
 > **需求真值（L1）**：[`docs/spec/v3-agent/SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md`](../spec/v3-agent/SPEC-ChatBI-V3-LowConfidence-Plan-Confirm.md) **§2 RAG 预览**、**§4 确认令牌**  
 > **前置（done）**：[`task_chatbi_v3_lowconf_sql_preview_v1.md`](../done/task_chatbi_v3_lowconf_sql_preview_v1.md)（§5-2 · 同机制 Text2SQL）· [`task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md`](../done/task_chatbi_v3_multiturn_clarify_semantics_4_3_v1.md)  
-> **E2E 对照样本（5-2）**：[`docs/diary/samples/chatbi-v3-lowconf-sql-preview/`](../diary/samples/chatbi-v3-lowconf-sql-preview/)
+> **E2E 对照样本（5-2）**：[`docs/diary/samples/chatbi-v3-lowconf-sql-preview/`](../diary/samples/chatbi-v3-lowconf-sql-preview/)  
+> **配对前端（done · 代码）**：`ai-ink-brain` · [`task_chatbi_v3_lowconf_rag_preview_frontend_v1.md`](../../../ai-ink-brain/content/tasks/active/task_chatbi_v3_lowconf_rag_preview_frontend_v1.md) · 实现 `72f8f0c` · Harness 22/30/40/50 已落盘（**FE-5** 待本仓 G1–G2 联调）
 
 ---
 
@@ -24,16 +25,38 @@
 | **kpi_aggregator** | `00`（建议 · 与 5-2 同编排） |
 | **git_branch** | `task/chatbi-v3-lowconf-rag-preview` |
 
-### 跨仓与 Harness 节奏（硬 · 先于 30 帽）
+### 阶段状态（00 维护 · 2026-05-31）
 
-> **人拍板**：先补齐 **Ink 侧 Harness 落盘/帽链约定**（工作区或 `ai-ink-brain` 仓），再与本后端 task **同火车或双 PR 互锁合并**；**禁止**假定「仅后端关账 = 5-3 全栈验收」。
+| 帽 | 状态 | 备注 |
+|----|------|------|
+| 00 | running | 本消息开帽 |
+| 22 | pending | |
+| 30 | pending | **G1–G7** · 对齐 Ink C1 契约 |
+| 40 | pending | |
+| 50 | pending | Fresh Context |
+| CLOSE | pending | |
+
+### 跨仓与 Harness 节奏
+
+| 序 | 动作 | 状态 |
+|----|------|------|
+| 0 | 契约 **C1**（见下） | **拍板**（Ink `72f8f0c` + review R1） |
+| 1 | Ink Harness + FE 代码 | **done**（`chatbi-v3-lowconf-rag-preview-frontend`） |
+| 2 | 本仓 Harness 22→50 | **进行中** |
+| 3 | 联调 FE-5 + diary 样本 | 待 **G1–G2** 后发 |
+
+**C1 契约增量（22 前须与 Ink 一致）**：
+
+- 公共键：`plan_id`, `tool`, `warnings`, `plan_execution_token`, `expires_in_sec`
+- `text2sql_query` 额外：`sql_draft`
+- `rag_search` 额外：**`rewrite_query`**（`planned_top_k`、`preview_headlines` 可选）
 
 | 序 | 动作 | 落点 |
 |----|------|------|
-| 0 | 冻结 **契约增量**（`agent.plan.preview` RAG payload 最小键） | 本仓 `_contract_manifest.json` + Ink manifest 消费约定 |
-| 1 | **Ink**：新建/更新前端 task（见 §6）+ Harness invoke 路径约定 | `ai-ink-brain/content/tasks/active/task_chatbi_v3_lowconf_rag_preview_frontend_v1.md`（建议名） |
-| 2 | **本仓**：22→30→40→50→CLOSE（`required` + reinspect） | `docs/harness/invokes/by-task/chatbi-v3-lowconf-rag-preview/` |
-| 3 | 联调烟测 + diary 样本（两轮 Timeline + 截图） | 本仓 `docs/diary/samples/chatbi-v3-lowconf-rag-preview/`（关账时建） |
+| 0 | 冻结 **契约** | 本仓 `_contract_manifest.json` ↔ Ink 已落盘镜像 |
+| 1 | **Ink** task + Harness | `content/tasks/active/task_chatbi_v3_lowconf_rag_preview_frontend_v1.md` · `content/harness/invokes/by-task/chatbi-v3-lowconf-rag-preview-frontend/` |
+| 2 | **本仓** Harness | `docs/harness/invokes/by-task/chatbi-v3-lowconf-rag-preview/` |
+| 3 | E2E 样本 | `docs/diary/samples/chatbi-v3-lowconf-rag-preview/`（关账） |
 
 **Open Folder**：后端实现与 Harness 落盘 → **本仓**；前端实现 → **`ai-ink-brain/`**（见工作区 `Projects/AGENTS.md` §2）。
 
@@ -157,10 +180,11 @@ SPEC 要求：低置信 **`rag_search`** 场景下，用户在执行全链路 RA
 
 ---
 
-## 6. 前端涉及点（Ink · 执行真值）
+## 6. 前端涉及点（Ink · 已完成 · 本仓验收引用）
 
-> **子 task 建议落盘**（由人/Agent 在 **`ai-ink-brain`** 创建，本单仅索引）  
-> 建议路径：`ai-ink-brain/content/tasks/active/task_chatbi_v3_lowconf_rag_preview_frontend_v1.md`
+> **真值 task**：`ai-ink-brain/content/tasks/active/task_chatbi_v3_lowconf_rag_preview_frontend_v1.md`  
+> **实现 commit**：`72f8f0c`（`main`）· **FE-1～FE-4 pass** · **FE-5** 阻塞于本仓 RAG preview 未就绪  
+> **50 复检**：`content/tasks/reinspect_results/reinspect_chatbi-v3-lowconf-rag-preview-frontend_20260531_v1.md`
 
 ### 6.1 须改模块（参考 5-2 已 done 前端 task）
 
