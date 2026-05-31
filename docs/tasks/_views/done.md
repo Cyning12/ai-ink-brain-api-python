@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- `../done/task_backend_improve_batch_a_p0_v1.md`（2026-05-31 验收通过：FAQ Batch A IMP-B-01/02/10/11/20 · PR #96 · 22 CLOSE `reviews/by-task/backend-improve-batch-a-p0/`）
 - `../done/task_tech_graph_p0_handoff_and_drift_check_v1.md`
 - `../done/task_tech_graph_p1_manifest_and_validation_v1.md`
 - `../done/task_tech_graph_p2_layered_views_and_failure_paths_v1.md`
