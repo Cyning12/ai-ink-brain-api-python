@@ -64,8 +64,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1,30 | 含 §6 前端范围人扫 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 后；须核对契约与 Ink task 对齐 |
+| HG-TASK-DRAFT | approved | 22-R1,30 | 含 §6 前端范围人扫 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 后；须核对契约与 Ink task 对齐 |
 | HG-REINSPECT | pending | done | 50 后、合并前；**双仓** diff 须 50 书面覆盖 |
 
 ---
