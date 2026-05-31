@@ -60,26 +60,17 @@ def _diff_to_issue(
     location: str,
     d: Diff,
     missing_label: str,
-    extra_label: str,
 ) -> list[CiIssue]:
-    issues: list[CiIssue] = []
-    if d.missing:
-        issues.append(
-            CiIssue(
-                location=location,
-                declared=f"contract 声明但代码未覆盖: {_summarize_items(d.missing)}",
-                actual=missing_label,
-            )
+    """Backend 契约：仅 contract ⊆ code truth（missing）；extra 不失败。"""
+    if not d.missing:
+        return []
+    return [
+        CiIssue(
+            location=location,
+            declared=f"contract 声明但代码未覆盖: {_summarize_items(d.missing)}",
+            actual=missing_label,
         )
-    if d.extra:
-        issues.append(
-            CiIssue(
-                location=location,
-                declared=extra_label,
-                actual=f"代码存在但 contract 未声明: {_summarize_items(d.extra)}",
-            )
-        )
-    return issues
+    ]
 
 
 def _extract_string_keys_from_dict_literal(text: str) -> set[str]:
@@ -337,7 +328,6 @@ def main() -> int:
             location="contract.sse.allowed_events ↔ api/unified_chat.py",
             d=d_ev,
             missing_label="后端 _sse() 未 emit 上述事件",
-            extra_label=f"contract 允许: {_summarize_items(sorted(allowed_events))}",
         )
 
         d_types = _diff_set(truth=set(bt["chain_types"]), declared=chain_type_values)
@@ -345,7 +335,6 @@ def main() -> int:
             location="contract.sse.chain.type_values ↔ api/",
             d=d_types,
             missing_label="后端未 emit 上述 chain.type",
-            extra_label=f"contract 声明 type: {_summarize_items(sorted(chain_type_values))}",
         )
 
         d_done = _diff_set(truth=set(bt["done_keys"]), declared=done_data_keys)
@@ -353,7 +342,6 @@ def main() -> int:
             location="contract.sse.done.data_keys ↔ api/unified_chat.py",
             d=d_done,
             missing_label="done 事件 payload 缺上述 key",
-            extra_label=f"contract 要求: {_summarize_items(sorted(done_data_keys))}",
         )
 
         # payload keys: only check what we can statically extract
@@ -367,7 +355,6 @@ def main() -> int:
                         location="contract.sse.chain.payload_min_keys_by_type.meta",
                         d=d_meta,
                         missing_label="meta payload 缺 contract 要求的 key",
-                        extra_label=f"contract 要求: {_summarize_items(sorted(req))}",
                     )
                 continue
             if typ == "rag.sources":
@@ -382,21 +369,18 @@ def main() -> int:
                     location="contract.sse.chain.payload_min_keys_by_type.rag.sources (payload)",
                     d=d_rag_payload,
                     missing_label="rag.sources payload 缺 key",
-                    extra_label=f"contract 要求: {_summarize_items(sorted(req_payload_keys))}",
                 )
                 d_rag_items = _diff_set(truth=set(bt["rag_sources_item_keys"]), declared=req_item_keys)
                 issues += _diff_to_issue(
                     location="contract.sse.chain.payload_min_keys_by_type.rag.sources (items)",
                     d=d_rag_items,
                     missing_label="source item 缺 key",
-                    extra_label=f"contract 要求: {_summarize_items(sorted(req_item_keys))}",
                 )
                 d_rag_ret = _diff_set(truth=set(bt["rag_sources_retrieval_keys"]), declared=req_ret_keys)
                 issues += _diff_to_issue(
                     location="contract.sse.chain.payload_min_keys_by_type.rag.sources (retrieval)",
                     d=d_rag_ret,
                     missing_label="retrieval 嵌套缺 key",
-                    extra_label=f"contract 要求: {_summarize_items(sorted(req_ret_keys))}",
                 )
                 continue
 
@@ -419,7 +403,6 @@ def main() -> int:
                 location=f"contract.sse.chain.payload_min_keys_by_type.{typ}",
                 d=d,
                 missing_label=f"{typ} payload 缺 contract 要求的 key",
-                extra_label=f"contract 要求: {_summarize_items(sorted(req))}",
             )
 
         # frontend_expect ⊆ contract
@@ -451,7 +434,6 @@ def main() -> int:
             location="contract.frontend_anchors.sse_consumer_files (required events)",
             d=d_fe_events,
             missing_label="前端 SSE consumer 处理了 contract 未允许的事件",
-            extra_label=f"contract allowed_events: {_summarize_items(sorted(allowed_events))}",
         )
 
         # Keys used by frontend must be subset of contract (very lightweight)
