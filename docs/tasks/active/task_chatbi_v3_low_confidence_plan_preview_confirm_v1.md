@@ -116,7 +116,7 @@ python tools/tech_graph_contract_check.py
 
 | # | 验收项 | 口径 | 结果 |
 |---|--------|------|------|
-| **FE-1** | Timeline / `router.decision` | Unified Chat（Agent + SSE）展开 **Timeline / 调试区**；后端 **`CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1`**、`prefer=auto`，问句触发 **低置信 text2sql + 澄清短路**。同 **`run_id`** 下 **`router.decision`**：`final_mode` 与 **`candidate_mode`** 均为 **`text2sql`**（与 `agent.intent` 一致），**不得**出现 **`final_mode=rag`** 且无后续 **`rag.sources`** / RAG 工具帧 | **烟测**（通过则填日期；未做可写 **N/A**） |
+| **FE-1** | Timeline / `router.decision` | Unified Chat（Agent + SSE）展开 **Timeline / 调试区**；后端 **`CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1`**、`prefer=auto`，问句触发 **低置信 text2sql + 澄清短路**。同 **`run_id`** 下 **`router.decision`**：`final_mode` 与 **`candidate_mode`** 均为 **`text2sql`**（与 `agent.intent` 一致），**不得**出现 **`final_mode=rag`** 且无后续 **`rag.sources`** / RAG 工具帧 | **烟测通过 · 2026-05-31**（样本 [`docs/diary/samples/chatbi-v3-lowconf-sql-preview/`](../diary/samples/chatbi-v3-lowconf-sql-preview/)） |
 | **FE-2** | 策略 B 容错 | 未知 `chain.type` / 未承诺键：不白屏、不抛未捕获异常（本首包 **无新 type**） | **通过**（沿用既有前端实现） |
 | **FE-3** | 代码锚点（排障） | `components/unified-chat/UnifiedChatPageClient.tsx`（`e.type === "router.decision"` → `final_mode` / `finalMode`）、`components/chain-chat/ChainEventCard.tsx`（`router.decision` 卡片 `candidate_mode` / `final_mode`） | 若 FE-1 异常：核对 **`PY_API_URL`** 是否指向已含方案 B 的后端、**硬刷新** 避免旧 SSE |
 
@@ -136,7 +136,7 @@ python tools/tech_graph_contract_check.py
 | # | 原 §5 项 | 状态 |
 |---|----------|------|
 | **5-1** | 方案 B **完整表述**：无矛盾或 `held` / `plan_only` 等显式字段 + 前后端可读 | **部分**：首包已消除「`final_mode: rag` 且无 RAG」；**未做** `held` 等新键（与 manifest **另 PR**）。**子项 §5-1a（首包）**：澄清短路下 `router.decision.final_mode` 与意图候选一致 — **已满足（2026-05-13）**。 |
-| **5-2** | Text2SQL 低置信：SQL 草案预览 + 只读闸 + 确认后一次跑通（含 deny） | **未做** |
+| **5-2** | Text2SQL 低置信：SQL 草案预览 + 只读闸 + 确认后一次跑通（含 deny） | **已验收**（2026-05-31 · 子 task [`task_chatbi_v3_lowconf_sql_preview_v1.md`](../done/task_chatbi_v3_lowconf_sql_preview_v1.md) · 分支 `task/chatbi-v3-lowconf-sql-preview` · reinspect [`reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md`](../tasks/reinspect_results/reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md)） |
 | **5-3** | RAG 低置信：检索方案级预览 + 确认后全链路 | **未做** |
 | **5-4** | 门控：`user_confirmed` / token、`plan_id`、`gate_bypass_reason` 日志 | **未做** |
 | **5-5** | pytest + contract（**全特性**） | **部分**：当前仅覆盖方案 B + 既有 Agent 用例 |

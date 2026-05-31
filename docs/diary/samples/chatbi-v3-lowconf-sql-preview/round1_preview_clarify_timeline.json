@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "sample_id": "chatbi-v3-lowconf-sql-preview-round1",
+    "captured_at": "2026-05-31",
+    "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+    "event_count": 23,
+    "notes": "首轮：预览+澄清短路；sql_draft 可能与问句表名不一致（agent_info）"
+  },
+  "timeline": [
+    {
+      "type": "user.message",
+      "ts": 1780234282782,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "user",
+      "payload": {
+        "text": "统计 heros  表里有多少条数据"
+      }
+    },
+    {
+      "type": "meta",
+      "ts": 0,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "m1",
+      "payload": {
+        "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+        "mode": "auto",
+        "session_id": "211d54b7-f806-4265-b46e-fc1a897f51e2"
+      }
+    },
+    {
+      "type": "agent.step.start",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "a1",
+      "payload": {
+        "step_number": 1,
+        "max_steps": 5
+      }
+    },
+    {
+      "type": "agent.llm.start",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "phase": "intent",
+        "step_id": "s1"
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "text": "用户要求统计 heros 表的数",
+        "part_index": 0
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "text": "据条数，属于数据库查询获取结构化",
+        "part_index": 1
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "text": "数据，应使用 text2sql_",
+        "part_index": 2
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "text": "query。",
+        "part_index": 3
+      }
+    },
+    {
+      "type": "agent.llm.end",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "44aabb235d19_s1_intent",
+      "payload": {
+        "ok": true,
+        "phase": "intent",
+        "step_id": "s1",
+        "simulated_stream": true
+      }
+    },
+    {
+      "type": "router.decision",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "r1",
+      "payload": {
+        "prefer": "auto",
+        "candidate_mode": "text2sql",
+        "final_mode": "text2sql",
+        "rule_hits": [],
+        "evidence": {
+          "agent_reasoning": "用户要求统计 heros 表的数据条数，属于数据库查询获取结构化数据，应使用 text2sql_query。"
+        },
+        "fallback": "rag_search"
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 6301,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.retrieve",
+      "payload": {
+        "subphase_id": "text2sql.phase.retrieve",
+        "phase_id": "retrieve",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 10803,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.retrieve",
+      "payload": {
+        "subphase_id": "text2sql.phase.retrieve",
+        "phase_id": "retrieve",
+        "latency_ms": 4500
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 10803,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.schema_prefetch",
+      "payload": {
+        "subphase_id": "text2sql.phase.schema_prefetch",
+        "phase_id": "schema_prefetch",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 10806,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.schema_prefetch",
+      "payload": {
+        "subphase_id": "text2sql.phase.schema_prefetch",
+        "phase_id": "schema_prefetch",
+        "latency_ms": 2,
+        "schema_prefetch_source": "skipped_not_mutate",
+        "schema_prefetch_tables": []
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 10806,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.llm_sql",
+      "payload": {
+        "subphase_id": "text2sql.phase.llm_sql",
+        "phase_id": "llm_sql",
+        "phase_kind": "llm"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 19029,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.llm_sql",
+      "payload": {
+        "subphase_id": "text2sql.phase.llm_sql",
+        "phase_id": "llm_sql",
+        "latency_ms": 8222
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 19029,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.validate",
+      "payload": {
+        "subphase_id": "text2sql.phase.validate",
+        "phase_id": "validate",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 19037,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "text2sql.phase.validate",
+      "payload": {
+        "subphase_id": "text2sql.phase.validate",
+        "phase_id": "validate",
+        "latency_ms": 8
+      }
+    },
+    {
+      "type": "agent.plan.preview",
+      "ts": 19037,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "a1_plan_prev",
+      "payload": {
+        "plan_id": "9c98eac535764939a9fa",
+        "tool": "text2sql_query",
+        "sql_draft": "select count(*) from agent_info",
+        "warnings": [
+          "若确认按预览 SQL 继续查数：请在 120 秒内在**下一轮同一问题**的请求 JSON 中带 `\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。若未及时附带令牌，本预览 SQL 与该令牌均失效，须**重新发起本问题**才能再次预览。"
+        ],
+        "plan_execution_token": "eyJleHAiOjE3ODAyMzQ0MjIsInAiOiJjbGFyaWZ5X3RleHQyc3FsX29uY2UiLCJxaCI6ImI4ZDNmMTU0ZmQ5ZmRiMjM3YWI5OTM3OWE0NWU3NTNkIiwic2lkIjoiMjExZDU0YjctZjgwNi00MjY1LWI0NmUtZmMxYTg5N2Y1MWUyIiwidiI6MX0KrUSTSPAbI76KwLw5nkElumhPdujTX0HHncAx60K1bRA",
+        "expires_in_sec": 120
+      }
+    },
+    {
+      "type": "agent.clarify",
+      "ts": 19037,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "a1_clarify",
+      "payload": {
+        "step_number": 1,
+        "message": "待您澄清（低置信度）",
+        "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。 若涉及具体表/字段，请在确认权限与口径后再发起查数。\n\n若确认按预览 SQL 继续查数：请在 120 秒内在**下一轮同一问题**的请求 JSON 中带 `\"plan_execution_token\": \"…\"`（见 `agent.plan.preview` 中的 `plan_execution_token`）。若未及时附带令牌，本预览 SQL 与该令牌均失效，须**重新发起本问题**才能再次预览。"
+      }
+    },
+    {
+      "type": "agent.final",
+      "ts": 19037,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "a_final",
+      "payload": {
+        "total_steps": 0,
+        "tools_used": [],
+        "modes": [
+          "text2sql"
+        ],
+        "fallback_used": false
+      }
+    },
+    {
+      "type": "assistant.message",
+      "ts": 19037,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "s_answer",
+      "payload": {
+        "role": "assistant",
+        "content": "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；也可改用 prefer=text2sql 强制路径或改写问题后重试。"
+      }
+    },
+    {
+      "type": "latency",
+      "ts": 19040,
+      "run_id": "44aabb23-5d19-4a87-ac5f-4f50aeaf9f18",
+      "step_id": "l1",
+      "payload": {
+        "total_ms": 19040,
+        "stages_ms": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,365 @@
+{
+  "meta": {
+    "sample_id": "chatbi-v3-lowconf-sql-preview-round2",
+    "captured_at": "2026-05-31",
+    "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+    "event_count": 30,
+    "notes": "第二轮：按预览执行；token 放行；sql.result heros count=10"
+  },
+  "timeline": [
+    {
+      "type": "user.message",
+      "ts": 1780234402207,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "user",
+      "payload": {
+        "text": "统计 heros  表里有多少条数据"
+      }
+    },
+    {
+      "type": "meta",
+      "ts": 0,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "m1",
+      "payload": {
+        "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+        "mode": "auto",
+        "session_id": "211d54b7-f806-4265-b46e-fc1a897f51e2"
+      }
+    },
+    {
+      "type": "agent.step.start",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "a1",
+      "payload": {
+        "step_number": 1,
+        "max_steps": 5
+      }
+    },
+    {
+      "type": "agent.llm.start",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_intent",
+      "payload": {
+        "phase": "intent",
+        "step_id": "s1"
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_intent",
+      "payload": {
+        "text": "用户要求统计heros表的数据条",
+        "part_index": 0
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_intent",
+      "payload": {
+        "text": "数，属于结构化数据查询，应由数据",
+        "part_index": 1
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_intent",
+      "payload": {
+        "text": "库执行。",
+        "part_index": 2
+      }
+    },
+    {
+      "type": "agent.llm.end",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_intent",
+      "payload": {
+        "ok": true,
+        "phase": "intent",
+        "step_id": "s1",
+        "simulated_stream": true
+      }
+    },
+    {
+      "type": "router.decision",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "r1",
+      "payload": {
+        "prefer": "auto",
+        "candidate_mode": "text2sql",
+        "final_mode": "text2sql",
+        "rule_hits": [],
+        "evidence": {
+          "agent_reasoning": "用户要求统计heros表的数据条数，属于结构化数据查询，应由数据库执行。"
+        },
+        "fallback": "rag_search"
+      }
+    },
+    {
+      "type": "agent.think",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "a1_think",
+      "payload": {
+        "step_number": 1,
+        "thought": "已校验 plan_execution_token，按用户确认放行执行 Text2SQL。",
+        "selected_tool": "text2sql_query",
+        "mode": "text2sql",
+        "confidence": 0.95
+      }
+    },
+    {
+      "type": "tool.call.start",
+      "ts": 5542,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "t_step1",
+      "payload": {
+        "tool": "text2sql_query",
+        "input": {
+          "query": "统计 heros  表里有多少条数据"
+        }
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 5543,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.retrieve",
+      "payload": {
+        "subphase_id": "text2sql.phase.retrieve",
+        "phase_id": "retrieve",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 6067,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.retrieve",
+      "payload": {
+        "subphase_id": "text2sql.phase.retrieve",
+        "phase_id": "retrieve",
+        "latency_ms": 524
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 6067,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.schema_prefetch",
+      "payload": {
+        "subphase_id": "text2sql.phase.schema_prefetch",
+        "phase_id": "schema_prefetch",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 6067,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.schema_prefetch",
+      "payload": {
+        "subphase_id": "text2sql.phase.schema_prefetch",
+        "phase_id": "schema_prefetch",
+        "latency_ms": 0,
+        "schema_prefetch_source": "skipped_not_mutate",
+        "schema_prefetch_tables": []
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 6067,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.llm_sql",
+      "payload": {
+        "subphase_id": "text2sql.phase.llm_sql",
+        "phase_id": "llm_sql",
+        "phase_kind": "llm"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 16603,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.llm_sql",
+      "payload": {
+        "subphase_id": "text2sql.phase.llm_sql",
+        "phase_id": "llm_sql",
+        "latency_ms": 10535
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 16603,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.validate",
+      "payload": {
+        "subphase_id": "text2sql.phase.validate",
+        "phase_id": "validate",
+        "phase_kind": "io"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 16605,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.validate",
+      "payload": {
+        "subphase_id": "text2sql.phase.validate",
+        "phase_id": "validate",
+        "latency_ms": 1
+      }
+    },
+    {
+      "type": "text2sql.phase.start",
+      "ts": 16605,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.db",
+      "payload": {
+        "subphase_id": "text2sql.phase.db",
+        "phase_id": "db",
+        "phase_kind": "db"
+      }
+    },
+    {
+      "type": "text2sql.phase.end",
+      "ts": 18341,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "text2sql.phase.db",
+      "payload": {
+        "subphase_id": "text2sql.phase.db",
+        "phase_id": "db",
+        "latency_ms": 1736
+      }
+    },
+    {
+      "type": "tool.call.end",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "t_step1",
+      "payload": {
+        "output": {
+          "answer": "共有 10 条。",
+          "text2sql_phases_ms": {
+            "retrieve": 524,
+            "schema_prefetch": 0,
+            "llm_sql": 10535,
+            "validate": 1,
+            "db": 1736
+          }
+        },
+        "error": null,
+        "latency_ms": 12799
+      }
+    },
+    {
+      "type": "sql.result",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "q_step1",
+      "payload": {
+        "sql": "SELECT count(*) FROM heros",
+        "columns": [
+          "count"
+        ],
+        "rows": [
+          {
+            "count": 10
+          }
+        ],
+        "truncated": false
+      }
+    },
+    {
+      "type": "agent.llm.start",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_text2sql_summary",
+      "payload": {
+        "phase": "text2sql_summary",
+        "step_id": "s1"
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_text2sql_summary",
+      "payload": {
+        "text": "共有 10 条。",
+        "part_index": 0
+      }
+    },
+    {
+      "type": "agent.llm.end",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "150043ffbcaa_s1_text2sql_summary",
+      "payload": {
+        "ok": true,
+        "phase": "text2sql_summary",
+        "step_id": "s1",
+        "simulated_stream": true
+      }
+    },
+    {
+      "type": "agent.step.end",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "a1_end",
+      "payload": {
+        "step_number": 1,
+        "tool_used": "text2sql_query",
+        "mode": "text2sql",
+        "success": true,
+        "next_action": "final_answer"
+      }
+    },
+    {
+      "type": "agent.final",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "a_final",
+      "payload": {
+        "total_steps": 1,
+        "tools_used": [
+          "text2sql_query"
+        ],
+        "modes": [
+          "text2sql"
+        ],
+        "fallback_used": false
+      }
+    },
+    {
+      "type": "assistant.message",
+      "ts": 18342,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "s_answer",
+      "payload": {
+        "role": "assistant",
+        "content": "共有 10 条。"
+      }
+    },
+    {
+      "type": "latency",
+      "ts": 18344,
+      "run_id": "150043ff-bcaa-471f-af6f-89df2a0e2b7b",
+      "step_id": "l1",
+      "payload": {
+        "total_ms": 18344,
+        "stages_ms": {}
+      }
+    }
+  ]
+}
