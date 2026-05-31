@@ -1,6 +1,6 @@
 # Task：Harness KPI v1.2 试点 — 00 编排 + 帽链验证（docs）
 
-> **状态**：`in_progress`（2026-05-31 · 00 开帽 · `KPI-RUBRIC-PILOT@2026-05-31`）  
+> **状态**：`done`（2026-05-31 · `KPI-RUBRIC-PILOT@2026-05-31` · Task_KPI% **100** · **pass**）  
 > **schedule_ref**：RECENT §1.1（新增 · 待同步排期表）  
 > **登记日期**：2026-05-31  
 > **路线**：**B** — 与 `KPI_RUBRIC_v1_2` 分支 **同 PR** 交付（基建 + 试点关账）  
@@ -25,7 +25,7 @@
 
 ### 人工闸 `human_gate`
 
-> **预批说明**：用户 **2026-05-31** 授权 HG-TASK-DRAFT / HG-AUDIT-R1 **approved**（路线 B · 暂不代填 HG-REINSPECT）。
+> **预批说明**：HG-TASK-DRAFT / HG-AUDIT-R1 预批于 `c2b73d8`；HG-REINSPECT 人签 `a496d9b`（50 通过后）。
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
@@ -66,10 +66,10 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 - [x] [`docs/harness/README.md`](../../harness/README.md) §1 增 **KPI_RUBRIC_v1_2**、**00-orchestrator** 索引  
 - [x] [`docs/harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) 补 **§5.7** `experience_capture`、**§5.8** `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`  
 - [x] [`docs/tasks/templates/TASK_TEMPLATE.md`](../templates/TASK_TEMPLATE.md) 增 `experience_capture`、`kpi_rubric`、`kpi_aggregator`  
-- [x] Harness 帽链落盘：`invokes/by-task/harness-kpi-v1-2-pilot/`（含 **`invoke_*_00_*`**）、`reviews/…`（`reinspect_results/` 待 **50**）  
-- [ ] 本 task **`### KPI（00）`** 由 **00** 关账轮填写（非空）  
-- [ ] **`experience_capture: required`** → CLOSE 含经验摘要或链 `docs/diary/`  
-- [ ] 关账：`done/` + `_views/done.md` + CLOSE_TRACE
+- [x] Harness 帽链落盘：`invokes/by-task/harness-kpi-v1-2-pilot/`（含 **`invoke_*_00_*`**）、`reviews/…`、`reinspect_results/reinspect_harness-kpi-v1-2-pilot_20260531_v1.md`  
+- [x] 本 task **`### KPI（00）`** 由 **00** 关账轮填写（非空）  
+- [x] **`experience_capture: required`** → CLOSE 含经验摘要（§12）  
+- [x] 关账：`done/` + `_views/done.md` + CLOSE_TRACE
 
 ## 3. 非范围
 
@@ -111,14 +111,14 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 
 ## 7. 验收标准
 
-- [ ] 范围 §2 docs 变更已提交  
-- [ ] **00** / 22 / 30 / 40 / 50 invoke 落盘且 §3 ≥15 行  
-- [ ] `reviews/by-task/harness-kpi-v1-2-pilot/` 有 R1 audit  
-- [ ] `reinspect_results/reinspect_harness-kpi-v1-2-pilot_YYYYMMDD_v1.md` 建议合并  
-- [ ] task **`### KPI（00）`** 完整（§6 演算级：HatInstance + Task_KPI% + blocked 判定）  
-- [ ] CLOSE_TRACE 含 experience + KPI 核对  
+- [x] 范围 §2 docs 变更已提交  
+- [x] **00** / 22 / 30 / 40 / 50 invoke 落盘且 §3 ≥15 行  
+- [x] `reviews/by-task/harness-kpi-v1-2-pilot/` 有 R1 audit  
+- [x] `reinspect_results/reinspect_harness-kpi-v1-2-pilot_20260531_v1.md` 建议合并  
+- [x] task **`### KPI（00）`** 完整（§6 演算级：HatInstance + Task_KPI% + blocked 判定）  
+- [x] CLOSE_TRACE 含 experience + KPI 核对（对话 · invoke_CLOSE）  
 - [x] **HG-REINSPECT** → `approved` 后 merge PR（`a496d9b` 人签）  
-- [ ] 本地 `pytest tests -m "not intent_eval and not intent_benchmark"` 绿（回归）
+- [x] 本地 `pytest tests -m "not intent_eval and not intent_benchmark"` 绿（269 passed · 50 复检）
 
 ---
 
@@ -156,9 +156,33 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 
 ## 10. ### KPI（00）
 
-> **由 00（`kpi_aggregator: 00`）关账轮填写**；格式见 [`KPI_RUBRIC_v1_2.md`](../../harness/guides/KPI_RUBRIC_v1_2.md) §4.3–§6。
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **100%** · **状态**: **pass** · **帽**: 00→22→30→40→50→CLOSE
 
-（占位 · 执行后删除本行）
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|----------------|
+| 00 | open | main_chat | 100 | 100 | 100 | 100 | — | — |
+| 22 | R1 | main_chat | 100 | 100 | 100 | 100 | — | R1 时 gate_check HG-REINSPECT FAIL 为预期 |
+| 30 | R1 | main_chat | 100 | 100 | 100 | 100 | — | — |
+| 40 | R1 | main_chat | 100 | 100 | 100 | 100 | — | — |
+| 50 | v1 | main_chat | 100 | 100 | 100 | 100 | 100 | Fresh Context；建议条件合并；见 reinspect §9 |
+
+**Task 维聚合**（KPI_RUBRIC §4.1–§4.2）：
+
+| 大维 | 聚合 | 得分 |
+|------|------|------|
+| D1 | avg(五帽) | 100 |
+| D2 | min | 100 |
+| D3 | avg | 100 |
+| D4 | min | 100 |
+| D5 | min(50) | 100 |
+
+```text
+Task_KPI% = 100×20% + 100×30% + 100×15% + 100×15% + 100×20% = 100%
+blocked：无（无帽 D2/D5 fail）
+状态：pass（100 ≥ 80）
+```
+
+**blocked 原因**：（无）
 
 ---
 
@@ -182,7 +206,7 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 | invoke §3 ≥15 行 | pass | `invokes/by-task/harness-kpi-v1-2-pilot/invoke_*` |
 | reviews R1 | pass | `reviews/by-task/.../task_*_audit_R1_20260531.md` |
 | reinspect | pass | `reinspect_harness-kpi-v1-2-pilot_20260531_v1.md` · commit `4df8add` |
-| ### KPI（00） | pending | 待 **00/CLOSE** |
+| ### KPI（00） | pass | §10 · Task_KPI% 100 · pass |
 | pytest 回归 | pass | 见上表 |
 | HG-REINSPECT | approved | 人签 `a496d9b` |
 
@@ -194,7 +218,19 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 | Correctness | pass — 纯 docs，Delta=无 |
 | Coherence | pass — 与 KPI_RUBRIC_v1_2 / 00 帽链一致 |
 
-**已知未测项**：关账 KPI 汇总、CLOSE_TRACE、RECENT 排期同步（C5 非阻塞）。
+**已知未测项**：RECENT 排期同步（C5 非阻塞）。
+
+---
+
+## 12. 经验摘要（experience_capture · required）
+
+> **00/CLOSE · 2026-05-31** · 试点 `kpi_aggregator: 00` 可复用决策
+
+1. **帽链**：docs-only 试点可在 **同会话 semi_auto** 跑 00→22→30→40；**50 须新会话** Fresh Context（50 独立 VERIFY 与 reinspect 落盘已验证）。
+2. **KPI 汇总**：`kpi_aggregator: 00` 时 HatInstance 由 00 逐帽维护，**`### KPI（00）` 仅 CLOSE 轮填写**；50 只写本帽行 + Judgment，不代填 Task 表。
+3. **人工闸**：HG-REINSPECT **单独 commit 人签**（`a496d9b`）再 merge；Agent 不得代签；关账前 `harness_human_gate_check` 须 OK。
+4. **validate**：task 小节标题须精确 **`## 失败路径`**（非 `## 6. 失败路径`），否则 `harness_task_validate` FAIL。
+5. **路线 B**：KPI 基建与试点 task **同分支同 PR** 交付可行；invoke/review/reinspect 按 `by-task/harness-kpi-v1-2-pilot/` taxonomy 落盘齐全。
 
 ---
 
@@ -204,6 +240,7 @@ KPI v1.2、00 总调度帽、CLOSE/50 模板已落在分支 `KPI_RUBRIC_v1_2`，
 |------|------|
 | 2026-05-31 | v0.1 草案：路线 B · gate 预批 · 暂不执行 |
 | 2026-05-31 | v0.2：`kpi_aggregator: 00` · §9 拍板 · `pending` 待新会话 00 开帽 |
+| 2026-05-31 | v1.0 关账：00→50 帽链 · KPI 100% pass · HG-REINSPECT `a496d9b` · experience §12 |
 
 ---
 
