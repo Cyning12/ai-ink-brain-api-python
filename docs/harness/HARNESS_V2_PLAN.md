@@ -138,6 +138,28 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 - **`human_gate`**：表列 `human_gate_id`、`status`（`pending` \| `approved`）、`blocks_hats`；**仅人** 可将 `pending` 改为 `approved`；Agent 遇阻塞帽 **拒执行**。  
 - **`git_branch`**（建议）：半自动执行所在分支名（如 `task/<slug>`），**禁止**在 `main` 上连续自动链式提交。
 
+### 5.7 `experience_capture`（经验归纳 · 无 60 帽）
+
+| 取值 | 含义 | 关账时 |
+|------|------|--------|
+| `required` | 跨 task 可复用决策/排障/流程教训 | CLOSE 须有 **经验摘要** 或链 `docs/diary/` |
+| `recommended` | 建议短摘要 | 关闭回溯 ≥3 bullet |
+| `not_applicable` | 无复用经验 | **须** `experience_capture_note` 一行 |
+
+- 各帽 **Judgment** 可建议升/降档位；**22 或人** 改 task 元信息。  
+- 判定矩阵：[`guides/KPI_RUBRIC_v1_2.md`](guides/KPI_RUBRIC_v1_2.md) §6；关账核对：[`prompts/handoff/HANDOFF_CLOSE_TRACE.md`](prompts/handoff/HANDOFF_CLOSE_TRACE.md) §4 步骤 6。
+
+### 5.8 `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`
+
+| 字段 | 说明 |
+|------|------|
+| **`kpi_rubric`** | 评分规则版本；**2026-05-31 起新建 task 必填** `KPI_RUBRIC_v1_2` |
+| **`kpi_aggregator`** | 谁汇总 HatInstance 表：`CLOSE`（默认，可省略字段行）\| `00` \| `50` \| `human` |
+| **`### KPI（00）`** | task 正文小节；关账前 **必填**（含 Task_KPI%、blocked 判定）；公式见 KPI_RUBRIC §4 |
+
+- **00 总调度** 可链外编排并逐帽填 HatInstance；未用 00 时由 **关账（CLOSE）** 读各帽 Judgment + 50/reinspect 填表。  
+- **blocked**（任一帽 D2/D5 fail）→ **不得关账**；与 `human_gate` pending、50 书面阻塞、必绿 CI 红 **并行** 硬规则。
+
 ---
 
 ## 6. 冻结点 vs 修订记录（再次落盘）
@@ -196,6 +218,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 | 2026-05-14 | §3 表后脚注 **Invoke 快照**（链 §1、`invokes/`、`prompts` 各 `TEMPLATE-*-invoke` §3）；§4 **P2-6** 增补 `invokes/` 与 §1、§3 同步修订 |
 | 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
 | 2026-05-30 | §5.1 本仓 TDD 实践口径；task 模板 Delta/Scenario（OpenSpec 借鉴）；链 diary TDD 专项分析 |
+| 2026-05-31 | §5.7 `experience_capture`、§5.8 `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`；链 KPI_RUBRIC_v1_2 与 00-orchestrator |
 
 ---
 

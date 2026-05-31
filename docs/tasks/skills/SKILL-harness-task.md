@@ -1,9 +1,9 @@
-# SKILL：Harness 单 task 帽链（22 → 关账）
+# SKILL：Harness 单 task 帽链（22 → 关账 · 子仓指针）
 
-> **SKILL ID**：`harness-task`（单 task · 非 Loop）  
-> **状态**：`draft` — 蒸馏来源：Harness V2 通则整理（2026-05-27）· 须人审。  
-> **适用**：**一个** `docs/tasks/active/task_*.md` 走完整或部分 Harness 帽链。  
-> **Loop 勿用本文**：多 round 见 [`SKILL-harness-loop-batch.md`](SKILL-harness-loop-batch.md)。
+> **SKILL ID**：`harness-task`  
+> **状态**：`active`（2026-05-31）  
+> **适用阶段**：**22 起 · 单 task**（非 Loop）；Open **本子仓**执行。  
+> **非替代**：[`../../harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5 · 各帽 `hats/*.md` 正文 · **Loop** 见 [`SKILL-harness-loop-batch.md`](SKILL-harness-loop-batch.md)
 
 ---
 
@@ -12,11 +12,55 @@
 | 适用 | 不适用 |
 |------|--------|
 | 单 task · `semi_auto: true` · 22→30→40→50→关账 | 母单 + N 子 task · 单 PR（用 loop-batch） |
-| 改 Harness 工件 / prompts / rules（`audit_profile: full`） | 仅改业务代码无 Harness 落盘 |
+| 本子仓 `docs/tasks/active/task_*.md` | 工作区 `Projects/docs/harness/tasks/`（跨仓 Harness task） |
+| 改 Harness 工件 / prompts / rules | 仅改业务代码且无 Harness 落盘约定 |
 
 ---
 
-## 帽链真值（读序）
+## Agent 读序
+
+1. **本 task 正文**：`human_gate` · `semi_auto` · `experience_capture` · `test_strategy` · **`kpi_rubric`** · **`kpi_aggregator`**（未写默认 **CLOSE**）  
+2. **本子仓 Harness 入口**：[`../../harness/README.md`](../../harness/README.md) §1  
+3. **帽链顺序**：[`../../harness/SDD_HAT_FLOW.md`](../../harness/SDD_HAT_FLOW.md)  
+4. **总则与字段**：[`../../harness/HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5  
+5. **KPI v1.2**：[`../../harness/guides/KPI_RUBRIC_v1_2.md`](../../harness/guides/KPI_RUBRIC_v1_2.md)  
+6. **总调度 00**（编排层 · 可选）：[`../../harness/prompts/hats/00-orchestrator.md`](../../harness/prompts/hats/00-orchestrator.md)
+
+**半自动 / commit / 关账**：
+
+- [`HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)  
+- [`HANDOFF_AUTO_COMMIT.md`](../../harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md)  
+- [`HANDOFF_CLOSE_TRACE.md`](../../harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)
+
+**Cursor 规则**：`.cursor/rules/05-harness-semi-auto.mdc` · `.cursor/rules/06-harness-in-repo.mdc`
+
+---
+
+## Task 扩展字段（摘要 · KPI v1.2）
+
+> 字段语义真值：[`HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5；KPI / 00 细则以 [`KPI_RUBRIC_v1_2.md`](../../harness/guides/KPI_RUBRIC_v1_2.md) 为准。
+
+### `experience_capture`（三档 · 无 60 帽）
+
+| 取值 | 含义 | 关账时 |
+|------|------|--------|
+| `required` | 跨 task 可复用决策/排障/流程教训 | CLOSE 须有 **经验摘要** 或链 `docs/diary/` |
+| `recommended` | 建议短摘要 | 关闭回溯 ≥3 bullet |
+| `not_applicable` | 无复用经验 | **须** `experience_capture_note` 一行 |
+
+- 各帽 **Judgment** 可建议升/降档位；**22 或人** 改 task 元信息。  
+- 判定矩阵：KPI_RUBRIC §6；关账核对：CLOSE_TRACE §4 步骤 6。
+
+### `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`
+
+- **新建 task（2026-05-31 起）**：**必填** `kpi_rubric: KPI_RUBRIC_v1_2`；关账前 **必填** `### KPI（00）`（含 Task_KPI%）。  
+- **`kpi_aggregator`**：**`CLOSE`**（默认，可省略字段行）\| `00` \| `50` \| `human` — 谁汇总 HatInstance 表。  
+- **00 可跳过**；未用 00 时由 **关账（CLOSE）** 读各帽 Judgment + 50/reinspect 填表。  
+- 公式与 D1–D5 **仅以** KPI_RUBRIC 为准；工作区 §5.8 与 CLOSE_TRACE §4 步骤 7 同步。
+
+---
+
+## 帽链真值（索引）
 
 | 序 | 帽 | 入口 |
 |----|-----|------|
@@ -24,59 +68,36 @@
 | 1 | **22** | [`22-task-audit.md`](../../harness/prompts/hats/22-task-audit.md) |
 | 2 | **30** | [`30-execute-code.md`](../../harness/prompts/hats/30-execute-code.md) |
 | 3 | **40** | [`40-self-check.md`](../../harness/prompts/hats/40-self-check.md) |
-| 4 | **50** | [`50-independent-reinspect.md`](../../harness/prompts/hats/50-independent-reinspect.md)（按 `test_strategy`） |
+| 4 | **50** | [`50-independent-reinspect.md`](../../harness/prompts/hats/50-independent-reinspect.md) |
+| — | **00** | [`00-orchestrator.md`](../../harness/prompts/hats/00-orchestrator.md)（链外编排 · 可选） |
 | 5 | **关账** | `git mv` → `done/` · [`HANDOFF_CLOSE_TRACE.md`](../../harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md) |
 
-**通则（每帽）**：
-
-- [`HANDOFF_SEMI_AUTO.md`](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md) — semi_auto、人工闸  
-- [`HANDOFF_AUTO_COMMIT.md`](../../harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md) — **每帽 commit**  
-- [`HARNESS_V2_PLAN.md`](../../harness/HARNESS_V2_PLAN.md) §5 — task 字段  
-
-**Cursor**：`.cursor/rules/05-harness-semi-auto.mdc` · `.cursor/rules/06-harness-in-repo.mdc`
-
-**非 Cursor Agent**：须 **显式 @ 或粘贴** 上表路径；**无** `.mdc` 自动加载。
-
-**Claude Code 全链入口（单 task · 范例）**：
-
-| task_slug | 目录 |
-|-----------|------|
-| `gov-wiki-t4-expand` | `docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_START_full_chain_v1.md` |
-| `gov-l2-manifest-ci` | `docs/harness/invokes/by-task/gov-l2-manifest-ci/PROMPT_START_full_chain_v1.md` |
-| `gov-wiki-agent-readorder` | `docs/harness/invokes/by-task/gov-wiki-agent-readorder/PROMPT_START_full_chain_v1.md` |
-| `gov-wiki-ingest-batch` | `docs/harness/invokes/by-task/gov-wiki-ingest-batch/PROMPT_START_full_chain_v1.md` |
-| `wiki-ctx-ab-representative` | `docs/harness/invokes/by-task/wiki-ctx-ab-representative/PROMPT_START_full_chain_v1.md` |
-
-**已执行后 hygiene / 复盘**（非 START）：
-
-| task_slug | 文件 |
-|-----------|------|
-| `gov-wiki-t4-expand` | `docs/harness/invokes/by-task/gov-wiki-t4-expand/PROMPT_RETRO_hygiene_bc_v1.md` |
-
-模式：`PROMPT_START_full_chain_v1.md`（一次粘贴）+ `PROMPT_TASK_22_to_CLOSE_v1.md`（§3 逐步帽链）；**非** Loop 的 `PROMPT_LOOP` / `HG-LOOP-BATCH`。
+**通则（每帽）**：下一棒 invoke 落盘 + commit（见 HANDOFF_SEMI_AUTO §3）；`human_gate: pending` **阻塞**对应帽。
 
 ---
 
-## task 字段默认值
+## Harness 默认值（task 预填）
 
-| 字段 | 单 docs task | 改 Harness 工件 |
-|------|--------------|-----------------|
+| 字段 | 单 docs / 轻 task | 改 Harness 工件 / 高风险 |
+|------|-------------------|---------------------------|
 | **test_strategy** | `not_applicable` + note | `not_applicable` 或 `recommended` |
 | **semi_auto** | `true` | `true` |
 | **audit_profile** | `post_close` | **`full`** |
-| **human_gate** | 按场景（`HG-REINSPECT` 等） | 常需 `HG-TASK-DRAFT` / 审 R1 |
+| **experience_capture** | `recommended` 或 `not_applicable` | 常 `required` |
+| **kpi_rubric** | **`KPI_RUBRIC_v1_2`（必填）** | **`KPI_RUBRIC_v1_2`（必填）** |
+| **kpi_aggregator** | **`CLOSE`**（默认） | **`CLOSE`** 或 `00`（单窗口编排时） |
 
-任务类型预填（范围/验收）：叠加 [`SKILL-docs-governance.md`](SKILL-docs-governance.md) 等。
+业务类型预填叠加：[`SKILL-docs-governance.md`](SKILL-docs-governance.md) 等。
 
 ---
 
 ## `test_strategy` 与 50
 
-| 取值 | 50 | reinspect |
-|------|-----|-----------|
-| `required` | **必须** | **必须**落盘 `reinspect_results/` |
+| 取值 | 50 | reinspect 落盘 |
+|------|-----|----------------|
+| `required` | **必须** | **必须** `docs/tasks/reinspect_results/` |
 | `recommended` | **建议** | **建议** |
-| `not_applicable` | **可选**（docs 关账常仍做 50） | Loop/docs 子单 **建议** 做 |
+| `not_applicable` | **可选**（docs 关账常仍做 50） | 建议 |
 
 ---
 
@@ -87,37 +108,20 @@
 | invoke | `docs/harness/invokes/by-task/<task_slug>/invoke_YYYYMMDD_{22,30,40,50,CLOSE}_*.md` |
 | 22 review | `docs/harness/reviews/by-task/<task_slug>/task_*_audit_R1_*.md` |
 | 50 | `docs/tasks/reinspect_results/reinspect_<task_slug>_YYYYMMDD_vN.md` |
+| KPI | task **`### KPI（00）`**（按 `kpi_aggregator`；默认 **CLOSE**） |
 
-**invoke 质量**：§3 ≥15 行 · 元信息含 `task_slug`（Loop 同级标准见 loop-batch §C2）。
-
----
-
-## 单 task 合规自检（ST1–ST6 · 关账前必过）
-
-> **蒸馏来源**：gov-wiki-t4-expand 复盘（2026-05-27）。**缺任一项 = 不得关账**（与 loop-batch C2 同级精神，非 C1–C7 全表）。
-
-| # | 检查 | pass 条件 |
-|---|------|-----------|
-| **ST1** | **22** | `reviews/by-task/<slug>/` 有 R1 audit；`invoke_*_22_*` 存在 · §3 ≥15 行 |
-| **ST2** | **30** | `invoke_*_30_*` 存在 · 与 git 业务 commit 可对应 |
-| **ST3** | **40** | `invoke_*_40_*` + task §自检结论已回填 |
-| **ST4** | **50** | `reinspect_<slug>_YYYYMMDD_vN.md` + `invoke_*_50_*` |
-| **ST5** | **关账** | task 头部 `done（…）` · `git mv` done/ · `_views/done.md` · `invoke_*_CLOSE_*` |
-| **ST6** | **索引** | RECENT §6.6/§8 · docs-governance H1–H5；invoke **无** `round: R1` 等 Loop 字段 |
-
-**禁止跳帽**：不得在未落盘当前帽 invoke + commit 的情况下进入下一帽（即使 semi_auto）。
-
-**Claude Code**：关账前须显式勾选 ST1–ST6；见各 task `PROMPT_START` §关账前自检。
+**invoke 质量**：§3 ≥15 行 · 元信息含 `task_slug` / `git_branch`（与 loop-batch C2 同级精神）。
 
 ---
 
-## 关账 checklist
+## 关账 checklist（最小）
 
 1. §验收 `- [x]` · 头部 `done（日期 · freeze_id）`  
 2. `git mv` → `docs/tasks/done/`（与头部 **同一 commit**）  
 3. [`_views/done.md`](../_views/done.md) 一行  
-4. [`SKILL-docs-governance.md`](SKILL-docs-governance.md) **H1–H5**（PR 前 hygiene）  
-5. 对话或 invoke：**HANDOFF_CLOSE_TRACE**（无下一棒时）
+4. docs task：[`SKILL-docs-governance.md`](SKILL-docs-governance.md) **H1–H5**  
+5. **`experience_capture`** / **`kpi_rubric`**：CLOSE_TRACE §4 步骤 6–7 核对  
+6. 对话或 invoke：**HANDOFF_CLOSE_TRACE**（无下一棒时）
 
 ---
 
@@ -125,9 +129,9 @@
 
 | SKILL | 关系 |
 |-------|------|
-| [`docs-governance`](SKILL-docs-governance.md) | docs task **内容** + 关账 hygiene |
-| [`harness-loop-batch`](SKILL-harness-loop-batch.md) | **N 子 task** · Batch-10 · cross-round |
-| [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 合并后 **流程**元审计 |
+| [`docs-governance`](SKILL-docs-governance.md) | docs task 内容 + 关账 hygiene |
+| [`harness-loop-batch`](SKILL-harness-loop-batch.md) | **N 子 task** · Batch-10 · 勿用本文 |
+| [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 合并后 **流程** 元审计 |
 | [`pr-post-ci`](SKILL-pr-post-ci.md) | push / 开 PR 后 |
 
 ---
@@ -136,12 +140,12 @@
 
 | 日期 | 摘要 |
 |------|------|
-| 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账 checklist |
-| 2026-05-27 | v1.1：Claude Code 范例 · PROMPT_START + PROMPT_TASK_22_to_CLOSE（gov-wiki-t4-expand / gov-l2-manifest-ci） |
-| 2026-05-27 | v1.2：§ST1–ST6 单 task 合规自检 · PROMPT_RETRO 与 START 分工 · gov-wiki-t4-expand 复盘 |
+| 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账（蒸馏） |
+| 2026-05-31 | v1.1：格式对齐六类 SKILL；KPI v1.2 / 00 / experience_capture 摘要；本仓相对路径 |
+| 2026-05-31 | v1.2：新建 task 必填 KPI；`kpi_aggregator` 默认 CLOSE |
 
 ---
 
 ## 给 Cursor
 
-`harness-task`、单 task、22、30、40、50、semi_auto、HANDOFF、非 Loop
+`harness-task`、单 task、22、30、40、50、00、KPI_RUBRIC_v1_2、semi_auto、experience_capture、非 Loop

@@ -1,7 +1,7 @@
 # Harness 通则：流程关闭时的执行路线与 Commit 回溯
 
 > **适用范围**：本轮判定 **无下一棒**、Harness 子流程 **可关闭** 时（任务签收、阶段收口、独立复检建议合并且不再返工等）。  
-> **与 [`handoff/HANDOFF_AUTO_COMMIT.md`](handoff/HANDOFF_AUTO_COMMIT.md) 关系**：有下一棒 → 产出 Prompt + 本轮 commit；**无下一棒** → **不**强行编造下一棒 Prompt，改产出本章 **执行路线 + commit 表**（本轮工件仍须按 AUTO_COMMIT 提交，若确有落盘）。  
+> **与 [`HANDOFF_AUTO_COMMIT.md`](HANDOFF_AUTO_COMMIT.md) 关系**：有下一棒 → 产出 Prompt + 本轮 commit；**无下一棒** → **不**强行编造下一棒 Prompt，改产出本章 **执行路线 + commit 表**（本轮工件仍须按 AUTO_COMMIT 提交，若确有落盘）。  
 > **真值层级**：Guides；审查终轮、task `done`、合并决策以各帽规则为准。
 
 ---
@@ -17,7 +17,7 @@
 | **独立复检 / 全局验收通过** | `50` | 建议合并且无阻塞；不再打回执行帽 |
 | **用户明示** | 任意帽 | 「本 task 结束」「不要下一棒 Prompt」 |
 
-**仍须下一棒时**：继续用各 `templates/TEMPLATE-*-invoke` §3 + `handoff/HANDOFF_AUTO_COMMIT`，**不得**用空回溯表代替 Prompt。
+**仍须下一棒时**：继续用各 `TEMPLATE-*-invoke` §3 + `HANDOFF_AUTO_COMMIT`，**不得**用空回溯表代替 Prompt。
 
 ---
 
@@ -79,18 +79,6 @@ git -C ai-ink-brain-api-python log --oneline -20 -- docs/tasks/active/task_<slug
 
 **无下一棒时**：审查 md **可不**含 **「下一棒可复制 Prompt」** 小节；**禁止**用「无」占位糊弄，应 **省略该节** 并 **必有** 本章回溯节。
 
-### 2.5 长 Loop 完成汇报（`harness-loop-batch` · META 关账后）
-
-> 真值：[`docs/tasks/skills/SKILL-harness-loop-batch.md`](../../../tasks/skills/SKILL-harness-loop-batch.md) **§长 Loop 完成汇报**。
-
-| 项 | 约定 |
-|----|------|
-| **何时** | 母单 META 关账 commit **之后**（子 round ≥2 或母 task 明示长 Loop） |
-| **落盘** | `docs/harness/invokes/by-task/<loop-slug>/REPORT_completion_YYYYMMDD_v1.md` |
-| **正文** | **§1～§5** 落盘（定位、成果、工件、commit、验收） |
-| **§6** | **待你侧后续**（开 PR、meta-reinspect、SKILL accepted 等）**仅对话**，**禁止**写入 REPORT |
-| **与 CLOSE_TRACE** | META `invoke_*_CLOSE_*-META` 保留 commit 表；REPORT 链该 invoke，不整段复制 |
-
 ---
 
 ## 3. 与各帽子的分工
@@ -108,10 +96,18 @@ git -C ai-ink-brain-api-python log --oneline -20 -- docs/tasks/active/task_<slug
 ## 4. 执行顺序（关闭轮）
 
 1. 完成本轮落盘（审查签收节 / task 状态 / 自检表等）。  
-2. 按 [`handoff/HANDOFF_AUTO_COMMIT.md`](handoff/HANDOFF_AUTO_COMMIT.md) 提交 **本轮** 路径（含回溯表写入的 review/task）。  
+2. 按 [`HANDOFF_AUTO_COMMIT.md`](HANDOFF_AUTO_COMMIT.md) 提交 **本轮** 路径（含回溯表写入的 review/task）。  
 3. 汇总 **自 task 创建或上轮回溯以来** 的相关 commit，填 §2.2–2.3。  
 4. 对话输出 **「执行路线与 Commit 回溯」**；**禁止**再附下一棒 Prompt。  
-5. 建议用户将 task 头部 `status` 置为 `done`（若尚未）；**不**代用户 push。
+5. 建议用户将 task 头部 `status` 置为 `done`（若尚未）；**不**代用户 push。  
+6. **经验归纳核对**（见 [`../HARNESS_V2_PLAN.md`](../HARNESS_V2_PLAN.md) §5.7）：  
+   - `experience_capture: required` → task 或关闭回溯须有 **「经验摘要」** 或链 `docs/diary/`（子仓 `docs/diary/` 同理）；  
+   - `not_applicable` → 须有 **`experience_capture_note`**；  
+   - **不**因缺摘要而单独新增 60 帽。  
+7. **KPI 核对**（见 [`../guides/KPI_RUBRIC_v1_2.md`](../guides/KPI_RUBRIC_v1_2.md)）：  
+   - 若 task 声明 `kpi_rubric: KPI_RUBRIC_v1_2`（或 00 已跑链）→ 须有 **`### KPI（00）`**；  
+   - **blocked**（任一帽 D2/D5 fail）→ **不得**关账；  
+   - KPI% 为 warn/fail 时可关账但须在回溯中注明（与 50/CI 硬规则并行）。
 
 ---
 
@@ -120,10 +116,10 @@ git -C ai-ink-brain-api-python log --oneline -20 -- docs/tasks/active/task_<slug
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-17 | v1：流程关闭时执行路线 + commit 回溯通则 |
-| 2026-05-26 | v1.1：§2.5 长 Loop `REPORT_completion_*`（SKILL-loop-batch · §6 仅对话） |
+| 2026-05-31 | v1.1：§4 增 experience_capture、KPI v1.2 关账核对 |
 
 ---
 
 ## 给 Cursor
 
-`handoff/HANDOFF_CLOSE_TRACE`、`执行路线与 Commit 回溯`、`无下一棒`、`签收`、`关闭`、`流程关闭`、`git log`、`分仓 commit`、`22-task-audit`
+`HANDOFF_CLOSE_TRACE`、`执行路线与 Commit 回溯`、`无下一棒`、`签收`、`关闭`、`流程关闭`、`git log`、`分仓 commit`、`22-task-audit`
