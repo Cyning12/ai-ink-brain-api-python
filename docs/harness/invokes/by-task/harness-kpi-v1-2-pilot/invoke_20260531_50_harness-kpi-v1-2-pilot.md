@@ -42,3 +42,16 @@ Judgment（50 · 末尾）：
 - gate/risk: HG-REINSPECT pending
 - hat_self: pass | pass-with-notes | blocked
 ```
+
+---
+
+## 50 执行 Judgment（2026-05-31 · 落盘完成）
+
+| 产出 | 路径 |
+|------|------|
+| reinspect | `docs/tasks/reinspect_results/reinspect_harness-kpi-v1-2-pilot_20260531_v1.md` |
+
+- **experience_capture**: 维持 required
+- **gate/risk**: 须人审:HG-REINSPECT
+- **hat_self**: pass-with-notes
+- **合并建议**: 条件合并（50 书面 pass；HG-REINSPECT + 00/CLOSE 后合 PR）
