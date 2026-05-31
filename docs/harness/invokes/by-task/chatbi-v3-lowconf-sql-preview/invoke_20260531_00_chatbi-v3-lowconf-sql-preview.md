@@ -12,6 +12,7 @@
 | kpi_aggregator | 00 |
 | planned_hats | 22,30,40,50,CLOSE |
 | date | 20260531 |
+| stage_00 | 22:done 30:done 40:done 50:pending CLOSE:pending |
 
 ---
 

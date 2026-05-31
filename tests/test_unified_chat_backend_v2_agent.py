@@ -1258,3 +1258,376 @@ def test_v3_plan_execution_token_json_bypasses_clarify(monkeypatch: pytest.Monke
     assert "agent.clarify" not in types2
     assert calls["reg"] >= 1
 
+
+def test_v3_plan_execution_token_invalid_json_denies_bypass(monkeypatch: pytest.MonkeyPatch):
+    """F2 lowconf-token-invalid-deny：无效或问句不匹配的 token 不得跳过 clarify 或全量 Text2SQL。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "1")
+    monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
+
+    index = _reload_api_index(monkeypatch)
+    import api.tools as tools_mod
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    calls: dict[str, int] = {"preview": 0, "reg": 0}
+
+    async def _tools_t2s_dual(
+        query: str,
+        *,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+        chain_emit: Any = None,
+        chain_started_at: float | None = None,
+        json_log_ctx: dict[str, Any] | None = None,
+        preview_only: bool = False,
+    ) -> ToolResult:
+        _ = (query, history, debug_llm_prompts, chain_emit, chain_started_at, json_log_ctx)
+        if preview_only:
+            calls["preview"] += 1
+            return ToolResult(
+                success=True,
+                data={"sql": "SELECT 1 AS deny_probe", "answer": ""},
+                error=None,
+                error_code=None,
+                error_stage=None,
+                latency_ms=1,
+            )
+        calls["reg"] += 1
+        return ToolResult(
+            success=True,
+            data={"sql": "SELECT 1", "answer": "不应执行", "columns": [], "rows": [], "truncated": False},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    monkeypatch.setattr(tools_mod, "text2sql_execute", _tools_t2s_dual)
+
+    async def _rag_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "rag ok", "hits": []},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=2,
+        )
+
+    async def _direct_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "direct"},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("direct_answer", _direct_ok_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("text2sql_query", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ) -> IntentDecision:
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="stub",
+            reasoning_full="stub",
+            confidence=0.35,
+            fallback="rag_search",
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=False),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    client = TestClient(index.app)
+    q = "低置信无效令牌拒放探针"
+    res1 = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": q, "prefer": "auto"},
+    )
+    assert res1.status_code == 200
+    tok = next(e for e in res1.json()["events"] if e.get("type") == "agent.plan.preview")["payload"][
+        "plan_execution_token"
+    ]
+
+    res_wrong_q = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "另一问句不匹配", "prefer": "auto", "plan_execution_token": tok},
+    )
+    assert res_wrong_q.status_code == 200
+    types_wq = [e.get("type") for e in res_wrong_q.json()["events"]]
+    assert "agent.clarify" in types_wq
+    assert calls["reg"] == 0
+
+    tampered = (tok[:-1] + ("A" if tok[-1] != "A" else "B")) if tok else "not-a-token"
+    res_bad = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": q, "prefer": "auto", "plan_execution_token": tampered},
+    )
+    assert res_bad.status_code == 200
+    types_bad = [e.get("type") for e in res_bad.json()["events"]]
+    assert "agent.clarify" in types_bad
+    assert calls["reg"] == 0
+
+
+def test_v3_plan_preview_fail_json_no_token(monkeypatch: pytest.MonkeyPatch):
+    """F3 fp-lowconf-preview-fail：preview_only 失败时无 token，clarify 含失败说明。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "1")
+    monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
+
+    index = _reload_api_index(monkeypatch)
+    import api.tools as tools_mod
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    async def _tools_t2s_preview_fail(
+        query: str,
+        *,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+        chain_emit: Any = None,
+        chain_started_at: float | None = None,
+        json_log_ctx: dict[str, Any] | None = None,
+        preview_only: bool = False,
+    ) -> ToolResult:
+        _ = (query, history, debug_llm_prompts, chain_emit, chain_started_at, json_log_ctx)
+        if preview_only:
+            return ToolResult(
+                success=False,
+                data=None,
+                error="preview failed",
+                error_code="SQL_PREVIEW_FAIL",
+                error_stage="sql.preview",
+                latency_ms=1,
+            )
+        raise AssertionError("全量 Text2SQL 不应在预览失败轮执行")
+
+    monkeypatch.setattr(tools_mod, "text2sql_execute", _tools_t2s_preview_fail)
+
+    async def _rag_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "rag ok", "hits": []},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=2,
+        )
+
+    async def _direct_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "direct"},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("direct_answer", _direct_ok_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("text2sql_query", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ) -> IntentDecision:
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="stub",
+            reasoning_full="stub",
+            confidence=0.35,
+            fallback="rag_search",
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=False),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "低置信预览失败探针", "prefer": "auto"},
+    )
+    assert res.status_code == 200
+    types = [e.get("type") for e in res.json()["events"]]
+    assert "agent.plan.preview" not in types
+    clarify_evt = next(e for e in res.json()["events"] if e.get("type") == "agent.clarify")
+    assert "无法签发 plan_execution_token" in clarify_evt["payload"]["prompt_for_user"]
+
+
+def test_v3_plan_preview_sse_parity(monkeypatch: pytest.MonkeyPatch):
+    """F4/G2 lowconf-plan-preview-sse-parity：SSE 低置信澄清须含 agent.plan.preview 与 token。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "1")
+    monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
+
+    index = _reload_api_index(monkeypatch)
+    import api.tools as tools_mod
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    async def _tools_t2s_preview_only(
+        query: str,
+        *,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+        chain_emit: Any = None,
+        chain_started_at: float | None = None,
+        json_log_ctx: dict[str, Any] | None = None,
+        preview_only: bool = False,
+    ) -> ToolResult:
+        _ = (query, history, debug_llm_prompts, chain_emit, chain_started_at, json_log_ctx)
+        assert preview_only is True
+        return ToolResult(
+            success=True,
+            data={"sql": "SELECT 2 AS sse_probe", "answer": ""},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    monkeypatch.setattr(tools_mod, "text2sql_execute", _tools_t2s_preview_only)
+
+    async def _rag_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "rag ok", "hits": []},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=2,
+        )
+
+    async def _direct_ok_exec(
+        *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
+    ) -> ToolResult:
+        _ = (query, history)
+        return ToolResult(
+            success=True,
+            data={"answer": "direct"},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=1,
+        )
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("direct_answer", _direct_ok_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("text2sql_query", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _fake_decide_intent_v2(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ) -> IntentDecision:
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        return IntentDecision(
+            tool="text2sql_query",
+            mode="text2sql",
+            reasoning="stub",
+            reasoning_full="stub",
+            confidence=0.35,
+            fallback="rag_search",
+            structured_signals=StructuredSignals(llm_prefers_sql=True, has_aggregation_signals=False),
+            raw_response={"used": "stub"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _fake_decide_intent_v2)
+
+    client = TestClient(index.app)
+    with client.stream(
+        "POST",
+        "/api/py/unified/chat/stream",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "低置信 SSE 预览帧探针", "prefer": "auto"},
+    ) as res:
+        assert res.status_code == 200
+        text = ""
+        for chunk in res.iter_text():
+            text += chunk
+            if "event: done" in text:
+                break
+        assert "agent.plan.preview" in text
+        assert "plan_execution_token" in text
+        assert "agent.clarify" in text
+        assert text.index("agent.plan.preview") < text.index("agent.clarify")
+

@@ -25,6 +25,17 @@
 | **kpi_aggregator** | `00` |
 | **git_branch** | `task/chatbi-v3-lowconf-sql-preview` |
 
+### 阶段状态（00 维护 · 2026-05-31）
+
+| 帽 | 状态 | 备注 |
+|----|------|------|
+| 00 | done | `invoke_20260531_00_*` |
+| 22 | done | R1 零阻塞 |
+| 30 | done | G1–G4 pytest 补齐 |
+| 40 | done | 自检回填 §10 |
+| 50 | pending | **须新会话** Fresh Context |
+| CLOSE | pending | 待 50 + HG-REINSPECT 人签 |
+
 ### 人工闸 `human_gate`
 
 | human_gate_id | status | blocks_hats | 说明 |
@@ -66,10 +77,10 @@
 
 ## 2. 范围
 
-- [ ] **G1 无效 token deny（F2）**：过期/篡改/问句不匹配 `plan_execution_token` 时，JSON 路径 **不**静默放行；行为与 task 一致（澄清短路或结构化错误 · 须先写 failing test）
-- [ ] **G2 SSE parity（F4）**：`CHATBI_V3_PLAN_PREVIEW_CONFIRM=1` 下 SSE 流含 **`agent.plan.preview`**（及 clarify TTL 文案）；续跑带 token 时跳过 clarify（测例或文档化已知限制须二选一并在 22 留痕）
-- [ ] **G3 预览失败（F3）**：`text2sql_execute(preview_only=True)` 失败时，clarify 文案说明无法签发 token（对齐现网 `agent.py` 分支）
-- [ ] **G4 只读闸证据**：测例断言 preview 路径 **`preview_only=True`**（已有 JSON 测例可扩展 AST/拒绝写 SQL 的 **一层** 边界，不扩 Security 全量）
+- [x] **G1 无效 token deny（F2）**：`test_v3_plan_execution_token_invalid_json_denies_bypass`（问句不匹配 + 篡改签）
+- [x] **G2 SSE parity**：`test_v3_plan_preview_sse_parity`（22：**必须 parity**，无 defer）
+- [x] **G3 预览失败（F3）**：`test_v3_plan_preview_fail_json_no_token`
+- [x] **G4 只读闸证据**：`test_v3_plan_preview_json_includes_plan_preview_and_ttl_notice` 内 `assert preview_only is True`
 - [ ] **G5 文档同步**：母单 [`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md) §5.1 **5-2** → **已验收** + 链本 PR；SPEC §6 Text2SQL 预览项勾选（若行为已满足）
 - [ ] **G6 Harness 落盘**：`invokes/by-task/chatbi-v3-lowconf-sql-preview/` · `reviews/…` · `reinspect_results/reinspect_chatbi-v3-lowconf-sql-preview_*` · task **`### KPI（00）`**
 
@@ -184,15 +195,51 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_s
 
 ## 9. ### KPI（00）
 
-> **由 00 / CLOSE（`kpi_aggregator: 00`）关账轮填写**；格式见 [`KPI_RUBRIC_v1_2.md`](../harness/guides/KPI_RUBRIC_v1_2.md) §4.3–§6。
+> **rubric**: KPI_RUBRIC_v1_2 · **汇总**: 待 50 后 CLOSE · **状态**: pending-50 · **帽**: 00→22→30→40 已落盘
 
-（占位 · 关账后删除）
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|----------------|
+| 00 | open | main_chat | pass | pass | pass | pass | — | 编排 22→30→40；50 交 Fresh Context |
+| 22 | R1 | main_chat | pass | pass | pass | pass | — | 零阻塞；G2 必须 SSE parity |
+| 30 | R1 | main_chat | pass | pass | pass | pass | pass | +3 pytest；272 passed；contract OK |
+| 40 | R1 | main_chat | pass | pass | pass | pass | — | 自检 §10；待 50 填 D5 |
+| 50 | — | — | — | — | — | — | — | **待新会话** |
+| CLOSE | — | — | — | — | — | — | — | 待 50 + G5 + HG-REINSPECT |
+
+**Task_KPI%**：（50/CLOSE 后由 00 重算）
 
 ---
 
 ## 10. ### 自检结论（执行者）
 
-（40 帽回填）
+> **40 帽 · 2026-05-31** · 分支 `task/chatbi-v3-lowconf-sql-preview`
+
+### 命令与退出码
+
+| 命令 | cwd | 退出码 | 要点 |
+|------|-----|--------|------|
+| `pytest tests/test_unified_chat_backend_v2_agent.py -k "plan_preview or plan_execution or invalid_json or preview_fail or sse_parity" -q` | 仓根 | 0 | 5 passed |
+| `python tools/tech_graph_contract_check.py` | 仓根 | 0 | OK |
+| `pytest tests -m "not intent_eval and not intent_benchmark"` | 仓根 | 0 | 272 passed, 1 skipped |
+| `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_sql_preview_v1.md` | 仓根 | 0 | OK |
+| `python tools/harness_human_gate_check.py --task …` | 仓根 | 1 | **预期**：HG-REINSPECT pending |
+
+### 验收表（§6 摘要）
+
+| 项 | 结果 | 证据 |
+|----|------|------|
+| G1–G4 | pass | 见 §2 测例名 |
+| G5 母单 5-2 | pending | CLOSE 轮同步 |
+| G6 Harness | partial | 缺 50/reinspect |
+| pytest | pass | 见上表 |
+
+### OpenSpec × TDD
+
+| 维度 | 结论 |
+|------|------|
+| Completeness | pass — F1–F5 + Scenario ID |
+| Correctness | pass — 先补测后验证现网行为，无 api 大改 |
+| Coherence | pass — re-baseline 与 SPEC §2/§4 一致 |
 
 ---
 
