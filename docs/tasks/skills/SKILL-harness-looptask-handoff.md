@@ -96,7 +96,7 @@
 | 步骤 | 文件 | 位置 | 改什么 |
 |------|------|------|--------|
 | 可选 | `.env`（**勿提交 Git**） | 键 **`CONTENT_ROOT`** | `<绝对路径>/ai-ink-brain/content` |
-| 可选 | 本机 shell | — | 前端 BFF `POST /api/admin/sync` + `x-admin-token`（见前端 `tools/README-portfolio-content-sync.md`） |
+| 可选 | 本机 shell | — | `Authorization: Bearer $SYNC_ADMIN_SECRET` 经 BFF 或 `$ADMIN_TOKEN` 直连 Python（见前端 `tools/README-portfolio-content-sync.md`） |
 
 ---
 

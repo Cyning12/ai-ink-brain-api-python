@@ -120,6 +120,36 @@
 
 **冻结后下一棒（不在本 Prompt 内）**：人确认 → 10 帽出 task 草案 → 22 或 30。
 
+### 4.1 冻结后 · 10 帽起手 Prompt（SPEC 已 `active` 时粘贴）
+
+> Prompt 00 **已关账** 后使用；invoke 落盘示例：[`docs/harness/invokes/by-task/portfolio-rag-demo/invoke_20260601_10_portfolio-rag-demo-requirements.md`](../../harness/invokes/by-task/portfolio-rag-demo/invoke_20260601_10_portfolio-rag-demo-requirements.md)
+
+```text
+你正在扮演工作区 Harness「需求与任务分析帽」，严格遵循：
+- docs/harness/prompts/hats/10-requirements.md
+- docs/harness/prompts/templates/TEMPLATE-requirements-invoke.md §3
+- docs/harness/HARNESS_V2_PLAN.md §5
+
+Open Folder = ai-ink-brain-api-python
+git_branch = task/portfolio-rag-demo-v1
+
+【目标与上下文】
+冻结 SPEC `PORTFOLIO-RAG-DEMO@2026-06-01` 已 active。从 SPEC §7（W2 RUNBOOK · W3 env · W5 预跑）拆出 `docs/tasks/active/task_portfolio_rag_demo_v1.md`。6/9 前交付 RUNBOOK + CONTENT_ROOT 文档 + 五问预跑留证；禁止本帽改 api/tests 或执行生产 sync。
+
+【已有材料】
+docs/spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md
+docs/spec/governance/投递冲刺_20260609_v1_zh.md
+ai-ink-brain/content/tasks/specs/SPEC-portfolio_demo_site_v1_zh.md（只读）
+docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md
+
+【审查回填】无
+【SDD 状态】轮0+1+2 已完成，清单已人确认
+【新建 SPEC】否
+
+须：写 task 草案落盘 · test_strategy recommended · failure_paths · freeze_id · 输出下一棒 A（22 推荐）/ B（30）全文 · Harness 状态栏 B。
+invoke 落盘：docs/harness/invokes/by-task/portfolio-rag-demo/
+```
+
 ---
 
 ## 4. 可复制 Prompt 正文（§3 · 新开对话粘贴）
@@ -191,6 +221,7 @@ docs/spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-01 | v1：Portfolio RAG Demo SPEC · ≤5 轮读问解协议 + §4 可复制 Prompt |
+| 2026-06-01 | v1.1：§4.1 冻结后 10 帽起手 Prompt + invoke 指针 |
 
 ---
 

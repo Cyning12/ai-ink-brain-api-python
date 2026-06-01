@@ -78,7 +78,7 @@
 | **job.result**（成功） | `filesScanned`, `chunksTotal`, `chunksUpserted`, `rowsDeleted` |
 | **job.error**（失败） | 异常 `str(e)` 字符串（如 Embedding **维度不匹配**：`RuntimeError` 含「维度」文案） |
 | **持久性** | **内存** `JOBS` 字典；**单实例**（**已拍板 · Q-6:A**）；serverless redeploy 后 job 丢失 → **重新 POST**；**不**做持久化 job 方案 |
-| **鉴权** | `_require_auth`：`Authorization: Bearer <secret>` 或 `x-admin-token` / `x-blog-admin-token`；secret 来自 `NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`（`api/rag_env.py::admin_secret()`） |
+| **鉴权** | `_require_auth`：`Authorization: Bearer <secret>` 或 `x-admin-token` / `x-blog-admin-token`；secret 来自 `NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`（`api/rag_env.py::admin_secret()`）。**前端 BFF** 维护者侧已迁移 **`SYNC_ADMIN_SECRET`**（与 Python **同值** · 见前端 [`SPEC-portfolio_admin_sync_auth_v1_zh.md`](../../../../ai-ink-brain/content/tasks/specs/SPEC-portfolio_admin_sync_auth_v1_zh.md)） |
 
 ### 2.4 前端 content 目录（目标态 · 扫描 2026-06-01）
 
@@ -181,7 +181,8 @@ Authorization: Bearer <ADMIN_SECRET>
 | 变量 | 用途 | 本地示例 | 生产要求 |
 | --- | --- | --- | --- |
 | **`CONTENT_ROOT`** | Markdown 扫描根 | `/path/to/ai-ink-brain/content`（见 `.env.example`） | 部署 mount 或 CI checkout 路径 **必须**指向前端 content 真值 |
-| **`NEXT_PUBLIC_ADMIN_SECRET`** 或 **`CHAT_API_SECRET`** | admin/sync 鉴权 | 本地 `.env` | 平台 Secrets；**禁止**进 Git |
+| **`CHAT_API_SECRET`** 或 **`NEXT_PUBLIC_ADMIN_SECRET`**（Python 服务端 `.env`） | admin/sync 鉴权（Python 进程） | 本地 `.env` | 平台 Secrets；**禁止**进 Git；**值须与** 前端 **`SYNC_ADMIN_SECRET`** 一致 |
+| **前端 `SYNC_ADMIN_SECRET`**（配对仓 · 服务端 only） | BFF `/api/admin/sync` 入站 + 转发 Bearer | 本机 `.env.local` | Vercel Secrets；文档 shell 别名 **`ADMIN_TOKEN`** |
 | **`SILICONFLOW_API_KEY`** | Embedding | 本地 | 生产 Secrets |
 | **`EMBEDDING_DIM`** / **`SILICONFLOW_EMBEDDING_DIMENSIONS`** | 与 `vector(N)` 一致 | `1024` | 与生产 Supabase 一致 |
 | **`NEXT_PUBLIC_SUPABASE_URL`** + **`SUPABASE_SERVICE_ROLE_KEY`** | 写 `documents` | 本地 | 生产 |

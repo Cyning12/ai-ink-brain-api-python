@@ -37,7 +37,8 @@ find "$CONTENT_ROOT/methodology" "$CONTENT_ROOT/resume" "$CONTENT_ROOT/evidence"
 
 | 用途 | Header | Secret 来源 |
 | --- | --- | --- |
-| **admin/sync** | `Authorization: Bearer <ADMIN_SECRET>` 或 `x-admin-token` | `NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`（平台 Secrets） |
+| **admin/sync** | `Authorization: Bearer <ADMIN_TOKEN>`（推荐） | 前端 **`SYNC_ADMIN_SECRET`** 或 Python `CHAT_API_SECRET` / 服务端 admin 同值；**禁止** Portfolio 文档写 `NEXT_PUBLIC_ADMIN_SECRET` |
+| **admin/sync（BFF 本地）** | `Authorization: Bearer $SYNC_ADMIN_SECRET` | 本仓 `.env.local` · **服务端 only** |
 | **Unified Chat 五问** | `Authorization: Bearer <VISITOR_TOKEN>` | 邮件申请 visitor 秘钥（见投递计划 §3.4） |
 
 ---
@@ -168,7 +169,8 @@ curl -sS -X POST "$PY_API_URL/api/py/unified/chat" \
 | 变量 | portfolio 要点 |
 | --- | --- |
 | `CONTENT_ROOT` | 前端 `ai-ink-brain/content` 绝对路径 |
-| `NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET` | admin/sync 鉴权 |
+| Python `CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` | Python 进程 admin/sync 鉴权（**服务端** `.env`） |
+| 前端 `SYNC_ADMIN_SECRET` | BFF 入站 + 转发 Bearer（**与 Python 同值** · shell 别名 `ADMIN_TOKEN`） |
 | `EMBEDDING_DIM` | 与 Supabase `vector(N)` 一致（默认 1024） |
 | `SILICONFLOW_API_KEY` | Embedding 必填 |
 | `DEBUG_INGEST` | 生产 **关闭** |
