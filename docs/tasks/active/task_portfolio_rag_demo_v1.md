@@ -112,7 +112,7 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ---
 
-## 4. 行为变更（Delta）
+## 行为变更（Delta）
 
 **无** — 本 task 为 **文档 + 运维 RUNBOOK + 人工验收留证**；不修改对外 API 契约。关账时可把 RUNBOOK 路径写入 SPEC §9 关联表（可选 patch，非本 task 硬门槛）。
 
@@ -132,7 +132,7 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ---
 
-## 6. 验收标准（可勾选 · task 关账）
+## 验收标准
 
 ### 6.1 文档（30 完成后）
 
@@ -153,18 +153,18 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ---
 
-## 7. 失败路径
+## 失败路径
 
-| ID | 触发条件 | 系统行为 / 语义 | 可重试 | 用户可见 / RUNBOOK 处置 |
-|----|----------|-------------------|--------|-------------------------|
-| FP-1 | Embedding 维度与 `vector(N)` 不一致 | sync job `failed`；`error` 含「维度」 | 修正 env 后 **重跑 sync** | RUNBOOK §3 对照表第一行 |
-| FP-2 | `CONTENT_ROOT` 非目录或空树；`filesScanned=0` | job 可能 `succeeded` 但 **硬 FAIL**（Q-4） | 修正 mount / 补 content 后重跑 | **不得**进入五问 |
-| FP-3 | `404 Job not found`（redeploy） | GET 轮询 404 | **重新 POST** 创建 job | sync 窗口避免并发 redeploy |
-| FP-4 | SiliconFlow / Supabase 鉴权或网络失败 | job `failed` 或超时 | 指数退避；查 Secrets | RUNBOOK §3 |
-| FP-5 | 五问单问 3 次仍不达标 | 记该问 **FAIL** | 可调 query/chip 或补 content 后再 sync | 不得刷通过率；阻塞 6/9 全绿 |
-| FP-6 | Q1/Q5 两次预跑 sources category 不一致 | 记 **FAIL**（Q-9:A） | 查 ingest category / 文稿路径 | diary 留证须标注 blocker |
-| FP-7 | Q3 sources 命中 `methodology` | Q3 **FAIL**（strict evidence） | 调整 evidence 文稿或检索参数 | RUNBOOK 五问表须写明 |
-| FP-8 | 前端 W4 未就绪即 sync | `filesScanned` 不足三目录 | 等待前端 content 后再 sync | task `blocked_by` |
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 / RUNBOOK 处置 |
+|---|-------------|----------|----------|--------|-------------------------|
+| F1 | `fp-portfolio-embed-dim` | Embedding 维度与 `vector(N)` 不一致 | sync job `failed`；`error` 含「维度」 | 修正 env 后 **重跑 sync** | RUNBOOK §3 对照表第一行 |
+| F2 | `fp-portfolio-files-scanned-zero` | `CONTENT_ROOT` 非目录或空树；`filesScanned=0` | job 可能 `succeeded` 但 **硬 FAIL**（Q-4） | 修正 mount / 补 content 后重跑 | **不得**进入五问 |
+| F3 | `fp-portfolio-job-404` | `404 Job not found`（redeploy） | GET 轮询 404 | **重新 POST** 创建 job | sync 窗口避免并发 redeploy |
+| F4 | `fp-portfolio-upstream-auth` | SiliconFlow / Supabase 鉴权或网络失败 | job `failed` 或超时 | 指数退避；查 Secrets | RUNBOOK §3 |
+| F5 | `fp-portfolio-five-q-retry` | 五问单问 3 次仍不达标 | 记该问 **FAIL** | 可调 query/chip 或补 content 后再 sync | 不得刷通过率；阻塞 6/9 全绿 |
+| F6 | `fp-portfolio-sources-drift` | Q1/Q5 两次预跑 sources category 不一致 | 记 **FAIL**（Q-9:A） | 查 ingest category / 文稿路径 | diary 留证须标注 blocker |
+| F7 | `fp-portfolio-q3-evidence` | Q3 sources 命中 `methodology` | Q3 **FAIL**（strict evidence） | 调整 evidence 文稿或检索参数 | RUNBOOK 五问表须写明 |
+| F8 | `fp-portfolio-w4-blocked` | 前端 W4 未就绪即 sync | `filesScanned` 不足三目录 | 等待前端 content 后再 sync | task `blocked_by` |
 
 ---
 
