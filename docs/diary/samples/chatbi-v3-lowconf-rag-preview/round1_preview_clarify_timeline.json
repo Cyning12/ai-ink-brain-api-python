@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "sample_id": "chatbi-v3-lowconf-rag-preview-round1-e2e",
+    "captured_at": "2026-05-31",
+    "source": "browser_unified_chat_sse",
+    "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+    "session_id": "791291bd-92f8-4936-b698-28e8fb4025e9",
+    "event_count": 14,
+    "query": "2026-04-28日记的大致内容",
+    "env_note": "CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1 · CHATBI_V3_PLAN_PREVIEW_CONFIRM=1 · INTENT_MIN_CONFIDENCE=1.0 · uvicorn 重启后",
+    "screenshots": [
+      "screenshots/ui-confirm-rag-preview-card.png",
+      "screenshots/timeline-rag-preview-clarify-execution-path.png"
+    ],
+    "acceptance": "§5-3 F1/F2：agent.plan.preview(rag_search+plan_execution_token) + agent.clarify；无 tool.call",
+    "notes": "路线 A；preview_headlines 为空数组（契约允许）"
+  },
+  "timeline": [
+    {
+      "type": "user.message",
+      "ts": 1780284164871,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "user",
+      "payload": {
+        "text": "2026-04-28日记的大致内容"
+      }
+    },
+    {
+      "type": "meta",
+      "ts": 0,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "m1",
+      "payload": {
+        "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+        "mode": "auto",
+        "session_id": "791291bd-92f8-4936-b698-28e8fb4025e9"
+      }
+    },
+    {
+      "type": "agent.step.start",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "a1",
+      "payload": {
+        "step_number": 1,
+        "max_steps": 5
+      }
+    },
+    {
+      "type": "agent.llm.start",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "085082ae6386_s1_intent",
+      "payload": {
+        "phase": "intent",
+        "step_id": "s1"
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "085082ae6386_s1_intent",
+      "payload": {
+        "text": "用户询问特定日期的日记内容，属于",
+        "part_index": 0
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "085082ae6386_s1_intent",
+      "payload": {
+        "text": "项目内非结构化文档，需检索文档库",
+        "part_index": 1
+      }
+    },
+    {
+      "type": "agent.llm.delta",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "085082ae6386_s1_intent",
+      "payload": {
+        "text": "获取。",
+        "part_index": 2
+      }
+    },
+    {
+      "type": "agent.llm.end",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "085082ae6386_s1_intent",
+      "payload": {
+        "ok": true,
+        "phase": "intent",
+        "step_id": "s1",
+        "simulated_stream": true
+      }
+    },
+    {
+      "type": "router.decision",
+      "ts": 14156,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "r1",
+      "payload": {
+        "prefer": "auto",
+        "candidate_mode": "rag",
+        "final_mode": "rag",
+        "rule_hits": [],
+        "evidence": {
+          "agent_reasoning": "用户询问特定日期的日记内容，属于项目内非结构化文档，需检索文档库获取。"
+        },
+        "fallback": "direct_answer"
+      }
+    },
+    {
+      "type": "agent.plan.preview",
+      "ts": 26442,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "a1_plan_prev",
+      "payload": {
+        "plan_id": "6e87d7148b70426eb938",
+        "tool": "rag_search",
+        "rewrite_query": "2026-04-28日记的大致内容",
+        "planned_top_k": 10,
+        "preview_headlines": [],
+        "warnings": [
+          "若确认按预览检索方案继续：请在 120 秒内在**下一轮同一问题**的请求 JSON 中带 \"plan_execution_token\": \"…\"（见 `agent.plan.preview` 中的 `plan_execution_token`）。若未及时附带令牌，本预览方案与该令牌均失效，须**重新发起本问题**才能再次预览。"
+        ],
+        "plan_execution_token": "eyJleHAiOjE3ODAyODQzMjIsInAiOiJjbGFyaWZ5X3BsYW5fb25jZSIsInFoIjoiN2MwZGJhMzc1YjY3ZTJhNjlkNWFlZGY5YTQ0NzBmYjYiLCJzaWQiOiI3OTEyOTFiZC05MmY4LTQ5MzYtYjY5OC0yOGU4ZmI0MDI1ZTkiLCJ0IjoicmFnX3NlYXJjaCIsInYiOjF9Cs48gkJF8Zkgj13FASjFp2QOMoIGXlwsCAalKYEmeCy1",
+        "expires_in_sec": 120
+      }
+    },
+    {
+      "type": "agent.clarify",
+      "ts": 26442,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "a1_clarify",
+      "payload": {
+        "step_number": 1,
+        "message": "待您澄清（低置信度）",
+        "prompt_for_user": "请补充您关心的指标、时间范围或具体业务对象。 若涉及具体表/字段，请在确认权限与口径后再发起查数。\n\n若确认按预览检索方案继续：请在 120 秒内在**下一轮同一问题**的请求 JSON 中带 \"plan_execution_token\": \"…\"（见 `agent.plan.preview` 中的 `plan_execution_token`）。若未及时附带令牌，本预览方案与该令牌均失效，须**重新发起本问题**才能再次预览。"
+      }
+    },
+    {
+      "type": "agent.final",
+      "ts": 26442,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "a_final",
+      "payload": {
+        "total_steps": 0,
+        "tools_used": [],
+        "modes": [
+          "rag"
+        ],
+        "fallback_used": false
+      }
+    },
+    {
+      "type": "assistant.message",
+      "ts": 26443,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "s_answer",
+      "payload": {
+        "role": "assistant",
+        "content": "系统在继续查数前需要先与您对齐语义。请查看 Timeline 中「待您澄清」条目并补充说明；也可改用 prefer=text2sql / prefer=rag 强制路径或改写问题后重试。"
+      }
+    },
+    {
+      "type": "latency",
+      "ts": 26444,
+      "run_id": "085082ae-6386-4f43-a60f-f11b4fffcd65",
+      "step_id": "l1",
+      "payload": {
+        "total_ms": 26444,
+        "stages_ms": {}
+      }
+    }
+  ]
+}

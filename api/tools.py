@@ -197,6 +197,7 @@ async def rag_search_execute(
     *,
     history: list[dict[str, Any]] | None = None,
     debug_llm_prompts: bool = False,
+    preview_only: bool = False,
 ) -> ToolResult:
     started_at = time.perf_counter()
     hist = history or []
@@ -243,6 +244,30 @@ async def rag_search_execute(
                 error_stage="rag.retrieve",
                 latency_ms=_elapsed_ms(started_at),
             )
+
+        if preview_only:
+            planned_top_k = int(retrieved.get("top_k") or 10)
+            headlines: list[str] = []
+            for h in hits[:6]:
+                if not isinstance(h, dict):
+                    continue
+                label = (
+                    h.get("filename")
+                    or h.get("title")
+                    or h.get("path")
+                    or h.get("url")
+                    or h.get("id")
+                )
+                if isinstance(label, str) and label.strip():
+                    headlines.append(label.strip()[:120])
+            out_preview: dict[str, Any] = {
+                "rewritten": rewritten,
+                "planned_top_k": planned_top_k,
+                "preview_headlines": headlines,
+            }
+            if debug_llm_prompts and llm_prompts:
+                out_preview["llm_prompts"] = llm_prompts
+            return ToolResult(success=True, data=out_preview, latency_ms=_elapsed_ms(started_at))
 
         parts: list[str] = []
         for i, h in enumerate(hits[:12]):

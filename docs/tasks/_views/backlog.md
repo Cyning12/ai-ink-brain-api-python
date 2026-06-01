@@ -10,7 +10,8 @@
 | [`task_rag_graphrag_pilot_explore_v1.md`](../active/task_rag_graphrag_pilot_explore_v1.md) | 博客 GraphRAG 试点（小范围 / 可选独立页） | 2026-05-18 |
 | [`task_chatbi_v3_debt_from_v2_multiturn_v1.md`](../active/task_chatbi_v3_debt_from_v2_multiturn_v1.md) | V2 多轮 / Text2SQL 值域欠债 | — |
 | [`task_chatbi_v3_intent_classification_debt_v1.md`](../active/task_chatbi_v3_intent_classification_debt_v1.md) | 意图识别欠债（Intent vNext） | 2026-05-13 |
-| [`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](../active/task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md) | 低置信方案预览/确认（**§5.1 整单**仍 backlog；§5.0 首包已验收） | — |
+| [`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](../active/task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md) | 低置信方案预览/确认（**§5.1 整单**仍 backlog；§5.0/5-2 已验收） | — |
+| [`task_chatbi_v3_lowconf_rag_preview_v1.md`](../active/task_chatbi_v3_lowconf_rag_preview_v1.md) | §5-3 RAG 低置信预览+token（**全栈** · draft） | 2026-05-31 |
 
 ## 相关但未标 backlog（排期参考）
 
