@@ -1,6 +1,6 @@
 # Task：Portfolio 演示站 RAG — RUNBOOK · env 文档 · 五问预跑留证（后端）
 
-> **状态**：`draft`  
+> **状态**：`in_progress`（30 W2/W3 done · W5 待人 · 40 文档 tranche 自检完成）  
 > **schedule_ref**：投递冲刺 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) · P0-C  
 > **硬 deadline**：**2026-06-09 上午**（投递前 ingest 对齐 + 五问 RUNBOOK + 预发/生产等价环境 sync 与五问预跑留证）  
 > **治理 SPEC（L1 · 已冻结）**：[`SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](../spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) · `PORTFOLIO-RAG-DEMO@2026-06-01`  
@@ -49,10 +49,10 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1,30 | 初稿 task + SPEC §7 映射人扫 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 零阻塞落盘 `docs/harness/reviews/` 后人签 |
-| HG-W5-SYNC | pending | 40 | **人**在预发/生产等价环境执行 `admin/sync` 且 job `succeeded` 后改 approved |
-| HG-W5-FIVE-Q | pending | done | 五问预跑 + diary 留证人签（可与 HG-REINSPECT 合并关账） |
+| HG-TASK-DRAFT | approved | 22-R1,30 | semi_auto 链式执行人授权 · 2026-06-01 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 零阻塞 · `reviews/.../audit_R1_20260601.md` |
+| HG-W5-SYNC | pending | — | **人**在预发/生产等价环境 sync `succeeded` 后改 approved |
+| HG-W5-FIVE-Q | pending | done | 五问预跑 + diary 留证人签 |
 | HG-REINSPECT | pending | done | 50 复检后人签、合并 PR 前 |
 
 ---
@@ -75,19 +75,19 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ### 2.1 W2 · RUNBOOK（30 帽交付）
 
-- [ ] **G-W2-1** 新建 RUNBOOK，必含 SPEC §5.1 八节：前提与权限 / Sync 执行 / 失败排障 / 五问验收表 / 单问重试 ≤3 / Sources 留证（Q1、Q5 强制）/ 卷四·五 release 后再 sync / Env 指针  
-- [ ] **G-W2-2** 五问问句与 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 **逐字对齐**（SPEC §6.2 真值表）  
-- [ ] **G-W2-3** Q3 sources 硬约束：**仅** `metadata.category == evidence`（不含 methodology vol3）  
-- [ ] **G-W2-4** Sync 硬检查：`succeeded` 且 `filesScanned > 0` 且 `chunksUpserted > 0`；三目录各 ≥1 `.md`  
-- [ ] **G-W2-5** 仅 `admin/sync`；**不含** `admin/ingest` 备用路径  
-- [ ] **G-W2-6** 轮询间隔 2～5s，总超时 ≤60 min；`404 Job not found` → 重新 POST  
+- [x] **G-W2-1** 新建 RUNBOOK，必含 SPEC §5.1 八节：前提与权限 / Sync 执行 / 失败排障 / 五问验收表 / 单问重试 ≤3 / Sources 留证（Q1、Q5 强制）/ 卷四·五 release 后再 sync / Env 指针  
+- [x] **G-W2-2** 五问问句与 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 **逐字对齐**（SPEC §6.2 真值表）  
+- [x] **G-W2-3** Q3 sources 硬约束：**仅** `metadata.category == evidence`（不含 methodology vol3）  
+- [x] **G-W2-4** Sync 硬检查：`succeeded` 且 `filesScanned > 0` 且 `chunksUpserted > 0`；三目录各 ≥1 `.md`  
+- [x] **G-W2-5** 仅 `admin/sync`；**不含** `admin/ingest` 备用路径  
+- [x] **G-W2-6** 轮询间隔 2～5s，总超时 ≤60 min；`404 Job not found` → 重新 POST  
 
 ### 2.2 W3 · env / deploy 文档（30 帽交付）
 
-- [ ] **G-W3-1** 在 [`PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](../meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md) **§C** 增补 **portfolio 演示站** 段落：`CONTENT_ROOT`、`NEXT_PUBLIC_ADMIN_SECRET`/`CHAT_API_SECRET`、`EMBEDDING_DIM`、`SILICONFLOW_*`、Supabase 写库变量（**不含真实密钥**）  
-- [ ] **G-W3-2** 说明本地 `CONTENT_ROOT` 指向前端仓 `content/` 的示例；生产 mount / CI checkout 语义与 Vercel 部署边界（SPEC §1.1 Q-3）  
-- [ ] **G-W3-3** 明确 **禁止** 生产依赖后端仓默认 `REPO_ROOT/content` 回退作为 portfolio 真值  
-- [ ] **G-W3-4** RUNBOOK §8 与 PROJECT_CONFIG 双向链接  
+- [x] **G-W3-1** 在 [`PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](../meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md) **§C** 增补 **portfolio 演示站** 段落：`CONTENT_ROOT`、`NEXT_PUBLIC_ADMIN_SECRET`/`CHAT_API_SECRET`、`EMBEDDING_DIM`、`SILICONFLOW_*`、Supabase 写库变量（**不含真实密钥**）  
+- [x] **G-W3-2** 说明本地 `CONTENT_ROOT` 指向前端仓 `content/` 的示例；生产 mount / CI checkout 语义与 Vercel 部署边界（SPEC §1.1 Q-3）  
+- [x] **G-W3-3** 明确 **禁止** 生产依赖后端仓默认 `REPO_ROOT/content` 回退作为 portfolio 真值  
+- [x] **G-W3-4** RUNBOOK §8 与 PROJECT_CONFIG 双向链接  
 
 ### 2.3 W5 · 预跑留证（人 + 40 帽 · 本 task 验收项）
 
@@ -136,9 +136,9 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ### 6.1 文档（30 完成后）
 
-- [ ] RUNBOOK 路径存在且 §5.1 八节齐全  
-- [ ] PROJECT_CONFIG §C portfolio 段落存在且无真实密钥  
-- [ ] RUNBOOK 与 SPEC §4.2.3 失败语义表 **一致**  
+- [x] RUNBOOK 路径存在且 §5.1 八节齐全  
+- [x] PROJECT_CONFIG §C portfolio 段落存在且无真实密钥  
+- [x] RUNBOOK 与 SPEC §4.2.3 失败语义表 **一致**  
 
 ### 6.2 预跑（W5 · 40 + 人签）
 
@@ -190,14 +190,56 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ---
 
+### 6.3 CI
+
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿（本 task **不应** 引入 api 变更；若仅 docs 则作回归确认）  
+
+---
+
 ## 10. 实现备忘（30 回填）
 
-| 文件 | 动作 |
+| 文件 | 动作 | 状态 |
+|------|------|------|
+| `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` | **新建** | done · 30 |
+| `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | §C.1 增补 portfolio | done · 30 |
+| `docs/diary/samples/portfolio-rag-demo/README.md` | W5 留证索引 | done · 30（正文待人） |
+| `api/`、`tests/` | **不改** | — |
+
+---
+
+### 自检结论（执行者）
+
+> **40 帽 · 2026-06-01 · 分支 `task/portfolio-rag-demo-v1`**
+
+#### 命令与退出码
+
+| 命令 | cwd | 退出码 | 摘要 |
+|------|-----|--------|------|
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓库根 | **0** | **277 passed**, 1 skipped, 2 deselected |
+
+#### 验收表（文档 tranche）
+
+| 验收项 | 结果 | 证据 |
+|--------|------|------|
+| §6.1 RUNBOOK 八节 | pass | `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` |
+| §6.1 PROJECT_CONFIG §C.1 | pass | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
+| §6.1 失败语义一致 | pass | RUNBOOK §3 ↔ SPEC §4.2.3 |
+| §6.3 pytest 回归 | pass | 见上表 |
+| §6.2 W5 sync + 五问 | **未测** | `HG-W5-SYNC` / `HG-W5-FIVE-Q` pending；待人按 RUNBOOK 执行 |
+| §2.3 G-W5-1～5 | **未测** | 留证目录仅 README 索引 |
+
+#### OpenSpec × TDD 三维（docs task）
+
+| 维度 | 结果 |
 |------|------|
-| `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` | **新建** |
-| `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | §C 增补 portfolio |
-| `docs/diary/samples/portfolio-rag-demo/` | W5 留证（40 / 人） |
-| `api/`、`tests/` | **不改**（除非 22 书面要求且人签） |
+| Completeness | pass（W2/W3 交付物齐；W5 显式 defer） |
+| Correctness | pass（五问/Q3 strict 与 freeze_id 一致） |
+| Coherence | pass（RUNBOOK ↔ PROJECT_CONFIG ↔ SPEC） |
+
+#### 已知未测项
+
+- 生产/预发 `admin/sync` 与五问预跑（**禁止 Agent 执行**）  
+- 前端 W4 content 三类目录就绪性（跨仓 · 人确认）
 
 ---
 
@@ -206,6 +248,7 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 | 日期 | 摘要 |
 |------|------|
 | 2026-06-01 | 10 帽草案：自 SPEC §7 W2/W3/W5 拆 task；`PORTFOLIO-RAG-DEMO@2026-06-01` |
+| 2026-06-01 | 22 R1 零阻塞 · 30 W2/W3 落盘 · 40 文档 tranche 自检（W5 defer） |
 
 ---
 

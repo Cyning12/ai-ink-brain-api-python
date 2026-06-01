@@ -115,6 +115,27 @@
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 
+### C.1 Portfolio 演示站（ingest / sync · `PORTFOLIO-RAG-DEMO@2026-06-01`）
+
+> **用途**：投递前 portfolio 演示站 RAG 语料与前端 `ai-ink-brain/content/` **同源**入库。  
+> **操作 RUNBOOK**：[`docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](../harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md)  
+> **治理 SPEC**：[`docs/spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](../spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md)
+
+| 项 | 真值 / 说明 |
+| --- | --- |
+| **CONTENT_ROOT** | **生产 / 预发必须显式设置**，指向前端仓 `content/` 根目录（含 `methodology/`、`resume/`、`evidence/`）。留空时代码回退 `REPO_ROOT/content`（后端仓内）——**禁止**作为 portfolio 生产真值。 |
+| **本地示例** | `CONTENT_ROOT=/path/to/ai-ink-brain/content`（与 `.env.example` 注释一致；路径随本机 checkout 而变） |
+| **category 规则** | ingest 取相对路径 **第一段** 为 `metadata.category`（`methodology` / `resume` / `evidence`）；见 `api/ingest_pipeline.py::get_all_markdown_chunks()` |
+| **入库接口** | **仅** `POST /api/py/admin/sync`（异步 job）；portfolio RUNBOOK **不含** `admin/ingest` |
+| **admin 鉴权** | `NEXT_PUBLIC_ADMIN_SECRET` 或 `CHAT_API_SECRET` → Bearer / `x-admin-token` |
+| **Embedding** | `SILICONFLOW_API_KEY` + `EMBEDDING_DIM`（默认 1024）须与 Supabase `documents.embedding vector(N)` 一致 |
+| **Supabase 写库** | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` |
+| **部署边界** | 演示 URL 沿用现有前端 Vercel 项目（`NEXT_PUBLIC_SITE_MODE=portfolio`）；**不**变更后端 API 域名或 Supabase 项目名（SPEC Q-3） |
+| **DEBUG_INGEST** | 本地排障可 `1`；**生产关闭** |
+| **Secrets** | **禁止**将 admin / Supabase / SiliconFlow 密钥提交 Git；平台 Secrets 或本地 `.env` |
+
+**生产 mount 语义（概念）**：Python 服务进程须能 `read` 挂载后的 `CONTENT_ROOT` 目录树；Vercel/serverless redeploy 期间 job 可能丢失（404 → 重新 POST sync）。
+
 ---
 
 ## D. 运行与脚本
