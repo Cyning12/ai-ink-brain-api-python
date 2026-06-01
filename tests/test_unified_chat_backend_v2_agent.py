@@ -1391,7 +1391,9 @@ def test_v3_plan_execution_token_invalid_json_denies_bypass(monkeypatch: pytest.
     assert "agent.clarify" in types_wq
     assert calls["reg"] == 0
 
-    tampered = (tok[:-1] + ("A" if tok[-1] != "A" else "B")) if tok else "not-a-token"
+    # 末位 A↔B 可能仅改 padding 位，解码后与原文相同（base64url 碰撞）；改中间字符必失败。
+    mid = max(1, len(tok) // 2)
+    tampered = tok[:mid] + ("X" if tok[mid] != "X" else "Y") + tok[mid + 1 :]
     res_bad = client.post(
         "/api/py/unified/chat",
         headers={"Authorization": "Bearer api-key-123"},
