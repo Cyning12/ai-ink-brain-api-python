@@ -14,6 +14,7 @@
 | [`governance/`](./governance/README.md) | 治理 / Harness / Wiki | **2026-05 起** 非功能需求与推广顺序 |
 | [`SPEC-ChatBI-Enterprise-Gap.md`](./SPEC-ChatBI-Enterprise-Gap.md) | 企业差距 | 跨版本差距表 |
 | [`SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](./SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md) | **SDD 过程** | 起草 SPEC 的三轮意图对齐 + 10/20/22 映射 |
+| [`governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](./governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) | **治理 / Portfolio** | `active` · `PORTFOLIO-RAG-DEMO@2026-06-01` · RAG 语料与前端 `content/` 同源 ingest + 五问 RUNBOOK |
 
 ---
 
