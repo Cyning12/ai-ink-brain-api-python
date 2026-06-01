@@ -18,3 +18,9 @@
 
 - `HG-W5-SYNC`：sync `succeeded` 后人签  
 - `HG-W5-FIVE-Q`：五问达标 + 本目录留证后人签
+
+## 过程备忘（非 W5 留证）
+
+| 文件 | 说明 |
+| --- | --- |
+| [`NOTES-ci-plan-token-test-fix_20260601.md`](NOTES-ci-plan-token-test-fix_20260601.md) | PR #101 CI：plan token 测试 base64 碰撞复盘 · commit `1823ba7` |
