@@ -32,6 +32,7 @@
 | [`harness-task`](SKILL-harness-task.md) | **22 起 · 单 task** | active task + Harness 模板 | 帽链索引 · 落盘路径 · 关账 checklist · **非 Loop** · **v1 草案** |
 | [`harness-loop-batch`](SKILL-harness-loop-batch.md) | 10 Batch + Loop 执行 | 母单 + N 子 task、单 PR、`LOOP_MANIFEST` | Batch-10 一次；22→关账 × N；`HG-LOOP-BATCH`；cross-round 授权仅 `PROMPT_START` |
 | [`harness-meta-reinspect`](SKILL-harness-meta-reinspect.md) | 50 后 / 合并后 | 首轮 reinspect + git 历史 + invoke 链 | **零上下文**流程元复检：`human_gate` commit diff、同会话偏差、对拍首轮 50；落盘 `reinspect_*_meta_vN.md` |
+| [`harness-looptask-handoff`](SKILL-harness-looptask-handoff.md) | **50 后 STOP** / CLOSE 前 | LoopTask `stop_after_hat:50` · task + R1/R2/50 路径 | **50 全文 Prompt** + 签收清单 + **人改 gate 表**（文件·位置·改什么）；跨仓 Portfolio 指针 |
 | [`pr-post-ci`](SKILL-pr-post-ci.md) | 开 PR / push 后 | PR 号、是否 docs-only | CI 监听、body/Test plan 同步、`automerge` 白名单；见 `SPEC-Governance-PR-Post-CI-v1` |
 
 **跨平台执行测评（实验轨）**：[`docs/harness/experiments/skill_cross_platform_v1/README.md`](../../harness/experiments/skill_cross_platform_v1/README.md) — 记录 SKILL 在 Claude Code 等平台的 scorecard，**非** SKILL 正文真值。
@@ -82,6 +83,7 @@ docs/tasks/skills/
   SKILL-harness-task.md
   SKILL-harness-loop-batch.md
   SKILL-harness-meta-reinspect.md
+  SKILL-harness-looptask-handoff.md
   SKILL-pr-post-ci.md
 ```
 
@@ -99,3 +101,4 @@ docs/tasks/skills/
 | 2026-05-26 | `harness-loop-batch` v1.1：人审泛化（R1…Rn、模式文件名、三选一流程） |
 | 2026-05-26 | `harness-loop-batch` v1.2：META 关账、合规自检、试点过程债、accepted 晋升 |
 | 2026-05-27 | 新增 `SKILL-docs-governance`、`SKILL-harness-task` 草案（T4+L2 Loop 蒸馏）；`reinspect_results/README` 命名；loop-batch v1.8 |
+| 2026-06-01 | 新增 `SKILL-harness-looptask-handoff`（LoopTask 止于 50 交接） |
