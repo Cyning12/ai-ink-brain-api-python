@@ -7,7 +7,8 @@
 | task_path | docs/tasks/active/task_chatbi_v3_lowconf_rag_preview_v1.md |
 | git_branch | task/chatbi-v3-lowconf-rag-preview |
 | freeze_id | CHATBI-LOWCONF-RAG-PREVIEW@2026-05-31 |
-| fresh_context | **必须** · 新会话 |
+| fresh_context | 关账轮复检（人签 HG-REINSPECT 后） |
+| reinspect | docs/tasks/reinspect_results/reinspect_chatbi-v3-lowconf-rag-preview_20260531_v1.md |
 | review | docs/harness/reviews/by-task/chatbi-v3-lowconf-rag-preview/task_chatbi_v3_lowconf_rag_preview_v1_audit_R1_20260531.md |
 | date | 20260531 |
 

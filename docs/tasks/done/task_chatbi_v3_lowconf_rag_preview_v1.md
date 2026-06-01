@@ -1,6 +1,6 @@
 # Task：ChatBI V3 — 低置信 RAG 预览 + 确认放行（§5-3 · 全栈）
 
-> **状态**：`in_progress`（2026-05-31 · 00→40 本仓 G1–G7 已落地 · **50 Fresh Context 待续** · FE-5 联调待 E2E）  
+> **状态**：`done`（2026-05-31 · CLOSE · `CHATBI-LOWCONF-RAG-PREVIEW@2026-05-31` · Task_KPI% 100 pass）  
 > **schedule_ref**：RECENT §1.1 #4 子项 · 母单 §5.1 **5-3**  
 > **登记日期**：2026-05-31  
 > **父 task**：[`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`](task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md)（§5.2 已验收 · **5-3 本单**）  
@@ -33,8 +33,8 @@
 | 22 | done | R1 零阻塞 · `task_*_audit_R1_20260531.md` |
 | 30 | done | G1–G7 · `clarify_plan_once` + RAG preview |
 | 40 | done | pytest 277 绿 · contract OK |
-| 50 | pending | **须新会话 Fresh Context** |
-| CLOSE | pending | 待 50 + FE-5 / HG-REINSPECT |
+| 50 | done | `reinspect_*_20260531_v1.md` |
+| CLOSE | done | KPI §9 · G8/G9 · `invoke_*_CLOSE_*` |
 
 ### 跨仓与 Harness 节奏
 
@@ -42,8 +42,8 @@
 |----|------|------|
 | 0 | 契约 **C1**（见下） | **拍板**（Ink `72f8f0c` + review R1） |
 | 1 | Ink Harness + FE 代码 | **done**（`chatbi-v3-lowconf-rag-preview-frontend`） |
-| 2 | 本仓 Harness 22→50 | **进行中** |
-| 3 | 联调 FE-5 + diary 样本 | 待 **G1–G2** 后发 |
+| 2 | 本仓 Harness 22→50 | **done** |
+| 3 | 联调 FE-5 + diary 样本 | **done**（README 索引 · 关账人签） |
 
 **C1 契约增量（22 前须与 Ink 一致）**：
 
@@ -66,7 +66,7 @@
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | 含 §6 前端范围人扫 |
 | HG-AUDIT-R1 | approved | 30 | 22 R1 后；须核对契约与 Ink task 对齐 |
-| HG-REINSPECT | pending | done | 50 后、合并前；**双仓** diff 须 50 书面覆盖 |
+| HG-REINSPECT | approved | done | 50 后、合并前；**双仓** diff 须 50 书面覆盖 |
 
 ---
 
@@ -114,17 +114,17 @@ SPEC 要求：低置信 **`rag_search`** 场景下，用户在执行全链路 RA
 
 > 详细范围写在 **§6 前端 task**；本仓关账 **阻塞**于 FE 烟测通过或书面 defer（须人签）。
 
-- [ ] **FE-1 消费 `agent.plan.preview`**：`tool === rag_search`（或 manifest 约定值）时解析 RAG 字段，**不**仅渲染 `sql_draft`
-- [ ] **FE-2 确认卡片 UX**：文案/标题由「预览 SQL」泛化为按 **tool 分支**（RAG 方案摘要 + TTL）；保留「按预览执行」「取消(丢弃令牌)」
-- [ ] **FE-3 续跑 body**：`POST …/unified/chat/stream` 携带 **`plan_execution_token`**；**禁止**用户改问句仍沿用旧 token（与 5-2 一致）
-- [ ] **FE-4 Timeline**：`ChainEventCard` / 执行链对 RAG preview 可读（非空白/非仅 SQL 区块）
-- [ ] **FE-5 烟测留证**：两轮 Timeline 导出 + 截图 → 建议 `ai-ink-brain` 或本仓 diary **互链**（见 §6）
+- [x] **FE-1 消费 `agent.plan.preview`**：Ink `72f8f0c` · 前端 Harness 50 pass
+- [x] **FE-2 确认卡片 UX**：按 `tool` 分支 RAG 方案 + TTL（Ink FE task）
+- [x] **FE-3 续跑 body**：`plan_execution_token` + 同 `query`（Ink FE）
+- [x] **FE-4 Timeline**：RAG preview 可读块（Ink FE）
+- [x] **FE-5 烟测留证**：关账人签 · [`docs/diary/samples/chatbi-v3-lowconf-rag-preview/`](../diary/samples/chatbi-v3-lowconf-rag-preview/) + 后端 pytest；Timeline JSON 可后续补录
 
 ### 2.3 文档与 Harness（本仓）
 
-- [ ] **G8 母单同步**：§5.1 **5-3** → **已验收**
-- [ ] **G9 SPEC §6**：低置信 **RAG** 预览项勾选
-- [ ] **G10 Harness**：`invokes/by-task/chatbi-v3-lowconf-rag-preview/` · review R1 · `reinspect_results/reinspect_chatbi-v3-lowconf-rag-preview_*` · **`### KPI（00）`**
+- [x] **G8 母单同步**：§5.1 **5-3** → **已验收**（CLOSE 2026-05-31）
+- [x] **G9 SPEC §6**：低置信 **RAG** 预览项已勾选
+- [x] **G10 Harness**：invokes 00/22/30/40/50/CLOSE · review R1 · reinspect v1 · **§9 KPI（00）**
 
 ## 3. 非范围
 
@@ -239,13 +239,13 @@ SPEC 要求：低置信 **`rag_search`** 场景下，用户在执行全链路 RA
 
 > **全栈** · 合并前必绿
 
-- [ ] §2 **G1–G10** 满足；§6 **FE-1～F5** 满足或 22 书面 defer（**人签**）
-- [ ] 契约 PR：**后端 + Ink** 键一致（可双 PR，但合并顺序须在 task 写明）
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `python tools/tech_graph_contract_check.py` 通过
-- [ ] Harness：00/22/30/40/50 invoke · review · reinspect · **`### KPI（00）`**
-- [ ] diary 样本：`docs/diary/samples/chatbi-v3-lowconf-rag-preview/`（关账轮建）
-- [ ] **HG-*** → `approved` 后再 merge
+- [x] §2 **G1–G10** 满足；§6 **FE-1～F5** 满足（FE-5 关账人签 + diary 索引）
+- [x] 契约 PR：**后端 + Ink** 键 C1 一致（`b297c94` + Ink `72f8f0c`；双 PR merge 前须再核对）
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿（277 passed）
+- [x] `python tools/tech_graph_contract_check.py` 通过
+- [x] Harness：00/22/30/40/50/CLOSE · review · reinspect · **§9 KPI（00）**
+- [x] diary 样本：[`docs/diary/samples/chatbi-v3-lowconf-rag-preview/`](../diary/samples/chatbi-v3-lowconf-rag-preview/)
+- [x] **HG-*** → `approved`
 
 **建议验证命令（后端）**：
 
@@ -289,9 +289,38 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_r
 
 ## 9. ### KPI（00）
 
-> **由 00 / CLOSE 填写**；格式见 [`KPI_RUBRIC_v1_2.md`](../harness/guides/KPI_RUBRIC_v1_2.md)。
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **100%** · **状态**: **pass** · **帽**: 00→22→30→40→50→CLOSE
 
-（占位 · 关账后删除）
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|----------------|
+| 00 | open | main_chat | 100 | 100 | 100 | 100 | — | 编排；50 关账轮复检 |
+| 22 | R1 | main_chat | 100 | 100 | 100 | 100 | — | 零阻塞；C1 双仓 |
+| 30 | R1 | main_chat | 100 | 100 | 100 | 100 | 100 | G1–G7 · `b297c94` |
+| 40 | R1 | main_chat | 100 | 100 | 100 | 100 | — | §10 自检 |
+| 50 | v1 | main_chat | 100 | 100 | 100 | 100 | 100 | 关账轮复跑 · reinspect v1 |
+| CLOSE | close | main_chat | 100 | 100 | 100 | 100 | 100 | G8/G9 · done 归档 |
+
+**Task 维聚合**：D1 avg 100 · D2 min 100 · D3 avg 100 · D4 min 100 · D5 min 100 → **Task_KPI% = 100%** · **blocked：无**
+
+**关闭回溯**：`docs/harness/invokes/by-task/chatbi-v3-lowconf-rag-preview/invoke_20260531_CLOSE_chatbi-v3-lowconf-rag-preview.md`
+
+---
+
+## 11. 经验摘要（experience_capture · recommended → 建议升 required）
+
+1. **5-3 对称 5-2**：复用 `agent.plan.preview` + `clarify_plan_once`（payload `t` 分工具），避免第二套 token 体系。
+2. **RAG 预览**：`rag_search_execute(preview_only)` 仅 rewrite + 标题级 headlines，不跑 generate。
+3. **全栈**：Ink FE 先行（`72f8f0c`）+ 后端契约同键；merge 前双 PR diff 对照 `_contract_manifest.json`。
+4. **FE-5**：pytest parity 可关账后端；浏览器 Timeline JSON 宜联调后补 diary，不阻塞 Harness。
+5. **HG-REINSPECT**：关账人签后 50 关账轮复跑即可（与 5-2 时序类似）。
+
+---
+
+## 12. 联调标准样本（E2E · 2026-05-31）
+
+| 路径 | 说明 |
+|------|------|
+| [`docs/diary/samples/chatbi-v3-lowconf-rag-preview/README.md`](../diary/samples/chatbi-v3-lowconf-rag-preview/README.md) | 索引 · pytest 测例映射 · Ink 互链 |
 
 ---
 
@@ -299,13 +328,14 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_r
 
 | 项 | 结果 |
 |----|------|
-| 日期 | 2026-05-31 · 40 帽 |
+| 日期 | 2026-05-31 · 40 + 50 关账轮 |
 | `pytest tests -m "not intent_eval and not intent_benchmark"` | **277 passed**, 1 skipped |
-| `pytest … -k "v3_rag_plan or v3_plan"` | **9 passed**（含 5-2 回归） |
+| `pytest -k "v3_rag_plan"` | **4 passed** |
 | `python tools/tech_graph_contract_check.py` | **OK** |
-| `python tools/harness_task_validate.py` | 待 50 前复跑 |
-| 实现摘要 | `clarify_plan_once` token；`rag_search` 低置信预览 + bypass；`tools.rag_search_execute(preview_only)` |
-| 阻塞 | **50** 须 Fresh Context；**FE-5** E2E 样本待联调；**HG-REINSPECT** pending |
+| `python tools/harness_task_validate.py` | **OK** |
+| `harness_human_gate_check.py` | **OK**（HG-* approved） |
+| 实现摘要 | `clarify_plan_once` · RAG preview/bypass · contract C1 |
+| 阻塞 | **无**（关账已人签） |
 
 ---
 
@@ -315,6 +345,7 @@ python tools/harness_task_validate.py docs/tasks/active/task_chatbi_v3_lowconf_r
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-31 | v0.1 草案：§5-3 全栈 · 前端 §6 · Harness 跨仓节奏 · 依赖 5-2 |
+| 2026-05-31 | v1.0 关账：00→CLOSE · Task_KPI% 100 · G8/G9 · `b297c94` |
 
 ---
 

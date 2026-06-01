@@ -137,7 +137,7 @@ python tools/tech_graph_contract_check.py
 |---|----------|------|
 | **5-1** | 方案 B **完整表述**：无矛盾或 `held` / `plan_only` 等显式字段 + 前后端可读 | **部分**：首包已消除「`final_mode: rag` 且无 RAG」；**未做** `held` 等新键（与 manifest **另 PR**）。**子项 §5-1a（首包）**：澄清短路下 `router.decision.final_mode` 与意图候选一致 — **已满足（2026-05-13）**。 |
 | **5-2** | Text2SQL 低置信：SQL 草案预览 + 只读闸 + 确认后一次跑通（含 deny） | **已验收**（2026-05-31 · 子 task [`task_chatbi_v3_lowconf_sql_preview_v1.md`](../done/task_chatbi_v3_lowconf_sql_preview_v1.md) · 分支 `task/chatbi-v3-lowconf-sql-preview` · reinspect [`reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md`](../tasks/reinspect_results/reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md)） |
-| **5-3** | RAG 低置信：检索方案级预览 + 确认后全链路 | **进行中**（子 task [`task_chatbi_v3_lowconf_rag_preview_v1.md`](task_chatbi_v3_lowconf_rag_preview_v1.md) · 全栈 · 先 Ink Harness 再联调） |
+| **5-3** | RAG 低置信：检索方案级预览 + 确认后全链路 | **已验收**（2026-05-31 · 子 task [`task_chatbi_v3_lowconf_rag_preview_v1.md`](../done/task_chatbi_v3_lowconf_rag_preview_v1.md) · 分支 `task/chatbi-v3-lowconf-rag-preview` · reinspect [`reinspect_chatbi-v3-lowconf-rag-preview_20260531_v1.md`](../tasks/reinspect_results/reinspect_chatbi-v3-lowconf-rag-preview_20260531_v1.md) · Ink `72f8f0c`） |
 | **5-4** | 门控：`user_confirmed` / token、`plan_id`、`gate_bypass_reason` 日志 | **未做** |
 | **5-5** | pytest + contract（**全特性**） | **部分**：当前仅覆盖方案 B + 既有 Agent 用例 |
 | **5-6** | `_tech_graph` 双轨增量（若流程结构变化） | **未要求**（首包未改流程图节点语义；可选后续在 `11_flow_*` 补一句） |

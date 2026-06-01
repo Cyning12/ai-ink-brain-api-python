@@ -63,7 +63,7 @@
 ## 6. 验收方向（母规级）
 
 - [x] 低置信 **Text2SQL**：Timeline 可见 **SQL 草案预览**（或等价结构化字段），用户 **确认后** 可完成 **一次** 与预览一致的执行（或明确「预览已过期」错误）。（2026-05-31 · [`task_chatbi_v3_lowconf_sql_preview_v1.md`](../../tasks/done/task_chatbi_v3_lowconf_sql_preview_v1.md) · `agent.plan.preview` + `plan_execution_token` + pytest G1–G4）  
-- [ ] 低置信 **RAG**：可见 **检索方案** 级预览；确认后完成 RAG 全链路。  
+- [x] 低置信 **RAG**：可见 **检索方案** 级预览；确认后完成 RAG 全链路。（2026-05-31 · [`task_chatbi_v3_lowconf_rag_preview_v1.md`](../../tasks/done/task_chatbi_v3_lowconf_rag_preview_v1.md) · `clarify_plan_once` + `rewrite_query` + pytest G1–G7）  
 - [x] **方案 B（首包 · 2026-05-13）**：澄清短路路径上不再出现「**`final_mode: rag`** 且无 **`rag_search`**」的误导组合（实现见任务单 **§5.0**；**`held` / `plan_only` 显式字段**仍待 **§5.1**）。  
 - [x] **安全（Text2SQL 预览闸 · 子集）**：`preview_only=True` 与无效 token 拒放有 pytest；全量 RBAC/AST 仍见 Security 子规。（2026-05-31 · 同上子 task）
 
@@ -77,3 +77,4 @@
 | 2026-05-12 | 元信息：增加 **PROJECT_CONFIG §C** 占位与 **`.env.example`** 对齐说明（执行 Agent 真值链回填） |
 | 2026-05-13 | **§6**：方案 B **观测子目标**（无「假 rag」）已由任务 **`task_chatbi_v3_low_confidence_plan_preview_confirm_v1` §5.0** 首包满足；**held** / SQL 预览 / token 等仍 backlog（任务单 **§5.1**） |
 | 2026-05-31 | **§6**：低置信 Text2SQL 预览 + token 放行（**5-2**）由子 task `task_chatbi_v3_lowconf_sql_preview_v1` 关账；RAG 预览（5-3）仍 backlog |
+| 2026-05-31 | **§6**：低置信 RAG 预览 + token 放行（**5-3**）由子 task `task_chatbi_v3_lowconf_rag_preview_v1` 关账 |
