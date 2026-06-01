@@ -53,7 +53,7 @@
 | HG-AUDIT-R1 | approved | 30 | 22 R1 零阻塞 · `reviews/.../audit_R1_20260601.md` |
 | HG-W5-SYNC | pending | — | **人**在预发/生产等价环境 sync `succeeded` 后改 approved |
 | HG-W5-FIVE-Q | pending | done | 五问预跑 + diary 留证人签 |
-| HG-REINSPECT | pending | done | 50 复检后人签、合并 PR 前 |
+| HG-REINSPECT | approved | done | 50 复检后人签、合并 PR 前 |
 
 ---
 
