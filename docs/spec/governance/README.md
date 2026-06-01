@@ -16,6 +16,8 @@
 | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](./SPEC-Governance-Wiki-Agent-Readorder-v1.md) | `active` | 后端 Agent Coding Wiki 读序 |
 | [`SPEC-Governance-Wiki-Ingest-Batch-v1.md`](./SPEC-Governance-Wiki-Ingest-Batch-v1.md) | `active` | Batch-1 ingest（10 slug） |
 | [`SPEC-Governance-Wiki-CTX-AB-Representative-v1.md`](./SPEC-Governance-Wiki-CTX-AB-Representative-v1.md) | `active` | AB 代表性扩面 |
+| [`SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](./SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) | `active` | Portfolio 演示站 RAG 同源 ingest + 五问验收 RUNBOOK · `PORTFOLIO-RAG-DEMO@2026-06-01` |
+| [`PROMPT_00_SPEC-refine_Portfolio-RAG-Demo-v1_zh.md`](./PROMPT_00_SPEC-refine_Portfolio-RAG-Demo-v1_zh.md) | `active` | 上述 SPEC · ≤5 轮读问解 · §4 可复制 Prompt |
 
 **SDD 起草**（全仓 SPEC 通用）：[`../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)
 
