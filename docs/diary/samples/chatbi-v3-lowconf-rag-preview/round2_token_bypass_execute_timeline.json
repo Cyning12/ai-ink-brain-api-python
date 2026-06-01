@@ -1,0 +1,164 @@
+{
+  "meta": {
+    "sample_id": "chatbi-v3-lowconf-rag-preview-round2-e2e",
+    "captured_at": "2026-05-31",
+    "source": "browser_unified_chat_sse_after_confirm_button",
+    "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+    "session_id": "791291bd-92f8-4936-b698-28e8fb4025e9",
+    "event_count_full_capture": 34,
+    "event_count_in_file": 13,
+    "query": "2026-04-28日记的大致内容",
+    "env_note": "同 round1；第二轮请求体带 plan_execution_token（Ink「按预览执行」）",
+    "screenshots": [
+      "screenshots/timeline-rag-preview-clarify-execution-path.png"
+    ],
+    "acceptance": "§5-3 G3：无 agent.clarify · 有 rag_search 执行 · token 校验通过",
+    "known_gap": "RAG_GENERATE_UNCERTAIN · 无 rag.sources · direct_answer 误判未来日期（见 NOTES-future-diary-llm-date.md）",
+    "notes": "本 JSON 为联调关键路径摘录；浏览器 Timeline 全链为 34 条，assistant 措辞以实机为准"
+  },
+  "timeline": [
+    {
+      "type": "user.message",
+      "ts": 1780284280000,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "user",
+      "payload": {
+        "text": "2026-04-28日记的大致内容",
+        "plan_execution_token": "<redacted-in-repo-see-browser-export>"
+      }
+    },
+    {
+      "type": "meta",
+      "ts": 0,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "m1",
+      "payload": {
+        "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+        "mode": "auto",
+        "session_id": "791291bd-92f8-4936-b698-28e8fb4025e9"
+      }
+    },
+    {
+      "type": "agent.step.start",
+      "ts": 1200,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "a1",
+      "payload": {
+        "step_number": 1,
+        "max_steps": 5
+      }
+    },
+    {
+      "type": "agent.think",
+      "ts": 3500,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "a1_think",
+      "payload": {
+        "text": "已校验 plan_execution_token，按预览方案执行 rag_search，跳过 clarify。"
+      }
+    },
+    {
+      "type": "router.decision",
+      "ts": 3600,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "r1",
+      "payload": {
+        "prefer": "auto",
+        "candidate_mode": "rag",
+        "final_mode": "rag",
+        "fallback": "direct_answer"
+      }
+    },
+    {
+      "type": "tool.call.start",
+      "ts": 4000,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "t_rag_s",
+      "payload": {
+        "tool": "rag_search",
+        "args": {
+          "query": "2026-04-28日记的大致内容",
+          "preview_only": false
+        }
+      }
+    },
+    {
+      "type": "tool.call.end",
+      "ts": 18500,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "t_rag_e",
+      "payload": {
+        "tool": "rag_search",
+        "ok": false,
+        "error_code": "RAG_GENERATE_UNCERTAIN",
+        "error_message": "生成阶段未产出可信答案或上下文不足"
+      }
+    },
+    {
+      "type": "agent.step.start",
+      "ts": 18600,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "a2",
+      "payload": {
+        "step_number": 2,
+        "max_steps": 5
+      }
+    },
+    {
+      "type": "tool.call.start",
+      "ts": 19000,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "t_da_s",
+      "payload": {
+        "tool": "direct_answer"
+      }
+    },
+    {
+      "type": "tool.call.end",
+      "ts": 24000,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "t_da_e",
+      "payload": {
+        "tool": "direct_answer",
+        "ok": true
+      }
+    },
+    {
+      "type": "assistant.message",
+      "ts": 24100,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "s_answer",
+      "payload": {
+        "role": "assistant",
+        "content": "截至当前（2025年），2026-04-28 属于未来日期，无法提供该日日记内容。请确认日期或改用知识库中已有日记日期查询。"
+      }
+    },
+    {
+      "type": "agent.final",
+      "ts": 24100,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "a_final",
+      "payload": {
+        "total_steps": 2,
+        "tools_used": [
+          "rag_search",
+          "direct_answer"
+        ],
+        "modes": [
+          "rag"
+        ],
+        "fallback_used": true
+      }
+    },
+    {
+      "type": "latency",
+      "ts": 24200,
+      "run_id": "df8593fb-1dc1-4154-9349-6c68bd6e7b08",
+      "step_id": "l1",
+      "payload": {
+        "total_ms": 24200,
+        "stages_ms": {}
+      }
+    }
+  ]
+}
