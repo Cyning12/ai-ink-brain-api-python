@@ -647,6 +647,9 @@
         "plan_id",
         "tool",
         "sql_draft",
+        "rewrite_query",
+        "planned_top_k",
+        "preview_headlines",
         "warnings",
         "plan_execution_token",
         "expires_in_sec"
