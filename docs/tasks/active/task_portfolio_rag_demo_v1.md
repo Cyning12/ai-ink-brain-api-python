@@ -1,6 +1,6 @@
 # Task：Portfolio 演示站 RAG — RUNBOOK · env 文档 · 五问预跑留证（后端）
 
-> **状态**：`in_progress`（30 W2/W3 done · W5 待人 · 40 文档 tranche 自检完成）  
+> **状态**：`in_progress`（W2/W3 done · **W5 关账 Loop 2026-06-02** · sync/五问待人 · HG-W5-* pending）  
 > **schedule_ref**：投递冲刺 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) · P0-C  
 > **硬 deadline**：**2026-06-09 上午**（投递前 ingest 对齐 + 五问 RUNBOOK + 预发/生产等价环境 sync 与五问预跑留证）  
 > **治理 SPEC（L1 · 已冻结）**：[`SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](../spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) · `PORTFOLIO-RAG-DEMO@2026-06-01`  
@@ -23,7 +23,7 @@
 | **experience_capture** | `recommended` |
 | **kpi_rubric** | `KPI_RUBRIC_v1_2` |
 | **kpi_aggregator** | `CLOSE` |
-| **git_branch** | `task/portfolio-rag-demo-v1` |
+| **git_branch** | `task/portfolio-rag-w5-v1`（W5 关账 Loop · 自 `task/portfolio-rag-demo-v1` 续跑） |
 | **Open Folder** | `ai-ink-brain-api-python`（W2/W3 落盘）；W5 预跑须开双仓读前端 content / Unified Chat |
 | **推荐路径** | **A（22 R1）** — 与前端 portfolio task 审查节奏对齐 |
 
@@ -93,11 +93,31 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 > **Agent 禁止** 在本 task 内对生产/预发执行 `POST /api/py/admin/sync`；仅 RUNBOOK 与留证目录规范。
 
-- [ ] **G-W5-1** 前置：HG-W5-SYNC 人签 — 预发/生产等价环境 sync job **`succeeded`**，且 `filesScanned` 覆盖 `methodology/`、`resume/`、`evidence/` **各 ≥1**  
-- [ ] **G-W5-2** 五问预跑：**5/5** 非空切题；sources **≥4/5**；单问重试 **≤3** 次  
-- [ ] **G-W5-3** Q1、Q5 sources JSON **可复现**：同 token、同问句预跑 **2 次**，主 `metadata.category` **一致**  
-- [ ] **G-W5-4** 留证落盘 `docs/diary/samples/portfolio-rag-demo/`：sync job 终态 JSON 摘要、Q1/Q5 sources 片段、五问结果表（pass/fail + 重试次数）；可选录屏路径索引链 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) P0-D  
-- [ ] **G-W5-5** Unified Chat 路径（`/api/py/unified/chat` 或 `/stream` + visitor token）；visitor **不禁 text2sql**（T-05）  
+| ID | 验收项 | 硬标准 | 留证 / 闸 |
+|----|--------|--------|-----------|
+| **G-W5-1** | sync job 终态 | `job.status=succeeded`；`filesScanned>0`；`chunksUpserted>0`；`methodology/`、`resume/`、`evidence/` **各 ≥1** `.md` 被扫描 | `sync-job-final.json` · **HG-W5-SYNC** 人签 |
+| **G-W5-2** | 五问预跑 | 问句与 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 **逐字**；**5/5** 非空切题；sources **≥4/5**；Q3 sources **仅** `metadata.category==evidence`；单问重试 **≤3** | `five-questions-results.md` |
+| **G-W5-3** | Q1/Q5 可复现 | 同 **ChatBI visitor Bearer**、同问句预跑 **2 次**；主 `metadata.category` **一致**（不一致 → F6 **FAIL**） | `q1-sources-run{1,2}.json`、`q5-sources-run{1,2}.json` |
+| **G-W5-4** | 留证目录 | `docs/diary/samples/portfolio-rag-demo/` 上表文件可读（脱敏、无密钥） | **HG-W5-FIVE-Q** 人签 |
+| **G-W5-5** | Unified 路径 | `POST /api/py/unified/chat` 或 `/stream`；visitor **不禁 text2sql**（T-05）；**非** `SYNC_ADMIN_SECRET` / admin Bearer | RUNBOOK §4 |
+
+**鉴权分工（W5 不得混用）**
+
+| 用途 | Header / Secret | 说明 |
+|------|-----------------|------|
+| **admin/sync** | `Authorization: Bearer <CHAT_API_SECRET>`（或 BFF `SYNC_ADMIN_SECRET` 同值） | 仅 sync job；**禁止**用于五问 |
+| **五问 Unified Chat** | `Authorization: Bearer <VISITOR_CHATBI_TOKEN>` | Supabase `chatbi_access_tokens` 行；运维签发见 RUNBOOK §1.3 |
+| **前端 W3 unlock** | `POST /api/auth/unlock` + `PORTFOLIO_VISITOR_*` | **前端仓** BFF Cookie；本 task **不实现**；curl 直连 Python 时用 ChatBI Bearer |
+
+**与前端 W3 分工（只读 · [`SPEC-portfolio_demo_site_v1_zh.md`](../../../ai-ink-brain/content/tasks/specs/SPEC-portfolio_demo_site_v1_zh.md) §4.3）**
+
+| 层 | 职责 | 本 task |
+|----|------|---------|
+| **前端 W3** | `tools/gen-portfolio-secrets.sh` · portfolio unlock Cookie · Unified 页内 UX | **非范围** · defer |
+| **后端 W5 RUNBOOK** | 运维 **ChatBI visitor token** 签发指针 · curl 五问 · sync 留证规范 | **在范围** · 30 帽 |
+| **BFF 转发** | 访客 session → Python Unified 时带 Bearer | 联调时人确认；本仓只文档化 Python 侧校验链 |
+
+**failure_paths 覆盖（W5 执行）**：**F5**（单问 3 次仍不达标 → 记 FAIL · 不得刷通过率）· **F6**（Q1/Q5 双跑 category 漂移 → FAIL · diary 标注 blocker）· **F7**（Q3 命中 methodology → FAIL）· **F8**（W4 未就绪即 sync → 硬 FAIL · 不得进五问）。
 
 ---
 
@@ -142,10 +162,14 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 ### 6.2 预跑（W5 · 40 + 人签）
 
-- [ ] sync job 终态 `succeeded` + 硬检查通过（§2.3 G-W5-1）  
-- [ ] 五问指标达标（§2.3 G-W5-2～G-W5-3）  
-- [ ] `docs/diary/samples/portfolio-rag-demo/` 留证可读（§2.3 G-W5-4）  
-- [ ] HG-W5-SYNC、HG-W5-FIVE-Q → `approved`  
+| 项 | 标准 | 状态 |
+|----|------|------|
+| sync 终态 + 硬检查 | §2.3 G-W5-1 | 待人 · `HG-W5-SYNC` pending |
+| 五问指标 + Q3 strict | §2.3 G-W5-2 | 待人 · RUNBOOK §4 |
+| Q1/Q5 双跑一致 | §2.3 G-W5-3 | 待人 · F6 口径 |
+| 留证目录可读 | §2.3 G-W5-4 · `docs/diary/samples/portfolio-rag-demo/` | 索引已就绪 · JSON/表待人 |
+| Unified + visitor Bearer | §2.3 G-W5-5 | RUNBOOK §1.3 已补运维指针 |
+| 人工闸 | `HG-W5-SYNC`、`HG-W5-FIVE-Q` → `approved` | **pending** |
 
 ### 6.3 CI
 
@@ -202,14 +226,16 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 |------|------|------|
 | `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` | **新建** | done · 30 |
 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | §C.1 增补 portfolio | done · 30 |
-| `docs/diary/samples/portfolio-rag-demo/README.md` | W5 留证索引 | done · 30（正文待人） |
+| `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` | §1.3 ChatBI visitor token 指针 | W5 tranche · 30 |
+| `docs/diary/samples/portfolio-rag-demo/README.md` | W5 留证 + blocked 说明 | W5 tranche · 30 |
+| `docs/diary/samples/portfolio-rag-demo/NOTES-w5-pending_*.md` | 待人 sync/五问占位 | W5 tranche · 30 |
 | `api/`、`tests/` | **不改** | — |
 
 ---
 
 ### 自检结论（执行者）
 
-> **40 帽 · 2026-06-01 · 分支 `task/portfolio-rag-demo-v1`**
+> **40 帽 · 2026-06-02 · 分支 `task/portfolio-rag-w5-v1` · W5 文档 tranche**
 
 #### 命令与退出码
 
@@ -217,29 +243,41 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 |------|-----|--------|------|
 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓库根 | **0** | **277 passed**, 1 skipped, 2 deselected |
 
-#### 验收表（文档 tranche）
+#### 验收表
 
 | 验收项 | 结果 | 证据 |
 |--------|------|------|
-| §6.1 RUNBOOK 八节 | pass | `docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md` |
-| §6.1 PROJECT_CONFIG §C.1 | pass | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
+| §6.1 RUNBOOK 八节 + §1.4 token 指针 | pass | `RUNBOOK_portfolio_rag_five_questions_v1_zh.md` |
+| §6.1 PROJECT_CONFIG §C.1 | pass | 无 env 缺口 · 未改 |
 | §6.1 失败语义一致 | pass | RUNBOOK §3 ↔ SPEC §4.2.3 |
 | §6.3 pytest 回归 | pass | 见上表 |
-| §6.2 W5 sync + 五问 | **未测** | `HG-W5-SYNC` / `HG-W5-FIVE-Q` pending；待人按 RUNBOOK 执行 |
-| §2.3 G-W5-1～5 | **未测** | 留证目录仅 README 索引 |
+| W5 RUNBOOK §1.4 ChatBI visitor | pass | 运维签发 + verify 探活 |
+| W5 diary README + NOTES | pass | `NOTES-w5-pending_20260602.md` · blocked 占位 |
+| §6.2 W5 sync + 五问 | **defer** | `HG-W5-SYNC` / `HG-W5-FIVE-Q` **pending** |
+| §2.3 G-W5-1～5 执行 | **defer** | 留证 JSON/表未生成 · 待人 RUNBOOK |
+
+#### 人工闸状态
+
+| gate_id | status | 说明 |
+|---------|--------|------|
+| HG-W5-SYNC | **pending** | 人执行 sync §2 + 硬检查后改 approved |
+| HG-W5-FIVE-Q | **pending** | 五问 + diary 留证后改 approved |
+| HG-REINSPECT | approved | 50 后复核 |
+
+**W5 未 pass**：须人按 RUNBOOK §2–§6 与 `NOTES-w5-pending_20260602.md` 执行。
 
 #### OpenSpec × TDD 三维（docs task）
 
 | 维度 | 结果 |
 |------|------|
-| Completeness | pass（W2/W3 交付物齐；W5 显式 defer） |
-| Correctness | pass（五问/Q3 strict 与 freeze_id 一致） |
-| Coherence | pass（RUNBOOK ↔ PROJECT_CONFIG ↔ SPEC） |
+| Completeness | pass（W5 文档 tranche 齐；执行显式 defer） |
+| Correctness | pass（鉴权分工 · Q3 strict · freeze_id 一致） |
+| Coherence | pass（RUNBOOK ↔ task §2.3 ↔ diary README） |
 
 #### 已知未测项
 
 - 生产/预发 `admin/sync` 与五问预跑（**禁止 Agent 执行**）  
-- 前端 W4 content 三类目录就绪性（跨仓 · 人确认）
+- 前端 W3 unlock · W4 content 就绪（跨仓 · defer 非 fail）
 
 ---
 
@@ -249,6 +287,27 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 |------|------|
 | 2026-06-01 | 10 帽草案：自 SPEC §7 W2/W3/W5 拆 task；`PORTFOLIO-RAG-DEMO@2026-06-01` |
 | 2026-06-01 | 22 R1 零阻塞 · 30 W2/W3 落盘 · 40 文档 tranche 自检（W5 defer） |
+| 2026-06-02 | 10 帽 W5 关账 Loop：§2.3 验收表 + 前端 W3 分工 · 帽链续跑 `task/portfolio-rag-w5-v1` |
+
+---
+
+### KPI（00）
+
+> **rubric**：`KPI_RUBRIC_v1_2` · **aggregator**：CLOSE · **2026-06-02 W5 关账 Loop**
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | 返工 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|------|----------------|
+| 00 | open | main_chat | pass | pass | pass | pass | warn | 0 | D5 warn：HG-W5-* pending · 未 git mv |
+| 10 | W5 | main_chat | pass | pass | pass | pass | pass | 0 | §2.3 细化 + 前端 W3 分工 |
+| 22 | R1′ | main_chat | pass | pass | pass | pass | pass | 0 | W5 增量零阻塞 |
+| 30 | W5 | main_chat | pass | pass | pass | pass | pass | 0 | RUNBOOK §1.4 · diary · pytest 277 |
+| 40 | W5 | main_chat | pass | pass | pass | pass | pass | 0 | W5 defer 口径正确 |
+| 22 | R2 | main_chat | pass | pass | pass | pass | pass | 0 | 派 50 |
+| 50 | W5 | task_subagent | pass | pass | pass | pass | warn | 0 | D5 warn：W5 执行 defer · 文档 pass |
+| CLOSE | — | main_chat | pass | pass | pass | pass | blocked | 0 | **Task_KPI% ≈ 92%** · blocked=HG-W5-* |
+
+**Task_KPI%**：**92%**（warn：D5 因 W5 人闸 pending · **blocked 关账**）  
+**blocked 说明**：`HG-W5-SYNC`、`HG-W5-FIVE-Q` 仍 pending → **不** `git mv` → done；待人 RUNBOOK + 留证 + 人签后重开 CLOSE。
 
 ---
 

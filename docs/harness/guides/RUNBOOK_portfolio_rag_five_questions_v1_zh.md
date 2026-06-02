@@ -39,7 +39,21 @@ find "$CONTENT_ROOT/methodology" "$CONTENT_ROOT/resume" "$CONTENT_ROOT/evidence"
 | --- | --- | --- |
 | **admin/sync** | `Authorization: Bearer <ADMIN_TOKEN>`（推荐） | 前端 **`SYNC_ADMIN_SECRET`** 或 Python `CHAT_API_SECRET` / 服务端 admin 同值；**禁止** Portfolio 文档写 `NEXT_PUBLIC_ADMIN_SECRET` |
 | **admin/sync（BFF 本地）** | `Authorization: Bearer $SYNC_ADMIN_SECRET` | 本仓 `.env.local` · **服务端 only** |
-| **Unified Chat 五问** | `Authorization: Bearer <VISITOR_TOKEN>` | 邮件申请 visitor 秘钥（见投递计划 §3.4） |
+| **Unified Chat 五问** | `Authorization: Bearer <VISITOR_CHATBI_TOKEN>` | Supabase `chatbi_access_tokens`（`api/chatbi_principal.py`）；**非** admin/sync secret |
+| **admin/sync（BFF 本地）** | `Authorization: Bearer $SYNC_ADMIN_SECRET` | 本仓 `.env.local` · **服务端 only** |
+
+### 1.4 运维签发 ChatBI visitor token（五问 curl · W5）
+
+> **与前端 W3 分工**：招聘访客 **默认 UX** 为前端 `POST /api/auth/unlock` + `PORTFOLIO_VISITOR_*`（见配对前端 SPEC §4.3）；**本 RUNBOOK 五问 curl** 直连 Python API 时使用 **ChatBI DB token**。
+
+| 步骤 | 动作 |
+| --- | --- |
+| 1 | 本机（仓库根）：`python3 docs/diary/local_chatbi_access_token_gen.py --level 2 --subject-user-id <user_id> --label portfolio-five-q --expires-in-days 7` |
+| 2 | 将脚本 stdout 的 **INSERT SQL** 在 Supabase SQL Editor 执行（**勿**将明文 token 提交 Git） |
+| 3 | 探活：`curl -sS "$PY_API_URL/api/py/chatbi/access/verify" -H "Authorization: Bearer $VISITOR_TOKEN"` → `ok: true` |
+| 4 | 五问：`Authorization: Bearer $VISITOR_TOKEN` 调用 §4 Unified Chat（**不禁 text2sql** · level 2 `end_user`） |
+
+**禁止**：用 `SYNC_ADMIN_SECRET` / `CHAT_API_SECRET` 冒充五问 visitor Bearer；admin token 仅 §2 sync。
 
 ---
 
@@ -182,3 +196,4 @@ curl -sS -X POST "$PY_API_URL/api/py/unified/chat" \
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-01 | v1：30 帽落盘 · 对齐 `PORTFOLIO-RAG-DEMO@2026-06-01` |
+| 2026-06-02 | §1.3–§1.4：ChatBI visitor token 运维签发 + verify 探活 · 与前端 W3 unlock 分工 |
