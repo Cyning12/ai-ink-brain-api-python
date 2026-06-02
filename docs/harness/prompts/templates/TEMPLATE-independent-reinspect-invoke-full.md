@@ -72,7 +72,7 @@ Harness 帽子：独立复检（§一）+ 全局验收（§二）— 统一 Agen
 - `test_strategy: required` 时：须评价测试与实现是否可被 pytest/CI **失败复现**；缺证据则标「证据不足」，不得凭感觉 pass。
 
 【五·附、Invoke 快照（开帽起点）】
-- 在输出【六】各节前，将 **本 Prompt 全文**（占位符已替换）按 `docs/harness/invokes/README.md` 落盘到 `Projects/docs/harness/invokes/`（元数据表 + 快照 fenced code）。同一会话追问 **不** 再新增快照文件。
+- 在输出【六】各节前，将 **本 Prompt 全文**（占位符已替换）按 `docs/harness/invokes/README.md` 落盘到 `<子仓>/docs/harness/invokes/by-task/<task_slug>/` 或工作区 `Projects/docs/harness/invokes/by-task/<task_slug>/`（元数据表 + 快照 fenced code）。同一会话追问 **不** 再新增快照文件。
 
 【六、你必须完成的输出（按标题顺序）】
 

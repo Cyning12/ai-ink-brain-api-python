@@ -90,7 +90,7 @@
 ```text
 1. 完成本帽交付物（代码 / 审查 md / 自检回填 / **50→`reinspect_results/*.md`** 等）
 2. 生成下一棒 §3 全文（占位符已替换）
-3. 落盘 → `docs/harness/invokes/invoke_*`（新帽节）及 **50 帽** → `docs/tasks/reinspect_results/reinspect_*.md`（见 [`../ACCEPTANCE_LANDING.md`](../ACCEPTANCE_LANDING.md)）
+3. 落盘 → `docs/harness/invokes/by-task/<task_slug>/invoke_*`（新帽节）及 **50 帽** → `docs/tasks/reinspect_results/reinspect_*.md`（见 [`../ACCEPTANCE_LANDING.md`](../ACCEPTANCE_LANDING.md)）
 4. 按 HANDOFF_AUTO_COMMIT 仅 add 本轮路径并 commit
 5. 切换角色语义，按刚落盘的 invoke 执行下一帽（同 Agent 会话）
 ```
@@ -141,7 +141,7 @@
 
 #### 3.4.3 版本 C（可选 · invoke / review 锚点）
 
-跨会话续跑时，可在 **`docs/harness/invokes/invoke_*.md` 元信息表** 或 **22 review 文首** 追加 **表格版**（与 B 语义一致，便于扫读）：
+跨会话续跑时，可在 **`docs/harness/invokes/by-task/<task_slug>/invoke_*.md` 元信息表** 或 **22 review 文首** 追加 **表格版**（与 B 语义一致，便于扫读）：
 
 | 字段 | 值 |
 |------|-----|

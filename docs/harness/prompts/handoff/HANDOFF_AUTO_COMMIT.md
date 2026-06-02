@@ -20,7 +20,7 @@
 | # | 条件 |
 |---|------|
 | T1 | 本轮已输出 **「下一棒可复制 Prompt」** 全文（对话内 `text` 围栏，占位符已替换） |
-| T2 | 本轮已按该帽规则完成 **应落盘工件**（如 `reviews/*_audit_*.md`、`invokes/invoke_*.md`、用户授权的 **task 正文修改** 等） |
+| T2 | 本轮已按该帽规则完成 **应落盘工件**（如 `reviews/*_audit_*.md`、`invokes/by-task/<task_slug>/invoke_*.md`、用户授权的 **task 正文修改** 等） |
 | T3 | 用户 **未** 声明本轮豁免 commit |
 
 **不要求**为「仅对话、零文件变更」的纯咨询 commit 空提交。
