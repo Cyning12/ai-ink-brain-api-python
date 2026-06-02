@@ -42,7 +42,7 @@
 {{FOCUS_OR_NONE}}
 
 你必须完成：
-0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `Projects/docs/harness/invokes/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
+0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `<子仓>/docs/harness/invokes/by-task/<task_slug>/` 或工作区 `Projects/docs/harness/invokes/by-task/<task_slug>/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
 1. 分栏或分列表输出：阻塞项（缺了执行帽不能开工）vs 非阻塞建议。
 2. 每条阻塞/建议尽量给出：位置（章节/标题）→ 问题 → 建议补一句（短句）。
 3. 对 test_strategy: required 的 task：检查是否存在可失败自动化测试计划或等价说明；缺失则列入阻塞项。

@@ -30,7 +30,7 @@
 1. **一句结论**：流程为何关闭（签收 / 阶段完成 / 复检通过等）。  
 2. **执行路线表**（按时间顺序）：见 §2.2。  
 3. **分仓 commit 索引**：见 §2.3。  
-4. **关联工件路径**：task、终轮 `reviews/*_audit_*`、关键 `invokes/invoke_*`（相对 `Projects/` 或注明子仓根）。
+4. **关联工件路径**：task、终轮 `reviews/*_audit_*`、关键 `invokes/by-task/<task_slug>/invoke_*`（相对 `Projects/` 或注明子仓根）。
 
 ### 2.2 执行路线表（建议列）
 

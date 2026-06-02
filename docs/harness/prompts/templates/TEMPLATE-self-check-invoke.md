@@ -50,7 +50,7 @@
 {{DIFF_NOTE_OR_NONE}}
 
 你必须完成：
-0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `Projects/docs/harness/invokes/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
+0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `<子仓>/docs/harness/invokes/by-task/<task_slug>/` 或工作区 `Projects/docs/harness/invokes/by-task/<task_slug>/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
 1. 通读 task 全文中的验收标准与「验证 / 自检 / 合并前」相关命令列表；逐条运行所列命令（至少包含 {{VERIFY_COMMAND}}），在对话中给出：命令、cwd、退出码、关键通过/失败行或断言摘要。
 2. 输出 **验收表**（每项 pass/fail + 证据：命令名/测试名/日志摘录）；fail 时写明是否可重试（环境/flaky）。
 3. 将 **`### 自检结论（执行者）`** 写入 **{{TASK_PATH}}** 指向的 task 正文（若尚无该小节则新增；位置与团队习惯一致即可）：含命令列表、退出码、验收摘要、已知未测项。
