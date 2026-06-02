@@ -116,6 +116,7 @@ done
 | SiliconFlow / Supabase 失败 | 上游或密钥 | 查 `SILICONFLOW_API_KEY`、Supabase service role | 指数退避 |
 | **`404 Job not found`** | redeploy / 单实例 job 丢失 | **重新 `POST`** 创建 job；sync 窗口 **避免** 并发 redeploy | 是 |
 | ingest `400` + 「维度」 | 同维度不匹配 | 同上 Embedding 行 | 修正后重跑 |
+| sync 已成功但五问 **答 Harness.io / 无 sources** | 库无 portfolio 语料或 `RAG_RETRIEVE_EMPTY` | 见 [`GUIDE_rag_user_self_check_v1_zh.md`](./GUIDE_rag_user_self_check_v1_zh.md) §3～§5 | 灌库 / FTS / 阈值对齐后重问 |
 
 ---
 
