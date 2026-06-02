@@ -20,6 +20,12 @@ classDiagram
     +timestamptz created_at
   }
 
+  class chatbi_access_tokens {
+    +uuid id
+    +text token_hash
+    +timestamptz expires_at
+  }
+
   class rag_conversation_logs {
     +uuid id
     +varchar session_id

@@ -39,6 +39,16 @@ flowchart TD
 
 - **drift_check 字面量锚点（勿删）**：下列字符串须保留在 `_tech_graph` 某处，供脚本子串匹配与 `api/*.py` 中 `os.getenv` 关键 DEBUG 对齐：`DEBUG_AGENT_DB_LOG` `DEBUG_INTENT_CACHE` `DEBUG_ROUTER_EVIDENCE` `DEBUG_ROUTER_EVIDENCE_DB` `DEBUG_ROUTER_TRACE_DB`。
 
+### drift_check 叙述层索引（CI 方案 A · 集中维护）
+
+> `python tools/tech_graph_drift_check.py` 对 `docs/_tech_graph/*.md` 做 **子串匹配**；新增端点/表/env 时 **优先在本节追加一行**，避免静默过期。详规见 `docs/diary/tmp/2026-06-02-tech-graph-drift-check-option-A_playbook_v1_zh.md`。
+
+**HTTP 端点（示例）**：`/api/py/live` `/api/py/ready`
+
+**Supabase 表名（示例）**：`chatbi_access_tokens`
+
+**关键 env（与脚本 `key_env_prefix` 一致，节选）**：`SUPABASE_HTTP_RETRIES` `SUPABASE_HTTP_RETRY_BASE_DELAY_S` `SUPABASE_INSERT_RETRIES` `SUPABASE_INSERT_RETRY_BASE_DELAY_S` `TEXT2SQL_DISTINCT_COLUMNS` `TEXT2SQL_DISTINCT_MAX` `TEXT2SQL_DISTINCT_MAX_PROBES` `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` `TEXT2SQL_RETRIEVE_QUERY_MAX_LEN` `TEXT2SQL_VALUE_HINTS_PATH`
+
 ### Wiki ↔ 图谱桥接（T4 · 叙事指针）
 
 | 项 | 约定 |
