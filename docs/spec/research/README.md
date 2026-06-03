@@ -16,7 +16,7 @@
 
 | 文件 | 主题 | 状态 |
 | --- | --- | --- |
-| [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](./SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) | LangChain/LangGraph 思想借鉴 · 自研编排改进路线图（P0～P3） | `draft` |
+| [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](./SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) | LangChain/LangGraph 思想借鉴 · 路线图（P0～P3） | `draft` · **§4A P0 单 Loop · 00 把控** |
 
 > 计划文档 **不** 并入对比调研正文；开 task 时 `@` 本文件 + 冻结决策 SPEC §4.3。
 
@@ -28,3 +28,4 @@
 | --- | --- |
 | 2026-06-03 | 初版：LangChain / LangGraph 双份调研 SPEC；本 README |
 | 2026-06-03 | 新增计划文档 `SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md` |
+| 2026-06-03 | 计划 SPEC：前端标注 · §4A P0 单 Loop · 00 把控 |
