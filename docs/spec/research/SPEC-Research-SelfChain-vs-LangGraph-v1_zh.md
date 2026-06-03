@@ -2,8 +2,8 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `draft`（调研 · 无 task 绑定） |
-| **日期** | 2026-06-03 |
+| **状态** | `draft`（调研 · 无 task 绑定 · **§4.3 D-1～D-5 已人拍板**） |
+| **日期** | 2026-06-03（**D-1～D-5 冻结**：2026-06-03） |
 | **范围** | 本仓 Chat / Unified Chat / Agent 编排层向 **图 + 状态机** 演进的可行性 |
 | **非范围** | 具体 PR、依赖版本、Harness task、前端 Timeline 改版 |
 | **关联真值** | `docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` · `docs/spec/v2-agent/SPEC-ChatBI-V2-ReAct-Loop.md` · `docs/_tech_graph/00_main.ai.md` |
@@ -15,8 +15,9 @@
 
 1. 本仓 **未使用 LangGraph 库**；V2 `ChatBIAgent.run` 已是 **手写 ReAct 循环**，与 LangGraph **思想最近**，但缺 **显式 State、声明式边、checkpoint/interrupt**。
 2. 引入 LangGraph 思想的核心收益：**控制流可声明/可测/可可视化**、**人机协同标准化**（plan preview / clarify）、**断点续跑**；非「为了用 LangGraph 而用」。
-3. **最小可行路径（MVP）**：P0 State Schema + 图设计 → P1 仅替换 `ChatBIAgent.run` 循环 → P2 interrupt 替换 `plan_execution_token` 手工分支；**不建议** 同时改 `unified_chat.py` + `index.py` + `chain_chat.py`。
-4. **对外约束不变**：SSE `_contract_manifest.json` 与 V1 `mode` 语义（策略 B）须保持；图编排在内，Timeline 在外。
+3. **最小可行路径（MVP）**：P0 State + 图设计 → P1 **新路由** `/api/py/unified/chat/graph(.stream)` + 抽共享层；**不动** 现有 `unified_chat.py` → P2 interrupt / checkpoint。
+4. **选型已冻结（§4.3）**：自研 StateGraph；Graph 路径不接入 V1 规则路由（Intent 超时走 **方案 A**）；新 SSE type 允许；入口曝光由 **前端** 控制，后端 **常开** 服务。
+5. **对外约束**：Graph 路径 `done.mode` 与核心 agent/tool 语义（策略 B）须 parity；Graph 路径 SSE 为 **契约 superset**（见 D-5）。
 
 ---
 
@@ -104,13 +105,13 @@ LangChain 概念对齐见配对 SPEC；本节聚焦 **图编排增量**。
 
 ### 4.1 必答选型题
 
-| ID | 决策 | 选项 |
-| --- | --- | --- |
-| D-1 | 是否引入 `langgraph` 库 | 自研 StateGraph / 官方 langgraph |
-| D-2 | 迁移范围 | 仅 Agent 路径 / 全 Unified Chat / 含 Legacy `/api/py/chat` |
-| D-3 | V1 规则路由 | 保留为 fallback 节点 / 逐步废弃 |
-| D-4 | 灰度开关 | 如 `CHATBI_USE_LANGGRAPH` 与 `CHATBI_USE_AGENT` 关系 |
-| D-5 | SSE 契约 | 严格映射现有 type / 允许新增 graph 事件 |
+| ID | 决策 | 选项 | **冻结结论** |
+| --- | --- | --- | --- |
+| D-1 | 是否引入 `langgraph` 库 | 自研 StateGraph / 官方 langgraph | **自研**（见 §4.3） |
+| D-2 | 迁移范围 | 仅 Agent / 改现有 Unified / 含 Legacy chat | **新 Graph 版 Unified Chat**（见 §4.3） |
+| D-3 | V1 规则路由 | 保留 fallback / 不接入 | **不接入**；Intent 超时 **方案 A**（见 §4.3） |
+| D-4 | 入口与灰度 | 后端 env 开关 / 前端选路由 | **前端控展示**；后端常开（见 §4.3） |
+| D-5 | SSE 契约 | 严格旧 type / 允许新增 | **Graph 路径允许新增 type**（见 §4.3） |
 
 ### 4.2 硬约束（不可破）
 
@@ -119,12 +120,57 @@ LangChain 概念对齐见配对 SPEC；本节聚焦 **图编排增量**。
 - **FailureTypeHandler gating**（V2 总规 §2.4、§2.4.1）语义不变；
 - **ChatBI SQL Gate、Prompt Guard** 仍为独立前置节点。
 
-### 4.3 建议默认（调研倾向 · 待冻结）
+### 4.3 冻结决策（2026-06-03 · 人拍板）
 
-- **D-1**：Agent 环引 `langgraph` 或自研等价物；RAG 召回层 **暂不** 图化；
-- **D-2**：MVP 仅 **`ChatBIAgent.run`**；
-- **D-4**：LangGraph 路径作为 `CHATBI_USE_AGENT=true` 的子开关或替代实现；
-- **D-5**：**严格映射** 现有 SSE type，图内部状态不泄露新 type。
+#### D-1 · 自研 StateGraph
+
+- **不引入** `langgraph` / `langchain-core` 库。
+- MVP 范围：**显式 State + 条件边 + 节点单测**；持久 checkpointer **后置**（P2）。
+- RAG 召回 / hybrid RRF **暂不** 图化；Graph 节点调用现有 `tools.py`。
+
+#### D-2 · 新 Graph 版 Unified Chat（并行 · 旧路径不动）
+
+| 项 | 约定 |
+| --- | --- |
+| **新入口** | `POST /api/py/unified/chat/graph` · `POST /api/py/unified/chat/graph/stream`（命名可 task 阶段微调，须登记 `_manifest`） |
+| **旧入口** | `unified_chat.py` / 现有 `CHATBI_USE_AGENT` 路径 **不改行为** |
+| **共享层** | 必须先抽：`tools`、`intent_agent`、`agent_memory`、`chatbi_plan_token`、prompt guard、SQL gate、SSE 帧构造（建议 `api/chatbi_events.py`） |
+| **禁止** | 在 Graph handler 内 copy-paste 大段 `unified_chat.py` 而未抽共享模块 |
+
+MVP 实现体：自研 `StateGraph` 编排环，**语义参考** `ChatBIAgent.run`，**不替换** 其源码直至 parity 验证通过。
+
+#### D-3 · 不接入 V1 规则路由 · Intent 超时方案 A
+
+Graph 路径 **不** 调用 `intent_router.py`（不降级到 V1 关键词 + DDL/FTS 证据链）。
+
+**与 V2 总规 §2.4 的差异（仅 Graph 路径）**：
+
+| 失败类型 | 旧 Unified（V2 总规） | **Graph 路径（冻结）** |
+| --- | --- | --- |
+| LLM Intent 超时 / `LLM_API_TIMEOUT` | 降级 V1 规则路由 | **方案 A**：`direct_answer` + 结构化 `error` / `agent.think`（说明意图识别不可用）；`final_mode=no_data`；`ok` 按产品约定（建议 `ok=true` 带降级答案，或 `ok=false` — **开 task 时二选一并写入 contract**） |
+
+**仍保留**（非 V1 规则路由）：
+
+- `decide_intent_v2` 主路径；
+- 低置信度 fallback 链（`confidence < INTENT_MIN_CONFIDENCE` → 预设 tool 链 / clarify）；
+- `FailureTypeHandler` 工具失败 gating（§2.4.1）。
+
+#### D-4 · 前端控入口展示 · 后端常开
+
+| 层 | 责任 | 约定 |
+| --- | --- | --- |
+| **后端** | 注册并服务 Graph 路由 | **始终可用**（与现有 Unified 并列）；**不设** `CHATBI_GRAPH_ENABLED` 类 env 做访客级关停 |
+| **前端 / BFF** | 是否调用 Graph URL、是否在 UI 暴露入口 | **前端全权**；前期仅 **本地 / dev** 展示；**MVP 验收通过前**不对生产访客开放半成品 |
+| **后端非范围** | 访客可见性、A/B、UI 开关 | **不考虑** — 不在后端实现「谁能看到 Graph 入口」 |
+
+与 `CHATBI_USE_AGENT`：**解耦**。Graph 路径不依赖该 env；前端通过 **选择 endpoint**（旧 `/unified/chat` vs 新 `/unified/chat/graph`）切换。
+
+#### D-5 · Graph 路径 SSE 契约 superset
+
+- Graph 路径 **允许新增** SSE `type`（如 `graph.node.start`、`graph.edge.take` — 开 task 时定名并写入 `_contract_manifest.json`）。
+- **不删除、不修改** 现有 type 语义；旧 Unified 路径契约 **不变**。
+- 新增 type 须过 `tech_graph_contract_check`；前端仍遵守 **未知 type 忽略**（V2 总规 §2.1）。
+- Graph 路径须保证 **`done` / `mode` / 核心 agent.\*** 与旧路径 **parity**（新 type 仅增强 Timeline）。
 
 ---
 
@@ -215,6 +261,7 @@ prompt_guard --[abort]--> END
 prompt_guard --[ok]--> load_memory → intent_decide
 
 intent_decide --> clarify_gate
+intent_decide --"[LLM_API_TIMEOUT / intent 失败]"--> tool_direct   # D-3 方案 A · 见 §4.3
 clarify_gate --[clarify]--> END (agent.clarify)
 clarify_gate --[plan_preview]--> plan_preview --[interrupt]--> END
 clarify_gate --[execute]--> tool_* (由 intent / token 决定)
@@ -335,30 +382,30 @@ rewrite → embed → hybrid_recall → fuse → context_build → llm_answer �
 
 ---
 
-## 10. 路由层收敛（P2）
+## 10. 路由层收敛（P2 · Graph 路径）
 
 ### 10.1 目标
 
-将 L1 规则 / L2 LLM Intent / L3 Failure 路由 **收敛为图上的条件边**，减少 `unified_chat.py` 双份 V1/V2 逻辑。
+Graph 路径 **不改造** 现有 `unified_chat.py`；新 handler 仅负责 `auth → initial state → graph → response`。
 
-### 10.2 目标拓扑（Unified Chat handler）
+### 10.2 目标拓扑（Graph Unified Chat handler）
 
 ```text
-HTTP handler:
+POST /api/py/unified/chat/graph(.stream):
   auth → parse body → build initial state
-  → graph.invoke / graph.astream
+  → self StateGraph.invoke / astream
   → map final state → JSONResponse / SSE done
 ```
 
-`unified_chat.py` **不再** 内含数百行 if agent else v1。
+现有 `unified_chat.py` **保持** V1 + `CHATBI_USE_AGENT` 行为直至 Graph MVP 验收后由产品决定是否 deprecate。
 
 ### 10.3 工作项
 
 | # | 工作 |
 | --- | --- |
-| R-1 | V1 unified 路径图化或标记 deprecated |
-| R-2 | `CHATBI_USE_AGENT` 与 graph 开关关系文档化 |
-| R-3 | `prefer=tool:*` 等行为 **parity 测试** |
+| R-1 | 新路由注册 + `_manifest.json` 登记（**不**改旧路由） |
+| R-2 | 文档化：Graph 与 `CHATBI_USE_AGENT` **解耦**；前端选 endpoint（§4.3 D-4） |
+| R-3 | `prefer=tool:*`、Intent 超时方案 A 等行为 **Graph 专属** 测试 + 与旧路径 diff 文档 |
 
 ---
 
@@ -378,14 +425,14 @@ HTTP handler:
 
 ---
 
-## 12. 依赖与运维（引库时）
+## 12. 依赖与运维（D-1 自研 · 不引库）
 
 | 项 | 说明 |
 | --- | --- |
-| 依赖 | `langgraph`、`langchain-core`；可选 `langchain-openai` 适配 SiliconFlow `base_url` |
-| 版本 | 锁定 minor；评估与现有 `openai` SDK 并存 |
+| 依赖 | **无新增** LangGraph/LangChain；沿用 `openai`、FastAPI、现有自研模块 |
+| 路由 | Graph 端点 **常开** 注册；访客是否使用由 **前端** 控制（§4.3 D-4） |
 | 观测 | 节点级 latency 写入现有 JSON log / `rag_conversation_logs` |
-| 镜像 | 依赖树体积 vs 自研 StateGraph |
+| 镜像 | 无 LangChain 依赖树增量 |
 
 ---
 
@@ -404,34 +451,36 @@ HTTP handler:
 
 ```mermaid
 flowchart LR
-  P0[P0: State + 图设计文档] --> P1[P1: Agent.run 子图替换]
+  P0[P0: State + 图设计 + 抽共享层] --> P1[P1: 新 graph 路由 + StateGraph MVP]
   P1 --> P2[P2: interrupt/checkpoint]
-  P2 --> P3[P3: Unified V1 并入图]
+  P2 --> P3[P3: 前端 MVP 后开放入口]
   P3 --> P4[P4: Legacy RAG 子图化 可选]
 ```
 
 | 阶段 | 交付 | 风险 |
 | --- | --- | --- |
-| **P0** | State Schema、节点/边表、Mermaid | 低 |
-| **P1** | `ChatBIAgent.run` → graph；SSE 映射；parity 测试 | 中 |
+| **P0** | State Schema、节点/边表、共享模块抽取、Mermaid | 低 |
+| **P1** | 新 `/unified/chat/graph*` + StateGraph；SSE superset；Intent 超时 A | 中 |
 | **P2** | plan/clarify interrupt；checkpointer | 中 |
-| **P3** | `unified_chat` 瘦身；V1 废弃策略 | 高 |
+| **P3** | 前端接 Graph endpoint（**MVP 前仅 local/dev**）；旧 Unified 仍默认 | 产品 |
 | **P4** | `index.py` / `chain_chat` 子图 | 可选 |
 
-**禁止**：P1 未绿前同时改三条 HTTP 入口。
+**禁止**：P1 未绿前修改现有 `unified_chat.py` 行为或让生产访客走 Graph 路径。
 
 ---
 
 ## 15. 开放问题
 
-| ID | 问题 |
-| --- | --- |
-| Q-1 | 自研 StateGraph vs 官方 `langgraph`？ |
-| Q-2 | Text2SQL 单节点 vs subgraph？ |
-| Q-3 | Checkpointer 存储选型与运维？ |
-| Q-4 | Checkpointer 与 `rag_conversation_logs` 双写策略？ |
-| Q-5 | `plan_execution_token` 兼容期多长？ |
-| Q-6 | 是否允许新增 SSE event type（如图 debug）？ |
+| ID | 问题 | 状态 |
+| --- | --- | --- |
+| Q-1 | 自研 StateGraph vs 官方 `langgraph`？ | **已关闭 → 自研（D-1）** |
+| Q-2 | Text2SQL 单节点 vs subgraph？ | 待 task |
+| Q-3 | Checkpointer 存储选型与运维？ | 待 task（P2） |
+| Q-4 | Checkpointer 与 `rag_conversation_logs` 双写策略？ | 待 task（P2） |
+| Q-5 | `plan_execution_token` 兼容期多长？ | 待 task |
+| Q-6 | 是否允许新增 SSE event type？ | **已关闭 → Graph 路径允许（D-5）** |
+| Q-7 | Intent 超时方案 A 的 `ok` 字段：`true` 降级答 vs `false` 硬失败？ | **开 task 时冻结** |
+| Q-8 | Graph 新路由最终 path 命名 | **开 task 时登记 manifest** |
 
 ---
 
@@ -440,7 +489,8 @@ flowchart LR
 | 模块 | 路径 |
 | --- | --- |
 | Agent 主循环 | `api/agent.py` — `ChatBIAgent.run` |
-| Unified 入口 | `api/unified_chat.py` — `handle_unified_chat` / `_stream` |
+| Unified 入口（旧） | `api/unified_chat.py` — `handle_unified_chat` / `_stream` |
+| **Graph 入口（新 · 待建）** | `api/unified_chat_graph.py`（建议）— §4.3 D-2 |
 | Legacy RAG | `api/index.py` — `chat()` |
 | Text2SQL chain | `api/chain_chat.py` |
 | Tool 层 | `api/tools.py` |
@@ -458,3 +508,4 @@ flowchart LR
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-03 | 初版 draft：现状映射、工作清单 §4–§14、迁移路径、开放问题 |
+| 2026-06-03 | **§4.3 冻结 D-1～D-5**；D-3 方案 A；D-4 前端控展示/后端常开；同步 §0/§10/§12/§14/§15 |

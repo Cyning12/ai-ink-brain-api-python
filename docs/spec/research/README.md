@@ -10,7 +10,7 @@
 | 文件 | 主题 | 状态 |
 | --- | --- | --- |
 | [`SPEC-Research-SelfChain-vs-LangChain-v1_zh.md`](./SPEC-Research-SelfChain-vs-LangChain-v1_zh.md) | 自研链式编排 vs LangChain 概念对齐与差异 | `draft` |
-| [`SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md`](./SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md) | 自研链式编排 vs LangGraph 思想 · 引入工作清单 | `draft` |
+| [`SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md`](./SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md) | 自研链式编排 vs LangGraph 思想 · 引入工作清单 | `draft` · **§4.3 D-1～D-5 已冻结** |
 
 ---
 
