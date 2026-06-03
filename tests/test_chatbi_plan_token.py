@@ -34,7 +34,7 @@ def test_plan_preview_confirm_explicit_on_still_true(monkeypatch: pytest.MonkeyP
 
 def test_clarify_bypass_token_mint_verify_roundtrip_stable(monkeypatch: pytest.MonkeyPatch) -> None:
     """无填充 urlsafe token 须 100% 可验签（曾用固定 ``+==`` 会在部分长度下偶发失败）。"""
-    monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    monkeypatch.setenv("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.delenv("CHATBI_PLAN_EXEC_TOKEN_SECRET", raising=False)
     for i in range(256):
         q = f"低置信令牌放行探针{i}"
@@ -44,7 +44,7 @@ def test_clarify_bypass_token_mint_verify_roundtrip_stable(monkeypatch: pytest.M
 
 
 def test_clarify_plan_bypass_token_rag_roundtrip(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    monkeypatch.setenv("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.delenv("CHATBI_PLAN_EXEC_TOKEN_SECRET", raising=False)
     q = "低置信 RAG 令牌探针"
     tok = mint_clarify_plan_bypass_token(session_id="s1", query=q, tool="rag_search")

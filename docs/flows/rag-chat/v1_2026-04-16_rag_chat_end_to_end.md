@@ -99,7 +99,7 @@ sequenceDiagram
 ### 2.3 后端：鉴权与请求校验
 
 - **做什么**
-  - 校验 `Authorization: Bearer ...` / `x-blog-admin-token` / `x-admin-token` 中任意一种 token，匹配环境变量 `NEXT_PUBLIC_ADMIN_SECRET`（或兼容 `CHAT_API_SECRET`）。
+  - 校验 `Authorization: Bearer ...` / `x-blog-admin-token` / `x-admin-token` 中任意一种 token，匹配 **`SYNC_ADMIN_SECRET`**（`admin_secret()` 真值；`CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` 已废弃 fallback）。
   - 校验 body：必须包含 `messages[]` 与 `session_id`，并提取最后一条 user 消息作为 `query`。
 - **触发点（文件/方法）**
   - `ai-ink-brain-api-python/api/index.py:_require_auth()`

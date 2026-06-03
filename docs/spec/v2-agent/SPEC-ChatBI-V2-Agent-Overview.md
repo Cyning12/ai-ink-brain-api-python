@@ -414,7 +414,7 @@ rag_tool = Tool(
 | **`CHATBI_V2_INTENT_BENCH_N`** | — | 选 | — | — | 默认 `100` |
 | **`CHATBI_V2_INTENT_BENCH_COLD_WARM`** | — | 选 | — | — | 冷/热两轮，见 `benchmark_intent_latency.py` 注释 |
 | **`CHATBI_USE_AGENT`** | — | — | `true` | 服务端须 `true` | L3 单测；L4 打流前 API 进程环境 |
-| **`NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY`** | — | — | 单测内 monkeypatch | 与 Bearer 一致 | L4：`Authorization: Bearer <与之一致>` |
+| **`SYNC_ADMIN_SECRET` 或 `API_KEY`** | — | — | 单测内 monkeypatch | 与 Bearer 一致 | Legacy/admin：`Authorization: Bearer <与之一致>` |
 | **`API_BASE`** | — | — | — | 选 | L4 `curl` 目标主机，如 `http://127.0.0.1:8000`（与本地 `uvicorn` 端口一致） |
 
 **说明（L1 与超时）**：`tests/test_intent_agent_accuracy.py` 的 `_run_eval` 虽传入 `timeout=3.0`，但 `decide_intent_v2` 内 **`_effective_intent_llm_timeout_s` 优先读取 `CHATBI_V2_INTENT_TIMEOUT_S`**（见 `api/intent_agent.py`）；故 **Intent 评测实际等待上限以 env 为准**。归档验收见 **`docs/diary/2026-05-07-l0-l3-regression-acceptance.md`**。
@@ -440,9 +440,9 @@ rag_tool = Tool(
 
 **前置（环境）**
 
-1. 在 **`.env`** 或 shell 中：`CHATBI_USE_AGENT=true`；配置 **`NEXT_PUBLIC_ADMIN_SECRET` 或 `API_KEY`**（与 L4 请求头一致）；配置 **`SILICONFLOW_*` / `SUPABASE_*`** 等使 **真实 Agent 路径可跑通**（与线上一致或 staging 等价）。  
+1. 在 **`.env`** 或 shell 中：`CHATBI_USE_AGENT=true`；配置 **`SYNC_ADMIN_SECRET` 或 `API_KEY`**（Legacy/admin 路由 Bearer；Unified 用 ChatBI visitor token）；配置 **`SILICONFLOW_*` / `SUPABASE_*`** 等使 **真实 Agent 路径可跑通**（与线上一致或 staging 等价）。  
 2. `export API_BASE=http://127.0.0.1:8000`（端口以实际为准）。  
-3. `export ADMIN_TOKEN='<与 NEXT_PUBLIC_ADMIN_SECRET 或 API_KEY 相同的明文>'`（**勿**写入仓库、勿提交 shell 历史若可配置 `HISTCONTROL`）。
+3. `export ADMIN_TOKEN='<与 SYNC_ADMIN_SECRET 或 API_KEY 相同的明文>'`（**勿**写入仓库、勿提交 shell 历史若可配置 `HISTCONTROL`）。
 
 **操作步骤**
 

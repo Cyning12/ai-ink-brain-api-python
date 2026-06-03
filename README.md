@@ -19,7 +19,8 @@ FastAPI backend for **AI-Ink-Brain** (RAG chat + ingest/sync) designed for deplo
 - `SILICONFLOW_CHAT_MODEL` (optional)
 - `NEXT_PUBLIC_SUPABASE_URL` (or `SUPABASE_URL`)
 - `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SERVICE_KEY`)
-- `NEXT_PUBLIC_ADMIN_SECRET` (or `CHAT_API_SECRET`)
+- `SYNC_ADMIN_SECRET` (admin/sync; same value as frontend BFF)
+- ~~`NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`~~ (deprecated · fallback only · to be removed)
 - `RAG_MATCH_THRESHOLD` (optional, default `0.3`, set `none` to disable)
 - `DEBUG_RAG` / `RAG_DEBUG` (optional)
 

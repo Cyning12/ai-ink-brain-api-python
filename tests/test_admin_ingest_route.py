@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 
 def test_admin_ingest_type_code(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    monkeypatch.setenv("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     # 避免 import 时加载真实 .env 影响（仍允许 dotenv 存在）
     index = importlib.import_module("api.index")
     importlib.reload(index)
@@ -34,7 +34,7 @@ def test_admin_ingest_type_code(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_admin_ingest_type_code_repo_path(monkeypatch: pytest.MonkeyPatch, tmp_path):
-    monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    monkeypatch.setenv("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     index = importlib.import_module("api.index")
     importlib.reload(index)
 

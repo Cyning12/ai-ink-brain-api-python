@@ -211,7 +211,21 @@ def supabase_table_insert_with_retry(table: str, row: dict[str, Any]) -> None:
 
 
 def admin_secret() -> str | None:
-    return (
-        os.getenv("NEXT_PUBLIC_ADMIN_SECRET") or os.getenv("CHAT_API_SECRET") or ""
-    ).strip() or None
+    """admin/sync 等 Bearer 校验用 secret。
+
+    真值：`SYNC_ADMIN_SECRET`（与前端 BFF `forwardToPyAdmin` 同值）。
+    `CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` 已废弃，后续版本将移除读取逻辑。
+    """
+    sync = (os.getenv("SYNC_ADMIN_SECRET") or "").strip()
+    if sync:
+        return sync
+    # deprecated · 待删
+    chat = (os.getenv("CHAT_API_SECRET") or "").strip()
+    if chat:
+        return chat
+    # deprecated · 待删
+    legacy = (os.getenv("NEXT_PUBLIC_ADMIN_SECRET") or "").strip()
+    if legacy:
+        return legacy
+    return None
 

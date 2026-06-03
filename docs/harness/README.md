@@ -23,6 +23,8 @@
 | **FAQ 改进 · 09 PLAN** | [`prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md`](prompts/PROMPT_FAQ改进_09PLAN_理解_v1_zh.md) |
 | **冷/温/热 术语** | [`guides/GUIDE_冷温热层_对内术语_v1_zh.md`](guides/GUIDE_冷温热层_对内术语_v1_zh.md) |
 | **manifest/contract CI 红** | [`guides/RUNBOOK_graph_contract_ci_red_v1.md`](guides/RUNBOOK_graph_contract_ci_red_v1.md) |
+| **RAG 问答自查（用户/运维）** | [`guides/GUIDE_rag_user_self_check_v1_zh.md`](guides/GUIDE_rag_user_self_check_v1_zh.md) |
+| **Portfolio 五问 sync** | [`guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md) |
 | 新 invoke | `invokes/` |
 | **Harness 裁决共识（已接受）** | [`../diary/2026-05-22-harness-evaluation-improvement-response.md`](../diary/2026-05-22-harness-evaluation-improvement-response.md) **§九** |
 

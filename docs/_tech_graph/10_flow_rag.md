@@ -3,7 +3,7 @@ flowchart TD
     %% Entry: /api/py/chat | /api/py/unified/chat(.stream)
 
     %% Query 阶段
-    IN[入口 Query] --> AUTH[鉴权<br/>API_KEY / admin_secret]
+    IN[入口 Query] --> AUTH[鉴权<br/>ChatBI Bearer / API_KEY / admin_secret()]
     AUTH --> HIS[历史轮次<br/>rag_conversation_logs]
     HIS --> RW[Query Rewrite<br/>query_rewrite.py]
 

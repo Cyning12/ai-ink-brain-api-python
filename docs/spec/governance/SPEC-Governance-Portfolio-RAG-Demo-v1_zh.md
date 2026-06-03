@@ -40,7 +40,7 @@
 
 - [ ] 人审本 SPEC 并冻结 `freeze_id`
 - [ ] 前端 portfolio content 三类目录（或等价路径）与 category 映射 **书面确认**
-- [ ] 生产/预发 `CONTENT_ROOT` 与 `NEXT_PUBLIC_ADMIN_SECRET`（或 `CHAT_API_SECRET`）**部署文档**就绪（不含真实密钥）
+- [ ] 生产/预发 `CONTENT_ROOT` 与 **`SYNC_ADMIN_SECRET`**（Python `.env` 与前端 BFF **同值**）**部署文档**就绪（不含真实密钥）
 
 ---
 
@@ -56,6 +56,8 @@
 | **扫描范围** | 递归遍历 `.md` / `.mdx`；跳过 `.` 前缀目录及 `node_modules`、`.next`。 |
 | **metadata.category** | **相对路径第一段**：`parts = rel.split("/")` → `category = parts[0]`；缺省为 `uncategorized`。 |
 | **其他 metadata** | `slug`（文件名去扩展名）、`relativePath`、`chunk_index`、`lastModified` / `mtime`；可选 `date_norm`（从 slug/filename 抽日期）。 |
+| **分块策略** | `chunk_text_by_chars()`：**固定字符窗** `CHUNK_SIZE=512`、`CHUNK_OVERLAP=50`（`api/ingest_pipeline.py`）；**非** Markdown 标题/段落感知；`section_header` 入库为 **`null`**。 |
+| **溯源精度（现状）** | **文件级**（`relativePath` / `filename` / `category`）+ **文件内块序号**（`chunk_index`）；**不支持**章节标题锚点、行号、句级引用。 |
 | **增强文本** | `build_enhanced_chunk_text` 注入 `[Document Context]` + Title / Date / **Category** + Content，供 embedding 与检索展示。 |
 
 ### 2.2 入库路径对比
@@ -78,7 +80,7 @@
 | **job.result**（成功） | `filesScanned`, `chunksTotal`, `chunksUpserted`, `rowsDeleted` |
 | **job.error**（失败） | 异常 `str(e)` 字符串（如 Embedding **维度不匹配**：`RuntimeError` 含「维度」文案） |
 | **持久性** | **内存** `JOBS` 字典；**单实例**（**已拍板 · Q-6:A**）；serverless redeploy 后 job 丢失 → **重新 POST**；**不**做持久化 job 方案 |
-| **鉴权** | `_require_auth`：`Authorization: Bearer <secret>` 或 `x-admin-token` / `x-blog-admin-token`；secret 来自 `NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`（`api/rag_env.py::admin_secret()`）。**前端 BFF** 维护者侧已迁移 **`SYNC_ADMIN_SECRET`**（与 Python **同值** · 见前端 [`SPEC-portfolio_admin_sync_auth_v1_zh.md`](../../../../ai-ink-brain/content/tasks/specs/SPEC-portfolio_admin_sync_auth_v1_zh.md)） |
+| **鉴权** | `_require_auth`：`Authorization: Bearer <secret>` 或 `x-admin-token` / `x-blog-admin-token`；secret 真值 **`SYNC_ADMIN_SECRET`**（`api/rag_env.py::admin_secret()`，与前端 BFF 同值 · 见 [`SPEC-portfolio_admin_sync_auth_v1_zh.md`](../../../../ai-ink-brain/content/tasks/specs/SPEC-portfolio_admin_sync_auth_v1_zh.md)）。`CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` **已废弃**（代码 fallback · 待删） |
 
 ### 2.4 前端 content 目录（目标态 · 扫描 2026-06-01）
 
@@ -176,12 +178,80 @@ Authorization: Bearer <ADMIN_SECRET>
 | sync `succeeded` | 跑 **五问 smoke**（至少 Q1 + Q5） | 验收负责人 |
 | sync `failed` | 阻塞标记 release RAG 就绪；不得对外宣称语料已更新 | — |
 
+### 4.5 RAG 溯源 · sources 路径 · 意图重试（W6 增量 · 2026-06-03 · **文档待实现**）
+
+> **性质**：W6 前端 E2E 验收期间 **临时追加** 的产品/契约需求；**本回合仅入 SPEC**，**不**改 `api/`。实现归 **W6 后** 独立 task（或 portfolio 投递后小批次）。
+
+#### 4.5.1 切片策略与溯源精度（现状扫描 · 2026-06-03）
+
+| 粒度 | 是否支持 | 依据字段 / 机制 | Portfolio 五问可用性 |
+| --- | --- | --- | --- |
+| **category**（`methodology` / `resume` / `evidence`） | ✅ | `metadata.category` = `relativePath` 第一段 | Q1～Q5 **硬约束**已可用 |
+| **文件** | ✅ | `relativePath`、`filename`、`slug` | 可定位到如 `methodology/vol3_*.md` |
+| **文件内块** | ✅ | `chunk_index`（0-based，按 512 字窗口顺序） | 同文件多 chunk 时仅能到「第 N 块」，**非**标题 |
+| **章节 / 标题** | ❌ | `section_header` 恒为 `null`；分块不读 `#` 标题 | Q3「冷温热 vs 架构三层」等 **无法**保证锚到小节标题 |
+| **行号 / URL 外链** | ❌ | Markdown ingest 不写 `start_line`；`original_link` 为 `null` | 与 code ingest 不同轨 |
+| **snippet 展示** | 部分 | Unified `rag.sources` 事件内 `content`/`snippet` **≤400 字** | 可人工核对摘要，**非**全文 |
+
+**结论（验收口径）**：当前栈对 Portfolio **足够** 做「**哪一类 / 哪个文件 / 哪一块**」验收；**不足** 做「段落 / 标题 / 行号」级精准跳转。若 W6 录屏要求「点 sources 进原文位置」，须 **前端路由映射 +（可选）后续 ingest 增强**（见 §4.5.3）。
+
+#### 4.5.2 需求 R1 — RAG 回答须带出具体来源
+
+| 项 | 目标态 | 现状（代码） | 差距 |
+| --- | --- | --- | --- |
+| **侧栏 / Timeline sources** | 每次 RAG 成功路径 **必须** 有 `rag.sources`（或 JSON 等价字段），且 **≥1** 条与回答主题相关 | `api/unified_chat.py::_build_rag_sources_event()` · Agent 路径 `rag.sources` 事件；legacy chat 见 `api/index.py::build_sources_payload()` | 预跑基线 Q2 曾 **降级**（无 RAG hits → `direct_answer`），此时 **无 sources** — 属 **路由/检索** 问题，非 sources 字段缺失 |
+| **assistant 正文内联引用** | **可选增强**：回答中出现 `[1]` 或文件名提示，与 sources 序号一致 | `_rag_generate_answer` **不强制** 正文引用路径 | **待实现**；W6 验收 **不阻塞** 若侧栏 sources 已达标 |
+| **W6 验收** | **5/5 可答** 且 **sources ≥4/5**（既有 §6.2） | — | 留证须含 **完整 sources 数组**，不得仅截图正文 |
+
+#### 4.5.3 需求 R2 — sources 须含可跳转文件路径
+
+**契约（目标态 · Unified Chat `rag.sources[].*`）**：
+
+| 字段 | 必填 | 说明 |
+| --- | --- | --- |
+| **`relativePath`** | **是** | 相对 `CONTENT_ROOT`  posix 路径，如 `methodology/vol3_harness.md` |
+| **`path`** | **是**（与上同值） | 兼容字段；与 `relativePath` **保持一致** |
+| **`filename`** | **是** |  basename，便于 UI 标题 |
+| **`category`** | **是** | 与 Q1～Q5 category 硬约束对齐 |
+| **`chunk_index`** | 推荐 | 同文件多块时消歧 |
+| **`slug`** | 推荐 | 前端静态页 slug 映射辅助 |
+| **`url` / `original_link`** | 可选 | Portfolio 本地 `.md` 通常为 `null`；**不**依赖外链 |
+
+**现状**：`build_sources_payload` / `_build_rag_sources_event` **已输出** 上表字段（`url` 多为 `null`）。
+
+**前端跳转（配对仓 · 待 W6 实现）**：
+
+| `relativePath` 前缀 | 目标路由（portfolio 模式） |
+| --- | --- |
+| `methodology/` | `/methodology`（+ 可选 hash / 文内锚点） |
+| `resume/` | `/resume` |
+| `evidence/` | `/evidence` |
+
+**缺口**：前端 `SourceCitations` 当前 **优先** `url` 新窗口打开；`url` 为空时仅 `onOpenSnippet` 预览摘要 — **尚未** 按 `relativePath` 路由跳转。W6 E2E **须** 在 frontend task 落「path → 站内路由」；后端 **保持** 输出 `relativePath`/`path` 即可。
+
+#### 4.5.4 需求 R3 — LLM 意图识别超时重试
+
+| 项 | 现状（`api/intent_agent.py::decide_intent_v2`） | 目标态（待实现） |
+| --- | --- | --- |
+| **LLM 调用次数** | **1 次** `_llm_decide_v2` + `asyncio.wait_for(..., timeout_s)` | 超时或瞬态失败时 **最多 3 次** 重试 |
+| **单次超时** | 默认 `timeout=3.0`s；可被 **`CHATBI_V2_INTENT_TIMEOUT_S`** 覆盖（0.5～120s） | 重试间隔建议 **指数退避**（如 0.5s / 1s / 2s）；**总预算** 仍受 Agent `AGENT_MAX_LATENCY_MS` 约束 |
+| **超时后行为** | **直接** 降级 `decide_intent_v1` 规则路由（`raw_response.used=v1_fallback`） | **3 次均失败** 后再 V1 / 启发式降级 |
+| **其它异常** | JSON 解析失败等 → 启发式，**无**重试 | 瞬态网络/5xx **纳入** 重试；格式错误 **不重试** |
+| **可观测** | `reasoning` 含「意图识别超时，降级到 V1 规则路由。」 | 每次重试写 structured log / SSE 可选 `intent.retry`（名称待 contract 冻结） |
+
+**W6 验收**：本需求 **不阻塞** 当前五问 E2E；预跑若见 Q2 降级，可先查 **检索/语料**，再查 intent 是否频繁 timeout。
+
+**实现落点（冻结后）**：`api/intent_agent.py`；须补 pytest（mock timeout）；`PROJECT_CONFIG` §ChatBI intent 段增补 `INTENT_LLM_MAX_RETRIES=3`（**待添加**）。
+
+---
+
 ### 4.4 生产 / 本地 env 文档（须由 30 帽落盘 · 不含真实密钥）
 
 | 变量 | 用途 | 本地示例 | 生产要求 |
 | --- | --- | --- | --- |
 | **`CONTENT_ROOT`** | Markdown 扫描根 | `/path/to/ai-ink-brain/content`（见 `.env.example`） | 部署 mount 或 CI checkout 路径 **必须**指向前端 content 真值 |
-| **`CHAT_API_SECRET`** 或 **`NEXT_PUBLIC_ADMIN_SECRET`**（Python 服务端 `.env`） | admin/sync 鉴权（Python 进程） | 本地 `.env` | 平台 Secrets；**禁止**进 Git；**值须与** 前端 **`SYNC_ADMIN_SECRET`** 一致 |
+| **`SYNC_ADMIN_SECRET`**（Python 服务端 `.env`） | admin/sync 鉴权（Python 进程） | 本地 `.env` | 平台 Secrets；**禁止**进 Git；**值须与** 前端 **`SYNC_ADMIN_SECRET`** 一致 |
+| ~~`CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET`~~ | **已废弃 · 待删**（代码 fallback） | **勿新配** | — |
 | **前端 `SYNC_ADMIN_SECRET`**（配对仓 · 服务端 only） | BFF `/api/admin/sync` 入站 + 转发 Bearer | 本机 `.env.local` | Vercel Secrets；文档 shell 别名 **`ADMIN_TOKEN`** |
 | **`SILICONFLOW_API_KEY`** | Embedding | 本地 | 生产 Secrets |
 | **`EMBEDDING_DIM`** / **`SILICONFLOW_EMBEDDING_DIMENSIONS`** | 与 `vector(N)` 一致 | `1024` | 与生产 Supabase 一致 |
@@ -248,6 +318,7 @@ Authorization: Bearer <ADMIN_SECRET>
 | --- | --- |
 | 可答率 | **5/5** 问均得到 **非空、切题** 回答 |
 | Sources | **≥4/5** 问有可追溯 sources（Unified JSON `sources` / header `x-sources` / SSE 等价字段） |
+| Sources 路径 | **≥4/5** 问的主 source 含非空 **`relativePath`**（或等价 `path`），且前缀与期望 category 目录一致（§4.5.3） |
 | 单问重试 | 同一问 **≤3** 次仍不达标则记 FAIL，不得刷通过率 |
 
 **五问真值表**（问句与 [`投递冲刺_20260609_v1_zh.md`](./投递冲刺_20260609_v1_zh.md) §2 **逐字对齐** · Prompt 00 轮 2 · Q-1:A）：
@@ -326,6 +397,7 @@ Authorization: Bearer <ADMIN_SECRET>
 | 2026-06-01 | v1 **draft**：Harness 10 帽轮 1；§0～§9 + RUNBOOK 大纲；候选 `PORTFOLIO-RAG-DEMO@2026-06-0?` |
 | 2026-06-01 | Prompt 00 **轮 2**：消化 Q-1～Q-5（五问 §2 写入 §6.2；Q3 strict evidence；预发等价；sync 空库 FAIL；freeze_id 冻结当日策略） |
 | 2026-06-01 | Prompt 00 **轮 3**：消化 Q-6～Q-10；待确认清单清零 → **`active`** · `PORTFOLIO-RAG-DEMO@2026-06-01` |
+| 2026-06-03 | **W6 增量（文档）**：§2.1 分块精度 · §4.5 R1/R2/R3（sources 路径 · 意图 3 次重试 · 待实现）· §6.2 sources 路径门槛 |
 
 ---
 

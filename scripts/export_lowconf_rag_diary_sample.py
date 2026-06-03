@@ -23,7 +23,7 @@ SESSION = "211d54b7-f806-4265-b46e-fc1a897f51e2"
 
 
 def _env() -> None:
-    os.environ.setdefault("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    os.environ.setdefault("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     os.environ.setdefault("API_KEY", "api-key-123")
     os.environ.setdefault("SILICONFLOW_API_KEY", "sf-dummy-key")
     os.environ.setdefault("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")

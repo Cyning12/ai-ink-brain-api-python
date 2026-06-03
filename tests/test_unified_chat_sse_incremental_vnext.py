@@ -14,7 +14,7 @@ from api.tools import Tool, ToolName, ToolResult
 
 
 def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = True) -> Any:
-    monkeypatch.setenv("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    monkeypatch.setenv("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     monkeypatch.setenv("API_KEY", "api-key-123")
     monkeypatch.setenv("SILICONFLOW_API_KEY", "sf-dummy-key")
     monkeypatch.setenv("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")
