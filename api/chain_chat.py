@@ -27,7 +27,7 @@ def _require_chain_auth(authorization: str | None, x_blog_admin_token: str | Non
     expected_admin = (admin_secret() or "").strip() or None
     expected_api = (os.getenv("API_KEY") or "").strip() or None
     if not expected_admin and not expected_api:
-        raise HTTPException(status_code=500, detail="未配置 NEXT_PUBLIC_ADMIN_SECRET / CHAT_API_SECRET 或 API_KEY")
+        raise HTTPException(status_code=500, detail="未配置 SYNC_ADMIN_SECRET 或 API_KEY")
 
     token = ""
     if authorization and authorization.lower().startswith("bearer "):

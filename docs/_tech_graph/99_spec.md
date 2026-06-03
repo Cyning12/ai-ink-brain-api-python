@@ -47,7 +47,7 @@ flowchart TD
 
 **Supabase 表名（示例）**：`chatbi_access_tokens`
 
-**关键 env（与脚本 `key_env_prefix` 一致，节选）**：`SUPABASE_HTTP_RETRIES` `SUPABASE_HTTP_RETRY_BASE_DELAY_S` `SUPABASE_INSERT_RETRIES` `SUPABASE_INSERT_RETRY_BASE_DELAY_S` `TEXT2SQL_DISTINCT_COLUMNS` `TEXT2SQL_DISTINCT_MAX` `TEXT2SQL_DISTINCT_MAX_PROBES` `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` `TEXT2SQL_RETRIEVE_QUERY_MAX_LEN` `TEXT2SQL_VALUE_HINTS_PATH`
+**关键 env（与脚本 `key_env_prefix` 一致，节选）**：`SYNC_ADMIN_SECRET` `SUPABASE_HTTP_RETRIES` `SUPABASE_HTTP_RETRY_BASE_DELAY_S` `SUPABASE_INSERT_RETRIES` `SUPABASE_INSERT_RETRY_BASE_DELAY_S` `TEXT2SQL_DISTINCT_COLUMNS` `TEXT2SQL_DISTINCT_MAX` `TEXT2SQL_DISTINCT_MAX_PROBES` `TEXT2SQL_DISTINCT_STMT_TIMEOUT_MS` `TEXT2SQL_RETRIEVE_QUERY_MAX_LEN` `TEXT2SQL_VALUE_HINTS_PATH`
 
 ### Wiki ↔ 图谱桥接（T4 · 叙事指针）
 
@@ -97,8 +97,9 @@ flowchart TD
   end
 
   subgraph Auth["Auth"]
-    AK[API_KEY] --> AUTHU[unified/text2sql/chat auth]
-    AS[NEXT_PUBLIC_ADMIN_SECRET / CHAT_API_SECRET] --> AUTHU
+    SAS[SYNC_ADMIN_SECRET] --> ADM[admin/sync · admin_secret()]
+    AK[API_KEY] --> LEG[legacy route Bearer]
+    DEP["deprecated fallback<br/>CHAT_API_SECRET / NEXT_PUBLIC_ADMIN_SECRET"] -.-> ADM
   end
 
   subgraph RAG["RAG"]
@@ -131,6 +132,8 @@ flowchart TD
     TTO[TEXT2SQL_DB_CONNECT_TIMEOUT_S] --> EX
   end
 ```
+
+**Auth env 真值（2026-06）**：admin/sync 与前端 BFF 对齐 **`SYNC_ADMIN_SECRET`**（`api/rag_env.py::admin_secret()`）。Unified / history 走 **ChatBI visitor Bearer**（`chatbi_access_tokens`），**不**使用 admin secret。`CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` **已废弃**（代码 fallback · 待删）；**勿**在新环境配置。
 
 ```mermaid
 flowchart TD

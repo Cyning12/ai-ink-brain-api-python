@@ -6,6 +6,26 @@
 | **适用** | `POST /api/py/unified/chat`（ChatBI V2 Agent · `metadata.v = chatbi_v2_agent`） |
 | **不在范围** | 改代码、自动 sync、密钥明文；sync 操作见 [`RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](./RUNBOOK_portfolio_rag_five_questions_v1_zh.md) §2 |
 | **env 真值** | [`PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](../../meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md) §C.1 |
+| **本地排查落盘** | 可选：`$PORTFOLIO_RAG_EVIDENCE_DIR/sql/`（见 RUNBOOK 留证路径约定 · 默认 `tmp/portfolio-rag-demo/`） |
+
+---
+
+## 0. 本地落盘（可选）
+
+SQL 结果、日志片段等 **本机排查产物** 默认写入（不纳入 Git）：
+
+```bash
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export PORTFOLIO_RAG_EVIDENCE_DIR="${PORTFOLIO_RAG_EVIDENCE_DIR:-$REPO_ROOT/tmp/portfolio-rag-demo}"
+mkdir -p "$PORTFOLIO_RAG_EVIDENCE_DIR/sql"
+```
+
+| 文件（建议） | 内容 |
+| --- | --- |
+| `sql/category-distribution.json` | §3.1 ① 查询结果 |
+| `sql/agent-log-latest.json` | §4 最近一条 `rag_conversation_logs` |
+
+冻结验收留证仍按 RUNBOOK §6 复制至 `docs/diary/samples/portfolio-rag-demo/`。
 
 ---
 
@@ -17,6 +37,7 @@
 | UI 有回答但 **无 sources** / sources  category 不对 | 同上，或 Q3 误命中 `methodology`（见 RUNBOOK §4） |
 | 刚改过 `content/` 文稿，问答仍像旧版 | **未 re-sync** |
 | sync job 已成功，仍不对 | **连错 Supabase**、**FTS 未迁移**、或 **Embedding 不一致** |
+| history 能拉会话，但 sync **401**（直连 Python） | `$ADMIN_TOKEN` 是 visitor token，或 **Python `.env` 无 `SYNC_ADMIN_SECRET`**（BFF 页面仍 202） | 走 RUNBOOK §2.1 路径 B，或对齐两端 `SYNC_ADMIN_SECRET` |
 
 > **常见误判**：以为是「意图置信度太低」——V2 Agent 里 **`metadata.mode = no_data` 多半是 RAG 空命中后的 fallback**，与 intent confidence 无关。
 
@@ -193,3 +214,4 @@ ai-ink-brain/content/evidence/*.md
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v1.0 | 2026-06-02 | 初版：portfolio Q1 空命中排障沉淀（methodology 未入库 + RAG_RETRIEVE_EMPTY 链） |
+| v1.1 | 2026-06-03 | §0：本地排查落盘默认 `tmp/portfolio-rag-demo/` |

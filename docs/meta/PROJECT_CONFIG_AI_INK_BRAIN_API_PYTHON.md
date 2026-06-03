@@ -55,8 +55,9 @@
 | `SILICONFLOW_EMBEDDING_MODEL` | Embedding 模型名 | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_model()` | **空字符串会被视为未设置**：回退默认 `Qwen/Qwen3-Embedding-0.6B`（避免 CI/环境变量显式空值导致上游 400） | 影响向量空间；需与入库一致 |
 | `SILICONFLOW_EMBEDDING_DIMENSIONS` | Embedding 输出维度（Qwen3 需要） | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_dimensions()` | 默认 `1024`；当模型名包含 `Qwen3-Embedding` 时传给 embeddings API | **必须与** `public.documents.embedding vector(N)` **一致**（默认 N=1024） |
 | `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V3` | 与向量维度无关 |
-| `NEXT_PUBLIC_ADMIN_SECRET` | Admin/Chat 鉴权 secret | **必填（二选一）** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空：鉴权接口 500 | 与项目无关 |
-| `CHAT_API_SECRET` | Admin secret 别名 | **可选（二选一）** | `api/rag_env.py:admin_secret()` | 留空则使用 `NEXT_PUBLIC_ADMIN_SECRET` | 与项目无关 |
+| `SYNC_ADMIN_SECRET` | admin/sync Bearer secret（与前端 BFF 同值） | **推荐 · portfolio 真值** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空且无废弃 fallback 时：鉴权接口 500 | 与项目无关 |
+| `CHAT_API_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 仅当未设 `SYNC_ADMIN_SECRET` 时读取 | **勿**在新环境配置 |
+| `NEXT_PUBLIC_ADMIN_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 前端 **不再**使用；仅兼容旧 `.env` | **勿**在新环境配置 |
 | `CHATBI_USE_AGENT` | Unified Chat 是否走 V2 Agent（ReAct）路径 | 可选 | `api/unified_chat.py` | 默认 `false`；`1/true/yes/on` 开启 V2 | 与项目无关 |
 | `CHATBI_SSE_INCREMENTAL` | Unified Agent 流式是否 **边执行边 emit**（vNext） | 可选 | `api/unified_chat.py`（规划） | 默认 **`true`**（vNext 落地后）；`false` 时 **强制** `await run` 后批量 replay，**忽略** `X-ChatBI-Sse-Contract: 2` 的增量语义（仍须安全）；组合真值见 `SPEC-ChatBI-V2-Incremental-SSE-Timeline-vNext.md` **§9** | 与项目无关 |
 | `CHATBI_SSE_EMIT_QUEUE_MAX` | G2 路径 `emit → asyncio.Queue` 的 **maxsize**（有界缓冲）；队列满时先发 **`agent.llm.truncated`**（`reason=backpressure`）再阻塞入队（vNext §4.3） | 可选 | `api/unified_chat.py` | 默认 **`512`**；合法范围 clamp 为 **`8`～`8192`**；单测可调低以验证背压 | 与项目无关 |
@@ -127,7 +128,7 @@
 | **本地示例** | `CONTENT_ROOT=/path/to/ai-ink-brain/content`（与 `.env.example` 注释一致；路径随本机 checkout 而变） |
 | **category 规则** | ingest 取相对路径 **第一段** 为 `metadata.category`（`methodology` / `resume` / `evidence`）；见 `api/ingest_pipeline.py::get_all_markdown_chunks()` |
 | **入库接口** | **仅** `POST /api/py/admin/sync`（异步 job）；portfolio RUNBOOK **不含** `admin/ingest` |
-| **admin 鉴权** | `NEXT_PUBLIC_ADMIN_SECRET` 或 `CHAT_API_SECRET` → Bearer / `x-admin-token` |
+| **admin 鉴权** | **`SYNC_ADMIN_SECRET`**（与前端同值）→ Bearer / `x-admin-token`；`CHAT_API_SECRET` / `NEXT_PUBLIC_ADMIN_SECRET` **已废弃 · 待删**（见前端 [`SPEC-portfolio_admin_sync_auth_v1_zh.md`](../../../ai-ink-brain/content/tasks/specs/SPEC-portfolio_admin_sync_auth_v1_zh.md)） |
 | **Embedding** | `SILICONFLOW_API_KEY` + `EMBEDDING_DIM`（默认 1024）须与 Supabase `documents.embedding vector(N)` 一致 |
 | **Supabase 写库** | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` |
 | **部署边界** | 演示 URL 沿用现有前端 Vercel 项目（`NEXT_PUBLIC_SITE_MODE=portfolio`）；**不**变更后端 API 域名或 Supabase 项目名（SPEC Q-3） |

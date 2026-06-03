@@ -3,7 +3,7 @@ flowchart TD
     %% Entry: /api/py/text2sql/chat | unified router → text2sql
 
     %% Query 阶段
-    IN[入口 Query] --> AUTH[鉴权<br/>API_KEY / admin_secret]
+    IN[入口 Query] --> AUTH[鉴权<br/>ChatBI Bearer / API_KEY / admin_secret()]
     AUTH --> INT[Intent 判定<br/>is_text2sql_intent]
 
     INT -->|non_text2sql| OUT0[返回 non_text2sql 提示]

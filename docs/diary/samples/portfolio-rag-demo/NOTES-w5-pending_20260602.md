@@ -4,13 +4,24 @@
 > **RUNBOOK**：[`RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](../../../harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md)  
 > **状态**：Agent **未**执行生产/预发 sync · **未**跑五问
 
+
+## 本地落盘（默认）
+
+```bash
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export PORTFOLIO_RAG_EVIDENCE_DIR="${PORTFOLIO_RAG_EVIDENCE_DIR:-$REPO_ROOT/tmp/portfolio-rag-demo}"
+mkdir -p "$PORTFOLIO_RAG_EVIDENCE_DIR"
+```
+
+步骤 2～5 的 JSON/MD **先写入 `$PORTFOLIO_RAG_EVIDENCE_DIR`**；人签后再脱敏复制至本目录（`docs/diary/samples/portfolio-rag-demo/`）。
+
 ## 人须完成（按序）
 
 1. **前置**：确认 `CONTENT_ROOT` 指向前端 `content/` 且三目录各有 ≥1 `.md`（W4 就绪）
-2. **Sync**（RUNBOOK §2）：`POST /api/py/admin/sync` → 轮询 `succeeded` → 硬检查 §2.3 → 落盘 `sync-job-final.json`（脱敏）
+2. **Sync**（RUNBOOK §2）：`POST /api/py/admin/sync` → 轮询 `succeeded` → 硬检查 §2.3 → 落盘 `$PORTFOLIO_RAG_EVIDENCE_DIR/sync-job-final.json`（脱敏）
 3. **Visitor token**（RUNBOOK §1.4）：`local_chatbi_access_token_gen.py` → INSERT → `GET /api/py/chatbi/access/verify`
 4. **五问**（RUNBOOK §4–§6）：逐字问句 · Q3 strict evidence · 单问 ≤3 重试
-5. **留证**：`q1-sources-run{1,2}.json`、`q5-sources-run{1,2}.json`、`five-questions-results.md`
+5. **留证（本地）**：`$PORTFOLIO_RAG_EVIDENCE_DIR/q1-sources-run{1,2}.json`、`q5-sources-run{1,2}.json`、`five-questions-results.md`
 6. **人闸**：task 内 `HG-W5-SYNC`、`HG-W5-FIVE-Q` → `approved`
 
 ## 阻塞说明

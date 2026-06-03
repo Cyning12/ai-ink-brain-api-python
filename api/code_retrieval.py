@@ -37,7 +37,7 @@ def _require_code_api_auth(
     """Code Query/Search 的鉴权：优先使用 API_KEY；兼容 admin_secret。"""
     expected = (os.getenv("API_KEY") or "").strip() or (admin_secret() or "").strip()
     if not expected:
-        raise HTTPException(status_code=500, detail="未配置 API_KEY 或 NEXT_PUBLIC_ADMIN_SECRET / CHAT_API_SECRET")
+        raise HTTPException(status_code=500, detail="未配置 API_KEY 或 SYNC_ADMIN_SECRET")
 
     token = ""
     if authorization and authorization.lower().startswith("bearer "):

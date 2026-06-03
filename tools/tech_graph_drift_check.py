@@ -87,9 +87,13 @@ def main() -> int:
         "DEBUG_",
         "TEXT2SQL_",
         "API_KEY",
+        "SYNC_ADMIN_SECRET",
         "CHAT_API_SECRET",
     )
-    key_envs = {e for e in envs if e == "API_KEY" or e.startswith(key_env_prefix)}
+    key_env_exact = {"API_KEY", "SYNC_ADMIN_SECRET", "CHAT_API_SECRET", "NEXT_PUBLIC_ADMIN_SECRET"}
+    key_envs = {
+        e for e in envs if e in key_env_exact or e.startswith(key_env_prefix)
+    }
     problems += _check_contains(items=key_envs, haystack=tg_text, label="Key env vars")
 
     if problems:

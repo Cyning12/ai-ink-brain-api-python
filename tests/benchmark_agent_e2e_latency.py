@@ -23,7 +23,7 @@ def _env_int(name: str, default: int) -> int:
 
 def _reload_api_index() -> Any:  # noqa: ANN401
     # 说明：与 pytest 保持一致的最小启动 env（避免缺配置直接 500）。
-    os.environ.setdefault("NEXT_PUBLIC_ADMIN_SECRET", "secret-token-1234567890")
+    os.environ.setdefault("SYNC_ADMIN_SECRET", "secret-token-1234567890")
     os.environ.setdefault("API_KEY", "api-key-123")
     os.environ.setdefault("SILICONFLOW_API_KEY", "sf-dummy-key")
     os.environ.setdefault("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test")
