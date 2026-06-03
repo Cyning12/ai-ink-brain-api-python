@@ -1,0 +1,136 @@
+{
+  "provenance": "frontend UI Timeline export · 2026-06-03 · W5 Tranche 2 R3 run1（evidence-card ingest 后）",
+  "question_id": "Q5",
+  "question_text": "按需读图相对整图灌入 token/效果？边界？",
+  "run": 1,
+  "run_id": "7b456d7f-8888-401c-9f18-5dcca2200291",
+  "session_id": "a3851075-a5de-474b-b34e-6e3a33e23c53",
+  "note": "PASS · Top1 evidence/evidence-card.md · 答含 1/9 + 小样本边界 · Top10 仍混 1 diary + methodology（可接受）",
+  "retrieval": {
+    "top_k": 10,
+    "rrf_k": 60
+  },
+  "primary_category": "evidence",
+  "primary_relativePath": "evidence/evidence-card.md",
+  "evidence_source_count": 6,
+  "fallback_used": false,
+  "answer_quality": "pass",
+  "answer_excerpt": "token 降至约十分之一（约 1/9）… 小样本、单仓、图谱已维护… 不能外推为全行业",
+  "runbook_checks": {
+    "primary_category_evidence": true,
+    "answer_has_one_ninth": true,
+    "answer_has_sample_boundary": true,
+    "relativePath_evidence_prefix": true
+  },
+  "sources": [
+    {
+      "relativePath": "evidence/evidence-card.md",
+      "path": "evidence/evidence-card.md",
+      "filename": "evidence-card.md",
+      "category": "evidence",
+      "chunk_index": 2,
+      "score": 0.01639344262295082,
+      "fused_score": 0.01639344262295082,
+      "snippet": "token 约降至 十分之一（约 1/9）· 小样本、单仓 · graph_query"
+    },
+    {
+      "relativePath": "evidence/evidence-card.md",
+      "path": "evidence/evidence-card.md",
+      "filename": "evidence-card.md",
+      "category": "evidence",
+      "chunk_index": 1,
+      "score": 0.016129032258064516,
+      "fused_score": 0.016129032258064516,
+      "snippet": "按需读图 vs 整图灌入（Q5）· graph_query · graph.json"
+    },
+    {
+      "relativePath": "diary/ChatBI-V2三周迭代实录-公众号稿-2026-设计大纲版.md",
+      "path": "diary/ChatBI-V2三周迭代实录-公众号稿-2026-设计大纲版.md",
+      "filename": "ChatBI-V2三周迭代实录-公众号稿-2026-设计大纲版.md",
+      "category": "diary",
+      "chunk_index": 8,
+      "score": 0.015873015873015872,
+      "fused_score": 0.015873015873015872,
+      "snippet": "diary 噪音 · 非 portfolio 期望"
+    },
+    {
+      "relativePath": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "path": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "filename": "AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "category": "methodology",
+      "chunk_index": 17,
+      "score": 0.015625,
+      "fused_score": 0.015625,
+      "snippet": "冷层结构地图 · 温层签收"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 24,
+      "score": 0.015384615384615385,
+      "fused_score": 0.015384615384615385,
+      "snippet": "温层协作轨迹"
+    },
+    {
+      "relativePath": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "path": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "filename": "AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "category": "methodology",
+      "chunk_index": 24,
+      "score": 0.015151515151515152,
+      "fused_score": 0.015151515151515152,
+      "snippet": "卷三 13.7 温层"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 5,
+      "score": 0.014925373134328358,
+      "fused_score": 0.014925373134328358,
+      "snippet": "挂到地图上"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 34,
+      "score": 0.014705882352941176,
+      "fused_score": 0.014705882352941176,
+      "snippet": "卷二地图 · 卷三签收"
+    },
+    {
+      "relativePath": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "path": "methodology/AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "filename": "AI 编程可闭环协作 · 卷三：Harness 与 SDD——让改动可签收、可合并.md",
+      "category": "methodology",
+      "chunk_index": 34,
+      "score": 0.014492753623188406,
+      "fused_score": 0.014492753623188406,
+      "snippet": "冷层 · 温层"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 14,
+      "score": 0.014285714285714285,
+      "fused_score": 0.014285714285714285,
+      "snippet": "审查签收"
+    }
+  ],
+  "screenshot": "screenshots/q5-evidence-card-run1-execution-trace-20260603.png",
+  "dual_run_match": {
+    "run1_run_id": "7b456d7f-8888-401c-9f18-5dcca2200291",
+    "run1_primary_category": "evidence",
+    "run1_primary_relativePath": "evidence/evidence-card.md",
+    "run2_primary_category": "evidence",
+    "run2_primary_relativePath": "evidence/evidence-card.md",
+    "category_consistent": true
+  }
+}

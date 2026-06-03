@@ -1,8 +1,8 @@
 # Portfolio RAG Demo · 五问预跑留证（W5）
 
-> **task**：`docs/tasks/active/task_portfolio_rag_demo_v1.md`  
+> **task**：`docs/tasks/done/task_portfolio_rag_demo_v1.md`  
 > **RUNBOOK**：[`docs/harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](../../../harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md) §6  
-> **状态**：**sync 已签（HG-W5-SYNC · 2026-06-03）** · 五问待跑 · `HG-W5-FIVE-Q` pending
+> **状态**：**sync 已签** · **五问 Tranche 1 部分落盘** · `HG-W5-FIVE-Q` pending · 补录见 [`w5-retest-backlog.md`](./w5-retest-backlog.md)
 
 ## 留证路径（本地 vs 冻结）
 
@@ -26,8 +26,19 @@ mkdir -p "$PORTFOLIO_RAG_EVIDENCE_DIR"
 | `sync-job-summary.md` | sync 人签摘要 | 同上 | ✅ **已冻结** · [`sync-job-summary.md`](./sync-job-summary.md) |
 | `q1-sources-run1.json` / `q1-sources-run2.json` | Q1 两次预跑 sources | 同上 | 人签后复制 |
 | `q5-sources-run1.json` / `q5-sources-run2.json` | Q5 两次预跑 sources | 同上 | 人签后复制 |
-| `five-questions-results.md` | 五问 pass/fail + 重试 + category 摘要 | 同上 | 人签后复制 |
-| `screenshots/` | 可选 · 录屏帧或 Unified Chat 截图 | 可选 · tmp 子目录 | 可选 |
+| `five-questions-results.md` | 五问 pass/fail 主表（Tranche 1 部分） | tmp 或本目录 | ✅ **Tranche 1** |
+| `w5-acceptance-tranche1_20260603.md` | 已通过项索引 | — | ✅ |
+| `w5-retest-backlog.md` | **补录清单 P0/P1** | — | ✅ |
+| `q1-sources-run1.json` | Q1 sources run1（UI 导出） | — | ✅ |
+| `q4-sources-run1.json` | Q4 sources run1 | — | ✅ |
+| `q5-sources-run1.json` | Q5 sources run1（清 diary 后） | UI Timeline | ⚠️ **partial · 主 evidence · 答缺 1/9** |
+| `screenshots/q5-evidence-card-run1-execution-trace-20260603.png` | Q5 run1 执行链路（PASS · evidence-card） | UI 导出 | ✅ |
+| `screenshots/q5-on-demand-image-run1-execution-trace-20260603.png` | Q5 run1 执行链路（旧 · partial · 99cecd45） | UI 导出 | 归档 |
+| `screenshots/q2-hybrid-rag-success-execution-trace-20260603.png` | Q2 成功 · 执行链路截图（**另开对话** · run `50f48bd8…`） | UI 导出 | ✅ **Tranche 2 R1** |
+| `q2-sources-run1.json` | Q2 sources run1 | UI Timeline | ✅ **Tranche 2 R1** |
+| `q3-sources-run1.json` | Q3 sources run1 | UI Timeline | ✅ **Tranche 2 R2** |
+| `screenshots/q3-cold-warm-hot-execution-trace-20260603.png` | Q3 成功 · 执行链路 | UI 导出 | ✅ **Tranche 2 R2** |
+| `screenshots/` | 其他录屏帧或 Unified Chat 截图 | 可选 · tmp 子目录 | 按需 |
 
 ## blocked 占位
 

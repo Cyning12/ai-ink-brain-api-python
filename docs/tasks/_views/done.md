@@ -115,4 +115,5 @@
 - `../done/task_harness_p0_audit_selfcheck_v1.md`（2026-05-30 验收通过：P0 Loop R2 · 22/40 帽 OpenSpec×TDD 补丁 · R3 预审查 · `HARNESS-P0-AUDIT-SELFCHECK@2026-05-30`）
 - `../done/task_harness_p0_status_cursor_v1.md`（2026-05-30 验收通过：P0 Loop R3 · change_status JSON + Cursor commands · `HARNESS-P0-STATUS-CURSOR@2026-05-30`）
 - `../done/task_harness_p0_openspec_tdd_loop_v1.md`（2026-05-30 验收通过：P0 OpenSpec×TDD Loop 母单 META · R1–R3 · REPORT `p0-openspec-tdd/REPORT_completion_20260530_v1.md` · `HARNESS-P0-OPENSPEC-TDD-LOOP@2026-05-30`）
+- `../done/task_portfolio_rag_demo_v1.md`（2026-06-03 验收通过：Portfolio W2/W3/W5 RUNBOOK + sync + 五问留证 · KPI 100% · `PORTFOLIO-RAG-DEMO@2026-06-01` · reinspect `reinspect_portfolio_rag_demo_w5_20260603_v1.md` · 分支 `task/portfolio-rag-w5-v1`）
 

@@ -1,0 +1,117 @@
+{
+  "provenance": "frontend UI Timeline export · 2026-06-03 · W5 Tranche 2 R1",
+  "question_id": "Q2",
+  "question_text": "RAG 混合检索怎么做的？",
+  "run": 1,
+  "run_id": "50f48bd8-27f0-4654-ac13-bef979f9cecc",
+  "session_id": "d588c8d9-c691-4196-8f7b-8bab1049269d",
+  "note": "另开对话 session（非首问同 session）；主 category=resume；fallback_used=false；截图与 sources 同源 run 50f48bd8",
+  "retrieval": {
+    "top_k": 10,
+    "rrf_k": 60
+  },
+  "primary_category": "resume",
+  "fallback_used": false,
+  "sources": [
+    {
+      "relativePath": "resume/cv-online.md",
+      "path": "resume/cv-online.md",
+      "filename": "cv-online.md",
+      "category": "resume",
+      "chunk_index": 0,
+      "score": 0.01639344262295082,
+      "fused_score": 0.01639344262295082,
+      "snippet": "本仓库演示采用 **向量检索 + 全文混合检索**，并对 top-k 结果做 **rerank**"
+    },
+    {
+      "relativePath": "resume/cv-online.md",
+      "path": "resume/cv-online.md",
+      "filename": "cv-online.md",
+      "category": "resume",
+      "chunk_index": 0,
+      "score": 0.016129032258064516,
+      "fused_score": 0.016129032258064516,
+      "snippet": "本仓库演示采用 **向量检索 + 全文混合检索**，并对 top-k 结果做 **rerank**"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 32,
+      "score": 0.015873015873015872,
+      "fused_score": 0.015873015873015872,
+      "snippet": "合并前 **本地** 跑同一命令，要点贴进 **签收记录**"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 32,
+      "score": 0.015625,
+      "fused_score": 0.015625,
+      "snippet": "合并前 **本地** 跑同一命令，要点贴进 **签收记录**"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 25,
+      "score": 0.015384615384615385,
+      "fused_score": 0.015384615384615385,
+      "snippet": "**审查签收**"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 25,
+      "score": 0.015151515151515152,
+      "fused_score": 0.015151515151515152,
+      "snippet": "**审查签收**"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 29,
+      "score": 0.014925373134328358,
+      "fused_score": 0.014925373134328358,
+      "snippet": "同一任务开多个对话分工？"
+    },
+    {
+      "relativePath": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "path": "methodology/vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "filename": "vol3_ARTICLE_AI_Coding_可闭环协作_公众稿_vol3_v1.4.0_zh.md",
+      "category": "methodology",
+      "chunk_index": 29,
+      "score": 0.014705882352941176,
+      "fused_score": 0.014705882352941176,
+      "snippet": "同一任务开多个对话分工？"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 21,
+      "score": 0.014492753623188406,
+      "fused_score": 0.014492753623188406,
+      "snippet": "Audit[任务审核"
+    },
+    {
+      "relativePath": "evidence/methodology-card.md",
+      "path": "evidence/methodology-card.md",
+      "filename": "methodology-card.md",
+      "category": "evidence",
+      "chunk_index": 21,
+      "score": 0.014285714285714285,
+      "fused_score": 0.014285714285714285,
+      "snippet": "Audit[任务审核"
+    }
+  ]
+}
