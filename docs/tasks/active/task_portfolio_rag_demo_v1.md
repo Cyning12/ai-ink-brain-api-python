@@ -1,6 +1,6 @@
 # Task：Portfolio 演示站 RAG — RUNBOOK · env 文档 · 五问预跑留证（后端）
 
-> **状态**：`in_progress`（W2/W3 done · **W5 关账 Loop 2026-06-02** · sync/五问待人 · HG-W5-* pending）  
+> **状态**：`in_progress`（W2/W3 done · **W5 sync 已签** · 五问待跑 · `HG-W5-FIVE-Q` pending）  
 > **schedule_ref**：投递冲刺 [`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) · P0-C  
 > **硬 deadline**：**2026-06-09 上午**（投递前 ingest 对齐 + 五问 RUNBOOK + 预发/生产等价环境 sync 与五问预跑留证）  
 > **治理 SPEC（L1 · 已冻结）**：[`SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](../spec/governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) · `PORTFOLIO-RAG-DEMO@2026-06-01`  
@@ -51,9 +51,9 @@
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | approved | 22-R1,30 | semi_auto 链式执行人授权 · 2026-06-01 |
 | HG-AUDIT-R1 | approved | 30 | 22 R1 零阻塞 · `reviews/.../audit_R1_20260601.md` |
-| HG-W5-SYNC | approved | — | **人**在预发/生产等价环境 sync `succeeded` 后改 approved |
-| HG-W5-FIVE-Q | approved | done | 五问预跑 + diary 留证人签 |
-| HG-REINSPECT | approved | done | 50 复检后人签、合并 PR 前 |
+| HG-W5-SYNC | approved | — | sync `succeeded` · job `c44158a5-…` · 人签 2026-06-03 · 留证 `docs/diary/samples/portfolio-rag-demo/sync-job-*` |
+| HG-W5-FIVE-Q | pending | done | 五问预跑 + diary 留证人签 |
+| HG-REINSPECT | pending | done | 50 复检后人签、合并 PR 前 |
 
 ---
 
@@ -178,12 +178,12 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 
 | 项 | 标准 | 状态 |
 |----|------|------|
-| sync 终态 + 硬检查 | §2.3 G-W5-1 | 待人 · `HG-W5-SYNC` pending |
+| sync 终态 + 硬检查 | §2.4 G-W5-1 | **pass** · `HG-W5-SYNC` approved · job `c44158a5-…` |
 | 五问指标 + Q3 strict | §2.3 G-W5-2 | 待人 · RUNBOOK §4 |
 | Q1/Q5 双跑一致 | §2.3 G-W5-3 | 待人 · F6 口径 |
-| 留证目录可读 | §2.3 G-W5-4 · 本地 `tmp/portfolio-rag-demo/` → 冻结 `docs/diary/samples/portfolio-rag-demo/` | 索引已就绪 · JSON/表待人 |
+| 留证目录可读 | §2.3 G-W5-4 · sync 已冻结 · 五问 JSON/表待人 | `sync-job-final.json` · `sync-job-summary.md` |
 | Unified + visitor Bearer | §2.3 G-W5-5 | RUNBOOK §1.3 已补运维指针 |
-| 人工闸 | `HG-W5-SYNC`、`HG-W5-FIVE-Q` → `approved` | **pending** |
+| 人工闸 | `HG-W5-SYNC` approved · `HG-W5-FIVE-Q` pending | 五问后人签 FIVE-Q |
 
 ### 6.3 CI
 
@@ -267,18 +267,19 @@ Portfolio 演示站需在 **2026-06-09 投递前** 展示与前端 `content/` **
 | §6.3 pytest 回归 | pass | 见上表 |
 | W5 RUNBOOK §1.4 ChatBI visitor | pass | 运维签发 + verify 探活 |
 | W5 diary README + NOTES | pass | `NOTES-w5-pending_20260602.md` · blocked 占位 |
-| §6.2 W5 sync + 五问 | **defer** | `HG-W5-SYNC` / `HG-W5-FIVE-Q` **pending** |
-| §2.3 G-W5-1～5 执行 | **defer** | 留证 JSON/表未生成 · 待人 RUNBOOK |
+| §6.2 W5 sync | **pass** | `HG-W5-SYNC` approved · diary `sync-job-*` |
+| §6.2 W5 五问 | **defer** | `HG-W5-FIVE-Q` pending · RUNBOOK §4–§6 |
+| §2.3 G-W5-2～5 执行 | **defer** | 五问留证 JSON/表未生成 |
 
 #### 人工闸状态
 
 | gate_id | status | 说明 |
 |---------|--------|------|
-| HG-W5-SYNC | **pending** | 人执行 sync §2 + 硬检查后改 approved |
+| HG-W5-SYNC | **approved** | 2026-06-03 · job `c44158a5-…` · G-W5-1 pass |
 | HG-W5-FIVE-Q | **pending** | 五问 + diary 留证后改 approved |
-| HG-REINSPECT | approved | 50 后复核 |
+| HG-REINSPECT | **pending** | 50 后复核 |
 
-**W5 未 pass**：须人按 RUNBOOK §2–§6 与 `NOTES-w5-pending_20260602.md` 执行。
+**W5 部分 pass**：sync 已签；五问须人按 RUNBOOK §4–§6 与 `NOTES-w5-pending_20260602.md` 继续。
 
 #### OpenSpec × TDD 三维（docs task）
 

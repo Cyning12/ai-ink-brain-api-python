@@ -1,0 +1,17 @@
+{
+    "ok": true,
+    "job": {
+        "id": "c44158a5-6e28-4583-ab6b-f5db9ca1866d",
+        "status": "succeeded",
+        "createdAt": "2026-06-03T07:09:53.667431Z",
+        "startedAt": "2026-06-03T07:09:53.668248Z",
+        "finishedAt": "2026-06-03T07:10:10.149096Z",
+        "result": {
+            "filesScanned": 3,
+            "chunksTotal": 72,
+            "chunksUpserted": 72,
+            "rowsDeleted": 0
+        },
+        "error": null
+    }
+}
