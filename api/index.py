@@ -29,6 +29,7 @@ from . import code_retrieval
 from . import text2sql_api
 from . import chain_chat
 from . import unified_chat
+from . import unified_chat_graph
 from .chatbi_principal import ChatBiPrincipal, require_chatbi_principal, resolve_chatbi_from_plain_token
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .database_manager import SupabaseManager
@@ -643,6 +644,22 @@ async def unified_chat_stream_route(
     principal: ChatBiPrincipal = Depends(require_chatbi_principal),
 ):
     return await unified_chat.handle_unified_chat_stream(request, principal=principal)
+
+
+@app.post("/api/py/unified/chat/graph")
+async def unified_chat_graph_route(
+    request: Request,
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
+) -> JSONResponse:
+    return await unified_chat_graph.handle_unified_chat_graph(request, principal=principal)
+
+
+@app.post("/api/py/unified/chat/graph/stream")
+async def unified_chat_graph_stream_route(
+    request: Request,
+    principal: ChatBiPrincipal = Depends(require_chatbi_principal),
+):
+    return await unified_chat_graph.handle_unified_chat_graph_stream(request, principal=principal)
 
 
 @app.get("/api/py/chatbi/access/verify")

@@ -180,7 +180,17 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 
 ## 9. 实现备忘（30 帽回填）
 
-- （待 30 填写：文件列表、manifest 节点、contract 锚点迁移说明）
+| 类别 | 路径 |
+| --- | --- |
+| 共享层 | `api/chatbi_events.py` · `api/chatbi_agent_models.py` · `api/chatbi_failure.py` |
+| agent 瘦身 | `api/agent.py`（1078 行 · import 共享模块；契约锚点保留） |
+| Graph | `api/graph/state.py` · `api/graph/runner.py` · `api/unified_chat_graph.py` |
+| 路由 | `api/index.py`（Q-8 两路由） |
+| manifest | `docs/_tech_graph/_manifest.json` |
+| 契约扫描 | `tools/tech_graph_contract_check.py` 增 `chatbi_events.py` 源 |
+| 测试 | `tests/test_chatbi_graph_p0_foundation.py` |
+
+**30 验证摘要**：`pytest tests -m "not intent_eval and not intent_benchmark"` → **267 passed**；`tech_graph_manifest_check` OK；`tech_graph_contract_check` 仅剩 **frontend `label`**（分支基线既有，与 P0 无关）。`test_unified_chat_backend_v2_agent` 中 **v3 plan preview** 子集在本分支提交树上 **已红**（stash 对照同红，非本 PR 回归）。
 
 ### 自检结论（执行者）
 
