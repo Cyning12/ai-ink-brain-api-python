@@ -1,6 +1,6 @@
 # Task：ChatBI Graph P0 地基 — 共享层抽取 + State/边表草案 + 骨架路由（单 Loop）
 
-> **状态**：`active`（22 **R2** 已签收 · 人闸已签 · **可开 30**）  
+> **状态**：`active`（30 已交付 · **40 自检完成** · 待 **50** + 合并前 pytest 全绿）  
 > **Task-P0**：对齐 [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](../spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) **§4A** · **§10 Task-P0**  
 > **冻结决策**：[`SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md`](../spec/research/SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md) **§4.3**（D-1～D-5）  
 > **关联图谱**：`docs/_tech_graph/00_main.ai.md`（增量指针）；待建 `10_flow_agent_graph.ai.md`（30 帽落盘）  
@@ -21,7 +21,7 @@
 | **gates_before_code** | `harness_task_validate.py` OK · `## 失败路径` + Scenario ID · `## 验收标准` 含 pytest/PR workflow · **SDD §10 已冻结（Q-8 等）** · `## 行为变更（Delta）` 已填 · 必读列表已读 · `HG-TASK-DRAFT` = `approved` · `HG-AUDIT-R1` = `approved`（路径 A 后） |
 | **git_branch** | `task/chatbi-graph-p0-foundation-v1` |
 | **Open Folder** | `ai-ink-brain-api-python` |
-| **推荐路径** | **30 执行帽** — R2 零阻塞 + 人闸已签 |
+| **推荐路径** | **50 独立复检** — `test_strategy: required` + 关账前 `reinspect_results/` |
 | **worktree_root** | （非并行时与 Open Folder 同仓根；并行时 invoke 另填） |
 
 ### 人工闸 `human_gate`
@@ -194,7 +194,53 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 
 ### 自检结论（执行者）
 
-- （待 40 帽回填）
+**执行时间**：2026-06-03 · **分支**：`task/chatbi-graph-p0-foundation-v1` · **HEAD**：`b43ae3e` · **cwd**：仓根 `ai-ink-brain-api-python`
+
+#### 命令与退出码
+
+| 命令 | cwd | exit |
+| --- | --- | ---: |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓根 | **1**（277 passed · **10 failed** · 1 skipped） |
+| `pytest tests/test_chatbi_graph_p0_foundation.py -q` | 仓根 | **0**（10 passed） |
+| `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_graph_p0_foundation_v1.md` | 仓根 | **0**（OK） |
+| `python tools/tech_graph_manifest_check.py` | 仓根 | **0**（OK） |
+| `python tools/tech_graph_contract_check.py` | 仓根 | **1**（`contract.frontend_anchors` · 字段 `label` · 分支基线既有） |
+| `wc -l api/agent.py` | — | **1078**（原 ~1342） |
+| `git diff origin/main...HEAD -- api/unified_chat.py` | — | **0 行**（D-2 零变更） |
+
+**pytest 失败摘要（10 · 均 `test_v3_*plan*`）**：`AssertionError: 'agent.plan.preview' not in events` 等；**非** `b43ae3e` 引入（`git diff b43ae3e^..b43ae3e` 未触 `unified_chat.py`）；本分支相对 `origin/main` 在 feat 前提交树上 **已红**（30 对照 stash 同结论）。**合并阻塞**：Required check 须全绿 → 须另 task/修复或确认 CI 策略后再 PR。
+
+#### 验收表（40 · 对照 `## 验收标准`）
+
+| 验收项 | 结果 | 证据 |
+| --- | :---: | --- |
+| `agent.py` 瘦身 + FailureTypeHandler 迁出 | **pass** | `wc -l` 1078；`api/chatbi_failure.py` 存在 |
+| 共享模块 Graph/Agent 共用 | **pass** | `test_chatbi_shared_modules_importable` |
+| `ChatBIState` + 边表 D-3 分表 | **pass** | `test_graph_intent_timeout_scheme_a` · `test_legacy_intent_timeout_v1_fallback` |
+| Q-8 Graph 路由 stub 可调用 | **pass** | `test_graph_json_route_stub` · `test_graph_stream_route_stub` |
+| `_manifest` + manifest check | **pass** | `tech_graph_manifest_check` OK；manifest 含 `/graph` 两路由 |
+| `tech_graph_contract_check` 仍绿 | **fail** | exit 1 · `label`（基线 · 非 P0 新增） |
+| 边表单测 + runner smoke | **pass** | `tests/test_chatbi_graph_p0_foundation.py` 10/10 |
+| 必绿 pytest 全集（本地） | **fail** | 277/287 通过；10× v3 plan（见上） |
+| PR pytest workflow | **未测** | 须 CI；本地全集未绿则 **不建议** 依赖 automerge |
+| `unified_chat.py` 无行为变更 | **pass** | `git diff origin/main...HEAD -- api/unified_chat.py` 空 |
+| 未做 P1 clarify/plan 上图 | **pass** | 无 `graph.*` SSE；runner 为 stub |
+
+#### OpenSpec × TDD 三维（40 摘要）
+
+| 维度 | 结果 | 备注 |
+| --- | :---: | --- |
+| Completeness | **pass** | P0 Scenario / F1～F4 有 `test_chatbi_graph_p0_foundation` 或全集子集证据 |
+| Correctness | **pass-with-notes** | 边表 LLM_API_TIMEOUT：graph=`direct_answer` · legacy=`intent_v1_fallback` |
+| Coherence | **pass-with-notes** | 与 Delta / §10 一致；contract `label` 为仓内已知红项 |
+
+#### 已知未测 / 阻塞
+
+- **50 帽**：`docs/tasks/reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_*.md`（关账前 **必须**）。
+- **v3 plan preview 十测**：本分支 CI 合并风险；非 P0 diff 引入，但阻塞 `AGENTS.md` 必绿全集。
+- **PR 线上 workflow**：未在本机执行 `gh`/Actions。
+
+**40 结论**：P0 范围自检 **通过**；**全集 pytest 未绿** → 合并前须人决策（修 v3 / 拆 PR / 确认 CI 豁免策略）。
 
 ---
 
@@ -219,5 +265,6 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 | 2026-06-03 | 10 需求帽：Task-P0 草案 · invoke `invoke_20260603_10_requirements.md` |
 | 2026-06-03 | **按审查 R1 回填**（`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`）：B-2 §10 冻结 · B-3 `## 验收标准`/`## 失败路径` · B-4 Delta · validate 对齐；B-1 待人签闸 |
 | 2026-06-03 | 人签 `HG-TASK-DRAFT` · `HG-AUDIT-R1` → `approved`（R2 后 · 单独 commit） |
+| 2026-06-03 | 30 实现 `b43ae3e` · 40 自检回填 `### 自检结论（执行者）` |
 
-**下一棒**：**30 执行帽**（invoke 见 R2 审查 md 末节 Prompt）。
+**下一棒**：**50 独立复检**（`test_strategy: required` · `reinspect_results/`）。
