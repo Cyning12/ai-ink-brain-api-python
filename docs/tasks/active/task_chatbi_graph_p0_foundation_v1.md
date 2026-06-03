@@ -1,10 +1,10 @@
 # Task：ChatBI Graph P0 地基 — 共享层抽取 + State/边表草案 + 骨架路由（单 Loop）
 
-> **状态**：`active`（10 帽 **按审查 R1 回填** · SDD §10 已冻结 · 待 **22 R2** + 人签 `HG-TASK-DRAFT`）  
+> **状态**：`active`（22 **R2** 已签收 · 人闸已签 · **可开 30**）  
 > **Task-P0**：对齐 [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](../spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) **§4A** · **§10 Task-P0**  
 > **冻结决策**：[`SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md`](../spec/research/SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md) **§4.3**（D-1～D-5）  
 > **关联图谱**：`docs/_tech_graph/00_main.ai.md`（增量指针）；待建 `10_flow_agent_graph.ai.md`（30 帽落盘）  
-> **审查**：[`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md)
+> **审查**：R1 [`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md) · R2 [`task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md)
 
 ---
 
@@ -21,15 +21,15 @@
 | **gates_before_code** | `harness_task_validate.py` OK · `## 失败路径` + Scenario ID · `## 验收标准` 含 pytest/PR workflow · **SDD §10 已冻结（Q-8 等）** · `## 行为变更（Delta）` 已填 · 必读列表已读 · `HG-TASK-DRAFT` = `approved` · `HG-AUDIT-R1` = `approved`（路径 A 后） |
 | **git_branch** | `task/chatbi-graph-p0-foundation-v1` |
 | **Open Folder** | `ai-ink-brain-api-python` |
-| **推荐路径** | **A（22 R2）** — R1 回填后复审；`test_strategy: required` |
+| **推荐路径** | **30 执行帽** — R2 零阻塞 + 人闸已签 |
 | **worktree_root** | （非并行时与 Open Folder 同仓根；并行时 invoke 另填） |
 
 ### 人工闸 `human_gate`
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| HG-TASK-DRAFT | pending | 22-R2, 30 | R1 回填完成；**待人签** `approved`（建议单独 commit，见 R1 **B-1**） |
-| HG-AUDIT-R1 | pending | 30 | 22 **R2** 零阻塞后由 **人** 改 `approved` 再开 30 |
+| HG-TASK-DRAFT | approved | — | 人签 **2026-06-03**（R1 B-1 · 本 commit） |
+| HG-AUDIT-R1 | approved | — | 22 R2 零阻塞 · 人签 **2026-06-03**（本 commit） |
 
 ---
 
@@ -172,7 +172,7 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 4. [`SPEC-ChatBI-V2-Agent-Overview.md`](../spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md) **§2.4**（fallback · 边表覆盖）。
 5. `api/agent.py` — 迁出块边界（计划 §4.4.1）。
 6. `docs/harness/prompts/hats/30-execute-code.md` · **拒开工** 条件。
-7. 22 审查：R1 [`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md)；R2 落盘后补链。
+7. 22 审查：R1 [`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md) · R2 [`task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md)。
 
 **VERIFY（合并前）**：`pytest tests -m "not intent_eval and not intent_benchmark"`
 
@@ -198,7 +198,7 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 | 4 | `ChatBIState` 物理路径 | **A** · `api/graph/state.py` | R1 NB-2 默认 |
 | 5 | stub 响应最小契约 | **A** · HTTP 200 + 最小 JSON/SSE 心跳 | 与 FP-3 一致 |
 
-**均已人确认 · 2026-06-03**（10 帽按 R1 建议选项 **A** 回填冻结；**Q-7** 除外 defer P1。`HG-TASK-DRAFT` / `HG-AUDIT-R1` 仍须 **人** 单独签收。）
+**均已人确认 · 2026-06-03**（10 帽按 R1 建议选项 **A** 回填冻结；**Q-7** 除外 defer P1。`HG-TASK-DRAFT` / `HG-AUDIT-R1` 已于 **2026-06-03** 人签 `approved`。）
 
 ---
 
@@ -208,5 +208,6 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 | --- | --- |
 | 2026-06-03 | 10 需求帽：Task-P0 草案 · invoke `invoke_20260603_10_requirements.md` |
 | 2026-06-03 | **按审查 R1 回填**（`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`）：B-2 §10 冻结 · B-3 `## 验收标准`/`## 失败路径` · B-4 Delta · validate 对齐；B-1 待人签闸 |
+| 2026-06-03 | 人签 `HG-TASK-DRAFT` · `HG-AUDIT-R1` → `approved`（R2 后 · 单独 commit） |
 
-**按审查 R1 回填** → 下一棒 **22 R2**（`task_chatbi_graph_p0_foundation_v1_audit_R2_YYYYMMDD.md`）。
+**下一棒**：**30 执行帽**（invoke 见 R2 审查 md 末节 Prompt）。
