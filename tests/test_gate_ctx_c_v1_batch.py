@@ -5,17 +5,16 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
+
+from tests.gate_ctx_c_materialize import materialize_gate_c_payloads_if_requested
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_ROOT = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1"
 RUN_S0_PATH = FIXTURE_ROOT / "scripts/run_s0_gate_c.py"
 RUN_BATCH_PATH = FIXTURE_ROOT / "scripts/run_gate_c_batch.py"
-MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
 TASKS_REF = FIXTURE_ROOT / "tasks_ref.json"
 
 DEFAULT_ARMS = ["CTX_V2_QUERY", "CTX_DUAL_MD"]
@@ -48,14 +47,7 @@ def gate_c_batch():
 
 @pytest.fixture(scope="module", autouse=True)
 def _materialize_once() -> None:
-    proc = subprocess.run(
-        [sys.executable, str(MATERIALIZE_SCRIPT)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    materialize_gate_c_payloads_if_requested()
 
 
 def test_tasks_ref_lists_five_tasks() -> None:

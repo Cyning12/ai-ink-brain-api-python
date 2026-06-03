@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
-"""闸口 C / C′：gate_ctx_c_v1 manifest / query 种子 / materialize 验收。"""
+"""闸口 C / C′：gate_ctx_c_v1 manifest / query 种子 / materialize 验收。
+
+默认 **只读** 已提交的 payloads；重写 fixtures 须：
+``GATE_CTX_C_UPDATE_FIXTURES=1 pytest tests/test_gate_ctx_c_v1_materialize.py``
+"""
 
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 import yaml
 
+from tests.gate_ctx_c_materialize import materialize_gate_c_payloads_if_requested
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_ROOT = REPO_ROOT / "docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1"
 GRAPH_PATH = REPO_ROOT / "docs/_tech_graph/graph.json"
-MATERIALIZE_SCRIPT = FIXTURE_ROOT / "scripts/materialize_gate_c_payloads.py"
 PROTOCOL_PATH = FIXTURE_ROOT / "protocol_version.yaml"
 GATE_C_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_PRIME_F1_FREEZE_20260520_V1_0"
 GATE_C_DOUBLE_PRIME_FREEZE_ID = "TECH_GRAPH_GATE_C_DOUBLE_PRIME_FREEZE_20260520_V1_0"
@@ -86,14 +89,7 @@ def test_protocol_freeze_ids_locked(protocol: dict, graph_doc: dict) -> None:
 
 
 def test_materialize_exit_zero_and_payloads_nonempty() -> None:
-    proc = subprocess.run(
-        [sys.executable, str(MATERIALIZE_SCRIPT)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    materialize_gate_c_payloads_if_requested()
     report = _load_json(FIXTURE_ROOT / "payloads/materialize_report.json")
     d_dir = FIXTURE_ROOT / "payloads/CTX_V2_QUERY"
     e_dir = FIXTURE_ROOT / "payloads/CTX_DUAL_MD"
@@ -118,14 +114,7 @@ def test_d_arm_heuristic_tokens_below_mermaid_threshold(protocol: dict) -> None:
 
 def test_t002_subgraph_covers_gold_graph_ids() -> None:
     """T002 D 臂 union 子图须含 tasks.json gold 关键 graph_id。"""
-    proc = subprocess.run(
-        [sys.executable, str(MATERIALIZE_SCRIPT)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    materialize_gate_c_payloads_if_requested()
     payload = _load_json(
         FIXTURE_ROOT / "payloads/CTX_V2_QUERY/T002_unified_sse_chain_contract.subgraph.json"
     )
@@ -166,14 +155,7 @@ def test_query_seeds_gate_d_freeze_ids() -> None:
 
 def test_t003_manifest_slice_and_impact_surface() -> None:
     """T003 D 臂须含 Admin Ingest manifest_slice + gold impact_surface。"""
-    proc = subprocess.run(
-        [sys.executable, str(MATERIALIZE_SCRIPT)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    materialize_gate_c_payloads_if_requested()
     payload = _load_json(
         FIXTURE_ROOT / f"payloads/CTX_V2_QUERY/{T003_TASK_ID}.subgraph.json"
     )
@@ -202,14 +184,7 @@ def test_t003_manifest_slice_and_impact_surface() -> None:
 
 def test_t004_t005_payload_slices_and_seeds(graph_doc: dict) -> None:
     """T004/T005 D 臂须含 manifest/contract/impact 切片且种子节点 ∈ graph_v2。"""
-    proc = subprocess.run(
-        [sys.executable, str(MATERIALIZE_SCRIPT)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    materialize_gate_c_payloads_if_requested()
     node_ids = {n["id"] for n in graph_doc.get("nodes") or []}
     seeds = _load_json(FIXTURE_ROOT / "query_seeds.json")
     for task_id in (T004_TASK_ID, T005_TASK_ID):

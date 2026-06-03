@@ -10,7 +10,7 @@
 | `tmp/diary/` | 草稿、排期对比、未冻结评价稿（替代原 `docs/diary/tmp/` 习惯） |
 | `tmp/jsonPKmermaid-runs/` | **新** jsonPKmermaid 批跑输出（旧路径见下） |
 | `tmp/staging/` | Rubric 演示、一次性 JSON/脚本试验 |
-| `tmp/portfolio-rag-demo/` | Portfolio W5：sync 轮询 JSON、五问 curl/sources、自查 SQL 片段（RUNBOOK · `PORTFOLIO_RAG_EVIDENCE_DIR`） |
+| `tmp/portfolio-rag-demo/` | Portfolio W5 留证 · R7 脚本 [`portfolio-rag-demo/run-r7-backend-curl.sh`](portfolio-rag-demo/run-r7-backend-curl.sh) · [`R7-backend-curl-README.md`](portfolio-rag-demo/R7-backend-curl-README.md) |
 | `tmp/delivery/` | 本地 SDD/TDD 交付包副本（可选） |
 
 ## 与 `docs/` 黑名单的关系
