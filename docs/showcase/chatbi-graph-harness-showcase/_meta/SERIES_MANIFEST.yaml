@@ -49,4 +49,5 @@ volumes:
   - vol: "90"
     slug: vol-90-portfolio
     title: 投递与面试短稿
-    status: stub
+    status: compiled
+    draft_version: v0.10

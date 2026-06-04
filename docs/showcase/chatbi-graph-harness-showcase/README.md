@@ -35,7 +35,7 @@
 | 03 | [`vol-03-cross-cutting/`](vol-03-cross-cutting/README.md) | `compiled` | Harness / CI / 架构横切 |
 | 04 | [`vol-04-p1/`](vol-04-p1/README.md) | `planned` | Graph MVP（未开工） |
 | 05 | [`vol-05-roadmap-horizon/`](vol-05-roadmap-horizon/README.md) | `stub` | P2/P3 远景 |
-| 90 | [`vol-90-portfolio/`](vol-90-portfolio/README.md) | `stub` | 投递 / 面试短稿 |
+| 90 | [`vol-90-portfolio/`](vol-90-portfolio/README.md) | `compiled` · **v0.10** | 投递 / 面试短稿 |
 
 ---
 
@@ -58,3 +58,4 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-04 | 系列骨架与卷册大纲落盘 |
+| 2026-06-04 | vol-01/02 正文 compiled · vol-90 短稿 v0.10 · `_meta/TIMELINE` 同步 |
