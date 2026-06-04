@@ -1155,6 +1155,8 @@ def chat_suggested_questions() -> JSONResponse:
                 "冷/温/热 和 架构三层 区别？",
                 "简单介绍下刘新宁",
                 "AI Ink Brain 的架构是怎样的",
+                "统计 agent_info 表里有多少条数据",
+                "按日期统计最近 7 天的订单数量",
             ],
         }
     )
