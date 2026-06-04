@@ -1,10 +1,12 @@
 # Task：ChatBI Graph P0 地基 — 共享层抽取 + State/边表草案 + 骨架路由（单 Loop）
 
-> **状态**：`active`（30 已交付 · **40 自检完成** · 待 **50** + 合并前 pytest 全绿）  
+> **状态**：`done（2026-06-04 · PR #107 merged · 50 pass-with-notes）`  
 > **Task-P0**：对齐 [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](../spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) **§4A** · **§10 Task-P0**  
 > **冻结决策**：[`SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md`](../spec/research/SPEC-Research-SelfChain-vs-LangGraph-v1_zh.md) **§4.3**（D-1～D-5）  
-> **关联图谱**：`docs/_tech_graph/00_main.ai.md`（增量指针）；待建 `10_flow_agent_graph.ai.md`（30 帽落盘）  
-> **审查**：R1 [`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md) · R2 [`task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md)
+> **关联图谱**：`docs/_tech_graph/00_main.ai.md`（Q-8 路由已登记 `_manifest`）；`10_flow_agent_graph.ai.md` **defer P1 Task-B**  
+> **审查**：R1 [`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md) · R2 [`task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md`](../harness/reviews/task_chatbi_graph_p0_foundation_v1_audit_R2_20260603.md)  
+> **50 复检**：[`reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md`](../reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md)  
+> **合并**：PR [#106](https://github.com/Cyning12/ai-ink-brain-api-python/pull/106) 基线闸 · PR [#107](https://github.com/Cyning12/ai-ink-brain-api-python/pull/107) P0 实现 · `main@f53327a`
 
 ---
 
@@ -135,15 +137,15 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 
 > 对齐 Plan SPEC **§4A.3** Done 清单 + R1 建议（边表单测 + runner smoke）。
 
-- [ ] `agent.py` 行数明显下降；`FailureTypeHandler` 等已迁出；**旧 Unified 行为无回归**
-- [ ] `chatbi_events` / models / failure 可被 Graph 与 Agent **共用**
-- [ ] `ChatBIState` + 边表草案；Graph 侧 Intent 超时走 **方案 A**（legacy 边保留 v1 fallback）
-- [ ] Graph 路由 **已注册、可调用**（Q-8：`/api/py/unified/chat/graph` · `.../graph/stream`；stub 响应即可）；**不要求** 与旧 Agent parity
-- [ ] `_manifest` 登记新端点；`_contract_manifest` / `tech_graph_contract_check` **仍绿**
-- [ ] 边表单测 + `api/graph/runner` smoke（`test_strategy: required` · 先测后实现 red-green）
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿（本地）
-- [ ] PR 上 **`pytest` workflow 全绿**（与 `.github/workflows/pytest.yml` Required check 一致）
-- [ ] **未** 修改 `unified_chat.py` 行为；**未** 做 P1 clarify/plan 上图
+- [x] `agent.py` 行数明显下降；`FailureTypeHandler` 等已迁出；**旧 Unified 行为无回归**
+- [x] `chatbi_events` / models / failure 可被 Graph 与 Agent **共用**
+- [x] `ChatBIState` + 边表草案；Graph 侧 Intent 超时走 **方案 A**（legacy 边保留 v1 fallback）
+- [x] Graph 路由 **已注册、可调用**（Q-8：`/api/py/unified/chat/graph` · `.../graph/stream`；stub 响应即可）；**不要求** 与旧 Agent parity
+- [x] `_manifest` 登记新端点；`_contract_manifest` / `tech_graph_contract_check` **仍绿**（#106 修 `label` 后 main 绿）
+- [x] 边表单测 + `api/graph/runner` smoke（`test_strategy: required` · 先测后实现 red-green）
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿（main · 2026-06-04 · 323 passed）
+- [x] PR 上 **`pytest` workflow 全绿**（#106+#107 CI）
+- [x] **未** 修改 `unified_chat.py` 行为；**未** 做 P1 clarify/plan 上图
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md`）。
 
@@ -242,6 +244,17 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 
 **40 结论**：P0 范围自检 **通过**；**全集 pytest 未绿** → 合并前须人决策（修 v3 / 拆 PR / 确认 CI 豁免策略）。
 
+#### 关账补记（2026-06-04 · main 已合 #107）
+
+| 项 | 结果 |
+| --- | --- |
+| 50 复检 | **pass-with-notes** · [`reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md`](../reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md) |
+| 基线闸 | PR **#106** `task_chatbi_baseline_merge_gate_v1` · v3 plan 十测 + contract `label` |
+| 合并 | PR **#107** `f53327a` |
+| main pytest | **323 passed**（2026-06-04 本地复跑） |
+
+**Harness 关账**：无新增 diary/RUNBOOK（P0 无生产运维步骤 · D-4 前端 **否**）。
+
 ---
 
 ## 10. SPEC 待确认清单（SDD §4 · 已冻结）
@@ -266,5 +279,7 @@ ChatBI V2 `ChatBIAgent.run` 与 Unified Chat 编排堆叠在 `api/agent.py`（�
 | 2026-06-03 | **按审查 R1 回填**（`task_chatbi_graph_p0_foundation_v1_audit_R1_20260603.md`）：B-2 §10 冻结 · B-3 `## 验收标准`/`## 失败路径` · B-4 Delta · validate 对齐；B-1 待人签闸 |
 | 2026-06-03 | 人签 `HG-TASK-DRAFT` · `HG-AUDIT-R1` → `approved`（R2 后 · 单独 commit） |
 | 2026-06-03 | 30 实现 `b43ae3e` · 40 自检回填 `### 自检结论（执行者）` |
+| 2026-06-03 | 50 复检 · [`reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md`](../reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md) |
+| 2026-06-04 | PR #106+#107 合 main · Harness 关账 · `git mv` → `done/` |
 
-**下一棒**：**50 独立复检**（`test_strategy: required` · `reinspect_results/`）。
+**下一棒**：**P1 Task-B**（Graph MVP · intent→tool 环）— 见 [`SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md`](../spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md) §10.2。
