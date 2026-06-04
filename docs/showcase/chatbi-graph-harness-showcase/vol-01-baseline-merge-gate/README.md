@@ -17,8 +17,8 @@ layer: L2-showcase
 
 | # | 文件 | 大纲要点 | 状态 |
 | ---: | --- | --- | --- |
-| 01 | [01-context-50-option-b.md](01-context-50-option-b.md) | P0 50 复检 · 选 B · 两 PR 顺序 | 待编写 |
-| 02 | [02-problem-two-reds.md](02-problem-two-reds.md) | 10 测名单 · contract label 漂移 | 待编写 |
+| 01 | [01-context-50-option-b.md](01-context-50-option-b.md) | P0 50 复检 · 选 B · 两 PR 顺序 | 已完成 |
+| 02 | [02-problem-two-reds.md](02-problem-two-reds.md) | 10 测名单 · contract label 漂移 | 已完成 |
 | 03 | [03-harness-loop.md](03-harness-loop.md) | 10→22→30→40→50 · human_gate | 待编写 |
 | 04 | [04-technical-fix.md](04-technical-fix.md) | conftest 0.6 · clarify `on` · manifest | 待编写 |
 | 05 | [05-human-acceptance.md](05-human-acceptance.md) | 能/不能感受到什么 | 待编写 |
