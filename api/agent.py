@@ -447,7 +447,12 @@ class ChatBIAgent:
 
         # P2 延伸 / 方案 B：即将走 P1-4 澄清短路时，G2 的 router.decision.final_mode 须与意图候选一致，
         # 不得沿用「已切到 fallback 工具」的 step1_mode（常见 rag），否则 Timeline 像已转 RAG 却无任何工具执行。
-        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in ("1", "true", "yes")
+        clarify_gate = os.getenv("CHATBI_V3_LOW_CONFIDENCE_CLARIFY", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
         from .chatbi_plan_token import (
             mint_clarify_plan_bypass_token,
             plan_preview_confirm_enabled,
