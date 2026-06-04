@@ -30,7 +30,7 @@ layer: L2-showcase
 | 02 | [02-intent-card-draft.md](02-intent-card-draft.md) | 轮 0 意图卡草案 | 已完成 |
 | 03 | [03-human-visible-delta.md](03-human-visible-delta.md) | 人类可见变化预览 | 已完成 |
 | 04 | [04-harness-path-preview.md](04-harness-path-preview.md) | 预计帽链 · 跨仓 | 已完成 |
-| 05 | [05-roadmap-spec-links.md](05-roadmap-spec-links.md) | §5.1～5.5 索引 | 待编写 |
+| 05 | [05-roadmap-spec-links.md](05-roadmap-spec-links.md) | §5.1～5.5 索引 | 已完成 |
 | 06 | `06-evidence-index.md` | PR · 证据 | **Task-B 关账后** |
 
 ## 建议读序
