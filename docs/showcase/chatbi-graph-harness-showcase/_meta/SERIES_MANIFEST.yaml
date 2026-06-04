@@ -1,0 +1,52 @@
+# ChatBI Graph Harness 展示系列 · 机器可读索引
+# 真值层级：L1 task/reinspect > 本 manifest > 各卷叙事
+
+series_id: chatbi-graph-harness-showcase
+series_path: docs/showcase/chatbi-graph-harness-showcase
+layer: L2-showcase
+evidence_freeze_main: f53327a  # main 含 #106 + #107 合并点；后续 PR 合并后更新
+
+volumes:
+  - vol: "01"
+    slug: vol-01-baseline-merge-gate
+    title: 基线合并闸
+    status: done
+    source_prs: ["106"]
+    source_tasks:
+      - docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md
+    reinspect:
+      - docs/tasks/reinspect_results/reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md
+    merge_commit: 26e1c45
+
+  - vol: "02"
+    slug: vol-02-p0-foundation
+    title: Graph P0 地基
+    status: done
+    source_prs: ["107"]
+    source_tasks:
+      - docs/tasks/active/task_chatbi_graph_p0_foundation_v1.md
+    reinspect:
+      - docs/tasks/reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md
+    merge_commit: f53327a
+
+  - vol: "03"
+    slug: vol-03-cross-cutting
+    title: 横切 · Harness 与架构
+    status: compiled
+
+  - vol: "04"
+    slug: vol-04-p1
+    title: P1 Graph MVP
+    status: planned
+    roadmap_ref: docs/spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md#5-p1--graph-mvp-核心与-d-2-新路由同期--task-b
+
+  - vol: "05"
+    slug: vol-05-roadmap-horizon
+    title: P2/P3 远景
+    status: stub
+    roadmap_ref: docs/spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md
+
+  - vol: "90"
+    slug: vol-90-portfolio
+    title: 投递与面试短稿
+    status: stub
