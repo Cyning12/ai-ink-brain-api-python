@@ -21,8 +21,8 @@ layer: L2-showcase
 | 02 | [02-problem-two-reds.md](02-problem-two-reds.md) | 10 测名单 · contract label 漂移 | 已完成 |
 | 03 | [03-harness-loop.md](03-harness-loop.md) | 10→22→30→40→50 · human_gate | 已完成 |
 | 04 | [04-technical-fix.md](04-technical-fix.md) | conftest 0.6 · clarify `on` · manifest | 已完成 |
-| 05 | [05-human-acceptance.md](05-human-acceptance.md) | 能/不能感受到什么 | 待编写 |
-| 06 | [06-evidence-index.md](06-evidence-index.md) | 命令 · PR · reinspect 摘录 | 待编写 |
+| 05 | [05-human-acceptance.md](05-human-acceptance.md) | 能/不能感受到什么 | 已完成 |
+| 06 | [06-evidence-index.md](06-evidence-index.md) | 命令 · PR · reinspect 摘录 | 已完成 |
 
 ## 非范围
 
