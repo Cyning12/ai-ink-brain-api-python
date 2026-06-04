@@ -102,6 +102,15 @@
       "pytest_markers": ["unit"],
       "test_paths": ["tests/test_supabase_http_retry.py"],
       "notes": "Supabase HTTP 重试耗尽；见 api/rag_env.py"
+    },
+    {
+      "id": "FP-AGENT-LATENCY-V1-FALLBACK",
+      "failure_path_ref": "docs/tasks/done/task_chatbi_intent_hints_step1_v1.md#failure_paths",
+      "error_codes": ["AGENT_MAX_LATENCY_MS"],
+      "pytest_markers": ["unit"],
+      "test_paths": ["tests/test_unified_chat_backend_v2_agent.py"],
+      "graph_nodes_optional": ["C1"],
+      "notes": "首轮 intent 耗时超过 AGENT_MAX_LATENCY_MS 且尚未执行工具时降级 intent_router.decide_intent(V1)；须 module 级 import decide_intent_v1；见 test_agent_decide_intent_v1_import_bound、test_v2_agent_latency_exceeded_v1_fallback_rag"
     }
   ]
 }

@@ -9,6 +9,7 @@ from typing import Any, Literal
 from .agent_memory import AgentMemoryStore
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
 from .intent_agent import IntentDecision, decide_intent_v2
+from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
 from .text2sql_core import is_text2sql_intent
 from .text2sql_grounding import grounding_prefix_for_intent

@@ -207,9 +207,10 @@ pytest -m intent_eval -q
 | --- | --- | --- | --- | --- | --- | --- |
 | F1 | `fp-step1-yaml-corrupt` | YAML 语法错误 / 根非 dict | loader 返回 `None` · 不注入 · **等同现行** | 是 | 可能仍误路由 direct（与 SPEC F1 一致） | loader 单测 · 坏文件 fixture |
 | F2 | `fp-step1-llm-still-direct` | Intent LLM 仍高置信 `direct_answer`（Prompt-only 未 100%） | 无仲裁 · 通史/不知人名 | 是（U2） | Q4/人名仍 FAIL 五问 | stub 增量用例 · 可选 `intent_eval` |
-| F3 | `fp-step1-rag-empty-corpus` | 向量库无 resume / `RAG_RETRIEVE_EMPTY` | rag 空结果 · **非 Step1 Intent 范围** | 是 | 检索空 · 查 ingest/sync | RUNBOOK §2 sync 硬检查 |
+| F3 | `fp-step1-rag-empty-corpus` | 向量库无 resume / `RAG_RETRIEVE_EMPTY` | rag 空结果 · **非 Step1 Intent 范围** | 是 | 检索空 · 查 ingest/sync | RUNBOOK §2 sync 硬检查 · manifest_exempt |
 | F4 | `fp-step1-scope-creep` | PR 含 `api/intent_router.py` 仲裁 / `api/graph/*` / Step2 逻辑 | 22/50 **拒签收** · 拆 PR | 否 | 无 | `git diff origin/main...HEAD` |
 | F5 | `fp-step1-eval-regression` | 追加用例导致既有 intent stub 回归 | CI pytest **fail** | 是 | 无 | 全集 pytest |
+| F6 | `FP-AGENT-LATENCY-V1-FALLBACK` | intent 耗时 > `AGENT_MAX_LATENCY_MS` 且尚未执行工具 | 降级 `intent_router.decide_intent`(V1)；缺 `decide_intent_v1` import → agent stage 失败 | 是 | RUNBOOK Q4 等探针 error | `test_agent_decide_intent_v1_import_bound` · `test_v2_agent_latency_exceeded_v1_fallback_rag` |
 
 ---
 

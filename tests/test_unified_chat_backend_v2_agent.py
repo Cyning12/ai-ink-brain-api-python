@@ -2077,3 +2077,99 @@ def test_v3_rag_plan_preview_sse_parity(monkeypatch: pytest.MonkeyPatch):
         assert "plan_execution_token" in text
         assert "agent.clarify" in text
 
+
+def test_agent_decide_intent_v1_import_bound():
+    """回归：agent 软超时降级须能解析 decide_intent_v1（f53327a 曾删 import 留调用）。"""
+    import api.agent as agent_module
+
+    fn = getattr(agent_module, "decide_intent_v1", None)
+    assert callable(fn), "api/agent.py 须 from .intent_router import decide_intent as decide_intent_v1"
+
+
+def test_v2_agent_latency_exceeded_v1_fallback_rag(monkeypatch: pytest.MonkeyPatch):
+    """intent 慢于 AGENT_MAX_LATENCY_MS 时走 V1 降级并完成 RAG，不得 NameError。"""
+    monkeypatch.setenv("CHATBI_USE_AGENT", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    monkeypatch.setenv("AGENT_MAX_LATENCY_MS", "1")
+
+    index = _reload_api_index(monkeypatch)
+    import api.unified_chat as unified_chat
+    import api.agent as agent_module
+
+    async def _rag_ok_exec(
+        *,
+        query: str,
+        history: list[dict[str, Any]] | None = None,
+        debug_llm_prompts: bool = False,
+    ) -> ToolResult:  # noqa: ANN001
+        _ = (query, history, debug_llm_prompts)
+        return ToolResult(
+            success=True,
+            data={"answer": "resume rag ok", "hits": []},
+            error=None,
+            error_code=None,
+            error_stage=None,
+            latency_ms=2,
+        )
+
+    class _DummyRegistry:
+        def __init__(self, tools: list[Tool]) -> None:
+            self._tools = tools
+
+        def list_tools(self) -> list[Tool]:
+            return self._tools
+
+    dummy_tools = [
+        _make_tool("direct_answer", _rag_ok_exec),
+        _make_tool("rag_search", _rag_ok_exec),
+        _make_tool("text2sql_query", _rag_ok_exec),
+    ]
+    monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+
+    async def _slow_decide_intent_v2(
+        *,
+        query: str,
+        history: list[dict[str, Any]],
+        tools: list[Tool],
+        min_confidence: float,
+        timeout: float,
+        **kwargs: Any,
+    ) -> IntentDecision:  # noqa: ANN001
+        _ = (query, history, tools, min_confidence, timeout, kwargs)
+        await asyncio.sleep(0.05)
+        return IntentDecision(
+            tool="rag_search",
+            mode="rag",
+            reasoning="Portfolio 简历与项目文稿，须检索 resume/*",
+            reasoning_full="Portfolio 简历与项目文稿，须检索 resume/*",
+            confidence=0.92,
+            fallback="direct_answer",
+            structured_signals=StructuredSignals(llm_prefers_sql=False, has_aggregation_signals=False),
+            raw_response={"used": "stub_slow_intent"},
+        )
+
+    monkeypatch.setattr(agent_module, "decide_intent_v2", _slow_decide_intent_v2)
+
+    client = TestClient(index.app)
+    res = client.post(
+        "/api/py/unified/chat",
+        headers={"Authorization": "Bearer api-key-123"},
+        json={"query": "11 年经历里 AI Coding 相关成果？"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data.get("ok") is True
+
+    events = data.get("events") or []
+    err_msgs = [
+        str((e.get("payload") or {}).get("message") or "")
+        for e in events
+        if e.get("type") == "error"
+    ]
+    assert not any("decide_intent_v1" in m for m in err_msgs)
+
+    final_evt = next(e for e in events if e.get("type") == "agent.final")
+    assert final_evt["payload"]["tools_used"] == ["rag_search"]
+    ans_evt = next(e for e in events if e.get("type") == "assistant.message")
+    assert "resume rag ok" in ans_evt["payload"]["content"]
+
