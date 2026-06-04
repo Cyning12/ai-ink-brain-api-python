@@ -164,6 +164,16 @@
       "anchors": [],
       "from": "E",
       "graph_id": "00_main",
+      "label": "GET /api/py/chat/suggested-questions",
+      "mark": "->",
+      "sync": true,
+      "to": "SQ",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
       "label": "POST /api/py/unified/chat",
       "mark": "->",
       "sync": true,
@@ -2199,7 +2209,7 @@
     }
   ],
   "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
-  "generated_at": "2026-05-18T07:07:16Z",
+  "generated_at": "2026-06-04T08:24:47Z",
   "graphs": [
     {
       "id": "00_main",
@@ -2787,6 +2797,11 @@
       "graph_id": "11_flow_text2sql",
       "id": "SPEC",
       "label": ">docs/text2sql/v1/sql/supabase_init.sql"
+    },
+    {
+      "graph_id": "00_main",
+      "id": "SQ",
+      "label": "Suggested Questions"
     },
     {
       "graph_id": "14_runtime_observability",

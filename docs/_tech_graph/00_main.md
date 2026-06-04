@@ -10,6 +10,7 @@ flowchart TD
     E -->|Unified Stream| U2[SSE 流式<br/>/api/py/unified/chat/stream<br/>api/index.py#L576 unified_chat_stream_route<br/>api/unified_chat.py::handle_unified_chat_stream]
     E -->|遗留 Chat| C1[RAG Chat<br/>/api/py/chat<br/>api/index.py#L591 chat]
     E -->|History| H1[Chat History<br/>/api/py/chat/history<br/>api/index.py chat_history]
+    E -->|Suggested| SQ[Suggested Questions<br/>/api/py/chat/suggested-questions<br/>api/index.py chat_suggested_questions]
     E -->|ChatBI verify| CV[Access Verify<br/>GET /api/py/chatbi/access/verify<br/>api/index.py chatbi_access_verify]
     E -->|Health| HL[Health<br/>/api/py/health<br/>api/index.py health]
     E -->|Chain Chat| CH[Chain Timeline<br/>/api/py/chain/chat<br/>api/index.py#L546 chain_chat_route<br/>api/chain_chat.py::handle_chain_chat]
