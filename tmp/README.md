@@ -7,7 +7,7 @@
 
 | 路径 | 用途 |
 |------|------|
-| `tmp/diary/` | 草稿、排期对比、未冻结评价稿（替代原 `docs/diary/tmp/` 习惯） |
+| `tmp/diary/` | 草稿、排期对比、未冻结评价稿；**ChatBI 访客 token 脚本** `local_chatbi_access_token_gen.py`（pointer：`docs/diary/POINTER_local_chatbi_access_token_gen.md`） |
 | `tmp/jsonPKmermaid-runs/` | **新** jsonPKmermaid 批跑输出（旧路径见下） |
 | `tmp/staging/` | Rubric 演示、一次性 JSON/脚本试验 |
 | `tmp/portfolio-rag-demo/` | Portfolio W5 留证 · R7 脚本 [`portfolio-rag-demo/run-r7-backend-curl.sh`](portfolio-rag-demo/run-r7-backend-curl.sh) · [`R7-backend-curl-README.md`](portfolio-rag-demo/R7-backend-curl-README.md) |
