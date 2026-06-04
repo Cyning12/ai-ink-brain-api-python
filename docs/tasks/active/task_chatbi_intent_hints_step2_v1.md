@@ -1,6 +1,6 @@
 # Task：ChatBI Intent Hints — Step 2（C-mid · router 同步 + LLM 仲裁）
 
-> **状态**：`active（2026-06-04 · 10 帽落盘 · HG-TASK-DRAFT pending）`  
+> **状态**：`active（2026-06-04 · 10 帽落盘 · HG-TASK-DRAFT approved）`  
 > **Epic**：ChatBI Intent Hints · **U2 · Step 2**  
 > **时间门槛**：[`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 — **6/9 sprint 建议合 main**（优先于 Step3）  
 > **关联图谱**：`api/intent_hints.py` · `api/intent_router.py` · `api/intent_agent.py` · `api/agent.py` · **无** `api/graph/*`  
@@ -32,7 +32,7 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | ------------- | ------ | ----------- | ---- |
-| HG-TASK-DRAFT | pending | 22-R1, 30 | 10 帽初稿 · 待人签 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | 10 帽初稿 · 2026-06-04 人签 |
 | HG-AUDIT-R1 | pending | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
 | HG-REINSPECT | pending | done, 合并 PR | 50 落盘 `reinspect_results/` 后人签 |
 
@@ -210,3 +210,4 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-04 | 10 帽：U2 Step2 task 初稿 · Q-2 resolved · HG-TASK-DRAFT pending |
+| 2026-06-04 | 人签 HG-TASK-DRAFT approved（gate 独立 commit） |
