@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
-from .intent_agent import IntentDecision, decide_intent_v2
+from .intent_agent import IntentDecision, decide_intent_v2, build_intent_path_obs
 from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
 from .text2sql_core import is_text2sql_intent
@@ -293,7 +293,10 @@ class ChatBIAgent:
                         "candidate_mode": _cand_mode,
                         "final_mode": _final_mode,
                         "rule_hits": [],
-                        "evidence": {"agent_reasoning": intent.reasoning_full or intent.reasoning},
+                        "evidence": {
+                            "agent_reasoning": intent.reasoning_full or intent.reasoning,
+                            **build_intent_path_obs(intent.raw_response),
+                        },
                         "fallback": intent.fallback,
                     },
                 )
@@ -596,6 +599,7 @@ class ChatBIAgent:
 
         for step_idx in range(1, max_steps + 1):
             elapsed_ms = int((time.perf_counter() - loop_started) * 1000)
+            agent_step_routing = "intent"
             # 软超时 + V1 覆盖：仅允许在「尚未执行过任何工具」时生效（len(tools_used)==0）。
             # 若在每步开头无差别覆盖，则首轮意图+rag 已超过 AGENT_MAX_LATENCY_MS 后，后续步会反复
             # 把 current_tool 打回 V1 的 rag（日记类 query 常见），从而覆盖 FailureTypeHandler 给出的
@@ -612,6 +616,7 @@ class ChatBIAgent:
                     current_tool = "direct_answer"
                 current_mode = self._tool_to_mode(current_tool)
                 current_thought = "Agent 超时，降级到 V1 规则路由。"
+                agent_step_routing = "agent_soft_timeout_v1"
 
             tool = self._select_tool(current_tool)
             call_history: list[dict[str, Any]] = turn_history[-6:]
@@ -636,6 +641,12 @@ class ChatBIAgent:
                             "selected_tool": current_tool,
                             "mode": current_mode,
                             "confidence": step1_conf if step_idx == 1 else 1.0,
+                            "agent_step_routing": agent_step_routing,
+                            **(
+                                build_intent_path_obs(intent.raw_response)
+                                if step_idx == 1 and intent is not None
+                                else build_intent_path_obs(None)
+                            ),
                         },
                     )
                 )

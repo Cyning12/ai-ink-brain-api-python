@@ -41,7 +41,7 @@ from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .text2sql_grounding import build_text2sql_grounding_dict
 from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
-from .intent_agent import IntentDecision
+from .intent_agent import IntentDecision, build_intent_path_obs
 from .intent_router import decide_intent
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .agent import AgentRunView, ChatBIAgent
@@ -119,9 +119,21 @@ def _unified_prompt_guard_short_circuit_events(
     )
 
 
+def _router_agent_evidence(intent_decision: IntentDecision | None) -> dict[str, Any]:
+    """router.decision.evidence：Intent reasoning + 路径可观测（U1.5 重试 / Step2 仲裁）。"""
+    out: dict[str, Any] = {
+        "agent_reasoning": intent_decision.reasoning_full if intent_decision else "",
+    }
+    raw = intent_decision.raw_response if intent_decision is not None else None
+    out.update(build_intent_path_obs(raw if isinstance(raw, dict) else None))
+    return out
+
+
 def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: bool) -> dict[str, Any]:
-    """agent.intent 的 payload：契约要求键齐全；cache 可观测字段仅在 debug_router 时取自 raw_response。"""
-    rr: dict[str, Any] = intent_decision.raw_response if debug_router else {}
+    """agent.intent 的 payload：路径/仲裁字段始终透出；cache 哈希等仅在 debug_router。"""
+    rr: dict[str, Any] = (
+        dict(intent_decision.raw_response) if isinstance(intent_decision.raw_response, dict) else {}
+    )
     cache_raw = rr.get("cache")
     cache_out = cache_raw if isinstance(cache_raw, str) and cache_raw in ("hit", "miss") else None
     h_raw = rr.get("cache_key_hash")
@@ -130,6 +142,9 @@ def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: 
     lat_out: int | None = None
     if isinstance(lat_raw, (int, float)) and math.isfinite(float(lat_raw)):
         lat_out = int(round(float(lat_raw)))
+    if not debug_router:
+        hash_out = None
+
     return {
         "tool": intent_decision.tool,
         "mode": intent_decision.mode,
@@ -139,6 +154,7 @@ def _agent_intent_obs_payload(intent_decision: IntentDecision, *, debug_router: 
         "cache": cache_out,
         "cache_key_hash": hash_out,
         "latency_ms": lat_out,
+        **build_intent_path_obs(rr),
     }
 
 
@@ -217,6 +233,9 @@ _CONTRACT_ANCHOR_AGENT_INTENT_KEYS = _event(
         "cache": "hit",
         "cache_key_hash": "",
         "latency_ms": 0,
+        "intent_path": "llm",
+        "intent_attempt": 1,
+        "hints_arbitration": None,
     },
 )
 
@@ -913,7 +932,7 @@ async def handle_unified_chat(
                     "candidate_mode": candidate_mode,
                     "final_mode": final_mode,
                     "rule_hits": [],
-                    "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                    "evidence": _router_agent_evidence(intent_decision),
                     "fallback": intent_decision.fallback if intent_decision else None,
                 },
             )
@@ -2266,7 +2285,7 @@ async def handle_unified_chat_stream(
                                     "candidate_mode": candidate_mode,
                                     "final_mode": final_mode,
                                     "rule_hits": [],
-                                    "evidence": {"agent_reasoning": intent_decision.reasoning_full if intent_decision else ""},
+                                    "evidence": _router_agent_evidence(intent_decision),
                                     "fallback": intent_decision.fallback if intent_decision else None,
                                 },
                             ),
