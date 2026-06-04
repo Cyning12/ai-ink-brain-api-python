@@ -104,7 +104,7 @@ async def handle_text2sql_chat(
     _t2s_debug(f"query={query!r} retrieved={len(retrieved)} topk={topk}")
 
     api_key = os.getenv("SILICONFLOW_API_KEY", "").strip()
-    chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+    chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
     oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
 
     sql_prompt = build_sql_prompt(

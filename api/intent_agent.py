@@ -412,7 +412,7 @@ user: 那需要查数据库吗
 }}
 """
 
-    intent_model = os.getenv("INTENT_LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+    intent_model = os.getenv("INTENT_LLM_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
     intent_messages: list[dict[str, str]] = [
         {
             "role": "system",

@@ -54,7 +54,7 @@
 | `SILICONFLOW_BASE_URL` | OpenAI 兼容 Base URL | 可选 | `api/index.py`（`SILICONFLOW_BASE`）；`api/rag_env.py:siliconflow_base()` | 默认 `https://api.siliconflow.cn/v1` | 与项目无关 |
 | `SILICONFLOW_EMBEDDING_MODEL` | Embedding 模型名 | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_model()` | **空字符串会被视为未设置**：回退默认 `Qwen/Qwen3-Embedding-0.6B`（避免 CI/环境变量显式空值导致上游 400） | 影响向量空间；需与入库一致 |
 | `SILICONFLOW_EMBEDDING_DIMENSIONS` | Embedding 输出维度（Qwen3 需要） | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_dimensions()` | 默认 `1024`；当模型名包含 `Qwen3-Embedding` 时传给 embeddings API | **必须与** `public.documents.embedding vector(N)` **一致**（默认 N=1024） |
-| `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V3` | 与向量维度无关 |
+| `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V4-Pro` | 与向量维度无关 |
 | `SYNC_ADMIN_SECRET` | admin/sync Bearer secret（与前端 BFF 同值） | **推荐 · portfolio 真值** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空且无废弃 fallback 时：鉴权接口 500 | 与项目无关 |
 | `CHAT_API_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 仅当未设 `SYNC_ADMIN_SECRET` 时读取 | **勿**在新环境配置 |
 | `NEXT_PUBLIC_ADMIN_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 前端 **不再**使用；仅兼容旧 `.env` | **勿**在新环境配置 |
@@ -74,7 +74,7 @@
 | `CHATBI_ACCESS_TOKEN_PEPPER` | 可选全局 pepper：参与 `SHA256(pepper_bytes + 明文 token)`，须与运维本地脚本 `docs/diary/local_chatbi_access_token_gen.py` 及 Supabase 插入的 `key_hash` **一致** | 可选 | `api/chatbi_access_hash.py`、`api/chatbi_principal.py`；本地脚本 `docs/diary/local_chatbi_access_token_gen.py` | 留空则 pepper 为空字节串；**勿**把 pepper 提交进 Git | 与项目无关 |
 | `CHATBI_AGENT_DB_PERSIST_TIMEOUT_S` | V2 Agent 每轮结束写 `rag_conversation_logs` 的 **最大等待秒数**（在发出 SSE `done` 之前 `await`） | 可选 | `api/unified_chat.py:_await_persist_chatbi_v2_agent_log()` | 默认 `12`；范围 clamp 为 `1`～`120`；超时则 `done.persist.ok=false` 且先发 `error`（`stage=agent_db`） | 与项目无关 |
 | `CHATBI_V2_INTENT_LLM` | V2 意图是否调用 SiliconFlow LLM | 可选 | `api/intent_agent.py`；`tests/test_intent_agent_accuracy.py`、`tests/benchmark_intent_latency.py` 等 | 默认 `true`；`false` 为纯启发式/V1 超时降级，**不创建上游 client（CI 零外呼）** | 与项目无关 |
-| `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `Qwen/Qwen2.5-7B-Instruct` | 与项目无关 |
+| `INTENT_LLM_MODEL` | 意图识别所用 chat 模型名 | 可选 | `api/intent_agent.py` | 默认 `deepseek-ai/DeepSeek-V4-Pro` | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL` | 启用 60 条意图准确率 pytest（`@pytest.mark.intent_eval`） | 可选 | `tests/test_intent_agent_accuracy.py` | 不设为跳过；需密钥时配 `CHATBI_V2_INTENT_LLM=true` + `SILICONFLOW_API_KEY` | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL_OUT` | 评测结果 JSONL/同 stem CSV 输出路径 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `tests/_out/intent_accuracy.jsonl`。**相对路径**（推荐）：以 `ai-ink-brain-api-python` 仓库根为锚写 `tests/_out/foo.jsonl`；或以 `tests/` 为锚写 `_out/foo.jsonl`（与 pytest 启动目录无关） | 与项目无关 |
 | `CHATBI_V2_INTENT_EVAL_PROGRESS` | 60 条评测是否逐条打印开始/结束行 | 可选 | `tests/test_intent_agent_accuracy.py` | 默认 `true`；CI 内 `test_stub_eval_end_to_end_writes_exports` 强制 `false` | 与项目无关 |
@@ -111,7 +111,7 @@
 | `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` | Text2SQL **两段 LLM**（生成 SQL / 总结）共用的 **超时秒数**兜底 | 可选 | `api/tools.py::text2sql_execute`（`asyncio.wait_for`） | **未设**时代码默认 **`120.0`**；当 **`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S`** 已分别设置时，本变量仅作二者缺省时的回退 | 与项目无关 |
 | `CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` | `llm_generate_sql` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
 | `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` | `llm_summarize` 阶段 **timeout**（秒） | 可选 | `api/tools.py::text2sql_execute` | 未设时回退 **`CHATBI_TEXT2SQL_LLM_TIMEOUT_S`** → 再未设则代码默认 **`120.0`** | 与项目无关 |
-| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py::text2sql_execute` | **未设置或仅空白**时，与 **Intent** 默认一致（`INTENT_LLM_MODEL` 默认 `Qwen/Qwen2.5-7B-Instruct`，与 `api/intent_agent.py` 对齐） | 与项目无关 |
+| `CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` | Text2SQL **总结**阶段 chat 模型名（可选加速 / 降级） | 可选 | `api/tools.py::text2sql_execute` | **未设置或仅空白**时，与 **Intent** 默认一致（`INTENT_LLM_MODEL` 默认 `deepseek-ai/DeepSeek-V4-Pro`，与 `api/intent_agent.py` 对齐） | 与项目无关 |
 | `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN` | 多轮 `history_to_rewrite_block` 注入 `build_sql_prompt` 前的 **最大字符数**（超出保留尾部） | 可选 | `api/tools.py::text2sql_execute` | 默认 **`8000`**；`<=0` 表示不截断 | 与项目无关 |
 | `TEXT2SQL_SCHEMA_PREFETCH` | 写入/更新意图下是否在 LLM 生成前 **只读预取** `information_schema.columns` | 可选 | `api/text2sql_schema_prefetch.py::schema_prefetch_enabled()` | `0`/`false`/`no`/`off` 关闭；`1`/`true` 强制开启；**未设**时若已配置 **`TEXT2SQL_DATABASE_URL`** 则默认开启 | 依赖 `TEXT2SQL_DATABASE_URL` |
 | `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS` | 预取查询 `SET LOCAL statement_timeout`（毫秒） | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`8000`**；clamp `200..60000` | 与项目无关 |
