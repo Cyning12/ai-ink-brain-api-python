@@ -1365,7 +1365,7 @@ async def handle_unified_chat(
 
     if mode == "no_data":
         oai = openai_siliconflow_client()
-        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
         events.append(
             _event(
                 typ="tool.call.start",
@@ -1486,7 +1486,7 @@ async def handle_unified_chat(
         retrieved = filter_text2sql_retrieved(retrieved, principal=principal, policies=pols)
 
         oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
-        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
 
         events.append(
             _event(
@@ -1730,7 +1730,7 @@ async def handle_unified_chat(
 
     # ---- RAG branch (non-streaming v1) ----
     oai = openai_siliconflow_client()
-    chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+    chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
 
     # rewrite
     events.append(
@@ -2809,7 +2809,7 @@ async def handle_unified_chat_stream(
 
             if mode == "no_data":
                 oai = openai_siliconflow_client()
-                chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+                chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
                 yield _sse(
                     "chain",
                     _event(
@@ -2885,7 +2885,7 @@ async def handle_unified_chat_stream(
                 retrieved = filter_text2sql_retrieved(retrieved, principal=principal, policies=pols)
 
                 oai = OpenAI(api_key=os.getenv("SILICONFLOW_API_KEY", "").strip(), base_url=siliconflow_base())
-                chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+                chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
 
                 yield _sse(
                     "chain",
@@ -3009,7 +3009,7 @@ async def handle_unified_chat_stream(
 
             # ---- RAG branch (non-streaming answer v1) ----
             oai = openai_siliconflow_client()
-            chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+            chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
 
             # rewrite
             yield _sse("chain", _event(typ="tool.call.start", started_at=started_at, step_id="t_rewrite", payload={"tool": "rag.rewrite", "input": {"query": query}}))
