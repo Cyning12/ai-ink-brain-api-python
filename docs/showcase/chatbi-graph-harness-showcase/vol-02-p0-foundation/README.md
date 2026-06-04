@@ -21,9 +21,9 @@ layer: L2-showcase
 | 02 | [02-five-deliverables.md](02-five-deliverables.md) | P0 五步交付对照 | 已完成 |
 | 03 | [03-harness-loop.md](03-harness-loop.md) | R1/R2 · 50 · rebase 后全绿 | 已完成 |
 | 04 | [04-architecture-before-after.md](04-architecture-before-after.md) | 模块图 · agent 瘦身 | 已完成 |
-| 05 | [05-human-acceptance.md](05-human-acceptance.md) | curl stub · 287 pytest | 待编写 |
-| 06 | [06-ci-incident-drift.md](06-ci-incident-drift.md) | drift_check 红 → 99_spec | 待编写 |
-| 07 | [07-evidence-index.md](07-evidence-index.md) | PR · 专测 · 指针 | 待编写 |
+| 05 | [05-human-acceptance.md](05-human-acceptance.md) | curl stub · 287 pytest | 已完成 |
+| 06 | [06-ci-incident-drift.md](06-ci-incident-drift.md) | drift_check 红 → 99_spec | 已完成 |
+| 07 | [07-evidence-index.md](07-evidence-index.md) | PR · 专测 · 指针 | 已完成 |
 
 ## 非范围（P0）
 
