@@ -11,7 +11,8 @@ import time
 from dataclasses import dataclass, replace
 from typing import Any, Literal
 
-from openai import OpenAI
+from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
+from openai import APIStatusError
 
 from .intent_hints import build_intent_hints_prompt_block, load_resolved_hints
 from .intent_router import decide_intent as decide_intent_v1
@@ -350,6 +351,99 @@ def _effective_intent_llm_timeout_s(override: float) -> float:
     return max(0.5, min(120.0, float(override)))
 
 
+def _intent_llm_max_retries() -> int:
+    """Intent LLM 外呼最大尝试次数（含首次）；默认 3。"""
+    raw = (os.getenv("CHATBI_V2_INTENT_LLM_RETRIES") or "").strip()
+    if raw:
+        try:
+            return max(1, min(5, int(raw)))
+        except ValueError:
+            pass
+    return 3
+
+
+def _intent_llm_retry_backoff_s(attempt: int) -> float:
+    """第 attempt 次失败后的退避秒数（attempt 从 1 起）。"""
+    base = 0.15
+    raw = (os.getenv("CHATBI_V2_INTENT_LLM_RETRY_BACKOFF_S") or "").strip()
+    if raw:
+        try:
+            base = max(0.0, min(5.0, float(raw)))
+        except ValueError:
+            pass
+    return base * (2 ** max(0, attempt - 1))
+
+
+def _intent_llm_retry_timeout_factors() -> tuple[float, ...]:
+    """各轮单次 wait_for 相对首轮的系数；末项用于超出长度的后续轮次。"""
+    raw = (os.getenv("CHATBI_V2_INTENT_RETRY_TIMEOUT_FACTORS") or "").strip()
+    if raw:
+        try:
+            parsed = tuple(max(0.1, min(1.0, float(x.strip()))) for x in raw.split(",") if x.strip())
+            if parsed:
+                return parsed
+        except ValueError:
+            pass
+    return (1.0, 0.65, 0.4)
+
+
+def _intent_llm_timeout_s_for_attempt(base_timeout_s: float, attempt: int) -> float:
+    """重试轮次逐步缩短单次 wait_for：首轮全量，后续轮按系数递减。"""
+    factors = _intent_llm_retry_timeout_factors()
+    idx = min(max(attempt, 1) - 1, len(factors) - 1)
+    scaled = base_timeout_s * factors[idx]
+    return max(0.5, min(120.0, scaled))
+
+
+def _intent_llm_retryable(exc: BaseException) -> bool:
+    """仅瞬态/超时类错误可重试；JSON 解析与 tool 校验失败不重试。"""
+    if isinstance(exc, (asyncio.TimeoutError, APITimeoutError)):
+        return True
+    if isinstance(exc, (APIConnectionError, InternalServerError, RateLimitError)):
+        return True
+    if isinstance(exc, APIStatusError):
+        code = getattr(exc, "status_code", None)
+        return code in (429, 502, 503, 504)
+    return False
+
+
+async def _llm_decide_v2_with_retries(
+    *,
+    oai: OpenAI,
+    query: str,
+    history: list[dict[str, Any]],
+    tools: list[Tool],
+    timeout_s: float,
+    capture_prompts: bool = False,
+) -> tuple[dict[str, Any], list[dict[str, Any]] | None, dict[str, Any]]:
+    """包装 `_llm_decide_v2`：可重试错误最多 `CHATBI_V2_INTENT_LLM_RETRIES` 次，耗尽后抛 TimeoutError 走 V1。"""
+    max_retries = _intent_llm_max_retries()
+    last_retryable: BaseException | None = None
+    for attempt in range(1, max_retries + 1):
+        attempt_timeout_s = _intent_llm_timeout_s_for_attempt(timeout_s, attempt)
+        try:
+            raw_obj, intent_prompts = await _llm_decide_v2(
+                oai=oai,
+                query=query,
+                history=history,
+                tools=tools,
+                timeout_s=attempt_timeout_s,
+                capture_prompts=capture_prompts,
+            )
+            meta: dict[str, Any] = {"attempt": attempt, "timeout_s": attempt_timeout_s}
+            if attempt > 1:
+                meta["used"] = "llm_retry"
+            return raw_obj, intent_prompts, meta
+        except Exception as exc:  # noqa: BLE001
+            if not _intent_llm_retryable(exc) or attempt >= max_retries:
+                if _intent_llm_retryable(exc) and attempt >= max_retries:
+                    raise asyncio.TimeoutError from exc
+                raise
+            last_retryable = exc
+            await asyncio.sleep(_intent_llm_retry_backoff_s(attempt))
+    raise asyncio.TimeoutError from last_retryable
+
+
 def _heuristic_decide(query: str) -> tuple[ToolName, V1Mode, float, str]:
     # 轻量启发式：用于 LLM 不可用时保证功能可用
     if is_text2sql_intent(query):
@@ -442,7 +536,7 @@ async def decide_intent_v2(
                 return _return_cache_miss(decision)
 
             t_llm = _effective_intent_llm_timeout_s(timeout)
-            raw_obj, intent_prompts = await _llm_decide_v2(
+            raw_obj, intent_prompts, retry_meta = await _llm_decide_v2_with_retries(
                 oai=oai,
                 query=query,
                 history=hist,
@@ -463,6 +557,11 @@ async def decide_intent_v2(
             reasoning = str(reasoning_raw or "").strip() or "意图识别完成。"
             fallback_tool = _fallback_tool_by_low_confidence(tool_t) if conf < min_confidence else None
             raw_merged: dict[str, Any] = dict(raw_obj)
+            if retry_meta.get("used") == "llm_retry":
+                raw_merged["used"] = "llm_retry"
+                raw_merged["attempt"] = retry_meta.get("attempt")
+            if retry_meta.get("timeout_s") is not None:
+                raw_merged["timeout_s"] = retry_meta.get("timeout_s")
             if intent_prompts:
                 raw_merged["llm_prompts"] = intent_prompts
             decision2 = IntentDecision(
