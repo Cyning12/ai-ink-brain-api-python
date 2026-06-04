@@ -43,6 +43,9 @@ flowchart TD
   E --"GET /api/py/chat/history"--> H1[[Chat History]]
   // → api/index.py chat_history
 
+  E --"GET /api/py/chat/suggested-questions"--> SQ[[Suggested Questions]]
+  // → api/index.py chat_suggested_questions
+
   E --"GET /api/py/chatbi/access/verify"--> CV[[ChatBI Access Verify]]
   // → api/index.py chatbi_access_verify
 
@@ -101,12 +104,17 @@ flowchart TD
 - `POST /api/py/chain/chat` → `chain_chat_route`  // → `api/index.py::chain_chat_route`
 - `POST /api/py/chat` → `chat`  // → `api/index.py::chat`
 - `GET /api/py/chat/history` → `chat_history`  // → `api/index.py::chat_history`
+- `GET /api/py/chat/suggested-questions` → `chat_suggested_questions`  // → `api/index.py::chat_suggested_questions`
 - `GET /api/py/chatbi/access/verify` → `chatbi_access_verify`  // → `api/index.py::chatbi_access_verify`
 - `POST /api/py/code/query` → `code_query`  // → `api/index.py::code_query`
 - `POST /api/py/code/search` → `code_search`  // → `api/index.py::code_search`
 - `GET /api/py/health` → `health`  // → `api/index.py::health`
+- `GET /api/py/live` → `live`  // → `api/index.py::live`
+- `GET /api/py/ready` → `ready`  // → `api/index.py::ready`
 - `POST /api/py/text2sql/chat` → `text2sql_chat`  // → `api/index.py::text2sql_chat`
 - `POST /api/py/unified/chat` → `unified_chat_route`  // → `api/index.py::unified_chat_route`
+- `POST /api/py/unified/chat/graph` → `unified_chat_graph_route`  // → `api/index.py::unified_chat_graph_route`
+- `POST /api/py/unified/chat/graph/stream` → `unified_chat_graph_stream_route`  // → `api/index.py::unified_chat_graph_stream_route`
 - `POST /api/py/unified/chat/stream` → `unified_chat_stream_route`  // → `api/index.py::unified_chat_stream_route`
 
 #### Anchors（from manifest）

@@ -85,7 +85,7 @@ class ChatBIAgent:
         self._tools = {t.name: t for t in tools}
         self._memory = memory
         self._max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
-        self._max_latency_ms = max(1000, int(os.getenv("AGENT_MAX_LATENCY_MS", "15000")))
+        self._max_latency_ms = max(1000, int(os.getenv("AGENT_MAX_LATENCY_MS", "45000")))
         self._min_confidence = float(os.getenv("INTENT_MIN_CONFIDENCE", "0.6"))
 
     def _select_tool(self, tool_name: ToolName) -> Tool:

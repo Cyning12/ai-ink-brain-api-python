@@ -53,6 +53,15 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/api/py/chat/suggested-questions",
+      "handler": "chat_suggested_questions",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "chat_suggested_questions"
+      }
+    },
+    {
       "method": "POST",
       "path": "/api/py/chain/chat",
       "handler": "chain_chat_route",
