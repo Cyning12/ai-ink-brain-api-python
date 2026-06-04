@@ -259,6 +259,16 @@ curl -sS -X POST "$PY_API_URL/api/py/unified/chat" \
 
 术语纠偏见 `[GUIDE_冷温热层_对内术语_v1_zh.md](./GUIDE_冷温热层_对内术语_v1_zh.md)`。
 
+### §4.1 Intent Hints 补充问（Step1 · 不纳入 5/5 计数）
+
+> **状态（2026-06-04）**：Step1（#109）五问 **5/5 人验已通过**；本表 **不单独 reinspect 落盘**，仅作 Intent Hints / 人名路由 smoke 参考。U1.5 重试逻辑合 main 后，可与下表一并 spot-check。
+
+| # | 标准问句（chip 可粘贴） | 期望 `content/` 路径 | sources 主 `metadata.category` | 合格要点 |
+| --- | --- | --- | --- | --- |
+| **Q-INTENT** | 聊聊你对刘新宁的看法，他在 AI coding 岗位有什么优势。 | `resume/*` | **`resume`** | Intent → `rag_search`（非 `direct_answer`）；sources 含 `resume/cv-online.md` 或同类；回答含履历/优势要点（百果园 / Cursor / Ink 等 **至少一项**） |
+
+**负例（仍须 direct_answer）**：「解释一下量子计算，用通俗语言」→ 见 §4 **Q 表外** Step1 负例 smoke。
+
 ---
 
 ## §5 单问重试规则
@@ -353,6 +363,6 @@ cp "$PORTFOLIO_RAG_EVIDENCE_DIR/five-questions-results.md" "$DIARY_EVIDENCE/"
 | 2026-06-03 | 留证路径：本地默认 `**tmp/portfolio-rag-demo/`** · `PORTFOLIO_RAG_EVIDENCE_DIR` · diary 为冻结复制目标 |
 | 2026-06-03 | §1.3/§8：`SYNC_ADMIN_SECRET` 为 admin 真值；`CHAT_API_*` / `NEXT_PUBLIC_*` 标注废弃待删 |
 | 2026-06-03 | §1.3/§2/§3：history 与 sync 鉴权分离；401 排障；`ADMIN_TOKEN` 须来自 `.env` 的 `SYNC_ADMIN_SECRET` |
-| 2026-06-03 | §2：路径 B BFF（Cookie/Bearer）与路径 A 直连 Python；浏览器 202 但 curl 401 说明 |
+| 2026-06-04 | §4.1：Intent Hints Q-INTENT 补充问（Step1 五问已验 · 不单独落盘） |
 
 

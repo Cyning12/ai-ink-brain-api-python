@@ -39,7 +39,7 @@ few_shots:
     tool: rag_search
     reasoning: "Portfolio 简历与项目文稿，须检索 resume/*"
     confidence: 0.92
-  - query: "聊聊刘新宁在 AI coding 岗位有什么优势"
+  - query: "聊聊你对刘新宁的看法，他在 AI coding 岗位有什么优势。"
     tool: rag_search
     reasoning: "问站点演示者个人能力与履历，应查 resume 文稿"
     confidence: 0.91
