@@ -1142,3 +1142,20 @@ async def py_admin_ingest(
             status = 400
         return JSONResponse({"ok": False, "error": msg}, status_code=status)
 
+
+@app.get("/api/py/chat/suggested-questions")
+def chat_suggested_questions() -> JSONResponse:
+    """返回推荐问法列表，供前端展示（不再本地写死）。"""
+    return JSONResponse(
+        {
+            "ok": True,
+            "questions": [
+                "《AI 编程可闭环协作》卷三讲什么？Harness 和签收是什么？",
+                "Tech Graph 是什么",
+                "冷/温/热 和 架构三层 区别？",
+                "简单介绍下刘新宁",
+                "AI Ink Brain 的架构是怎样的",
+            ],
+        }
+    )
+
