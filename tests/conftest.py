@@ -22,6 +22,9 @@ if not _KEEP:
     os.environ["CHATBI_V2_INTENT_LLM"] = "false"
     # P1-4：避免 shell/.env 误开 clarify 导致未 monkeypatch 的 v2 agent 用例短路（仍可由单测 setenv 覆盖）
     os.environ["CHATBI_V3_LOW_CONFIDENCE_CLARIFY"] = ""
+    # v3 低置信澄清/预览：固定 spec 默认 0.6，避免开发者 .env 降低阈值（如 0.3）使
+    # confidence=0.35 的 stub 意图无法触发 clarify（见 task B-8 / test_unified_chat_backend_v2_agent）
+    os.environ["INTENT_MIN_CONFIDENCE"] = "0.6"
 
 
 import pytest

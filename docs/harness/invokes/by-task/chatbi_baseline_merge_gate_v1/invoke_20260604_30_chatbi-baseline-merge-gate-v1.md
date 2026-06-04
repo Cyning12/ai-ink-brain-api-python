@@ -1,17 +1,17 @@
-# Invoke 快照 · 30 执行编码 · chatbi_baseline_merge_gate_v1
+# Invoke · 30 执行帽 · chatbi_baseline_merge_gate_v1 · 2026-06-04
 
 | 字段 | 值 |
 | --- | --- |
+| **hat_code** | 30 |
 | **task_slug** | `chatbi_baseline_merge_gate_v1` |
-| **hat** | `30-execute-code` |
-| **round** | — |
-| **task_path** | `ai-ink-brain-api-python/docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md` |
 | **git_branch** | `task/chatbi-baseline-merge-gate-v1` |
-| **freeze_id** | （无新 L1 SPEC；行为真值以 v3 单测 + `_contract_manifest.json` 为准） |
-| **audit_review** | `ai-ink-brain-api-python/docs/harness/reviews/task_chatbi_baseline_merge_gate_v1_audit_R1_20260604.md` |
-| **date** | `20260604` |
+| **semi_auto** | `true` |
+| **test_strategy** | `required` |
+| **audit_review** | `docs/harness/reviews/task_chatbi_baseline_merge_gate_v1_audit_R1_20260604.md` |
+| **human_gate** | HG-TASK-DRAFT approved · HG-AUDIT-R1 approved |
+| **VERIFY** | `pytest tests -m "not intent_eval and not intent_benchmark" && python tools/tech_graph_contract_check.py` |
 
-## 快照（§3 调用体）
+## §3 快照（开帽 Prompt 全文）
 
 ```text
 你正在扮演工作区 Harness「执行编码帽」，严格遵循：
