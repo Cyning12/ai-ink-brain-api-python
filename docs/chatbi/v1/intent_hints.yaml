@@ -1,0 +1,49 @@
+version: 1
+site_mode: portfolio
+
+product_summary: |
+  本 Unified Chat 服务 Portfolio 演示站：用户关于个人履历、项目成果、方法论与证据卡的问题，
+  应优先检索 content/ 下 methodology、resume、evidence 文稿（已 ingest 至向量库），
+  而非通用百科或行业通史。未明确要求「只要通识、不要站内文档」时，选 rag_search。
+
+persons:
+  - name: 刘新宁
+    aliases: []
+    rag_triggers:
+      - 看法
+      - 优势
+      - 评价
+      - 经历
+      - 成果
+    corpus_hint: content/resume/cv-online.md
+
+rag_signals:
+  keywords:
+    - 经历
+    - 履历
+    - 简历
+    - 11 年
+    - AI Coding
+    - 混合检索
+    - 冷/温/热
+  regex:
+    - pattern: "\\d+\\s*年.*经历"
+      hint: career_span
+
+direct_answer_exceptions:
+  - 与项目无关的通识解释（如量子计算通俗解释）
+  - 明确不要查站内文档的行业史
+
+few_shots:
+  - query: "11 年经历里 AI Coding 相关成果？"
+    tool: rag_search
+    reasoning: "Portfolio 简历与项目文稿，须检索 resume/*"
+    confidence: 0.92
+  - query: "聊聊刘新宁在 AI coding 岗位有什么优势"
+    tool: rag_search
+    reasoning: "问站点演示者个人能力与履历，应查 resume 文稿"
+    confidence: 0.91
+  - query: "解释一下量子计算，用通俗语言"
+    tool: direct_answer
+    reasoning: "与站内语料无关的通识"
+    confidence: 0.88

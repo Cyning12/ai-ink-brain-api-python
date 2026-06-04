@@ -540,6 +540,99 @@ def test_stub_eval_end_to_end_writes_exports(tmp_path: Path, monkeypatch: pytest
     assert float(summary["macro_f1"]) >= 0.0
 
 
+def _portfolio_intent_cases() -> list[IntentCase]:
+    """Portfolio Step1 增量用例（不并入 60 条 intent_eval 金标）。"""
+    return [
+        IntentCase(
+            "11 年经历里 AI Coding 相关成果？",
+            "rag_search",
+            "portfolio-q4",
+            "RUNBOOK Q4 逐字句",
+            [],
+        ),
+        IntentCase(
+            "聊聊刘新宁在 AI coding 岗位有什么优势",
+            "rag_search",
+            "portfolio-person",
+            "人名 + 优势",
+            [],
+        ),
+        IntentCase(
+            "聊聊你对刘新宁的看法，他在 AI coding 岗位有什么优势",
+            "rag_search",
+            "portfolio-person-view",
+            "人名 + 看法",
+            [],
+        ),
+        IntentCase(
+            "解释一下量子计算，用通俗语言",
+            "direct_answer",
+            "portfolio-negative",
+            "通识负例",
+            [],
+        ),
+    ]
+
+
+def test_portfolio_intent_hints_mock_llm_routing(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stub LLM：验证 intent_hints 注入路径下 Portfolio 问句路由期望（不触网）。"""
+    import api.intent_agent as ia
+
+    from api.intent_hints import build_intent_hints_prompt_block, load_resolved_hints
+
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
+    monkeypatch.setenv("INTENT_HINTS_ENABLED", "true")
+    ia.clear_intent_cache()
+
+    async def _mock_llm_decide_v2(**kwargs: Any) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+        block = build_intent_hints_prompt_block(load_resolved_hints())
+        assert block
+        assert "站点上下文" in block
+        assert "刘新宁" in block
+        q = str(kwargs.get("query") or "")
+        if "量子计算" in q:
+            return {"tool": "direct_answer", "reasoning": "通识", "confidence": 0.88}, None
+        return {"tool": "rag_search", "reasoning": "Portfolio 简历", "confidence": 0.92}, None
+
+    monkeypatch.setattr(ia, "_llm_decide_v2", _mock_llm_decide_v2)
+    tools = _make_tools()
+
+    async def _run_all() -> None:
+        for tc in _portfolio_intent_cases():
+            d = await decide_intent_v2(query=tc.query, history=[], tools=tools, timeout=3.0)
+            assert d.tool == tc.expected, f"q={tc.query!r} got {d.tool}"
+
+    asyncio.run(_run_all())
+
+
+def test_portfolio_intent_hints_disabled_no_block_in_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
+    """INTENT_HINTS_ENABLED=0 时注入块为空，行为仍可走 mock LLM。"""
+    import api.intent_agent as ia
+
+    from api.intent_hints import build_intent_hints_prompt_block, clear_intent_hints_cache, load_resolved_hints
+
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
+    monkeypatch.setenv("INTENT_HINTS_ENABLED", "false")
+    clear_intent_hints_cache()
+    ia.clear_intent_cache()
+    assert build_intent_hints_prompt_block(load_resolved_hints()) == ""
+
+    async def _mock_llm(**kwargs: Any) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+        return {"tool": "direct_answer", "reasoning": "fallback", "confidence": 0.7}, None
+
+    monkeypatch.setattr(ia, "_llm_decide_v2", _mock_llm)
+
+    async def _one() -> None:
+        d = await decide_intent_v2(
+            query="11 年经历里 AI Coding 相关成果？",
+            history=[],
+            tools=_make_tools(),
+        )
+        assert d.tool == "direct_answer"
+
+    asyncio.run(_one())
+
+
 if __name__ == "__main__":
     real_llm_flag = _env_flag("CHATBI_V2_INTENT_LLM", default=True)
     # 作为脚本运行时，默认执行并输出报告。

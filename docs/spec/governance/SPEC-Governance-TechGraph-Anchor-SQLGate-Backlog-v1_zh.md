@@ -158,6 +158,7 @@
 | **交付** | 扩展 `anchor_check`：对 SPEC 声明的 P0 节点列表，交叉 `_manifest.json` 或轻量静态引用（**禁止** 全仓 AST） |
 | **验收** | 用 VAL→GATE 迁移类回归用例锁行为 |
 | **依赖** | TG-AST-03 done |
+| **留证** | import 绑定类回归（`decide_intent_v1` · RUNBOOK Q4）见 [`NOTE-TechGraph-Import-Binding-vs-AST-Backlog-v1_zh.md`](./NOTE-TechGraph-Import-Binding-vs-AST-Backlog-v1_zh.md) — **占位，当前不扩 scope** |
 
 #### TG-AST-10 · PR 触达子图增量 manifest（IMP-B-05）
 
@@ -259,3 +260,4 @@ Runbook（契约/manifest 红）：[`docs/harness/guides/RUNBOOK_graph_contract_
 | --- | --- | --- |
 | v1.0 | 2026-06-03 | 初版：P0～P2 backlog · SQL 闸图谱对齐 + anchor_check v1/v2 · 选择性实施纪律 |
 | v1.1 | 2026-06-03 | §8 前端推广：条目映射 · 双 profile anchor_check · 与 frontend parity 分工 |
+| v1.2 | 2026-06-04 | TG-AST-09 链 NOTE：import 绑定回归留证（Q4 · `decide_intent_v1`）· 当前不扩 scope |

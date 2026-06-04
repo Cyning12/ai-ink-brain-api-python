@@ -12,6 +12,7 @@
 | [`v3-agent/`](./v3-agent/README.md) | ChatBI V3 | L0 `SPEC-ChatBI-V3-Overview` + L1 子规（**主业务线**） |
 | [`v2-agent/`](./v2-agent/README.md) | ChatBI V2 | 冻结参考 |
 | [`research/`](./research/README.md) | 架构调研 / 计划 | 对比 SPEC + **路线图计划** · draft · 无 task |
+| [`intent-hints/`](./intent-hints/README.md) | ChatBI Intent | **Portfolio 站点上下文** · `intent_hints.yaml` · 三步 C-lite/mid/full · `draft` |
 | [`governance/`](./governance/README.md) | 治理 / Harness / Wiki | **2026-05 起** 非功能需求与推广顺序 |
 | [`SPEC-ChatBI-Enterprise-Gap.md`](./SPEC-ChatBI-Enterprise-Gap.md) | 企业差距 | 跨版本差距表 |
 | [`SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](./SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md) | **SDD 过程** | 起草 SPEC 的三轮意图对齐 + 10/20/22 映射 |
@@ -39,3 +40,4 @@
 | 2026-05-30 | P0 OpenSpec×TDD 执行安排迁入 `SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`；RECENT §0.6 |
 | 2026-06-03 | 新增 `research/`：自研链 vs LangChain / LangGraph 调研 SPEC |
 | 2026-06-03 | `research/` 增 `SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md` 需求计划 |
+| 2026-06-04 | 新增 `intent-hints/`：Portfolio Intent 外置配置 · 三步 SPEC |
