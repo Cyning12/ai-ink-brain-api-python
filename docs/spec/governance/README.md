@@ -10,6 +10,7 @@
 | [`SPEC-Governance-Wiki-Harness-Roadmap-v1.md`](./SPEC-Governance-Wiki-Harness-Roadmap-v1.md) | `active` | **整体安排表**（T0～T4、Wiki-CTX-AB P1/P2） |
 | [`SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](./SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) | `active` | **T4** Wiki `graph_nodes` ↔ L0 / `graph_query` 桥接 · `GOV-T4-SPEC-ACTIVE@2026-05-27` |
 | [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](./SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) | `draft` | **L2 工具链** 锚点 + `_test_manifest`（≠ `coding_wiki/` L2 层） |
+| [`SPEC-Governance-TechGraph-Anchor-SQLGate-Backlog-v1_zh.md`](./SPEC-Governance-TechGraph-Anchor-SQLGate-Backlog-v1_zh.md) | `draft` | **图谱 backlog** SQL 闸对齐 + 锚点校验 v1 · P0～P2 选择性抽空实施 |
 | [`SPEC-Governance-PR-Post-CI-v1.md`](./SPEC-Governance-PR-Post-CI-v1.md) | `active` | PR 后 CI 更新 body + Mergify 条件 automerge（方案 C） |
 | [`SPEC-Governance-Wiki-Frontend-Parity-v1.md`](./SPEC-Governance-Wiki-Frontend-Parity-v1.md) | `active` | **P1-4** 前端 Harness parity · **当前推广主棒** |
 | [`SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md`](./SPEC-Governance-Wiki-Promotion-Phase-P2-v1.md) | `active` | **P2 后续** 三 round Loop 编排 |
