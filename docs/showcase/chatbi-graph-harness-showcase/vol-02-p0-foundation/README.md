@@ -17,8 +17,8 @@ layer: L2-showcase
 
 | # | 文件 | 大纲要点 | 状态 |
 | ---: | --- | --- | --- |
-| 01 | [01-freeze-decisions.md](01-freeze-decisions.md) | D-1～D-5 · Q-8 · §10 冻结 | 待编写 |
-| 02 | [02-five-deliverables.md](02-five-deliverables.md) | P0 五步交付对照 | 待编写 |
+| 01 | [01-freeze-decisions.md](01-freeze-decisions.md) | D-1～D-5 · Q-8 · §10 冻结 | 已完成 |
+| 02 | [02-five-deliverables.md](02-five-deliverables.md) | P0 五步交付对照 | 已完成 |
 | 03 | [03-harness-loop.md](03-harness-loop.md) | R1/R2 · 50 · rebase 后全绿 | 待编写 |
 | 04 | [04-architecture-before-after.md](04-architecture-before-after.md) | 模块图 · agent 瘦身 | 待编写 |
 | 05 | [05-human-acceptance.md](05-human-acceptance.md) | curl stub · 287 pytest | 待编写 |
