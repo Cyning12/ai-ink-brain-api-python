@@ -33,7 +33,7 @@
 | 01 | [`vol-01-baseline-merge-gate/`](vol-01-baseline-merge-gate/README.md) | `done` | PR [#106](https://github.com/Cyning12/ai-ink-brain-api-python/pull/106) |
 | 02 | [`vol-02-p0-foundation/`](vol-02-p0-foundation/README.md) | `done` | PR [#107](https://github.com/Cyning12/ai-ink-brain-api-python/pull/107) |
 | 03 | [`vol-03-cross-cutting/`](vol-03-cross-cutting/README.md) | `done` | Harness / CI / Agent 横切 |
-| 04 | [`vol-04-p1/`](vol-04-p1/README.md) | `planned` | Graph MVP（未开工） |
+| 04 | [`vol-04-p1/`](vol-04-p1/README.md) | `compiled` · **规划** | Task-B 意图卡 · 未开工 |
 | 05 | [`vol-05-roadmap-horizon/`](vol-05-roadmap-horizon/README.md) | `stub` | P2/P3 远景 |
 | 90 | [`vol-90-portfolio/`](vol-90-portfolio/README.md) | `compiled` · **v0.10** | 投递 / 面试短稿 |
 
@@ -60,3 +60,4 @@
 | 2026-06-04 | 系列骨架与卷册大纲落盘 |
 | 2026-06-04 | vol-01/02 正文 compiled · vol-90 短稿 v0.10 · `_meta/TIMELINE` 同步 |
 | 2026-06-04 | vol-03 横切正文 compiled（01–05） |
+| 2026-06-04 | vol-04 P1 规划 narrative compiled（01–05 · planning_only） |

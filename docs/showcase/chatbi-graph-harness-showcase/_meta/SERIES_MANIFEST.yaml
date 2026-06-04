@@ -4,7 +4,7 @@
 series_id: chatbi-graph-harness-showcase
 series_path: docs/showcase/chatbi-graph-harness-showcase
 layer: L2-showcase
-evidence_freeze_main: f53327a  # main 含 #106 + #107 合并点；后续 PR 合并后更新
+evidence_freeze_main: 856315a  # main 含 #106–#112；P1 实现待 Task-B
 
 volumes:
   - vol: "01"
@@ -37,7 +37,8 @@ volumes:
   - vol: "04"
     slug: vol-04-p1
     title: P1 Graph MVP
-    status: planned
+    status: compiled
+    planning_only: true
     roadmap_ref: docs/spec/research/SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md#5-p1--graph-mvp-核心与-d-2-新路由同期--task-b
 
   - vol: "05"
