@@ -38,5 +38,7 @@ timeline
   2026-05-31 : b540fa3 auto: api/agent.py
   2026-06-03 : cd5cbd8 auto: api/chain_chat.py
   2026-06-04 : bbd6ded auto: api/agent.py
+  2026-06-04 : 6bc051a auto: api/index.py
+  2026-06-04 : P0 Graph Q-8 stub routes `/api/py/unified/chat/graph` + `/stream`
 ```
 

@@ -18,6 +18,7 @@ CONTRACT_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_contract_manifest.json"
 BACKEND_CONTRACT_SOURCES = [
     REPO_ROOT / "api" / "unified_chat.py",
     REPO_ROOT / "api" / "agent.py",
+    REPO_ROOT / "api" / "chatbi_events.py",
     REPO_ROOT / "api" / "tools.py",
 ]
 

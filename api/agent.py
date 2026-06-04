@@ -4,52 +4,29 @@ import os
 import time
 import uuid
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
 from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
 from .intent_agent import IntentDecision, decide_intent_v2
-from .intent_router import decide_intent as decide_intent_v1
 from .tools import Tool, ToolName, ToolResult, tool_mode_map
 from .text2sql_core import is_text2sql_intent
 from .text2sql_grounding import grounding_prefix_for_intent
+from .chatbi_agent_models import (
+    AGENT_THINK_TEXT_CLIP,
+    AgentFinalView,
+    AgentRunView,
+    AgentStepView,
+    LlmPhase,
+    V1Mode,
+    make_tool_call_input as _make_tool_call_input,
+)
+from .chatbi_events import agent_chain as _agent_chain
+from .chatbi_events import emit_simulated_llm as _emit_simulated_llm
+from .chatbi_failure import FailureTypeHandler, has_aggregation_signals as _has_aggregation_signals
 
 
-V1Mode = Literal["rag", "text2sql", "no_data"]
-
-LlmPhase = Literal["intent", "rag_generate", "text2sql_sql", "text2sql_summary", "direct"]
-
-# agent.think / AgentStepView.thought 截断上限（含失败原因摘要，略放宽便于 Timeline 排查）
-AGENT_THINK_TEXT_CLIP = 420
-
-
-def _tool_failure_digest(tr: ToolResult, *, max_detail: int = 260) -> str:
-    """从 ToolResult 抽取单行可读的失败摘要（供 think 与 FailureTypeHandler 拼接）。"""
-    code = (tr.error_code or "UNKNOWN").strip() or "UNKNOWN"
-    stage = (tr.error_stage or "").strip()
-    err = (tr.error or "").strip().replace("\r", " ").replace("\n", " ")
-    if len(err) > max_detail:
-        err = err[: max_detail - 1] + "…"
-    parts: list[str] = [f"code={code}"]
-    if stage:
-        parts.append(f"stage={stage}")
-    if err:
-        parts.append(f"msg={err}")
-    return " ".join(parts)
-
-
-def _failure_context_suffix(tr: ToolResult) -> str:
-    """拼在 next_thought 末尾，便于确认「为何失败、当前 error_code 是什么」。"""
-    return f"（{_tool_failure_digest(tr)}）"
-
-
-def _agent_chain(typ: str, started_at: float, step_id: str, payload: dict[str, Any]) -> dict[str, Any]:
-    """与 unified_chat._event 同形，供 SSE chain 帧序列化。"""
-    return {"type": typ, "ts": int((time.perf_counter() - started_at) * 1000), "step_id": step_id, "payload": payload}
-
-
-# 契约静态扫描锚点：`tools/tech_graph_contract_check.py` 须能解析 `typ="agent.clarify"` 与 payload 字面量键
+# 契约静态扫描锚点：实现已迁至 chatbi_events，锚点字面量须保留于本文件供 contract check
 _CONTRACT_ANCHOR_AGENT_CLARIFY = _agent_chain(
     typ="agent.clarify",
     started_at=0.0,
@@ -74,60 +51,6 @@ _CONTRACT_ANCHOR_AGENT_PLAN_PREVIEW = _agent_chain(
 )
 
 
-async def _emit_simulated_llm(
-    emit: Callable[[dict[str, Any]], Awaitable[None]],
-    *,
-    started_at: float,
-    step_id: str,
-    inner_step_id: str,
-    phase: LlmPhase,
-    text: str,
-    simulated_stream: bool,
-    chunk_size: int = 16,
-    max_parts: int = 400,
-) -> None:
-    """伪流式：将整段文本切分为 agent.llm.delta 序列（上游非 stream 时）。"""
-    await emit(
-        _agent_chain(
-            typ="agent.llm.start",
-            started_at=started_at,
-            step_id=step_id,
-            payload={"phase": phase, "step_id": inner_step_id},
-        )
-    )
-    body = text or ""
-    part = 0
-    for i in range(0, len(body), max(1, chunk_size)):
-        if part >= max_parts:
-            await emit(
-                _agent_chain(
-                    typ="agent.llm.truncated",
-                    started_at=started_at,
-                    step_id=step_id,
-                    payload={"dropped_chars": max(0, len(body) - i), "reason": "emit_chunk_cap"},
-                )
-            )
-            break
-        chunk = body[i : i + chunk_size]
-        await emit(
-            _agent_chain(
-                typ="agent.llm.delta",
-                started_at=started_at,
-                step_id=step_id,
-                payload={"text": chunk, "part_index": part},
-            )
-        )
-        part += 1
-    await emit(
-        _agent_chain(
-            typ="agent.llm.end",
-            started_at=started_at,
-            step_id=step_id,
-            payload={"ok": True, "phase": phase, "step_id": inner_step_id, "simulated_stream": simulated_stream},
-        )
-    )
-
-
 def _env_int(name: str, default: int) -> int:
     raw = (os.getenv(name, "") or "").strip()
     if not raw:
@@ -147,192 +70,6 @@ def _env_float(name: str, default: float) -> float:
         return float(raw)
     except Exception:  # noqa: BLE001
         return default
-
-
-def _has_aggregation_signals(query: str) -> bool:
-    # gating C：聚合语义特征（非关键词匹配强依赖，但这里用轻量启发式）
-    # TODO(P1): 替换为轻量 LLM 语义判定，当前为启发式关键词匹配
-    q = (query or "").lower()
-    needles = (
-        "多少",
-        "金额",
-        "收入",
-        "支出",
-        "人数",
-        "数量",
-        "总数",
-        "平均",
-        "最大",
-        "最小",
-        "top",
-        "排行",
-        "排名",
-        "趋势",
-        "对比",
-        "分组",
-        "group by",
-        "count",
-        "sum",
-        "avg",
-    )
-    return any(n in q for n in needles)
-
-
-@dataclass(frozen=True)
-class AgentStepView:
-    step_number: int
-    # agent.think payload（用户级摘要）
-    think_payload: dict[str, Any]
-    # 本 step 实际执行的工具（包含 fallback/switch）
-    tool_used: ToolName
-    mode: V1Mode
-    success: bool
-    next_action: Literal["continue", "final_answer"]
-    tool_result: ToolResult
-
-
-@dataclass(frozen=True)
-class AgentFinalView:
-    answer: str
-    mode: V1Mode
-    total_steps: int
-    tools_used: list[ToolName]
-    modes: list[V1Mode]
-    fallback_used: bool
-
-
-@dataclass(frozen=True)
-class AgentRunView:
-    # 用于统一生成 router.decision + agent.intent（仅 Step 1）
-    intent_decision: IntentDecision | None
-    steps: list[AgentStepView]
-    final: AgentFinalView
-    # P1-4 §4.3：无 emit 时（JSON / SSE 批量 replay）由 unified_chat 补发 agent.* 帧
-    clarify_short_circuit: bool = False
-    clarify_user_payload: dict[str, Any] | None = None
-    # 低置信预览放行：无 emit 时与 `agent.clarify` 一并由 unified_chat 补发 `agent.plan.preview`
-    clarify_plan_preview_payload: dict[str, Any] | None = None
-
-
-def _make_tool_call_input(query: str) -> dict[str, Any]:
-    # tool.call.start contract：只需 input 字段存在即可
-    return {"query": query}
-
-
-class FailureTypeHandler:
-    """按失败类型决定下一步工具与是否继续 ReAct 循环。
-
-    L5 / 单测 mock：**勿**在本类内硬改 error 分支、**勿**对 IntentDecision 原地赋值（frozen dataclass）。
-    请在 pytest 中：monkeypatch get_tool_registry 注入 dummy 工具；在 dummy execute 的 ToolResult.error_code
-    上模拟失败码（如 RAG_RETRIEVE_EMPTY）；monkeypatch decide_intent_v2 返回完整 IntentDecision 覆盖 gating。
-    参考：tests/test_unified_chat_backend_v2_agent.py::test_v2_rag_empty_gated_fallback；
-    SPEC-ChatBI-V2-Agent-Overview.md §7.5.4。
-    """
-
-    #: Text2SQL 权限/策略拒绝类 error_code；Agent 直接终态回答，不再尝试 RAG。
-    TEXT2SQL_DENY_FINAL_ANSWER_CODES: frozenset[str] = frozenset(
-        {
-            "SQL_EXEC_PERMISSION_DENIED",
-            "CHATBI_SQL_DENIED",
-            "CHATBI_SQL_WRITE_DENIED",
-        }
-    )
-
-    @staticmethod
-    def _allow_sql_fallback(*, intent: IntentDecision) -> bool:
-        # gating：满足任一即可
-        # 条件 A：Intent 原始决策含 SQL 特征
-        if intent.tool == "text2sql_query" or intent.fallback == "text2sql_query":
-            return True
-        # 条件 B：结构化二次判定倾向 SQL
-        if bool(intent.structured_signals.llm_prefers_sql):
-            return True
-        # 条件 C：聚合语义信号
-        if bool(intent.structured_signals.has_aggregation_signals):
-            return True
-        return False
-
-    @staticmethod
-    def decide_next(
-        *,
-        query: str,
-        tool_result: ToolResult,
-        intent: IntentDecision | None,
-        fallback_from_intent: ToolName,
-        structured_signals: dict[str, bool],
-    ) -> tuple[ToolName, V1Mode, str, bool]:
-        """
-        返回：
-        - next_tool
-        - next_mode
-        - next_thought（用户级，1-2 句）
-        - stop_now：True 表示无需再走下一步工具，直接给 final_answer（如 SQL 无数据）
-        """
-        code = tool_result.error_code or "UNKNOWN"
-        # 默认：继续用 intent 的 fallback tool
-        next_tool: ToolName = fallback_from_intent
-        next_mode: V1Mode = tool_mode_map()[next_tool]  # type: ignore[assignment]
-        next_thought = "尝试使用备用方案继续回答。"
-        stop_now = False
-        sfx = _failure_context_suffix(tool_result)
-
-        # SQL：生成/执行失败映射
-        if code in ("SQL_GEN_EMPTY", "SQL_GEN_SYNTAX"):
-            # 已在本 step 内重试过；仍失败则切换到 RAG 兜底
-            next_tool = "rag_search"
-            next_mode = "rag"
-            next_thought = f"SQL 生成仍失败，改用文档检索兜底。{sfx}"
-        elif code in ("SQL_EXEC_TABLE_NOT_FOUND",):
-            next_tool = "rag_search"
-            next_mode = "rag"
-            next_thought = f"查库失败可能是表不存在或名称不匹配，改用文档检索定位信息。{sfx}"
-        elif code in (
-            "SQL_EXEC_PERMISSION_DENIED",
-            "CHATBI_SQL_DENIED",
-            "CHATBI_SQL_WRITE_DENIED",
-        ):
-            # 权限 / RLS / 表级策略：直接对用户说明，不再走 RAG（查库意图下文档检索通常无补）
-            next_tool = "direct_answer"
-            next_mode = "no_data"
-            next_thought = f"数据库访问受权限或策略限制，直接输出说明并结束本回合。{sfx}"
-            stop_now = True
-        elif code in ("SQL_EXEC_NO_DATA",):
-            # 不换工具：直接回答“未查到数据”
-            next_tool = "text2sql_query"
-            next_mode = "text2sql"
-            next_thought = f"数据库未返回结果，直接给出未查到数据的结论。{sfx}"
-            stop_now = True
-        # RAG：检索无命中必须 gated
-        elif code == "RAG_RETRIEVE_EMPTY":
-            if intent is not None and FailureTypeHandler._allow_sql_fallback(intent=intent):
-                next_tool = "text2sql_query"
-                next_mode = "text2sql"
-                next_thought = f"文档检索无命中，但问题具有结构化统计意图，因此改查数据库。{sfx}"
-            else:
-                next_tool = "direct_answer"
-                next_mode = "no_data"
-                next_thought = f"文档检索无命中，改用直接回答或请用户澄清。{sfx}"
-        elif code == "RAG_GENERATE_UNCERTAIN":
-            next_tool = "direct_answer"
-            next_mode = "no_data"
-            next_thought = f"检索答案不够确定，改用直接回答或进一步追问。{sfx}"
-        # LLM：超时降级到 V1 rule router（由 agent.py 执行最终工具）
-        elif code == "LLM_API_TIMEOUT":
-            v1 = decide_intent_v1(query=query, prefer="auto")
-            if v1.final_mode == "rag":
-                next_tool = "rag_search"
-            elif v1.final_mode == "text2sql":
-                next_tool = "text2sql_query"
-            else:
-                next_tool = "direct_answer"
-            next_mode = v1.final_mode  # type: ignore[assignment]
-            next_thought = f"意图/模型调用超时，降级到 V1 规则路由。{sfx}"
-        else:
-            next_tool = fallback_from_intent
-            next_mode = tool_mode_map()[next_tool]  # type: ignore[assignment]
-            next_thought = f"处理工具失败，继续使用备用方案。{sfx}"
-
-        return next_tool, next_mode, next_thought, stop_now
 
 
 class ChatBIAgent:

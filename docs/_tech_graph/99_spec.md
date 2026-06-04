@@ -43,7 +43,7 @@ flowchart TD
 
 > `python tools/tech_graph_drift_check.py` 对 `docs/_tech_graph/*.md` 做 **子串匹配**；新增端点/表/env 时 **优先在本节追加一行**，避免静默过期。详规见 `docs/diary/2026-06-02-tech-graph-drift-check-option-A_playbook_v1_zh.md`。
 
-**HTTP 端点（示例）**：`/api/py/live` `/api/py/ready`
+**HTTP 端点（示例）**：`/api/py/live` `/api/py/ready` `/api/py/unified/chat/graph` `/api/py/unified/chat/graph/stream`
 
 **Supabase 表名（示例）**：`chatbi_access_tokens`
 

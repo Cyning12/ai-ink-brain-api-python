@@ -134,6 +134,24 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/api/py/unified/chat/graph",
+      "handler": "unified_chat_graph_route",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "unified_chat_graph_route"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/py/unified/chat/graph/stream",
+      "handler": "unified_chat_graph_stream_route",
+      "anchor": {
+        "path": "api/index.py",
+        "symbol": "unified_chat_graph_stream_route"
+      }
+    },
+    {
       "method": "GET",
       "path": "/api/py/chatbi/access/verify",
       "handler": "chatbi_access_verify",
