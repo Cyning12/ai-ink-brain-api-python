@@ -32,7 +32,7 @@ volumes:
   - vol: "03"
     slug: vol-03-cross-cutting
     title: 横切 · Harness 与架构
-    status: compiled
+    status: done
 
   - vol: "04"
     slug: vol-04-p1

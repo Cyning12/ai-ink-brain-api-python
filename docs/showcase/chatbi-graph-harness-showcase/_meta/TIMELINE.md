@@ -16,3 +16,4 @@
 | 2026-06-04 | vol-01 正文 compiled（01–06） | vol-01 | showcase 分支 3 commits |
 | 2026-06-04 | vol-02 正文 compiled（01–07） | vol-02 | showcase 分支 3 commits |
 | 2026-06-04 | vol-90 面试短稿 **v0.10** | vol-90 | 01 电梯 · 02 STAR · 03 演示脚本 |
+| 2026-06-04 | vol-03 横切正文 compiled（01–05） | vol-03 | Harness 落盘 · required · CI 三门 · Agent playbook · 教训 |
