@@ -1,6 +1,6 @@
 # Task：ChatBI Intent Hints — Step 1（C-lite · YAML + Prompt 注入）
 
-> **状态**：`active`（**HG-TASK-DRAFT** `approved` · **22 R1 通过** · 待 **HG-AUDIT-R1** 人签 → 30）  
+> **状态**：`active`（30 实现完成 · 待 **40** 自检回填）  
 > **Epic**：ChatBI Intent Hints · **U1 · Step 1**  
 > **时间门槛**：[`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 — **6/9 前须合 main**  
 > **关联图谱**：`api/intent_agent.py` · `api/intent_router.py`（Step 1 **不改** router）· 无 `api/graph/*`  
@@ -218,6 +218,7 @@ pytest -m intent_eval -q
 | --- | --- |
 | 2026-06-04 | 10 帽：U1 Step1 task 初稿 · Overview §7 Q-1～Q-4 落盘 · HG-TASK-DRAFT pending |
 | 2026-06-04 | 人签 HG-TASK-DRAFT approved · 00 派 22 R1 |
+| 2026-06-04 | HG-AUDIT-R1 approved · 30 实现 Step1 C-lite |
 
 ---
 

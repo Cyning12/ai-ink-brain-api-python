@@ -885,7 +885,10 @@ def get_tool_registry() -> ToolRegistry:
     registry.register(
         Tool(
             name="rag_search",
-            description="从文档库中检索信息，适合概念解释与非结构化内容问题。",
+            description=(
+                "从文档库中检索信息，适合概念解释与非结构化内容问题；"
+                "Portfolio 模式下含 methodology/resume/evidence 站点文稿与个人履历。"
+            ),
             parameters={
                 "type": "object",
                 "properties": {"query": {"type": "string", "description": "用户问题"}},

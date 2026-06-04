@@ -13,6 +13,7 @@ from typing import Any, Literal
 
 from openai import OpenAI
 
+from .intent_hints import build_intent_hints_prompt_block, load_resolved_hints
 from .intent_router import decide_intent as decide_intent_v1
 from .rag_env import openai_siliconflow_client
 from .text2sql_core import is_text2sql_intent
@@ -237,6 +238,9 @@ async def _llm_decide_v2(
         [f"{m.get('role', '?')}: {str(m.get('content', ''))[:200]}" for m in (history or [])[-6:]]
     ).strip() or "无历史对话"
 
+    hints_block = build_intent_hints_prompt_block(load_resolved_hints()).strip()
+    hints_section = f"\n\n{hints_block}\n" if hints_block else ""
+
     prompt = f"""你是 ChatBI V2 的意图识别器：在下列工具中选**恰好一个**，用于本仓库/本产品的对话路由（评测集亦按此口径）。
 
 ## 可用工具（描述以注册表为准）
@@ -247,7 +251,7 @@ async def _llm_decide_v2(
 - **text2sql_query**：用户要**本库业务数据**的具体数值/排名/趋势/分组统计，且应由数据库查询给出答案。
 - **rag_search**：需要**项目内文档、规范、任务单、架构说明、评测口径、错误码约定、实现细节**等；或问题明显落在「本仓库怎么说/怎么做」而非百科通识一句带过。
 - **direct_answer**：**不依赖**内部文档即可完成——翻译、润色、创作、头脑风暴、纯算法题/语法教学、与当前产品/仓库无关的通识科普等。
-
+{hints_section}
 ## 「通用知识」vs「须查资料」（易错点）
 
 下列主题若**未**明确说「只要高中数学定义、不要项目文档」，在本产品中默认走 **rag_search**（便于对齐内部文档与评测口径）：
