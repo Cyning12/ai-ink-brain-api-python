@@ -1,6 +1,6 @@
 # Task：ChatBI Intent Hints — Step 2（C-mid · router 同步 + LLM 仲裁）
 
-> **状态**：`active（2026-06-04 · 10 帽落盘 · HG-TASK-DRAFT approved）`  
+> **状态**：`active（2026-06-04 · 30/40 完成 · 待 50 落盘 + HG-REINSPECT 人签）`  
 > **Epic**：ChatBI Intent Hints · **U2 · Step 2**  
 > **时间门槛**：[`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 — **6/9 sprint 建议合 main**（优先于 Step3）  
 > **关联图谱**：`api/intent_hints.py` · `api/intent_router.py` · `api/intent_agent.py` · `api/agent.py` · **无** `api/graph/*`  
@@ -33,7 +33,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 | ------------- | ------ | ----------- | ---- |
 | HG-TASK-DRAFT | approved | 22-R1, 30 | 10 帽初稿 · 2026-06-04 人签 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
+| HG-AUDIT-R1 | approved | 30 | 22 R1 零阻塞 · 2026-06-04 人签 |
 | HG-REINSPECT | pending | done, 合并 PR | 50 落盘 `reinspect_results/` 后人签 |
 
 ---
@@ -154,16 +154,16 @@ Step1（#109）通过 **Prompt 注入** 使 Portfolio Q4 / Q-INTENT 在 Intent L
 
 ## 验收标准
 
-- [ ] Step1 回归：`tests/test_intent_hints_loader.py` · Portfolio stub intent 用例 **仍绿**  
-- [ ] **mock** LLM 返回 `direct_answer` + Q4 逐字（`11 年经历里 AI Coding 相关成果？`）→ 仲裁后 **`rag_search`** · `raw_response.hints_arbitration.applied=true`  
-- [ ] **mock** LLM direct + Q-INTENT（RUNBOOK §4.1 逐字）→ 同上  
-- [ ] `CHATBI_V2_INTENT_LLM=false` · Q4 → V1/启发式路径 **`final_mode=rag`**（或等价 rag 候选 · 见 router 单测）  
-- [ ] 负例「解释一下量子计算，用通俗语言」→ **不** 触发仲裁 · 仍 `direct_answer`  
-- [ ] `INTENT_HINTS_ARBITRATION=0` → 行为 **等同 Step1**（仲裁不生效 · 单测断言）  
-- [ ] Intent 超时 → V1：`decide_intent_v2` mock 超时 + Q4 → V1 rule_hits 含 **portfolio** 类 · candidate rag（单测或 router 直测）  
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**  
-- [ ] diff **不含** `api/graph/*`  
-- [ ] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_hints_step2_v1.md` **OK**  
+- [x] Step1 回归：`tests/test_intent_hints_loader.py` · Portfolio stub intent 用例 **仍绿**  
+- [x] **mock** LLM 返回 `direct_answer` + Q4 逐字（`11 年经历里 AI Coding 相关成果？`）→ 仲裁后 **`rag_search`** · `raw_response.hints_arbitration.applied=true`  
+- [x] **mock** LLM direct + Q-INTENT（RUNBOOK §4.1 逐字）→ 同上  
+- [x] `CHATBI_V2_INTENT_LLM=false` · Q4 → V1/启发式路径 **`final_mode=rag`**（或等价 rag 候选 · 见 router 单测）  
+- [x] 负例「解释一下量子计算，用通俗语言」→ **不** 触发仲裁 · 仍 `direct_answer`  
+- [x] `INTENT_HINTS_ARBITRATION=0` → 行为 **等同 Step1**（仲裁不生效 · 单测断言）  
+- [x] Intent 超时 → V1：`decide_intent_v2` mock 超时 + Q4 → V1 rule_hits 含 **portfolio** 类 · candidate rag（单测或 router 直测）  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**  
+- [x] diff **不含** `api/graph/*`  
+- [x] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_hints_step2_v1.md` **OK**  
 
 **PR 标题（建议）**：`feat(chatbi): intent_hints Step2 — router 同步与 LLM 仲裁`
 
@@ -205,9 +205,34 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 
 ---
 
+### 自检结论（执行者）
+
+**日期**：2026-06-04 · **分支**：`task/chatbi-intent-hints-step2-v1` · **工作目录**：仓库根
+
+| 命令 | exit | 要点 |
+| --- | ---: | --- |
+| `pytest tests/test_intent_hints_arbitration.py tests/test_intent_router_backend_v1.py -q` | 0 | 17 passed |
+| `pytest tests/test_intent_hints_loader.py -q` | 0 | 9 passed |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | **312 passed** · 1 skipped |
+| `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_hints_step2_v1.md` | 0 | OK |
+| `git diff -- api/graph/` | — | **0 行** |
+
+**交付摘要（S2-1～S2-6）**：
+
+- `api/intent_hints.py`：`rag_rule_hits_from_hints` · `match_person_rag_signal` · `arbitration_enabled` · `apply_hints_arbitration` 前置信号  
+- `api/intent_router.py`：`_rag_rule_hits` 合并 YAML portfolio 规则  
+- `api/intent_agent.py`：`apply_hints_arbitration` · LLM 成功路径插入  
+- `intent_hints.yaml`：`arbitration.enabled: true` · env `INTENT_HINTS_ARBITRATION`  
+- `tests/test_intent_hints_arbitration.py`（新建）· router Portfolio 扩展 3 用例  
+
+**已知未测**：PR Actions workflow · RUNBOOK 五问/Q-INTENT **真实 LLM 人验**（Step1 已 5/5，本 task 以 mock/router 单测为准）。
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-04 | 10 帽：U2 Step2 task 初稿 · Q-2 resolved · HG-TASK-DRAFT pending |
 | 2026-06-04 | 人签 HG-TASK-DRAFT approved（gate 独立 commit） |
+| 2026-06-04 | 30/40：Step2 实现 + 自检 · 312 pytest 绿 |

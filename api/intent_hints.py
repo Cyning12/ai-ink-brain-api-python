@@ -1,8 +1,9 @@
-"""Intent 站点上下文（YAML）；供 _llm_decide_v2 Prompt 注入。"""
+"""Intent 站点上下文（YAML）；供 _llm_decide_v2 Prompt 注入与 V1 规则合并。"""
 
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -171,3 +172,123 @@ def build_intent_hints_prompt_block(hints: dict[str, Any] | None) -> str:
     if body == "## 站点上下文（配置 · intent_hints.yaml）":
         return ""
     return body
+
+
+def arbitration_enabled(hints: dict[str, Any] | None) -> bool:
+    """Step2：YAML arbitration + env INTENT_HINTS_ARBITRATION（显式关则等同 Step1）。"""
+    if not _truthy_env("INTENT_HINTS_ARBITRATION", default=True):
+        return False
+    if not hints:
+        return False
+    arb = hints.get("arbitration")
+    if not isinstance(arb, dict):
+        return True
+    en = arb.get("enabled")
+    if en is False:
+        return False
+    if isinstance(en, str) and en.strip().lower() in ("0", "false", "no", "off"):
+        return False
+    return True
+
+
+def match_person_rag_signal(query: str, hints: dict[str, Any]) -> bool:
+    """人名 + rag_triggers 均在 query 中命中时为 True（仲裁 / 观测用）。"""
+    q = (query or "").strip()
+    if not q:
+        return False
+    persons = hints.get("persons")
+    if not isinstance(persons, list):
+        return False
+    for item in persons:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("name")
+        if not isinstance(name, str) or not name.strip() or name not in q:
+            continue
+        raw_triggers = item.get("rag_triggers")
+        if not isinstance(raw_triggers, list):
+            continue
+        for t in raw_triggers:
+            if isinstance(t, str) and t.strip() and t in q:
+                return True
+    return False
+
+
+def _career_span_regex_hit(query: str, hints: dict[str, Any]) -> bool:
+    q = (query or "").strip()
+    if not q:
+        return False
+    rag_signals = hints.get("rag_signals")
+    if not isinstance(rag_signals, dict):
+        return False
+    regex_list = rag_signals.get("regex")
+    if not isinstance(regex_list, list):
+        return False
+    for item in regex_list:
+        if not isinstance(item, dict):
+            continue
+        hint = str(item.get("hint") or "").strip()
+        if hint != "career_span":
+            continue
+        pattern = item.get("pattern")
+        if not isinstance(pattern, str) or not pattern.strip():
+            continue
+        try:
+            if re.search(pattern, q):
+                return True
+        except re.error:
+            continue
+    return False
+
+
+def hints_arbitration_should_apply(query: str, hints: dict[str, Any]) -> tuple[bool, str]:
+    """配置命中且 LLM 为 direct 时应仲裁为 rag 的判定（不含 env/YAML 总开关）。"""
+    if match_person_rag_signal(query, hints):
+        return True, "配置：站点人物须查 resume"
+    if _career_span_regex_hit(query, hints):
+        return True, "配置：年限经历问句须查 resume"
+    return False, ""
+
+
+def rag_rule_hits_from_hints(query: str, hints: dict[str, Any]) -> list[str]:
+    """YAML rag_signals / persons → V1 rule_hits（portfolio_*）。"""
+    hits: list[str] = []
+    q = (query or "").strip()
+    if not q:
+        return hits
+
+    rag_signals = hints.get("rag_signals")
+    if isinstance(rag_signals, dict):
+        keywords = rag_signals.get("keywords")
+        if isinstance(keywords, list):
+            for kw in keywords:
+                if isinstance(kw, str) and kw.strip() and kw in q:
+                    hits.append("rule:portfolio_keyword")
+                    break
+
+        regex_list = rag_signals.get("regex")
+        if isinstance(regex_list, list):
+            for item in regex_list:
+                if not isinstance(item, dict):
+                    continue
+                pattern = item.get("pattern")
+                hint = str(item.get("hint") or "regex").strip() or "regex"
+                if not isinstance(pattern, str) or not pattern.strip():
+                    continue
+                try:
+                    if re.search(pattern, q):
+                        hits.append(f"rule:portfolio_regex:{hint}")
+                except re.error:
+                    continue
+
+    persons = hints.get("persons")
+    if isinstance(persons, list):
+        for item in persons:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("name")
+            if isinstance(name, str) and name.strip() and name in q:
+                hits.append("rule:portfolio_person")
+                break
+
+    return hits

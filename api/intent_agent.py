@@ -14,7 +14,12 @@ from typing import Any, Literal
 from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
 from openai import APIStatusError
 
-from .intent_hints import build_intent_hints_prompt_block, load_resolved_hints
+from .intent_hints import (
+    arbitration_enabled,
+    build_intent_hints_prompt_block,
+    hints_arbitration_should_apply,
+    load_resolved_hints,
+)
 from .intent_router import decide_intent as decide_intent_v1
 from .rag_env import openai_siliconflow_client
 from .text2sql_core import is_text2sql_intent
@@ -187,6 +192,37 @@ def _has_aggregation_keywords(query: str) -> bool:
         "avg",
     )
     return any(n in q for n in needles)
+
+
+def apply_hints_arbitration(
+    decision: IntentDecision,
+    *,
+    query: str,
+    hints: dict[str, Any] | None = None,
+) -> IntentDecision:
+    """Step2：配置命中 + LLM direct → 强制 rag_search。"""
+    if decision.tool != "direct_answer":
+        return decision
+    h = hints if hints is not None else load_resolved_hints()
+    if not arbitration_enabled(h):
+        return decision
+    should, reason = hints_arbitration_should_apply(query, h or {})
+    if not should:
+        return decision
+    raw = dict(decision.raw_response)
+    raw["hints_arbitration"] = {"applied": True, "reason": reason}
+    full = decision.reasoning_full
+    if reason and reason not in full:
+        full = f"{full}（{reason}）".strip()
+    return replace(
+        decision,
+        tool="rag_search",
+        mode="rag",
+        reasoning=full[:260],
+        reasoning_full=full,
+        fallback=None,
+        raw_response=raw,
+    )
 
 
 def _fallback_tool_by_low_confidence(tool: ToolName) -> ToolName:
@@ -574,6 +610,7 @@ async def decide_intent_v2(
                 structured_signals=structured,
                 raw_response=raw_merged,
             )
+            decision2 = apply_hints_arbitration(decision2, query=query)
             return _return_cache_miss(decision2)
     except asyncio.TimeoutError:
         # timeout -> 降级到 V1 规则路由

@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from .intent_hints import load_resolved_hints, rag_rule_hits_from_hints
 from .rag_env import supabase_client
 from .text2sql_store import get_text2sql_store
 
@@ -69,6 +70,15 @@ def _rag_rule_hits(query: str) -> list[str]:
 
     if "content/" in q.lower() or "task_" in q.lower():
         hits.append("rule:repo_path_hint")
+
+    try:
+        hints = load_resolved_hints()
+        if hints:
+            for h in rag_rule_hits_from_hints(q, hints):
+                if h not in hits:
+                    hits.append(h)
+    except Exception:  # noqa: BLE001
+        pass
 
     return hits
 

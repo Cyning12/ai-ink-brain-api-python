@@ -17,6 +17,9 @@ persons:
       - 成果
     corpus_hint: content/resume/cv-online.md
 
+arbitration:
+  enabled: true
+
 rag_signals:
   keywords:
     - 经历
