@@ -14,7 +14,12 @@ from typing import Any, Literal
 from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
 from openai import APIStatusError
 
-from .intent_hints import build_intent_hints_prompt_block, load_resolved_hints
+from .intent_hints import (
+    arbitration_enabled,
+    build_intent_hints_prompt_block,
+    hints_arbitration_should_apply,
+    load_resolved_hints,
+)
 from .intent_router import decide_intent as decide_intent_v1
 from .rag_env import openai_siliconflow_client
 from .text2sql_core import is_text2sql_intent
@@ -119,6 +124,46 @@ def _log_intent_cache_line(*, event: str, key_hash: str, latency_ms: int) -> Non
     _logger.info("[intent-cache] %s key_hash=%s latency_ms=%s", event, key_hash, latency_ms)
 
 
+def _exc_short_label(exc: BaseException) -> str:
+    return type(exc).__name__
+
+
+def _log_intent_retry_exhausted(*, attempt: int, max_retries: int, exc: BaseException) -> None:
+    _logger.warning(
+        "[intent-retry] exhausted attempt=%s max=%s err=%s → v1_fallback",
+        attempt,
+        max_retries,
+        _exc_short_label(exc),
+    )
+
+
+def _log_intent_retry_will_retry(
+    *,
+    attempt: int,
+    max_retries: int,
+    exc: BaseException,
+    timeout_s: float,
+    backoff_s: float,
+) -> None:
+    _logger.warning(
+        "[intent-retry] attempt=%s/%s failed err=%s timeout_s=%s backoff_s=%s will_retry",
+        attempt,
+        max_retries,
+        _exc_short_label(exc),
+        timeout_s,
+        backoff_s,
+    )
+
+
+def _log_intent_retry_success(*, attempt: int, max_retries: int, timeout_s: float) -> None:
+    _logger.info(
+        "[intent-retry] success attempt=%s/%s timeout_s=%s",
+        attempt,
+        max_retries,
+        timeout_s,
+    )
+
+
 @dataclass(frozen=True)
 class StructuredSignals:
     """用于 gating 的结构化信号（关键约束：RAG_RETRIEVE_EMPTY 的 SQL fallback 必须依赖这些信号）。"""
@@ -137,6 +182,33 @@ class IntentDecision:
     fallback: ToolName | None
     structured_signals: StructuredSignals
     raw_response: dict[str, Any]
+
+
+def build_intent_path_obs(raw: dict[str, Any] | None) -> dict[str, Any]:
+    """Intent 决策路径可观测字段（Timeline / agent.intent；不含 prompt 正文）。"""
+    rr = raw if isinstance(raw, dict) else {}
+    used = rr.get("used")
+    intent_path: str | None = None
+    if isinstance(used, str) and used.strip():
+        intent_path = used.strip()
+    elif "tool" in rr and "confidence" in rr:
+        intent_path = "llm"
+    attempt_raw = rr.get("attempt")
+    intent_attempt: int | None = None
+    if isinstance(attempt_raw, (int, float)) and int(attempt_raw) >= 1:
+        intent_attempt = int(attempt_raw)
+    hints_arbitration: dict[str, Any] | None = None
+    arb = rr.get("hints_arbitration")
+    if isinstance(arb, dict) and arb.get("applied") is True:
+        hints_arbitration = {
+            "applied": True,
+            "reason": str(arb.get("reason") or "").strip(),
+        }
+    return {
+        "intent_path": intent_path,
+        "intent_attempt": intent_attempt,
+        "hints_arbitration": hints_arbitration,
+    }
 
 
 def _intent_decision_for_cache_store(d: IntentDecision) -> IntentDecision:
@@ -187,6 +259,37 @@ def _has_aggregation_keywords(query: str) -> bool:
         "avg",
     )
     return any(n in q for n in needles)
+
+
+def apply_hints_arbitration(
+    decision: IntentDecision,
+    *,
+    query: str,
+    hints: dict[str, Any] | None = None,
+) -> IntentDecision:
+    """Step2：配置命中 + LLM direct → 强制 rag_search。"""
+    if decision.tool != "direct_answer":
+        return decision
+    h = hints if hints is not None else load_resolved_hints()
+    if not arbitration_enabled(h):
+        return decision
+    should, reason = hints_arbitration_should_apply(query, h or {})
+    if not should:
+        return decision
+    raw = dict(decision.raw_response)
+    raw["hints_arbitration"] = {"applied": True, "reason": reason}
+    full = decision.reasoning_full
+    if reason and reason not in full:
+        full = f"{full}（{reason}）".strip()
+    return replace(
+        decision,
+        tool="rag_search",
+        mode="rag",
+        reasoning=full[:260],
+        reasoning_full=full,
+        fallback=None,
+        raw_response=raw,
+    )
 
 
 def _fallback_tool_by_low_confidence(tool: ToolName) -> ToolName:
@@ -433,14 +536,28 @@ async def _llm_decide_v2_with_retries(
             meta: dict[str, Any] = {"attempt": attempt, "timeout_s": attempt_timeout_s}
             if attempt > 1:
                 meta["used"] = "llm_retry"
+                _log_intent_retry_success(
+                    attempt=attempt, max_retries=max_retries, timeout_s=attempt_timeout_s
+                )
             return raw_obj, intent_prompts, meta
         except Exception as exc:  # noqa: BLE001
             if not _intent_llm_retryable(exc) or attempt >= max_retries:
                 if _intent_llm_retryable(exc) and attempt >= max_retries:
+                    _log_intent_retry_exhausted(
+                        attempt=attempt, max_retries=max_retries, exc=exc
+                    )
                     raise asyncio.TimeoutError from exc
                 raise
             last_retryable = exc
-            await asyncio.sleep(_intent_llm_retry_backoff_s(attempt))
+            backoff_s = _intent_llm_retry_backoff_s(attempt)
+            _log_intent_retry_will_retry(
+                attempt=attempt,
+                max_retries=max_retries,
+                exc=exc,
+                timeout_s=attempt_timeout_s,
+                backoff_s=backoff_s,
+            )
+            await asyncio.sleep(backoff_s)
     raise asyncio.TimeoutError from last_retryable
 
 
@@ -559,6 +676,9 @@ async def decide_intent_v2(
             raw_merged: dict[str, Any] = dict(raw_obj)
             if retry_meta.get("used") == "llm_retry":
                 raw_merged["used"] = "llm_retry"
+            elif "used" not in raw_merged:
+                raw_merged["used"] = "llm"
+            if retry_meta.get("attempt") is not None:
                 raw_merged["attempt"] = retry_meta.get("attempt")
             if retry_meta.get("timeout_s") is not None:
                 raw_merged["timeout_s"] = retry_meta.get("timeout_s")
@@ -574,6 +694,7 @@ async def decide_intent_v2(
                 structured_signals=structured,
                 raw_response=raw_merged,
             )
+            decision2 = apply_hints_arbitration(decision2, query=query)
             return _return_cache_miss(decision2)
     except asyncio.TimeoutError:
         # timeout -> 降级到 V1 规则路由

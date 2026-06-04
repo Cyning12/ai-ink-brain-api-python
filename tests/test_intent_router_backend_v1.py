@@ -294,3 +294,79 @@ def test_router_rag_keeps_when_ddl_positive_but_fts_empty(monkeypatch: pytest.Mo
     assert d.final_mode == "rag"
     assert d.fallback == "rag_without_fts_keep_rag_ddl_evidence"
 
+
+def _stub_router_no_evidence(monkeypatch: pytest.MonkeyPatch) -> None:
+    import api.intent_router as intent_router
+
+    def fake_store():  # noqa: ANN001
+        class _S:
+            def search(self, query: str, *, top_k: int = 3):  # noqa: ANN001
+                return []
+
+        return _S()
+
+    monkeypatch.setattr(intent_router, "get_text2sql_store", fake_store)
+
+    class _Rpc:
+        def execute(self):
+            class _R:
+                data: list[dict[str, Any]]
+
+            r = _R()
+            r.data = []
+            return r
+
+    class _Sb:
+        def rpc(self, name: str, params: dict[str, Any]):  # noqa: ANN001
+            return _Rpc()
+
+    monkeypatch.setattr(intent_router, "supabase_client", lambda: _Sb())
+
+
+def test_router_portfolio_q4_yaml_rule_hits(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Q4 逐字：YAML portfolio 信号并入 V1 rule_hits → candidate rag。"""
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+    from api.intent_hints import clear_intent_hints_cache
+
+    monkeypatch.setenv("INTENT_HINTS_ENABLED", "true")
+    clear_intent_hints_cache()
+    _stub_router_no_evidence(monkeypatch)
+
+    d = intent_router.decide_intent(query="11 年经历里 AI Coding 相关成果？", prefer="auto")
+    assert d.candidate_mode == "rag"
+    assert d.final_mode == "rag"
+    assert any("portfolio" in h for h in d.rule_hits)
+
+
+def test_router_portfolio_q_intent_yaml_rule_hits(monkeypatch: pytest.MonkeyPatch) -> None:
+    """RUNBOOK §4.1 Q-INTENT 逐字：人名 portfolio 规则命中。"""
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+    from api.intent_hints import clear_intent_hints_cache
+
+    monkeypatch.setenv("INTENT_HINTS_ENABLED", "true")
+    clear_intent_hints_cache()
+    _stub_router_no_evidence(monkeypatch)
+
+    q = "聊聊你对刘新宁的看法，他在 AI coding 岗位有什么优势"
+    d = intent_router.decide_intent(query=q, prefer="auto")
+    assert d.candidate_mode == "rag"
+    assert "rule:portfolio_person" in d.rule_hits
+
+
+def test_router_portfolio_q4_llm_off_rag(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CHATBI_V2_INTENT_LLM=false 时 V1 router 仍对 Q4 给出 rag。"""
+    _reload_api_index(monkeypatch)
+    import api.intent_router as intent_router
+    from api.intent_hints import clear_intent_hints_cache
+
+    monkeypatch.setenv("INTENT_HINTS_ENABLED", "true")
+    monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
+    clear_intent_hints_cache()
+    _stub_router_no_evidence(monkeypatch)
+
+    d = intent_router.decide_intent(query="11 年经历里 AI Coding 相关成果？", prefer="auto")
+    assert d.final_mode == "rag"
+    assert any("portfolio" in h for h in d.rule_hits)
+

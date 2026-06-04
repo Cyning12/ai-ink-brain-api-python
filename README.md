@@ -28,9 +28,34 @@ FastAPI backend for **AI-Ink-Brain** (RAG chat + ingest/sync) designed for deplo
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
+cp .env.example .env          # fill in keys; see docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md
+```
+
+**Start API** (recommended: `--log-level info` so Intent retry lines like `[intent-retry]` appear in the console; no extra `DEBUG_INTENT_CACHE` needed):
+
+```bash
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info
+```
+
+**Dev with auto-reload:**
+
+```bash
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload --log-level info
+```
+
+**Smoke check:**
+
+```bash
+curl -sS http://127.0.0.1:8000/api/py/health
+curl -sS http://127.0.0.1:8000/api/py/live
+```
+
+**Tests** (same as CI; excludes slow intent eval/benchmark):
+
+```bash
+pytest tests -m "not intent_eval and not intent_benchmark"
 ```
 
 ## Notes

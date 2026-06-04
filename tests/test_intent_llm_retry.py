@@ -129,6 +129,36 @@ def test_intent_llm_retry_timeout_decreases_per_attempt(monkeypatch: pytest.Monk
     asyncio.run(_run())
 
 
+def test_intent_llm_retry_logs_without_debug_intent_cache(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    import logging
+
+    calls: list[int] = []
+
+    async def _flaky_llm(
+        *, oai: Any, query: str, history: list[dict[str, Any]], tools: list[Tool], timeout_s: float, capture_prompts: bool = False
+    ) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
+        _ = (oai, query, history, tools, timeout_s, capture_prompts)
+        calls.append(1)
+        if len(calls) < 2:
+            raise asyncio.TimeoutError()
+        return {"tool": "rag_search", "reasoning": "ok", "confidence": 0.9}, None
+
+    monkeypatch.delenv("DEBUG_INTENT_CACHE", raising=False)
+    monkeypatch.setattr(ia, "_llm_decide_v2", _flaky_llm)
+
+    with caplog.at_level(logging.INFO, logger="api.intent_agent"):
+        asyncio.run(
+            decide_intent_v2(query="重试日志", history=[], tools=_make_tools(), timeout=3.0)
+        )
+
+    text = caplog.text
+    assert "[intent-retry]" in text
+    assert "will_retry" in text
+    assert "success attempt=2" in text
+
+
 def test_intent_llm_retryable_classifier() -> None:
     assert ia._intent_llm_retryable(asyncio.TimeoutError()) is True
     assert ia._intent_llm_retryable(ValueError("bad json")) is False
