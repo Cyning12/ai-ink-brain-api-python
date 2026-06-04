@@ -1,6 +1,6 @@
 # Task：ChatBI 基线合并闸 — origin/main 既有 pytest + contract 红项修复
 
-> **状态**：`active`（30 已交付 · 待 40 自检）  
+> **状态**：`active`（40 自检完成 · 待 **50** 独立复检）  
 > **维护者决策**：50 复检 `[reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md](../reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md)` **选 B** — 先修 main 基线债，再合 P0 Graph PR  
 > **关联图谱**：`docs/_tech_graph/_contract_manifest.json`（Unified SSE 跨端契约）；`api/unified_chat.py` / `api/agent.py`（v3 plan/clarify 路径）  
 > **schedule_ref**：P0 Graph 合入前置 · 见 `[RECENT_TASK_SCHEDULE.md](../RECENT_TASK_SCHEDULE.md)`（待维护者补锚）
@@ -178,6 +178,7 @@ python tools/tech_graph_contract_check.py
 
 | 日期         | 摘要                                                                                              |
 | ---------- | ----------------------------------------------------------------------------------------------- |
+| 2026-06-04 | 40 自检：独立复跑 pytest/contract/manifest · 验收表全 pass · 待 50 |
 | 2026-06-04 | 30 执行：conftest 固定 `INTENT_MIN_CONFIDENCE=0.6` · contract 声明 `label` · `agent.py` clarify_gate 补 `on` |
 
 ---
@@ -194,46 +195,53 @@ python tools/tech_graph_contract_check.py
 
 ### 自检结论（执行者）
 
-**执行时间**：2026-06-04 · **分支**：`task/chatbi-baseline-merge-gate-v1` · **cwd**：仓根 `ai-ink-brain-api-python`
+**40 自检时间**：2026-06-04 · **分支**：`task/chatbi-baseline-merge-gate-v1` · **HEAD**：`eed212e` · **cwd**：仓根 `ai-ink-brain-api-python`
 
-#### 命令与退出码
+#### 命令与退出码（40 独立复跑）
 
-| 命令 | cwd | exit |
-| --- | --- | ---: |
-| `pytest tests/test_unified_chat_backend_v2_agent.py -k "v3 and (plan or low_confidence)" -q` | 仓根 | **0**（10 passed） |
-| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓根 | **0**（277 passed · 1 skipped） |
-| `python tools/tech_graph_contract_check.py` | 仓根 | **0**（OK） |
-| `python tools/tech_graph_manifest_check.py` | 仓根 | **0**（OK） |
-| `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md` | 仓根 | **0**（OK） |
+| 命令 | cwd | exit | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests/test_unified_chat_backend_v2_agent.py -k "v3 and (plan or low_confidence)" -q` | 仓根 | **0** | 10 passed |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓根 | **0** | 277 passed · 1 skipped |
+| `python tools/tech_graph_contract_check.py` | 仓根 | **0** | `OK: cross-repo contract check passed` |
+| `python tools/tech_graph_manifest_check.py` | 仓根 | **0** | `OK: manifest matches code/SQL truth` |
+| `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md` | 仓根 | **0** | OK |
 
-#### 验收表（30 · 对照 `## 验收标准`）
+#### 验收表（40 · 对照 `## 验收标准`）
 
 | 验收项 | 结果 | 证据 |
 | --- | :---: | --- |
-| 10× v3 plan/clarify 用例 pass | **pass** | 上表第一项 |
-| 全集 pytest 全绿 | **pass** | 277 passed |
-| `tech_graph_contract_check` exit 0 | **pass** | `label` 已列入 ignore keys |
-| `tech_graph_manifest_check` 仍绿 | **pass** | OK |
-| PR pytest workflow | **未测** | 本地全集已绿；须 CI |
-| 未夹带 P0 Graph 交付物 | **pass** | diff 仅 conftest / contract / agent 一行 clarify_gate |
-| Delta 与实现一致 | **pass** | ADDED `baseline-contract-label-declared` · MODIFIED 口径为 env 真值对齐 |
-| harness_task_validate | **pass** | OK |
+| 10× v3 plan/clarify 用例 pass | **pass** | `-k "v3 and (plan or low_confidence)"` → 10 passed |
+| 全集 pytest 全绿 | **pass** | 277 passed · 1 skipped |
+| `tech_graph_contract_check` exit 0 | **pass** | stdout OK · `_contract_manifest.json` 含 `label` ignore |
+| `tech_graph_manifest_check` 仍绿 | **pass** | exit 0 |
+| PR pytest workflow | **未测** | 本地全集已绿；须 CI / 维护者签核 |
+| 未夹带 P0 Graph 交付物 | **pass** | `git diff origin/main...HEAD --name-only` 无 `api/graph/*` · 无 Q-8 路由 · 无 `test_chatbi_graph_p0_foundation.py` |
+| Delta 与实现一致 | **pass** | ADDED label · MODIFIED 为 conftest 阈值真值对齐（clarify 逻辑未改语义） |
+| `harness_task_validate` | **pass** | exit 0 |
 
-#### OpenSpec × TDD 三维（30 摘要）
+#### failure_paths 抽检（F1～F3 · 40）
+
+| Scenario ID | 40 判定 | 证据 |
+| --- | :---: | --- |
+| `fp-baseline-v3-plan-regression` | **pass** | 10× v3 用例 + 全集 pytest 绿 |
+| `fp-baseline-contract-label-drift` | **pass** | `tech_graph_contract_check` exit 0 |
+| `fp-baseline-scope-creep-p0` | **pass** | diff 9 文件：conftest · contract · agent · harness/task · `02_version` 自动追加 |
+
+#### OpenSpec × TDD 三维（40）
 
 | 维度 | 结果 | 备注 |
 | --- | :---: | --- |
 | Completeness | **pass** | F1–F3 有命令/用例证据 |
-| Correctness | **pass** | clarify 触发条件恢复 spec 默认阈值语义 |
-| Coherence | **pass** | 与 Delta / RUNBOOK 路径 A 一致 |
+| Correctness | **pass** | conftest 固定 `INTENT_MIN_CONFIDENCE=0.6` 恢复 clarify 触发；contract `label` 与 Runbook 路径 A 一致 |
+| Coherence | **pass** | 与 Delta / 非范围一致；无 P0 夹带 |
 
 #### 已知未测 / 阻塞
 
-- **40 帽**：须独立复核验收表与 diff。
-- **50 帽**：关账前 `reinspect_results/`（`test_strategy: required`）。
+- **50 帽**：关账前须 `docs/tasks/reinspect_results/reinspect_chatbi_baseline_merge_gate_v1_*.md`（`test_strategy: required`）。
 - **PR 线上 workflow**：未执行 `gh`/Actions。
 
-**30 结论**：基线修复 **完成**；待 40 自检 + 50 复检后开 PR → main。
+**40 结论**：自检 **通过** — 本地必绿命令全绿；建议进入 **50 独立复检** 后开 PR → main。
 
 ---
 
