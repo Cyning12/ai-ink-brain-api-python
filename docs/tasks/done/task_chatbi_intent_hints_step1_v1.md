@@ -1,6 +1,6 @@
 # Task：ChatBI Intent Hints — Step 1（C-lite · YAML + Prompt 注入）
 
-> **状态**：`active`（30 实现完成 · 待 **40** 自检回填）  
+> **状态**：`done（2026-06-04 · 50 复检 pass-with-notes · 待人 PR/合并签收）`  
 > **Epic**：ChatBI Intent Hints · **U1 · Step 1**  
 > **时间门槛**：[`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 — **6/9 前须合 main**  
 > **关联图谱**：`api/intent_agent.py` · `api/intent_router.py`（Step 1 **不改** router）· 无 `api/graph/*`  
@@ -34,6 +34,7 @@
 | ------------- | ------ | ----------- | ---- |
 | HG-TASK-DRAFT | approved | 22-R1, 30 | 10 帽初稿 · 2026-06-04 人签 |
 | HG-AUDIT-R1 | approved | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
+| HG-REINSPECT | pending | done, 合并 PR | 50 落盘 `reinspect_results/` 后人签 · 见 **§人类签收清单** |
 
 ---
 
@@ -219,6 +220,7 @@ pytest -m intent_eval -q
 | 2026-06-04 | 10 帽：U1 Step1 task 初稿 · Overview §7 Q-1～Q-4 落盘 · HG-TASK-DRAFT pending |
 | 2026-06-04 | 人签 HG-TASK-DRAFT approved · 00 派 22 R1 |
 | 2026-06-04 | HG-AUDIT-R1 approved · 30 实现 Step1 C-lite |
+| 2026-06-04 | 40 自检 + 50 复检 + CLOSE · task 归档 `done/` |
 
 ---
 
@@ -226,15 +228,125 @@ pytest -m intent_eval -q
 
 | 类别 | 路径 / 说明 |
 | --- | --- |
-| （待 30） | `api/intent_hints.py` · `api/intent_agent.py` · `docs/chatbi/v1/intent_hints.yaml` · 测试文件列表 |
+| YAML | `docs/chatbi/v1/intent_hints.yaml` |
+| Loader | `api/intent_hints.py` — `load_resolved_hints` · `build_intent_hints_prompt_block` |
+| 注入点 | `api/intent_agent.py` — `_llm_decide_v2`「总原则」与「通用知识」之间 |
+| 可选 | `api/tools.py` — `rag_search.description` Portfolio 半句 |
+| 单测 | `tests/test_intent_hints_loader.py`（9） |
+| Portfolio stub | `tests/test_intent_agent_accuracy.py` — `_portfolio_intent_cases()` + 2 mock 测（不并入 60 金标） |
+| 配置 | `.env.example` · `PROJECT_CONFIG` — `INTENT_HINTS_*` |
+| 实现 commit | `bb59beb` |
+
+---
+
+### 自检结论（执行者）
+
+> **40 帽 · 2026-06-04 · 分支 `task/chatbi-intent-hints-step1-v1` · commit `bb59beb` 基线**
+
+#### 命令与退出码（40 独立复跑）
+
+| 命令 | cwd | exit | 要点 |
+| --- | --- | ---: | --- |
+| `pytest tests/test_intent_hints_loader.py -q` | 仓根 | **0** | 9 passed |
+| `pytest tests/test_intent_agent_accuracy.py -k portfolio -q` | 仓根 | **0** | 2 passed（mock LLM） |
+| `pytest tests/test_intent_agent_accuracy.py::test_intent_eval_cases_inventory -q` | 仓根 | **0** | 60 条结构门禁仍绿 |
+| `pytest tests/test_intent_agent_accuracy.py::test_stub_eval_end_to_end_writes_exports -q` | 仓根 | **0** | 60 stub 导出链未回归 |
+| `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 仓根 | **0** | **298 passed** · 1 skipped |
+| `python tools/harness_task_validate.py docs/tasks/done/task_chatbi_intent_hints_step1_v1.md` | 仓根 | **0** | OK |
+| `git diff origin/main...HEAD -- api/graph/` | 仓根 | — | **0 行**（F4 scope） |
+
+#### 验收表（40 · 对照 `## 验收标准`）
+
+| 验收项 | 结果 | 证据 |
+| --- | :---: | --- |
+| `intent_hints.yaml` 随仓 · Schema §5 等价 | **pass** | `docs/chatbi/v1/intent_hints.yaml` · `bb59beb` |
+| Q4 逐字 · rag + resume（集成） | **未测** | stub/mock 已覆盖路由期望；**须** RUNBOOK §4 + CONTENT_ROOT 人验 |
+| 刘新宁…优势/看法（集成） | **未测** | 同上 · F3 语料依赖 |
+| 量子计算 · direct_answer | **pass** | mock LLM 负例 · `_portfolio_intent_cases` |
+| YAML 缺失 / `INTENT_HINTS_ENABLED=0` 降级 | **pass** | loader 单测 + `test_portfolio_intent_hints_disabled_*` |
+| loader 单测全绿 | **pass** | 9 passed |
+| Portfolio IntentCase 2～4 条 stub | **pass** | 4 cases · 2 tests |
+| 全集 pytest 全绿 | **pass** | 298 passed |
+| diff 不含 `api/graph/*` | **pass** | git diff 空 |
+| `.env.example` + PROJECT_CONFIG | **pass** | `INTENT_HINTS_*` 已同步 |
+| Delta 与实现一致 | **pass** | Prompt 注入块 · loader 语义对齐 value_hints |
+| `harness_task_validate` | **pass** | exit 0 |
+| PR pytest workflow | **未测** | 须 CI / 维护者签核 |
+
+#### failure_paths 抽检（F1～F5 · 40）
+
+| Scenario ID | 40 判定 | 证据 |
+| --- | :---: | --- |
+| `fp-step1-yaml-corrupt` | **pass** | `test_load_hints_corrupt_yaml` · `test_load_hints_non_dict_root` |
+| `fp-step1-llm-still-direct` | **pass-with-notes** | Prompt-only 不 100%；F2 诚实 · U2 defer |
+| `fp-step1-rag-empty-corpus` | **未测** | 非 Step1 代码范围 |
+| `fp-step1-scope-creep` | **pass** | diff 无 router/graph/Step2 |
+| `fp-step1-eval-regression` | **pass** | 60 金标 inventory + stub 导出仍绿 |
+
+#### OpenSpec × TDD 三维（40）
+
+| 维度 | 结果 | 备注 |
+| --- | :---: | --- |
+| Completeness | **pass-with-notes** | F3 集成探针待人验；其余有测例/命令 |
+| Correctness | **pass** | 降级返回 None · 不 crash · JSON schema 未改 |
+| Coherence | **pass** | 与 Delta / Step1 SPEC / 非范围一致 |
+
+#### 已知未测 / 阻塞
+
+- **Portfolio 五问集成**（Q4 逐字 + sources resume）：须本地/预发 Unified Chat + sync 已绿。
+- **PR 线上 `pytest` workflow**：未执行 `gh`/Actions。
+
+**40 结论**：自检 **通过（pass-with-notes）** — 本地必绿全绿；建议 **50 复检** 后开 PR。
+
+---
+
+### 经验摘要（experience_capture · required）
+
+- **Loader 模式复用**：Intent hints 照抄 `text2sql_value_hints` 的 env/mtime/utf-8-sig 语义，避免第二套降级行为。
+- **评测隔离**：Portfolio 用例 **不得** 并入 60 条 `intent_eval` 金标（`test_intent_eval_cases_inventory` 硬门禁）；用 mock LLM 专测注入路径。
+- **F2 诚实**：Step1 仅 Prompt 注入，真实 LLM 仍可能 direct；U2 仲裁 defer，五问集成验收须与人验并行。
+
+---
+
+### 人类签收清单（关账 · 须人勾选）
+
+- [ ] **HG-REINSPECT**：阅读 [`reinspect_chatbi_intent_hints_step1_v1_20260604_v1.md`](../reinspect_results/reinspect_chatbi_intent_hints_step1_v1_20260604_v1.md) → task `HG-REINSPECT` → `approved`（**单独 commit**）
+- [ ] **PR 开单**：标题 `feat(chatbi): intent_hints Step1 — YAML 注入 Portfolio Intent` · 基线 `main` · 分支 `task/chatbi-intent-hints-step1-v1`
+- [ ] **CI**：PR 上 **`pytest`** Required check 全绿
+- [ ] **RUNBOOK 集成**：[`RUNBOOK_portfolio_rag_five_questions_v1_zh.md`](../harness/guides/RUNBOOK_portfolio_rag_five_questions_v1_zh.md) §4 — Q4 逐字 + 刘新宁问 → `rag_search` + sources `resume/*`（CONTENT_ROOT + sync 已绿）
+- [ ] **负例 smoke**：「解释一下量子计算，用通俗语言」→ `direct_answer`
+- [ ] **Overview §7**（可选）：`docs/spec/intent-hints/SPEC-ChatBI-Intent-Hints-Overview-v1_zh.md` §7 checkbox 与 task §SPEC 决策对齐
+- [ ] **合并 main** 后：U2 `chatbi_intent_hints_step2_v1` 可开 10 帽
+
+---
+
+### 审查与阶段状态
+
+| 项 | 路径 / 结论 |
+| --- | --- |
+| 22 R1 | [`task_chatbi_intent_hints_step1_v1_audit_R1_20260604.md`](../harness/reviews/task_chatbi_intent_hints_step1_v1_audit_R1_20260604.md) · 零阻塞 |
+| 50 复检 | [`reinspect_chatbi_intent_hints_step1_v1_20260604_v1.md`](../reinspect_results/reinspect_chatbi_intent_hints_step1_v1_20260604_v1.md) · pass-with-notes |
+| 关闭回溯 | 见 50 报告 **「执行路线与 Commit 回溯」** |
 
 ---
 
 ## KPI（00）
 
-> 关账前由 CLOSE / 00 汇总；开工时留空。
+> rubric：`KPI_RUBRIC_v1_2` · 关账 2026-06-04
 
 | 指标 | 值 |
 | --- | --- |
-| Task_KPI% | （关账填） |
-| blocked | （关账填） |
+| **Task_KPI%** | **94** |
+| **blocked** | **否**（本地验收绿；CI/集成待人签） |
+| **aggregate** | pass-with-notes |
+
+| hat | round | D1 | D2 | D3 | D4 | D5 | 备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 10 | R0 | pass | pass | pass | pass | pass | task + §7 吸收 |
+| 22 | R1 | pass | pass | pass | pass | pass | 零阻塞 |
+| 30 | — | pass | pass | pass | pass | pass | `bb59beb` · 298 pytest |
+| 40 | — | pass | pass | pass | pass | warn | 集成探针未测 |
+| 50 | v1 | pass | pass | pass | pass | warn | Fresh Context · 无 Actions |
+| CLOSE | — | pass | pass | pass | pass | pass | 回溯已落 50 |
+
+---

@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- `../done/task_chatbi_intent_hints_step1_v1.md`（2026-06-04：Intent Hints Step1 C-lite · yaml+loader+Prompt 注入 · KPI 94% pass-with-notes · `CHATBI-INTENT-HINTS@2026-06-09` · reinspect `reinspect_chatbi_intent_hints_step1_v1_20260604_v1.md` · 分支 `task/chatbi-intent-hints-step1-v1` · 实现 `bb59beb` · **待人 HG-REINSPECT + PR CI + RUNBOOK 集成**）
 - `../done/task_harness_invokes_by_task_prompts_sync_v1.md`（2026-06-02：prompts/HANDOFF + 05 rule 对齐 by-task invoke 落盘 · 配对 Ink PR #48 · `HARNESS-INVOKES-BY-TASK-PROMPTS@2026-06-02`）
 - `../done/task_chatbi_v3_lowconf_rag_preview_v1.md`（2026-05-31：§5-3 RAG 预览+token · KPI 100% pass · `CHATBI-LOWCONF-RAG-PREVIEW@2026-05-31` · reinspect `reinspect_chatbi-v3-lowconf-rag-preview_20260531_v1.md` · 分支 `task/chatbi-v3-lowconf-rag-preview` · Ink `72f8f0c`）
 - `../done/task_chatbi_v3_lowconf_sql_preview_v1.md`（2026-05-31：§5-2 Text2SQL 预览+token · KPI 100% pass · `CHATBI-LOWCONF-SQL-PREVIEW@2026-05-31` · reinspect `reinspect_chatbi-v3-lowconf-sql-preview_20260531_v1.md` · 分支 `task/chatbi-v3-lowconf-sql-preview`）
