@@ -108,7 +108,7 @@ export ADMIN_TOKEN="$SYNC_ADMIN_SECRET"
 
 | 步骤  | 动作                                                                                                                                               |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | 本机（仓库根）：`python3 docs/diary/local_chatbi_access_token_gen.py --level 2 --subject-user-id <user_id> --label portfolio-five-q --expires-in-days 7` |
+| 1   | 本机（仓库根）：`python3 tmp/diary/local_chatbi_access_token_gen.py --level 2 --subject-user-id <user_id> --label portfolio-five-q --expires-in-days 7`（pointer：[`docs/diary/POINTER_local_chatbi_access_token_gen.md`](../../diary/POINTER_local_chatbi_access_token_gen.md)） |
 | 2   | 将脚本 stdout 的 **INSERT SQL** 在 Supabase SQL Editor 执行（**勿**将明文 token 提交 Git）                                                                      |
 | 3   | 探活：`curl -sS "$PY_API_URL/api/py/chatbi/access/verify" -H "Authorization: Bearer $VISITOR_CHATBI_TOKEN"` → `ok: true`                                   |
 | 4   | 五问 / history：`Authorization: Bearer $VISITOR_CHATBI_TOKEN` 调用 Unified 或 `GET /api/py/chat/history`（**不禁 text2sql** · level 2 `end_user`）                                               |

@@ -19,7 +19,7 @@
 
 - **题集**：与闸口 A 相同三题（`T001`/`T002`/`T003`），见 [`tasks.json`](../fixtures/gate_ctx_ab_v1/tasks.json)。  
 - **CTX_QUERY 种子**：[`query_seeds.json`](../fixtures/gate_ctx_b_v1/query_seeds.json)（`downstream` depth=2，节点 `ENV`/`U2`/`A2`）。  
-- **模型**：`deepseek-ai/DeepSeek-V4-Flash` · `temperature=0.2` · 策略 α（全量重贴附件）。
+- **模型**：`deepseek-ai/DeepSeek-V4-Pro` · `temperature=0.2` · 策略 α（全量重贴附件）。
 
 ---
 

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 # 双人盲审固定池（不使用 SILICONFLOW_CHAT_MODEL）；顺序由 CLI 随机洗牌后赋给 R1/R2。
 SILICONFLOW_REVIEWER_MODEL_POOL: tuple[str, ...] = (
-    "deepseek-ai/DeepSeek-V4-Flash",
+    "deepseek-ai/DeepSeek-V4-Pro",
     "Pro/moonshotai/Kimi-K2.6",
 )
 

@@ -90,7 +90,7 @@ event: chain
 data: {"type":"tool.call.end","ts":26256,"step_id":"t_step1","payload":{"output":{"answer":"共有 12 条。"},"error":null,"latency_ms":20531}}
 
 event: chain
-data: {"type":"agent.debug.llm_prompts","ts":26256,"step_id":"tool_llm_replay_1","payload":{"scope":"tool","tool":"text2sql_query","step_number":1,"items":[{"phase":"text2sql_sql","model":"deepseek-ai/DeepSeek-V4-Flash","messages":"…[折叠：完整 messages 见执行人本机 SSE 原文；含 DDL/值域提示等]…"}]}}
+data: {"type":"agent.debug.llm_prompts","ts":26256,"step_id":"tool_llm_replay_1","payload":{"scope":"tool","tool":"text2sql_query","step_number":1,"items":[{"phase":"text2sql_sql","model":"deepseek-ai/DeepSeek-V4-Pro","messages":"…[折叠：完整 messages 见执行人本机 SSE 原文；含 DDL/值域提示等]…"}]}}
 
 event: chain
 data: {"type":"sql.result","ts":26256,"step_id":"q_step1","payload":{"sql":"select count(*) from agent_info","columns":["count"],"rows":[{"count":12}],"truncated":false}}

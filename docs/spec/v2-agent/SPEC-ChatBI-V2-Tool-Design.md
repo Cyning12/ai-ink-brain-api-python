@@ -201,7 +201,7 @@ async def direct_answer_execute(query: str) -> ToolResult:
     started_at = time.perf_counter()
     try:
         oai = openai_siliconflow_client()
-        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+        chat_model = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
         
         res = oai.chat.completions.create(
             model=chat_model,

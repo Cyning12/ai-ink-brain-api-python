@@ -8,7 +8,7 @@ Step 3：gate_ctx_ab_v1 最小 S0 — 对 T001 跑 CTX_JSON / CTX_MERMAID 各 1 
 用法：
   python …/run_s0_minimal.py
   python …/run_s0_minimal.py --arms-order mermaid,json
-  python …/run_s0_minimal.py --model deepseek-ai/DeepSeek-V4-Flash
+  python …/run_s0_minimal.py --model deepseek-ai/DeepSeek-V4-Pro
 """
 
 from __future__ import annotations

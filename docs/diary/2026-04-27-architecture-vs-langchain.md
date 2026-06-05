@@ -31,7 +31,7 @@
 | 维度 | 当前实现 | LangChain | 对比结论 |
 |------|----------|-----------|----------|
 | 调用方式 | 直接 `OpenAI SDK` | `ChatOpenAI` / `ChatModel` 统一接口 | 当前更简单直接 |
-| 多模型切换 | 硬编码 `deepseek-ai/DeepSeek-V3` | 一行配置切换 | ❌ 当前需改代码 |
+| 多模型切换 | 硬编码 `deepseek-ai/DeepSeek-V4-Pro` | 一行配置切换 | ❌ 当前需改代码 |
 | Fallback | ❌ 无 | 自动切换备用模型 | ❌ 当前无此能力 |
 | Rate Limit | ❌ 无 | 内置退避重试 | ❌ 当前无此能力 |
 | Streaming | ✅ SSE 自定义实现 | 标准化流式接口 | 当前更灵活 |

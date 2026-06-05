@@ -20,7 +20,7 @@
 - **题集**：复用 [`tasks.json`](../fixtures/gate_ctx_ab_v1/tasks.json) 三题（`T001`/`T002`/`T003`）。  
 - **D 种子**：[`query_seeds.json`](../fixtures/gate_ctx_c_v1/query_seeds.json)（节点 `ENV`/`U2`/`A2`，与闸口 B 同型、独立 freeze）。  
 - **E 选材**：每题 1 组双轨（共 3 组 `.ai.md`+`.md`，**非**整仓 7 文件）。  
-- **模型**：`deepseek-ai/DeepSeek-V4-Flash` · `temperature=0.2` · 策略 α（与闸口 B 对齐）。  
+- **模型**：`deepseek-ai/DeepSeek-V4-Pro` · `temperature=0.2` · 策略 α（与闸口 B 对齐）。  
 - **段**：仅 **S0**（冷启动单轮）；未跑 S1/S2。
 
 ### 0.1 复现命令

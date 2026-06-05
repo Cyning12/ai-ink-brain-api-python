@@ -639,6 +639,6 @@ if __name__ == "__main__":
     # 建议搭配：
     # - CHATBI_V2_INTENT_LLM=true
     # - SILICONFLOW_API_KEY=...
-    # - INTENT_LLM_MODEL=deepseek-ai/DeepSeek-V3（或 Qwen Turbo）
+    # - INTENT_LLM_MODEL=deepseek-ai/DeepSeek-V4-Pro（或 Qwen Turbo）
     summary0 = asyncio.run(_run_eval(real_llm=real_llm_flag))
     _print_report(summary0)

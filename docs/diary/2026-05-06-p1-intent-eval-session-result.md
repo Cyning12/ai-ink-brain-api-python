@@ -52,7 +52,7 @@ export CHATBI_V2_INTENT_EVAL=true
 export CHATBI_V2_INTENT_LLM=true
 export CHATBI_V2_INTENT_TIMEOUT_S=25
 export SILICONFLOW_API_KEY="..."
-export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V4-Flash"
+export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V4-Pro"
 
 # 可选：避免覆盖历史结果
 export CHATBI_V2_INTENT_EVAL_OUT="/tmp/intent_llm_$(date +%Y%m%d_%H%M).jsonl"
