@@ -190,7 +190,7 @@ cd ai-ink-brain-api-python && CHATBI_V2_INTENT_EVAL=true CHATBI_V2_INTENT_LLM=tr
 export CHATBI_V2_INTENT_EVAL=true
 export CHATBI_V2_INTENT_LLM=true
 export SILICONFLOW_API_KEY="..."
-export INTENT_LLM_MODEL="Qwen/Qwen2.5-7B-Instruct"   # 或 deepseek-ai/DeepSeek-V3 等
+export INTENT_LLM_MODEL="Qwen/Qwen2.5-7B-Instruct"   # 或 deepseek-ai/DeepSeek-V4-Pro 等
 # 若控制台出现「意图识别超时」且 latency≈3s：上游慢于默认 wait_for，请加大例如：
 # export CHATBI_V2_INTENT_TIMEOUT_S=20
 # 可选（推荐写入仓库内，便于归档）：相对路径二选一（与 pytest cwd 无关）

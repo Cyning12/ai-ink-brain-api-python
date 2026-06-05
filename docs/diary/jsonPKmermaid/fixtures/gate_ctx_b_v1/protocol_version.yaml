@@ -42,7 +42,7 @@ system_ref: docs/diary/jsonPKmermaid/fixtures/gate_ctx_ab_v1/system.md
 gate_a_behavior_ref: docs/diary/jsonPKmermaid/reports/conclusion_gate_ctx_ab_final_zh.md
 
 provider: siliconflow
-model: deepseek-ai/DeepSeek-V4-Flash
+model: deepseek-ai/DeepSeek-V4-Pro
 temperature: 0.2
 max_tokens: 4096
 

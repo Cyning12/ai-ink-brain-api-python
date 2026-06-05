@@ -11,7 +11,7 @@
 | 项 | 真值 |
 |----|------|
 | 协议 | `fixtures/gate_ctx_ab_v1/protocol_version.yaml` → `v1-minimal-s0` |
-| 模型 | `deepseek-ai/DeepSeek-V4-Flash`（SiliconFlow） |
+| 模型 | `deepseek-ai/DeepSeek-V4-Pro`（SiliconFlow） |
 | 策略 | `context_strategy: alpha`（每轮全量主载荷 + manifest/contract） |
 | 段·S0 执行 | Repeat·R=3 轮/题，`run_s0_batch.py --parallel`；离群剔除见 batch `aggregate.md` |
 | 轴 II 静态 | `graph.json` 20224 B；Mermaid 20953 B；启发式 token 5056 / 5026 |

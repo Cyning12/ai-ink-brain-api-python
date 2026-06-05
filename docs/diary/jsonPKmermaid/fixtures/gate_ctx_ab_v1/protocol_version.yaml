@@ -45,7 +45,7 @@ axis_ii_baseline:
   edges: 180
 
 provider: siliconflow
-model: deepseek-ai/DeepSeek-V4-Flash # Step 3 S0 两分支共用；双人 Rubric 另议
+model: deepseek-ai/DeepSeek-V4-Pro # Step 3 S0 两分支共用；双人 Rubric 另议
 temperature: 0.2
 max_tokens: 4096
 

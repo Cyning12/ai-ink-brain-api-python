@@ -54,7 +54,7 @@
 | `SILICONFLOW_BASE_URL` | OpenAI 兼容 Base URL | 可选 | `api/index.py`（`SILICONFLOW_BASE`）；`api/rag_env.py:siliconflow_base()` | 默认 `https://api.siliconflow.cn/v1` | 与项目无关 |
 | `SILICONFLOW_EMBEDDING_MODEL` | Embedding 模型名 | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_model()` | **空字符串会被视为未设置**：回退默认 `Qwen/Qwen3-Embedding-0.6B`（避免 CI/环境变量显式空值导致上游 400） | 影响向量空间；需与入库一致 |
 | `SILICONFLOW_EMBEDDING_DIMENSIONS` | Embedding 输出维度（Qwen3 需要） | 可选 | `api/index.py`；`api/rag_env.py:siliconflow_embedding_dimensions()` | 默认 `1024`；当模型名包含 `Qwen3-Embedding` 时传给 embeddings API | **必须与** `public.documents.embedding vector(N)` **一致**（默认 N=1024） |
-| `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V3` | 与向量维度无关 |
+| `SILICONFLOW_CHAT_MODEL` | Chat 模型 | 可选 | `api/index.py` | 默认 `deepseek-ai/DeepSeek-V4-Pro` | 与向量维度无关 |
 | `SYNC_ADMIN_SECRET` | admin/sync Bearer secret（与前端 BFF 同值） | **推荐 · portfolio 真值** | `api/rag_env.py:admin_secret()` → `api/index.py:_require_auth()` | 留空且无废弃 fallback 时：鉴权接口 500 | 与项目无关 |
 | `CHAT_API_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 仅当未设 `SYNC_ADMIN_SECRET` 时读取 | **勿**在新环境配置 |
 | `NEXT_PUBLIC_ADMIN_SECRET` | Admin secret **（已废弃 · 待删）** | 可选 fallback | `api/rag_env.py:admin_secret()` | 前端 **不再**使用；仅兼容旧 `.env` | **勿**在新环境配置 |

@@ -48,7 +48,7 @@ payload_limits:
   d_arm_nodes_lt_whole_mermaid_heuristic_tokens: 5026
 
 provider: siliconflow
-model: deepseek-ai/DeepSeek-V4-Flash
+model: deepseek-ai/DeepSeek-V4-Pro
 temperature: 0.2
 max_tokens: 4096
 

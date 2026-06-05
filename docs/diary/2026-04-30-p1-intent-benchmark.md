@@ -15,7 +15,7 @@
 export CHATBI_V2_INTENT_LLM=true
 export CHATBI_V2_INTENT_EVAL=true
 export SILICONFLOW_API_KEY="..."
-export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V3"   # 或 Qwen/Qwen2.5-7B-Instruct / qwen turbo
+export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V4-Pro"   # 或 Qwen/Qwen2.5-7B-Instruct / qwen turbo
 
 python -m pytest -q tests/test_intent_agent_accuracy.py -s
 ```
@@ -29,7 +29,7 @@ python -m pytest -q tests/test_intent_agent_accuracy.py -s
 ```bash
 export CHATBI_V2_INTENT_LLM=true
 export SILICONFLOW_API_KEY="..."
-export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V3"
+export INTENT_LLM_MODEL="deepseek-ai/DeepSeek-V4-Pro"
 export CHATBI_V2_INTENT_BENCH_N=100
 
 python tests/benchmark_intent_latency.py

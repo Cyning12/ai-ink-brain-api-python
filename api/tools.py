@@ -82,7 +82,7 @@ def _elapsed_ms(started_at: float) -> int:
 
 
 def _pick_chat_model() -> str:
-    return os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V3")
+    return os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
 
 
 def _pick_embed_model_kwargs() -> dict[str, Any]:

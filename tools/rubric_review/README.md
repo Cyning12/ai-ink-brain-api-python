@@ -9,7 +9,7 @@
 - `requirements.txt`：`openai`（SiliconFlow 亦为 OpenAI 兼容协议）、`anthropic`、`requests`。
 - **默认后端 `siliconflow`**：与 `api/chain_chat.py` 一致，使用 **`SILICONFLOW_API_KEY`** + `api.rag_env.siliconflow_base()`（`SILICONFLOW_BASE_URL` 可选）。
 - **不使用 `SILICONFLOW_CHAT_MODEL`**。双人盲审模型池写死在 `config.SILICONFLOW_REVIEWER_MODEL_POOL`：
-  - `deepseek-ai/DeepSeek-V4-Flash`
+  - `deepseek-ai/DeepSeek-V4-Pro`
   - `Pro/moonshotai/Kimi-K2.6`  
   每次运行将 **池内两模型洗牌** 分配给 R1/R2；**仲裁**再从池中 **随机选一**（可与 R1 或 R2 相同）。报告与 JSON 的 `meta` / `run` 会写明 **R1/R2/仲裁** 各自模型；可用 `--random-seed` 固定分配以便复现。
 
