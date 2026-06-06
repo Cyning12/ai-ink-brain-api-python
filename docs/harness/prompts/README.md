@@ -29,6 +29,7 @@
 | **P2 · T0/T2c** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) · [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
 | **P2 · R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](PROMPT_claude_P2_pre_exec_amendments_zh.md) · 审核 [`reviews/by-task/gov-docs-noise-p2/`](../reviews/by-task/gov-docs-noise-p2/) |
 | **P1 · post-close** | [`PROMPT_claude_post_close_P1_full_zh.md`](PROMPT_claude_post_close_P1_full_zh.md) · [`PROMPT_claude_post_close_P1_v2_zh.md`](PROMPT_claude_post_close_P1_v2_zh.md) |
+| **P3 · T0/T2d** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md) · [`PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md) |
 | **T3 · 母单关账** | [`PROMPT_claude_T3_gov-docs-noise-line-close_zh.md`](PROMPT_claude_T3_gov-docs-noise-line-close_zh.md) |
 
 **工作区混放审查**（非本后端 task）：**不要**写入本仓 `docs/harness/reviews/`；见 archive。
