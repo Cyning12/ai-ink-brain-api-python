@@ -19,6 +19,9 @@
 | [`SPEC-Governance-Wiki-CTX-AB-Representative-v1.md`](./SPEC-Governance-Wiki-CTX-AB-Representative-v1.md) | `active` | AB 代表性扩面 |
 | [`SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](./SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) | `active` | Portfolio 演示站 RAG 同源 ingest + 五问验收 RUNBOOK · `PORTFOLIO-RAG-DEMO@2026-06-01` |
 | [`PROMPT_00_SPEC-refine_Portfolio-RAG-Demo-v1_zh.md`](./PROMPT_00_SPEC-refine_Portfolio-RAG-Demo-v1_zh.md) | `active` | 上述 SPEC · ≤5 轮读问解 · §4 可复制 Prompt |
+| [`docs-noise-inventory/`](./docs-noise-inventory/README.md) | `draft` | **docs/ 噪音治理** · **只读导图** · 正文 SPEC 按需 · `GOV-DOCS-NOISE-INVENTORY@2026-06-06` |
+
+**分目录约定（2026-06-06 起）**：新增或多文件治理线优先 **`governance/<topic>/README.md`（导图）+ 正文 SPEC**；`governance/` 根 **仅** 保留单页短 SPEC 或历史 flat 文件，逐步迁入子目录。
 
 **SDD 起草**（全仓 SPEC 通用）：[`../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](../SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)
 

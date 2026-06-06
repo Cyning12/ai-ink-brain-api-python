@@ -137,4 +137,5 @@
   - [x] `docs/tasks/_views/done.md`
 - [ ] **为 `UI/`、`flows/`、`delivery/` 建索引页**（同样只新增入口文件，不移动原文档）
 - [ ] **补齐跨仓引用规则**：Task/Flow/UI 文档中引用前端仓文件时，统一写相对仓库路径并避免本地绝对路径
+- [ ] **docs 噪音治理（P0～P3）**：见 [`docs/spec/governance/docs-noise-inventory/README.md`](spec/governance/docs-noise-inventory/README.md)（**只读导图**；正文 SPEC 开 task 时再开）
 
