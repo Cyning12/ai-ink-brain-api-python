@@ -13,7 +13,7 @@
 | --- | --- |
 | **task_slug** | `governance_docs_noise_line_manifest_v1` |
 | **orchestration** | **Claude Code** · Lead 主会话 + **串行 spawn** `.claude/agents/harness-*` |
-| **git_branch（当前子批）** | `task/gov-docs-noise-p2-v1` |
+| **git_branch（当前子批）** | `task/gov-docs-noise-p3-v1` |
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **test_strategy** | `not_applicable`（母单本身无实现） |
 
@@ -42,7 +42,7 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | **P0** | T1 | [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) | **Cursor Task 链** | **done** | [#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121) |
 | **P1** | T0→T2b | [`done/task_gov_docs_noise_p1_archived_v1.md`](../done/task_gov_docs_noise_p1_archived_v1.md) | **Claude Code** | **done** | [#123](https://github.com/Cyning12/ai-ink-brain-api-python/pull/123) |
 | **P2** | T0→T2c | [`done/task_gov_docs_noise_p2_readorder_v1.md`](../done/task_gov_docs_noise_p2_readorder_v1.md) | **Claude Code** | **done** | [#126](https://github.com/Cyning12/ai-ink-brain-api-python/pull/126) |
-| **P3** | T0→T2d | [`active/task_gov_docs_noise_p3_index_v1.md`](../active/task_gov_docs_noise_p3_index_v1.md) | **Claude Code** | `draft`（T0 task 已建 · 待人签 gate） | — |
+| **P3** | T0→T2d | [`done/task_gov_docs_noise_p3_index_v1.md`](../done/task_gov_docs_noise_p3_index_v1.md) | **Claude Code** | **done** | [#129](https://github.com/Cyning12/ai-ink-brain-api-python/pull/129) |
 
 **P0 留证**：[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md)
 
