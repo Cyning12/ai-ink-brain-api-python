@@ -42,7 +42,7 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | **P0** | T1 | [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) | **Cursor Task 链** | **done** | [#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121) |
 | **P1** | T0→T2b | [`done/task_gov_docs_noise_p1_archived_v1.md`](../done/task_gov_docs_noise_p1_archived_v1.md) | **Claude Code** | **done** | [#123](https://github.com/Cyning12/ai-ink-brain-api-python/pull/123) |
 | **P2** | T0→T2c | [`done/task_gov_docs_noise_p2_readorder_v1.md`](../done/task_gov_docs_noise_p2_readorder_v1.md) | **Claude Code** | **done** | [#126](https://github.com/Cyning12/ai-ink-brain-api-python/pull/126) |
-| **P3** | T3 | 未建 | Claude Code | 长期 | — |
+| **P3** | T0→T2d | [`active/task_gov_docs_noise_p3_index_v1.md`](../active/task_gov_docs_noise_p3_index_v1.md) | **Claude Code** | `draft`（T0 task 已建 · 待人签 gate） | — |
 
 **P0 留证**：[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md)
 
@@ -56,7 +56,9 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | **T2b** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) | P1 执行 · SPEC §8.2 |
 | **T0（P2）** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) | P2 task 改稿确认 + 脚手架 |
 | **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) | P2 执行 · SPEC §8.3 |
-| T3 | CLOSE + META | （未建） | P3 / 母单关账 |
+| **T0（P3）** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md) | 写 **P3 task** + gate `pending` → **人签** |
+| **T2d** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md) | P3 执行 · SPEC §8.4 |
+| T3 | CLOSE + META | （未建） | 母单关账 / 治理线收尾 |
 
 **通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)
 
