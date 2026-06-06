@@ -30,7 +30,7 @@
 | **P2 · R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](PROMPT_claude_P2_pre_exec_amendments_zh.md) · 审核 [`reviews/by-task/gov-docs-noise-p2/`](../reviews/by-task/gov-docs-noise-p2/) |
 | **P1 · post-close** | [`PROMPT_claude_post_close_P1_full_zh.md`](PROMPT_claude_post_close_P1_full_zh.md) · [`PROMPT_claude_post_close_P1_v2_zh.md`](PROMPT_claude_post_close_P1_v2_zh.md) |
 | **P3 · T0/T2d** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md) · [`PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md) |
-| **T3 · CLOSE** | [`PROMPT_claude_T3_gov-docs-noise-line-close_zh.md`](PROMPT_claude_T3_gov-docs-noise-line-close_zh.md) |
+| **T3 · 母单关账** | [`PROMPT_claude_T3_gov-docs-noise-line-close_zh.md`](PROMPT_claude_T3_gov-docs-noise-line-close_zh.md) |
 
 **工作区混放审查**（非本后端 task）：**不要**写入本仓 `docs/harness/reviews/`；见 archive。
 
@@ -40,6 +40,7 @@
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-06-06 | v8：T3 docs-noise 母单关账 PROMPT |
 | 2026-06-06 | v7：P2 R1 改稿 handoff + post-close PROMPT 索引 |
 | 2026-06-06 | v6：Claude spawn 链 PROMPT + `.claude/agents/` 指针 |
 | 2026-06-06 | v5：增 Cursor Task 链 PROMPT 模板 + T1 gov-docs-noise 实例 |
