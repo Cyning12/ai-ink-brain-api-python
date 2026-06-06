@@ -1,3 +1,22 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；Hybrid Search（Vector + FTS + RRF）已落地，见 `supabase/sql/hybrid_search.sql`、`api/index.py` 与 `rag_recall_tools.py`。
+
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `task_03_hybrid_search_implementation` |
+| **test_strategy** | `not_applicable` |
+| **test_strategy_note** | legacy 归档消化；正文为历史交付记录，P2 仅补状态与元信息表 |
+| **semi_auto** | `false` |
+| **git_branch** | `task/gov-docs-noise-p2-v1` |
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|------|----------|--------|----------|------|
+| F1 | `fp-legacy-archive` | legacy 文件被误要求重新激活开发 | 保持 `done` 归档状态；若需迭代应新建 task | 否 | — | — |
+
 ## Task 03：Supabase 混合检索（Hybrid Search）可验收任务
 
 ### 任务目标

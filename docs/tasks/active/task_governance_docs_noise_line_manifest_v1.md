@@ -41,7 +41,7 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | --- | --- | --- | --- | --- | --- |
 | **P0** | T1 | [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) | **Cursor Task 链** | **done** | [#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121) |
 | **P1** | T0→T2b | [`done/task_gov_docs_noise_p1_archived_v1.md`](../done/task_gov_docs_noise_p1_archived_v1.md) | **Claude Code** | **done** | [#123](https://github.com/Cyning12/ai-ink-brain-api-python/pull/123) |
-| **P2** | T2c | 未建 | Claude Code | pending | — |
+| **P2** | T0→T2c | [`active/task_gov_docs_noise_p2_readorder_v1.md`](../active/task_gov_docs_noise_p2_readorder_v1.md) | **Claude Code** | `draft`（T0 改稿完成 · 待人签 gate） | — |
 | **P3** | T3 | 未建 | Claude Code | 长期 | — |
 
 **P0 留证**：[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md)
@@ -52,9 +52,10 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 
 | Round | 帽链 | PROMPT 实例 | 说明 |
 | --- | --- | --- | --- |
-| **T0** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) | 写 **P1 task** + gate `pending` → **人签** |
+| **T0（P1）** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) | 写 **P1 task** + gate `pending` → **人签** |
 | **T2b** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) | P1 执行 · SPEC §8.2 |
-| T2c | 同上 | （P2 实例 · 未建） | P2 读序 |
+| **T0（P2）** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) | P2 task 改稿确认 + 脚手架 |
+| **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) | P2 执行 · SPEC §8.3 |
 | T3 | CLOSE + META | （未建） | P3 / 母单关账 |
 
 **通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)

@@ -2,15 +2,18 @@
 
 > 本 README 是 `docs/` 的入口与分类说明。  
 > **`docs/tasks/` v1 目录规整**已落地（见 [`docs/tasks/done/task_docs_tasks_reorg_move_v1.md`](tasks/done/task_docs_tasks_reorg_move_v1.md)）；状态视图入口 [`docs/tasks/_views/`](tasks/_views/)。  
-> `docs/_tech_graph/` 为本仓技术图谱单一事实来源，不参与 tasks 规整，但在导航中引用。
+> `docs/_tech_graph/` 为本仓技术图谱单一事实来源，不参与 tasks 规整，但在导航中引用。  
+> Agent 最小读序地图见 [`AGENTS.md`](AGENTS.md)。
 
 ---
 
 ## 1. 你应该从哪里开始读
 
-- **如果你要改代码/环境变量/接口边界**：先读 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
+- **如果你要改代码/环境变量/接口边界**：先读 [`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md)
 - **如果你要理解架构与端到端流程（L0 真值）**：读 [`docs/_tech_graph/`](_tech_graph/)（改拓扑用 `python tools/tech_graph_graph_query.py` 按需；**禁止**默认整包 `graph.json`）
-- **如果你要做任务实现/验收**：从 [`docs/tasks/_views/`](tasks/_views/) 按状态进入，或直接在 `docs/tasks/active/`、`docs/tasks/done/` 找 `task_*.md`（每个 Task 需要写明 `状态`）
+- **如果你要做任务实现/验收**：从 [`docs/tasks/RECENT_TASK_SCHEDULE.md`](tasks/RECENT_TASK_SCHEDULE.md) 进入，或按状态视图 [`docs/tasks/_views/`](tasks/_views/) 浏览 `active/`、`done/` 中的 `task_*.md`（每个 Task 需要写明 `状态`）
+- **如果你要做 ChatBI V2/V3 相关实现**：读 [`docs/spec/v3-agent/`](spec/v3-agent/) 与 [`docs/spec/`](spec/) 中对应 SPEC
+- **如果你要做关账回顾/编码 Wiki（L2）**：读 [`docs/coding_wiki/index.md`](coding_wiki/index.md) → [`docs/coding_wiki/CODING_WIKI.md`](coding_wiki/CODING_WIKI.md)；**改代码仍优先回 L0 图谱**
 - **如果你要查历史流程快照（Legacy · 非 L0）**：读 `docs/flows/` 的版本化流程快照（已被 `docs/_tech_graph/` 取代；仅做历史对比时打开）
 - **如果你要做 UI 协议对齐（SSE、events、timeline）**：读 `docs/UI/`
 - **如果你要做 Text2SQL**：读 `docs/text2sql/`
