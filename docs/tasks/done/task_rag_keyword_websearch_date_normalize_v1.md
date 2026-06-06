@@ -1,6 +1,22 @@
 > **状态**：`done`  
 > **归档说明**：2026-06-06 由 P2 消化；`keyword_documents` 已切 `websearch_to_tsquery` + 日期归一化已落地，见 `supabase/sql/hybrid_search.sql`、`api/unified_chat.py`。
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `task_rag_keyword_websearch_date_normalize_v1` |
+| **test_strategy** | `required` |
+| **test_strategy_note** | legacy 归档消化；正文为历史交付记录，P2 仅补状态与元信息表 |
+| **semi_auto** | `false` |
+| **git_branch** | `task/gov-docs-noise-p2-v1` |
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|------|----------|--------|----------|------|
+| F1 | `fp-legacy-archive` | legacy 文件被误要求重新激活开发 | 保持 `done` 归档状态；若需迭代应新建 task | 否 | — | — |
+
 # Task：RAG Keyword（websearch）+ 日期查询归一化（v1）
 
 ## 背景与目标
@@ -23,7 +39,7 @@
 - 代码：`api/unified_chat.py`
 - 分析：`supabase/check/ANALYSIS-2026-4-23-step3-fts.md`
 
-## 验收标准（可勾选）
+## 验收标准
 
 - [ ] Supabase 执行 `supabase/sql/hybrid_search.sql` 后，`keyword_documents` 内部使用 `websearch_to_tsquery`
 - [ ] 输入 `2026-4-14`/`2026-04-14` 两种格式，keyword 结果一致或接近（至少包含 diary 目标文档）

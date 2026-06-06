@@ -1,6 +1,22 @@
 > **状态**：`done`  
 > **归档说明**：2026-06-06 由 P2 消化；`metadata.date_norm` 归一化与结构化召回已落地，见 `api/ingest_pipeline.py`、`api/unified_chat.py`。
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `task_rag_b1_metadata_structured_recall_v1` |
+| **test_strategy** | `required` |
+| **test_strategy_note** | legacy 归档消化；正文为历史交付记录，P2 仅补状态与元信息表 |
+| **semi_auto** | `false` |
+| **git_branch** | `task/gov-docs-noise-p2-v1` |
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|------|----------|--------|----------|------|
+| F1 | `fp-legacy-archive` | legacy 文件被误要求重新激活开发 | 保持 `done` 归档状态；若需迭代应新建 task | 否 | — | — |
+
 # Task：B1｜metadata 归一化 + 结构化召回（v1）
 
 ## 背景与目标

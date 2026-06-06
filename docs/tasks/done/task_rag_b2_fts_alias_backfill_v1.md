@@ -1,6 +1,22 @@
 > **状态**：`done`  
 > **归档说明**：2026-06-06 由 P2 消化；FTS 日期 alias（`public.rag_fts_alias_text`）与触发器已落地，见 `supabase/sql/hybrid_search.sql`。
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `task_rag_b2_fts_alias_backfill_v1` |
+| **test_strategy** | `not_applicable` |
+| **test_strategy_note** | legacy 归档消化；正文为历史交付记录，P2 仅补状态与元信息表 |
+| **semi_auto** | `false` |
+| **git_branch** | `task/gov-docs-noise-p2-v1` |
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|------|----------|--------|----------|------|
+| F1 | `fp-legacy-archive` | legacy 文件被误要求重新激活开发 | 保持 `done` 归档状态；若需迭代应新建 task | 否 | — | — |
+
 # Task：B2 v1｜FTS alias（日期）+ 回填（Supabase）
 
 ## 背景与目标
