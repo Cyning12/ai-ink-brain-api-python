@@ -193,6 +193,33 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 
 ---
 
+### 自检结论（执行者）
+
+**执行的文件变更清单**
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `docs/delivery/v0.2.0-code-rag/README.md` | 修改（文首插入 ARCHIVED 横幅） | 已含 `> **ARCHIVED**` 横幅，链至 `docs/spec/` + `docs/harness/README`；保留原正文全部段落 |
+| `docs/flows/README.md` | 新建 | 含标题、freeze 日期 `2026-04-16`、Legacy chat 说明、`_tech_graph` 指针、目录索引 |
+
+**`git diff --stat` 输出（commit `a3225c9`）**
+
+```
+ docs/delivery/v0.2.0-code-rag/README.md | 110 ++++++++++++++++++++++++++++++++
+ docs/flows/README.md                    |  21 ++++++
+ 2 files changed, 131 insertions(+)
+```
+
+**范围验证**
+
+- `git diff --stat HEAD~1 -- api/ tests/ .github/workflows/`：无输出（确认未改 api/tests/workflows）
+- 未删除 `docs/delivery/`、`docs/flows/` 内任何历史文件
+- 未删 invoke/review 审计链
+
+**结论**：P1-1 / P1-2 均已完成，范围合规，建议进入 40 自检帽。
+
+---
+
 ## 自检结论（40 帽回填 · T2b 后）
 
 > **40 自检帽** 运行 task 所列命令后，将 **原始输出要点** 与 pass/fail 结论写入本节。
