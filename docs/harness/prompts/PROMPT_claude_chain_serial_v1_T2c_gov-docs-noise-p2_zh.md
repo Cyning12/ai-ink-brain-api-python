@@ -32,7 +32,9 @@ GATE_SCAN 通过后串行 spawn（禁止 Agent Teams · 禁止 subagent 再 spaw
 
 跳过：harness-50-reinspect（纯 docs · not_applicable · MANIFEST 明示）
 
-每帽：invoke 落盘 → commit → spawn → ≤10 行摘要
+每帽：invoke 落盘 → **Lead commit** → spawn → ≤10 行摘要
+
+（§5.2：subagent **禁止** git commit；30/40 只改文件 + 跑验证，由 Lead 在每帽后 commit）
 
 close_action=merge：CI Required 全绿后 gh pr merge --squash
 
@@ -85,6 +87,7 @@ close_action=merge：CI Required 全绿后 gh pr merge --squash
 
 【强制注入】
 - docs/harness/prompts/PROMPT_claude_chain_serial_v1.md §5.1：禁止 git log/blame/考古 · 禁止读 task 范围外路径 · docs-only >10min 须停并向 Lead 汇报
+- §5.2：**禁止** git add/commit/mv/push；改完回报文件清单，由 **Lead** commit
 
 【交付】
 - P2-1：PROJECT_CONFIG §A/B `.cursorrules` → 已移除；真值 `.cursor/rules/*.mdc`
@@ -130,3 +133,4 @@ invoke CLOSE → gh pr create → CI watch → merge（close_action）
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-06 | T2c 实例 · P2 执行链 |
+| 2026-06-06 | v1.1：§5.2 Git 仅 Lead · 30 spawn 禁止 commit |

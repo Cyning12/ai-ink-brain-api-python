@@ -17,6 +17,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 - 删除 `docs/harness/invokes/`、`reviews/` 审计链
 - 静默扩大 task 范围
 - 在 `main` 分支提交
+- **`git add` / `git commit` / `git mv` / `git push`** — **由 Lead 主会话执行**（subagent 权限常不继承 `.claude/settings.local.json`）
 - `git log` / `git blame` / 历史考古（除非 task 明文要求）
 - 读 task 范围外路径做背景调研
 
@@ -25,7 +26,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 ## 必须
 
 - 按 task 验收改文件
-- 回填 task `### 自检结论（执行者）`
-- commit 仅本轮路径（`HANDOFF_AUTO_COMMIT.md`）
+- 回填 task `### 自检结论（执行者）`（文字清单；**不**自行 commit）
+- 回报 Lead：变更文件列表 + 建议验证命令；**由 Lead** invoke → commit（`HANDOFF_AUTO_COMMIT.md`）
 
 回报 Lead ≤10 行。
