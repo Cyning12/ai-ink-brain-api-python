@@ -59,26 +59,38 @@ docs-noise SPEC 冻结 C1–C3 为 **高/中高/中** 真冲突。本 task **仅
 
 ## 验收标准
 
-- [ ] C1：`invokes/README` 无「reviews 已移除」类表述；22→`reviews/`、20→`review_results/`、50→`reinspect_results/` 分工与 `reviews/README.md` 一致
-- [ ] C2：`docs/README.md` §1 端到端 **优先** `docs/_tech_graph/`；`docs/flows/` 标为历史快照
-- [ ] C3：`docs/tech_graph/README.md` 链至 `_tech_graph`；说明 2 份 gate 留痕
-- [ ] SPEC 导图 [`README.md`](../spec/governance/docs-noise-inventory/README.md) §3 中 C1–C3 状态改为 `done`
+- [x] C1：`invokes/README` 无「reviews 已移除」类表述；22→`reviews/`、20→`review_results/`、50→`reinspect_results/` 分工与 `reviews/README.md` 一致
+- [x] C2：`docs/README.md` §1 端到端 **优先** `docs/_tech_graph/`；`docs/flows/` 标为历史快照
+- [x] C3：`docs/tech_graph/README.md` 链至 `_tech_graph`；说明 2 份 gate 留痕
+- [x] SPEC 导图 [`README.md`](../spec/governance/docs-noise-inventory/README.md) §3 中 C1–C3 状态改为 `done`
 - [ ] 单 PR · docs-only · CI Required 全绿
 
 ---
 
 ### 自检结论（执行者）
 
-> **40 帽回填** · 2026-06-06
+> **40 帽回填** · 2026-06-06 · **建议 CLOSE + PR**
 
 | 验收项 | 结果 |
 | --- | --- |
-| C1 invokes/README 无「已移除」；22/20/50 分工 | ✅ 已修 |
-| C2 docs/README §1 `_tech_graph` 优先；flows Legacy | ✅ 已修 |
-| C3 docs/tech_graph/README.md POINTER + gate 留痕 | ✅ 新建 |
+| C1 invokes/README 无「已移除」；22/20/50 分工 | ✅ 已修；与 reviews/README §「与 20 / 50 分工」一致 |
+| C2 docs/README §1 `_tech_graph` 优先；flows Legacy | ✅ L12–L14 已更新 |
+| C3 docs/tech_graph/README.md POINTER + gate 留痕 | ✅ 新建；链至 `_tech_graph` |
 | SPEC 导图 §3 C1–C3 = done | ✅ 已更新 |
-| `rg -n '已移除|reviews.*移除' docs/harness/invokes/README.md` | 无命中 |
-| `test -f docs/tech_graph/README.md` | exit 0 |
+| 未删 invoke/review 审计链 | ✅ 仅改 README |
+| 未改 api/tests/workflows | ✅ diff 仅 docs |
+
+**验证命令输出**：
+
+```text
+$ rg -n '已移除|reviews.*移除' docs/harness/invokes/README.md
+(无命中 · exit 1)
+
+$ test -f docs/tech_graph/README.md && echo OK
+OK
+```
+
+**40 结论**：无阻塞；建议 CLOSE + `gh pr create`。
 
 ---
 
