@@ -85,12 +85,13 @@
 | --- | --- |
 | **MANIFEST（Lead 必读）** | [`docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md`](../../../tasks/active/task_governance_docs_noise_line_manifest_v1.md) |
 | **Claude 通用 PROMPT** | [`docs/harness/prompts/PROMPT_claude_chain_serial_v1.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1.md) |
-| **P1 T0（写 task）** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) |
-| **P1 T2b（执行）** | [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) |
+| **P1 T0/T2b** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) · [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) |
+| **P2 T0/T2c** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) · [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
+| **P2 R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](../../../harness/prompts/PROMPT_claude_P2_pre_exec_amendments_zh.md) |
 | **Subagents** | [`.claude/agents/`](../../../../.claude/agents/README.md) · `harness-10` … `harness-50` |
 | **P0 试点（Cursor）** | [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) |
 
-**当前下一棒**：P1 · Round **T0**（Claude 写 task）→ 人签 gate → Round **T2b** 执行。
+**当前下一棒**：P2 · Round **T2c**（task 已建 · 待人签 `HG-GOV-P2-EXEC`）→ 执行。
 
 ---
 
