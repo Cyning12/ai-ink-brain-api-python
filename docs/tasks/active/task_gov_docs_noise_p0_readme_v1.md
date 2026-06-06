@@ -96,10 +96,10 @@ OK
 
 ## 失败路径
 
-| 触发 | 行为 |
-| --- | --- |
-| 误删 invoke/review 审计链 | **禁止**；仅改 README / POINTER |
-| AGENTS 与 docs/README 仍不一致 | 本 task **不** 改 AGENTS（留 P2）；但不得引入新冲突 |
+| # | Scenario ID | 触发 | 行为 |
+| --- | --- | --- | --- |
+| F1 | fp-gov-p0-delete-audit | 误删 invoke/review 审计链 | **禁止**；仅改 README / POINTER |
+| F2 | fp-gov-p0-readorder-drift | AGENTS 与 docs/README 仍不一致 | 本 task **不** 改 AGENTS（留 P2）；但不得引入新冲突 |
 
 ---
 
