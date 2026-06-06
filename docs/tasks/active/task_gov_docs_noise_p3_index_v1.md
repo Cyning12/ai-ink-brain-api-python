@@ -2,39 +2,43 @@
 
 > **状态**：`draft`（T0 草案 · 待 HG-TASK-DRAFT 人签）
 > **Epic**：docs-noise 治理线 · **P3**（Claude Code 串行 Task 链）
-> **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)
-> **关联 SPEC 正文**：[`docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md`](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md) §8.4
+> **关联 SPEC 导图**：`[docs/spec/governance/docs-noise-inventory/README.md](../spec/governance/docs-noise-inventory/README.md)`
+> **关联 SPEC 正文**：`[docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md)` §8.4
 > **freeze_id**：`GOV-DOCS-NOISE-INVENTORY@2026-06-06`
 
 ---
 
 ## Harness 元信息
 
-| 字段 | 值 |
-|------|-----|
-| **task_slug** | `gov_docs_noise_p3_index_v1` |
-| **orchestration** | **Claude Code** · Lead 主会话 + **串行 spawn** `.claude/agents/harness-*` |
-| **semi_auto** | `true` |
-| **test_strategy** | `not_applicable` |
-| **test_strategy_note** | 纯 docs 索引/指针修正；无 `api/` / 契约 / CI workflow 变更 |
-| **audit_profile** | `post_close` |
-| **git_branch** | `task/gov-docs-noise-p3-v1` |
-| **Open Folder** | `ai-ink-brain-api-python` |
-| **blocked_by** | P2（`done` · PR #126 @ `08d51bd`） |
-| **blocks** | 无（docs-noise 治理线收尾） |
-| **kpi_rubric** | `KPI_RUBRIC_v1_2` |
-| **kpi_aggregator** | `CLOSE` |
-| **merge_policy** | `docs_only_ci_green_merge` |
-| **close_action** | `merge` — CI Required 全绿后 **00/CLOSE 可执行** `gh pr merge --squash` |
-| **experience_capture** | `recommended` |
-| **experience_capture_note** | 执行简报落盘 diary；治理线 docs-noise 全量 CLOSE 后可蒸馏整条线 PROMPT 惯例 |
+
+| 字段                          | 值                                                                    |
+| --------------------------- | -------------------------------------------------------------------- |
+| **task_slug**               | `gov_docs_noise_p3_index_v1`                                         |
+| **orchestration**           | **Claude Code** · Lead 主会话 + **串行 spawn** `.claude/agents/harness-`* |
+| **semi_auto**               | `true`                                                               |
+| **test_strategy**           | `not_applicable`                                                     |
+| **test_strategy_note**      | 纯 docs 索引/指针修正；无 `api/` / 契约 / CI workflow 变更                        |
+| **audit_profile**           | `post_close`                                                         |
+| **git_branch**              | `task/gov-docs-noise-p3-v1`                                          |
+| **Open Folder**             | `ai-ink-brain-api-python`                                            |
+| **blocked_by**              | P2（`done` · PR #126 @ `08d51bd`）                                     |
+| **blocks**                  | 无（docs-noise 治理线收尾）                                                  |
+| **kpi_rubric**              | `KPI_RUBRIC_v1_2`                                                    |
+| **kpi_aggregator**          | `CLOSE`                                                              |
+| **merge_policy**            | `docs_only_ci_green_merge`                                           |
+| **close_action**            | `merge` — CI Required 全绿后 **00/CLOSE 可执行** `gh pr merge --squash`    |
+| **experience_capture**      | `recommended`                                                        |
+| **experience_capture_note** | 执行简报落盘 diary；治理线 docs-noise 全量 CLOSE 后可蒸馏整条线 PROMPT 惯例               |
+
 
 ### 人工闸 `human_gate`
 
-| human_gate_id | status | blocks_hats | 说明 |
-|---------------|--------|-------------|------|
-| HG-TASK-DRAFT | `pending` | 22-R1, 30 | task 草案人扫；纯 docs 可预批后直进 30 |
-| HG-GOV-P3-EXEC | `pending` | explore, 22, 30, 40, CLOSE | P3 执行链开干前人签 |
+
+| human_gate_id  | status     | blocks_hats                | 说明                         |
+| -------------- | ---------- | -------------------------- | -------------------------- |
+| HG-TASK-DRAFT  | `approved` | 22-R1, 30                  | task 草案人扫；纯 docs 可预批后直进 30 |
+| HG-GOV-P3-EXEC | `approved` | explore, 22, 30, 40, CLOSE | P3 执行链开干前人签                |
+
 
 ---
 
@@ -56,12 +60,14 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ## 范围（P3）
 
-| ID | 交付 | 文件 | 现状 |
-|----|------|------|------|
-| **P3-1a** | `docs/spec/governance/README.md` 按 batch 聚合视图 | `docs/spec/governance/README.md` | 已有平面列表，缺按 batch/阶段分组；缺子目录入口 |
-| **P3-1b** | `docs/spec/governance/` 子目录显式索引 | `docs/spec/governance/README.md` | `docs-noise-inventory/` 已存在但索引中仅一行引用 |
-| **P3-2** | `docs/showcase/README.md` 新建 | `docs/showcase/README.md` | 不存在；`chatbi-graph-harness-showcase/` 已有 README |
-| **C6-optional** | `HARNESS_V2_PLAN.md` 标注 superseded | `docs/harness/HARNESS_V2_PLAN.md` | 仍写「真值：本文件 + AGENTS.md」，但当前权威链已移至 `docs/harness/README.md` |
+
+| ID              | 交付                                            | 文件                                | 现状                                                        |
+| --------------- | --------------------------------------------- | --------------------------------- | --------------------------------------------------------- |
+| **P3-1a**       | `docs/spec/governance/README.md` 按 batch 聚合视图 | `docs/spec/governance/README.md`  | 已有平面列表，缺按 batch/阶段分组；缺子目录入口                               |
+| **P3-1b**       | `docs/spec/governance/` 子目录显式索引               | `docs/spec/governance/README.md`  | `docs-noise-inventory/` 已存在但索引中仅一行引用                      |
+| **P3-2**        | `docs/showcase/README.md` 新建                  | `docs/showcase/README.md`         | 不存在；`chatbi-graph-harness-showcase/` 已有 README            |
+| **C6-optional** | `HARNESS_V2_PLAN.md` 标注 superseded            | `docs/harness/HARNESS_V2_PLAN.md` | 仍写「真值：本文件 + AGENTS.md」，但当前权威链已移至 `docs/harness/README.md` |
+
 
 ### P3-1 内容要求（SPEC §8.4）
 
@@ -86,7 +92,7 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ### C6-optional 内容要求
 
-- `docs/harness/HARNESS_V2_PLAN.md` 文首增加 `> **状态**：`superseded` by `docs/harness/README.md` + `AGENTS.md` §Harness；本文件为历史留档，流程真值见当前权威链。`
+- `docs/harness/HARNESS_V2_PLAN.md` 文首增加 `> **状态**：`superseded`by`docs/harness/README.md`+`AGENTS.md `§Harness；本文件为历史留档，流程真值见当前权威链。`
 - 不删正文；仅补标注 + pointer
 - 若文件正文过长（>100 行），可仅改文首 5 行
 
@@ -125,27 +131,31 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ## 依赖与引用
 
-| 依赖项 | 路径/说明 |
-|--------|-----------|
-| SPEC 导图 | `docs/spec/governance/docs-noise-inventory/README.md` §5 · §8.4 |
-| SPEC 正文 | `docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md` §8.4 |
-| P2 precedent | `docs/tasks/done/task_gov_docs_noise_p2_readorder_v1.md` |
-| MANIFEST | `docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md` |
-| governance 现有索引 | `docs/spec/governance/README.md` |
-| showcase 现有内容 | `docs/showcase/chatbi-graph-harness-showcase/README.md` |
-| HARNESS_V2_PLAN | `docs/harness/HARNESS_V2_PLAN.md` |
+
+| 依赖项             | 路径/说明                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------- |
+| SPEC 导图         | `docs/spec/governance/docs-noise-inventory/README.md` §5 · §8.4                                |
+| SPEC 正文         | `docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md` §8.4 |
+| P2 precedent    | `docs/tasks/done/task_gov_docs_noise_p2_readorder_v1.md`                                       |
+| MANIFEST        | `docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md`                             |
+| governance 现有索引 | `docs/spec/governance/README.md`                                                               |
+| showcase 现有内容   | `docs/showcase/chatbi-graph-harness-showcase/README.md`                                        |
+| HARNESS_V2_PLAN | `docs/harness/HARNESS_V2_PLAN.md`                                                              |
+
 
 ---
 
 ## 失败路径
 
-| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
-|---|-------------|------|----------|--------|----------|------|
-| F1 | `fp-gov-p3-roadmap-incomplete` | P3-1 分组表遗漏某 batch 或子目录 | 22 审核帽拒过；回退补全索引 | 是 | PR review 阻塞 | — |
-| F2 | `fp-gov-p3-showcase-scope-creep` | showcase README 写成实现 SPEC（含接口/契约细节） | 30 执行帽拒交付；回退重写为 L2 展示轨说明 | 是 | PR review 阻塞 | — |
-| F3 | `fp-gov-p3-c6-rejected` | C6 执行时正文过长或歧义复杂，30 帽判定为额外工作量 | 跳过 C6；另开单独 task；不阻塞 P3 CLOSE | 是 | — | — |
-| F4 | `fp-gov-p3-scope-creep` | T2d 执行时越界改 `api/`、`tests/`、CI workflow | 40 自检帽拒 CLOSE；diff 回滚 | 是 | — | `git diff --stat` |
-| F5 | `fp-gov-p3-ci-red` | docs-only PR 触发 CI 异常 | 按 `merge_policy` 阻塞 merge；排查后重跑 | 是 | PR status 红 | CI Required checks |
+
+| #   | Scenario ID                      | 触发                                     | 系统行为                            | 可重试 | 用户可见         | 测试                 |
+| --- | -------------------------------- | -------------------------------------- | ------------------------------- | --- | ------------ | ------------------ |
+| F1  | `fp-gov-p3-roadmap-incomplete`   | P3-1 分组表遗漏某 batch 或子目录                 | 22 审核帽拒过；回退补全索引                 | 是   | PR review 阻塞 | —                  |
+| F2  | `fp-gov-p3-showcase-scope-creep` | showcase README 写成实现 SPEC（含接口/契约细节）    | 30 执行帽拒交付；回退重写为 L2 展示轨说明        | 是   | PR review 阻塞 | —                  |
+| F3  | `fp-gov-p3-c6-rejected`          | C6 执行时正文过长或歧义复杂，30 帽判定为额外工作量           | 跳过 C6；另开单独 task；不阻塞 P3 CLOSE    | 是   | —            | —                  |
+| F4  | `fp-gov-p3-scope-creep`          | T2d 执行时越界改 `api/`、`tests/`、CI workflow | 40 自检帽拒 CLOSE；diff 回滚           | 是   | —            | `git diff --stat`  |
+| F5  | `fp-gov-p3-ci-red`               | docs-only PR 触发 CI 异常                  | 按 `merge_policy` 阻塞 merge；排查后重跑 | 是   | PR status 红  | CI Required checks |
+
 
 > **P0/P1/P2 CI 教训**：docs-only 变更已验证 CI 路径过滤。P3 须预检：若 docs-only 变更意外触发 api/tests 相关 CI，先排查 workflow 路径过滤，不强行 merge。
 
@@ -153,22 +163,24 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ## 验收标准
 
-- [ ] P3-1a：`docs/spec/governance/README.md` 含按 batch（Harness 核心 / Wiki 批次 / L2 工具链 / Portfolio / docs-noise）聚合的 SPEC 状态表
-- [ ] P3-1b：`docs/spec/governance/README.md` 显式链入 `docs-noise-inventory/` 子目录（导图 + 正文 SPEC）
-- [ ] P3-1：现有平面列表保留未删；分目录约定说明保留
-- [ ] P3-2：`docs/showcase/README.md` 新建：含 L2 展示轨性质声明、非实现真值声明、`chatbi-graph-harness-showcase/` 索引
-- [ ] C6-optional（若执行）：`HARNESS_V2_PLAN.md` 文首含 `superseded` 标注与当前权威链 pointer
-- [ ] 未删 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史全文
-- [ ] 未改 `api/`、`tests/`、`.github/workflows/`
-- [ ] 未重写任何 SPEC 正文全文
-- [ ] 关账时更新 `docs/spec/governance/docs-noise-inventory/README.md` 冲突寄存器 C6 为 `done`（若 C6 在本批解决）；否则 C6 保持 `open`
-- [ ] 单 PR · docs-only · CI Required 全绿
+- P3-1a：`docs/spec/governance/README.md` 含按 batch（Harness 核心 / Wiki 批次 / L2 工具链 / Portfolio / docs-noise）聚合的 SPEC 状态表
+- P3-1b：`docs/spec/governance/README.md` 显式链入 `docs-noise-inventory/` 子目录（导图 + 正文 SPEC）
+- P3-1：现有平面列表保留未删；分目录约定说明保留
+- P3-2：`docs/showcase/README.md` 新建：含 L2 展示轨性质声明、非实现真值声明、`chatbi-graph-harness-showcase/` 索引
+- C6-optional（若执行）：`HARNESS_V2_PLAN.md` 文首含 `superseded` 标注与当前权威链 pointer
+- 未删 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史全文
+- 未改 `api/`、`tests/`、`.github/workflows/`
+- 未重写任何 SPEC 正文全文
+- 关账时更新 `docs/spec/governance/docs-noise-inventory/README.md` 冲突寄存器 C6 为 `done`（若 C6 在本批解决）；否则 C6 保持 `open`
+- 单 PR · docs-only · CI Required 全绿
 
 **测试 / TDD**：
 
-| test_strategy | 自检须含 |
-|---------------|----------|
+
+| test_strategy    | 自检须含                                                       |
+| ---------------- | ---------------------------------------------------------- |
 | `not_applicable` | `test_strategy_note` 已说明；自检以 `git diff --stat` + `rg` 验证为主 |
+
 
 ---
 
@@ -200,13 +212,15 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ## 实现备忘（T2d 回填）
 
-| 项 | 内容 |
-|----|------|
-| 涉及文件 | `docs/spec/governance/README.md`（改）、`docs/showcase/README.md`（新建）、`docs/harness/HARNESS_V2_PLAN.md`（可选改） |
-| 关键 env | 无 |
-| SQL 执行顺序 | 无 |
-| 接口变更 | 无 |
-| 图谱变更点 | 无 |
+
+| 项        | 内容                                                                                                       |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| 涉及文件     | `docs/spec/governance/README.md`（改）、`docs/showcase/README.md`（新建）、`docs/harness/HARNESS_V2_PLAN.md`（可选改） |
+| 关键 env   | 无                                                                                                        |
+| SQL 执行顺序 | 无                                                                                                        |
+| 接口变更     | 无                                                                                                        |
+| 图谱变更点    | 无                                                                                                        |
+
 
 ---
 
@@ -220,13 +234,15 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 > **40 自检帽** · 待回填
 
-| 项 | 结果 |
-|----|------|
-| `rg -n 'docs-noise-inventory' docs/spec/governance/README.md` | 待填 |
-| `rg -n 'showcase' docs/showcase/README.md` | 待填 |
-| `git diff --stat HEAD -- api/ tests/ .github/workflows/` | 待填 |
-| `rg -n 'L2\|展示轨\|非实现真值' docs/showcase/README.md` | 待填 |
-| `rg -n 'superseded\|archived' docs/harness/HARNESS_V2_PLAN.md`（若执行 C6） | 待填 |
+
+| 项                                                                     | 结果  |
+| --------------------------------------------------------------------- | --- |
+| `rg -n 'docs-noise-inventory' docs/spec/governance/README.md`         | 待填  |
+| `rg -n 'showcase' docs/showcase/README.md`                            | 待填  |
+| `git diff --stat HEAD -- api/ tests/ .github/workflows/`              | 待填  |
+| `rg -n 'L2|展示轨|非实现真值' docs/showcase/README.md`                        | 待填  |
+| `rg -n 'superseded|archived' docs/harness/HARNESS_V2_PLAN.md`（若执行 C6） | 待填  |
+
 
 ---
 
@@ -235,14 +251,16 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 > **rubric**: KPI_RUBRIC_v1_2 · **汇总**: 待填 · **状态**: 待填
 > **评诊日期**: 待填
 
-| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
-|----------|-------|------------|----|----|----|----|----|----------------|
-| T0/10 | T0 | task_subagent | — | — | — | — | — | 写本 task + invoke |
-| explore | R1 | task_subagent | — | — | — | — | — | 待填 |
-| 22 | R1 | task_subagent | — | — | — | — | — | 待填 |
-| 30 | R1 | task_subagent | — | — | — | — | — | 待填 |
-| 40 | R1 | task_subagent | — | — | — | — | — | 待填 |
-| CLOSE | close | main_chat | — | — | — | — | — | 待填 |
+
+| hat_code | round | agent_mode    | D1  | D2  | D3  | D4  | D5  | judgment_notes   |
+| -------- | ----- | ------------- | --- | --- | --- | --- | --- | ---------------- |
+| T0/10    | T0    | task_subagent | —   | —   | —   | —   | —   | 写本 task + invoke |
+| explore  | R1    | task_subagent | —   | —   | —   | —   | —   | 待填               |
+| 22       | R1    | task_subagent | —   | —   | —   | —   | —   | 待填               |
+| 30       | R1    | task_subagent | —   | —   | —   | —   | —   | 待填               |
+| 40       | R1    | task_subagent | —   | —   | —   | —   | —   | 待填               |
+| CLOSE    | close | main_chat     | —   | —   | —   | —   | —   | 待填               |
+
 
 ---
 
@@ -250,23 +268,27 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ### Round 表
 
-| Round | 帽链 | PROMPT 实例 | 说明 |
-|-------|------|-------------|------|
-| **T0** | Lead / harness-10 | `PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md` | 写 **本 task** + gate `pending` → **人签** |
-| **T2d** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | `PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md` | P3 执行 · SPEC §8.4 |
 
-**通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)
+| Round   | 帽链                                        | PROMPT 实例                                                   | 说明                                     |
+| ------- | ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
+| **T0**  | Lead / harness-10                         | `PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`  | 写 **本 task** + gate `pending` → **人签** |
+| **T2d** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | `PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md` | P3 执行 · SPEC §8.4                      |
+
+
+**通用模板**：`[PROMPT_claude_chain_serial_v1.md](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)`
 
 ### Subagent roster（`.claude/agents/`）
 
-| 文件 | 帽 | T0 | T2d |
-|------|----|----|-----|
-| `harness-10-requirements.md` | 10 | ✅ | — |
-| `harness-explore-l0.md` | explore | — | ✅ |
-| `harness-22-audit.md` | 22 | — | ✅ |
-| `harness-30-docs.md` | 30 | — | ✅ |
-| `harness-40-check.md` | 40 | — | ✅ |
-| `harness-50-reinspect.md` | 50 | — | **跳过**（纯 docs · `not_applicable`） |
+
+| 文件                           | 帽       | T0  | T2d                               |
+| ---------------------------- | ------- | --- | --------------------------------- |
+| `harness-10-requirements.md` | 10      | ✅   | —                                 |
+| `harness-explore-l0.md`      | explore | —   | ✅                                 |
+| `harness-22-audit.md`        | 22      | —   | ✅                                 |
+| `harness-30-docs.md`         | 30      | —   | ✅                                 |
+| `harness-40-check.md`        | 40      | —   | ✅                                 |
+| `harness-50-reinspect.md`    | 50      | —   | **跳过**（纯 docs · `not_applicable`） |
+
 
 Invoke 落盘：T2d 执行后落盘至 `docs/harness/invokes/by-task/gov-docs-noise-p3/`
 
@@ -274,6 +296,9 @@ Invoke 落盘：T2d 执行后落盘至 `docs/harness/invokes/by-task/gov-docs-no
 
 ## 修订记录
 
-| 日期 | 摘要 |
-|------|------|
+
+| 日期         | 摘要                                          |
+| ---------- | ------------------------------------------- |
 | 2026-06-06 | T0：Claude 写 P3 task 草案 · 待 HG-TASK-DRAFT 人签 |
+
+
