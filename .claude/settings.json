@@ -3,8 +3,33 @@
     "allow": [
       "Read(./**)",
       "Bash(python3 *)",
+      "Bash(python *)",
       "Bash(pytest *)",
-      "Bash(uvicorn *)"
+      "Bash(uvicorn *)",
+      "Bash(python tools/harness_task_validate.py*)",
+      "Bash(python tools/tech_graph*)",
+      "Bash(rg *)",
+      "Bash(ls *)",
+      "Bash(test *)",
+      "Bash(echo *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git mv *)",
+      "Bash(git checkout *)",
+      "Bash(git pull*)",
+      "Bash(git push *)",
+      "Bash(git stash *)",
+      "Bash(gh pr *)",
+      "Bash(gh run *)"
+    ],
+    "deny": [
+      "Bash(git reset --hard*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)"
     ]
   }
 }

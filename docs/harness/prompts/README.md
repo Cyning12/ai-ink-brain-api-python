@@ -25,7 +25,7 @@
 | 50 | `hats/50-independent-reinspect.md`、`templates/TEMPLATE-independent-reinspect-invoke.md`（+ 可选 full） |
 | — | `handoff/HANDOFF_*` ×3 |
 | **00 · Task 链试点** | [`PROMPT_cursor_task_chain_serial_v1.md`](PROMPT_cursor_task_chain_serial_v1.md) · T1 实例 [`PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md`](PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md) |
-| **Lead · Claude spawn 链** | [`PROMPT_claude_chain_serial_v1.md`](PROMPT_claude_chain_serial_v1.md) · T0/T2b/T2c 实例 · [`.claude/agents/`](../../.claude/agents/README.md) |
+| **Lead · Claude spawn 链** | [`PROMPT_claude_chain_serial_v1.md`](PROMPT_claude_chain_serial_v1.md)（§5.1 30 约束 · **§5.2 Git 仅 Lead**）· T0/T2b/T2c 实例 · [`.claude/agents/`](../../.claude/agents/README.md) · [`.claude/settings.json`](../../.claude/settings.json) |
 | **P2 · T0/T2c** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) · [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
 | **P2 · R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](PROMPT_claude_P2_pre_exec_amendments_zh.md) · 审核 [`reviews/by-task/gov-docs-noise-p2/`](../reviews/by-task/gov-docs-noise-p2/) |
 | **P1 · post-close** | [`PROMPT_claude_post_close_P1_full_zh.md`](PROMPT_claude_post_close_P1_full_zh.md) · [`PROMPT_claude_post_close_P1_v2_zh.md`](PROMPT_claude_post_close_P1_v2_zh.md) |

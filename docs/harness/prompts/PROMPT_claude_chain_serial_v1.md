@@ -75,6 +75,20 @@ ROUND_START → FOR each hat:
 
 ---
 
+## 5.2 · Git 仅 Lead（subagent 权限）
+
+Claude Code **subagent 常不继承** `settings.local.json` 的 `Bash(git *)`；Harness 链约定：
+
+| 操作 | 承担者 |
+| --- | --- |
+| `git add` / `commit` / `mv` / `push` / `gh pr *` | **Lead 主会话**（每帽 invoke 落盘后） |
+| `git diff` / `git status` / `rg` / `python tools/*` | subagent 可跑（仓内 `.claude/settings.json` 已白名单） |
+| subagent 30/40 | **只** Read/Write/Edit + 验证命令；改完回报文件清单，**禁止**自行 commit |
+
+Round 实例 PROMPT 的 30 spawn 须写：**「禁止 git commit；由 Lead 在每帽结束后 commit」**。
+
+---
+
 ## 6. §3 Lead 正文（模板）
 
 ```text
@@ -116,3 +130,4 @@ ROUND_START → FOR each hat:
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-06 | v1：Claude Lead 模板 · 对齐 Cursor Task 链 |
+| 2026-06-06 | v1.1：§5.2 Git 仅 Lead · 缓解 subagent 权限不继承 |
