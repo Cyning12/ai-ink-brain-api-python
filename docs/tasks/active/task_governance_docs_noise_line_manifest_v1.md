@@ -93,6 +93,15 @@ Lead = 主会话 · 读 `CLAUDE.md` → `AGENTS.md` + 本 MANIFEST + 当前 Roun
 
 ---
 
+## 失败路径
+
+| # | Scenario ID | 触发 | 行为 |
+| --- | --- | --- | --- |
+| F1 | `fp-manifest-round-skip` | 子批未按 T0→T2b→T2c→T3 顺序执行 | 阻塞关账；回退至 Round 表核对 |
+| F2 | `fp-manifest-scope-creep` | 母单直接改 `api/` / `tests/` / CI workflow | **禁止**；母单仅排期与索引，实现归子批 task |
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
