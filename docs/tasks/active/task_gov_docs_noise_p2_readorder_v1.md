@@ -320,16 +320,18 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 ### 自检结论（40 帽回填 · T2c 后）
 
-> **40 自检帽** · 待回填
+> **40 自检帽** · 2026-06-06
 
-| 项 | 结果 |
-|----|------|
-| `rg -n '\.cursorrules.*当前\|仍.*保留\|仍常保留' docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 无命中；表述已改为「已移除」 |
-| `rg -n 'AGENTS\.md\|docs/README\.md' AGENTS.md docs/README.md` | 双向互链存在 |
-| `rg -n 'unified/chat\|PROJECT_CONFIG.*§F' README.md` | 命中 Unified Chat 端点 + pointer |
-| `git diff --stat HEAD -- api/ tests/ .github/workflows/` | 无输出（未改动） |
-| `ls docs/tasks/legacy/` | 空（已消化） |
-| `rg -n 'task_rag_b\|task_03\|Task 04' docs/tasks/_views/done.md` | 6 条新条目均已命中 |
+| 项 | 命令输出要点 | 结论 |
+|----|--------------|------|
+| `rg -n '\.cursorrules.*当前\|仍.*保留\|仍常保留' docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 无输出（未命中任何遗留表述） | 绿 |
+| `rg -n 'AGENTS\.md\|docs/README\.md' AGENTS.md docs/README.md` | `AGENTS.md` L18 → `docs/README.md` §1；`docs/README.md` L6 → `AGENTS.md` | 绿 |
+| `rg -n 'unified/chat\|PROJECT_CONFIG.*§F' README.md` | L12 命中 `POST /api/py/unified/chat` 与 `PROJECT_CONFIG §F` pointer | 绿 |
+| `git diff --stat HEAD~2 -- api/ tests/ .github/workflows/` | 无输出（受限路径无变更） | 绿 |
+| `ls docs/tasks/legacy/` | 无输出（目录已空 / 不存在，legacy 已消化） | 绿 |
+| `rg -n 'task_rag_b\|task_03\|Task 04' docs/tasks/_views/done.md` | L8–13 命中 6 条条目（task_rag_b* / task_03 / Task 04） | 绿 |
+
+**结论**：6 项检查全绿，无阻塞。建议 **CLOSE + PR / merge**。
 
 ---
 
