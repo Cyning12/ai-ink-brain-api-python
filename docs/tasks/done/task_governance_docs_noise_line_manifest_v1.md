@@ -1,6 +1,6 @@
 # Task · MANIFEST · docs-noise 治理线（Claude Code 编排）
 
-> **状态**：`active`  
+> **状态**：`done`（2026-06-06 · 治理线 CLOSE · P0–P3 全量 done）  
 > **性质**：**母单 / 排期 MANIFEST** — 非单次交付；子批 P0/P1/P2/P3 各建 `task_gov_docs_noise_*`  
 > **Epic**：docs-noise 治理 · [`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)  
 > **freeze_id**：`GOV-DOCS-NOISE-INVENTORY@2026-06-06`
@@ -13,7 +13,7 @@
 | --- | --- |
 | **task_slug** | `governance_docs_noise_line_manifest_v1` |
 | **orchestration** | **Claude Code** · Lead 主会话 + **串行 spawn** `.claude/agents/harness-*` |
-| **git_branch（当前子批）** | `task/gov-docs-noise-p3-v1` |
+| **git_branch（当前子批）** | `—`（母单已 CLOSE） |
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **test_strategy** | `not_applicable`（母单本身无实现） |
 
@@ -58,7 +58,7 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) | P2 执行 · SPEC §8.3 |
 | **T0（P3）** | Lead 或 `harness-10-requirements` | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md) | 写 **P3 task** + gate `pending` → **人签** |
 | **T2d** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md) | P3 执行 · SPEC §8.4 |
-| T3 | CLOSE + META | （未建） | 母单关账 / 治理线收尾 |
+| **T3** | CLOSE + META | [`PROMPT_claude_T3_gov-docs-noise-line-close_zh.md`](../../harness/prompts/PROMPT_claude_T3_gov-docs-noise-line-close_zh.md) | **母单关账 / 治理线收尾 · done** |
 
 **通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)
 
@@ -110,3 +110,4 @@ Lead = 主会话 · 读 `CLAUDE.md` → `AGENTS.md` + 本 MANIFEST + 当前 Roun
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-06 | v1：P1 Claude 脚手架 · MANIFEST + agents + T0/T2b PROMPT |
+| 2026-06-06 | T3：母单关账 · P0–P3 全量 done · 治理线 CLOSE |
