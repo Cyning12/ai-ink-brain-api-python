@@ -17,6 +17,10 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 - 删除 `docs/harness/invokes/`、`reviews/` 审计链
 - 静默扩大 task 范围
 - 在 `main` 分支提交
+- `git log` / `git blame` / 历史考古（除非 task 明文要求）
+- 读 task 范围外路径做背景调研
+
+> **docs-only 且 task 已列文件**：改完即停；wall-clock **>10 min** 须停并向 Lead 汇报
 
 ## 必须
 
