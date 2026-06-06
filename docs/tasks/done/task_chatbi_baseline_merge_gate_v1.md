@@ -1,9 +1,11 @@
 # Task：ChatBI 基线合并闸 — origin/main 既有 pytest + contract 红项修复
 
-> **状态**：`active`（40 自检完成 · 待 **50** 独立复检）  
+> **状态**：`done`（2026-06-06 · PR [#106](https://github.com/Cyning12/ai-ink-brain-api-python/pull/106) @ `26e1c45` · Task_KPI% 100 pass）  
 > **维护者决策**：50 复检 `[reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md](../reinspect_results/reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md)` **选 B** — 先修 main 基线债，再合 P0 Graph PR  
 > **关联图谱**：`docs/_tech_graph/_contract_manifest.json`（Unified SSE 跨端契约）；`api/unified_chat.py` / `api/agent.py`（v3 plan/clarify 路径）  
-> **schedule_ref**：P0 Graph 合入前置 · 见 `[RECENT_TASK_SCHEDULE.md](../RECENT_TASK_SCHEDULE.md)`（待维护者补锚）
+> **50 复检**：[`reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md`](../reinspect_results/reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md)  
+> **22 R1**：[`task_chatbi_baseline_merge_gate_v1_audit_R1_20260604.md`](../harness/reviews/task_chatbi_baseline_merge_gate_v1_audit_R1_20260604.md)  
+> **关闭回溯**：[`invoke_20260606_CLOSE_chatbi-baseline-merge-gate-v1.md`](../harness/invokes/by-task/chatbi_baseline_merge_gate_v1/invoke_20260606_CLOSE_chatbi-baseline-merge-gate-v1.md)
 
 ---
 
@@ -148,14 +150,14 @@ python tools/tech_graph_contract_check.py
 
 ## 验收标准
 
-- 上述 **10** 个 v3 plan/clarify 用例 **全部 pass**（`tests/test_unified_chat_backend_v2_agent.py`）
-- `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**（本地 · AGENTS §8 等价）
-- `python tools/tech_graph_contract_check.py` **exit 0**（`label` 漂移已修复）
-- `python tools/tech_graph_manifest_check.py` **仍绿**（若本 PR 未改 manifest 则对照基线仍 OK）
-- PR 上 `**.github/workflows/pytest.yml`**（workflow 名 `**pytest**`）**Required check 全绿**
-- **未** 夹带 P0 Graph 交付物（`api/graph/`* · Q-8 路由 · `test_chatbi_graph_p0_foundation.py` · P0 manifest 增量）
-- 若触达 `_contract_manifest.json` / `.ai.md`：`## 行为变更（Delta）` 与实现 **一致**
-- `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md` **OK**
+- [x] 上述 **10** 个 v3 plan/clarify 用例 **全部 pass**（`tests/test_unified_chat_backend_v2_agent.py`）
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**（本地 · AGENTS §8 等价）
+- [x] `python tools/tech_graph_contract_check.py` **exit 0**（`label` 漂移已修复）
+- [x] `python tools/tech_graph_manifest_check.py` **仍绿**（若本 PR 未改 manifest 则对照基线仍 OK）
+- [x] PR 上 `**.github/workflows/pytest.yml`**（workflow 名 `**pytest**`）**Required check 全绿**（PR #106 · 2026-06-04 merge · `gh` 核对 SUCCESS）
+- [x] **未** 夹带 P0 Graph 交付物（`api/graph/`* · Q-8 路由 · `test_chatbi_graph_p0_foundation.py` · P0 manifest 增量）
+- [x] 若触达 `_contract_manifest.json` / `.ai.md`：`## 行为变更（Delta）` 与实现 **一致**
+- [x] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_baseline_merge_gate_v1.md` **OK**
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"` + `python tools/tech_graph_contract_check.py`（见 `AGENTS.md` §8 与 `tech-graph-contract.yml`）。
 
@@ -178,6 +180,8 @@ python tools/tech_graph_contract_check.py
 
 | 日期         | 摘要                                                                                              |
 | ---------- | ----------------------------------------------------------------------------------------------- |
+| 2026-06-06 | **Harness 关账**：`git mv` → `done/` · KPI 100% · Fresh Context 复验 main 全绿 · 合入 PR #106 @ `26e1c45` |
+| 2026-06-04 | 50 独立复检 pass-with-notes · reinspect `reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md` |
 | 2026-06-04 | 40 自检：独立复跑 pytest/contract/manifest · 验收表全 pass · 待 50 |
 | 2026-06-04 | 30 执行：conftest 固定 `INTENT_MIN_CONFIDENCE=0.6` · contract 声明 `label` · `agent.py` clarify_gate 补 `on` |
 
@@ -243,16 +247,45 @@ python tools/tech_graph_contract_check.py
 
 **40 结论**：自检 **通过** — 本地必绿命令全绿；建议进入 **50 独立复检** 后开 PR → main。
 
+#### 关账补记（2026-06-06 · main @ `26e1c45`）
+
+| 项 | 结果 |
+| --- | --- |
+| 合入 | PR **#106** `26e1c45` · 2026-06-04 merged |
+| PR CI | `pytest` · `contract_check` · `manifest_check` · `verify` — **SUCCESS**（`gh pr view 106`） |
+| Fresh Context 复验 | 10× v3 **10 passed** · 全集 **323 passed** · contract/manifest/validate **OK** |
+| P0 unblock | `chatbi_graph_p0_foundation_v1` 已 rebase 合 main（PR #107） |
+
+---
+
+### 经验摘要（experience_capture · required）
+
+> 跨 task 可复用：本地 `.env` 与 CI/conftest 测试环境真值不一致导致「main 已红」假象。
+
+1. **现象**：`origin/main` 上 10× v3 plan/clarify 测本地红、CI 可能绿 — 开发者 `.env` 设 `INTENT_MIN_CONFIDENCE=0.3`，低于 stub 意图 `confidence=0.35`，clarify 路径不触发。
+2. **CI 真值**：无 `.env` 时 `rag_env` 默认 **0.6** → stub 0.35 < 0.6 → clarify 正常触发 → CI 可过。
+3. **修复**：`tests/conftest.py` 在 dotenv 加载**前** `os.environ.setdefault("INTENT_MIN_CONFIDENCE", "0.6")`，使本地 pytest 与 CI 语义一致。
+4. **排障口诀**：v3 clarify/plan 测本地红先查 `INTENT_MIN_CONFIDENCE` vs stub confidence，再查 emit 逻辑。
+5. **附带**：`CHATBI_V3_LOW_CONFIDENCE_CLARIFY` 合法值补 `"on"`；contract `label` 列入 `frontend_ts_ignore_payload_like_keys`（Runbook 路径 A）。
+
 ---
 
 ## KPI（00）
 
-> 关账前由 CLOSE / 00 汇总；开工时留空。
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: 100% · **状态**: pass · **帽**: 22→30→40→50→CLOSE · **aggregator**: CLOSE
 
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|----------------|
+| 22 | R1 | main_chat | 100 | 100 | 100 | 100 | — | 文档层零阻塞 · 10 测名与 main 一致 |
+| 30 | R1 | main_chat | 100 | 100 | 100 | 100 | — | conftest/agent/contract · 无 P0 夹带 |
+| 40 | R1 | main_chat | 100 | 100 | 100 | 100 | — | 本地必绿全 pass |
+| 50 | v1 | main_chat | 100 | 100 | 100 | 100 | 100 | pass-with-notes；关账复验 PR #106 CI SUCCESS · main Fresh Context 全绿 |
 
-| 指标        | 值     |
-| --------- | ----- |
-| Task_KPI% | （关账填） |
-| blocked   | （关账填） |
+| 指标 | 值 |
+| --- | --- |
+| Task_KPI% | **100%** |
+| blocked | **无** |
+
+**D2 聚合**：min(100,100,100,100)=100 · **D5 聚合**：100 · **状态**：pass（≥80，无 blocked）
 
 

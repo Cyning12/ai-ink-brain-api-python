@@ -1,10 +1,13 @@
 # Task：ChatBI Intent Hints — Step 2（C-mid · router 同步 + LLM 仲裁）
 
-> **状态**：`active（2026-06-04 · 30/40 完成 · 待 50 落盘 + HG-REINSPECT 人签）`  
+> **状态**：`done`（2026-06-06 · `CHATBI-INTENT-HINTS@2026-06-09` · PR [#111](https://github.com/Cyning12/ai-ink-brain-api-python/pull/111) @ `0fe7d2d` · Task_KPI% 88 pass）  
 > **Epic**：ChatBI Intent Hints · **U2 · Step 2**  
 > **时间门槛**：[`投递冲刺_20260609_v1_zh.md`](../spec/governance/投递冲刺_20260609_v1_zh.md) §2 — **6/9 sprint 建议合 main**（优先于 Step3）  
 > **关联图谱**：`api/intent_hints.py` · `api/intent_router.py` · `api/intent_agent.py` · `api/agent.py` · **无** `api/graph/*`  
-> **母单回链**：[`task_chatbi_intent_hints_step1_v1.md`](done/task_chatbi_intent_hints_step1_v1.md) · U1.5 已合 #110
+> **母单回链**：[`task_chatbi_intent_hints_step1_v1.md`](done/task_chatbi_intent_hints_step1_v1.md) · U1.5 已合 #110  
+> **50 复检**：[`reinspect_chatbi_intent_hints_step2_v1_20260604_v1.md`](../reinspect_results/reinspect_chatbi_intent_hints_step2_v1_20260604_v1.md)  
+> **22 R1**：[`task_chatbi_intent_hints_step2_v1_audit_R1_20260604.md`](../harness/reviews/by-task/chatbi_intent_hints_step2_v1/task_chatbi_intent_hints_step2_v1_audit_R1_20260604.md)  
+> **关闭回溯**：[`invoke_20260606_CLOSE_chatbi-intent-hints-step2-v1.md`](../harness/invokes/by-task/chatbi_intent_hints_step2_v1/invoke_20260606_CLOSE_chatbi-intent-hints-step2-v1.md)
 
 ---
 
@@ -34,7 +37,7 @@
 | ------------- | ------ | ----------- | ---- |
 | HG-TASK-DRAFT | approved | 22-R1, 30 | 10 帽初稿 · 2026-06-04 人签 |
 | HG-AUDIT-R1 | approved | 30 | 22 R1 零阻塞 · 2026-06-04 人签 |
-| HG-REINSPECT | pending | done, 合并 PR | 50 落盘 `reinspect_results/` 后人签 |
+| HG-REINSPECT | approved | done, 合并 PR | 50 落盘 `reinspect_results/` 后人签 |
 
 ---
 
@@ -161,9 +164,10 @@ Step1（#109）通过 **Prompt 注入** 使 Portfolio Q4 / Q-INTENT 在 Intent L
 - [x] 负例「解释一下量子计算，用通俗语言」→ **不** 触发仲裁 · 仍 `direct_answer`  
 - [x] `INTENT_HINTS_ARBITRATION=0` → 行为 **等同 Step1**（仲裁不生效 · 单测断言）  
 - [x] Intent 超时 → V1：`decide_intent_v2` mock 超时 + Q4 → V1 rule_hits 含 **portfolio** 类 · candidate rag（单测或 router 直测）  
-- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**  
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` **全绿**（关账 Fresh Context：**323 passed** · 1 skipped）  
 - [x] diff **不含** `api/graph/*`  
 - [x] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_hints_step2_v1.md` **OK**  
+- [x] PR **`pytest`** workflow Required check 全绿（PR #111 · 2026-06-04 merge · `gh` 核对 SUCCESS）
 
 **PR 标题（建议）**：`feat(chatbi): intent_hints Step2 — router 同步与 LLM 仲裁`
 
@@ -225,7 +229,49 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 - `intent_hints.yaml`：`arbitration.enabled: true` · env `INTENT_HINTS_ARBITRATION`  
 - `tests/test_intent_hints_arbitration.py`（新建）· router Portfolio 扩展 3 用例  
 
-**已知未测**：PR Actions workflow · RUNBOOK 五问/Q-INTENT **真实 LLM 人验**（Step1 已 5/5，本 task 以 mock/router 单测为准）。
+**已知未测**：RUNBOOK 五问/Q-INTENT **真实 LLM 人验**（Step1 已 5/5，本 task 以 mock/router 单测为准）。
+
+#### 关账补记（2026-06-06 · main @ `0fe7d2d`）
+
+| 项 | 结果 |
+| --- | --- |
+| 合入 | PR **#111** `0fe7d2d` · 2026-06-04 merged |
+| PR CI | `pytest` · `contract_check` · `manifest_check` · `verify` — **SUCCESS** |
+| Fresh Context 复验 | 仲裁+router **17 passed** · loader **9 passed** · 全集 **323 passed** · graph diff **0 行** |
+| human_gate | HG-TASK-DRAFT / HG-AUDIT-R1 / HG-REINSPECT — **approved**（`harness_human_gate_check` OK） |
+| 与 50 差异 | 50 时点 312 passed / HG-REINSPECT pending；关账 main 增其他 PR 用例 → **323 passed** |
+
+---
+
+### 经验摘要（experience_capture · required）
+
+> Portfolio 仲裁 vs Prompt-only；prefer 覆盖未单测 → pass-with-notes。
+
+1. **Step1 缺口**：Prompt-only 注入使 Portfolio Q4 倾向 rag，但 LLM 高置信 `direct_answer` 或 V1 超时路径仍可能 miss — Step2 补 **router YAML 合并** + **`apply_hints_arbitration`**。
+2. **双路径设计**：router 侧 `_rag_rule_hits` 合并 YAML（V1/关 LLM）；agent 侧仲裁在 LLM 成功返回前强制改 rag — 两路共用同一份 `intent_hints.yaml`。
+3. **仲裁开关**：Q-2 默认开（YAML `arbitration.enabled: true`）；`INTENT_HINTS_ARBITRATION=0` 时 **零行为变更**（等同 Step1）。
+4. **prefer 优先级**：`prefer=rag|text2sql|no_data` 在 router 先行，仲裁 **不覆盖** — 50 pass-with-notes：**未增 prefer 单测**，后续 Step3 或回归批次可补。
+5. **排障口诀**：Portfolio 仍 no_data → 先查 V1 rule_hits 是否含 portfolio 类 · 再查 LLM direct 是否被仲裁 · 最后查 env 关断。
+
+---
+
+## KPI（00）
+
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: 88% · **状态**: pass · **帽**: 22→30→40→50→CLOSE · **aggregator**: CLOSE
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|-----|----------------|
+| 22 | R1 | main_chat | 100 | 100 | 100 | 100 | — | Q-2 resolved · 零阻塞 |
+| 30 | R1 | main_chat | 100 | 100 | 100 | 100 | — | S2-1～S2-6 交付 · 无 graph diff |
+| 40 | R1 | main_chat | 100 | 100 | 100 | 100 | — | 312 pytest 绿（40 时点） |
+| 50 | v1 | main_chat | 100 | 60 | 100 | 100 | 100 | pass-with-notes：prefer 覆盖未单测 · yaml-missing router 未专测；关账 PR #111 CI SUCCESS |
+
+| 指标 | 值 |
+| --- | --- |
+| Task_KPI% | **88%** |
+| blocked | **无** |
+
+**D2 聚合**：min(100,100,100,60)=60 · **D5 聚合**：100 · **状态**：pass（≥80，无 blocked）
 
 ---
 
@@ -233,6 +279,8 @@ pytest tests -m "not intent_eval and not intent_benchmark"
 
 | 日期 | 摘要 |
 | --- | --- |
+| 2026-06-06 | **Harness 关账**：`git mv` → `done/` · KPI 88% · Fresh Context 复验 main 全绿 · 合入 PR #111 @ `0fe7d2d` |
+| 2026-06-04 | 50 独立复检 pass-with-notes · reinspect `reinspect_chatbi_intent_hints_step2_v1_20260604_v1.md` |
 | 2026-06-04 | 10 帽：U2 Step2 task 初稿 · Q-2 resolved · HG-TASK-DRAFT pending |
 | 2026-06-04 | 人签 HG-TASK-DRAFT approved（gate 独立 commit） |
 | 2026-06-04 | 30/40：Step2 实现 + 自检 · 312 pytest 绿 |
