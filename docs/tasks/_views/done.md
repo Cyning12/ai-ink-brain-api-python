@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- `../done/task_gov_docs_noise_p0_readme_v1.md`（2026-06-06：docs-noise P0 C1–C3 README 指针 · PR #121 @ `5184c10` · KPI 100% pass · Task 链 T1 试点 · **unblocks** P1/P2 子批）
 - `../done/task_chatbi_intent_hints_step2_v1.md`（2026-06-06：Intent Hints Step2 C-mid · router 同步 + LLM 仲裁 · PR #111 @ `0fe7d2d` · KPI 88% pass · 50 `reinspect_chatbi_intent_hints_step2_v1_20260604_v1.md` · **unblocks** Step3）
 - `../done/task_chatbi_baseline_merge_gate_v1.md`（2026-06-06：ChatBI 基线合并闸 · v3 clarify 测试环境 + contract label · PR #106 @ `26e1c45` · KPI 100% pass · 50 `reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md` · **unblocks** P0 Graph）
 - `../done/task_chatbi_graph_p0_foundation_v1.md`（2026-06-04：LangChain 路线图 P0 · 共享层抽取 + State/边表 + Graph stub 路由 · PR #107 · 50 `reinspect_chatbi_graph_p0_foundation_v1_20260603_v1.md` · `main@f53327a` · **blocks** P1 Task-B · 关账 #115）

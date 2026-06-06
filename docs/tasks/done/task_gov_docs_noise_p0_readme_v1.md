@@ -1,6 +1,6 @@
 # Task：docs-noise 治理 · P0 修真冲突指针（C1–C3）
 
-> **状态**：`pending`  
+> **状态**：`done（2026-06-06 验收通过 · PR #121 @ 5184c10）`  
 > **Epic**：docs-noise 治理线 · **P0 试点**（Cursor Task 串链子 Agent 验证）  
 > **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)  
 > **关联 SPEC 正文**：[`docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md`](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md) §8.1  
@@ -23,6 +23,10 @@
 | **blocks** | P1/P2 子批（未建） |
 | **kpi_rubric** | `KPI_RUBRIC_v1_2` |
 | **kpi_aggregator** | `CLOSE` |
+| **merge_policy** | `docs_only_ci_green_merge` |
+| **close_action** | `merge` — CI Required 全绿后 **00/CLOSE 可执行** `gh pr merge --squash`（本 task 授权 · [#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121)） |
+| **experience_capture** | `recommended` |
+| **experience_capture_note** | 执行简报已落盘 diary；关账后可蒸馏 Task 链 PROMPT 惯例 |
 
 ### 人工闸 `human_gate`
 
@@ -63,7 +67,7 @@ docs-noise SPEC 冻结 C1–C3 为 **高/中高/中** 真冲突。本 task **仅
 - [x] C2：`docs/README.md` §1 端到端 **优先** `docs/_tech_graph/`；`docs/flows/` 标为历史快照
 - [x] C3：`docs/tech_graph/README.md` 链至 `_tech_graph`；说明 2 份 gate 留痕
 - [x] SPEC 导图 [`README.md`](../spec/governance/docs-noise-inventory/README.md) §3 中 C1–C3 状态改为 `done`
-- [ ] 单 PR · docs-only · CI Required 全绿
+- [x] 单 PR · docs-only · CI Required 全绿（[#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121) · squash merge `5184c10` · 2026-06-06）
 
 ---
 
@@ -90,7 +94,35 @@ $ test -f docs/tech_graph/README.md && echo OK
 OK
 ```
 
-**40 结论**：无阻塞；建议 CLOSE + `gh pr create`。
+**40 结论**：无阻塞；建议 CLOSE + `gh pr create` → CI 绿后按 **close_action: merge** 合入。
+
+---
+
+### KPI（00）
+
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **100%** · **状态**: **pass** · **帽**: explore · 22 · 30 · 40 · CLOSE  
+**评诊日期**: 2026-06-06 · **简报**: [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md)
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| explore | R1 | task_subagent | pass | pass | pass | pass | — | C1–C3 差分清晰；invoke 落盘 |
+| 22 | R1 | task_subagent | pass | pass | pass | pass | — | 零阻塞；未预跑 `harness_task_validate`（CI 后补，记 warn 不入 D2 fail） |
+| 30 | R1 | task_subagent | pass | pass | pass | pass | — | 三文件 + SPEC §3；scope 未越界 |
+| 40 | R1 | task_subagent | pass | pass | pass | pass | — | rg/test 证据齐全 |
+| CLOSE | close | main_chat | pass | pass | pass | pass | pass | PR #121 merged `5184c10`；task_validate 首轮红已 `05be476` 修复 |
+
+**Task 级聚合**：D1 avg=100 · D2 min=100 · D3 avg=100 · D4 min=100 · D5 min=100  
+**Task_KPI%** = 20+30+15+15+20 = **100%**（业务/工程双目标均达成）
+
+**完成度（人读摘要）**
+
+| 维度 | 得分 | 说明 |
+| --- | ---: | --- |
+| 业务交付（C1–C3） | **100%** | 验收 5/5 已勾选 |
+| Task 链试点 | **100%** | 五帽 invoke/review 齐全；PR 已 merge；task 已归档 `done/` |
+| 预期对照 | **满足** | docs 指针 + Cursor Task 链闭环均达设计目标 |
+
+**关账**：PR #121 已 squash merge（`main@5184c10`）；本 task 已 `git mv` → `done/`。
 
 ---
 
@@ -105,7 +137,7 @@ OK
 
 ## Cursor 试点说明（Round T1）
 
-Harness 00（父 Agent）串行 Task 链：`explore` → `22` → `30` → `40` → `CLOSE` → PR。
+Harness 00（父 Agent）串行 Task 链：`explore` → `22` → `30` → `40` → `CLOSE` → PR → **merge**（`close_action: merge` · PR #121 @ `5184c10` · 2026-06-06）。
 
 Invoke 落盘：`docs/harness/invokes/by-task/gov-docs-noise-p0/`
 
