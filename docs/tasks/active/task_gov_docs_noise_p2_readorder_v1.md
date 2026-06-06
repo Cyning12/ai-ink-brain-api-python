@@ -33,8 +33,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1, 30 | task 草案人扫；纯 docs 可预批后直进 30 |
-| HG-GOV-P2-EXEC | pending | explore, 22, 30, 40, CLOSE | P2 执行链开干前人签 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | task 草案人扫；纯 docs 可预批后直进 30 |
+| HG-GOV-P2-EXEC | approved | explore, 22, 30, 40, CLOSE | P2 执行链开干前人签 |
 
 ---
 
