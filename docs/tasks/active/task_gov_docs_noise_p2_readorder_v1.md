@@ -42,14 +42,16 @@
 
 P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / superseded 标注。P2 聚焦 **导航入口收敛** 与 **legacy 任务消化**，解决 SPEC §8.3 所列四项：
 
-- C4：`PROJECT_CONFIG` 仍提 `.cursorrules`（已不存在；当前规则载体为 `.cursor/rules/*.mdc`）
-- C5/C6：`AGENTS.md` 与 `docs/README.md` 读序表述不一致；根 `README.md` Unified Chat 端点缺失
-- `docs/tasks/legacy/` 积压 6 份历史任务，无统一状态字段，阻碍 `_views/` 索引完整性
+- **C4**：`PROJECT_CONFIG` 仍提 `.cursorrules`（已不存在）→ P2-1
+- **C5**：根 `README.md` Unified Chat 端点 / 关键 env 不完整 → P2-3
+- **C2 复核**（P0 已修 flows 降级）：P2-2 补 AGENTS ↔ `docs/README` **互链**与 **canonical 读序子集**对齐（不要求 docs/README 全节逐步一致）
+- **C6**（`HARNESS_V2_PLAN` vs `AGENTS` 权威链）：**本批非范围**，留 P3 或单独小修
+- `docs/tasks/legacy/` 6 份缺状态 / 未入 `_views/` → P2-4
 
 **完成态**：
 
 - `PROJECT_CONFIG` §B 更新为 `.cursor/rules/*.mdc` 真值，移除 `.cursorrules` 过时表述
-- `AGENTS.md` §7 读序与 `docs/README.md` §1 互链一致，均指向 canonical 读序（SPEC §7）
+- `AGENTS.md` 与 `docs/README.md` §1 **canonical 子集**一致、**双向互链**；docs/README 保留 UI/text2sql/diary 等扩展导航条
 - 根 `README.md` 补充 Unified Chat 端点指针（或明确「完整契约见 PROJECT_CONFIG §F」）
 - `docs/tasks/legacy/` 6 文件消化：移 `done/` 或标 `archived` + `_views/` 索引更新
 
@@ -70,15 +72,34 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
   - 将 `.cursorrules` 描述从「仍常保留」改为「**已移除**；若外部引用仍以 `.cursorrules` 为准，须迁移至 `.cursor/rules/*.mdc`」
   - 确认 `.cursor/rules/*.mdc` 为「当前推荐的人类/Agent 真值入口」
   - 保留 `.cursor/rules` 要点摘要（RAG 日志、pgvector Cosine、session_id、Legacy vs Unified 端点区分、Hybrid 融合）
+- 同步更新 `PROJECT_CONFIG` **§A L17**（若仍写 `.cursorrules` 为兼容/历史参考，改为「已移除；真值 `.cursor/rules/*.mdc`」）
 
-### P2-2 内容要求（SPEC §8.3）
+### P2-2 内容要求（SPEC §8.3 · 子集对齐）
 
-- `AGENTS.md`「必读（按顺序 · 地图）」：
-  - 确认 §7 读序与 SPEC §7 canonical 读序一致（1. PROJECT_CONFIG → 2. `.cursor/rules/*.mdc` → 3. `_tech_graph/` → 4. `RECENT_TASK_SCHEDULE.md` → active/task → 5. `docs/harness/README.md` → 6. `docs/coding_wiki/index.md` → 7. 跨仓 `Projects/AGENTS.md` §2）
-  - 在 AGENTS.md 文末或 §7 附近显式链至 `docs/README.md` §1（互链）
-- `docs/README.md` §1「你应该从哪里开始读」：
-  - 与 AGENTS.md 读序对齐；若存在 legacy 表述（如 flows 仍标为「当前入口」），降级为「历史快照」
-  - 在 docs/README 文末或 §1 附近显式链至 `AGENTS.md`（互链）
+**角色区分**：
+
+- `AGENTS.md` = Agent **最小读序地图**（7 步，含 `.mdc` / harness / Wiki / 跨仓）
+- `docs/README.md` §1 = **docs 分类导航**（可含扩展条目）；**不要求**与 AGENTS 逐步完全一致
+
+**Canonical 子集**（须与 SPEC §7 / 导图 §5 一致，且在两文件 **§1 前 5 条**对齐）：
+
+1. `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
+2. `docs/_tech_graph/`（`graph_query` 按需）
+3. `docs/tasks/RECENT_TASK_SCHEDULE.md` → `active/task_*.md`（docs/README 可写 `_views/` 入口，语义等价）
+4. 涉 ChatBI → `docs/spec/v3-agent/`（docs/README 扩展条可保留）
+5. 关账回顾 → `docs/coding_wiki/`（AGENTS 写 `index.md` / syntheses 指针）
+
+**AGENTS.md 必做**：
+
+- 保持现有 7 步地图；在「必读」节末或「非必读」节前增加显式互链：`docs/README.md` §1
+- 可选：增加一行 pointer 至 SPEC §7 canonical（导图或正文）
+
+**docs/README.md §1 必做**：
+
+- **前 3–5 条**按上表 canonical 子集重写/排序（PROJECT_CONFIG → `_tech_graph` → tasks 入口）
+- `docs/flows/` 保持 **Legacy · 非 L0**（P0 已降级，勿改回「当前入口」）
+- 在 §1 末或文首增加显式互链：`AGENTS.md`
+- **保留** UI / text2sql / diary / PR spec 等扩展条（不删）
 
 ### P2-3 内容要求（SPEC §8.3）
 
@@ -91,6 +112,8 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
   - 补充 `CHATBI_*` 系列关键 env（至少 `CHATBI_USE_AGENT`、`CHATBI_PROMPT_GUARD_MODE`）或改为 pointer
 
 ### P2-4 内容要求（SPEC §8.3）
+
+> **explore 必做**：`task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md` 须 `rg rag_fts_alias supabase/`（或等价）判定 done vs archived；**禁止** 30 帽无证据 `git mv`。
 
 - 对 `docs/tasks/legacy/` 6 文件逐一判定：
 
@@ -116,6 +139,8 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 - **不** 执行 P3 治理（SPEC 收敛 / showcase 索引）
 - **不** 修改 SPEC 正文或导图 README 的冲突寄存器状态（P2 非真冲突，属读序对齐）
 - **不** 要求 legacy 文件内容全文重写（仅补状态字段 + 必要时加 pointer）
+- **不** 在本批解决 **C6**（`HARNESS_V2_PLAN.md` vs `AGENTS.md` 权威链互链 — 留 P3 或单独 task）
+- **不** 要求 `docs/README.md` §1 与 `AGENTS.md` **逐步完全一致**（扩展导航条保留）
 
 ---
 
@@ -125,8 +150,8 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 ### ADDED
 
-- **Requirement**：`AGENTS.md` 须与 `docs/README.md` 互链 canonical 读序
-  - **Scenario**：`sc-p2-agents-docs-readme-link` — GIVEN Agent 打开 AGENTS.md WHEN 滚动至 §7 THEN 看到指向 docs/README.md 的互链；反之亦然
+- **Requirement**：`AGENTS.md` 与 `docs/README.md` 须 **双向互链**，且 **canonical 读序子集**一致
+  - **Scenario**：`sc-p2-agents-docs-readme-link` — GIVEN Agent 打开 AGENTS.md WHEN 读「必读」节 THEN 看到指向 docs/README §1 的互链；打开 docs/README §1 THEN 看到指向 AGENTS.md 的互链；且两文件前 5 条与 SPEC §7 子集一致
 - **Requirement**：根 `README.md` 须含 Unified Chat 端点 pointer
   - **Scenario**：`sc-p2-root-readme-unified` — GIVEN 新人打开根 README WHEN 浏览 Endpoints THEN 看到 Unified Chat 端点或「完整契约见 PROJECT_CONFIG §F」pointer
 - **Requirement**：`docs/tasks/legacy/` 6 文件须进入 `_views/` 索引
@@ -147,7 +172,7 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 | SPEC 正文 | `docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md` §8.3 |
 | P1 precedent | `docs/tasks/done/task_gov_docs_noise_p1_archived_v1.md` |
 | MANIFEST | `docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md` |
-| T2c PROMPT | `docs/harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`（**尚未创建**） |
+| T2c PROMPT | [`docs/harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
 | PROJECT_CONFIG 目标文件 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（已存在） |
 | AGENTS.md 目标文件 | `AGENTS.md`（已存在） |
 | docs/README 目标文件 | `docs/README.md`（已存在） |
@@ -177,14 +202,15 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 - [ ] P2-1：`PROJECT_CONFIG` §B `.cursorrules` 描述已更新为「已移除」；`.cursor/rules/*.mdc` 为当前真值入口
 - [ ] P2-1：PROJECT_CONFIG 要点摘要（RAG 日志、pgvector、session_id、Legacy/Unified 区分、Hybrid）保留未删
-- [ ] P2-2：`AGENTS.md` 读序与 `docs/README.md` §1 读序一致，均符合 SPEC §7 canonical 读序
-- [ ] P2-2：AGENTS.md 与 docs/README.md 存在显式互链（双向 pointer）
+- [ ] P2-2：`AGENTS.md` 与 `docs/README.md` §1 **canonical 子集**（前 3–5 条）与 SPEC §7 一致
+- [ ] P2-2：`AGENTS.md` ↔ `docs/README.md` **双向互链**存在；docs/README 扩展导航条保留
 - [ ] P2-3：根 `README.md` Endpoints 含 Unified Chat 端点（或明确 pointer 至 PROJECT_CONFIG §F）
 - [ ] P2-3：根 `README.md` env 列表含关键 `CHATBI_*` 项（或明确 pointer）
 - [ ] P2-4：`docs/tasks/legacy/` 6 文件已消化（移 `done/` 或标 `archived` + 补状态字段）
 - [ ] P2-4：`docs/tasks/_views/done.md` 已更新，包含 P2-4 消化条目
 - [ ] 未删 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史全文
 - [ ] 未改 `api/`、`tests/`、`.github/workflows/`
+- [ ] 关账时更新 [`docs/spec/governance/docs-noise-inventory/README.md`](../../spec/governance/docs-noise-inventory/README.md) 冲突寄存器 **C4、C5** 为 `done`（C6 不改）
 - [ ] 单 PR · docs-only · CI Required 全绿
 
 **测试 / TDD**：
@@ -203,7 +229,7 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 - **Intent**：收敛导航入口读序（PROJECT_CONFIG / AGENTS / docs/README / 根 README），消化 legacy 任务索引缺口
 - **Scope / 非范围**：见上文；核心约束「不删历史正文、不改 api/tests/workflows、legacy 仅做索引迁移」
-- **Approach**：四文件最小扰动（PROJECT_CONFIG §B、AGENTS.md、docs/README.md、根 README.md）+ 6 文件 legacy 消化 + `_views/` 索引更新
+- **Approach**：四核心 README 最小扰动（PROJECT_CONFIG §A/B、AGENTS、docs/README、根 README）+ 6 文件 legacy 索引迁移 + `_views/done.md` 更新（diff 大于 P1，30 帽禁止改 legacy 正文全文）
 
 ### 实施清单（T2c 执行用）
 
@@ -281,8 +307,8 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 | Round | 帽链 | PROMPT 实例 | 说明 |
 |-------|------|-------------|------|
-| **T0** | Lead / harness-10 | `PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`（**尚未创建**） | 写 **本 task** + gate `pending` → **人签** |
-| **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | `PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`（**尚未创建**） | P2 执行 · SPEC §8.3 |
+| **T0** | Lead / harness-10 | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) | 写 **本 task** + gate `pending` → **人签** |
+| **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) | P2 执行 · SPEC §8.3 |
 
 **通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)
 
@@ -306,3 +332,4 @@ Invoke 落盘：T2c 执行后落盘至 `docs/harness/invokes/by-task/gov-docs-no
 | 日期 | 摘要 |
 |------|------|
 | 2026-06-06 | T0：Claude 写 P2 task 草案 · 待 HG-TASK-DRAFT 人签 |
+| 2026-06-06 | R1 改稿：P2-2 子集对齐 · C4/C5/C6 映射 · 关账 C4/C5 |
