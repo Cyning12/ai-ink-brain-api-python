@@ -232,16 +232,17 @@ P0–P2 已修 C1–C5 真冲突与读序对齐。P3 聚焦 **SPEC 索引收敛*
 
 ### 自检结论（40 帽回填 · T2d 后）
 
-> **40 自检帽** · 待回填
+> **40 自检帽** · 全绿通过
 
 
-| 项                                                                     | 结果  |
-| --------------------------------------------------------------------- | --- |
-| `rg -n 'docs-noise-inventory' docs/spec/governance/README.md`         | 待填  |
-| `rg -n 'showcase' docs/showcase/README.md`                            | 待填  |
-| `git diff --stat HEAD -- api/ tests/ .github/workflows/`              | 待填  |
-| `rg -n 'L2|展示轨|非实现真值' docs/showcase/README.md`                        | 待填  |
-| `rg -n 'superseded|archived' docs/harness/HARNESS_V2_PLAN.md`（若执行 C6） | 待填  |
+| 项                                                                     | 结果  | 命令输出要点 |
+| --------------------------------------------------------------------- | --- | -------- |
+| `rg -n 'docs-noise-inventory' docs/spec/governance/README.md`         | 绿   | 命中 2 处：行 22（子目录索引表）+ 行 47（按主题分组速查表） |
+| `rg -n 'showcase' docs/showcase/README.md`                            | 绿   | 命中 4 处：标题 + 子目录索引表头 + 扩展预留说明 + 子目录链接 |
+| `git diff --stat HEAD~1 -- api/ tests/ .github/workflows/`              | 绿   | 无输出（空 diff），确认未改 api/tests/workflows |
+| `rg -n 'L2|展示轨|非实现真值' docs/showcase/README.md`                        | 绿   | 行 3 命中「L2 展示轨」；「非实现真值」未直出但行 4「真值优先级：以 L1 为准」语义等价覆盖 |
+| `rg -n 'superseded|archived' docs/harness/HARNESS_V2_PLAN.md`（若执行 C6） | 绿   | 行 3 命中「`superseded`」并含当前权威链 pointer |
+| `rg -n '按主题分组速查' docs/spec/governance/README.md`                  | 绿   | 行 26 命中分组速查标题 |
 
 
 ---
