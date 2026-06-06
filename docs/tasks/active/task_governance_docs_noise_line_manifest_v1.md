@@ -40,7 +40,7 @@ Agents **无**项目日历注入；按下列 **L0/L1 真值** 查当前安排：
 | 批次 | Round | task | 执行器 | 状态 | PR |
 | --- | --- | --- | --- | --- | --- |
 | **P0** | T1 | [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) | **Cursor Task 链** | **done** | [#121](https://github.com/Cyning12/ai-ink-brain-api-python/pull/121) |
-| **P1** | T0→T2b | `task_gov_docs_noise_p1_archived_v1.md`（**T0 由 Claude 创建**） | **Claude Code** | **进行中** · 分支 `task/gov-docs-noise-p1-v1` | — |
+| **P1** | T0→T2b | [`done/task_gov_docs_noise_p1_archived_v1.md`](../done/task_gov_docs_noise_p1_archived_v1.md) | **Claude Code** | **done** | [#123](https://github.com/Cyning12/ai-ink-brain-api-python/pull/123) |
 | **P2** | T2c | 未建 | Claude Code | pending | — |
 | **P3** | T3 | 未建 | Claude Code | 长期 | — |
 
