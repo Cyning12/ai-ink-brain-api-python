@@ -67,6 +67,21 @@ docs-noise SPEC 冻结 C1–C3 为 **高/中高/中** 真冲突。本 task **仅
 
 ---
 
+### 自检结论（执行者）
+
+> **40 帽回填** · 2026-06-06
+
+| 验收项 | 结果 |
+| --- | --- |
+| C1 invokes/README 无「已移除」；22/20/50 分工 | ✅ 已修 |
+| C2 docs/README §1 `_tech_graph` 优先；flows Legacy | ✅ 已修 |
+| C3 docs/tech_graph/README.md POINTER + gate 留痕 | ✅ 新建 |
+| SPEC 导图 §3 C1–C3 = done | ✅ 已更新 |
+| `rg -n '已移除|reviews.*移除' docs/harness/invokes/README.md` | 无命中 |
+| `test -f docs/tech_graph/README.md` | exit 0 |
+
+---
+
 ## 失败路径
 
 | 触发 | 行为 |

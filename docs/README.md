@@ -9,8 +9,9 @@
 ## 1. 你应该从哪里开始读
 
 - **如果你要改代码/环境变量/接口边界**：先读 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
+- **如果你要理解架构与端到端流程（L0 真值）**：读 [`docs/_tech_graph/`](_tech_graph/)（改拓扑用 `python tools/tech_graph_graph_query.py` 按需；**禁止**默认整包 `graph.json`）
 - **如果你要做任务实现/验收**：从 [`docs/tasks/_views/`](tasks/_views/) 按状态进入，或直接在 `docs/tasks/active/`、`docs/tasks/done/` 找 `task_*.md`（每个 Task 需要写明 `状态`）
-- **如果你要理解“端到端怎么跑”**：读 `docs/flows/` 的版本化流程快照
+- **如果你要查历史流程快照（Legacy · 非 L0）**：读 `docs/flows/` 的版本化流程快照（已被 `docs/_tech_graph/` 取代；仅做历史对比时打开）
 - **如果你要做 UI 协议对齐（SSE、events、timeline）**：读 `docs/UI/`
 - **如果你要做 Text2SQL**：读 `docs/text2sql/`
 - **如果你要做可复现交付（SDD/TDD/Harness）**：读 [`docs/harness/README.md`](harness/README.md) → [`docs/harness/ACCEPTANCE_LANDING.md`](harness/ACCEPTANCE_LANDING.md)（含 **50 三方复检** 落盘 `docs/tasks/reinspect_results/`），辅以 `docs/delivery/`

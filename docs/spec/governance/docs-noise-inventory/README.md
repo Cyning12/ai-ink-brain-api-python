@@ -41,9 +41,9 @@
 
 | ID | 严重度 | 摘要 | 状态 |
 | --- | --- | --- | --- |
-| **C1** | 高 | `invokes/README` 误写 reviews「已移除」 | `open` |
-| **C2** | 中高 | `docs/README` 推 flows，AGENTS 推 `_tech_graph` | `open` |
-| **C3** | 中 | `docs/tech_graph/` vs `docs/_tech_graph/` 易混 | `open` |
+| **C1** | 高 | `invokes/README` 误写 reviews「已移除」 | `done` |
+| **C2** | 中高 | `docs/README` 推 flows，AGENTS 推 `_tech_graph` | `done` |
+| **C3** | 中 | `docs/tech_graph/` vs `docs/_tech_graph/` 易混 | `done` |
 | **C4** | 中 | PROJECT_CONFIG 仍提 `.cursorrules`（已不存在） | `open` |
 | **C5** | 低中 | 根 README 端点/ env 不完整 | `open` |
 | **C6** | 低 | HARNESS_V2_PLAN vs AGENTS 权威链略歧义 | `open` |
