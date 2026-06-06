@@ -25,6 +25,7 @@
 | 50 | `hats/50-independent-reinspect.md`、`templates/TEMPLATE-independent-reinspect-invoke.md`（+ 可选 full） |
 | — | `handoff/HANDOFF_*` ×3 |
 | **00 · Task 链试点** | [`PROMPT_cursor_task_chain_serial_v1.md`](PROMPT_cursor_task_chain_serial_v1.md) · T1 实例 [`PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md`](PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md) |
+| **Lead · Claude spawn 链** | [`PROMPT_claude_chain_serial_v1.md`](PROMPT_claude_chain_serial_v1.md) · T0/T2b 实例 · [`.claude/agents/`](../../.claude/agents/README.md) |
 
 **工作区混放审查**（非本后端 task）：**不要**写入本仓 `docs/harness/reviews/`；见 archive。
 
@@ -34,5 +35,6 @@
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-06-06 | v6：Claude spawn 链 PROMPT + `.claude/agents/` 指针 |
 | 2026-06-06 | v5：增 Cursor Task 链 PROMPT 模板 + T1 gov-docs-noise 实例 |
 | 2026-05-22 | v4：22 回本仓 reviews；10 双路径 |
