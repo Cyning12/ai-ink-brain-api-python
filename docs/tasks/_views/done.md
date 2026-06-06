@@ -6,6 +6,7 @@
 
 - `../done/task_gov_docs_noise_p1_archived_v1.md`（2026-06-06：docs-noise P1 archived 横幅 + flows README · PR #123 @ `2de2902` · Task 链 T2b · Claude Code 串行 spawn · **unblocks** P2 子批）
 - `../done/task_gov_docs_noise_p2_readorder_v1.md`（2026-06-06：docs-noise P2 读序对齐 · PROJECT_CONFIG/AGENTS/docs README/根 README + legacy 6 文件消化 · PR #126 @ `08d51bd` · Task 链 T2c · Claude Code 串行 spawn · **unblocks** P3 子批）
+- `../done/task_gov_docs_noise_p3_index_v1.md`（2026-06-06：docs-noise P3 SPEC 收敛索引 · governance 分组表 + showcase README + C6 superseded · PR #129 @ `1c52f27` · Task 链 T2d · Claude Code 串行 spawn · **docs-noise 治理线全量 CLOSE**）
 - `../done/task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md`（2026-06-06：P2-4 消化 legacy · FTS alias v2 分隔符/版本号/标识符已落地 · `supabase/sql/hybrid_search.sql`）
 - `../done/task_rag_b2_fts_alias_backfill_v1.md`（2026-06-06：P2-4 消化 legacy · FTS 日期 alias + 回填已落地 · `supabase/sql/hybrid_search.sql`）
 - `../done/task_rag_b1_metadata_structured_recall_v1.md`（2026-06-06：P2-4 消化 legacy · metadata `date_norm` 结构化召回已落地）

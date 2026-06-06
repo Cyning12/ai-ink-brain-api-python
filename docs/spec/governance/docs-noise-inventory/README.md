@@ -46,7 +46,7 @@
 | **C3** | 中 | `docs/tech_graph/` vs `docs/_tech_graph/` 易混 | `done` |
 | **C4** | 中 | PROJECT_CONFIG 仍提 `.cursorrules`（已不存在） | `done` |
 | **C5** | 低中 | 根 README 端点/ env 不完整 | `done` |
-| **C6** | 低 | HARNESS_V2_PLAN vs AGENTS 权威链略歧义 | `open` |
+| **C6** | 低 | HARNESS_V2_PLAN vs AGENTS 权威链略歧义 | `done` |
 
 ---
 
@@ -91,7 +91,7 @@
 | **Subagents** | [`.claude/agents/`](../../../../.claude/agents/README.md) · `harness-10` … `harness-50` |
 | **P0 试点（Cursor）** | [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) |
 
-**当前下一棒**：P3 · Round **T0**（task 已建 · 待人签 `HG-GOV-P3-EXEC`）→ 执行。
+**当前下一棒**：docs-noise 治理线 **已 CLOSE**（P0–P3 全量 done · PR #121/#123/#126/#129）。
 
 ---
 
