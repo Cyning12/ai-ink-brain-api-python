@@ -75,9 +75,26 @@
 
 **刻意不读**：`docs/diary/` 全树 · `docs/harness/invokes/` glob · `docs/showcase/` · `docs/delivery/` · `docs/flows/`（除非 task 指向）。
 
+**档期（Agent 无注入时）**：[`RECENT_TASK_SCHEDULE.md`](../../../tasks/RECENT_TASK_SCHEDULE.md) **§1.2** → [`task_governance_docs_noise_line_manifest_v1.md`](../../../tasks/active/task_governance_docs_noise_line_manifest_v1.md) → 可选 `docs/_tech_graph/02_version.md`。
+
 ---
 
-## 6. 关联
+## 6. 执行编排（Claude Code · Task 链）
+
+| 项 | 路径 |
+| --- | --- |
+| **MANIFEST（Lead 必读）** | [`docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md`](../../../tasks/active/task_governance_docs_noise_line_manifest_v1.md) |
+| **Claude 通用 PROMPT** | [`docs/harness/prompts/PROMPT_claude_chain_serial_v1.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1.md) |
+| **P1 T0（写 task）** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) |
+| **P1 T2b（执行）** | [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) |
+| **Subagents** | [`.claude/agents/`](../../../../.claude/agents/README.md) · `harness-10` … `harness-50` |
+| **P0 试点（Cursor）** | [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) |
+
+**当前下一棒**：P1 · Round **T0**（Claude 写 task）→ 人签 gate → Round **T2b** 执行。
+
+---
+
+## 7. 关联
 
 | 文档 | 关系 |
 | --- | --- |
@@ -89,9 +106,10 @@
 
 ---
 
-## 7. 修订记录
+## 8. 修订记录
 
 | 日期 | 摘要 |
 | --- | --- |
+| 2026-06-06 | P1 Claude 脚手架 · §6 执行编排 · §5 档期指针 |
 | 2026-06-06 | 从 governance 根目录迁入独立文件夹；新增本导图 README |
 | 2026-06-06 | 链入 diary Plan Agent 对比实验留证 |
