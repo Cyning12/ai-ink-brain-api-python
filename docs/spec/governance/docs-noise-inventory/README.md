@@ -91,7 +91,7 @@
 | **Subagents** | [`.claude/agents/`](../../../../.claude/agents/README.md) · `harness-10` … `harness-50` |
 | **P0 试点（Cursor）** | [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) |
 
-**当前下一棒**：P3 · 长期（未建）；P2 已关账 · PR #126。
+**当前下一棒**：P3 · Round **T0**（task 已建 · 待人签 `HG-GOV-P3-EXEC`）→ 执行。
 
 ---
 

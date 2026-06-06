@@ -1,8 +1,8 @@
 # Harness 工程 V2 初版规划
 
-> **状态**：`accepted`（初版 2026-05-13；**运维收口** 见 **§10** 2026-05-14、`HARNESS_V2_P0_ACCEPTANCE.md` §6.1）  
+> **状态**：`superseded`（初版 2026-05-13 已验收；**当前权威链**见 `docs/harness/README.md` + [`AGENTS.md`](../../AGENTS.md) **§Harness**）  
 > **范围**：工作区 `Projects/` 下与 Ink-Brain 全栈研发相关的 **多 Agent + SDD + 分级 TDD + CI 背压**；不替代各仓 `AGENTS.md`、`PROJECT_CONFIG`、`_tech_graph/`。  
-> **真值**：流程与字段约定以 **本文件 + 根目录 `AGENTS.md`** 为准；实现后应更新本节 **§修订记录**。
+> **真值**：~~流程与字段约定以 **本文件 + 根目录 `AGENTS.md`** 为准~~ → **已迁移**；当前 Harness 流程真值见 `docs/harness/README.md` + `AGENTS.md`。本文件为 **历史留档**，正文保留供考古。
 
 ---
 
