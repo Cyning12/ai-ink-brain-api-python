@@ -65,6 +65,16 @@ ROUND_START → FOR each hat:
 
 ---
 
+## 5.1 · 30 帽约束（docs-only）
+
+以下约束须在 spawn `harness-30-docs` 时显式写入 prompt：
+
+- **禁止** `git log` / `git blame` / 历史考古（除非 task 明文要求）
+- **禁止** 读 task 范围外路径做背景调研
+- **docs-only 且 task 已列文件**：改完即停；wall-clock **>10 min** 须停并向 Lead 汇报
+
+---
+
 ## 6. §3 Lead 正文（模板）
 
 ```text

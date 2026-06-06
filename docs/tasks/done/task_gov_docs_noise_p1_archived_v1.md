@@ -257,28 +257,9 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 
 | 维度 | 得分 | 说明 |
 | --- | ---: | --- |
-| 业务交付（P1-1 / P1-2） | **98%** | 验收 7/7 已勾选；扣 2% flows README 死链 `_tech_graph/README.md`（本 post-close 修） |
+| 业务交付（P1-1 / P1-2） | **100%** | 验收 7/7 已勾选；#124 post-close 已修 flows README 死链 |
 | Task 链执行 | **85%** | 六帽 invoke/review 齐全；PR 已 merge；task 已归档 `done/`；30 帽 31min  regression |
 | 预期对照 | **满足** | docs 指针 + Claude Code spawn 链闭环均达设计目标；30 效率约束留 P2 PROMPT |
-
-
----
-
-## KPI（00 / CLOSE 回填）
-
-**rubric**: KPI_RUBRIC_v1_2 · **汇总**: （待 CLOSE 回填） · **状态**: （待 CLOSE 回填）  
-**评诊日期**: （待 CLOSE 回填） · **简报**: （待 CLOSE 回填）
-
-
-| hat_code | round | agent_mode    | D1  | D2  | D3  | D4  | D5  | judgment_notes |
-| -------- | ----- | ------------- | --- | --- | --- | --- | --- | -------------- |
-| explore  | R1    | task_subagent | （待） | （待） | （待） | （待） | —   | —              |
-| 22       | R1    | task_subagent | （待） | （待） | （待） | （待） | —   | —              |
-| 30       | R1    | task_subagent | （待） | （待） | （待） | （待） | —   | —              |
-| 40       | R1    | task_subagent | （待） | （待） | （待） | （待） | —   | —              |
-| CLOSE    | close | main_chat     | （待） | （待） | （待） | （待） | （待） | —              |
-
-
 
 
 ---
