@@ -1,0 +1,308 @@
+# Task：docs-noise 治理 · P2 读序对齐与 legacy 消化
+
+> **状态**：`draft`（T0 轮次 · 仅写 task 草案）
+> **Epic**：docs-noise 治理线 · **P2**（Claude Code 串行 Task 链）
+> **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)
+> **关联 SPEC 正文**：[`docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md`](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md) §8.3
+> **freeze_id**：`GOV-DOCS-NOISE-INVENTORY@2026-06-06`
+
+---
+
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `gov_docs_noise_p2_readorder_v1` |
+| **orchestration** | **Claude Code** · Lead 主会话 + **串行 spawn** `.claude/agents/harness-*` |
+| **semi_auto** | `true` |
+| **test_strategy** | `not_applicable` |
+| **test_strategy_note** | 纯 docs 指针修正；无 `api/` / 契约 / CI workflow 变更 |
+| **audit_profile** | `post_close` |
+| **git_branch** | `task/gov-docs-noise-p2-v1` |
+| **Open Folder** | `ai-ink-brain-api-python` |
+| **blocked_by** | P1（`done` · PR #123 @ `2de2902`） |
+| **blocks** | P3 子批（未建） |
+| **kpi_rubric** | `KPI_RUBRIC_v1_2` |
+| **kpi_aggregator** | `CLOSE` |
+| **merge_policy** | `docs_only_ci_green_merge` |
+| **close_action** | `merge` — CI Required 全绿后 **00/CLOSE 可执行** `gh pr merge --squash` |
+| **experience_capture** | `recommended` |
+| **experience_capture_note** | 执行简报落盘 diary；关账后可蒸馏 P2 PROMPT 惯例 |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | pending | 22-R1, 30 | task 草案人扫；纯 docs 可预批后直进 30 |
+| HG-GOV-P2-EXEC | pending | explore, 22, 30, 40, CLOSE | P2 执行链开干前人签 |
+
+---
+
+## 背景与目标
+
+P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / superseded 标注。P2 聚焦 **导航入口收敛** 与 **legacy 任务消化**，解决 SPEC §8.3 所列四项：
+
+- C4：`PROJECT_CONFIG` 仍提 `.cursorrules`（已不存在；当前规则载体为 `.cursor/rules/*.mdc`）
+- C5/C6：`AGENTS.md` 与 `docs/README.md` 读序表述不一致；根 `README.md` Unified Chat 端点缺失
+- `docs/tasks/legacy/` 积压 6 份历史任务，无统一状态字段，阻碍 `_views/` 索引完整性
+
+**完成态**：
+
+- `PROJECT_CONFIG` §B 更新为 `.cursor/rules/*.mdc` 真值，移除 `.cursorrules` 过时表述
+- `AGENTS.md` §7 读序与 `docs/README.md` §1 互链一致，均指向 canonical 读序（SPEC §7）
+- 根 `README.md` 补充 Unified Chat 端点指针（或明确「完整契约见 PROJECT_CONFIG §F」）
+- `docs/tasks/legacy/` 6 文件消化：移 `done/` 或标 `archived` + `_views/` 索引更新
+
+---
+
+## 范围（P2）
+
+| ID | 交付 | 文件 | 现状 |
+|----|------|------|------|
+| **P2-1** | `PROJECT_CONFIG` 更新 `.cursorrules` 段落 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` §B | `.cursorrules` 已不存在；当前规则载体为 `.cursor/rules/*.mdc` |
+| **P2-2** | `AGENTS.md` 与 `docs/README.md` 互链 §7 读序 | `AGENTS.md` + `docs/README.md` | AGENTS 已推 `_tech_graph`；docs/README 可能有 legacy 读序 |
+| **P2-3** | 根 `README.md` Unified Chat pointer | `README.md` | 端点/env 不完整（缺 `/api/py/unified/chat`、`/api/py/unified/chat/stream` 等） |
+| **P2-4** | 消化 `docs/tasks/legacy/`（6 文件） | `docs/tasks/legacy/` 6 文件 | 无统一状态字段，未进入 `_views/` 索引 |
+
+### P2-1 内容要求（SPEC §8.3）
+
+- `PROJECT_CONFIG` §B「Cursor / Agent 规则」段落：
+  - 将 `.cursorrules` 描述从「仍常保留」改为「**已移除**；若外部引用仍以 `.cursorrules` 为准，须迁移至 `.cursor/rules/*.mdc`」
+  - 确认 `.cursor/rules/*.mdc` 为「当前推荐的人类/Agent 真值入口」
+  - 保留 `.cursor/rules` 要点摘要（RAG 日志、pgvector Cosine、session_id、Legacy vs Unified 端点区分、Hybrid 融合）
+
+### P2-2 内容要求（SPEC §8.3）
+
+- `AGENTS.md`「必读（按顺序 · 地图）」：
+  - 确认 §7 读序与 SPEC §7 canonical 读序一致（1. PROJECT_CONFIG → 2. `.cursor/rules/*.mdc` → 3. `_tech_graph/` → 4. `RECENT_TASK_SCHEDULE.md` → active/task → 5. `docs/harness/README.md` → 6. `docs/coding_wiki/index.md` → 7. 跨仓 `Projects/AGENTS.md` §2）
+  - 在 AGENTS.md 文末或 §7 附近显式链至 `docs/README.md` §1（互链）
+- `docs/README.md` §1「你应该从哪里开始读」：
+  - 与 AGENTS.md 读序对齐；若存在 legacy 表述（如 flows 仍标为「当前入口」），降级为「历史快照」
+  - 在 docs/README 文末或 §1 附近显式链至 `AGENTS.md`（互链）
+
+### P2-3 内容要求（SPEC §8.3）
+
+- 根 `README.md`「Endpoints」段落：
+  - 补充 `POST /api/py/unified/chat`（JSON `events[]`）
+  - 补充 `POST /api/py/unified/chat/stream`（SSE 事件链）
+  - 补充 `GET /api/py/chat/history`（已存在但可能缺失）
+  - 或统一改为：「完整端点与契约见 `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` §F」
+- 根 `README.md`「Required Environment Variables」：
+  - 补充 `CHATBI_*` 系列关键 env（至少 `CHATBI_USE_AGENT`、`CHATBI_PROMPT_GUARD_MODE`）或改为 pointer
+
+### P2-4 内容要求（SPEC §8.3）
+
+- 对 `docs/tasks/legacy/` 6 文件逐一判定：
+
+| 文件 | 判定建议 | 动作 |
+|------|----------|------|
+| `Task 04.md` | 引用溯源已实现（sources header + 流末尾分隔符） | `git mv` → `done/` + 补状态字段 `done` |
+| `task_03_hybrid_search_implementation.md` | Hybrid Search（Vector + FTS + RRF）已落地 | `git mv` → `done/` + 补状态字段 `done` |
+| `task_rag_b1_metadata_structured_recall_v1.md` | metadata `date_norm` 已落地 | `git mv` → `done/` + 补状态字段 `done` |
+| `task_rag_b2_fts_alias_backfill_v1.md` | FTS alias（日期）已落地 | `git mv` → `done/` + 补状态字段 `done` |
+| `task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md` | FTS alias v2（分隔符/版本号/标识符）部分落地 | 若代码/SQL 已合入 → `done/`；若仅设计 → 保留 `legacy/` 但补 `状态: archived` + pointer |
+| `task_rag_keyword_websearch_date_normalize_v1.md` | keyword `websearch_to_tsquery` + 日期归一化已落地 | `git mv` → `done/` + 补状态字段 `done` |
+
+- 更新 `docs/tasks/_views/done.md` 索引（新增条目）
+- 若 `legacy/` 清空，可在 `docs/tasks/README.md` 中标注「legacy 已消化，新增任务直接落 `active/`」
+
+---
+
+## 非范围
+
+- **不** 删除 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史全文
+- **不** 重写 `docs/tasks/done/` 已有 113 份 task 正文
+- **不** 改 `api/`、`tests/`、`.github/workflows/`
+- **不** 执行 P3 治理（SPEC 收敛 / showcase 索引）
+- **不** 修改 SPEC 正文或导图 README 的冲突寄存器状态（P2 非真冲突，属读序对齐）
+- **不** 要求 legacy 文件内容全文重写（仅补状态字段 + 必要时加 pointer）
+
+---
+
+## 行为变更（Delta）
+
+**无对外行为变更** — 纯 docs 指针与索引修正。相对现网增量：
+
+### ADDED
+
+- **Requirement**：`AGENTS.md` 须与 `docs/README.md` 互链 canonical 读序
+  - **Scenario**：`sc-p2-agents-docs-readme-link` — GIVEN Agent 打开 AGENTS.md WHEN 滚动至 §7 THEN 看到指向 docs/README.md 的互链；反之亦然
+- **Requirement**：根 `README.md` 须含 Unified Chat 端点 pointer
+  - **Scenario**：`sc-p2-root-readme-unified` — GIVEN 新人打开根 README WHEN 浏览 Endpoints THEN 看到 Unified Chat 端点或「完整契约见 PROJECT_CONFIG §F」pointer
+- **Requirement**：`docs/tasks/legacy/` 6 文件须进入 `_views/` 索引
+  - **Scenario**：`sc-p2-legacy-indexed` — GIVEN 打开 `docs/tasks/_views/done.md` WHEN 浏览条目 THEN 看到 P2-4 消化的 6 份任务（或其中已完成的子集）
+
+### MODIFIED
+
+- **Requirement**：`PROJECT_CONFIG` §B 更新 `.cursorrules` 描述为「已移除」（Previously: 「仍常保留」）
+  - **Scenario**：`sc-p2-project-config-cursorrules` — GIVEN Agent 读取 PROJECT_CONFIG §B WHEN 查看 Cursor 规则载体 THEN 知悉 `.cursorrules` 已不存在，真值为 `.cursor/rules/*.mdc`
+
+---
+
+## 依赖与引用
+
+| 依赖项 | 路径/说明 |
+|--------|-----------|
+| SPEC 导图 | `docs/spec/governance/docs-noise-inventory/README.md` §5 · §8.3 |
+| SPEC 正文 | `docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md` §8.3 |
+| P1 precedent | `docs/tasks/done/task_gov_docs_noise_p1_archived_v1.md` |
+| MANIFEST | `docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md` |
+| T2c PROMPT | `docs/harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`（**尚未创建**） |
+| PROJECT_CONFIG 目标文件 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（已存在） |
+| AGENTS.md 目标文件 | `AGENTS.md`（已存在） |
+| docs/README 目标文件 | `docs/README.md`（已存在） |
+| 根 README 目标文件 | `README.md`（已存在） |
+| legacy 目标文件 | `docs/tasks/legacy/*`（6 文件） |
+| _views 目标文件 | `docs/tasks/_views/done.md`（已存在） |
+
+---
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|------|----------|--------|----------|------|
+| F1 | `fp-gov-p2-project-config-misstate` | PROJECT_CONFIG 仍写 `.cursorrules` 为「当前有效」 | 30 执行帽拒交付；回退修正为「已移除」 | 是（人工补） | PR review 阻塞 | — |
+| F2 | `fp-gov-p2-readme-diverge` | AGENTS.md 与 docs/README.md 读序仍不一致（如一个推 `_tech_graph`、一个推 `flows/`） | 22 审核帽拒过；回退至 SPEC §7 表述对齐 | 是 | PR review 阻塞 | — |
+| F3 | `fp-gov-p2-root-readme-stale` | 根 README 端点仍缺 Unified Chat 且无 pointer | 30 执行帽拒交付；回退补 pointer | 是（人工补） | PR review 阻塞 | — |
+| F4 | `fp-gov-p2-legacy-lost` | legacy 文件被误删（而非 `git mv` 到 done/ 或补状态字段） | **禁止**；仅做索引迁移或状态标注 | — | — | — |
+| F5 | `fp-gov-p2-views-miss` | `_views/done.md` 未更新，导致 legacy 消化后索引仍缺失 | 40 自检帽拒 CLOSE；回退补索引 | 是 | — | `rg` 验证 |
+| F6 | `fp-gov-p2-scope-creep` | T2c 执行时越界改 `api/`、`tests/`、CI workflow | 40 自检帽拒 CLOSE；diff 回滚 | 是 | — | `git diff --stat` |
+| F7 | `fp-gov-p2-ci-red` | docs-only PR 触发 CI 异常（参考 P0/P1 教训） | 按 `merge_policy: docs_only_ci_green_merge` 阻塞 merge；排查后重跑 | 是 | PR status 红 | CI Required checks |
+
+> **P0/P1 CI 教训**：P0 执行中 `harness_task_validate` 首轮红（`05be476` 修复）；P1 已验证 docs-only 变更的 CI 路径过滤。P2 须预检：若 docs-only 变更意外触发 api/tests 相关 CI，先排查 workflow 路径过滤，不强行 merge。
+
+---
+
+## 验收标准
+
+- [ ] P2-1：`PROJECT_CONFIG` §B `.cursorrules` 描述已更新为「已移除」；`.cursor/rules/*.mdc` 为当前真值入口
+- [ ] P2-1：PROJECT_CONFIG 要点摘要（RAG 日志、pgvector、session_id、Legacy/Unified 区分、Hybrid）保留未删
+- [ ] P2-2：`AGENTS.md` 读序与 `docs/README.md` §1 读序一致，均符合 SPEC §7 canonical 读序
+- [ ] P2-2：AGENTS.md 与 docs/README.md 存在显式互链（双向 pointer）
+- [ ] P2-3：根 `README.md` Endpoints 含 Unified Chat 端点（或明确 pointer 至 PROJECT_CONFIG §F）
+- [ ] P2-3：根 `README.md` env 列表含关键 `CHATBI_*` 项（或明确 pointer）
+- [ ] P2-4：`docs/tasks/legacy/` 6 文件已消化（移 `done/` 或标 `archived` + 补状态字段）
+- [ ] P2-4：`docs/tasks/_views/done.md` 已更新，包含 P2-4 消化条目
+- [ ] 未删 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史全文
+- [ ] 未改 `api/`、`tests/`、`.github/workflows/`
+- [ ] 单 PR · docs-only · CI Required 全绿
+
+**测试 / TDD**：
+
+| test_strategy | 自检须含 |
+|---------------|----------|
+| `not_applicable` | `test_strategy_note` 已说明；自检以 `git diff --stat` + `rg` 验证为主 |
+
+**合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md`）。
+
+---
+
+## 规划 artifact
+
+### 规划摘要
+
+- **Intent**：收敛导航入口读序（PROJECT_CONFIG / AGENTS / docs/README / 根 README），消化 legacy 任务索引缺口
+- **Scope / 非范围**：见上文；核心约束「不删历史正文、不改 api/tests/workflows、legacy 仅做索引迁移」
+- **Approach**：四文件最小扰动（PROJECT_CONFIG §B、AGENTS.md、docs/README.md、根 README.md）+ 6 文件 legacy 消化 + `_views/` 索引更新
+
+### 实施清单（T2c 执行用）
+
+- 1.1 确认 `PROJECT_CONFIG` §B 当前 `.cursorrules` 表述（读 20 行）
+- 1.2 修改 `.cursorrules` 描述为「已移除」；确认 `.cursor/rules/*.mdc` 为真值
+- 2.1 确认 `AGENTS.md` 当前读序（读 §7 附近）
+- 2.2 确认 `docs/README.md` §1 当前读序
+- 2.3 对齐两文件读序；在各自文末/§7 加互链 pointer
+- 3.1 确认根 `README.md` 当前 Endpoints / env 列表
+- 3.2 补充 Unified Chat 端点（或 pointer）；补充关键 `CHATBI_*` env（或 pointer）
+- 4.1 `ls docs/tasks/legacy/` 确认 6 文件清单
+- 4.2 逐文件判定：已落地 → `git mv` done/ + 补状态 `done`；仅设计 → 补 `archived` + pointer
+- 4.3 更新 `docs/tasks/_views/done.md` 索引
+- 4.4 若 legacy/ 清空，更新 `docs/tasks/README.md` 标注
+- 5.1 `git diff --stat` 确认仅 docs 目录变更
+- 5.2 `rg` 验证互链存在、`.cursorrules` 表述已更新、legacy 已消化
+- 6.1 40 帽自检 → 建议 CLOSE + PR
+- 6.2 CLOSE → `gh pr create` → CI 绿 → `gh pr merge --squash`
+- 6.3 `git mv` task → `done/` + 更新 `_views/done.md`
+
+---
+
+## 实现备忘（T2c 回填）
+
+| 项 | 内容 |
+|----|------|
+| 涉及文件 | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`（改）、`AGENTS.md`（改）、`docs/README.md`（改）、`README.md`（改）、`docs/tasks/legacy/*`（6 文件 · 移/改）、`docs/tasks/_views/done.md`（改） |
+| 关键 env | 无 |
+| SQL 执行顺序 | 无 |
+| 接口变更 | 无 |
+| 图谱变更点 | 无 |
+
+---
+
+### 自检结论（执行者）
+
+> T2c 执行后由 30/40 帽回填
+
+---
+
+### 自检结论（40 帽回填 · T2c 后）
+
+> **40 自检帽** · 待回填
+
+| 项 | 结果 |
+|----|------|
+| `rg -n '\.cursorrules.*当前\|仍.*保留\|仍常保留' docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 待填 |
+| `rg -n 'AGENTS\.md\|docs/README\.md' AGENTS.md docs/README.md` | 待填 |
+| `rg -n 'unified/chat\|PROJECT_CONFIG.*§F' README.md` | 待填 |
+| `git diff --stat HEAD~1 -- api/ tests/ .github/workflows/` | 待填 |
+| `ls docs/tasks/legacy/` | 待填 |
+| `rg -n 'task_rag_b\|task_03\|Task 04' docs/tasks/_views/done.md` | 待填 |
+
+---
+
+### KPI（00 / CLOSE 回填）
+
+> **rubric**: KPI_RUBRIC_v1_2 · **汇总**: 待填 · **状态**: 待填
+> **评诊日期**: 待填
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+|----------|-------|------------|----|----|----|----|----|----------------|
+| T0/10 | T0 | task_subagent | — | — | — | — | — | 写本 task + invoke |
+| explore | R1 | task_subagent | — | — | — | — | — | 待填 |
+| 22 | R1 | task_subagent | — | — | — | — | — | 待填 |
+| 30 | R1 | task_subagent | — | — | — | — | — | 待填 |
+| 40 | R1 | task_subagent | — | — | — | — | — | 待填 |
+| CLOSE | close | main_chat | — | — | — | — | — | 待填 |
+
+---
+
+## Claude Code 执行编排
+
+### Round 表
+
+| Round | 帽链 | PROMPT 实例 | 说明 |
+|-------|------|-------------|------|
+| **T0** | Lead / harness-10 | `PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`（**尚未创建**） | 写 **本 task** + gate `pending` → **人签** |
+| **T2c** | explore → 22 → 30 → 40 → CLOSE（**跳过 50**） | `PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`（**尚未创建**） | P2 执行 · SPEC §8.3 |
+
+**通用模板**：[`PROMPT_claude_chain_serial_v1.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1.md)
+
+### Subagent roster（`.claude/agents/`）
+
+| 文件 | 帽 | T0 | T2c |
+|------|----|----|-----|
+| `harness-10-requirements.md` | 10 | ✅ | — |
+| `harness-explore-l0.md` | explore | — | ✅ |
+| `harness-22-audit.md` | 22 | — | ✅ |
+| `harness-30-docs.md` | 30 | — | ✅ |
+| `harness-40-check.md` | 40 | — | ✅ |
+| `harness-50-reinspect.md` | 50 | — | **跳过**（纯 docs · `not_applicable`） |
+
+Invoke 落盘：T2c 执行后落盘至 `docs/harness/invokes/by-task/gov-docs-noise-p2/`
+
+---
+
+## 修订记录
+
+| 日期 | 摘要 |
+|------|------|
+| 2026-06-06 | T0：Claude 写 P2 task 草案 · 待 HG-TASK-DRAFT 人签 |
