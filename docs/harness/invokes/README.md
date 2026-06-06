@@ -22,7 +22,13 @@
 
 1. **同一帽**多轮追问 **不** 重复落盘；换帽才新建文件。  
 2. 与 task 同 **`git_branch`** 提交；并行任务用独立 worktree（见 [`../README.md`](../README.md) §3）。  
-3. 审查结论：用 **`docs/tasks/review_results/`**（20 帽）或 task 正文，**不**使用已移除的 `harness/reviews/`。
+3. **审查落盘分工**（与 [`../reviews/README.md`](../reviews/README.md) §「与 20 / 50 分工」一致）：
+
+   | 帽 | 目录 |
+   | --- | --- |
+   | **22** | `docs/harness/reviews/`（本仓 task 合同审查） |
+   | **20** | `docs/tasks/review_results/`（SPEC/task 短评，可选） |
+   | **50** | `docs/tasks/reinspect_results/`（实现 vs 验收，关账） |
 
 ## 模板来源
 

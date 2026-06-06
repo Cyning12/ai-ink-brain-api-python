@@ -13,7 +13,8 @@
 | [`v2-agent/`](./v2-agent/README.md) | ChatBI V2 | 冻结参考 |
 | [`research/`](./research/README.md) | 架构调研 / 计划 | 对比 SPEC + **路线图计划** · draft · 无 task |
 | [`intent-hints/`](./intent-hints/README.md) | ChatBI Intent | **Portfolio 站点上下文** · `intent_hints.yaml` · 三步 C-lite/mid/full · `draft` |
-| [`governance/`](./governance/README.md) | 治理 / Harness / Wiki | **2026-05 起** 非功能需求与推广顺序 |
+| [`governance/`](./governance/README.md) | 治理 / Harness / Wiki | **2026-05 起** 非功能需求与推广顺序；多文件主题用 **子目录 + 导图 README** |
+| [`governance/docs-noise-inventory/`](./governance/docs-noise-inventory/README.md) | docs 噪音治理 | `draft` · 盘点与 P0–P3 · **日常只读导图** |
 | [`SPEC-ChatBI-Enterprise-Gap.md`](./SPEC-ChatBI-Enterprise-Gap.md) | 企业差距 | 跨版本差距表 |
 | [`SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](./SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md) | **SDD 过程** | 起草 SPEC 的三轮意图对齐 + 10/20/22 映射 |
 | [`governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md`](./governance/SPEC-Governance-Portfolio-RAG-Demo-v1_zh.md) | **治理 / Portfolio** | `active` · `PORTFOLIO-RAG-DEMO@2026-06-01` · RAG 语料与前端 `content/` 同源 ingest + 五问 RUNBOOK |
@@ -23,7 +24,8 @@
 ## 新建 SPEC 约定
 
 - **业务功能**：`docs/spec/v3-agent/SPEC-<域>-<主题>.md`，在 `v3-agent/README.md` 登记。  
-- **治理 / 跨-cutting**：`docs/spec/governance/SPEC-Governance-<主题>-v1.md`。  
+- **治理 / 跨-cutting**：`docs/spec/governance/SPEC-Governance-<主题>-v1.md`；**多文件或正文 >1 页 execution 细节** 时优先 **`governance/<topic>/`** 子目录（**`README.md` = 导图 · 日常只读导图**；正文 SPEC / 附录按需打开）。示例：[`governance/docs-noise-inventory/`](./governance/docs-noise-inventory/README.md)。  
+- **专题域（仿 intent-hints）**：`docs/spec/<topic>/README.md`（导图）+ 分步 SPEC 文件。  
 - **调研 / 选型（无 task）**：`docs/spec/research/SPEC-Research-<主题>-v1_zh.md`，在 `research/README.md` 登记；采纳后迁 `v3-agent/` 或开 task 冻结。  
 - **不**把 Harness invoke/review 全文写入 SPEC；过程真值在 `docs/harness/`；蒸馏进 **`docs/coding_wiki/`**（试点）。
 - **起草纪律**：新 SPEC 或重大增节须遵守 [`SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md`](./SPEC-SDD-Drafting-Intent-Rounds-v1_zh.md)（意图卡 → L0 骨架 → L1+冻结）；10 帽输出 **SPEC 待确认清单**。
@@ -41,3 +43,4 @@
 | 2026-06-03 | 新增 `research/`：自研链 vs LangChain / LangGraph 调研 SPEC |
 | 2026-06-03 | `research/` 增 `SPEC-Plan-LangChain-Patterns-Roadmap-v1_zh.md` 需求计划 |
 | 2026-06-04 | 新增 `intent-hints/`：Portfolio Intent 外置配置 · 三步 SPEC |
+| 2026-06-06 | 新增 `governance/docs-noise-inventory/`：导图 README + 正文 SPEC；SPEC 分目录约定 |
