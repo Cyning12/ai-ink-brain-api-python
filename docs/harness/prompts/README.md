@@ -38,6 +38,7 @@
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-06-06 | v8：T3 docs-noise 母单关账 PROMPT |
 | 2026-06-06 | v7：P2 R1 改稿 handoff + post-close PROMPT 索引 |
 | 2026-06-06 | v6：Claude spawn 链 PROMPT + `.claude/agents/` 指针 |
 | 2026-06-06 | v5：增 Cursor Task 链 PROMPT 模板 + T1 gov-docs-noise 实例 |
