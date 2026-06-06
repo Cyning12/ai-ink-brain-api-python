@@ -5,6 +5,12 @@
 ## 已完成
 
 - `../done/task_gov_docs_noise_p1_archived_v1.md`（2026-06-06：docs-noise P1 archived 横幅 + flows README · PR #123 @ `2de2902` · Task 链 T2b · Claude Code 串行 spawn · **unblocks** P2 子批）
+- `../done/task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md`（2026-06-06：P2-4 消化 legacy · FTS alias v2 分隔符/版本号/标识符已落地 · `supabase/sql/hybrid_search.sql`）
+- `../done/task_rag_b2_fts_alias_backfill_v1.md`（2026-06-06：P2-4 消化 legacy · FTS 日期 alias + 回填已落地 · `supabase/sql/hybrid_search.sql`）
+- `../done/task_rag_b1_metadata_structured_recall_v1.md`（2026-06-06：P2-4 消化 legacy · metadata `date_norm` 结构化召回已落地）
+- `../done/task_rag_keyword_websearch_date_normalize_v1.md`（2026-06-06：P2-4 消化 legacy · `websearch_to_tsquery` + 日期归一化已落地）
+- `../done/task_03_hybrid_search_implementation.md`（2026-06-06：P2-4 消化 legacy · Hybrid Search Vector + FTS + RRF 已落地）
+- `../done/Task 04.md`（2026-06-06：P2-4 消化 legacy · 引用溯源 `x-sources` + `---RAG_SOURCES_JSON---` 已落地）
 - `../done/task_gov_docs_noise_p0_readme_v1.md`（2026-06-06：docs-noise P0 C1–C3 README 指针 · PR #121 @ `5184c10` · KPI 100% pass · Task 链 T1 试点 · **unblocks** P1/P2 子批）
 - `../done/task_chatbi_intent_hints_step2_v1.md`（2026-06-06：Intent Hints Step2 C-mid · router 同步 + LLM 仲裁 · PR #111 @ `0fe7d2d` · KPI 88% pass · 50 `reinspect_chatbi_intent_hints_step2_v1_20260604_v1.md` · **unblocks** Step3）
 - `../done/task_chatbi_baseline_merge_gate_v1.md`（2026-06-06：ChatBI 基线合并闸 · v3 clarify 测试环境 + contract label · PR #106 @ `26e1c45` · KPI 100% pass · 50 `reinspect_chatbi_baseline_merge_gate_v1_20260604_v1.md` · **unblocks** P0 Graph）

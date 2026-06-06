@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；FTS alias v2（分隔符/版本号/标识符）已合入 `public.rag_fts_alias_text()`，见 `supabase/sql/hybrid_search.sql`。
+
 # Task：B2 v2｜FTS alias 扩展（分隔符/版本号/标识符）+ 分批回填
 
 ## 背景与目标

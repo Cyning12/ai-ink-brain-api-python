@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；FTS 日期 alias（`public.rag_fts_alias_text`）与触发器已落地，见 `supabase/sql/hybrid_search.sql`。
+
 # Task：B2 v1｜FTS alias（日期）+ 回填（Supabase）
 
 ## 背景与目标

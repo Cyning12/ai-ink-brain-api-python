@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；引用溯源（`x-sources` header + `---RAG_SOURCES_JSON---` 流末尾分隔符）已落地，见 `PROJECT_CONFIG` §F.1。
+
 ## Task 04：引用溯源显示与 UI 透明化（可验收任务）
 
 ### 任务目标

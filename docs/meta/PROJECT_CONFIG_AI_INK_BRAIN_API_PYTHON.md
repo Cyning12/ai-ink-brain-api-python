@@ -14,7 +14,7 @@
 | 仓库名（示例） | `ai-ink-brain-api-python` |
 | 远程默认分支 | `main`（以你本地 `git branch` / GitHub 默认分支为准） |
 | 技术栈摘要 | FastAPI + Uvicorn；OpenAI SDK（指向 SiliconFlow 兼容接口）；`supabase-py`；Supabase（Postgres + pgvector + FTS） |
-| 本仓负责的边界（Single Source of Truth） | **Embedding / Chunking / Retrieval / Hybrid Search / RAG 日志** 的权威实现以本仓库代码为准；**Cursor 规则载体**以 `.cursor/rules/*.mdc` 为主，根目录 `.cursorrules` 为兼容/历史参考 |
+| 本仓负责的边界（Single Source of Truth） | **Embedding / Chunking / Retrieval / Hybrid Search / RAG 日志** 的权威实现以本仓库代码为准；**Cursor 规则载体**以 `.cursor/rules/*.mdc` 为真值，根目录 `.cursorrules` **已移除**（若外部引用仍以 `.cursorrules` 为准，须迁移至 `.cursor/rules/*.mdc`） |
 | 本仓不负责的边界 | **博客页面渲染、内容编辑 UX、Next.js BFF 转发** 在 `ai-ink-brain`；本仓只提供 HTTP API |
 | 部署入口（概念） | 本地：`uvicorn main:app`；Vercel：README 说明生产入口为 `api/index.py`（以 Vercel Python Runtime 配置为准） |
 
@@ -24,11 +24,11 @@
 
 | 文件 | 作用 | 是否必须存在 |
 |---|---|---|
-| `.cursor/rules/*.mdc` | 分路径规则（图谱、RAG、错误处理等）；**当前推荐的人类/Agent 真值入口** | **建议必须**（当前已存在多份 `.mdc`） |
-| `.cursorrules` | 历史/兼容：全仓 AI 规则摘要（若与 `.mdc` 不一致，**以 `.mdc` + 本 `PROJECT_CONFIG` 为准**） | 可选（当前仓库内仍常保留） |
+| `.cursor/rules/*.mdc` | 分路径规则（图谱、RAG、错误处理等）；**当前人类/Agent 真值入口** | **建议必须**（当前已存在多份 `.mdc`） |
+| `.cursorrules` | **已移除**；历史 `.cursorrules` 不再维护，若发现外部引用仍以该文件为准，须迁移至 `.cursor/rules/*.mdc` | **不存在** |
 | `AGENTS.md` / `CLAUDE.md` | 额外 Agent 指引 | **本仓 `AGENTS.md` 存在**（`CLAUDE.md` 可选） |
 
-`.cursor/rules` + `.cursorrules` 要点（执行层摘要，以代码为准）：
+`.cursor/rules/*.mdc` 要点（执行层摘要，以代码为准）：
 - RAG 日志必须写入 `rag_conversation_logs`
 - pgvector 相似度使用 Cosine Distance（RPC `match_documents`）
 - 每次请求必须处理 `session_id`，检索前读取最近 3-5 轮历史（当前实现为 5）

@@ -1,6 +1,6 @@
 # Task：docs-noise 治理 · P2 读序对齐与 legacy 消化
 
-> **状态**：`draft`（T0 轮次 · 仅写 task 草案）
+> **状态**：`in_progress`（T2c 30 帽执行完成 · 待 40 自检/PR/CLOSE）
 > **Epic**：docs-noise 治理线 · **P2**（Claude Code 串行 Task 链）
 > **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)
 > **关联 SPEC 正文**：[`docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md`](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md) §8.3
@@ -266,7 +266,55 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 ### 自检结论（执行者）
 
-> T2c 执行后由 30/40 帽回填
+> 30 帽执行回填 · 2026-06-06
+
+#### 文件变更清单
+
+- **P2-1**：`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
+  - §A L17：`.cursorrules` 表述从「兼容/历史参考」改为「已移除；真值 `.cursor/rules/*.mdc`」
+  - §B 表格：`.cursorrules` 改为「已移除」；`.cursor/rules/*.mdc` 为当前真值入口
+  - 保留 `.cursor/rules` 要点摘要（RAG 日志、pgvector Cosine、session_id、Legacy/Unified 区分、Hybrid 融合）
+- **P2-2**：
+  - `AGENTS.md`：必读第 7 条后增加显式互链 `docs/README.md §1`
+  - `docs/README.md`：§1 前 5 条按 canonical 子集排序（PROJECT_CONFIG → `_tech_graph` → tasks → ChatBI spec → coding_wiki），文首增加显式互链 `AGENTS.md`；保留 UI/text2sql/diary/PR spec 等扩展条
+- **P2-3**：`README.md`
+  - Endpoints 段落补充 `POST /api/py/unified/chat` 与 `POST /api/py/unified/chat/stream`
+  - 增加 pointer「完整端点与契约见 PROJECT_CONFIG §F」
+  - env 段落补充 `CHATBI_USE_AGENT`、`CHATBI_PROMPT_GUARD_MODE`，并增加 pointer「完整环境变量表见 PROJECT_CONFIG §C」
+- **P2-4**：
+  - `git mv` 6 份 legacy 文件至 `docs/tasks/done/`：
+    - `Task 04.md`
+    - `task_03_hybrid_search_implementation.md`
+    - `task_rag_b1_metadata_structured_recall_v1.md`
+    - `task_rag_b2_fts_alias_backfill_v1.md`
+    - `task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md`
+    - `task_rag_keyword_websearch_date_normalize_v1.md`
+  - 每文件文首补 `状态: done` + 归档说明
+  - `docs/tasks/_views/done.md` 新增 6 条条目
+
+#### `git diff --stat` 输出
+
+```
+ AGENTS.md                                                        | 2 ++
+ README.md                                                        | 8 ++++++++
+ docs/README.md                                                   | 9 ++++++---
+ docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md              | 8 ++++----
+ docs/tasks/_views/done.md                                        | 6 ++++++
+ docs/tasks/done/Task 04.md                                       | 3 +++
+ docs/tasks/done/task_03_hybrid_search_implementation.md          | 3 +++
+ docs/tasks/done/task_rag_b1_metadata_structured_recall_v1.md     | 3 +++
+ docs/tasks/done/task_rag_b2_fts_alias_backfill_v1.md             | 3 +++
+ .../task_rag_b2_v2_fts_alias_symbols_versions_identifiers.md     | 3 +++
+ docs/tasks/done/task_rag_keyword_websearch_date_normalize_v1.md  | 3 +++
+ 11 files changed, 44 insertions(+), 7 deletions(-)
+```
+
+#### 范围校验
+
+- `git diff --stat HEAD -- api/ tests/ .github/workflows/`：无输出（未改动受限路径）
+- `ls docs/tasks/legacy/`：空（legacy 已消化）
+- 未删除 `docs/harness/invokes/`、`reviews/`、`reinspect_results/` 历史
+- 未修改 legacy 正文全文（仅补状态字段 + 归档说明）
 
 ---
 
@@ -276,12 +324,12 @@ P0 已修 C1–C3 真冲突；P1 已为 `delivery/`、`flows/` 加 archived / su
 
 | 项 | 结果 |
 |----|------|
-| `rg -n '\.cursorrules.*当前\|仍.*保留\|仍常保留' docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 待填 |
-| `rg -n 'AGENTS\.md\|docs/README\.md' AGENTS.md docs/README.md` | 待填 |
-| `rg -n 'unified/chat\|PROJECT_CONFIG.*§F' README.md` | 待填 |
-| `git diff --stat HEAD~1 -- api/ tests/ .github/workflows/` | 待填 |
-| `ls docs/tasks/legacy/` | 待填 |
-| `rg -n 'task_rag_b\|task_03\|Task 04' docs/tasks/_views/done.md` | 待填 |
+| `rg -n '\.cursorrules.*当前\|仍.*保留\|仍常保留' docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` | 无命中；表述已改为「已移除」 |
+| `rg -n 'AGENTS\.md\|docs/README\.md' AGENTS.md docs/README.md` | 双向互链存在 |
+| `rg -n 'unified/chat\|PROJECT_CONFIG.*§F' README.md` | 命中 Unified Chat 端点 + pointer |
+| `git diff --stat HEAD -- api/ tests/ .github/workflows/` | 无输出（未改动） |
+| `ls docs/tasks/legacy/` | 空（已消化） |
+| `rg -n 'task_rag_b\|task_03\|Task 04' docs/tasks/_views/done.md` | 6 条新条目均已命中 |
 
 ---
 

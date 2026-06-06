@@ -15,6 +15,8 @@
 6. [`docs/coding_wiki/index.md`](docs/coding_wiki/index.md) — 关账回顾 L2；**改代码仍 L0 图谱优先**
 7. 跨仓协作：工作区 [`Projects/AGENTS.md`](../../Projects/AGENTS.md) **§2**
 
+> **docs 分类导航**（含 UI / text2sql / diary 等扩展条）见 [`docs/README.md`](docs/README.md) **§1**。
+
 ---
 
 ## 非必读（按需）

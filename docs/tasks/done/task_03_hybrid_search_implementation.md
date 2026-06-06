@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；Hybrid Search（Vector + FTS + RRF）已落地，见 `supabase/sql/hybrid_search.sql`、`api/index.py` 与 `rag_recall_tools.py`。
+
 ## Task 03：Supabase 混合检索（Hybrid Search）可验收任务
 
 ### 任务目标

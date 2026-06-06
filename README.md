@@ -9,6 +9,10 @@ FastAPI backend for **AI-Ink-Brain** (RAG chat + ingest/sync) designed for deplo
 - `POST /api/py/admin/sync`
 - `GET /api/py/admin/sync?jobId=...`
 - `POST /api/py/admin/ingest`
+- `POST /api/py/unified/chat` (JSON `events[]`)
+- `POST /api/py/unified/chat/stream` (SSE 事件链)
+
+> 完整端点、请求/响应契约与鉴权细节见 [`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md) §F。
 
 ## Required Environment Variables
 
@@ -23,6 +27,10 @@ FastAPI backend for **AI-Ink-Brain** (RAG chat + ingest/sync) designed for deplo
 - ~~`NEXT_PUBLIC_ADMIN_SECRET` / `CHAT_API_SECRET`~~ (deprecated · fallback only · to be removed)
 - `RAG_MATCH_THRESHOLD` (optional, default `0.3`, set `none` to disable)
 - `DEBUG_RAG` / `RAG_DEBUG` (optional)
+- `CHATBI_USE_AGENT` (optional, default `false`; `true` 启用 V2 Agent/ReAct 路径)
+- `CHATBI_PROMPT_GUARD_MODE` (optional, default `off`; `warn`/`block` 控制 Prompt 注入 PoC)
+
+> 完整环境变量表（含 `CHATBI_*` 全系列）见 [`docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`](docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md) §C。
 
 ## Local Run
 

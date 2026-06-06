@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；`keyword_documents` 已切 `websearch_to_tsquery` + 日期归一化已落地，见 `supabase/sql/hybrid_search.sql`、`api/unified_chat.py`。
+
 # Task：RAG Keyword（websearch）+ 日期查询归一化（v1）
 
 ## 背景与目标

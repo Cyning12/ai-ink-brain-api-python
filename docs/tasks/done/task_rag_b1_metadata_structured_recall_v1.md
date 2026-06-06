@@ -1,3 +1,6 @@
+> **状态**：`done`  
+> **归档说明**：2026-06-06 由 P2 消化；`metadata.date_norm` 归一化与结构化召回已落地，见 `api/ingest_pipeline.py`、`api/unified_chat.py`。
+
 # Task：B1｜metadata 归一化 + 结构化召回（v1）
 
 ## 背景与目标
