@@ -1,6 +1,6 @@
 # Task：docs-noise 治理 · P1 标 archived / superseded
 
-> **状态**：`draft`（T0 产出 · 待人签 HG-TASK-DRAFT）  
+> **状态**：`done`（2026-06-06 验收通过 · PR #123 @ `2de2902`）  
 > **Epic**：docs-noise 治理线 · **P1**（Claude Code 串行 Task 链）  
 > **关联 SPEC 导图**：`[docs/spec/governance/docs-noise-inventory/README.md](../spec/governance/docs-noise-inventory/README.md)`  
 > **关联 SPEC 正文**：`[docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md)` §8.2  
@@ -74,7 +74,7 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 - 写明 **freeze 日期**：`2026-04-16`（`docs/flows/rag-chat/v1_2026-04-16_*.md` 快照日期）
 - 说明：本目录为 **Legacy chat** 流程快照，落后于 Unified/ChatBI
 - 说明：端到端真值已迁移至 `docs/_tech_graph/`
-- 链至 `docs/_tech_graph/00_main.md` 或 `docs/_tech_graph/README.md`
+- 链至 `docs/_tech_graph/00_main.md`
 - 若目录内已存在其他 `.md`，本 README 仅作 **索引 / POINTER**，不替代子文件
 
 ---
@@ -137,13 +137,13 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 
 ## 验收标准
 
-- P1-1：`docs/delivery/v0.2.0-code-rag/README.md` 文首含 **ARCHIVED** 横幅，链至 `docs/harness/README` + `docs/spec/`
-- P1-1：delivery README 正文其余段落 **未被删除**
-- P1-2：`docs/flows/README.md` **已新建**，含 freeze 日期 `2026-04-16`、Legacy chat 说明、superseded by `_tech_graph` 指针
-- P1-2：flows README 链至 `docs/_tech_graph/` 具体入口文件
-- 未删 `docs/delivery/`、`docs/flows/` 内任何历史文件
-- 未改 `api/`、`tests/`、`.github/workflows/`
-- 单 PR · docs-only · CI Required 全绿
+- [x] P1-1：`docs/delivery/v0.2.0-code-rag/README.md` 文首含 **ARCHIVED** 横幅，链至 `docs/harness/README` + `docs/spec/`
+- [x] P1-1：delivery README 正文其余段落 **未被删除**
+- [x] P1-2：`docs/flows/README.md` **已新建**，含 freeze 日期 `2026-04-16`、Legacy chat 说明、superseded by `_tech_graph` 指针
+- [x] P1-2：flows README 链至 `docs/_tech_graph/` 具体入口文件
+- [x] 未删 `docs/delivery/`、`docs/flows/` 内任何历史文件
+- [x] 未改 `api/`、`tests/`、`.github/workflows/`
+- [x] 单 PR · docs-only · CI Required 全绿（#123 @ `2de2902`）
 
 **测试 / TDD**：
 
@@ -222,14 +222,44 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 
 ## 自检结论（40 帽回填 · T2b 后）
 
-> **40 自检帽** 运行 task 所列命令后，将 **原始输出要点** 与 pass/fail 结论写入本节。
+> **40 自检帽** · 2026-06-06 · **建议 CLOSE + PR**
 
+| 项 | 结果 |
+| --- | --- |
+| `test -f docs/flows/README.md` | ✅ PASS — 文件存在（21 行） |
+| `rg -n 'ARCHIVED' docs/delivery/v0.2.0-code-rag/README.md` | ✅ PASS — L1–L2 命中 archived 横幅 |
+| `git diff --stat HEAD~5..HEAD` | ✅ PASS — 仅 docs/ 目录变更（+187） |
+| `git diff --name-only HEAD~5..HEAD \| grep -E '^api/\|^tests/\|^\.github/workflows/'` | ✅ PASS — 空输出，未触及 api/tests/workflows |
+| `rg -n 'superseded\|_tech_graph\|Legacy' docs/flows/README.md` | ✅ PASS — 命中 5 处 |
 
-| 项   | 结果                                                                                                              |
-| --- | --------------------------------------------------------------------------------------------------------------- |
-| 命令  | `git diff --stat` / `rg -n 'ARCHIVED' docs/delivery/v0.2.0-code-rag/README.md` / `test -f docs/flows/README.md` |
-| 结论  | （待 T2b 回填）                                                                                                      |
-| 要点  | （待 T2b 回填）                                                                                                      |
+**40 结论**：无阻塞；建议 CLOSE + `gh pr create` → CI 绿后按 **close_action: merge** 合入。
+
+---
+
+### KPI（00 / CLOSE 回填）
+
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **85%** · **状态**: **pass** · **帽**: T0/10 · explore · 22 · 30 · 40 · CLOSE  
+**评诊日期**: 2026-06-06 · **简报**: [`tmp/diary/2026-06-06-gov-docs-noise-p1-claude-review/00_P1_closeout_review_zh.md`](../../tmp/diary/2026-06-06-gov-docs-noise-p1-claude-review/00_P1_closeout_review_zh.md)
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T0/10 | T0 | task_subagent | pass | pass | pass | pass | — | task + invoke · validate OK |
+| explore | R1 | task_subagent | pass | pass | pass | pass | — | 差分 md 落盘 |
+| 22 | R1 | task_subagent | pass | pass | pass | pass | — | R1 零阻塞 |
+| 30 | R1 | task_subagent | pass | warn | pass | warn | — | D2/D4：31min + git log 考古 |
+| 40 | R1 | task_subagent | pass | pass | pass | pass | — | 5/5 验证命令 pass |
+| CLOSE | close | main_chat | pass | pass | pass | pass | pass | PR #123 merged `2de2902` |
+
+**Task 级聚合**：D1 avg=100 · D2 min=60（30 warn）· D3 avg=100 · D4 min=60（30 warn）· D5 min=100  
+**Task_KPI%** = 20+18+15+15+20 = **88%**（D2/D4 因 30 耗时 warn 略扣；业务/工程双目标均达成）
+
+**完成度（人读摘要）**
+
+| 维度 | 得分 | 说明 |
+| --- | ---: | --- |
+| 业务交付（P1-1 / P1-2） | **98%** | 验收 7/7 已勾选；扣 2% flows README 死链 `_tech_graph/README.md`（本 post-close 修） |
+| Task 链执行 | **85%** | 六帽 invoke/review 齐全；PR 已 merge；task 已归档 `done/`；30 帽 31min  regression |
+| 预期对照 | **满足** | docs 指针 + Claude Code spawn 链闭环均达设计目标；30 效率约束留 P2 PROMPT |
 
 
 ---
@@ -249,14 +279,6 @@ docs-noise SPEC §5 将 `docs/delivery/v0.2.0-code-rag/` 与 `docs/flows/` 列�
 | CLOSE    | close | main_chat     | （待） | （待） | （待） | （待） | （待） | —              |
 
 
-**完成度（人读摘要 · 待 CLOSE 回填）**
-
-
-| 维度                | 得分  | 说明  |
-| ----------------- | --- | --- |
-| 业务交付（P1-1 / P1-2） | （待） | —   |
-| Task 链执行          | （待） | —   |
-| 预期对照              | （待） | —   |
 
 
 ---
@@ -297,5 +319,7 @@ T2b 执行后落盘至：`docs/harness/invokes/by-task/gov-docs-noise-p1/`
 | 日期         | 摘要                                          |
 | ---------- | ------------------------------------------- |
 | 2026-06-06 | T0：Claude 写 P1 task 草案 · 待 HG-TASK-DRAFT 人签 |
+| 2026-06-06 | T2b：P1 执行 · PR #123 merge `2de2902` · task 归档 `done/` |
+| 2026-06-06 | post-close：回填 40/KPI · 修 flows 死链 · 验收勾选 |
 
 
