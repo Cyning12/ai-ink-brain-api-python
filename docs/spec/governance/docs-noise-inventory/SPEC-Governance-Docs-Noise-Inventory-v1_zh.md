@@ -310,6 +310,7 @@ human_gate: （按批次定）
 | [`SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../SPEC-Governance-Wiki-Agent-Readorder-v1.md) | §7 读序 **兼容** Wiki L2 规则；改代码仍 L0 |
 | [`docs/README.md`](../../../README.md) §4 TODO | 本 SPEC §8 为 **超集**；执行时同步勾选 docs/README TODO |
 | [`README.md`](./README.md) | 导图 · Agent 默认入口 |
+| [`../../../diary/2026-06-05-plan-agent-analysis/00_README.md`](../../../diary/2026-06-05-plan-agent-analysis/00_README.md) | Plan Agent 对比 · 读序/导航实证 · **非 L0** |
 
 ---
 

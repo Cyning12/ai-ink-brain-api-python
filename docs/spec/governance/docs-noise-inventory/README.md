@@ -85,6 +85,7 @@
 | [`../../README.md`](../../README.md) | `docs/spec/` 根 · SPEC 分目录约定 |
 | [`../../../tasks/RECENT_TASK_SCHEDULE.md`](../../../tasks/RECENT_TASK_SCHEDULE.md) | 不压过 ChatBI 业务队列 |
 | [`../SPEC-Governance-Wiki-Agent-Readorder-v1.md`](../SPEC-Governance-Wiki-Agent-Readorder-v1.md) | §5 读序兼容 Wiki L2 |
+| [`../../../diary/2026-06-05-plan-agent-analysis/00_README.md`](../../../diary/2026-06-05-plan-agent-analysis/00_README.md) | Plan Agent 对比实验 · 印证导航/读序问题 · **非 L0** |
 
 ---
 
@@ -93,3 +94,4 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-06 | 从 governance 根目录迁入独立文件夹；新增本导图 README |
+| 2026-06-06 | 链入 diary Plan Agent 对比实验留证 |
