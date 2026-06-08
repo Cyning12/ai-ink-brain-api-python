@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `draft`（**A 轨 task 30 帽定稿**） |
+| **状态** | **`accepted`**（A 轨 30 帽定稿 · 待 B 轨齐 CLOSE 后全面生效） |
 | **freeze_id** | `GOV-HARNESS-CHAIN-ORCHESTRATION@2026-06-08` |
 | **Epic** | [`task_harness_semi_auto_retirement_manifest_v1.md`](../../tasks/active/task_harness_semi_auto_retirement_manifest_v1.md) |
 | **执行 task** | [`task_harness_chain_orchestration_spec_v1.md`](../../tasks/active/task_harness_chain_orchestration_spec_v1.md) |

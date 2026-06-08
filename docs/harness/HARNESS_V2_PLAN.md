@@ -132,11 +132,21 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 
 详见 [`prompts/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §4。
 
-### 5.6 `human_gate` / `semi_auto`（半自动 · 可选）
+### 5.6 `orchestration` / `semi_auto`（链式常模 · semi_auto 过渡/废弃）
 
-- **`semi_auto: true`**：允许同 Agent 在 **无 pending 人工闸** 时自动执行下一帽；**下一棒 §3 须先** 落盘 `docs/harness/invokes/` 并 commit（[`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §3）。  
-- **`human_gate`**：表列 `human_gate_id`、`status`（`pending` \| `approved`）、`blocks_hats`；**仅人** 可将 `pending` 改为 `approved`；Agent 遇阻塞帽 **拒执行**。  
-- **`git_branch`**（建议）：半自动执行所在分支名（如 `task/<slug>`），**禁止**在 `main` 上连续自动链式提交。
+> **2026-06-08 更新**：`semi_auto` 进入 **过渡/废弃**；新 task 默认用 **`orchestration` + `PROMPT_*_chain_serial_*` 串行帽链**。全面废弃须 **A（治理 SPEC）+ B（api 链式试点）** 齐 CLOSE。详见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)。
+
+| 维度 | `semi_auto: true`（过渡/废弃） | 链式 `orchestration`（推荐） |
+|------|------------------------------|----------------------------|
+| 换帽 | 同会话自动下一帽 | Lead 按 PROMPT 显式 spawn / Task |
+| 真值 | invoke + `HANDOFF_SEMI_AUTO` | invoke + `PROMPT_*_chain_serial_*` |
+| 子 Agent 上下文 | 会话历史叠加 | 隔离（KC 须内联读序） |
+| Git | 混用 | **Lead 独占 commit**（CC/KC 约定） |
+
+- **`orchestration`**：必填于链式 task；取值 `Cursor Task 链` / `Claude Code` / `Kimi Code` / `MANIFEST 仅`；绑 `docs/harness/prompts/PROMPT_*_chain_serial_*` 实例。
+- **`semi_auto: true`**：历史兼容；允许同 Agent 在 **无 pending 人工闸** 时自动执行下一帽；**下一棒 §3 须先** 落盘 `docs/harness/invokes/` 并 commit（[`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §3）。
+- **`human_gate`**：表列 `human_gate_id`、`status`（`pending` \| `approved`）、`blocks_hats`；**仅人** 可将 `pending` 改为 `approved`；Agent 遇阻塞帽 **拒执行**。
+- **`git_branch`**（建议）：链式执行所在分支名（如 `task/<slug>`），**禁止**在 `main` 上连续自动链式提交。
 
 ### 5.7 `experience_capture`（经验归纳 · 无 60 帽）
 
@@ -217,6 +227,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 | 2026-05-14 | **Invoke 快照**：新增 [`invokes/README.md`](invokes/README.md)；§1 原则、`§8` 索引、`reviews` README 与 `docs/harness/README` 互链 |
 | 2026-05-14 | §3 表后脚注 **Invoke 快照**（链 §1、`invokes/`、`prompts` 各 `TEMPLATE-*-invoke` §3）；§4 **P2-6** 增补 `invokes/` 与 §1、§3 同步修订 |
 | 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
+| 2026-06-08 | §5.6 升格 `orchestration` 链式常模 + `semi_auto` 过渡/废弃；链 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) |
 | 2026-05-30 | §5.1 本仓 TDD 实践口径；task 模板 Delta/Scenario（OpenSpec 借鉴）；链 diary TDD 专项分析 |
 | 2026-05-31 | §5.7 `experience_capture`、§5.8 `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`；链 KPI_RUBRIC_v1_2 与 00-orchestrator |
 
@@ -224,4 +235,4 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 
 ## 给 Cursor 的稳定关键词
 
-`Harness`、`Verify`、`verification`、`verify-fast`、`test_strategy`、`freeze_id`、`failure_paths`、`gates_before_code`、`audit_profile`、`human_gate`、`semi_auto`、`HANDOFF_SEMI_AUTO`、`CI`、`帽子`、`prompts`、`reviews`、`invokes`、`invoke 快照`、`任务审核`、`签收`、`SDD`、`TDD`、`自检结论`
+`Harness`、`Verify`、`verification`、`verify-fast`、`test_strategy`、`freeze_id`、`failure_paths`、`gates_before_code`、`audit_profile`、`human_gate`、`semi_auto`、`orchestration`、`PROMPT_*_chain_serial_*`、`HANDOFF_SEMI_AUTO`、`CI`、`帽子`、`prompts`、`reviews`、`invokes`、`invoke 快照`、`任务审核`、`签收`、`SDD`、`TDD`、`自检结论`
