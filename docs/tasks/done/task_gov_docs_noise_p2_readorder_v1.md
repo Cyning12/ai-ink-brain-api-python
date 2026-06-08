@@ -1,6 +1,6 @@
 # Task：docs-noise 治理 · P2 读序对齐与 legacy 消化
 
-> **状态**：`done`（T2c 执行完成 · 40 自检全绿 · PR #126 merged @ `08d51bd`）
+> **状态**：`done（2026-06-06 · PR #126 @ 08d51bd）`
 > **Epic**：docs-noise 治理线 · **P2**（Claude Code 串行 Task 链）
 > **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)
 > **关联 SPEC 正文**：[`docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md`](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md) §8.3

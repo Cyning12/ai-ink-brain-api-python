@@ -141,18 +141,19 @@
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
-### 1.2 docs-noise 治理线（空档插入 · 不压 ChatBI）
+### 1.2 docs-noise 治理线（**CLOSE** · 2026-06-06）
 
+> **状态**：docs-noise 治理线 **CLOSE**（2026-06-06）  
 > **导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)  
-> **MANIFEST**：[`task_governance_docs_noise_line_manifest_v1.md`](active/task_governance_docs_noise_line_manifest_v1.md)  
-> **执行器**：P0 **Cursor Task 链**（done）· P1+ **Claude Code spawn 链**  
-> **分支**：`task/gov-docs-noise-p1-v1`
+> **MANIFEST**：[`done/task_governance_docs_noise_line_manifest_v1.md`](done/task_governance_docs_noise_line_manifest_v1.md)  
+> **执行器**：P0 **Cursor** · P1–P3 **Claude Code** · 治理线 **CLOSE**
 
 | 批次 | task | 状态 | Round |
 | --- | --- | --- | --- |
-| P0 | [`done/task_gov_docs_noise_p0_readme_v1.md`](done/task_gov_docs_noise_p0_readme_v1.md) | **done** · #121 | T1 |
-| P1 | `task_gov_docs_noise_p1_archived_v1.md`（T0 创建） | **脚手架** · 分支已开 | **T0 → T2b** |
-| P2/P3 | 未建 | pending | T2c/T3 |
+| P0 | [`done/task_gov_docs_noise_p0_readme_v1.md`](done/task_gov_docs_noise_p0_readme_v1.md) | **done**（2026-06-06 · PR #121） | T1 |
+| P1 | [`done/task_gov_docs_noise_p1_archived_v1.md`](done/task_gov_docs_noise_p1_archived_v1.md) | **done**（2026-06-06 · PR #123） | T2b |
+| P2 | [`done/task_gov_docs_noise_p2_readorder_v1.md`](done/task_gov_docs_noise_p2_readorder_v1.md) | **done**（2026-06-06 · PR #126） | T2c |
+| P3 | [`done/task_gov_docs_noise_p3_index_v1.md`](done/task_gov_docs_noise_p3_index_v1.md) | **done**（2026-06-06 · PR #129） | T2d |
 
 ---
 
