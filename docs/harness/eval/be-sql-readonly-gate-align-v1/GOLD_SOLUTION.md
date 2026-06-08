@@ -9,7 +9,7 @@
 ## 核心 diff 摘要
 
 - 新增 `_non_empty_sqlparse_statements(sql)`（与 gate 同名逻辑，仅只读路径使用）
-- `validate_sql_readonly`：`len(stmts) > 1` → `ValueError("Multiple statements are not allowed")`
+- `validate_sql_readonly`：`len(stmts) > 1` → `ValueError`；**可选回退** `s.count(";") > 1`（Kimi Code 试跑解法，已合入 `task/moonshot-be1-r2`）
 
 ## 验证命令
 

@@ -62,8 +62,11 @@ def validate_sql_readonly(sql: str) -> str:
     s = re.sub(r"^```sql\s*", "", s, flags=re.IGNORECASE).strip()
     s = re.sub(r"```$", "", s).strip()
 
-    # 单语句：sqlparse AST 计数（覆盖「单分号双语句」等分号计数漏网）
+    # AST 多语句：sqlparse 计数（覆盖「单分号双语句」等分号计数漏网）
     if len(_non_empty_sqlparse_statements(s)) > 1:
+        raise ValueError("Multiple statements are not allowed")
+    # 回退：多分号（sqlparse 解析异常时仍拦截）
+    if s.count(";") > 1:
         raise ValueError("Multiple statements are not allowed")
     s = s.rstrip(";").strip()
 

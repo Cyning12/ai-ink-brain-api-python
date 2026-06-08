@@ -59,3 +59,4 @@ pytest docs/harness/eval/be-sql-readonly-gate-align-v1/tests/ -v
 | 2026-06-07 | Round 2 初版 · 公开 4 + 隐藏 7 |
 | 2026-06-07 | Gold solution · 全量 11/11 |
 | 2026-06-08 | Kimi Code 试跑关账 · 11/11 · CALIBRATION 回填 |
+| 2026-06-08 | 合入 Kimi 分号回退至 `task/moonshot-be1-r2` · 删除 be1-eval worktree |
