@@ -1,6 +1,6 @@
 # Task · MANIFEST · semi_auto 退场 · 链式编排双轨（A+B）
 
-> **状态**：`draft`  
+> **状态**：`done` — A+B 双轨均 CLOSE（G1 PR #135 · G2 T1 B 轨链式关账）  
 > **Epic**：Harness 链式常模 · **全面废弃 `semi_auto`**（须 A+B 齐 CLOSE）  
 > **规划 diary**：[`docs/diary/2026-06-08-harness-chain-next-task-planning_zh.md`](../diary/2026-06-08-harness-chain-next-task-planning_zh.md) §7  
 > **P0 取向**：[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) §5「Task 链 = 改代码主力 · semi_auto 计划废弃」  
@@ -24,7 +24,7 @@
 | 轨 | ID | task | 分支建议 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
 | **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](../done/task_harness_chain_orchestration_spec_v1.md) | `task/harness-chain-orchestration-next-v1` | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 · **PR #135** |
-| **B · api** | G2 | [`task_chatbi_intent_llm_retry_u1_5_v1.md`](task_chatbi_intent_llm_retry_u1_5_v1.md) | `task/chatbi-intent-llm-retry-u1.5-chain-v1` | **CC 首棒** | required + **50** · 链式关账 |
+| **B · api** | G2 | [`done/task_chatbi_intent_llm_retry_u1_5_v1.md`](../done/task_chatbi_intent_llm_retry_u1_5_v1.md) | `task/chatbi-intent-llm-retry-u1.5-chain-v1` | **CC 首棒** | required + **50** · 链式关账 · **DONE 2026-06-08** |
 
 **对外宣称「semi_auto 全面废弃」**：G1 + G2 **均 done** 后。
 

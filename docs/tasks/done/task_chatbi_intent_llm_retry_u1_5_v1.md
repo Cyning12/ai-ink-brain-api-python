@@ -121,3 +121,13 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 | --- | --- |
 | 2026-06-04 | 自 Step1 拆出 micro-PR |
 | 2026-06-04 | 补 §失败路径 / §验收标准 · 修 CI task_validate |
+| 2026-06-08 | Harness 30 链式关账：自检 6 passed + env 齐全 |
+
+---
+
+### 自检结论
+
+- **pytest**：`tests/test_intent_llm_retry.py` **6 passed**，无失败。
+- **.env.example**：`CHATBI_V2_INTENT_LLM_RETRIES`、`CHATBI_V2_INTENT_LLM_RETRY_BACKOFF_S`、`CHATBI_V2_INTENT_RETRY_TIMEOUT_FACTORS` 注释均已存在，无需补写。
+- **api/intent_agent.py**：`_llm_decide_v2_with_retries` 段与 test 断言对齐（`used=llm_retry`、`attempt`、`timeout_s`、timeout 递减阶梯、可重试异常分类、JSON 错误不重试）。
+- **判定**：30 自检通过，可进入 40。
