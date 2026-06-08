@@ -29,9 +29,10 @@
 - **`../../../docs/harness/tasks/active/`**、**`../../../docs/harness/tasks/done/`**  
 - 索引：**[`../../../docs/harness/tasks/README.md`](../../../docs/harness/tasks/README.md)**
 
-**帽子 Prompt / TEMPLATE / 半自动通则** 已内嵌本仓，开发时读：
+**帽子 Prompt / TEMPLATE / 链式常模** 已内嵌本仓，开发时读：
 
-- **[`../harness/README.md`](../harness/README.md)** → **[`../harness/prompts/README.md`](../harness/prompts/README.md)**
+- **[`../harness/README.md`](../harness/README.md)** → **[`../harness/prompts/README.md`](../harness/prompts/README.md)** → [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)（**全面生效**）
+- **`semi_auto` 已 deprecated**（历史见 [`HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)）
 
 本目录 **`docs/tasks/`** 仅承载 **本后端仓** 任务；invoke / review 落盘见 **`docs/harness/invokes/`**、**`docs/harness/reviews/`**。
 
@@ -179,7 +180,7 @@ task 头 **须**显式 `semi_auto` + `audit_profile`；22 R1 核对合理性。
 
 **模板真值**：[`templates/TASK_TEMPLATE.md`](templates/TASK_TEMPLATE.md)（含 `test_strategy`、`failure_paths`、**行为变更 Delta**、**Scenario ID**、**规划 artifact**（大 task 可选）、`semi_auto`、`human_gate`、`audit_profile`、`git_branch` 等）；与 **`docs/harness/HARNESS_V2_PLAN.md` §5** 对齐。
 
-新建 task 时 **复制模板** 再改占位符；细则与半自动通则见 [`../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。
+新建 task 时 **复制模板** 再改占位符；链式常模见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) + [`../harness/prompts/PROMPT_*_chain_serial_*`](../harness/prompts/README.md)。**`semi_auto` 已 deprecated**（历史见 [`HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)）。
 
 ### 蒸馏 SKILL（高频场景预填）
 

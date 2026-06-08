@@ -20,11 +20,13 @@
 ### 0.0 关账常模（改进后默认 · 非「测试阶段」）
 
 
-| 任务类型                      | `test_strategy`        | 关账链（`semi_auto: true` 时）        | 50 `reinspect_results/` |
-| ------------------------- | ---------------------- | ------------------------------- | ----------------------- |
-| **改 `api/` / 契约 / CI 行为** | `required`             | 30 → 40 → **50** → PR → `done/` | **必须**落盘                |
-| **纯 docs / 拆单 / 索引**      | `not_applicable`（一行理由） | 30 → 40；50 **可选**（母单拆单曾做 50）    | 有行为变更时建议仍做              |
+| 任务类型                      | `test_strategy`        | 关账链（**`orchestration` 链式常模** · Lead spawn / Task 串行） | 50 `reinspect_results/` |
+| ------------------------- | ---------------------- | ------------------------------------------------------- | ----------------------- |
+| **改 `api/` / 契约 / CI 行为** | `required`             | explore → 22 → 30 → 40 → **50** → CLOSE → PR → `done/` | **必须**落盘                |
+| **纯 docs / 拆单 / 索引**      | `not_applicable`（一行理由） | explore → 22 → 30 → 40 → CLOSE → PR → `done/`（50 **跳过** · task/PROMPT 明示） | —                       |
 | **draft 探索**              | 按 task 写明              | 未冻结前 **不** 强制 50                | —                       |
+
+> **历史对照**：`semi_auto: true` 同会话自动戴帽已 **deprecated**（见 [`HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)）；新 task **须**绑 [`PROMPT_*_chain_serial_*`](../harness/prompts/README.md)。
 
 
 **硬规则**（与 [`ACCEPTANCE_LANDING.md`](../harness/ACCEPTANCE_LANDING.md) 一致）：凡 **`test_strategy: required`** 且合并前关账，**40 之后须有 50 书面复检**；禁止仅以对话「过了」归档。
@@ -121,7 +123,7 @@
 | **done/**             | **65+** 个 `.md`（含 P0 OpenSpec×TDD Loop 母+3 子） |
 | **_views/done.md**    | 随关账同步（含 P0 Loop 四单 · 2026-05-30）                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
-| **Harness 关账**        | **常模**：`required` 实现 task → **50 必落盘**（见 §0.0）                                                 |
+| **Harness 关账**        | **常模**：链式 `orchestration` · `required` → **50 必落盘**（见 §0.0）                                                 |
 | **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿 · W1 **done** Loop R1） |
 | **近期当前**            | P0 OpenSpec×TDD Loop **done**（#94）· P2 Loop **done** · 见 §1.1 业务 active |
 | **V3 P2-1 韧性** | P2-1a/b/c **done** · Loop **done** |
@@ -146,7 +148,7 @@
 
 > **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](done/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
 > **P0 取向**：Task 链 = 改代码主力 · semi_auto 计划废弃（[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) §5）  
-> **SPEC**：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) · **`accepted`**
+> **SPEC**：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) · **`全面生效`**
 
 | 轨 | ID | task | 状态 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
@@ -164,7 +166,8 @@
 | 项 | 内容 |
 | --- | --- |
 | **前置** | §1.3 A+B CLOSE |
-| **目标** | SPEC 全面生效 · `HANDOFF_SEMI_AUTO` / `05-harness-semi-auto.mdc` **DEPRECATED** · RECENT §0.0 去 semi_auto 常模 |
+| **目标** | SPEC 全面生效 · `HANDOFF_SEMI_AUTO` / `05-harness-semi-auto.mdc` **DEPRECATED** · RECENT §0.0 链式常模 |
+| **30 交付** | P2-1～P2-7 已落盘（2026-06-08 · 30 帽）；P2-8 / MANIFEST / task 归档 **待 CLOSE** |
 | **帽链** | explore → 22 → 30 → 40 → CLOSE（`not_applicable` · 跳过 50） |
 | **阻塞** | ~~`HG-TASK-DRAFT` · `HG-CHAIN-P2-EXEC` 须 **approved** 后 spawn~~ · **已签收 2026-06-08** |
 

@@ -11,7 +11,7 @@
 2. **`.cursor/rules/*.mdc`** — 工程约束（Cursor 自动注入；非 Cursor 见文末规则索引）
 3. [`docs/_tech_graph/`](docs/_tech_graph/) — 架构真值；改拓扑用 `python tools/tech_graph_graph_query.py`（**禁止**默认整包 `graph.json`）
 4. [`docs/tasks/RECENT_TASK_SCHEDULE.md`](docs/tasks/RECENT_TASK_SCHEDULE.md) → 具体 `active/task_*.md`
-5. [`docs/harness/README.md`](docs/harness/README.md) — Harness 帽子链、落盘、半自动（细则 **不** 堆本文）
+5. [`docs/harness/README.md`](docs/harness/README.md) — Harness 帽子链、落盘、**链式 `orchestration` 常模**（细则 **不** 堆本文；见 Chain SPEC + `PROMPT_*_chain_serial_*`）
 6. [`docs/coding_wiki/index.md`](docs/coding_wiki/index.md) — 关账回顾 L2；**改代码仍 L0 图谱优先**
 7. 跨仓协作：工作区 [`Projects/AGENTS.md`](../../Projects/AGENTS.md) **§2**
 

@@ -114,3 +114,19 @@ Epic **A+B** 已 CLOSE：链式 `orchestration` 为推荐常模，active task �
 ## 给 Cursor / CC
 
 `orchestration=Claude Code` · `semi_auto=false` · 开跑前读 T1 PROMPT §1 · `human_gate` 须 `**approved`** 后 spawn。
+
+---
+
+### 自检结论（执行者）
+
+**30 帽 · 2026-06-08**
+
+- [x] **P2-1**：SPEC 状态 **全面生效**；§0 链式唯一推荐常模；§1 缺口段更新（无「待 B 轨」「→ B 轨」）
+- [x] **P2-2**：`HARNESS_V2_PLAN` §0.2 链式默认；§5.6 **deprecated** 注记
+- [x] **P2-3**：`HANDOFF_SEMI_AUTO.md` 文首 **DEPRECATED** + chain PROMPT / CLOSE_TRACE pointer
+- [x] **P2-4**：`05-harness-semi-auto.mdc` deprecated（`alwaysApply: false`）；`06` 链式 pointer
+- [x] **P2-5**：`TASK_TEMPLATE` `semi_auto` 行 **deprecated**；真值链改链 PROMPT
+- [x] **P2-6**：RECENT §0.0 链式常模；AGENTS + `docs/tasks/README` Harness 指针
+- [x] **P2-7**：governance / prompts README Phase 2 **in_progress** 索引
+- [ ] **P2-8**：MANIFEST / task 归档 — **留 CLOSE**
+- [x] `python tools/harness_task_validate.py` → **OK**（见 40 帽证据）

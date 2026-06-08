@@ -1,8 +1,16 @@
 # Harness 通则：半自动链式执行（人工闸 + 自动戴帽）
 
-> **用途**：同一 Agent 在 **无需人工** 的环节自动切换下一顶帽子继续执行；在 **必须人工** 的环节 **硬停止**，直至人改标识后才可继续。  
+> **DEPRECATED · 2026-06-08**：本文件 **已废弃**，不再作为新 task 推荐常模。**替代读序**：
+> 1. 链式常模 SPEC：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../../../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)（**全面生效**）
+> 2. 链式 PROMPT 实例：[`docs/harness/prompts/PROMPT_*_chain_serial_*`](../README.md)（如 [`PROMPT_claude_chain_serial_v1.md`](../PROMPT_claude_chain_serial_v1.md)）
+> 3. 关账回溯：[`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)
+> 4. Cursor 规则：[`06-harness-in-repo.mdc`](../../../../.cursor/rules/06-harness-in-repo.mdc)（**非**本文件）
+>
+> 下文保留供历史 invoke / review 考古；**禁止**在新 task 中默认引用。
+
+> **用途（历史）**：同一 Agent 在 **无需人工** 的环节自动切换下一顶帽子继续执行；在 **必须人工** 的环节 **硬停止**，直至人改标识后才可继续。  
 > **关联**：[`handoff/HANDOFF_AUTO_COMMIT.md`](handoff/HANDOFF_AUTO_COMMIT.md)（每步 commit）、[`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)（关账回溯）、[`../invokes/README.md`](../invokes/README.md)（Prompt 落盘）。  
-> **真值层级**：Guides；与 [`HARNESS_V2_PLAN.md`](../HARNESS_V2_PLAN.md) **§5.5–§5.6** 字段对齐。
+> **真值层级**：Guides（**deprecated**）；字段对照见 [`HARNESS_V2_PLAN.md`](../HARNESS_V2_PLAN.md) **§5.5–§5.6**。
 
 ---
 

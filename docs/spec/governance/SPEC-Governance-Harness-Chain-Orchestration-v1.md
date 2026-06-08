@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | **`accepted`**（A 轨 30 帽定稿 · 待 B 轨齐 CLOSE 后全面生效） |
+| **状态** | **`全面生效`**（A+B 已 CLOSE · 2026-06-08 · Phase 2 治理层退场 **in_progress**） |
 | **freeze_id** | `GOV-HARNESS-CHAIN-ORCHESTRATION@2026-06-08` |
 | **Epic** | [`task_harness_semi_auto_retirement_manifest_v1.md`](../../tasks/done/task_harness_semi_auto_retirement_manifest_v1.md) |
 | **执行 task** | [`task_harness_chain_orchestration_spec_v1.md`](../../tasks/done/task_harness_chain_orchestration_spec_v1.md) |
@@ -12,7 +12,7 @@
 
 ## 0. 完成态（一句话）
 
-本仓 **新 task / 改码关账** 默认用 **`orchestration` + `PROMPT_*_chain_serial_*` + invoke 落盘** 串行帽链；**`semi_auto: true` 进入过渡/废弃**，不再作为推荐常模。全面废弃须 **A（本文）+ B（api 链式试点）** 齐 CLOSE。
+本仓 **新 task / 改码关账** 默认用 **`orchestration` + `PROMPT_*_chain_serial_*` + invoke 落盘** 串行帽链；**链式为唯一推荐常模**。**A（治理 SPEC）+ B（api 链式试点）已 CLOSE**（2026-06-08）；**`semi_auto: true` 已 deprecated**（Phase 2 物理退场见 [`task_harness_semi_auto_retirement_phase2_v1.md`](../../tasks/active/task_harness_semi_auto_retirement_phase2_v1.md)）。
 
 ---
 
@@ -25,7 +25,7 @@
 | Kimi Agent 链 · docs | recentsync · #134 |
 | P0 取向 | 「Task 链 = **改代码主力** · semi_auto 计划废弃」 |
 
-**缺口**：`HARNESS_V2_PLAN` §5.6 仍列 `semi_auto`；`TASK_TEMPLATE` 无 `orchestration`；**无 api + required + 50 链式关账**（→ **B 轨**）。
+**已关闭（2026-06-08）**：B 轨 api + `required` + 50 链式关账（PR #137/#138）；A 轨治理 SPEC + TASK_TEMPLATE（PR #135）。**Phase 2 进行中**：`HANDOFF_SEMI_AUTO` / `05-harness-semi-auto.mdc` 标 **DEPRECATED**；RECENT §0.0 改链式关账常模。
 
 ---
 
@@ -40,7 +40,7 @@
 
 **与 `semi_auto` 关系**：
 
-| | `semi_auto: true`（过渡/废弃） | 链式（推荐） |
+| | `semi_auto: true`（**deprecated**） | 链式（**唯一推荐常模**） |
 | --- | --- | --- |
 | 换帽 | 同会话自动下一帽 | Lead 按 PROMPT 显式 spawn / Task |
 | 真值 | invoke + HANDOFF_SEMI_AUTO | invoke + **`PROMPT_*_chain_serial_*`** |
@@ -97,3 +97,4 @@ python tools/harness_task_validate.py docs/tasks/done/task_harness_chain_orchest
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-08 | v1 草案 · A 轨 task 脚手架 |
+| 2026-06-08 | v1.1 · A+B CLOSE · 状态 **全面生效** · Phase 2 deprecated 退场 |

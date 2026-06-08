@@ -6,7 +6,7 @@
 > **前端依赖**：`<前端任务文件名>`（如 API 变更需前端配合，否则填 "无"）
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
-> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5**；半自动 / 人工闸：[`docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)。  
+> **Harness 字段真值**：[`docs/harness/HARNESS_V2_PLAN.md`](../harness/HARNESS_V2_PLAN.md) **§5**；链式常模：[`docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) + [`docs/harness/prompts/PROMPT_*_chain_serial_*`](../harness/prompts/README.md)。**`semi_auto` 已 deprecated**（历史见 [`HANDOFF_SEMI_AUTO.md`](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)）。  
 > **行为变更 Delta / Scenario**（写法参考 · 非 OpenSpec 目录）：见下文 **§行为变更**、**§失败路径**；TDD 与分层测试决策见 [`docs/tasks/README.md`](../README.md) **§test_strategy** 及 diary [`2026-05-30-backend-TDD-architecture-assessment.md`](../../diary/tmp/2026-05-30-backend-TDD-architecture-assessment.md)。
 
 ---
@@ -19,10 +19,10 @@
 | **test_strategy_note** | （仅 `not_applicable` 时 **必填** 一行理由；禁止滥用） |
 | **freeze_id** | （可选）实现基准契约 ID，如 `SPEC-xxx@2026-05-22` 或 commit 短哈希 |
 | **gates_before_code** | （可选）显式门闸列表；默认隐式：`failure_paths` + 验收命令 + 必读路径已齐 |
-| **semi_auto** | `true` / `false` — **过渡/废弃**；链式 task 填 **`false`** + **`orchestration`**（见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)） |
+| **semi_auto** | **`deprecated`** — 历史兼容 `true`/`false`；**新 task 填 `false`** + **`orchestration`** + 链 PROMPT（见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)） |
 | **orchestration** | `Cursor Task 链` / `Claude Code` / `Kimi Code` / `MANIFEST 仅` — 链式执行器；绑 `docs/harness/prompts/PROMPT_*_chain_serial_*` 实例 |
 | **audit_profile** | `full` / `post_close` / `human_only` — 审核节奏（见 HARNESS_V2 §5.5） |
-| **git_branch** | `task/<slug>` — 半自动与实现 **禁止** 在 `main` 上连续提交 |
+| **git_branch** | `task/<slug>` — 链式执行与实现 **禁止** 在 `main` 上连续提交 |
 | **experience_capture** | `required` / `recommended` / `not_applicable` — 关账经验摘要档位（见 HARNESS_V2 §5.7） |
 | **experience_capture_note** | （仅 `not_applicable` 时 **必填** 一行理由） |
 | **kpi_rubric** | **`KPI_RUBRIC_v1_2`（2026-05-31 起新建 task 必填）** |
