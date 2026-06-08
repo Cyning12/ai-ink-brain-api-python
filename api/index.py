@@ -785,6 +785,9 @@ async def chat(
     query_compare_meta: dict[str, Any] | None = None
     keyword_fallback: KeywordFallbackResult | None = None
     date_anchor_count = 0
+    i18n_expand_raw: dict[str, Any] | None = None
+    i18n_expand_rw: dict[str, Any] | None = None
+    kw_qt_used = ""
 
     t3 = time.perf_counter()
     try:
@@ -851,6 +854,7 @@ async def chat(
 
         # 最终 keyword_hits：仍以 rewrite 为主（与当前策略保持一致），回退逻辑在下方处理
         keyword_hits = keyword_hits_rw_for_metrics
+        kw_qt_used = kw_qt_rw
         # 方案四：运行时回退（当 rewrite 导致 keyword 命中为 0/不足时，用原 query 的锚点 token 再检索一次）
         cfg_kw_fb = KeywordFallbackConfig.from_env()
         keyword_hits, keyword_fallback = run_keyword_fallback(
@@ -924,6 +928,8 @@ async def chat(
             if titles:
                 _rag_log(f"hits Title 列表（去重前，最多24）：{titles[:24]!r}")
 
+    except HTTPException:
+        raise
     except Exception as exc:  # noqa: BLE001
         print(f"[rag] match_documents error: {exc!s}", flush=True)
         hits = []
