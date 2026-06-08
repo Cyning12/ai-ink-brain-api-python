@@ -31,8 +31,8 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| HG-TASK-DRAFT | pending | 22-R1, 30 | task + PROMPT 人扫；Kimi 开跑前须 `approved` |
-| HG-KIMI-PILOT-EXEC | pending | explore, 22, 30, 40, CLOSE | Kimi T1 执行链开干前人签 |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | task + PROMPT 人扫；Kimi 开跑前须 `approved` |
+| HG-KIMI-PILOT-EXEC | approved | explore, 22, 30, 40, CLOSE | Kimi T1 执行链开干前人签 |
 
 ---
 
