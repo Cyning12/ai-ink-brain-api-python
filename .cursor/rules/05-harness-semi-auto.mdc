@@ -1,9 +1,16 @@
 ---
-description: Harness 半自动 — 无人工闸阻塞时链式续跑 task，invoke 落盘优先
-alwaysApply: true
+description: "DEPRECATED · Harness 半自动续跑 — 仅历史考古；新 task 读 Chain SPEC + 06-harness-in-repo"
+alwaysApply: false
 ---
 
-# Harness 半自动续跑（本仓）
+> **DEPRECATED · 2026-06-08**：本规则 **已废弃**，Cursor **不再默认注入**（`alwaysApply: false`）。**新 task / 改码关账** 默认读：
+> - [`docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md`](docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)（链式常模 · **全面生效**）
+> - [`.cursor/rules/06-harness-in-repo.mdc`](06-harness-in-repo.mdc)
+> - [`docs/harness/prompts/PROMPT_*_chain_serial_*`](docs/harness/prompts/README.md) + [`HANDOFF_CLOSE_TRACE.md`](docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)
+>
+> 下文保留供历史 `semi_auto: true` task 考古。
+
+# Harness 半自动续跑（本仓 · **deprecated**）
 
 执行 `docs/tasks/active/*.md` 或用户 `@task` 时：
 

@@ -17,7 +17,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 ### 0.2 V2 目标（可验收）
 
 - **分层真源**：工作区级 Harness 文档与入口在 `Projects/docs/harness/` 与根 `AGENTS.md`；各栈 **命令与 CI** 仍在子仓落盘，避免双份漂移。
-- **SDD 不变**：SPEC → task → **规格短评（`20`）** → **任务审核落盘（`22` + `reviews/`）** → 执行 → 自检（结论回填 task）→ 复检 → 人工 checklist；流程继续由各仓任务目录与 `docs/harness/reviews/` 承载。可选 **`audit_profile: post_close`**（闸 1 轻审 + 关账后统一人审）与 **`semi_auto`** 链式戴帽，见 [`prompts/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md)。
+- **SDD 不变**：SPEC → task → **规格短评（`20`）** → **任务审核落盘（`22` + `reviews/`）** → 执行 → 自检（结论回填 task）→ 复检 → 人工 checklist；流程继续由各仓任务目录与 `docs/harness/reviews/` 承载。默认 **`orchestration` + `PROMPT_*_chain_serial_*` 链式帽链**（见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)）；可选 **`audit_profile: post_close`**（闸 1 轻审 + 关账后统一人审）。**`semi_auto` 已 deprecated**（历史见 [`prompts/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md)）。
 - **显式 TDD 档位**：非「默认全盘 TDD」，而在 task 中 **声明** `test_strategy`，执行与复检据此门闸。
 - **CI 背压（P0 已落地）**：Ink 前后端默认分支 PR 上具备 **lint + test + build** 与 **pytest** 门禁；**P1（2026-05-13）** 起前端 **`quality`** 增补 **`pnpm test`**（Vitest）。
 
@@ -132,11 +132,11 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 
 详见 [`prompts/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) §4。
 
-### 5.6 `orchestration` / `semi_auto`（链式常模 · semi_auto 过渡/废弃）
+### 5.6 `orchestration` / `semi_auto`（链式常模 · **`semi_auto` deprecated**）
 
-> **2026-06-08 更新**：`semi_auto` 进入 **过渡/废弃**；新 task 默认用 **`orchestration` + `PROMPT_*_chain_serial_*` 串行帽链**。全面废弃须 **A（治理 SPEC）+ B（api 链式试点）** 齐 CLOSE。详见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)。
+> **DEPRECATED · `semi_auto`**：2026-06-08 起 **`semi_auto: true` 已 deprecated**（A+B 已 CLOSE · Phase 2 物理退场）。**新 task 须**填 **`orchestration` + `PROMPT_*_chain_serial_*`**；半自动续跑通则 [`HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) 仅作历史对照。链式常模真值：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)（**全面生效**）。
 
-| 维度 | `semi_auto: true`（过渡/废弃） | 链式 `orchestration`（推荐） |
+| 维度 | `semi_auto: true`（**deprecated** · 历史对照） | 链式 `orchestration`（**唯一推荐常模**） |
 |------|------------------------------|----------------------------|
 | 换帽 | 同会话自动下一帽 | Lead 按 PROMPT 显式 spawn / Task |
 | 真值 | invoke + `HANDOFF_SEMI_AUTO` | invoke + `PROMPT_*_chain_serial_*` |

@@ -5,11 +5,11 @@ alwaysApply: true
 
 # Harness（本后端仓内嵌）
 
-执行 Harness 流程、复制帽子 Prompt、`semi_auto` 续跑时：
+执行 Harness 流程、复制帽子 Prompt、**链式 `orchestration` 关账**时：
 
-1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md)
+1. **唯一入口**：[`docs/harness/README.md`](docs/harness/README.md) → [`docs/harness/prompts/README.md`](docs/harness/prompts/README.md) → 链式常模 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)（**全面生效**）+ task 绑定的 [`PROMPT_*_chain_serial_*`](docs/harness/prompts/README.md)
 2. **模板**：`docs/harness/prompts/templates/TEMPLATE-*-invoke.md` §3；帽子在 `prompts/hats/`；`HANDOFF_*.md` 在 `prompts/handoff/`
 3. **落盘**：invoke → `docs/harness/invokes/by-task/<task_slug>/`；**22** → `docs/harness/reviews/by-task/<task_slug>/`（仅本仓 task）；20 → `docs/tasks/review_results/`；**50** → `docs/tasks/reinspect_results/`。10 结束须给 **下一棒 A（22）+ B（30）** 两条 Prompt，**人**择一（见 `ACCEPTANCE_LANDING.md`）。**长 Loop**（`harness-loop-batch` META 关账后）：另落 `REPORT_completion_*`（§1～§5；§6 仅对话）— 见 [`SKILL-harness-loop-batch`](../../docs/tasks/skills/SKILL-harness-loop-batch.md) §长 Loop 完成汇报、`handoff/HANDOFF_CLOSE_TRACE.md` §2.5
 4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 见工作区 `docs/harness/tasks/` — 须在 **Open `Projects/`** 下执行，遵守工作区 `05-harness-workspace.mdc`
 
-半自动续跑细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc)。
+关账回溯见 [`HANDOFF_CLOSE_TRACE.md`](docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)。**`semi_auto` 已 deprecated**（历史细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc) · **不**作为新 task 默认读序）。
