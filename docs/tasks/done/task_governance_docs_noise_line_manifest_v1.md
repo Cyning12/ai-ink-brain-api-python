@@ -1,6 +1,6 @@
 # Task · MANIFEST · docs-noise 治理线（Claude Code 编排）
 
-> **状态**：`done`（2026-06-06 · 治理线 CLOSE · T3 母单关账）  
+> **状态**：`done（2026-06-06 · PR #132 @ dbe01dc · 治理线 CLOSE）`  
 > **性质**：**母单 / 排期 MANIFEST** — 非单次交付；子批 P0/P1/P2/P3 各建 `task_gov_docs_noise_*`  
 > **Epic**：docs-noise 治理 · [`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md)  
 > **freeze_id**：`GOV-DOCS-NOISE-INVENTORY@2026-06-06`

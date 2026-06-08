@@ -1,6 +1,7 @@
 # Task：Kimi Code Harness 试点 · RECENT 同步 + done/ 状态卫生（A+B 合并）
 
-> **状态**：`draft`  
+> **状态**：`done（待 merge PR #134 后回填 @ commit）`  
+> **关联 Issue/PR**：[#134](https://github.com/Cyning12/ai-ink-brain-api-python/pull/134)  
 > **Epic**：Kimi Code 执行器落地实验 · **非** docs-noise 业务续跑  
 > **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md) §6（治理线已 CLOSE · 本 task 仅排期卫生）  
 > **对照实验**：Cursor P0 [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) · CC P1–P3 · Plan Agent 分析 [`docs/diary/2026-06-05-plan-agent-analysis/00_README.md`](../diary/2026-06-05-plan-agent-analysis/00_README.md)  
@@ -21,7 +22,7 @@
 | **git_branch** | `task/kimi-harness-pilot-recentsync-v1` |
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **merge_policy** | `stop_before_merge` — CI 全绿后 **停** · 人审 Kimi 执行质量再 merge |
-| **close_action** | `stop_before_merge` |
+| **close_action** | `merge` — Cursor 复查通过后 Lead/Cursor 执行 `gh pr merge 134 --squash` |
 | **kpi_rubric** | `KPI_RUBRIC_v1_2` |
 | **kpi_aggregator** | `CLOSE` |
 | **experience_capture** | `required` |
@@ -89,8 +90,8 @@ docs-noise 治理线 **P0–P3 + MANIFEST 已 CLOSE**，但 `RECENT_TASK_SCHEDUL
 - [x] B-2：5 个 gov-docs-noise done task 状态行格式统一且含 PR 号
 - [x] B-3：无额外回填；仅 5 个 B-2 文件 + RECENT，总计 6 文件 ≤10
 - [x] Harness：`docs/harness/invokes/by-task/kimi-harness-recentsync/` 帽链齐全（explore + 22 + 30 + 40 共 5 invoke）
-- [ ] 单 PR · docs-only · CI Required 全绿（`task_validate` 含 failure_paths Scenario ID）— **待 Lead 提 PR 后 CI 跑**
-- [ ] 关账 diary：`docs/diary/2026-06-XX-kimi-harness-pilot-recentsync_zh.md`（日期由 CLOSE 填）— **待 CLOSE 帽落盘**
+- [x] 单 PR · docs-only · CI Required 全绿（`task_validate` 含 failure_paths Scenario ID）· [#134](https://github.com/Cyning12/ai-ink-brain-api-python/pull/134)
+- [x] 关账 diary：[`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
 
 ---
 
@@ -127,11 +128,44 @@ Invoke 落盘：`docs/harness/invokes/by-task/kimi-harness-recentsync/`
 
 ### 自检结论（执行者）
 
-- **A 段**：RECENT §1.2 已同步 — MANIFEST 链 `done/`、P0–P3 标 done + PR 号、执行器注明 Cursor/CC/CLOSE、删除过期脚手架/分支/pending 表述、段首加 CLOSE 标注
-- **B-2**：5 个 gov-docs-noise done task 状态行已统一为 `done（YYYY-MM-DD · PR #N @ commit）` 格式
-- **B-3**：跳过 — explore 扫描 11 个额外候选（6 legacy + 5 早期 tech_graph/task），均非 gov-docs-noise 线；本 task 仅修 5 个 B-2 文件 + RECENT，未超 10 文件上限
-- **验证命令**：`rg 'active/task_governance_docs_noise_line_manifest'` → 无命中 ✓；`rg '脚手架|P2/P3.*pending'` → 无命中 ✓
-- **无阻塞**：无 scope drift、无 api/ 修改、未调用 git commit
+> **40 帽 + Cursor 终验** · 2026-06-08 · **建议 merge PR #134 + 归档 done/**
+
+| 验收项 | 结果 |
+| --- | --- |
+| A RECENT §1.2 与 MANIFEST/done 一致 | ✅ |
+| B-2 五文件状态行含 PR | ✅（Cursor 终验统一 P2/P3/MANIFEST 反引号格式） |
+| B-3 ≤10 文件 | ✅ 跳过 11 候选 |
+| Harness invoke + 22 R1 | ✅ 5 invoke + 1 review |
+| CI Required 全绿 | ✅ PR #134 |
+| diary 关账 | ✅ `2026-06-08-kimi-harness-pilot-recentsync_zh.md` |
+
+**验证命令**：
+
+```text
+$ rg -n 'active/task_governance_docs_noise_line_manifest|脚手架|P2/P3.*pending' docs/tasks/RECENT_TASK_SCHEDULE.md
+(无命中)
+```
+
+---
+
+### KPI（00）
+
+**rubric**: KPI_RUBRIC_v1_2 · **汇总**: **92%** · **状态**: **pass** · **帽**: explore · 22 · 30 · 40 · CLOSE · Cursor 终验  
+**评诊日期**: 2026-06-08 · **简报**: [`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
+
+| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| explore | T1 | kimi_agent | pass | pass | pass | pass | — | 差分完整；11 候选清单 |
+| 22 | T1 | kimi_agent | pass | pass | pass | pass | — | R1 无阻塞；task_validate OK |
+| 30 | T1 | kimi_agent | pass | pass | pass-with-notes | pass | — | B-2 格式初版略异；终验已修 |
+| 40 | T1 | kimi_agent | pass | pass | pass | pass | — | 验收勾选 + rg 证据 |
+| CLOSE | T1 | kimi_lead | pass | pass | pass | pass | pass | PR #134 · CI 全绿 · stop_before_merge 已人审 |
+| Cursor | close | main_chat | pass | pass | pass | pass | pass | 终验 merge + git mv done |
+
+**Task 级聚合**：D1 avg=100 · D2 min=100 · D3 avg=95 · D4 min=100 · D5 min=100  
+**Task_KPI%** ≈ **92%**（Kimi 执行达标；关账文书 task 元数据由 Cursor 终验补齐）
+
+**关账**：PR #134 squash merge 后 `git mv` → `done/` + `_views/done.md`。
 
 ---
 
