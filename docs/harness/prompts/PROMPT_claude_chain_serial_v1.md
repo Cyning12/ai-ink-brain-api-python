@@ -87,6 +87,11 @@ Claude Code **subagent 常不继承** `settings.local.json` 的 `Bash(git *)`；
 
 Round 实例 PROMPT 的 30 spawn 须写：**「禁止 git commit；由 Lead 在每帽结束后 commit」**。
 
+**Lead commit 前强制核对（防反复踩坑）**：
+1. `git diff --stat` 或 `git status` 核对 **全部变更**；不得仅凭 subagent 回报摘要 commit。特别检查：**task 正文 `### 自检结论` 回填**、**MANIFEST / RECENT 等索引更新** 是否已暂存。
+2. 若 subagent 改动了 task 文件但回报未列出 → 追问补全后再 commit。
+3. 30/40 帽 spawn 前（尤其 docs-only / MANIFEST / 母单），前置跑 `python tools/harness_task_validate.py {{TASK}}` 作为软性门禁；提前暴露 `FAILURE-PATHS-EMPTY` 等机械错误，避免推后才发现 CI 红。
+
 ---
 
 ## 6. §3 Lead 正文（模板）
@@ -119,6 +124,7 @@ Round 实例 PROMPT 的 30 spawn 须写：**「禁止 git commit；由 Lead 在�
 4. 纯 docs · not_applicable：可跳过 50（见 MANIFEST）
 5. close_action=merge 且 CI 全绿 → gh pr merge --squash（task 授权）
 6. 禁止代签 human_gate
+7. **经验改进自动生成（CLOSE 阶段）**：若 experience_capture 发现反复踩的坑（如 `FAILURE-PATHS-EMPTY`、task 回填漏 commit、branch 名漂移等）→ 在 HANDOFF_CLOSE_TRACE 末尾追加 **「改进 diff 建议」**：指出应改哪个模板/规则文件（如 `PROMPT_claude_chain_serial_v1.md` §5.2、`TEMPLATE-execute-invoke.md` §3）、加什么条款；不直接改模板本身（避免关账扩散），但为下一轮 10/22 提供可复制的改进 Prompt。
 
 完成后：HANDOFF_CLOSE_TRACE
 ```
@@ -131,3 +137,4 @@ Round 实例 PROMPT 的 30 spawn 须写：**「禁止 git commit；由 Lead 在�
 | --- | --- |
 | 2026-06-06 | v1：Claude Lead 模板 · 对齐 Cursor Task 链 |
 | 2026-06-06 | v1.1：§5.2 Git 仅 Lead · 缓解 subagent 权限不继承 |
+| 2026-06-08 | v1.2：§5.2 增 Lead commit 前强制核对（task 回填 / task_validate 软性门禁）；§6 纪律第 7 条「经验改进自动生成」 |
