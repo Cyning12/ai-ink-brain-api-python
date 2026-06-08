@@ -30,6 +30,16 @@
 
 ---
 
+## Phase 2 · 物理退场（G3 · 进行中）
+
+| ID | task | 分支 | 状态 | 证明 |
+| --- | --- | --- | --- | --- |
+| **G3** | [`active/task_harness_semi_auto_retirement_phase2_v1.md`](../active/task_harness_semi_auto_retirement_phase2_v1.md) | `task/harness-semi-auto-retirement-phase2-v1` | **`in_progress`** | DEPRECATED 横幅 · SPEC 全面生效 · RECENT §1.4 |
+
+**PROMPT**：[`PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md`](../harness/prompts/PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md)
+
+---
+
 ## 已完成链式试点（非本 Epic 交付）
 
 | 执行器 | 参考 |
@@ -65,3 +75,4 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-08 | G2 CLOSE · PR #137/#138 · MANIFEST 归档 `done/` · RECENT §1.3 同步 |
+| 2026-06-08 | G3 Phase 2 开 task · RECENT §1.4 · invoke 开 task |
