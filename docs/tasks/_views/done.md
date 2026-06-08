@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- `../done/task_harness_chain_orchestration_spec_v1.md`（2026-06-08：Harness 链式编排 SPEC · semi_auto 退场 A 轨 · PR #135 · orchestration Claude Code · T1 explore→22→30→40→CLOSE · `not_applicable` · skip 50）
 - `../done/task_governance_kimi_harness_pilot_recentsync_v1.md`（2026-06-08：Kimi Code Harness 试点 · RECENT §1.2 同步 + gov-docs-noise done 状态卫生 · PR #134 · orchestration Kimi · KPI 92% pass · diary `2026-06-08-kimi-harness-pilot-recentsync_zh.md`）
 - `../done/task_governance_docs_noise_line_manifest_v1.md`（2026-06-06：docs-noise 治理线 **母单 MANIFEST** · P0–P3 排期与索引 · T3 CLOSE · 治理线全量收尾）
 - `../done/task_gov_docs_noise_p1_archived_v1.md`（2026-06-06：docs-noise P1 archived 横幅 + flows README · PR #123 @ `2de2902` · Task 链 T2b · Claude Code 串行 spawn · **unblocks** P2 子批）

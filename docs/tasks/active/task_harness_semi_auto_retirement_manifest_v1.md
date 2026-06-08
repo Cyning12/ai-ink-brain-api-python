@@ -23,7 +23,7 @@
 
 | 轨 | ID | task | 分支建议 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
-| **A · 治理** | G1 | [`task_harness_chain_orchestration_spec_v1.md`](task_harness_chain_orchestration_spec_v1.md) | `task/harness-chain-orchestration-spec-v1` | CC / Cursor | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 |
+| **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](../done/task_harness_chain_orchestration_spec_v1.md) | `task/harness-chain-orchestration-next-v1` | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 · **PR #135** |
 | **B · api** | G2 | [`task_chatbi_intent_llm_retry_u1_5_v1.md`](task_chatbi_intent_llm_retry_u1_5_v1.md) | `task/chatbi-intent-llm-retry-u1.5-chain-v1` | **CC 首棒** | required + **50** · 链式关账 |
 
 **对外宣称「semi_auto 全面废弃」**：G1 + G2 **均 done** 后。

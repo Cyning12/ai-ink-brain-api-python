@@ -141,14 +141,14 @@
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
-### 1.3 semi_auto 退场双轨（**A 轨 in_progress** · 2026-06-08）
+### 1.3 semi_auto 退场双轨（**A 轨 done** · 2026-06-08）
 
 > **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](active/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
 > **P0 取向**：Task 链 = 改代码主力 · semi_auto 计划废弃（[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) §5）
 
 | 轨 | ID | task | 状态 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
-| **A · 治理** | G1 | [`task_harness_chain_orchestration_spec_v1.md`](active/task_harness_chain_orchestration_spec_v1.md) | `in_progress` | CC / Cursor | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 |
+| **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](../done/task_harness_chain_orchestration_spec_v1.md) | **done**（PR #135 · 2026-06-08） | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 |
 | **B · api** | G2 | [`task_chatbi_intent_llm_retry_u1_5_v1.md`](active/task_chatbi_intent_llm_retry_u1_5_v1.md) | `draft` | CC 首棒 | required + **50** · 链式关账 |
 
 **对外宣称「semi_auto 全面废弃」**：G1 + G2 **均 done** 后。

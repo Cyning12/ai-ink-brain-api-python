@@ -126,7 +126,7 @@ Epic：Harness 链式常模 + semi_auto 退场
 ## 5. 开下一棒 checklist（通用）
 
 - [x] 人择 **A+B 双轨**（2026-06-08 同意）
-- [ ] A：`docs/tasks/active/task_harness_chain_orchestration_spec_v1.md` · `semi_auto: false` · `orchestration`
+- [x] A：`docs/tasks/done/task_harness_chain_orchestration_spec_v1.md` · `semi_auto: false` · `orchestration` · PR #135 · T1 CLOSE
 - [ ] B：改 [`task_chatbi_intent_llm_retry_u1_5_v1`](../tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md) · **`semi_auto: false`** · 绑 `PROMPT_{claude|cursor}_chain_serial_v1_T1_intent-retry-u1.5`
 - [ ] B 追加：`PROMPT_*` 内 **30 先测后实现 · 40 pytest · 50 落盘** 硬约束
 - [ ] `human_gate` 预批 · 分支 `task/harness-chain-orchestration-spec-v1` / `task/chatbi-intent-llm-retry-u1.5-chain-v1`

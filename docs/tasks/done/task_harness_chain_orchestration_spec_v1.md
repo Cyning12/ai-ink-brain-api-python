@@ -1,6 +1,6 @@
 # Task：治理 SPEC · Harness 链式编排常模（semi_auto 退场 · A 轨）
 
-> **状态**：`draft`  
+> **状态**：`done`（PR #135 · 2026-06-08）  
 > **Epic**：[`task_harness_semi_auto_retirement_manifest_v1.md`](task_harness_semi_auto_retirement_manifest_v1.md) · **A 轨 / G1**  
 > **关联 SPEC（本 task 产出）**：[`docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)  
 > **freeze_id**：`GOV-HARNESS-CHAIN-ORCHESTRATION@2026-06-08`
@@ -89,6 +89,20 @@ P0 Task 链试点已写「**Task 链定为改代码主力；semi_auto 计划废�
 **帽链**：explore → 22 → 30 → 40 → CLOSE（**跳过 50** · not_applicable）
 
 **invoke**：`docs/harness/invokes/by-task/harness-chain-orchestration-spec/`
+
+---
+
+## 关账（CLOSE · 2026-06-08）
+
+| 项 | 内容 |
+| --- | --- |
+| **PR** | #135 · `task/harness-chain-orchestration-next-v1` → `main` · squash merge `ceadc4d` |
+| **帽链** | explore → 22 R1 → 30 → 40（跳过 50 · `not_applicable`） |
+| **invoke** | `docs/harness/invokes/by-task/harness-chain-orchestration-spec/` 4 文件 |
+| **review** | `docs/harness/reviews/by-task/harness-chain-orchestration-spec/task_harness_chain_orchestration_spec_v1_audit_R1_20260608.md` |
+| **CI** | pytest ✓ · tech-graph ✓ · tech-graph-contract ✓ · pr-post-ci ✓ · verify-fast ✓ |
+| **KPI** | 按 `KPI_RUBRIC_v1_2` · `CLOSE` 聚合 |
+| **经验** | MANIFEST 须补 `failure_paths`（task_validate 硬性检查）· branch 名 `next-v1` ≠ task 头 `spec-v1`（以实际分支为准） |
 
 ---
 
