@@ -105,6 +105,8 @@ flowchart TD
   subgraph RAG["RAG"]
     EMBM[SILICONFLOW_EMBEDDING_MODEL] --> EMB[Embedding]
     EMBD[SILICONFLOW_EMBEDDING_DIMENSIONS] --> EMB
+    REMM[RAG_EMBEDDING_MISMATCH_MODE block/warn/off] --> EGUARD[检索前 embedding 指纹校验<br/>api/rag_embedding_guard.py]
+    EMBM --> EGUARD
     TH[RAG_MATCH_THRESHOLD (0~1 或 none)] --> VEC[match_documents threshold]
     DBG[DEBUG_RAG / RAG_DEBUG / NODE_ENV] --> LOG[rag debug print]
     RRPC[RAG_RPC_RETRIES] --> RPC_RETRY[rpc_execute_with_retry retry 次数]

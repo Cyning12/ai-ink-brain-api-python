@@ -21,29 +21,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Tech Graph manifest check
-        run: python tools/tech_graph_manifest_check.py
-
-      - name: Tech Graph test manifest check (Phase B)
-        run: python tools/tech_graph_test_manifest_check.py
-
-      - name: Tech Graph test manifest check (Phase C · failure paths)
-        run: python tools/tech_graph_test_manifest_check.py --check-failure-paths
-
-      - name: Harness human_gate check (PR execution artifacts)
-        run: python tools/harness_human_gate_check.py --pr-diff --base origin/main
-
-      - name: Tech graph graph.json drift check (graph_v2 export)
-        run: python tools/tech_graph_graph_export.py --check
-
-      - name: Tech graph docs literal drift check (endpoints/rpc/tables/env in .md)
-        run: python tools/tech_graph_drift_check.py
-
-      - name: Tech graph graph_v2 equivalence check
-        run: python tools/tech_graph_graph_equivalence_check.py
-
-      - name: Tech graph token estimate (Gate A appendix)
-        run: python tools/tech_graph_token_estimate.py --json
+      - name: Tech Graph checks (manifest · drift · export · equivalence)
+        run: bash scripts/verify-tech-graph.sh
 
   task_validate:
     runs-on: ubuntu-latest

@@ -47,7 +47,11 @@
 
 - 任务驱动：先读 `docs/tasks/active/` 对应单；验收后 `git mv` → `done/` + 更新 `_views/done.md`（见 [`docs/tasks/README.md`](docs/tasks/README.md)）
 - 图谱：改 `.ai.md` → 导出 `graph.json` + manifest/contract CI（见 `docs/_tech_graph/99_mermaid_protocol.md`）
-- **合并前必绿**：`pytest tests -m "not intent_eval and not intent_benchmark"`（PR Required check）
+- **合并前必绿（本地与 CI 同命令）**：
+  - **图谱 / manifest**：`bash scripts/verify-tech-graph.sh`（对齐 `tech-graph.yml` · `manifest_check`）
+  - **契约**：`python tools/tech_graph_contract_check.py`（对齐 `tech-graph-contract.yml`）
+  - **一键 PR 前**：`bash scripts/verify-pr-local.sh`（上述 + pytest）
+  - **pytest 单跑**：`pytest tests -m "not intent_eval and not intent_benchmark"`
 
 ---
 
