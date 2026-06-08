@@ -2,6 +2,7 @@
 
 > **状态**：`active`  
 > **Epic**：ChatBI Intent Hints · **U1.5**（独立于 Step1 · 不阻塞 Step2 U2）  
+> **双轨 Epic**：[`task_harness_semi_auto_retirement_manifest_v1.md`](task_harness_semi_auto_retirement_manifest_v1.md) · **B 轨 / G2**（api 链式关账 · semi_auto 退场）  
 > **前置**：Step1 #109 已合 main  
 > **关联代码**：`api/intent_agent.py`
 
@@ -12,10 +13,25 @@
 | 字段 | 值 |
 | --- | --- |
 | **task_slug** | `chatbi_intent_llm_retry_u1_5_v1` |
-| **semi_auto** | `true` |
+| **orchestration** | **Claude Code** · Lead + 串行 spawn `.claude/agents/harness-*` · **Git 仅 Lead** |
+| **semi_auto** | `false` — **自 `true` 迁移** · 链式 PROMPT 替代同会话换帽 |
 | **test_strategy** | `required` |
-| **test_strategy_note** | 涉 `api/intent_agent.py` 重试/超时阶梯；须 `tests/test_intent_llm_retry.py` + 全集 pytest |
-| **git_branch** | `task/chatbi-intent-llm-retry-u1.5` |
+| **test_strategy_note** | 涉 `api/intent_agent.py` 重试/超时阶梯；须 `tests/test_intent_llm_retry.py` + 全集 pytest + **50 reinspect** |
+| **audit_profile** | `full` |
+| **git_branch** | `task/chatbi-intent-llm-retry-u1.5-chain-v1`（链式关账分支 · 实现可 cherry-pick 自 `task/chatbi-intent-llm-retry-u1.5`） |
+| **merge_policy** | `docs_only_ci_green_merge` → 含 `api/` 时仍须 CI pytest 全绿 |
+| **close_action** | `merge` |
+| **kpi_rubric** | `KPI_RUBRIC_v1_2` |
+| **kpi_aggregator** | `50` |
+| **experience_capture** | `required` |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+| --- | --- | --- | --- |
+| HG-TASK-DRAFT | approved | 22-R1, 30 | task + 链式 PROMPT 人扫 · **2026-06-08 用户授权代填** |
+| HG-CHAIN-B-EXEC | approved | explore, 22, 30, 40, 50, CLOSE | B 轨 T1 执行链 · **2026-06-08 用户授权代填** |
+| HG-REINSPECT | approved | done | 50 落盘后人签 · merge 前 · **2026-06-08 用户授权预批** |
 
 ---
 
@@ -69,8 +85,22 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 - [x] Step1 五问 5/5 人验已通过（#109 · **不**单独 reinspect 落盘）
 - [ ] RUNBOOK §4.1 Q-INTENT spot-check（可选 · PR 说明）
 - [ ] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md` **OK**
+- [ ] Harness 链式：`docs/harness/invokes/by-task/chatbi-intent-retry-u1.5-chain/` 帽链齐全
+- [ ] **50** 落盘：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_*` **必须**
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md` §8）。
+
+---
+
+## Harness 链式关账（B 轨 · Round T1）
+
+**Prompt**：[`PROMPT_claude_chain_serial_v1_T1_intent-retry-u1_5_zh.md`](../harness/prompts/PROMPT_claude_chain_serial_v1_T1_intent-retry-u1_5_zh.md)
+
+**帽链**：explore → 22 → 30 → 40 → **50** → CLOSE（`test_strategy: required` · **不可 skip 50**）
+
+**invoke slug**：`chatbi-intent-retry-u1.5-chain`
+
+**30 硬约束**：先写/绿 `tests/test_intent_llm_retry.py` 再改 `api/intent_agent.py`（TDD）
 
 ---
 

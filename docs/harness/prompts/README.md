@@ -25,7 +25,10 @@
 | 50 | `hats/50-independent-reinspect.md`、`templates/TEMPLATE-independent-reinspect-invoke.md`（+ 可选 full） |
 | — | `handoff/HANDOFF_*` ×3 |
 | **00 · Task 链试点** | [`PROMPT_cursor_task_chain_serial_v1.md`](PROMPT_cursor_task_chain_serial_v1.md) · T1 实例 [`PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md`](PROMPT_cursor_task_chain_serial_v1_T1_gov-docs-noise-p0_zh.md) |
-| **Lead · Claude spawn 链** | [`PROMPT_claude_chain_serial_v1.md`](PROMPT_claude_chain_serial_v1.md)（§5.1 30 约束 · **§5.2 Git 仅 Lead**）· T0/T2b/T2c 实例 · [`.claude/agents/`](../../.claude/agents/README.md) · [`.claude/settings.json`](../../.claude/settings.json) |
+| **Lead · Claude spawn 链** | [`PROMPT_claude_chain_serial_v1.md`](PROMPT_claude_chain_serial_v1.md)（§5.1 30 约束 · **§5.2 Git 仅 Lead**）· T0/T2b/T2c 实例 · **semi_auto 退场 A/B** · [`.claude/agents/`](../../.claude/agents/README.md) · [`.claude/settings.json`](../../.claude/settings.json) |
+| **semi_auto 退场 Epic** | MANIFEST [`task_harness_semi_auto_retirement_manifest_v1.md`](../../tasks/active/task_harness_semi_auto_retirement_manifest_v1.md) · SPEC [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) · A [`PROMPT_claude_chain_serial_v1_T1_harness-chain-orchestration-spec_zh.md`](PROMPT_claude_chain_serial_v1_T1_harness-chain-orchestration-spec_zh.md) · B [`PROMPT_claude_chain_serial_v1_T1_intent-retry-u1_5_zh.md`](PROMPT_claude_chain_serial_v1_T1_intent-retry-u1_5_zh.md) |
+| **Lead · Kimi Agent 链** | [`PROMPT_kimi_task_chain_serial_v1.md`](PROMPT_kimi_task_chain_serial_v1.md) · T1 实例 [`PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md`](PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md) · Plan Agent 复验 [`PROMPT_kimi_plan_agent_nav_revalidation_zh.md`](PROMPT_kimi_plan_agent_nav_revalidation_zh.md) |
+| **KC ↔ CC 对照** | [`COMPARISON_kimi_claude_chain_prompt_v1_zh.md`](COMPARISON_kimi_claude_chain_prompt_v1_zh.md) · T1 recentsync 试点 · PR #134 |
 | **P2 · T0/T2c** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) · [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
 | **P2 · R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](PROMPT_claude_P2_pre_exec_amendments_zh.md) · 审核 [`reviews/by-task/gov-docs-noise-p2/`](../reviews/by-task/gov-docs-noise-p2/) |
 | **P1 · post-close** | [`PROMPT_claude_post_close_P1_full_zh.md`](PROMPT_claude_post_close_P1_full_zh.md) · [`PROMPT_claude_post_close_P1_v2_zh.md`](PROMPT_claude_post_close_P1_v2_zh.md) |
@@ -40,6 +43,8 @@
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-06-08 | v9：Kimi spawn 链索引 + KC↔CC Prompt 对照 [`COMPARISON_kimi_claude_chain_prompt_v1_zh.md`](COMPARISON_kimi_claude_chain_prompt_v1_zh.md) |
+| 2026-06-08 | v10：semi_auto 退场 Epic 链 SPEC + MANIFEST 指针 |
 | 2026-06-06 | v8：T3 docs-noise 母单关账 PROMPT |
 | 2026-06-06 | v7：P2 R1 改稿 handoff + post-close PROMPT 索引 |
 | 2026-06-06 | v6：Claude spawn 链 PROMPT + `.claude/agents/` 指针 |

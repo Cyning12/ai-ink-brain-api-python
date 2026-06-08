@@ -83,15 +83,18 @@
 
 | 项 | 路径 |
 | --- | --- |
-| **MANIFEST（Lead 必读）** | [`docs/tasks/active/task_governance_docs_noise_line_manifest_v1.md`](../../../tasks/active/task_governance_docs_noise_line_manifest_v1.md) |
+| **MANIFEST（Lead 必读）** | [`docs/tasks/done/task_governance_docs_noise_line_manifest_v1.md`](../../../tasks/done/task_governance_docs_noise_line_manifest_v1.md) |
 | **Claude 通用 PROMPT** | [`docs/harness/prompts/PROMPT_claude_chain_serial_v1.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1.md) |
 | **P1 T0/T2b** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p1_zh.md) · [`PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2b_gov-docs-noise-p1_zh.md) |
 | **P2 T0/T2c** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p2_zh.md) · [`PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md`](../../../harness/prompts/PROMPT_claude_chain_serial_v1_T2c_gov-docs-noise-p2_zh.md) |
 | **P2 R1 改稿 handoff** | [`PROMPT_claude_P2_pre_exec_amendments_zh.md`](../../../harness/prompts/PROMPT_claude_P2_pre_exec_amendments_zh.md) |
 | **Subagents** | [`.claude/agents/`](../../../../.claude/agents/README.md) · `harness-10` … `harness-50` |
 | **P0 试点（Cursor）** | [`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../../../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) |
+| **KC↔CC 对照** | [`COMPARISON_kimi_claude_chain_prompt_v1_zh.md`](../../../harness/prompts/COMPARISON_kimi_claude_chain_prompt_v1_zh.md) · T1 recentsync · PR #134 |
+| **semi_auto 退场 A 轨** | [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../SPEC-Governance-Harness-Chain-Orchestration-v1.md) · `GOV-HARNESS-CHAIN-ORCHESTRATION@2026-06-08` |
 
 **当前下一棒**：docs-noise 治理线 **已 CLOSE**（P0–P3 全量 done · PR #121/#123/#126/#129）。
+**MANIFEST 已归档**：`docs/tasks/done/task_governance_docs_noise_line_manifest_v1.md`。
 
 ---
 
@@ -115,3 +118,4 @@
 | 2026-06-06 | P1 Claude 脚手架 · §6 执行编排 · §5 档期指针 |
 | 2026-06-06 | 从 governance 根目录迁入独立文件夹；新增本导图 README |
 | 2026-06-06 | 链入 diary Plan Agent 对比实验留证 |
+| 2026-06-08 | §6 补 KC/#134/COMPARISON · MANIFEST→`done/` · 链 semi_auto 退场 A 轨 SPEC |
