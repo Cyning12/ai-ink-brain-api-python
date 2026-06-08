@@ -6,14 +6,12 @@ Round 2 可跑最小题包（Moonshot Mentor / coding engineer 造题）。
 
 ```text
 docs/harness/eval/be-sql-readonly-gate-align-v1/
-├── TASK.md                 # 给解题 Agent 的题干
-├── AGENT_PROMPT.md         # 复制到新 Agent 会话的指令块
-├── HIDDEN_TESTS.md         # 评测机 / 人审：隐藏测清单（不给解题 Agent）
-├── CALIBRATION.md          # 校准记录表
-├── README.md               # 本文件
-├── scripts/
-│   ├── run_public.sh       # 解题 Agent 自测
-│   └── run_full_eval.sh    # 评测机全量（含隐藏测）
+├── TASK.md
+├── AGENT_PROMPT.md         # 复制到新 Agent（---COPY START/END---）
+├── HIDDEN_TESTS.md         # 评测机专用
+├── CALIBRATION.md          # 试跑记录（含 Kimi Code 2026-06-08）
+├── GOLD_SOLUTION.md        # 强基线对照（勿给解题 Agent）
+├── scripts/                # 可选；需 commit ≥ f86a32a
 └── tests/
     ├── test_public_validate_sql_readonly.py
     └── test_hidden_validate_sql_readonly.py
@@ -21,32 +19,50 @@ docs/harness/eval/be-sql-readonly-gate-align-v1/
 
 ## 快速开始
 
-### 解题 Agent
-
-1. Open Folder = `ai-ink-brain-api-python`
-2. 阅读 `TASK.md`
-3. 运行公开测（**当前 base 应失败**，修复后应全绿）：
+### 出题 base
 
 ```bash
-./docs/harness/eval/be-sql-readonly-gate-align-v1/scripts/run_public.sh
+git checkout f86a32a
+# 或：git worktree add ../ai-ink-brain-api-python-be1-eval f86a32a
 ```
 
-### 评测机 / 人审
+### 解题 Agent
+
+1. Open Folder = 本仓（worktree 亦可）
+2. 复制 `AGENT_PROMPT.md` 中 COPY 块到新会话
+3. 公开自测（**base 应 1 fail**，修复后 4/4）：
+
+```bash
+pytest docs/harness/eval/be-sql-readonly-gate-align-v1/tests/test_public_validate_sql_readonly.py -v
+```
+
+### 评测机 / 人审（关账）
+
+```bash
+pytest docs/harness/eval/be-sql-readonly-gate-align-v1/tests/ -v
+```
+
+期望 **11 passed**（公开 4 + 隐藏 7）。可选快捷脚本（主仓 `f86a32a+` 才有）：
 
 ```bash
 ./docs/harness/eval/be-sql-readonly-gate-align-v1/scripts/run_full_eval.sh
 ```
 
-越界检查（示例）：
+越界检查：
 
 ```bash
-git diff --name-only origin/main...HEAD
-# 期望仅白名单路径
+git diff --name-only
+# 期望仅 api/text2sql_core.py（及 Agent 自增 tests 若 TASK 允许）
 ```
 
-## 已知 base 缺口（出题时确认）
+## 校准摘要（2026-06-08）
 
-`validate_sql_readonly("SELECT 1; SELECT 2")` 在加固前 **不会** 抛错；`apply_chatbi_sql_gate` 同语句会 `ast_multi_statement` 拒绝。
+| 模型 | 全量 | 备注 |
+| --- | --- | --- |
+| Gold `2d3f75b` | 11/11 | sqlparse 多语句 |
+| Kimi Code | 11/11 | worktree · sqlparse + 分号回退 |
+
+详见 [`CALIBRATION.md`](./CALIBRATION.md)。
 
 ## 关联
 
