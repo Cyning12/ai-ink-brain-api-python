@@ -23,10 +23,10 @@
 
 | 轨 | ID | task | 分支建议 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
-| **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](../done/task_harness_chain_orchestration_spec_v1.md) | `task/harness-chain-orchestration-next-v1` | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 · **PR #135** |
-| **B · api** | G2 | [`done/task_chatbi_intent_llm_retry_u1_5_v1.md`](../done/task_chatbi_intent_llm_retry_u1_5_v1.md) | `task/chatbi-intent-llm-retry-u1.5-chain-v1` | **CC 首棒** | required + **50** · 链式关账 · **DONE 2026-06-08** |
+| **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](task_harness_chain_orchestration_spec_v1.md) | `task/harness-chain-orchestration-next-v1` | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 · **PR #135** |
+| **B · api** | G2 | [`done/task_chatbi_intent_llm_retry_u1_5_v1.md`](done/task_chatbi_intent_llm_retry_u1_5_v1.md) | `task/chatbi-intent-llm-retry-u1.5-chain-v1` | **CC 首棒** | required + **50** · 链式关账 · **PR #137/#138** |
 
-**对外宣称「semi_auto 全面废弃」**：G1 + G2 **均 done** 后。
+**对外宣称「semi_auto 全面废弃」**：**已满足**（G1 + G2 均 done · 2026-06-08）。
 
 ---
 
@@ -64,4 +64,4 @@
 
 | 日期 | 摘要 |
 | --- | --- |
-| 2026-06-08 | 初稿 · A+B 双轨 MANIFEST |
+| 2026-06-08 | G2 CLOSE · PR #137/#138 · MANIFEST 归档 `done/` · RECENT §1.3 同步 |

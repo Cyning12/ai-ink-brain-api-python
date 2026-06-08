@@ -10,7 +10,7 @@ date: 2026-06-08
 # explore · B 轨 · api 差分
 
 ## 输入
-- task: docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md
+- task: docs/tasks/done/task_chatbi_intent_llm_retry_u1_5_v1.md
 - api/intent_agent.py（重试/超时相关段落）
 - tests/test_intent_llm_retry.py
 - task §行为变更 · failure_paths F1–F4

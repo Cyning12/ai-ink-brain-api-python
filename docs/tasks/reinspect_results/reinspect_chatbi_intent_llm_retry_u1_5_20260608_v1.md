@@ -107,7 +107,7 @@ date: 2026-06-08
 - 50 独立复检完成。代码实现完整、测试覆盖到位、安全无虞、流程项齐全。
 
 ### Deliverables
-- 本报告：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md`
+- 本报告：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20260608_v1.md`
 
 ### Blockers
 - 无阻塞项。50 落盘后可直接进入 CLOSE（task `git mv` → `done/` + 更新 `_views/done.md` + PR merge）。

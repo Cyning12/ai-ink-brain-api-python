@@ -4,8 +4,8 @@
 | --- | --- |
 | **状态** | **`accepted`**（A 轨 30 帽定稿 · 待 B 轨齐 CLOSE 后全面生效） |
 | **freeze_id** | `GOV-HARNESS-CHAIN-ORCHESTRATION@2026-06-08` |
-| **Epic** | [`task_harness_semi_auto_retirement_manifest_v1.md`](../../tasks/active/task_harness_semi_auto_retirement_manifest_v1.md) |
-| **执行 task** | [`task_harness_chain_orchestration_spec_v1.md`](../../tasks/active/task_harness_chain_orchestration_spec_v1.md) |
+| **Epic** | [`task_harness_semi_auto_retirement_manifest_v1.md`](../../tasks/done/task_harness_semi_auto_retirement_manifest_v1.md) |
+| **执行 task** | [`task_harness_chain_orchestration_spec_v1.md`](../../tasks/done/task_harness_chain_orchestration_spec_v1.md) |
 | **规划** | [`docs/diary/2026-06-08-harness-chain-next-task-planning_zh.md`](../../diary/2026-06-08-harness-chain-next-task-planning_zh.md) |
 
 ---
@@ -87,7 +87,7 @@ explore → 22 → 30（先失败测试 → 实现）→ 40 → 50 → CLOSE →
 test -f docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md
 rg -n 'orchestration' docs/tasks/templates/TASK_TEMPLATE.md
 rg -n '链式|semi_auto' docs/harness/HARNESS_V2_PLAN.md
-python tools/harness_task_validate.py docs/tasks/active/task_harness_chain_orchestration_spec_v1.md
+python tools/harness_task_validate.py docs/tasks/done/task_harness_chain_orchestration_spec_v1.md
 ```
 
 ---

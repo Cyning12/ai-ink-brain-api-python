@@ -133,7 +133,7 @@ date: 2026-06-08
 - 22 R1 审查完成。代码实现完整、测试覆盖到位、安全无虞。
 
 ### Deliverables
-- 本报告：`docs/harness/reviews/by-task/chatbi-intent-retry-u1.5-chain/task_chatbi_intent_llm_retry_u1_5_v1_audit_R1_20250608.md`
+- 本报告：`docs/harness/reviews/by-task/chatbi-intent-retry-u1.5-chain/task_chatbi_intent_llm_retry_u1_5_v1_audit_R1_20260608.md`
 
 ### Blockers
 - 50 reinspect 落盘为唯一阻塞项（test_strategy: required，不可 skip）。
