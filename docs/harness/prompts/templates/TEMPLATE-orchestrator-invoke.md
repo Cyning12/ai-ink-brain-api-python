@@ -1,7 +1,7 @@
 # 总调度（00）· 对话调用模板
 
-> **用途**：Open **`Projects/`** · 单窗口总 Chat 编排 **10→…→50→CLOSE**；子阶段用 **`Task`** 派发。  
-> **真值**：[`00-orchestrator.md`](00-orchestrator.md)、[`../guides/KPI_RUBRIC_v1_2.md`](../guides/KPI_RUBRIC_v1_2.md)。
+> **用途**：本仓 **链式常模**入口；Lead 按 [`PROMPT_claude_chain_serial_v1.md`](../PROMPT_claude_chain_serial_v1.md) 或 Cursor 等价 [`PROMPT_cursor_task_chain_serial_v1.md`](../../../../docs/harness/prompts/PROMPT_cursor_task_chain_serial_v1.md) spawn / Task。  
+> **真值**：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../../../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)、[`../guides/KPI_RUBRIC_v1_2.md`](../../guides/KPI_RUBRIC_v1_2.md)（若有）。
 
 ---
 
@@ -9,46 +9,39 @@
 
 | 占位符 | 含义 |
 |--------|------|
-| `{{TASK_PATH}}` | 主 task（相对 `Projects/`） |
+| `{{TASK_PATH}}` | 主 task（相对本仓根） |
 | `{{TASK_SLUG}}` | invoke 目录 slug |
-| `{{PLANNED_HATS}}` | 计划帽序列，如 `22,30,40,50,CLOSE` |
-| `{{GIT_BRANCH}}` | 任务分支，如 `task/<slug>` |
+| `{{PLANNED_HATS}}` | 如 `22,30,40,50,CLOSE` |
+| `{{GIT_BRANCH}}` | `task/<slug>` |
+| `{{CHAIN_PROMPT}}` | 如 `docs/harness/prompts/PROMPT_claude_chain_serial_v1_T1_*.md` |
+| `{{RESUME_INVOKE}}` | 续跑 invoke；全新=`无` |
 
 ---
 
 ## 2. 可复制 Prompt 正文（§3）
 
 ```text
-你正在扮演 Harness「总调度帽（00）」，严格遵循：
-- docs/harness/prompts/00-orchestrator.md
-- docs/harness/guides/KPI_RUBRIC_v1_2.md（打分与 Task 汇总）
-- docs/harness/prompts/HANDOFF_SEMI_AUTO.md、HANDOFF_CLOSE_TRACE.md
-- docs/harness/HARNESS_V2_PLAN.md §5（experience_capture、human_gate、semi_auto）
+你 = Harness Lead（链式串行 · 00 职责）。严格遵循：
+- {{CHAIN_PROMPT}}（实例 · 占位符已替换）
+- docs/harness/prompts/PROMPT_claude_chain_serial_v1.md（或 task 指定的 chain 模板）
+- docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md
+- docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md
+- docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md
+- docs/harness/HARNESS_V2_PLAN.md §5.6（orchestration；semi_auto deprecated）
 
 输入：
 - task：{{TASK_PATH}}
 - slug：{{TASK_SLUG}}
-- 计划帽序列：{{PLANNED_HATS}}
+- planned_hats：{{PLANNED_HATS}}
 - git_branch：{{GIT_BRANCH}}
+- 续跑 invoke：{{RESUME_INVOKE}}
 
 你必须完成：
-1. 通读 task 元信息表（experience_capture、test_strategy、human_gate、semi_auto、audit_profile）。
-2. 维护「阶段状态表」：每帽 {pending|running|done|blocked}。
-3. 派子帽时：
-   a. 先确认无 blocking 的 human_gate；
-   b. 生成 Handoff（路径 + 验收 + 禁止长文）；
-   c. 优先 Task 子代理（50/30/40 等）；粘贴对应 TEMPLATE §3 或 §父侧 Task Handoff；
-   d. 收子代理回报：Status / Deliverables / Blockers / Judgment（各 ≤10 行）。
-4. 每帽 done 后：按 KPI_RUBRIC_v1_2 追加 HatInstance 行；warn/fail 必填 judgment_notes。
-5. 关账前：汇总 task ### KPI（00）；核对 experience_capture（required 须有经验摘要或 diary 链）。
-6. 触发 CLOSE：HANDOFF_CLOSE_TRACE + 归档规则（docs/harness/tasks/README.md）。
+1. GATE_SCAN：读 human_gate + orchestration；pending → 只报 gate_id。
+2. 每帽：invoke → Lead commit → spawn/Task → 收 ≤10 行（Git 仅 Lead）。
+3. 关账：HANDOFF_CLOSE_TRACE + task README 归档。
 
-禁止：代签 approved；贴子代理全文；在 main 上 semi_auto 链式提交。
-
-Judgment（00 · 对话末尾）：
-- experience_capture: 维持 | 建议改 task 档位（理由≤1行）
-- gate/risk: …
-- hat_self: pass | pass-with-notes | blocked
+禁止：代签 approved；subagent commit；main 链式提交；semi_auto: true 作总闸。
 ```
 
 ---
@@ -58,3 +51,4 @@ Judgment（00 · 对话末尾）：
 | 日期 | 摘要 |
 |------|------|
 | 2026-05-31 | v1：KPI v1.2 同批 |
+| 2026-06-08 | v2：链式常模；绑 PROMPT_*_chain_serial_*；移除 semi_auto |

@@ -20,7 +20,8 @@
 | **freeze_id** | （可选）实现基准契约 ID，如 `SPEC-xxx@2026-05-22` 或 commit 短哈希 |
 | **gates_before_code** | （可选）显式门闸列表；默认隐式：`failure_paths` + 验收命令 + 必读路径已齐 |
 | **semi_auto** | **`deprecated`** — 历史兼容 `true`/`false`；**新 task 填 `false`** + **`orchestration`** + 链 PROMPT（见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)） |
-| **orchestration** | `Cursor Task 链` / `Claude Code` / `Kimi Code` / `MANIFEST 仅` — 链式执行器；绑 `docs/harness/prompts/PROMPT_*_chain_serial_*` 实例 |
+| **orchestration** | `Cursor Task 链` / `Claude Code` / `Kimi Code` / `MANIFEST 仅` — 链式执行器 |
+| **chain_prompt** | `docs/harness/prompts/PROMPT_claude_chain_serial_v1_T1_<slug>_zh.md`（或 `PROMPT_cursor_*` / `PROMPT_kimi_*` 实例路径） |
 | **audit_profile** | `full` / `post_close` / `human_only` — 审核节奏（见 HARNESS_V2 §5.5） |
 | **git_branch** | `task/<slug>` — 链式执行与实现 **禁止** 在 `main` 上连续提交 |
 | **experience_capture** | `required` / `recommended` / `not_applicable` — 关账经验摘要档位（见 HARNESS_V2 §5.7） |

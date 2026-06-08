@@ -57,8 +57,8 @@
 
 你必须完成：
 0. **Invoke 快照（开帽起点）**：在输出下列第 1 条起的实质性结果之前，先将 **本用户消息全文**（= 本模板 §3、占位符已全部替换）按 `docs/harness/invokes/README.md` 落盘到 `<子仓>/docs/harness/invokes/by-task/<task_slug>/` 或工作区 `Projects/docs/harness/invokes/by-task/<task_slug>/`（含元数据表 + 快照 fenced code）。同一会话内追问 **不** 再新增快照文件。
-0b. **人工闸**：扫描 task / 关联 reviews 的 `human_gate`（见 docs/harness/prompts/handoff/HANDOFF_SEMI_AUTO.md）。若任一对 **本帽（30）** 为 `pending` → 仅输出须人改的 `gate_id` 与路径，**拒开工**；禁止代填 `approved`。**例外**：若 invoke 声明 gate 已「人 kickoff 预批」但文件仍为 `pending`，Agent 须向用户二次确认（见 HANDOFF_SEMI_AUTO.md §2.3 预批与二次确认），获得明确文字授权后方可代填，且须在 commit message 注明 `human_gate 由 Agent 按人授权代填`。
-1. 通读 task 全文：头部 `gates_before_code`、`audit_profile`、`semi_auto`、`test_strategy` / `test_strategy_note`、`freeze_id`、`failure_paths`、拒开工条件、验收标准、必读列表、非范围。
+0b. **人工闸**：扫描 task / 关联 reviews 的 `human_gate`（见 `docs/harness/HARNESS_V2_PLAN.md` §5.6 · [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../../../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)）。若任一对 **本帽（30）** 为 `pending` → 仅输出须人改的 `gate_id` 与路径，**拒开工**；禁止代填 `approved`。**例外**：人 kickoff 预批但文件仍为 `pending` 时，须二次确认后方可代填，commit message 注明。
+1. 通读 task 全文：头部 `gates_before_code`、`audit_profile`、`orchestration`、`chain_prompt`（若有）、`test_strategy` / `test_strategy_note`、`freeze_id`、`failure_paths`、拒开工条件、验收标准、必读列表、非范围。
    - **`failure_paths` 硬性检查**：即使母单 / docs-only / draft，`failure_paths` 表也至少须 1 行数据；空表会在 CI `task_validate` 步骤触发 `FAILURE-PATHS-EMPTY`（tech-graph Required 门禁）。未满足 → 按拒开工处理，输出阻塞清单。
 2. 若 task 明示拒开工条件未满足（缺 failure_paths 可操作性、缺验收命令、必读未覆盖等）→ **仅输出 Markdown 阻塞清单**（缺什么、建议回填的小节标题、推荐下一棒角色），**不写**业务实现代码。
 3. `test_strategy: required` 时：先增加或调整 **可失败** 的自动化测试（或与实现同 PR 且满足 task 所述 red-green / 可复现失败语义），再改实现；禁止「只写实现、后补测」绕过 task 约定。
@@ -68,7 +68,7 @@
 7. 对话回复：生成可以完整复制的 Prompt，用于直接交给下一棒执行；须兼顾打回、二次审查等情形，下一棒也可能是上一棒（由其修复问题）。
 8. **自动 commit**：在输出下一棒 Prompt 且本轮代码/测试/task 自检回填已落盘后，按 docs/harness/prompts/handoff/HANDOFF_AUTO_COMMIT.md 在 {{SUBPROJECT_ROOT}} 对应 git 根 commit（仅本轮路径；禁止 git add -A；对话报 short-hash）。用户写明「不要 commit」则跳过。
    - commit 前须 `git status`（或 `git diff --stat`）核对：**task 正文 `### 自检结论` 回填** 是否已纳入暂存区；若未纳入 → 补 `git add` 后再 commit，禁止漏落。
-9. **半自动下一棒（可选）**：若 task `semi_auto: true` 且下一棒（如 40）无 `human_gate` 阻塞：先将 **下一棒 §3 全文** 落盘新 invoke 并 commit，再切换角色执行；规则见 HANDOFF_SEMI_AUTO.md §3。否则仅输出下一棒 Prompt 供人开新会话。
+9. **链式下一棒**：若 task 由 **Lead / 00** 按 `PROMPT_*_chain_serial_*` 编排 → **不**在本帽同会话自动换帽；仅输出下一棒 §3 或交还 Lead。若人明示单会话续跑且无 blocking gate：**下一棒 §3 全文** 先落盘 invoke + commit，再执行。禁止 `semi_auto: true` 作总闸（见 `handoff/HANDOFF_SEMI_AUTO.md` **deprecated**）。
 
 禁止：在未读完必读与 failure_paths 的情况下改路由/契约；删除与 task 无关的大段重构；口头宣称「已测过」而无命令输出。
 **Fresh Context（P1）**：40→50/22 交接时 **禁止**粘贴本帽 invoke 全文或长思考链；仅交 diff 要点、验收表、`### 自检结论`。
@@ -87,6 +87,7 @@
 | 2026-05-20 | v1.4：§2/§3 增 **`{{WORKTREE_ROOT}}`**；并行分支 cwd 真值见 `docs/harness/README.md` |
 | 2026-05-24 | v1.5：§3 第 0b 条人工闸增加「预批二次确认」与 commit message 注明要求
 | 2026-06-08 | v1.6：§3 第 1 条增 `failure_paths` 硬性检查（至少 1 行，母单/docs-only 不例外）；第 8 条增 commit 前 `git status` 核对 task 回填
+| 2026-06-08 | v1.7：§3 第 9 条链式下一棒；`orchestration` 替代 `semi_auto`；0b 链 Chain SPEC
 
 ---
 

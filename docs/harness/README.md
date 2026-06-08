@@ -13,7 +13,7 @@
 | 任务审核 22 | [`reviews/README.md`](reviews/README.md) → `TEMPLATE-task-audit` |
 | 执行 + 自检 | `TEMPLATE-execute` → `TEMPLATE-self-check` |
 | **三方复检** | `TEMPLATE-independent-reinspect` → [`../tasks/reinspect_results/`](../tasks/reinspect_results/README.md) |
-| 半自动 / 人工闸 | `HANDOFF_SEMI_AUTO` |
+| 链式常模 / 人工闸 | [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) · `PROMPT_*_chain_serial_*` · `human_gate`（半自动 deprecated → `HANDOFF_SEMI_AUTO` 仅考古） |
 | commit / 关账 | `HANDOFF_AUTO_COMMIT`、`HANDOFF_CLOSE_TRACE` |
 | **LoopTask 止于 50 · 50 Prompt / 人改 gate 清单** | [`docs/tasks/skills/SKILL-harness-looptask-handoff.md`](../tasks/skills/SKILL-harness-looptask-handoff.md) · 安装 Prompt：[`prompts/PROMPT_install_harness_looptask_handoff_skill_v1_zh.md`](prompts/PROMPT_install_harness_looptask_handoff_skill_v1_zh.md) |
 | task 字段 | `HARNESS_V2_PLAN.md` §5 |
@@ -144,3 +144,4 @@ rsync -a docs/harness/prompts/templates/TEMPLATE-independent-reinspect-invoke.md
 | 2026-05-22 | v5：§4 标明 rsync **仅维护者**；§1 Agent 禁止默认读工作区 harness |
 | 2026-05-25 | v6：§2.1 taxonomy；**不**建 `domains/` |
 | 2026-05-25 | v7：**git mv** 完成（prompts 子目录 + invokes/reviews `by-task/`） |
+| 2026-06-08 | v8：§1 日常读序改 **链式常模** 为默认；`HANDOFF_SEMI_AUTO` 标考古 |
