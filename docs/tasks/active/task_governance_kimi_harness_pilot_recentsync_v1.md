@@ -85,12 +85,12 @@ docs-noise 治理线 **P0–P3 + MANIFEST 已 CLOSE**，但 `RECENT_TASK_SCHEDUL
 
 ## 验收标准
 
-- [ ] A-1～A-5：`RECENT §1.2` 与 MANIFEST / 子批 `done/` 真值一致
-- [ ] B-2：5 个 gov-docs-noise done task 状态行格式统一且含 PR 号
-- [ ] B-3：若有额外回填，≤10 文件总计；explore 报告记录跳过原因
-- [ ] Harness：`docs/harness/invokes/by-task/kimi-harness-recentsync/` 帽链齐全；22 R1 落盘
-- [ ] 单 PR · docs-only · CI Required 全绿（`task_validate` 含 failure_paths Scenario ID）
-- [ ] 关账 diary：`docs/diary/2026-06-XX-kimi-harness-pilot-recentsync_zh.md`（日期由 CLOSE 填）
+- [x] A-1～A-5：`RECENT §1.2` 与 MANIFEST / 子批 `done/` 真值一致
+- [x] B-2：5 个 gov-docs-noise done task 状态行格式统一且含 PR 号
+- [x] B-3：无额外回填；仅 5 个 B-2 文件 + RECENT，总计 6 文件 ≤10
+- [x] Harness：`docs/harness/invokes/by-task/kimi-harness-recentsync/` 帽链齐全（explore + 22 + 30 + 40 共 5 invoke）
+- [ ] 单 PR · docs-only · CI Required 全绿（`task_validate` 含 failure_paths Scenario ID）— **待 Lead 提 PR 后 CI 跑**
+- [ ] 关账 diary：`docs/diary/2026-06-XX-kimi-harness-pilot-recentsync_zh.md`（日期由 CLOSE 填）— **待 CLOSE 帽落盘**
 
 ---
 
@@ -130,6 +130,7 @@ Invoke 落盘：`docs/harness/invokes/by-task/kimi-harness-recentsync/`
 - **A 段**：RECENT §1.2 已同步 — MANIFEST 链 `done/`、P0–P3 标 done + PR 号、执行器注明 Cursor/CC/CLOSE、删除过期脚手架/分支/pending 表述、段首加 CLOSE 标注
 - **B-2**：5 个 gov-docs-noise done task 状态行已统一为 `done（YYYY-MM-DD · PR #N @ commit）` 格式
 - **B-3**：跳过 — explore 扫描 11 个额外候选（6 legacy + 5 早期 tech_graph/task），均非 gov-docs-noise 线；本 task 仅修 5 个 B-2 文件 + RECENT，未超 10 文件上限
+- **验证命令**：`rg 'active/task_governance_docs_noise_line_manifest'` → 无命中 ✓；`rg '脚手架|P2/P3.*pending'` → 无命中 ✓
 - **无阻塞**：无 scope drift、无 api/ 修改、未调用 git commit
 
 ---
