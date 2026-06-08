@@ -88,7 +88,7 @@ Claude Code **subagent 常不继承** `settings.local.json` 的 `Bash(git *)`；
 Round 实例 PROMPT 的 30 spawn 须写：**「禁止 git commit；由 Lead 在每帽结束后 commit」**。
 
 **Lead commit 前强制核对（防反复踩坑）**：
-1. `git diff --stat` 或 `git status` 核对 **全部变更**；不得仅凭 subagent 回报摘要 commit。特别检查：**task 正文 `### 自检结论` 回填**、**MANIFEST / RECENT 等索引更新** 是否已暂存。
+1. `git diff --stat` 或 `git status` 核对 **全部变更**；不得仅凭 subagent 回报摘要 commit。特别检查：**task 正文 `### 自检结论` 回填**、**MANIFEST / RECENT 等索引更新** 是否已暂存；**CLOSE 阶段额外检查 task 文件内部**：验收标准逐项 `[x]`、头部 `status` 置 `done`、追加「关闭回溯」表。
 2. 若 subagent 改动了 task 文件但回报未列出 → 追问补全后再 commit。
 3. 30/40 帽 spawn 前（尤其 docs-only / MANIFEST / 母单），前置跑 `python tools/harness_task_validate.py {{TASK}}` 作为软性门禁；提前暴露 `FAILURE-PATHS-EMPTY` 等机械错误，避免推后才发现 CI 红。
 
