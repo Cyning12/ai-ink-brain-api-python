@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+import sqlparse
 from openai import OpenAI
 
 
@@ -47,6 +48,11 @@ def is_text2sql_intent(query: str) -> bool:
     return any(k in q for k in keywords) or any(k in ql for k in ("count", "sum", "avg", "group by", "top"))
 
 
+def _non_empty_sqlparse_statements(sql: str) -> list:
+    """与 chatbi_sql_gate 一致：仅统计 sqlparse 非空语句（对齐 AST 多语句判定）。"""
+    return [st for st in sqlparse.parse(sql) if str(st).strip()]
+
+
 def validate_sql_readonly(sql: str) -> str:
     s = (sql or "").strip()
     if not s:
@@ -56,7 +62,10 @@ def validate_sql_readonly(sql: str) -> str:
     s = re.sub(r"^```sql\s*", "", s, flags=re.IGNORECASE).strip()
     s = re.sub(r"```$", "", s).strip()
 
-    # 单语句：禁止多分号
+    # AST 多语句：sqlparse 计数（覆盖「单分号双语句」等分号计数漏网）
+    if len(_non_empty_sqlparse_statements(s)) > 1:
+        raise ValueError("Multiple statements are not allowed")
+    # 回退：多分号（sqlparse 解析异常时仍拦截）
     if s.count(";") > 1:
         raise ValueError("Multiple statements are not allowed")
     s = s.rstrip(";").strip()
