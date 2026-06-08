@@ -1,6 +1,6 @@
 # Task：ChatBI Intent LLM 外呼重试（U1.5 · micro-PR）
 
-> **状态**：`active`  
+> **状态**：`done`  
 > **Epic**：ChatBI Intent Hints · **U1.5**（独立于 Step1 · 不阻塞 Step2 U2）  
 > **双轨 Epic**：[`task_harness_semi_auto_retirement_manifest_v1.md`](task_harness_semi_auto_retirement_manifest_v1.md) · **B 轨 / G2**（api 链式关账 · semi_auto 退场）  
 > **前置**：Step1 #109 已合 main  
@@ -83,10 +83,10 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 - [x] `pytest tests/test_intent_llm_retry.py -q` **全绿**
 - [x] `pytest tests -m "not intent_eval and not intent_benchmark" -q` **全绿**
 - [x] Step1 五问 5/5 人验已通过（#109 · **不**单独 reinspect 落盘）
-- [ ] RUNBOOK §4.1 Q-INTENT spot-check（可选 · PR 说明）
-- [ ] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md` **OK**
-- [ ] Harness 链式：`docs/harness/invokes/by-task/chatbi-intent-retry-u1.5-chain/` 帽链齐全
-- [ ] **50** 落盘：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_*` **必须**
+- [x] RUNBOOK §4.1 Q-INTENT spot-check（可选 · PR #137 说明）
+- [x] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md` **OK**（40 帽验证）
+- [x] Harness 链式：`docs/harness/invokes/by-task/chatbi-intent-retry-u1.5-chain/` 帽链齐全（explore/22/30/40/50/CLOSE）
+- [x] **50** 落盘：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md`
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md` §8）。
 
@@ -131,3 +131,21 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 - **.env.example**：`CHATBI_V2_INTENT_LLM_RETRIES`、`CHATBI_V2_INTENT_LLM_RETRY_BACKOFF_S`、`CHATBI_V2_INTENT_RETRY_TIMEOUT_FACTORS` 注释均已存在，无需补写。
 - **api/intent_agent.py**：`_llm_decide_v2_with_retries` 段与 test 断言对齐（`used=llm_retry`、`attempt`、`timeout_s`、timeout 递减阶梯、可重试异常分类、JSON 错误不重试）。
 - **判定**：30 自检通过，可进入 40。
+
+---
+
+### CLOSE 回溯（T1 B 轨 · 2026-06-08）
+
+| 阶段 | 动作 | 落盘 | Commit |
+|------|------|------|--------|
+| explore | api 差分扫描 | `explore_intent_retry_u1_5_impl_gap.md` | `f5ff882`, `d2b3be0` |
+| 22 R1 | 审查签收 | `task_chatbi_intent_llm_retry_u1_5_v1_audit_R1_20250608.md` | `b12ca03`, `0184c1b` |
+| 30 | 验证性执行 | task 自检结论回填 | `eb42f28`, `f5a59fa` |
+| 40 | 全集 pytest + task_validate | — | `4cd9b32` |
+| 50 | 独立复检 | `reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md` | `599902a`, `250ec8a` |
+| CLOSE | task→done/、MANIFEST 更新 | — | `9a74ac5` |
+| PR/merge | #137 squash merge | — | `5afccb5` |
+
+- **pytest 全集**：323 passed, 1 skipped, 2 deselected
+- **50 reinspect**：已落盘，建议合并
+- **MANIFEST**：A+B 双轨均 done，`semi_auto 全面废弃` 条件满足
