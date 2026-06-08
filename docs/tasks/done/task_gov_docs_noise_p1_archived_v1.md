@@ -1,6 +1,6 @@
 # Task：docs-noise 治理 · P1 标 archived / superseded
 
-> **状态**：`done`（2026-06-06 验收通过 · PR #123 @ `2de2902`）  
+> **状态**：`done（2026-06-06 · PR #123 @ 2de2902）`  
 > **Epic**：docs-noise 治理线 · **P1**（Claude Code 串行 Task 链）  
 > **关联 SPEC 导图**：`[docs/spec/governance/docs-noise-inventory/README.md](../spec/governance/docs-noise-inventory/README.md)`  
 > **关联 SPEC 正文**：`[docs/spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md](../spec/governance/docs-noise-inventory/SPEC-Governance-Docs-Noise-Inventory-v1_zh.md)` §8.2  

@@ -125,6 +125,15 @@ Invoke 落盘：`docs/harness/invokes/by-task/kimi-harness-recentsync/`
 
 ---
 
+### 自检结论（执行者）
+
+- **A 段**：RECENT §1.2 已同步 — MANIFEST 链 `done/`、P0–P3 标 done + PR 号、执行器注明 Cursor/CC/CLOSE、删除过期脚手架/分支/pending 表述、段首加 CLOSE 标注
+- **B-2**：5 个 gov-docs-noise done task 状态行已统一为 `done（YYYY-MM-DD · PR #N @ commit）` 格式
+- **B-3**：跳过 — explore 扫描 11 个额外候选（6 legacy + 5 早期 tech_graph/task），均非 gov-docs-noise 线；本 task 仅修 5 个 B-2 文件 + RECENT，未超 10 文件上限
+- **无阻塞**：无 scope drift、无 api/ 修改、未调用 git commit
+
+---
+
 ## 给 Cursor / Kimi
 
 `task_slug=kimi_harness_pilot_recentsync_v1` · `test_strategy=not_applicable` · `orchestration=Kimi Code` · 开跑前读 PROMPT T1 实例 §1 · `human_gate` 须预批。
