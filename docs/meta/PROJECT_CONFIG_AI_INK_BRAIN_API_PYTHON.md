@@ -94,6 +94,7 @@
 
 | `CHATBI_V2_INTENT_BENCH_RUN` | 是否执行 pytest 中 B1 延迟基准（`intent_benchmark`） | 可选 | `tests/benchmark_intent_latency.py` | 默认不跑；`true` 时依赖外网与 `SILICONFLOW_API_KEY` | 与项目无关 |
 | `RAG_MATCH_THRESHOLD` | `match_documents` 相似度阈值过滤 | 可选 | `api/rag_shared.py:parse_match_threshold()`；由 `api/index.py`（Legacy chat）、`api/unified_chat.py`、`api/code_retrieval.py`（注入）调用 | 默认 `0.3`；`none/null/off` 关闭阈值过滤；非法值或 `<0` 回退默认；`>1` 视为关闭过滤（`None`） | 与项目无关 |
+| `RAG_EMBEDDING_MISMATCH_MODE` | 检索前校验 `documents.metadata.embedding_model` 与运行时 `SILICONFLOW_EMBEDDING_MODEL` 是否一致 | 可选 | `api/rag_embedding_guard.py`；`api/tools.py`、`api/unified_chat.py`、`api/index.py` | 默认 **`block`**：不一致时返回 `RAG_EMBEDDING_MODEL_MISMATCH`（禁止 silent 空命中）；`warn` 仅 stderr；`off` 关闭。**换模型须三处 env 同改 + 全量 re-sync**；运维脚本 `python tools/rag_embedding_consistency_check.py` | 须与入库 `metadata.embedding_model` 一致 |
 | `DEBUG_RAG` / `RAG_DEBUG` | RAG 调试日志开关 | 可选 | `api/index.py` | `1/true/yes/on` 或 `NODE_ENV=development` | 与项目无关 |
 | `NODE_ENV` | 影响 debug 判定 | 可选 | `api/index.py` | `development` 会打开部分 debug 行为 | 与项目无关 |
 | `CONTENT_DEFAULT_YEAR` | 解析 `MM-DD` 日期时的默认年份 | 可选 | `api/index.py` | 默认 `2026` | 与项目无关 |

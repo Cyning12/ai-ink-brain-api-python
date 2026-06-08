@@ -25,9 +25,28 @@ if not _KEEP:
     # v3 低置信澄清/预览：固定 spec 默认 0.6，避免开发者 .env 降低阈值（如 0.3）使
     # confidence=0.35 的 stub 意图无法触发 clarify（见 task B-8 / test_unified_chat_backend_v2_agent）
     os.environ["INTENT_MIN_CONFIDENCE"] = "0.6"
+    # 单测 mock Supabase / 无 stamp 语料：关闭 embedding 漂移 block，专用用例见 test_rag_embedding_guard.py
+    os.environ["RAG_EMBEDDING_MISMATCH_MODE"] = "off"
 
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _reset_rag_embedding_guard_cache():
+    try:
+        from api.rag_embedding_guard import clear_embedding_alignment_cache
+
+        clear_embedding_alignment_cache()
+    except Exception:  # noqa: BLE001
+        pass
+    yield
+    try:
+        from api.rag_embedding_guard import clear_embedding_alignment_cache
+
+        clear_embedding_alignment_cache()
+    except Exception:  # noqa: BLE001
+        pass
 
 
 @pytest.fixture(autouse=True)

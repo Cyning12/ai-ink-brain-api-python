@@ -50,6 +50,7 @@ from .query_rewrite import rewrite_query_with_history
 from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
+from .rag_embedding_guard import ensure_embedding_alignment
 from .rag_env import admin_secret, llm_execute_with_circuit_breaker, pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from .chatbi_rate_limit import register_rate_limit_middleware
 from .chatbi_circuit_breaker import CircuitBreakerOpenError
@@ -784,10 +785,25 @@ async def chat(
     query_compare_meta: dict[str, Any] | None = None
     keyword_fallback: KeywordFallbackResult | None = None
     date_anchor_count = 0
+    i18n_expand_raw: dict[str, Any] | None = None
+    i18n_expand_rw: dict[str, Any] | None = None
+    kw_qt_used = ""
 
     t3 = time.perf_counter()
     try:
         sb = create_client(supabase_url, supabase_key)
+
+        alignment = ensure_embedding_alignment(sb)
+        if not alignment.ok:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "code": "RAG_EMBEDDING_MODEL_MISMATCH",
+                    "message": alignment.message,
+                    "runtime_model": alignment.runtime_model,
+                    "stored_models": list(alignment.stored_models),
+                },
+            )
 
         # 路 A：Vector（若 embedding 可用）
         if vec is not None:
@@ -838,6 +854,7 @@ async def chat(
 
         # 最终 keyword_hits：仍以 rewrite 为主（与当前策略保持一致），回退逻辑在下方处理
         keyword_hits = keyword_hits_rw_for_metrics
+        kw_qt_used = kw_qt_rw
         # 方案四：运行时回退（当 rewrite 导致 keyword 命中为 0/不足时，用原 query 的锚点 token 再检索一次）
         cfg_kw_fb = KeywordFallbackConfig.from_env()
         keyword_hits, keyword_fallback = run_keyword_fallback(
@@ -911,6 +928,8 @@ async def chat(
             if titles:
                 _rag_log(f"hits Title 列表（去重前，最多24）：{titles[:24]!r}")
 
+    except HTTPException:
+        raise
     except Exception as exc:  # noqa: BLE001
         print(f"[rag] match_documents error: {exc!s}", flush=True)
         hits = []

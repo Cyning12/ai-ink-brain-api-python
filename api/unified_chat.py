@@ -21,6 +21,7 @@ from .chatbi_prompt_guard import chatbi_prompt_guard_mode, scan as prompt_guard_
 from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .query_rewrite import rewrite_query_with_history
+from .rag_embedding_guard import EMBEDDING_MISMATCH_ERROR_CODE, ensure_embedding_alignment
 from .rag_recall_tools import keyword_query_text_with_i18n_meta, rpc_execute_with_retry, structured_recall_by_date
 from .rag_env import (
     embedding_kwargs_for_inputs,
@@ -1806,66 +1807,70 @@ async def handle_unified_chat(
     retry_count = 0
     try:
         sb = supabase_client()
-        # structured recall（日期类确定性召回）
-        structured_hits = structured_recall_by_date(
-            sb,
-            query=query,
-            rewritten=rewritten,
-            limit_rows=6,
-            principal_kind=principal.principal_kind,
-            access_level=principal.access_level,
-            subject_user_id=principal.subject_user_id,
-        ).hits
-        match_threshold = parse_match_threshold()
-        match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
-        if vec is not None:
-            vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
+        alignment = ensure_embedding_alignment(sb)
+        if not alignment.ok:
+            ret_err = alignment.message
+        else:
+            # structured recall（日期类确定性召回）
+            structured_hits = structured_recall_by_date(
                 sb,
-                "match_documents",
-                {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
+                query=query,
+                rewritten=rewritten,
+                limit_rows=6,
+                principal_kind=principal.principal_kind,
+                access_level=principal.access_level,
+                subject_user_id=principal.subject_user_id,
+            ).hits
+            match_threshold = parse_match_threshold()
+            match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
+            if vec is not None:
+                vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
+                    sb,
+                    "match_documents",
+                    {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
+                    retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
+                )
+                retry_count += rc_vec
+                if err_vec:
+                    ret_err = err_vec
+
+            kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
+            kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
+            events.append(
+                _event(
+                    typ="rag.query_expand",
+                    started_at=started_at,
+                    step_id="q_expand",
+                    payload={
+                        "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
+                        "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
+                    },
+                )
+            )
+
+            keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
+                sb,
+                "keyword_documents",
+                {"query_text": kw_qt_raw, "match_count": 12},
                 retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
             )
-            retry_count += rc_vec
-            if err_vec:
-                ret_err = err_vec
+            retry_count += rc_raw
+            if err_raw:
+                ret_err = err_raw
 
-        kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
-        kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
-        events.append(
-            _event(
-                typ="rag.query_expand",
-                started_at=started_at,
-                step_id="q_expand",
-                payload={
-                    "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
-                    "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
-                },
+            keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
+                sb,
+                "keyword_documents",
+                {"query_text": kw_qt_rw, "match_count": 12},
+                retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
             )
-        )
+            retry_count += rc_rw
+            if err_rw:
+                ret_err = err_rw
 
-        keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
-            sb,
-            "keyword_documents",
-            {"query_text": kw_qt_raw, "match_count": 12},
-            retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
-        )
-        retry_count += rc_raw
-        if err_raw:
-            ret_err = err_raw
-
-        keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
-            sb,
-            "keyword_documents",
-            {"query_text": kw_qt_rw, "match_count": 12},
-            retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
-        )
-        retry_count += rc_rw
-        if err_rw:
-            ret_err = err_rw
-
-        merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
-        merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
-        hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
+            merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
+            merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
+            hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
     except Exception as exc:  # noqa: BLE001
         ret_err = str(exc)
         hits = []
@@ -3052,66 +3057,70 @@ async def handle_unified_chat_stream(
             retry_count = 0
             try:
                 sb = supabase_client()
-                structured_hits = structured_recall_by_date(
-                    sb,
-                    query=query,
-                    rewritten=rewritten,
-                    limit_rows=6,
-                    principal_kind=principal.principal_kind,
-                    access_level=principal.access_level,
-                    subject_user_id=principal.subject_user_id,
-                ).hits
-                match_threshold = parse_match_threshold()
-                match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
-                if vec is not None:
-                    vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
+                alignment = ensure_embedding_alignment(sb)
+                if not alignment.ok:
+                    ret_err = alignment.message
+                else:
+                    structured_hits = structured_recall_by_date(
                         sb,
-                        "match_documents",
-                        {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
+                        query=query,
+                        rewritten=rewritten,
+                        limit_rows=6,
+                        principal_kind=principal.principal_kind,
+                        access_level=principal.access_level,
+                        subject_user_id=principal.subject_user_id,
+                    ).hits
+                    match_threshold = parse_match_threshold()
+                    match_count = int(os.getenv("RAG_MATCH_COUNT", "10"))
+                    if vec is not None:
+                        vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
+                            sb,
+                            "match_documents",
+                            {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
+                            retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
+                        )
+                        retry_count += rc_vec
+                        if err_vec:
+                            ret_err = err_vec
+
+                    kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
+                    kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
+                    yield _sse(
+                        "chain",
+                        _event(
+                            typ="rag.query_expand",
+                            started_at=started_at,
+                            step_id="q_expand",
+                            payload={
+                                "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
+                                "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
+                            },
+                        ),
+                    )
+
+                    keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
+                        sb,
+                        "keyword_documents",
+                        {"query_text": kw_qt_raw, "match_count": 12},
                         retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
                     )
-                    retry_count += rc_vec
-                    if err_vec:
-                        ret_err = err_vec
+                    retry_count += rc_raw
+                    if err_raw:
+                        ret_err = err_raw
 
-                kw_qt_raw, kw_meta_raw = keyword_query_text_with_i18n_meta(query)
-                kw_qt_rw, kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
-                yield _sse(
-                    "chain",
-                    _event(
-                        typ="rag.query_expand",
-                        started_at=started_at,
-                        step_id="q_expand",
-                        payload={
-                            "raw": _build_query_expand_event_payload(kw_meta_raw, max_raw=160, max_expanded=220),
-                            "rewrite": _build_query_expand_event_payload(kw_meta_rw, max_raw=160, max_expanded=220),
-                        },
-                    ),
-                )
+                    keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
+                        sb,
+                        "keyword_documents",
+                        {"query_text": kw_qt_rw, "match_count": 12},
+                        retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
+                    )
+                    retry_count += rc_rw
+                    if err_rw:
+                        ret_err = err_rw
 
-                keyword_hits_raw, rc_raw, err_raw = rpc_execute_with_retry(
-                    sb,
-                    "keyword_documents",
-                    {"query_text": kw_qt_raw, "match_count": 12},
-                    retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
-                )
-                retry_count += rc_raw
-                if err_raw:
-                    ret_err = err_raw
-
-                keyword_hits_rewrite, rc_rw, err_rw = rpc_execute_with_retry(
-                    sb,
-                    "keyword_documents",
-                    {"query_text": kw_qt_rw, "match_count": 12},
-                    retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
-                )
-                retry_count += rc_rw
-                if err_rw:
-                    ret_err = err_rw
-
-                merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
-                merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
-                hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
+                    merged_keyword = fuse_hits_rrf(keyword_hits_raw, keyword_hits_rewrite, max_total=22)
+                    merged_kw2 = fuse_hits_rrf(structured_hits, merged_keyword, max_total=22)
+                    hits = fuse_hits_rrf(vector_hits, merged_kw2, max_total=22)
             except Exception as exc:  # noqa: BLE001
                 ret_err = str(exc)
                 hits = []
