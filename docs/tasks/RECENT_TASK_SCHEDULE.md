@@ -141,17 +141,18 @@
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
-### 1.3 semi_auto 退场双轨（**A 轨 done** · 2026-06-08）
+### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
-> **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](active/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
-> **P0 取向**：Task 链 = 改代码主力 · semi_auto 计划废弃（[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) §5）
+> **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](done/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
+> **P0 取向**：Task 链 = 改代码主力 · semi_auto 计划废弃（[`docs/diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md`](../diary/2026-06-06-gov-docs-noise-p0-task-chain-pilot_zh.md) §5）  
+> **SPEC**：[`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) · **`accepted`**
 
 | 轨 | ID | task | 状态 | 执行器 | 证明 |
 | --- | --- | --- | --- | --- | --- |
 | **A · 治理** | G1 | [`done/task_harness_chain_orchestration_spec_v1.md`](../done/task_harness_chain_orchestration_spec_v1.md) | **done**（PR #135 · 2026-06-08） | CC | SPEC + TASK_TEMPLATE · `semi_auto` 过渡/废弃 |
-| **B · api** | G2 | [`task_chatbi_intent_llm_retry_u1_5_v1.md`](active/task_chatbi_intent_llm_retry_u1_5_v1.md) | `draft` | CC 首棒 | required + **50** · 链式关账 |
+| **B · api** | G2 | [`done/task_chatbi_intent_llm_retry_u1_5_v1.md`](../done/task_chatbi_intent_llm_retry_u1_5_v1.md) | **done**（PR #137/#138 · 2026-06-08） | CC | required + **50** · 链式关账 · 323 pytest |
 
-**对外宣称「semi_auto 全面废弃」**：G1 + G2 **均 done** 后。
+**对外宣称「semi_auto 全面废弃」**：**已满足**（G1 + G2 均 done · 2026-06-08）。
 
 ### 1.2 docs-noise 治理线（**CLOSE** · 2026-06-06）
 
@@ -457,6 +458,7 @@ flowchart TD
 | 2026-05-29 | **双轨并行启动**：P2-1b 限流 + Wiki 验收文档扩充 · §1.2 worktree |
 | 2026-05-29 | **任务整合**：P2 Loop 母单 + R1/R2 · #86/#87 归 R1 关账 · 单 PR `task/chatbi-v3-p2-loop-v1` |
 | 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
+| 2026-06-08 | **§1.3 semi_auto 退场 Epic CLOSE**：G1 #135 + G2 #137/#138 · MANIFEST → `done/` · 全面废弃条件满足 |
 
 
 ---

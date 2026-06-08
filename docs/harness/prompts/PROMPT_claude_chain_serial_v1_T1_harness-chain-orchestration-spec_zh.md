@@ -1,7 +1,7 @@
 # PROMPT · Claude T1 · Harness 链式编排 SPEC（A 轨 · semi_auto 退场）
 
 > **Round**：T1  
-> **MANIFEST**：[task_harness_semi_auto_retirement_manifest_v1.md](../../tasks/active/task_harness_semi_auto_retirement_manifest_v1.md)  
+> **MANIFEST**：[task_harness_semi_auto_retirement_manifest_v1.md](../../tasks/done/task_harness_semi_auto_retirement_manifest_v1.md)  
 > **task**：[task_harness_chain_orchestration_spec_v1.md](../../tasks/active/task_harness_chain_orchestration_spec_v1.md)  
 > **git_branch**：`task/harness-chain-orchestration-spec-v1`  
 > **slug**：`harness-chain-orchestration-spec`  
@@ -38,7 +38,7 @@ git checkout -b task/harness-chain-orchestration-spec-v1
 - docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md
 
 输入：
-- MANIFEST：docs/tasks/active/task_harness_semi_auto_retirement_manifest_v1.md
+- MANIFEST：docs/tasks/done/task_harness_semi_auto_retirement_manifest_v1.md
 - task：docs/tasks/active/task_harness_chain_orchestration_spec_v1.md
 - slug：harness-chain-orchestration-spec
 - git_branch：task/harness-chain-orchestration-spec-v1

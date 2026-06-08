@@ -11,7 +11,7 @@ date: 2026-06-08
 
 ## 必须
 - pytest tests -m "not intent_eval and not intent_benchmark"（全绿 · 贴摘要）
-- python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md → OK
+- python tools/harness_task_validate.py docs/tasks/done/task_chatbi_intent_llm_retry_u1_5_v1.md → OK
 - task 验收项勾选证据
 
 ## 前置状态

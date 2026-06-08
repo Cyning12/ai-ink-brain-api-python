@@ -89,7 +89,7 @@ pytest tests/test_intent_llm_retry.py -q
 
 ### Deliverables
 - 本文件：`docs/harness/invokes/by-task/chatbi-intent-retry-u1.5-chain/explore_intent_retry_u1_5_impl_gap.md`
-- 前置 invoke：`invoke_20250608_explore_chatbi-intent-retry-u1.5-chain.md`
+- 前置 invoke：`invoke_20260608_explore_chatbi-intent-retry-u1.5-chain.md`
 
 ### Blockers
 - 无。30 帽可直接进入全集 pytest 验证。

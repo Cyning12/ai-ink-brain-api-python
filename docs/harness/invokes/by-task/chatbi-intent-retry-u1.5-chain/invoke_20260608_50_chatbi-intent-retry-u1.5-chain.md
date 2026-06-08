@@ -10,7 +10,7 @@ date: 2026-06-08
 # 50 · 独立复检 · required 不可 skip
 
 ## 读序
-1. docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md
+1. docs/tasks/done/task_chatbi_intent_llm_retry_u1_5_v1.md
 2. 40 证据：pytest 323 passed + task_validate OK
 3. api/intent_agent.py：_llm_decide_v2_with_retries
 4. tests/test_intent_llm_retry.py
@@ -23,4 +23,4 @@ date: 2026-06-08
 - 无 scope creep
 
 ## 交付
-- docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md
+- docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20260608_v1.md

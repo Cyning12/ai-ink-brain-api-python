@@ -84,9 +84,9 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 - [x] `pytest tests -m "not intent_eval and not intent_benchmark" -q` **全绿**
 - [x] Step1 五问 5/5 人验已通过（#109 · **不**单独 reinspect 落盘）
 - [x] RUNBOOK §4.1 Q-INTENT spot-check（可选 · PR #137 说明）
-- [x] `python tools/harness_task_validate.py docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md` **OK**（40 帽验证）
+- [x] `python tools/harness_task_validate.py docs/tasks/done/task_chatbi_intent_llm_retry_u1_5_v1.md` **OK**
 - [x] Harness 链式：`docs/harness/invokes/by-task/chatbi-intent-retry-u1.5-chain/` 帽链齐全（explore/22/30/40/50/CLOSE）
-- [x] **50** 落盘：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md`
+- [x] **50** 落盘：`docs/tasks/reinspect_results/reinspect_chatbi_intent_llm_retry_u1_5_20260608_v1.md`
 
 **合并前必绿（本仓）**：`pytest tests -m "not intent_eval and not intent_benchmark"`（见 `AGENTS.md` §8）。
 
@@ -139,10 +139,11 @@ Intent V2 LLM 外呼在 **瞬态失败**（超时、5xx、限流）时 **最多 
 | 阶段 | 动作 | 落盘 | Commit |
 |------|------|------|--------|
 | explore | api 差分扫描 | `explore_intent_retry_u1_5_impl_gap.md` | `f5ff882`, `d2b3be0` |
-| 22 R1 | 审查签收 | `task_chatbi_intent_llm_retry_u1_5_v1_audit_R1_20250608.md` | `b12ca03`, `0184c1b` |
+| 22 R1 | 审查签收 | `task_chatbi_intent_llm_retry_u1_5_v1_audit_R1_20260608.md` | `b12ca03`, `0184c1b` |
 | 30 | 验证性执行 | task 自检结论回填 | `eb42f28`, `f5a59fa` |
 | 40 | 全集 pytest + task_validate | — | `4cd9b32` |
-| 50 | 独立复检 | `reinspect_chatbi_intent_llm_retry_u1_5_20250608_v1.md` | `599902a`, `250ec8a` |
+| 50 | 独立复检 | `reinspect_chatbi_intent_llm_retry_u1_5_20260608_v1.md` | `599902a`, `250ec8a` |
+| CLOSE | invoke 落盘 + 索引 hygiene | `invoke_20260608_CLOSE_chatbi-intent-retry-u1.5-chain.md` | （本 PR） |
 | CLOSE | task→done/、MANIFEST 更新 | — | `9a74ac5` |
 | PR/merge | #137 squash merge | — | `5afccb5` |
 

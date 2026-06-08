@@ -1,7 +1,7 @@
 # PROMPT · Claude T1 · Intent LLM Retry U1.5（B 轨 · api 链式关账）
 
 > **Round**：T1  
-> **MANIFEST**：[task_harness_semi_auto_retirement_manifest_v1.md](../../tasks/active/task_harness_semi_auto_retirement_manifest_v1.md)  
+> **MANIFEST**：[task_harness_semi_auto_retirement_manifest_v1.md](../../tasks/done/task_harness_semi_auto_retirement_manifest_v1.md)  
 > **task**：[task_chatbi_intent_llm_retry_u1_5_v1.md](../../tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md)  
 > **git_branch**：`task/chatbi-intent-llm-retry-u1.5-chain-v1`  
 > **slug**：`chatbi-intent-retry-u1.5-chain`  
@@ -40,7 +40,7 @@ git checkout -b task/chatbi-intent-llm-retry-u1.5-chain-v1
 - docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md
 
 输入：
-- MANIFEST：docs/tasks/active/task_harness_semi_auto_retirement_manifest_v1.md
+- MANIFEST：docs/tasks/done/task_harness_semi_auto_retirement_manifest_v1.md
 - task：docs/tasks/active/task_chatbi_intent_llm_retry_u1_5_v1.md
 - slug：chatbi-intent-retry-u1.5-chain
 - git_branch：task/chatbi-intent-llm-retry-u1.5-chain-v1
