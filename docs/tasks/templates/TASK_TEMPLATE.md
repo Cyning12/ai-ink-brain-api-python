@@ -19,7 +19,8 @@
 | **test_strategy_note** | （仅 `not_applicable` 时 **必填** 一行理由；禁止滥用） |
 | **freeze_id** | （可选）实现基准契约 ID，如 `SPEC-xxx@2026-05-22` 或 commit 短哈希 |
 | **gates_before_code** | （可选）显式门闸列表；默认隐式：`failure_paths` + 验收命令 + 必读路径已齐 |
-| **semi_auto** | `true` / `false` — 无 `pending` 人工闸时允许同会话链式戴帽（见 HANDOFF_SEMI_AUTO） |
+| **semi_auto** | `true` / `false` — **过渡/废弃**；链式 task 填 **`false`** + **`orchestration`**（见 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)） |
+| **orchestration** | `Cursor Task 链` / `Claude Code` / `Kimi Code` / `MANIFEST 仅` — 链式执行器；绑 `docs/harness/prompts/PROMPT_*_chain_serial_*` 实例 |
 | **audit_profile** | `full` / `post_close` / `human_only` — 审核节奏（见 HARNESS_V2 §5.5） |
 | **git_branch** | `task/<slug>` — 半自动与实现 **禁止** 在 `main` 上连续提交 |
 | **experience_capture** | `required` / `recommended` / `not_applicable` — 关账经验摘要档位（见 HARNESS_V2 §5.7） |
