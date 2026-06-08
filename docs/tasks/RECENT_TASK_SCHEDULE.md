@@ -119,7 +119,7 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **8** 个 task + 1 附属 AGENT_PROMPT |
+| **active/**           | **7** 个 task + 1 附属 AGENT_PROMPT |
 | **done/**             | **65+** 个 `.md`（含 P0 OpenSpec×TDD Loop 母+3 子） |
 | **_views/done.md**    | 随关账同步（含 P0 Loop 四单 · 2026-05-30）                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
@@ -142,7 +142,6 @@
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
-| **8** | [`task_harness_semi_auto_retirement_phase2_v1.md`](active/task_harness_semi_auto_retirement_phase2_v1.md) | **`in_progress`** | **semi_auto 物理退场 Phase 2（G3）** | **当前 Harness 治理** |
 
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
@@ -157,19 +156,18 @@
 
 **对外宣称「semi_auto 全面废弃」**：**已满足**（G1 + G2 均 done · 2026-06-08）。
 
-### 1.4 semi_auto 物理退场 Phase 2（**G3 · in_progress** · 2026-06-08）
+### 1.4 semi_auto 物理退场 Phase 2（**G3 · done** · 2026-06-08）
 
-> **task**：[`active/task_harness_semi_auto_retirement_phase2_v1.md`](active/task_harness_semi_auto_retirement_phase2_v1.md) · **freeze**：`GOV-HARNESS-SEMI-AUTO-RETIRE-P2@2026-06-08`  
+> **task**：[`done/task_harness_semi_auto_retirement_phase2_v1.md`](done/task_harness_semi_auto_retirement_phase2_v1.md) · **freeze**：`GOV-HARNESS-SEMI-AUTO-RETIRE-P2@2026-06-08`  
 > **分支**：`task/harness-semi-auto-retirement-phase2-v1` · **slug**：`harness-semi-auto-retirement-phase2`  
 > **PROMPT**：[`PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md`](../harness/prompts/PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md)
 
 | 项 | 内容 |
 | --- | --- |
 | **前置** | §1.3 A+B CLOSE |
-| **目标** | SPEC 全面生效 · `HANDOFF_SEMI_AUTO` / `05-harness-semi-auto.mdc` **DEPRECATED** · RECENT §0.0 链式常模 |
-| **30 交付** | P2-1～P2-7 已落盘（2026-06-08 · 30 帽）；P2-8 / MANIFEST / task 归档 **待 CLOSE** |
-| **帽链** | explore → 22 → 30 → 40 → CLOSE（`not_applicable` · 跳过 50） |
-| **阻塞** | ~~`HG-TASK-DRAFT` · `HG-CHAIN-P2-EXEC` 须 **approved** 后 spawn~~ · **已签收 2026-06-08** |
+| **交付** | SPEC **全面生效** · `HANDOFF_SEMI_AUTO` / `05-harness-semi-auto.mdc` **DEPRECATED** · RECENT §0.0 链式常模 · `TASK_TEMPLATE` semi_auto deprecated |
+| **帽链** | explore → 22 → 30 → 40 → CLOSE（`not_applicable` · 跳过 50）· **T1 完成** |
+| **证明** | invoke 6 件 · 22 R1 · explore 差分 · `harness_task_validate` OK · docs-only PR |
 
 ### 1.2 docs-noise 治理线（**CLOSE** · 2026-06-06）
 
@@ -475,6 +473,7 @@ flowchart TD
 | 2026-05-29 | **双轨并行启动**：P2-1b 限流 + Wiki 验收文档扩充 · §1.2 worktree |
 | 2026-05-29 | **任务整合**：P2 Loop 母单 + R1/R2 · #86/#87 归 R1 关账 · 单 PR `task/chatbi-v3-p2-loop-v1` |
 | 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
+| 2026-06-08 | **§1.4 Phase 2 G3 CLOSE**：semi_auto 物理退场 · SPEC 全面生效 · DEPRECATED 横幅 · task → `done/` |
 | 2026-06-08 | **§1.3 semi_auto 退场 Epic CLOSE**：G1 #135 + G2 #137/#138 · MANIFEST → `done/` · 全面废弃条件满足 |
 
 

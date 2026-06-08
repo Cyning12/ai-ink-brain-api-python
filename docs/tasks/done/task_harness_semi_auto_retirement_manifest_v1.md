@@ -30,11 +30,11 @@
 
 ---
 
-## Phase 2 · 物理退场（G3 · 进行中）
+## Phase 2 · 物理退场（G3 · **done** · 2026-06-08）
 
 | ID | task | 分支 | 状态 | 证明 |
 | --- | --- | --- | --- | --- |
-| **G3** | [`active/task_harness_semi_auto_retirement_phase2_v1.md`](../active/task_harness_semi_auto_retirement_phase2_v1.md) | `task/harness-semi-auto-retirement-phase2-v1` | **`in_progress`** | DEPRECATED 横幅 · SPEC 全面生效 · RECENT §1.4 |
+| **G3** | [`done/task_harness_semi_auto_retirement_phase2_v1.md`](task_harness_semi_auto_retirement_phase2_v1.md) | `task/harness-semi-auto-retirement-phase2-v1` | **`done`**（PR 待 # · 2026-06-08） | DEPRECATED 横幅 · SPEC **全面生效** · RECENT §0.0 链式常模 · `05` alwaysApply false · invoke slug `harness-semi-auto-retirement-phase2` |
 
 **PROMPT**：[`PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md`](../harness/prompts/PROMPT_claude_chain_serial_v1_T1_semi-auto-retirement-phase2_zh.md)
 
@@ -75,4 +75,5 @@
 | 日期 | 摘要 |
 | --- | --- |
 | 2026-06-08 | G2 CLOSE · PR #137/#138 · MANIFEST 归档 `done/` · RECENT §1.3 同步 |
+| 2026-06-08 | G3 Phase 2 CLOSE · RECENT §1.4 · MANIFEST G3 done · `GOV-HARNESS-SEMI-AUTO-RETIRE-P2@2026-06-08` |
 | 2026-06-08 | G3 Phase 2 开 task · RECENT §1.4 · invoke 开 task |

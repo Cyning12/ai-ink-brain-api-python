@@ -5,6 +5,7 @@
 ## 已完成
 
 - `../done/task_harness_semi_auto_retirement_manifest_v1.md`（2026-06-08：semi_auto 退场 Epic MANIFEST · A+B 双轨 CLOSE · G1 #135 · G2 #137/#138 · `GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`）
+- `../done/task_harness_semi_auto_retirement_phase2_v1.md`（2026-06-08：semi_auto **物理退场** Phase 2 G3 · SPEC 全面生效 · DEPRECATED 横幅 · `GOV-HARNESS-SEMI-AUTO-RETIRE-P2@2026-06-08`）
 - `../done/task_chatbi_intent_llm_retry_u1_5_v1.md`（2026-06-08：ChatBI Intent LLM 外呼重试 U1.5 · B 轨补关账 · PR #137/#138 · T1 explore→22→30→40→50→CLOSE · `required` + 50 reinspect · 323 passed 全集绿 · `GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`）
 - `../done/task_harness_chain_orchestration_spec_v1.md`（2026-06-08：Harness 链式编排 SPEC · semi_auto 退场 A 轨 · PR #135 · orchestration Claude Code · T1 explore→22→30→40→CLOSE · `not_applicable` · skip 50）
 - `../done/task_governance_kimi_harness_pilot_recentsync_v1.md`（2026-06-08：Kimi Code Harness 试点 · RECENT §1.2 同步 + gov-docs-noise done 状态卫生 · PR #134 · orchestration Kimi · KPI 92% pass · diary `2026-06-08-kimi-harness-pilot-recentsync_zh.md`）

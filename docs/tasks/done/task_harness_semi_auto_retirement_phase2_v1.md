@@ -1,6 +1,6 @@
 # Task：治理 · semi_auto 物理退场（Phase 2 · G3）
 
-> **状态**：`in_progress`  
+> **状态**：`done`（PR 待开 · 2026-06-08 CLOSE）  
 > **schedule_ref**：RECENT §1.4  
 > **Epic**：`[task_harness_semi_auto_retirement_manifest_v1.md](../done/task_harness_semi_auto_retirement_manifest_v1.md)` · **G3 / Phase 2**（A+B 已 CLOSE · 2026-06-08）  
 > **前置**：G1 PR #135 · G2 PR #137/#138 · 对外宣称「semi_auto 全面废弃」**已满足**  
@@ -79,12 +79,12 @@ Epic **A+B** 已 CLOSE：链式 `orchestration` 为推荐常模，active task �
 
 ## 验收标准
 
-- [ ] P2-1～P2-8 交付物存在且互相链接一致
-- [ ] SPEC 状态不含「待 B 轨」；§0 明确 A+B 已 CLOSE、链式为唯一推荐常模
-- [ ] `HANDOFF_SEMI_AUTO` 与 `05-harness-semi-auto.mdc` 含可见 **DEPRECATED** 说明
-- [ ] `python tools/harness_task_validate.py` 本 task **OK**
-- [ ] Harness T1：invoke + 22 R1 落盘 · slug `harness-semi-auto-retirement-phase2`
-- [ ] 单 PR docs-only · CI Required 全绿
+- [x] P2-1～P2-8 交付物存在且互相链接一致
+- [x] SPEC 状态不含「待 B 轨」；§0 明确 A+B 已 CLOSE、链式为唯一推荐常模
+- [x] `HANDOFF_SEMI_AUTO` 与 `05-harness-semi-auto.mdc` 含可见 **DEPRECATED** 说明
+- [x] `python tools/harness_task_validate.py` 本 task **OK**
+- [x] Harness T1：invoke + 22 R1 落盘 · slug `harness-semi-auto-retirement-phase2`
+- [ ] 单 PR docs-only · CI Required 全绿（CLOSE 进行中）
 
 ---
 
@@ -128,5 +128,52 @@ Epic **A+B** 已 CLOSE：链式 `orchestration` 为推荐常模，active task �
 - [x] **P2-5**：`TASK_TEMPLATE` `semi_auto` 行 **deprecated**；真值链改链 PROMPT
 - [x] **P2-6**：RECENT §0.0 链式常模；AGENTS + `docs/tasks/README` Harness 指针
 - [x] **P2-7**：governance / prompts README Phase 2 **in_progress** 索引
-- [ ] **P2-8**：MANIFEST / task 归档 — **留 CLOSE**
+- [x] **P2-8**：MANIFEST / task 归档 — **CLOSE 执行中**
 - [x] `python tools/harness_task_validate.py` → **OK**（见 40 帽证据）
+
+**40 帽 · 2026-06-08 · pass（P2-8 / PR·CI 留 CLOSE）**
+
+| 验收项 | 结果 | 证据 |
+| --- | --- | --- |
+| P2-1 SPEC 全面生效、无「待 B 轨」 | pass | `rg '待 B 轨' SPEC…` → **0 匹配**（exit 1）；状态行 **`全面生效`** |
+| P2-2～P2-7 交付 | pass | 30 勾选 + 文件 spot-check（HARNESS_V2 §5.6 deprecated、TASK_TEMPLATE、RECENT §0.0/§1.4、governance/prompts README） |
+| P2-8 MANIFEST 归档 | defer | 按 task 范围 **留 CLOSE** |
+| DEPRECATED 横幅 | pass | `rg DEPRECATED\|deprecated\|全面生效 HANDOFF_SEMI_AUTO.md 05-harness-semi-auto.mdc` → 7 行（两文件文首横幅 + pointer） |
+| `harness_task_validate.py` | pass | exit **0** · `=== …phase2_v1.md ===` · **OK** |
+| invoke + 22 R1 落盘 | pass | `invokes/by-task/harness-semi-auto-retirement-phase2/`（6 件）· `reviews/…/…_audit_R1_20260608.md` |
+| pytest / 50 | skip | `test_strategy: not_applicable` |
+| 单 PR · CI 全绿 | defer | **40 不验** · 交 CLOSE + Lead PR |
+
+**命令摘要**（cwd = 仓根）：
+
+```text
+#1 rg DEPRECATED|deprecated|全面生效 … → exit 0 · 7 matches
+#2 rg '待 B 轨' SPEC-Governance-Harness-Chain-Orchestration-v1.md → exit 1（无匹配，预期）
+#3 python tools/harness_task_validate.py …phase2_v1.md → exit 0 · OK
+```
+
+**OpenSpec×TDD 三维**：Completeness pass（P2-1～7 + 命令证据）· Correctness pass（F4 无 stale gate）· Coherence pass（链式 pointer 一致）
+
+**判定**：**40 PASS** → 建议 Lead **CLOSE**（P2-8 归档 + PR + CI）· **跳过 50**
+
+### KPI（00）
+
+| 维度 | 判定 | 备注 |
+| --- | --- | --- |
+| D1 范围 | pass | P2-1～P2-8 全交付；无 api/tests/workflow 漂移 |
+| D2 验收 | pass | 40 三条命令 + validate OK |
+| D3 追溯 | pass | invoke 6 件 + 22 R1 + explore 差分 |
+| D4 纪律 | pass | deprecated 横幅 + pointer；未删历史全文 |
+| D5 CI | pending | CLOSE PR 待绿 |
+
+**Task_KPI%**：~90%（D5 待 PR merge）· **blocked**：否
+
+### 经验摘要
+
+- **P2-2「§0.0」物理落点在 RECENT**，非 `HARNESS_V2_PLAN` 内节号；22/30 应以 explore 差分表为准。
+- **`05` alwaysApply 降 false** 与文首 DEPRECATED 并列，避免 Cursor 仍默认注入半自动纪律。
+- **P2-8 / MANIFEST / git mv** 严格留 CLOSE，避免 30 单 commit 混入关账索引。
+
+### 关闭回溯
+
+链向终轮审查 [`task_harness_semi_auto_retirement_phase2_v1_audit_R1_20260608.md`](../harness/reviews/by-task/harness-semi-auto-retirement-phase2/task_harness_semi_auto_retirement_phase2_v1_audit_R1_20260608.md) · 完整 commit 表见对话 **执行路线与 Commit 回溯**。
