@@ -1,10 +1,10 @@
 # Task：Kimi Code Harness 试点 · RECENT 同步 + done/ 状态卫生（A+B 合并）
 
-> **状态**：`done（待 merge PR #134 后回填 @ commit）`  
+> **状态**：`done（2026-06-08 · PR #134 · Kimi Harness 试点 CLOSE）`  
 > **关联 Issue/PR**：[#134](https://github.com/Cyning12/ai-ink-brain-api-python/pull/134)  
 > **Epic**：Kimi Code 执行器落地实验 · **非** docs-noise 业务续跑  
-> **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../spec/governance/docs-noise-inventory/README.md) §6（治理线已 CLOSE · 本 task 仅排期卫生）  
-> **对照实验**：Cursor P0 [`done/task_gov_docs_noise_p0_readme_v1.md`](../done/task_gov_docs_noise_p0_readme_v1.md) · CC P1–P3 · Plan Agent 分析 [`docs/diary/2026-06-05-plan-agent-analysis/00_README.md`](../diary/2026-06-05-plan-agent-analysis/00_README.md)  
+> **关联 SPEC 导图**：[`docs/spec/governance/docs-noise-inventory/README.md`](../../spec/governance/docs-noise-inventory/README.md) §6（治理线已 CLOSE · 本 task 仅排期卫生）  
+> **对照实验**：Cursor P0 [`task_gov_docs_noise_p0_readme_v1.md`](task_gov_docs_noise_p0_readme_v1.md) · CC P1–P3 · Plan Agent 分析 [`docs/diary/2026-06-05-plan-agent-analysis/00_README.md`](../../diary/2026-06-05-plan-agent-analysis/00_README.md)  
 > **freeze_id**：`GOV-KIMI-HARNESS-PILOT@2026-06-06`
 
 ---
@@ -26,7 +26,7 @@
 | **kpi_rubric** | `KPI_RUBRIC_v1_2` |
 | **kpi_aggregator** | `CLOSE` |
 | **experience_capture** | `required` |
-| **experience_capture_note** | 关账须落盘 `docs/diary/2026-06-XX-kimi-harness-pilot-recentsync_zh.md` |
+| **experience_capture_note** | 关账已落盘 [`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md) |
 
 ### 人工闸 `human_gate`
 
@@ -80,7 +80,7 @@ docs-noise 治理线 **P0–P3 + MANIFEST 已 CLOSE**，但 `RECENT_TASK_SCHEDUL
 - 修改 `api/`、`tests/`、`.github/workflows/`
 - 重跑 docs-noise C1–C6 业务或删 invoke/review 审计链
 - 改 ChatBI / RAG active task
-- Kimi **Plan Agent** 导航复验（独立实验 · 见 [`PROMPT_kimi_plan_agent_nav_revalidation_zh.md`](../harness/prompts/PROMPT_kimi_plan_agent_nav_revalidation_zh.md) · **零业务 PR**）
+- Kimi **Plan Agent** 导航复验（独立实验 · 见 [`PROMPT_kimi_plan_agent_nav_revalidation_zh.md`](../../harness/prompts/PROMPT_kimi_plan_agent_nav_revalidation_zh.md) · **零业务 PR**）
 
 ---
 
@@ -91,7 +91,7 @@ docs-noise 治理线 **P0–P3 + MANIFEST 已 CLOSE**，但 `RECENT_TASK_SCHEDUL
 - [x] B-3：无额外回填；仅 5 个 B-2 文件 + RECENT，总计 6 文件 ≤10
 - [x] Harness：`docs/harness/invokes/by-task/kimi-harness-recentsync/` 帽链齐全（explore + 22 + 30 + 40 共 5 invoke）
 - [x] 单 PR · docs-only · CI Required 全绿（`task_validate` 含 failure_paths Scenario ID）· [#134](https://github.com/Cyning12/ai-ink-brain-api-python/pull/134)
-- [x] 关账 diary：[`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
+- [x] 关账 diary：[`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
 
 ---
 
@@ -114,8 +114,8 @@ Invoke 落盘：`docs/harness/invokes/by-task/kimi-harness-recentsync/`
 
 **Prompt 真值**：
 
-- 通用模板：[`docs/harness/prompts/PROMPT_kimi_task_chain_serial_v1.md`](../harness/prompts/PROMPT_kimi_task_chain_serial_v1.md)
-- T1 实例：[`docs/harness/prompts/PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md`](../harness/prompts/PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md)
+- 通用模板：[`docs/harness/prompts/PROMPT_kimi_task_chain_serial_v1.md`](../../harness/prompts/PROMPT_kimi_task_chain_serial_v1.md)
+- T1 实例：[`docs/harness/prompts/PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md`](../../harness/prompts/PROMPT_kimi_task_chain_serial_v1_T1_recentsync_zh.md)
 
 **Kimi 硬约束**（每帽 spawn prompt **须全文内联**，不可假设子 Agent 已读 `AGENTS.md`）：
 
@@ -151,7 +151,7 @@ $ rg -n 'active/task_governance_docs_noise_line_manifest|脚手架|P2/P3.*pendin
 ### KPI（00）
 
 **rubric**: KPI_RUBRIC_v1_2 · **汇总**: **92%** · **状态**: **pass** · **帽**: explore · 22 · 30 · 40 · CLOSE · Cursor 终验  
-**评诊日期**: 2026-06-08 · **简报**: [`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
+**评诊日期**: 2026-06-08 · **简报**: [`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md)
 
 | hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -165,7 +165,7 @@ $ rg -n 'active/task_governance_docs_noise_line_manifest|脚手架|P2/P3.*pendin
 **Task 级聚合**：D1 avg=100 · D2 min=100 · D3 avg=95 · D4 min=100 · D5 min=100  
 **Task_KPI%** ≈ **92%**（Kimi 执行达标；关账文书 task 元数据由 Cursor 终验补齐）
 
-**关账**：PR #134 squash merge 后 `git mv` → `done/` + `_views/done.md`。
+**关账**：PR [#134](https://github.com/Cyning12/ai-ink-brain-api-python/pull/134) · 本 task 已归档 `done/` · `_views/done.md` 已更新（2026-06-08 Cursor 终验）。
 
 ---
 
