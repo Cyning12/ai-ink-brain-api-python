@@ -50,6 +50,7 @@ from .query_rewrite import rewrite_query_with_history
 from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
+from .rag_embedding_guard import ensure_embedding_alignment
 from .rag_env import admin_secret, llm_execute_with_circuit_breaker, pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from .chatbi_rate_limit import register_rate_limit_middleware
 from .chatbi_circuit_breaker import CircuitBreakerOpenError
@@ -788,6 +789,18 @@ async def chat(
     t3 = time.perf_counter()
     try:
         sb = create_client(supabase_url, supabase_key)
+
+        alignment = ensure_embedding_alignment(sb)
+        if not alignment.ok:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "code": "RAG_EMBEDDING_MODEL_MISMATCH",
+                    "message": alignment.message,
+                    "runtime_model": alignment.runtime_model,
+                    "stored_models": list(alignment.stored_models),
+                },
+            )
 
         # 路 A：Vector（若 embedding 可用）
         if vec is not None:

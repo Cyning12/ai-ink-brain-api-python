@@ -17,11 +17,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .rag_embedding_guard import build_embedding_metadata_stamp
 from .rag_env import (
     REPO_ROOT,
     embedding_kwargs_for_inputs,
     expected_embedding_dim,
     openai_siliconflow_client,
+    siliconflow_embedding_model,
     supabase_client,
 )
 
@@ -171,7 +173,7 @@ def to_db_metadata(chunk: IngestChunk) -> dict[str, Any]:
     date_norm = None
     # diary 以 filename/slug 为主；其他分类也允许抽取（例如未来 learning/2026-04-12/...）
     date_norm = _date_norm_from_slug_like(m.slug) or _date_norm_from_slug_like(fn)
-    return {
+    meta: dict[str, Any] = {
         "category": m.category,
         "slug": m.slug,
         "slug_norm": _date_norm_from_slug_like(m.slug),
@@ -185,6 +187,8 @@ def to_db_metadata(chunk: IngestChunk) -> dict[str, Any]:
         "page_number": None,
         "section_header": None,
     }
+    meta.update(build_embedding_metadata_stamp())
+    return meta
 
 
 def build_enhanced_chunk_text(chunk: IngestChunk) -> str:
@@ -312,6 +316,8 @@ def process_markdown_files() -> dict[str, Any]:
         "chunksTotal": len(chunks),
         "chunksInserted": inserted,
         "rowsDeleted": rows_deleted,
+        "embeddingModel": siliconflow_embedding_model(),
+        "embeddingDim": expected_embedding_dim(),
     }
 
 
@@ -379,6 +385,8 @@ def sync_content_to_vector() -> dict[str, Any]:
         "chunksTotal": len(chunks),
         "chunksUpserted": inserted,
         "rowsDeleted": rows_deleted,
+        "embeddingModel": siliconflow_embedding_model(),
+        "embeddingDim": expected_embedding_dim(),
     }
 
 

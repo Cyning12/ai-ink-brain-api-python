@@ -15,6 +15,7 @@ from .rag_env import (
     siliconflow_base,
     supabase_client,
 )
+from .rag_embedding_guard import EMBEDDING_MISMATCH_ERROR_CODE, EmbeddingAlignment, ensure_embedding_alignment
 from .rag_recall_tools import (
     keyword_query_text_with_i18n_meta,
     rpc_execute_with_retry,
@@ -128,6 +129,17 @@ def _safe_snippet(text: str, *, max_len: int) -> str:
 
 
 async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, Any]]) -> dict[str, Any]:
+    sb = supabase_client()
+    alignment = ensure_embedding_alignment(sb)
+    if not alignment.ok:
+        return {
+            "hits": [],
+            "embedding_guard": alignment,
+            "latency": {"retry_count": 0, "embedding_error": None, "rrf_k": RRF_K},
+            "top_k": 10,
+            "history": history,
+        }
+
     oai = openai_siliconflow_client()
     chat_model = _pick_chat_model()
     # embed
@@ -147,13 +159,13 @@ async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, A
     retry_count = 0
 
     structured_hits = structured_recall_by_date(
-        supabase_client(), query=query, rewritten=rewritten, limit_rows=6
+        sb, query=query, rewritten=rewritten, limit_rows=6
     ).hits
 
     vector_hits: list[dict[str, Any]] = []
     if vec is not None:
         vector_hits, rc_vec, err_vec = rpc_execute_with_retry(
-            supabase_client(),
+            sb,
             "match_documents",
             {"query_embedding": vec, "match_count": match_count, "match_threshold": match_threshold},
             retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
@@ -165,7 +177,7 @@ async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, A
     kw_qt_rw, _kw_meta_rw = keyword_query_text_with_i18n_meta(rewritten)
 
     keyword_hits_raw, rc_raw, _err_raw = rpc_execute_with_retry(
-        supabase_client(),
+        sb,
         "keyword_documents",
         {"query_text": kw_qt_raw, "match_count": 12},
         retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
@@ -173,7 +185,7 @@ async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, A
     retry_count += rc_raw
 
     keyword_hits_rewrite, rc_rw, _err_rw = rpc_execute_with_retry(
-        supabase_client(),
+        sb,
         "keyword_documents",
         {"query_text": kw_qt_rw, "match_count": 12},
         retries=int(os.getenv("RAG_RPC_RETRIES", "2")),
@@ -231,6 +243,17 @@ async def rag_search_execute(
             rewritten = rw_out if rw_out else query
 
         retrieved = await _rag_retrieve(query, rewritten=rewritten, history=hist)
+        guard = retrieved.get("embedding_guard")
+        if isinstance(guard, EmbeddingAlignment) and not guard.ok:
+            return ToolResult(
+                success=False,
+                data={"runtime_model": guard.runtime_model, "stored_models": list(guard.stored_models)},
+                error=guard.message or "Embedding 模型与向量库不一致",
+                error_code=guard.error_code or EMBEDDING_MISMATCH_ERROR_CODE,
+                error_stage="rag.embedding_guard",
+                latency_ms=_elapsed_ms(started_at),
+            )
+
         hits = retrieved.get("hits")
         if not isinstance(hits, list) or not hits:
             data_err: dict[str, Any] | None = None

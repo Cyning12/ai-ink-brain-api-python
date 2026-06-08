@@ -116,6 +116,11 @@ class FailureTypeHandler:
                 next_tool = "direct_answer"
                 next_mode = "no_data"
                 next_thought = f"文档检索无命中，改用直接回答或请用户澄清。{sfx}"
+        elif code == "RAG_EMBEDDING_MODEL_MISMATCH":
+            next_tool = "direct_answer"
+            next_mode = "no_data"
+            next_thought = f"向量库 Embedding 模型与运行时未对齐，请先全量 re-sync；本回合不基于检索作答。{sfx}"
+            stop_now = True
         elif code == "RAG_GENERATE_UNCERTAIN":
             next_tool = "direct_answer"
             next_mode = "no_data"
