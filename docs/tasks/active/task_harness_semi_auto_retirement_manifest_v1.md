@@ -51,6 +51,15 @@
 
 ---
 
+## 失败路径
+
+| # | Scenario ID | 触发 | 行为 |
+| --- | --- | --- | --- |
+| F1 | fp-manifest-premature-close | A 轨未 CLOSE 即宣称 semi_auto 全面废弃 | **禁止**；须 G1 + G2 均 done |
+| F2 | fp-manifest-b-track-slippage | B 轨 U1.5 未按链式执行 | 按 `task_chatbi_intent_llm_retry_u1_5_v1.md` 执行 |
+
+---
+
 ## 修订记录
 
 | 日期 | 摘要 |
