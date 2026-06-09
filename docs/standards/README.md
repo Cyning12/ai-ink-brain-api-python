@@ -5,8 +5,9 @@
 
 | 文件 | 状态 | 说明 |
 |------|------|------|
-| [CODING_BACKEND_L2_v1_zh.md](CODING_BACKEND_L2_v1_zh.md) | **draft** | P2 初稿 · 对称前端 L2 |
+| [CODING_BACKEND_L2_v1_zh.md](CODING_BACKEND_L2_v1_zh.md) | **active** | R1 签收（2026-06-09）· v1.1 · P2 |
 | [PROMPT_third_party_review_BACKEND_L2_v1_zh.md](PROMPT_third_party_review_BACKEND_L2_v1_zh.md) | 可用 | 三方验收 Prompt（P2～P4） |
+| [reviews/review_backend_l2_p2_R1_20260609.md](reviews/review_backend_l2_p2_R1_20260609.md) | 建议签收 | 三方 R1 验收报告 |
 
 **前端对称（active）**：[`ai-ink-brain/docs/standards/CODING_FRONTEND_L2_v1_zh.md`](../../../ai-ink-brain/docs/standards/CODING_FRONTEND_L2_v1_zh.md)
 
@@ -21,3 +22,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-06-09 | v1：P2 后端 L2 初稿 + README + 三方验收 Prompt |
+| 2026-06-09 | v2：R1 签收 · L2 **active** v1.1 |

@@ -2,8 +2,8 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **状态** | `draft` |
-| **版本** | v1.0 |
+| **状态** | `active` — R1 三方验收签收（2026-06-09 · 人签 HG-L2-ACTIVE） |
+| **版本** | v1.1 |
 | **日期** | 2026-06-09 |
 | **栈** | Python **3.11** · FastAPI · Uvicorn · pytest · Supabase/pgvector |
 | **L1** | 工作区 [`docs/standards/CODING_BASELINE_L1_v1_zh.md`](../../../docs/standards/CODING_BASELINE_L1_v1_zh.md) |
@@ -58,6 +58,8 @@
 
 `.env.local` / `.env` 由 `rag_env` import 时加载（`override=False`）；文档化变量名以 `PROJECT_CONFIG` 为准。
 
+CI / pytest 中的 `NEXT_PUBLIC_ADMIN_SECRET` 等 dummy 值仅用于兼容 `admin_secret()` 旧回退路径（见 `pytest.yml`）；**新代码不得新增**对上述废弃变量的读取。
+
 ### P-04 命名与导入（遵循 B-04）
 
 - 模块：`snake_case` 文件名；公开函数/变量 `snake_case`；类型别名与 dataclass `PascalCase`。
@@ -96,7 +98,7 @@
 | 新公开函数 | 参数与返回值须有类型注解；复杂结构用 `@dataclass(frozen=True)` 或 `TypedDict` |
 | Literal / Enum | 有限枚举用 `Literal["block", "warn", "off"]` 等（见 `rag_embedding_guard.py`） |
 | 禁止裸 dict 对外 | 路由响应、Tool 结果、日志 payload 须具名结构或 documented dict keys |
-| `Any` | 新代码 **避免** 无说明的 `Any`；Supabase 客户端等边界可保留并 `# noqa` 须附一行理由 |
+| `Any` | 新代码 **禁止** 无说明的 `Any`；Supabase 等边界保留须 `# noqa` 并附一行理由（对齐 L1 B-08） |
 | Pydantic | 新 Route body/query 模型优先 Pydantic `BaseModel`（与 FastAPI 原生集成） |
 
 **Ruff / 类型检查（P4 · 待升严）**：计划 `ruff.toml` 启用 `E`、`F`、`I`、`UP`、`B` 及 `ANN` 子集；当前 CI 以 pytest 为主，新 PR 仍须人工满足本条文。
@@ -150,7 +152,7 @@ Structured error：`tests/test_harness_structured_error_shape_check.py` 须绿�
 
 | 路径 | 字段 / 约定 |
 | --- | --- |
-| RAG 对话 | **必须** 写 `rag_conversation_logs`（Legacy + Unified 路径；见 `.cursor/rules/30-rag-implementation.mdc`） |
+| RAG 对话 | **必须** 写 `rag_conversation_logs`（Legacy + Unified 路径；见 [`.cursor/rules/30-rag-implementation.mdc`](../../.cursor/rules/30-rag-implementation.mdc) · [`AGENTS.md`](../../AGENTS.md) 规则索引） |
 | ChatBI JSON | `CHATBI_JSON_LOG=1` → `api/chatbi_json_log.py` 单行 JSON；含 `request_id` / `run_id`（与 SSE `meta.run_id` 对齐） |
 | stderr 调试 | `DEBUG_RAG` / `DEBUG_INGEST` 仅开发；**禁止** 生产默认开启大量 PII |
 | 关联 id | 新路径须 propagates `session_id`、request/run id，便于 BFF 与日志关联 |
@@ -239,3 +241,4 @@ bash scripts/verify-pr-local.sh
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
 | v1.0 | 2026-06-09 | P2 初稿：P-01～P-15 + AP 节选 + PR 自检 + REF 映射 |
+| v1.1 | 2026-06-09 | R1 签收 **active**；S-02 P-08 Any 措辞；S-03 P-14 规则可发现性；S-04 P-03 CI dummy 说明 |

@@ -8,7 +8,7 @@
 
 **近期执行顺序、Harness P0、active 清单与时间线** 以 **[`RECENT_TASK_SCHEDULE.md`](RECENT_TASK_SCHEDULE.md)** 为准；规划或 `@task` 前先读该表，再打开具体 `active/task_*.md`。
 
-**编码规范 L2（后端 · draft）**：[`../standards/CODING_BACKEND_L2_v1_zh.md`](../standards/CODING_BACKEND_L2_v1_zh.md) · 索引 [`../standards/README.md`](../standards/README.md) · 起草 task [`active/task_standards_backend_l2_draft_v1.md`](active/task_standards_backend_l2_draft_v1.md)（对称前端 L2 **active**）。
+**编码规范 L2（后端 · active）**：[`../standards/CODING_BACKEND_L2_v1_zh.md`](../standards/CODING_BACKEND_L2_v1_zh.md) · 索引 [`../standards/README.md`](../standards/README.md) · R1 [`../standards/reviews/review_backend_l2_p2_R1_20260609.md`](../standards/reviews/review_backend_l2_p2_R1_20260609.md)
 
 **Wiki 排期导航（L2 · 防孤岛）**：[`../coding_wiki/concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) — pointer 至 RECENT，**不**替代排期真值。
 

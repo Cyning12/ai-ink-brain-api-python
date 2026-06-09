@@ -34,7 +34,7 @@
 |---------------|--------|-------------|------|
 | HG-TASK-DRAFT | pending | 22-R1,30 | 总设初稿人扫 |
 | HG-AUDIT-R1 | pending | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
-| HG-L2-ACTIVE | pending | done | L2 升 `active` + 可选三方验收 Prompt 后人签 |
+| HG-L2-ACTIVE | signed | done | L2 升 **active** v1.1（2026-06-09 · R1 无阻塞项） |
 
 ---
 
