@@ -214,6 +214,47 @@ def supabase_table_insert_with_retry(table: str, row: dict[str, Any]) -> None:
     supabase_execute_with_retry(_once)
 
 
+def content_default_year() -> int:
+    raw = (os.getenv("CONTENT_DEFAULT_YEAR") or "2026").strip()
+    try:
+        n = int(raw, 10)
+        return n if n > 0 else 2026
+    except ValueError:
+        return 2026
+
+
+DEFAULT_SILICONFLOW_CHAT_MODEL = "deepseek-ai/DeepSeek-V4-Pro"
+
+
+def siliconflow_chat_model() -> str:
+    raw = os.getenv("SILICONFLOW_CHAT_MODEL", DEFAULT_SILICONFLOW_CHAT_MODEL).strip()
+    return raw or DEFAULT_SILICONFLOW_CHAT_MODEL
+
+
+def max_x_sources_header_chars() -> int:
+    raw = (os.getenv("MAX_X_SOURCES_HEADER_CHARS") or "6000").strip()
+    try:
+        n = int(raw, 10)
+        return n if n > 0 else 6000
+    except ValueError:
+        return 6000
+
+
+def rag_debug_enabled() -> bool:
+    v = (os.getenv("DEBUG_RAG") or os.getenv("RAG_DEBUG") or "").strip().lower()
+    if v in ("1", "true", "yes", "on"):
+        return True
+    return os.getenv("NODE_ENV", "").strip().lower() == "development"
+
+
+def api_key_optional() -> str | None:
+    return (os.getenv("API_KEY") or "").strip() or None
+
+
+def siliconflow_api_key_optional() -> str:
+    return os.getenv("SILICONFLOW_API_KEY", "").strip()
+
+
 def admin_secret() -> str | None:
     """admin/sync 等 Bearer 校验用 secret。
 
