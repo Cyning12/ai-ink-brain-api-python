@@ -7,8 +7,9 @@ from __future__ import annotations
 import errno
 import os
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 

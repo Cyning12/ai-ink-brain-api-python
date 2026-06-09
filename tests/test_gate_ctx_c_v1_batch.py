@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """闸口 C P1：batch runner 臂路径映射与 dry-run batch_index 结构。"""
 
 from __future__ import annotations

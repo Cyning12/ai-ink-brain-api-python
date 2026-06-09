@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """闸口 C jsonPKmermaid fixtures：pytest 默认只读，避免日常跑测污染 Git 工作区。"""
 
 from __future__ import annotations

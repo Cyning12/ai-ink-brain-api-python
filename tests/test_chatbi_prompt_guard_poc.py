@@ -78,8 +78,8 @@ def _reload_index(monkeypatch: pytest.MonkeyPatch) -> Any:
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
     monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
-    import api.unified_chat as unified_chat
     import api.index as index
+    import api.unified_chat as unified_chat
 
     importlib.reload(unified_chat)
     importlib.reload(index)

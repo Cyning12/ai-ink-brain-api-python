@@ -8,7 +8,6 @@ from typing import Any
 import sqlparse
 from openai import OpenAI
 
-
 SQL_FORBIDDEN = (
     "insert",
     "update",

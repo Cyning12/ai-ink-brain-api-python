@@ -3,26 +3,38 @@ from __future__ import annotations
 import asyncio
 import os
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Literal
+from typing import Any, Literal
 
 from openai import OpenAI
 
+from .chatbi_policies import load_chatbi_table_policies_sync
+from .chatbi_request_ctx import get_chatbi_log_ctx, get_chatbi_principal
+from .chatbi_sql_gate import (
+    ChatBiSqlGateDenied,
+    apply_chatbi_sql_gate,
+    filter_text2sql_retrieved,
+)
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
+from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
+from .rag_embedding_guard import (
+    EMBEDDING_MISMATCH_ERROR_CODE,
+    EmbeddingAlignment,
+    ensure_embedding_alignment,
+)
 from .rag_env import (
     embedding_kwargs_for_inputs,
     openai_siliconflow_client,
     siliconflow_base,
     supabase_client,
 )
-from .rag_embedding_guard import EMBEDDING_MISMATCH_ERROR_CODE, EmbeddingAlignment, ensure_embedding_alignment
 from .rag_recall_tools import (
     keyword_query_text_with_i18n_meta,
     rpc_execute_with_retry,
     structured_recall_by_date,
 )
-from .rag_shared import parse_match_threshold, strip_doc_context_prefix
-from .query_rewrite import build_rewrite_llm_messages, history_to_rewrite_block
+from .rag_shared import parse_match_threshold
 from .text2sql_core import (
     build_sql_prompt,
     build_summary_prompt,
@@ -33,9 +45,6 @@ from .text2sql_core import (
     try_summarize_aggregate,
     validate_sql_readonly,
 )
-from .chatbi_policies import load_chatbi_table_policies_sync
-from .chatbi_request_ctx import get_chatbi_log_ctx, get_chatbi_principal
-from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
 from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
 from .text2sql_value_hints import build_value_hints_block_for_text2sql
@@ -141,7 +150,6 @@ async def _rag_retrieve(query: str, *, rewritten: str, history: list[dict[str, A
         }
 
     oai = openai_siliconflow_client()
-    chat_model = _pick_chat_model()
     # embed
     vec: list[float] | None = None
     emb_err: str | None = None

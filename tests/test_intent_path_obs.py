@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from api.intent_agent import build_intent_path_obs
+from api.intent_agent import IntentDecision, StructuredSignals, build_intent_path_obs
 from api.unified_chat import _agent_intent_obs_payload
-from api.intent_agent import IntentDecision, StructuredSignals
 
 
 def test_build_intent_path_obs_llm_first_attempt() -> None:

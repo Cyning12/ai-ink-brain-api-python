@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 from typing import Any
 
 import pytest
 
-from api.intent_agent import IntentDecision, StructuredSignals, apply_hints_arbitration, decide_intent_v2
+from api.intent_agent import (
+    IntentDecision,
+    StructuredSignals,
+    apply_hints_arbitration,
+    decide_intent_v2,
+)
 from api.intent_hints import (
     arbitration_enabled,
     clear_intent_hints_cache,
@@ -15,7 +21,6 @@ from api.intent_hints import (
     rag_rule_hits_from_hints,
 )
 from api.tools import Tool
-from pathlib import Path
 
 
 async def _dummy_execute(*, query: str, history: list[dict[str, Any]] | None = None) -> Any:  # noqa: ANN401

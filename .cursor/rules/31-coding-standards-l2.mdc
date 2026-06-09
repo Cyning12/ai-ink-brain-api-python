@@ -1,0 +1,13 @@
+---
+description: 编码规范 L2 短链 — Python/FastAPI（P-01～P-15 · 遵循 B-xx）
+globs: api/**/*.py,tests/**/*.py
+alwaysApply: false
+---
+
+# 编码规范 L2（后端）
+
+改 Python 服务代码前读 [`docs/standards/CODING_BACKEND_L2_v1_zh.md`](../../docs/standards/CODING_BACKEND_L2_v1_zh.md)（**active** · P-01～P-15）。
+
+- L1：工作区 `docs/standards/CODING_BASELINE_L1_v1_zh.md`
+- 合并前：`ruff check api tests` + `pytest tests -m "not intent_eval and not intent_benchmark"`
+- **禁止**在本 rules 复制 L2 全文；细节以 L2、`PROJECT_CONFIG` 为准。

@@ -6,8 +6,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOL = REPO_ROOT / "tools" / "harness_task_validate.py"
 R1_TASK = REPO_ROOT / "docs/tasks/done/task_harness_p0_task_validate_v1.md"

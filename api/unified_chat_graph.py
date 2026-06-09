@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse

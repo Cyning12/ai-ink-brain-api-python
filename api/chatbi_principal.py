@@ -11,7 +11,11 @@ from fastapi import Header, HTTPException
 
 from .chatbi_access_hash import hash_chatbi_access_token
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
-from .rag_env import supabase_client, supabase_execute_with_retry, transient_supabase_network_error
+from .rag_env import (
+    supabase_client,
+    supabase_execute_with_retry,
+    transient_supabase_network_error,
+)
 
 PrincipalKind = Literal["super", "admin", "end_user"]
 

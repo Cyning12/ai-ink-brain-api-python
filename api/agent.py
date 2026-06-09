@@ -7,12 +7,6 @@ from collections.abc import Awaitable, Callable
 from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
-from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
-from .intent_agent import IntentDecision, decide_intent_v2, build_intent_path_obs
-from .intent_router import decide_intent as decide_intent_v1
-from .tools import Tool, ToolName, ToolResult, tool_mode_map
-from .text2sql_core import is_text2sql_intent
-from .text2sql_grounding import grounding_prefix_for_intent
 from .chatbi_agent_models import (
     AGENT_THINK_TEXT_CLIP,
     AgentFinalView,
@@ -20,12 +14,17 @@ from .chatbi_agent_models import (
     AgentStepView,
     LlmPhase,
     V1Mode,
-    make_tool_call_input as _make_tool_call_input,
 )
 from .chatbi_events import agent_chain as _agent_chain
 from .chatbi_events import emit_simulated_llm as _emit_simulated_llm
-from .chatbi_failure import FailureTypeHandler, has_aggregation_signals as _has_aggregation_signals
-
+from .chatbi_failure import FailureTypeHandler
+from .chatbi_failure import has_aggregation_signals as _has_aggregation_signals
+from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
+from .intent_agent import IntentDecision, build_intent_path_obs, decide_intent_v2
+from .intent_router import decide_intent as decide_intent_v1
+from .text2sql_core import is_text2sql_intent
+from .text2sql_grounding import grounding_prefix_for_intent
+from .tools import Tool, ToolName, ToolResult, tool_mode_map
 
 # 契约静态扫描锚点：实现已迁至 chatbi_events，锚点字面量须保留于本文件供 contract check
 _CONTRACT_ANCHOR_AGENT_CLARIFY = _agent_chain(
@@ -492,7 +491,9 @@ class ChatBIAgent:
                             "expires_in_sec": plan_ttl_s,
                         }
                 else:
-                    from .tools import rag_search_execute as _rag_preview  # noqa: PLC0415
+                    from .tools import (
+                        rag_search_execute as _rag_preview,  # noqa: PLC0415
+                    )
 
                     _pr_rag = await _rag_preview(
                         query,

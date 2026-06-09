@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -15,7 +16,7 @@ class KeywordFallbackConfig:
     max_tokens: int
 
     @staticmethod
-    def from_env() -> "KeywordFallbackConfig":
+    def from_env() -> KeywordFallbackConfig:
         enabled_raw = (os.getenv("KEYWORD_FALLBACK_ENABLED", "1") or "").strip().lower()
         enabled = enabled_raw not in ("0", "false", "no", "off")
         try:

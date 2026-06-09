@@ -1,6 +1,6 @@
 # 后端编码规范 P3+P4（L3 `.mdc` 短链 + Ruff CI）
 
-> **状态**：draft  
+> **状态**：in_progress
 > **schedule_ref**：编码规范 Epic · §1.5 P3/P4  
 > **epic**：`standards-engineering`（工作区 [`00_OUTLINE`](../../../docs/standards/00_OUTLINE_工程编码规范改进_v1_zh.md) §5 P3/P4）  
 > **前置**：[`done/task_standards_backend_l2_draft_v1.md`](../done/task_standards_backend_l2_draft_v1.md) · PR [#143](https://github.com/Cyning12/ai-ink-brain-api-python/pull/143) · L2 **active** v1.1  
@@ -53,14 +53,14 @@ L2 后端 **active**（P-01～P-15）已签收；§6 标 **P3 待办**（Cursor 
 
 ## 范围
 
-- [ ] 新建 `.cursor/rules/31-coding-standards-l2.mdc`（`globs: api/**/*.py,tests/**/*.py` · 短链至 L2 + L1 pointer）
-- [ ] 更新 `AGENTS.md` 规则索引（或 `python tools/gen_agents_md.py` 若需再生成）
-- [ ] 新建 `ruff.toml`：`select` 首批 `E,F,I,UP,B`；`ANN` **warn 或 extend-ignore**（P4 渐进 · 对齐 OUTLINE §1.4 P1）
-- [ ] `requirements.txt` 增加 `ruff` 版本 pin（与 CI Python 3.11 一致）
-- [ ] CI：在 `verify-fast.yml` 或新 `ruff.yml` 增加 **Required** job/step：`ruff check api tests`
-- [ ] 首绿策略：仅修 **ruff 新报且易修** 项；历史债大块 ignore 须 **task 内表格列文件+理由**（禁止空 `ignore` 全仓）
-- [ ] 更新 L2 §5 工具表、§6 L3 路径、§7 修订记录 → v1.2
-- [ ] 更新 [`docs/standards/README.md`](../../standards/README.md) P3/P4 行
+- [x] 新建 `.cursor/rules/31-coding-standards-l2.mdc`（`globs: api/**/*.py,tests/**/*.py` · 短链至 L2 + L1 pointer）
+- [x] 更新 `AGENTS.md` 规则索引（或 `python tools/gen_agents_md.py` 若需再生成）
+- [x] 新建 `ruff.toml`：`select` 首批 `E,F,I,UP,B`；`ANN` **warn 或 extend-ignore**（P4 渐进 · 对齐 OUTLINE §1.4 P1）
+- [x] `requirements.txt` 增加 `ruff` 版本 pin（与 CI Python 3.11 一致）
+- [x] CI：在 `verify-fast.yml` 或新 `ruff.yml` 增加 **Required** job/step：`ruff check api tests`
+- [x] 首绿策略：仅修 **ruff 新报且易修** 项；历史债大块 ignore 须 **task 内表格列文件+理由**（禁止空 `ignore` 全仓）
+- [x] 更新 L2 §5 工具表、§6 L3 路径、§7 修订记录 → v1.2
+- [x] 更新 [`docs/standards/README.md`](../../standards/README.md) P3/P4 行
 
 ## 非范围
 
@@ -107,11 +107,11 @@ L2 后端 **active**（P-01～P-15）已签收；§6 标 **P3 待办**（Cursor 
 
 ## 验收标准
 
-- [ ] `31-coding-standards-l2.mdc` 存在且 ≤15 行、无 P-01～P-15 全文复制
-- [ ] `ruff check api tests` 本地与 CI **绿**
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿
-- [ ] L2 升 **v1.2**；§6 指向实际 `.mdc` 路径
-- [ ] PR Test plan 含 ruff + pytest 命令
+- [x] `31-coding-standards-l2.mdc` 存在且 ≤15 行、无 P-01～P-15 全文复制
+- [x] `ruff check api tests` 本地与 CI **绿**
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 仍绿
+- [x] L2 升 **v1.2**；§6 指向实际 `.mdc` 路径
+- [x] PR Test plan 含 ruff + pytest 命令
 - [ ] （可选）工作区 `00_OUTLINE` §5 后端 P3/P4 行更新为 ✅
 
 **合并前必绿**：tech-graph + contract + pytest + **ruff**（本 task 新增）
@@ -122,9 +122,10 @@ L2 后端 **active**（P-01～P-15）已签收；§6 标 **P3 待办**（Cursor 
 
 | 项 | 内容 |
 |----|------|
-| ruff 版本 | （待填） |
-| CI workflow | （待填） |
-| 首版 ignore 表 | （待填 · 若有） |
+| ruff 版本 | `0.9.10`（`requirements.txt`） |
+| CI workflow | `.github/workflows/verify-fast.yml` · step `Ruff check` |
+| 首版 ignore 表 | `ruff.toml`：`E501` 行宽 · `E402` env 加载 · `B008` FastAPI Depends · `UP017/UP038/UP041` 渐进 |
+| 代码 touch | import 排序/清理（`ruff --fix`）· 5 处 lint 小修（`B904`/`F841`/`B012`）· **无** 行为变更 |
 
 ---
 
