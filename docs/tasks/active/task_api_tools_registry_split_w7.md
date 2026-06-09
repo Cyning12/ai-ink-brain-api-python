@@ -15,6 +15,18 @@
 
 ---
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `api-tools-registry-split` |
+| **git_branch** | `task/api-tools-w7` |
+| **orchestration** | Cursor Task 链 |
+| **test_strategy** | `required` |
+| **freeze_id** | `CODING_BACKEND_L2@2026-06-09` |
+
+---
+
 ## 目标
 
 将 `api/tools.py` 中 RAG / Text2SQL 工具实现分文件；`tools.py` 保留 `get_tool_registry()` 入口与 `direct_answer`。
@@ -32,7 +44,23 @@
 
 ## 行为变更（Delta）
 
-无对外 HTTP 变更；`from api.tools import …` 入口不变。
+### ADDED
+- `api/tool_models.py` · `api/tools_shared.py` · `api/tools_rag.py` · `api/tools_text2sql.py`
+
+### MODIFIED
+- `api/tools.py` — 瘦身为 registry 入口
+- `tools/tech_graph_contract_check.py` — `BACKEND_CONTRACT_SOURCES` 纳入 `tools_text2sql.py`
+
+### 不变
+- `get_tool_registry()` / `from api.tools import Tool` 等对外 import
+
+---
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 行为 |
+|---|-------------|------|------|
+| F1 | fp-tools-split-break | 拆分破坏 tool execute 行为 | pytest 阻塞 merge |
 
 ---
 
