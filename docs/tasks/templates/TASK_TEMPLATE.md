@@ -91,10 +91,22 @@
 
 | 依赖项 | 路径/说明 |
 |--------|-----------|
-| PROJECT_CONFIG | `docs/meta/PROJECT_CONFIG_xxx.md` |
+| **编码规范 L1** | 工作区 `docs/standards/CODING_BASELINE_L1_v1_zh.md` |
+| **编码规范 L2** | `docs/standards/CODING_BACKEND_L2_v1_zh.md`（P-01～P-15） |
+| PROJECT_CONFIG | `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md` |
 | API 契约 | `POST /api/py/xxx` |
 | 数据库表 | `public.xxx` |
 | 图谱文件 | `docs/_tech_graph/xx_xxx.md` |
+| **写 task 读序** | 通用 `docs/harness/guides/GUIDANCE_task_coding_standards_v1_zh.md` · 后端 `GUIDANCE_backend_task_coding_l2_v1_zh.md` |
+
+---
+
+## 给执行帽的必读列表
+
+- `AGENTS.md`
+- `docs/standards/CODING_BACKEND_L2_v1_zh.md`（按本 task 范围勾选 P-xx）
+- `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`
+- `docs/_tech_graph/`（本 task 关联 flow）
 
 ---
 
@@ -119,6 +131,8 @@
 - [ ] <验收项 2>
 - [ ] <验收项 3>
 - [ ] PR 上 `pytest` workflow 全绿（本地等价：`pytest tests -m "not intent_eval and not intent_benchmark"`）
+- [ ] **L2**：无新增无注解万能 dict；路由/模块边界符合 P-01
+- [ ] **L1 B-07/B-10**：diff 限于 scope；与 `test_strategy` 一致
 
 **测试 / TDD（与 `test_strategy` 对齐）**：
 

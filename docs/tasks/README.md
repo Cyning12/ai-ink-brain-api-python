@@ -10,6 +10,8 @@
 
 **编码规范 L2（后端 · active）**：[`../standards/CODING_BACKEND_L2_v1_zh.md`](../standards/CODING_BACKEND_L2_v1_zh.md) · 索引 [`../standards/README.md`](../standards/README.md)
 
+**写 task · 编码读序**：通用 [`GUIDANCE_task_coding_standards_v1_zh.md`](../../../docs/harness/guides/GUIDANCE_task_coding_standards_v1_zh.md) · 后端切片 [`GUIDANCE_backend_task_coding_l2_v1_zh.md`](../../../docs/harness/guides/GUIDANCE_backend_task_coding_l2_v1_zh.md)
+
 **编码规范排期（§1.5）**：
 
 - **P3+P4（当前棒）**：[`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md)
