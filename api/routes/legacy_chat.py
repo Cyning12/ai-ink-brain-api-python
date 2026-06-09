@@ -51,6 +51,7 @@ from ..rag_recall_tools import keyword_query_text_with_i18n_meta
 from ..rag_shared import (
     _extract_title_from_context,
     _fetch_keyword_hits_for_fallback,
+    _rag_log,
     _short,
     build_sources_payload,
     fetch_keyword_hits,
@@ -61,11 +62,6 @@ MATCH_COUNT = 10
 CONTEXT_MAX_CHARS = 6000
 
 SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
-
-
-def _rag_log(msg: str) -> None:
-    if rag_debug_enabled():
-        print(f"[rag-debug] {msg}", flush=True)
 
 
 def _filename_title_hints(year: int, month: int, day: int) -> list[str]:
