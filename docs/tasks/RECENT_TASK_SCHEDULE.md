@@ -154,10 +154,11 @@
 |------|------|------|------|
 | **P2 · L2** | [`done/task_standards_backend_l2_draft_v1.md`](done/task_standards_backend_l2_draft_v1.md) | **done** | R1 签收 · L2 active |
 | **P3+P4** | [`done/task_standards_backend_p3_p4_l3_ruff_v1.md`](done/task_standards_backend_p3_p4_l3_ruff_v1.md) | **done** | PR [#145](https://github.com/Cyning12/ai-ink-brain-api-python/pull/145) · `.mdc` + Ruff CI |
-| **Tech-debt Epic** | [`active/task_standards_backend_api_modularization_manifest_v1.md`](active/task_standards_backend_api_modularization_manifest_v1.md) | **in_progress** | W1 **done** [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) · **当前棒 W2** |
+| **Tech-debt Epic** | [`active/task_standards_backend_api_modularization_manifest_v1.md`](active/task_standards_backend_api_modularization_manifest_v1.md) | **in_progress** | W1～W6 **done** · **当前棒 W7**（tools 注册表拆分） |
 | **W1** | [`done/task_api_env_rag_env_consolidation_w1.md`](done/task_api_env_rag_env_consolidation_w1.md) | **done** | `rag_env` env 收敛 · index 零 `os.getenv` |
+| **W6** | [`done/task_api_agent_loop_split_w6.md`](done/task_api_agent_loop_split_w6.md) | **done** | PR [#153](https://github.com/Cyning12/ai-ink-brain-api-python/pull/153) · agent tool runner + persist |
 
-**执行顺序**：P3+P4 **done** → W1 **done** → **W2**（Legacy chat 路由）→ W3～W8。
+**执行顺序**：P3+P4 **done** → W1 **done** → W2～W6 **done** → **W7**（Tool 注册表）→ W8。
 
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 

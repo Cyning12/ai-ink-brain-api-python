@@ -1,6 +1,6 @@
 # MANIFEST · 后端 Python 服务模块化 Tech-Debt Epic
 
-> **状态**：active（Epic 母单 · **MANIFEST** · W1 **done** · W2～W8 执行中）  
+> **状态**：active（Epic 母单 · **MANIFEST** · W1～W6 **done** · W7 当前棒）  
 > **schedule_ref**：编码规范 Epic · §1.5 Tech-debt  
 > **epic**：`standards-engineering` · 子主题 **`api-modularization`**  
 > **前置**：L2 [`CODING_BACKEND_L2_v1_zh.md`](../../standards/CODING_BACKEND_L2_v1_zh.md) **active**（P-01 路由薄层 · B-01）  
@@ -62,7 +62,7 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 | **W3** | Admin ingest 路由下沉 | `index` admin/sync 段 | 抽 `api/routes/admin_ingest.py`；ingest 仍调 `ingest_pipeline` | `api-routes-admin-ingest-split` | `task/api-routes-admin-w3` | Medium |
 | **W4** | Unified JSON 路径 | `unified_chat` JSON handler 段 | 抽 `api/unified/json_handler.py`（名可调整） | `api-unified-json-split` | `task/api-unified-json-w4` | High |
 | **W5** | Unified SSE 路径 | `unified_chat` stream 段 | 抽 `api/unified/sse_handler.py`；契约 `_contract_manifest` 必对照 | `api-unified-sse-split` | `task/api-unified-sse-w5` | High |
-| **W6** | Agent 循环 | `agent` ~1095 | 抽 tool 调度 / persist 子模块；`ChatBIAgent` 薄编排 | `api-agent-loop-split` | `task/api-agent-w6` | High |
+| **W6** | Agent 循环 | `agent` ~1095 | 抽 tool 调度 / persist 子模块；`ChatBIAgent` 薄编排 | `api-agent-loop-split` | `task/api-agent-w6` | High · **done** PR [#153](https://github.com/Cyning12/ai-ink-brain-api-python/pull/153) |
 | **W7** | Tool 注册表 | `tools` ~958 | `text2sql_*` vs RAG tools 分文件；保留 `get_tool_registry()` 入口 | `api-tools-registry-split` | `task/api-tools-w7` | Medium |
 | **W8** | Intent 栈 | `intent_agent` 746 + `intent_router` 346 | 表驱动与 LLM 路径分文件；不混改 Unified | `api-intent-stack-split` | `task/api-intent-w8` | Medium |
 
