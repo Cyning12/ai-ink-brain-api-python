@@ -17,6 +17,7 @@ CONTRACT_PATH = REPO_ROOT / "docs" / "_tech_graph" / "_contract_manifest.json"
 # vNext：`agent.llm.*` 等在 `api/agent.py` emit；须与 manifest 同 PR 纳入静态真值
 BACKEND_CONTRACT_SOURCES = [
     REPO_ROOT / "api" / "unified_chat.py",
+    REPO_ROOT / "api" / "unified" / "sse_handler.py",
     REPO_ROOT / "api" / "agent.py",
     REPO_ROOT / "api" / "chatbi_events.py",
     REPO_ROOT / "api" / "tools.py",

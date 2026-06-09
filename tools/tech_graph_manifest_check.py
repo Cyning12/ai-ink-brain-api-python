@@ -78,7 +78,7 @@ def _read_text(p: Path) -> str:
 
 
 def _iter_py_files() -> list[Path]:
-    return sorted([p for p in API_DIR.glob("*.py") if p.is_file()])
+    return sorted([p for p in API_DIR.rglob("*.py") if p.is_file()])
 
 
 def _iter_sql_files() -> list[Path]:
