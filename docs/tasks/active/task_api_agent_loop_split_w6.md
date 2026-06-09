@@ -7,7 +7,7 @@
 
 # W6 · Agent 循环子模块拆分
 
-> **状态**: active（执行中）
+> **状态**: active（PR 待 merge）
 > **slug**: `api-agent-loop-split`
 > **git_branch**: `task/api-agent-w6`
 > **风险**: High
@@ -72,13 +72,21 @@
 
 ## 验收标准
 
-- [ ] `api/agent_tool_runner.py` 存在且 ruff 绿
-- [ ] `api/agent_persist.py` 存在且 ruff 绿
-- [ ] `agent.py` 行数从 ~1096 降至 ~<600
-- [ ] Agent 相关测试通过
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `ruff check api tests` 全绿
-- [ ] 单 PR 触及 `api/*.py` 数量 ≤8
+- [x] `api/agent_tool_runner.py` 存在且 ruff 绿
+- [x] `api/agent_persist.py` 存在且 ruff 绿
+- [ ] `agent.py` 行数从 ~1096 降至 ~<600（**defer**：主循环 `run()` 仍留本文件 · 1060 行；子模块拆分已达成 tool/persist 下沉）
+- [x] Agent 相关测试通过
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
+- [x] `ruff check api tests` 全绿
+- [x] 单 PR 触及 `api/*.py` 数量 ≤8（本 PR：**4** 个）
+
+## 实现备忘
+
+| 项 | 内容 |
+| --- | --- |
+| 子模块 | `agent_tool_runner.py`（调度）· `agent_persist.py`（落库 + trace 脱敏） |
+| 接线 | `unified_chat.py` re-export persist/trace；handlers 仍从 `unified_chat` import |
+| agent.py | 1096 → **1060** 行（tool 调度下沉 ~36 行） |
 
 ---
 
@@ -87,3 +95,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-06-09 | v1：W6 task 初稿 — agent 循环子模块拆分 |
+| 2026-06-09 | v1.1：实现完成 · PR 待 merge |
