@@ -7,7 +7,7 @@
 
 # W5 · Unified SSE 路径下沉
 
-> **状态**：active（执行中）
+> **状态**：done（PR 待创建 · 2026-06-09）
 > **slug**：`api-unified-sse-split`
 > **git_branch**：`task/api-unified-sse-w5`
 > **风险**：High
@@ -87,15 +87,40 @@ W5 须对照 `docs/_tech_graph/_contract_manifest.json`：
 
 ## 验收标准
 
-- [ ] `api/unified/sse_handler.py` 存在且 ruff 绿
-- [ ] `unified_chat.py` 仍包含 `handle_unified_chat`（JSON 不动）
-- [ ] `unified_chat.py` 行数从 ~2084 降至 ~<900
-- [ ] `test_unified_chat_streaming_sse.py` 仍通过
-- [ ] `test_unified_chat_sse_incremental_vnext.py` 仍通过
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `ruff check api tests` 全绿
-- [ ] `manifest_check` + `contract_check` 全绿
-- [ ] 单 PR 触及 `api/*.py` 数量 ≤8
+- [x] `api/unified/sse_handler.py` 存在且 ruff 绿
+- [x] `unified_chat.py` 仍包含 `handle_unified_chat`（JSON 不动）
+- [x] `unified_chat.py` 行数降至 835
+- [x] `test_unified_chat_streaming_sse.py` 仍通过
+- [x] `test_unified_chat_sse_incremental_vnext.py` 仍通过
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿（352 passed）
+- [x] `ruff check api tests` 全绿
+- [x] `manifest_check` + `contract_check` 全绿
+- [x] 单 PR 触及 2 个 `api/*.py` + 2 个 tools（≤8）
+
+---
+
+## 自检结论（40）
+
+| # | 验收项 | 结果 |
+|---|--------|------|
+| 1 | `api/unified/sse_handler.py` 存在且 ruff 绿 | PASS |
+| 2 | JSON 路径未动 | PASS |
+| 3 | `unified_chat.py` 835 行（目标 <900） | PASS |
+| 4 | SSE 测试通过 | PASS |
+| 5 | pytest 352 passed | PASS |
+| 6 | ruff 全绿 | PASS |
+| 7 | manifest + contract 全绿 | PASS |
+
+**总体结论**：通过，无阻塞。
+
+---
+
+## 关闭回溯（CLOSE · 2026-06-09）
+
+| 阶段 | Commit |
+|------|--------|
+| DRAFT | `@45de6ec` |
+| 30 | `@1e12161` |
 
 ---
 
