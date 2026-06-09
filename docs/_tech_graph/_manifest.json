@@ -247,11 +247,11 @@
   ],
   "anchors": [
     {
-      "path": "api/index.py",
+      "path": "api/auth_utils.py",
       "symbol": "_require_auth"
     },
     {
-      "path": "api/index.py",
+      "path": "api/routes/legacy_chat.py",
       "symbol": "_require_rag_history_auth"
     },
     {

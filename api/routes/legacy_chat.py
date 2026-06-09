@@ -288,8 +288,8 @@ async def _require_rag_history_auth(
         ok = await asyncio.to_thread(_try_chatbi_bearer_plain_sync, bearer_plain)
         if ok:
             return
-    # Fallback to require_auth logic from index.py
-    from ..index import _require_auth
+    # Fallback to require_auth logic from auth_utils
+    from ..auth_utils import _require_auth
 
     _require_auth(authorization, x_blog_admin_token, x_admin_token)
 
@@ -301,7 +301,7 @@ async def chat(
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> StreamingResponse:
-    from ..index import _require_auth
+    from ..auth_utils import _require_auth
 
     _require_auth(authorization, x_blog_admin_token, x_admin_token)
 
