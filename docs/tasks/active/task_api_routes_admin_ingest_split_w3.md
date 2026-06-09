@@ -7,7 +7,7 @@
 
 # W3 · Admin Ingest 路由下沉
 
-> **状态**：active（执行中）
+> **状态**：done（PR 待创建 · 2026-06-09）
 > **slug**：`api-routes-admin-ingest-split`
 > **git_branch**：`task/api-routes-admin-w3`
 > **风险**：Medium
@@ -91,15 +91,53 @@
 
 ## 验收标准
 
-- [ ] `api/routes/admin_ingest.py` 存在且 ruff 绿
-- [ ] `api/auth_utils.py` 存在且 ruff 绿
-- [ ] `api/index.py` 仍包含 admin 路由注册（@app.post/get），但 handler body 已下沉
-- [ ] `index.py` 行数从 ~446 降至 ~<380
-- [ ] `tests/test_admin_ingest_route.py` 仍通过
-- [ ] `tests/test_admin_sync_route.py` 通过
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `ruff check api tests` 全绿
-- [ ] 单 PR 触及 `api/*.py` 数量 ≤8
+- [x] `api/routes/admin_ingest.py` 存在且 ruff 绿
+- [x] `api/auth_utils.py` 存在且 ruff 绿
+- [x] `api/index.py` 仍包含 admin 路由注册（@app.post/get），但 handler body 已下沉
+- [x] `index.py` 行数从 ~446 降至 ~345
+- [x] `tests/test_admin_ingest_route.py` 仍通过
+- [x] `tests/test_admin_sync_route.py` 通过
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
+- [x] `ruff check api tests` 全绿
+- [x] 单 PR 触及 `api/*.py` 数量 ≤8（实际 4 个）
+
+---
+
+---
+
+## 自检结论（40）
+
+| # | 验收项 | 结果 |
+|---|--------|------|
+| 1 | `api/routes/admin_ingest.py` 存在且 ruff 绿 | PASS |
+| 2 | `api/auth_utils.py` 存在且 ruff 绿 | PASS |
+| 3 | `index.py` 路由注册保留，handler body 已下沉 | PASS |
+| 4 | `index.py` 行数 345（目标 <380） | PASS |
+| 5 | `test_admin_ingest_route.py` 仍通过 | PASS |
+| 6 | `test_admin_sync_route.py` 通过（5 例） | PASS |
+| 7 | pytest 352 passed, 1 skipped | PASS |
+| 8 | ruff 全绿 | PASS |
+| 9 | 单 PR 触及 4 个 `api/*.py` | PASS |
+| 10 | manifest + contract 全绿 | PASS |
+
+**总体结论**：通过，无阻塞。
+
+---
+
+## 关闭回溯（CLOSE · 2026-06-09）
+
+### 执行路线
+
+| 阶段 | 关键动作 | Commit |
+|------|----------|--------|
+| DRAFT | task 文件创建 | `@a7473b7` |
+| 30 | 代码实现 + 测试 | `@b2f77b0` |
+| CLOSE | manifest 修复 + task 状态 done | — |
+
+### 分仓 Commit 索引
+
+- `b2f77b0` refactor(api): W3 admin ingest 路由下沉 + auth_utils 提取
+- `a7473b7` docs(harness): W3 task draft
 
 ---
 
