@@ -7,28 +7,28 @@ import pytest
 
 
 class _FakeQuery:
-    def __init__(self, table: str, parent: "_FakeSB"):
+    def __init__(self, table: str, parent: _FakeSB):
         self.table = table
         self.parent = parent
         self._filters: list[tuple[str, str, str]] = []
         self._in_ids: list[str] | None = None
 
-    def select(self, _cols: str) -> "_FakeQuery":
+    def select(self, _cols: str) -> _FakeQuery:
         return self
 
-    def eq(self, col: str, val: str) -> "_FakeQuery":
+    def eq(self, col: str, val: str) -> _FakeQuery:
         self._filters.append(("eq", col, val))
         return self
 
-    def in_(self, col: str, ids: list[str]) -> "_FakeQuery":
+    def in_(self, col: str, ids: list[str]) -> _FakeQuery:
         self._in_ids = ids
         return self
 
-    def insert(self, rows: list[dict[str, Any]]) -> "_FakeQuery":
+    def insert(self, rows: list[dict[str, Any]]) -> _FakeQuery:
         self.parent.insert_calls.append((self.table, rows))
         return self
 
-    def delete(self) -> "_FakeQuery":
+    def delete(self) -> _FakeQuery:
         return self
 
     def execute(self) -> Any:

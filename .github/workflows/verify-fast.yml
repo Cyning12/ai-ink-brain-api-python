@@ -41,5 +41,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Ruff check
+        run: ruff check api tests
+
       - name: Run pytest
         run: pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short

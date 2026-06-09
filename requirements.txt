@@ -6,6 +6,7 @@ supabase
 python-dotenv
 pytest
 requests
+ruff==0.9.10
 faiss-cpu
 numpy
 psycopg[binary]

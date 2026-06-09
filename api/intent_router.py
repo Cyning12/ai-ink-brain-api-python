@@ -9,7 +9,6 @@ from .intent_hints import load_resolved_hints, rag_rule_hits_from_hints
 from .rag_env import supabase_client
 from .text2sql_store import get_text2sql_store
 
-
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
 
 

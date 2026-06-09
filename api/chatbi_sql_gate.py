@@ -263,7 +263,7 @@ def _phase_ast(
             ast_rule_id="AST_PARSE",
         )
         _log_deny(principal=principal, deny=d, run_id=run_id, request_id=request_id, sql=sql)
-        raise d
+        raise d from None
 
     if not stmts:
         d = ChatBiSqlGateDenied(

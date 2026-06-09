@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 _FIXTURE = Path(__file__).resolve().parent / "fixtures" / "chatbi" / "prompt_guard_fp1_unified_chat_error_envelope.json"
 
 

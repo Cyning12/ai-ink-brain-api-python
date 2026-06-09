@@ -9,7 +9,12 @@ from typing import Any
 import pytest
 
 import api.intent_agent as ia
-from api.intent_agent import IntentDecision, clear_intent_cache, compute_history_hash, decide_intent_v2
+from api.intent_agent import (
+    IntentDecision,
+    clear_intent_cache,
+    compute_history_hash,
+    decide_intent_v2,
+)
 from api.tools import Tool
 
 

@@ -22,7 +22,7 @@ class SupabaseManager:
     service_key: str
 
     @staticmethod
-    def from_env() -> "SupabaseManager":
+    def from_env() -> SupabaseManager:
         url = pick_supabase_url()
         key = pick_supabase_service_key()
         if not url or not key:

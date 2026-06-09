@@ -1,28 +1,38 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import math
 import os
 import re
 import time
 import uuid
-import json
 from typing import Any, Literal
 
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
 
-from .chatbi_principal import ChatBiPrincipal
-from .chatbi_policies import load_chatbi_table_policies_sync
-from .chatbi_request_ctx import set_chatbi_log_ctx, set_chatbi_principal
+from .agent import AgentRunView, ChatBIAgent
+from .agent_memory import get_memory_store
 from .chatbi_json_log import log_chatbi_record
-from .chatbi_prompt_guard import chatbi_prompt_guard_mode, scan as prompt_guard_scan
-from .chatbi_sql_gate import ChatBiSqlGateDenied, apply_chatbi_sql_gate, filter_text2sql_retrieved
+from .chatbi_policies import load_chatbi_table_policies_sync
+from .chatbi_principal import ChatBiPrincipal
+from .chatbi_prompt_guard import chatbi_prompt_guard_mode
+from .chatbi_prompt_guard import scan as prompt_guard_scan
+from .chatbi_request_ctx import set_chatbi_log_ctx, set_chatbi_principal
+from .chatbi_sql_gate import (
+    ChatBiSqlGateDenied,
+    apply_chatbi_sql_gate,
+    filter_text2sql_retrieved,
+)
 from .hybrid_fusion import RRF_K, fuse_hits_rrf
+from .intent_agent import IntentDecision, build_intent_path_obs
+from .intent_router import decide_intent
 from .query_rewrite import rewrite_query_with_history
-from .rag_embedding_guard import EMBEDDING_MISMATCH_ERROR_CODE, ensure_embedding_alignment
-from .rag_recall_tools import keyword_query_text_with_i18n_meta, rpc_execute_with_retry, structured_recall_by_date
+from .rag_embedding_guard import (
+    ensure_embedding_alignment,
+)
 from .rag_env import (
     embedding_kwargs_for_inputs,
     openai_siliconflow_client,
@@ -30,6 +40,12 @@ from .rag_env import (
     supabase_client,
     supabase_table_insert_with_retry,
 )
+from .rag_recall_tools import (
+    keyword_query_text_with_i18n_meta,
+    rpc_execute_with_retry,
+    structured_recall_by_date,
+)
+from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 from .text2sql_core import (
     build_sql_prompt,
     build_summary_prompt,
@@ -38,17 +54,11 @@ from .text2sql_core import (
     llm_generate_sql,
     llm_summarize,
 )
-from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .text2sql_grounding import build_text2sql_grounding_dict
 from .text2sql_schema_prefetch import run_text2sql_schema_prefetch_sync
 from .text2sql_store import get_text2sql_store
-from .intent_agent import IntentDecision, build_intent_path_obs
-from .intent_router import decide_intent
-from .rag_shared import parse_match_threshold, strip_doc_context_prefix
-from .agent import AgentRunView, ChatBIAgent
-from .agent_memory import get_memory_store
+from .text2sql_value_hints import build_value_hints_block_for_text2sql
 from .tools import get_tool_registry
-
 
 PreferMode = Literal["auto", "rag", "text2sql", "no_data"]
 

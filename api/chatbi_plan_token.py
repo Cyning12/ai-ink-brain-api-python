@@ -24,7 +24,7 @@ def _token_secret() -> bytes:
 
     adm = (admin_secret() or "").strip()
     if adm:
-        return hashlib.sha256(f"chatbi_plan_token|{adm}".encode("utf-8")).digest()
+        return hashlib.sha256(f"chatbi_plan_token|{adm}".encode()).digest()
     return b"chatbi_plan_token_dev_fallback"
 
 

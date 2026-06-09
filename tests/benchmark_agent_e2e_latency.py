@@ -3,8 +3,9 @@ from __future__ import annotations
 import importlib
 import os
 import random
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from fastapi.testclient import TestClient
 
@@ -30,8 +31,8 @@ def _reload_api_index() -> Any:  # noqa: ANN401
     os.environ.setdefault("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     os.environ.setdefault("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
 
-    import api.unified_chat as unified_chat
     import api.index as index
+    import api.unified_chat as unified_chat
 
     importlib.reload(unified_chat)
     importlib.reload(index)

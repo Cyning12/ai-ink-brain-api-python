@@ -8,7 +8,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.graph.runner import run_graph_stub
-from api.graph.state import ChatBIState, failure_edges_graph, failure_edges_legacy, resolve_failure_edge
+from api.graph.state import (
+    ChatBIState,
+    failure_edges_graph,
+    failure_edges_legacy,
+    resolve_failure_edge,
+)
 
 
 @pytest.mark.parametrize("code", ["LLM_API_TIMEOUT", "RAG_RETRIEVE_EMPTY", "UNKNOWN"])
@@ -38,7 +43,7 @@ def test_run_graph_stub_sets_node() -> None:
 
 
 def test_chatbi_shared_modules_importable() -> None:
-    from api import chatbi_events, chatbi_agent_models, chatbi_failure  # noqa: F401
+    from api import chatbi_agent_models, chatbi_events, chatbi_failure  # noqa: F401
 
     assert chatbi_events.agent_chain("agent.think", 0.0, "s1", {"text": "x"})["type"] == "agent.think"
     assert chatbi_failure.FailureTypeHandler.TEXT2SQL_DENY_FINAL_ANSWER_CODES

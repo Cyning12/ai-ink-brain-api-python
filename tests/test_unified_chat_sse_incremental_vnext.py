@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import importlib
 import json
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,8 +22,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = 
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
 
-    import api.unified_chat as unified_chat
     import api.index as index
+    import api.unified_chat as unified_chat
 
     importlib.reload(unified_chat)
     importlib.reload(index)
@@ -74,8 +75,8 @@ def test_sse_incremental_meta_then_whitelisted_chain(monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("CHATBI_SSE_INCREMENTAL", "true")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _rag_ok(
         *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
@@ -159,8 +160,8 @@ def test_sse_batch_without_contract_header_starts_with_router(monkeypatch: pytes
     monkeypatch.setenv("CHATBI_SSE_INCREMENTAL", "true")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _rag_ok(
         *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
@@ -217,8 +218,8 @@ def test_sse_incremental_disabled_env_forces_batch(monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv("CHATBI_SSE_INCREMENTAL", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _rag_ok(
         *, query: str, history: list[dict[str, Any]] | None = None, debug_llm_prompts: bool = False
@@ -329,8 +330,8 @@ def test_sse_incremental_queue_backpressure_emits_truncated(monkeypatch: pytest.
     monkeypatch.setenv("CHATBI_SSE_EMIT_QUEUE_MAX", "6")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _persist_ok(**kwargs: Any) -> dict[str, Any]:
         _ = kwargs

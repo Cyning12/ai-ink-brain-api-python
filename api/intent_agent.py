@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import asyncio
-from collections import OrderedDict
 import hashlib
 import json
 import logging
 import os
 import re
 import time
+from collections import OrderedDict
 from dataclasses import dataclass, replace
 from typing import Any, Literal
 
-from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
-from openai import APIStatusError
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    InternalServerError,
+    OpenAI,
+    RateLimitError,
+)
 
 from .intent_hints import (
     arbitration_enabled,
@@ -24,7 +30,6 @@ from .intent_router import decide_intent as decide_intent_v1
 from .rag_env import openai_siliconflow_client
 from .text2sql_core import is_text2sql_intent
 from .tools import Tool, tool_mode_map
-
 
 ToolName = Literal["rag_search", "text2sql_query", "direct_answer"]
 V1Mode = Literal["rag", "text2sql", "no_data"]
@@ -41,7 +46,7 @@ class LRUCache:
     def __init__(self, *, maxsize: int, ttl_s: float) -> None:
         self._maxsize = maxsize
         self._ttl_s = ttl_s
-        self._items: "OrderedDict[str, tuple[float, Any]]" = OrderedDict()
+        self._items: OrderedDict[str, tuple[float, Any]] = OrderedDict()
 
     def clear(self) -> None:
         self._items.clear()

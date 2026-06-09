@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """闸口 C / C′：gate_ctx_c_v1 manifest / query 种子 / materialize 验收。
 
 默认 **只读** 已提交的 payloads；重写 fixtures 须：

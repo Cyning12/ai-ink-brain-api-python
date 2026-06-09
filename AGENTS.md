@@ -52,8 +52,9 @@
 - **合并前必绿（本地与 CI 同命令）**：
   - **图谱 / manifest**：`bash scripts/verify-tech-graph.sh`（对齐 `tech-graph.yml` · `manifest_check`）
   - **契约**：`python tools/tech_graph_contract_check.py`（对齐 `tech-graph-contract.yml`）
-  - **一键 PR 前**：`bash scripts/verify-pr-local.sh`（上述 + pytest）
+  - **一键 PR 前**：`bash scripts/verify-pr-local.sh`（上述 + ruff + pytest）
   - **pytest 单跑**：`pytest tests -m "not intent_eval and not intent_benchmark"`
+  - **Ruff 单跑**：`ruff check api tests`
 
 ---
 
@@ -83,7 +84,7 @@
 | --- | --- | --- |
 | `00-core.mdc` | Core | 核心行为约束 — 语言、职责边界、修改前确认、完成后报告 |
 | `01-agent-observability.mdc` | Agent Observability | Agent 模式可观测性与成本控制 — 执行报告、Loop 防护、模式选择 |
-| `05-harness-semi-auto.mdc` | Harness Semi Auto | Harness 半自动 — 无人工闸阻塞时链式续跑 task，invoke 落盘优先 |
+| `05-harness-semi-auto.mdc` | Harness Semi Auto | "DEPRECATED · Harness 半自动续跑 — 仅历史考古；新 task 读 Chain SPEC + 06-harness-in-repo" |
 | `06-harness-in-repo.mdc` | Harness In Repo | Harness 本仓真值 — prompts/模板/规划入口，禁止默认查工作区外部路径 |
 | `07-git-workflow.mdc` | Git Workflow | Git 分支与 PR — 本地不在 main 上改代码/提交；远程合并须 PR |
 | `08-docs-diary.mdc` | Docs Diary | docs/diary — 非必读、易过时产物落盘；实验轨 jsonPKmermaid 按需读 |
@@ -92,6 +93,7 @@
 | `11-coding-wiki-readorder.mdc` | Coding Wiki Readorder | Coding Wiki L2 默认读序 — 关账回顾先 index/syntheses；改代码仍 L0 图谱优先 |
 | `20-tech-graph-update.mdc` | Tech Graph Update | 图谱增量更新 — 改 .ai.md 后导出 graph.json 与 manifest/contract |
 | `30-rag-implementation.mdc` | Rag Implementation | — |
+| `31-coding-standards-l2.mdc` | Coding Standards L2 | 编码规范 L2 短链 — Python/FastAPI（P-01～P-15 · 遵循 B-xx） |
 | `40-error-handling.mdc` | Error Handling | 错误处理与降级策略 — 结构化响应、异常分支、备选方案 |
 
 全文附录：`python tools/gen_agents_md.py --full`

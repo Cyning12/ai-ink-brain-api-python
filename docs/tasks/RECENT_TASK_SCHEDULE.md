@@ -141,7 +141,7 @@
 | 4b    | `task_chatbi_v3_lowconf_rag_preview_v1.md`                              | `draft`    | 低置信 §5-3 **RAG 全栈** | P2 · 先 Ink Harness |
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
-| 8     | `task_standards_backend_p3_p4_l3_ruff_v1.md`                              | `draft`    | 编码规范 P3+P4 · mdc+Ruff | §1.5 **当前棒** |
+| 8     | `task_standards_backend_p3_p4_l3_ruff_v1.md`                              | `in_progress` | 编码规范 P3+P4 · mdc+Ruff | §1.5 **当前棒** |
 | 9     | `task_standards_backend_api_modularization_manifest_v1.md`              | `draft`    | 服务层模块化 Epic MANIFEST | §1.5 · P3+P4 后 |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
@@ -153,7 +153,7 @@
 | 阶段 | task | 状态 | 说明 |
 |------|------|------|------|
 | **P2 · L2** | [`done/task_standards_backend_l2_draft_v1.md`](done/task_standards_backend_l2_draft_v1.md) | **done** | R1 签收 · L2 active |
-| **P3+P4** | [`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md) | **draft** · **当前棒** | `.mdc` + Ruff CI · 小 task |
+| **P3+P4** | [`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md) | **in_progress** · **当前棒** | `.mdc` + Ruff CI · 小 task |
 | **Tech-debt Epic** | [`active/task_standards_backend_api_modularization_manifest_v1.md`](active/task_standards_backend_api_modularization_manifest_v1.md) | **draft** | W1～W8 模块拆分 · **MANIFEST 仅** · 禁止单 task 改全服务目录 |
 
 **执行顺序**：P3+P4 **先** → Epic W1（env 收敛）→ W2/W3（路由）→ W4/W5（Unified）→ W6～W8。

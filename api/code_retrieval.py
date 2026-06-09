@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import fnmatch
+import os
 import re
 import time
 import uuid
 from typing import Any
 
-import os
-
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from openai import OpenAI
+
 from supabase import create_client
 
 from .database_manager import SupabaseManager

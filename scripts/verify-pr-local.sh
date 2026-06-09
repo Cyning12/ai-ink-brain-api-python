@@ -10,6 +10,9 @@ bash scripts/verify-tech-graph.sh
 echo "==> verify-pr-local: contract (tech-graph-contract.yml)"
 python tools/tech_graph_contract_check.py
 
+echo "==> verify-pr-local: ruff"
+ruff check api tests
+
 echo "==> verify-pr-local: pytest"
 pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short
 

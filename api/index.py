@@ -16,30 +16,47 @@ import re
 import sys
 import time
 from pathlib import Path
-from urllib.parse import quote
 from typing import Any
+from urllib.parse import quote
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+)
 from fastapi.responses import JSONResponse, StreamingResponse
 from openai import OpenAI
+
 from supabase import create_client
 
-from . import rag_env  # noqa: F401 — 触发 REPO_ROOT .env 加载
-from . import code_retrieval
-from . import text2sql_api
-from . import chain_chat
-from . import unified_chat
-from . import unified_chat_graph
-from .chatbi_principal import ChatBiPrincipal, require_chatbi_principal, resolve_chatbi_from_plain_token
-from .hybrid_fusion import RRF_K, fuse_hits_rrf
+from . import (
+    chain_chat,
+    code_retrieval,
+    rag_env,  # noqa: F401 — 触发 REPO_ROOT .env 加载
+    text2sql_api,
+    unified_chat,
+    unified_chat_graph,
+)
+from .chatbi_circuit_breaker import CircuitBreakerOpenError
+from .chatbi_principal import (
+    ChatBiPrincipal,
+    require_chatbi_principal,
+    resolve_chatbi_from_plain_token,
+)
+from .chatbi_rate_limit import register_rate_limit_middleware
+from .code_ingest import process_code_files
 from .database_manager import SupabaseManager
+from .hybrid_fusion import RRF_K, fuse_hits_rrf
 from .ingest_pipeline import (
     create_sync_job,
     get_job,
     process_markdown_files,
     run_sync_job_sync,
 )
-from .code_ingest import process_code_files
 from .keyword_fallback import (
     KeywordFallbackConfig,
     KeywordFallbackResult,
@@ -47,13 +64,21 @@ from .keyword_fallback import (
     run_keyword_fallback,
 )
 from .query_rewrite import rewrite_query_with_history
+from .rag_embedding_guard import ensure_embedding_alignment
+from .rag_env import (
+    admin_secret,
+    llm_execute_with_circuit_breaker,
+    pick_supabase_service_key,
+    pick_supabase_url,
+    supabase_execute_with_retry,
+)
+from .rag_logging import (
+    build_rag_match_meta,
+    build_retrieved_context_for_log,
+    summarize_hits_brief,
+)
 from .rag_recall_tools import keyword_query_text_with_i18n_meta
 from .rag_shared import parse_match_threshold, strip_doc_context_prefix
-from .rag_logging import build_rag_match_meta, build_retrieved_context_for_log, summarize_hits_brief
-from .rag_embedding_guard import ensure_embedding_alignment
-from .rag_env import admin_secret, llm_execute_with_circuit_breaker, pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
-from .chatbi_rate_limit import register_rate_limit_middleware
-from .chatbi_circuit_breaker import CircuitBreakerOpenError
 
 app = FastAPI(title="AI-Ink-Brain RAG API")
 register_rate_limit_middleware(app)
@@ -541,7 +566,7 @@ async def chat_history(
     except asyncio.CancelledError:
         # Python 3.11+: CancelledError 继承自 BaseException，不会被 except Exception 捕获。
         # 常见于客户端切页/刷新/断开连接导致请求取消；不应记录为 500。
-        raise HTTPException(status_code=499, detail="Client Closed Request")
+        raise HTTPException(status_code=499, detail="Client Closed Request") from None
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(
             status_code=500,
@@ -787,7 +812,6 @@ async def chat(
     date_anchor_count = 0
     i18n_expand_raw: dict[str, Any] | None = None
     i18n_expand_rw: dict[str, Any] | None = None
-    kw_qt_used = ""
 
     t3 = time.perf_counter()
     try:
@@ -854,7 +878,6 @@ async def chat(
 
         # 最终 keyword_hits：仍以 rewrite 为主（与当前策略保持一致），回退逻辑在下方处理
         keyword_hits = keyword_hits_rw_for_metrics
-        kw_qt_used = kw_qt_rw
         # 方案四：运行时回退（当 rewrite 导致 keyword 命中为 0/不足时，用原 query 的锚点 token 再检索一次）
         cfg_kw_fb = KeywordFallbackConfig.from_env()
         keyword_hits, keyword_fallback = run_keyword_fallback(
@@ -1015,12 +1038,12 @@ async def chat(
                 response_chunks.append(piece)
                 yield piece.encode("utf-8")
         except Exception as exc:  # noqa: BLE001
-            yield f"\n[错误] 对话生成失败: {exc!s}".encode("utf-8")
+            yield f"\n[错误] 对话生成失败: {exc!s}".encode()
         finally:
             # 客户端断开时，生成器会收到 GeneratorExit；此时不能再 yield，否则会触发
             # RuntimeError: generator ignored GeneratorExit
             if sys.exc_info()[0] is GeneratorExit:
-                return
+                return  # noqa: B012 — GeneratorExit 时禁止 yield
             gen_finished_ms = int((time.perf_counter() - gen_started_at) * 1000)
             # 在流末尾追加 sources JSON，前端可解析为引用卡片
             try:

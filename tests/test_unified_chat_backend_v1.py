@@ -17,8 +17,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = 
     # 仓库 .env 可能默认开启 v2 agent；v1 测试必须显式关闭，避免分支被短路。
     monkeypatch.setenv("CHATBI_USE_AGENT", "false")
 
-    import api.unified_chat as unified_chat
     import api.index as index
+    import api.unified_chat as unified_chat
 
     importlib.reload(unified_chat)
     importlib.reload(index)

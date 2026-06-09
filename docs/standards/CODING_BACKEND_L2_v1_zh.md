@@ -3,7 +3,7 @@
 | 项 | 内容 |
 | --- | --- |
 | **状态** | `active` — R1 三方验收签收（2026-06-09 · 人签 HG-L2-ACTIVE） |
-| **版本** | v1.1 |
+| **版本** | v1.2 |
 | **日期** | 2026-06-09 |
 | **栈** | Python **3.11** · FastAPI · Uvicorn · pytest · Supabase/pgvector |
 | **L1** | 工作区 [`docs/standards/CODING_BASELINE_L1_v1_zh.md`](../../../docs/standards/CODING_BASELINE_L1_v1_zh.md) |
@@ -211,7 +211,7 @@ bash scripts/verify-pr-local.sh
 
 | REF | 本仓落地 |
 | --- | --- |
-| REF-PEP8 | 格式与 import 顺序；**P4 计划** `ruff check` / `ruff format`（`ruff.toml` 待 P4 task） |
+| REF-PEP8 | `ruff.toml` · `ruff check api tests`（CI **Required** · `verify-fast.yml`） |
 | REF-GOOG-PY | P-08 类型注解；dataclass / Literal；异常窄捕获 |
 | REF-MS-REST | P-05、P-09；HTTP status + 结构化 body；幂等与流式契约 |
 | REF-OWASP-API | P-13；Text2SQL gate、鉴权、限流 |
@@ -224,15 +224,17 @@ bash scripts/verify-pr-local.sh
 | tech-graph | `bash scripts/verify-tech-graph.sh` | CI Required |
 | contract | `python tools/tech_graph_contract_check.py` | CI / `verify-pr-local.sh` |
 | structured error | `tests/test_harness_structured_error_shape_check.py` | 经 pytest |
-| ruff | （待 P4）`ruff check api tests` | **未** 入 CI |
+| ruff | `ruff check api tests` | CI **Required**（`verify-fast.yml` · `ruff==0.9.10`） |
 
 ---
 
-## 6. 与 L3 的关系（P3 · 待办）
+## 6. 与 L3 的关系（P3 ✅ · P4 ✅）
 
-- Cursor 规则：计划 `.cursor/rules/07-coding-standards-l2.mdc`（`globs: api/**/*.py,tests/**/*.py` · 短链至本文件）。
+- Cursor 规则：[`.cursor/rules/31-coding-standards-l2.mdc`](../../.cursor/rules/31-coding-standards-l2.mdc)（`globs: api/**/*.py,tests/**/*.py` · 短链至本文件）。
 - `AGENTS.md` → `docs/standards/README.md`。
 - **禁止** 在 rules 内复制 P-01～P-15 全文。
+
+**P4 首版 ignore**（`ruff.toml` · 渐进升严）：`E501`、`E402`、`B008`、`UP017`、`UP038`、`UP041` — 见 task `standards-backend-p3-p4-l3-ruff` 实现备忘。
 
 ---
 
@@ -242,3 +244,4 @@ bash scripts/verify-pr-local.sh
 | --- | --- | --- |
 | v1.0 | 2026-06-09 | P2 初稿：P-01～P-15 + AP 节选 + PR 自检 + REF 映射 |
 | v1.1 | 2026-06-09 | R1 签收 **active**；S-02 P-08 Any 措辞；S-03 P-14 规则可发现性；S-04 P-03 CI dummy 说明 |
+| v1.2 | 2026-06-09 | P3 `31-coding-standards-l2.mdc`；P4 `ruff.toml` + CI Required |

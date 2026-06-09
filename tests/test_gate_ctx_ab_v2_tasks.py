@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """闸口 D：gate_ctx_ab_v2 题集 schema 与 v1 三题 gold 一致性。"""
 
 from __future__ import annotations
@@ -6,7 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent

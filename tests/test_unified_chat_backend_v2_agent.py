@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import importlib
 import asyncio
 import datetime as dt
+import importlib
+from collections.abc import Callable
 from decimal import Decimal
-from typing import Any, Callable
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
 from api.intent_agent import IntentDecision, StructuredSignals, clear_intent_cache
-from api.tools import Tool, ToolResult, ToolName
+from api.tools import Tool, ToolName, ToolResult
 
 # --- L5 / FailureTypeHandler：pytest mock 注入点（总规 SPEC-ChatBI-V2-Agent-Overview §7.5.4）---
 # 完整说明与示例 A/B 逐步拆解见：docs/diary/L5-ChatBI-V2-FailureTypeHandler-pytest指南.md
@@ -34,8 +35,8 @@ def _reload_api_index(monkeypatch: pytest.MonkeyPatch, *, auth_override: bool = 
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-dummy")
     monkeypatch.setenv("TEXT2SQL_DATABASE_URL", "postgresql://u:p@localhost:5432/postgres")
 
-    import api.unified_chat as unified_chat
     import api.index as index
+    import api.unified_chat as unified_chat
 
     importlib.reload(unified_chat)
     importlib.reload(index)
@@ -68,8 +69,8 @@ def test_v2_json_single_tool_fallback_used_true(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _direct_answer_exec(*, query: str, history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
@@ -149,8 +150,8 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
@@ -246,9 +247,9 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.rag_env as rag_env_module
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     # mock text2sql tool returns sql + rows with id_number
     async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None,
@@ -351,8 +352,8 @@ def test_v2_sse_stream_emits_agent_events(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
@@ -451,8 +452,8 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None,
         debug_llm_prompts: bool = False,
@@ -538,8 +539,8 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     # [mock ①a] 首步 rag_search：ToolResult.error_code=RAG_RETRIEVE_EMPTY（模拟检索无命中）。
     async def _rag_empty_exec(*, query: str, history: list[dict[str, Any]] | None = None,
@@ -622,8 +623,8 @@ def test_v2_text2sql_write_denied_stops_without_rag(monkeypatch: pytest.MonkeyPa
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "false")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     t2s_calls = {"n": 0}
 
@@ -789,8 +790,8 @@ def test_v2_intent_timeout_fallback_v1(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.intent_agent as intent_agent
+    import api.unified_chat as unified_chat
 
     # 让 LLM 意图调用直接超时
     async def _timeout_llm(*_args: Any, **_kwargs: Any):  # noqa: ANN401
@@ -887,8 +888,8 @@ def test_v3_low_confidence_clarify_json_skips_text2sql(monkeypatch: pytest.Monke
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "0")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     t2s_calls = {"n": 0}
 
@@ -994,9 +995,9 @@ def test_v3_plan_preview_json_includes_plan_preview_and_ttl_notice(monkeypatch: 
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _tools_t2s_preview_only(
         query: str,
@@ -1110,9 +1111,9 @@ def test_v3_plan_execution_token_json_bypasses_clarify(monkeypatch: pytest.Monke
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     calls: dict[str, int] = {"preview": 0, "reg": 0}
 
@@ -1267,9 +1268,9 @@ def test_v3_plan_execution_token_invalid_json_denies_bypass(monkeypatch: pytest.
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     calls: dict[str, int] = {"preview": 0, "reg": 0}
 
@@ -1413,9 +1414,9 @@ def test_v3_plan_preview_fail_json_no_token(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _tools_t2s_preview_fail(
         query: str,
@@ -1525,9 +1526,9 @@ def test_v3_plan_preview_sse_parity(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _tools_t2s_preview_only(
         query: str,
@@ -1642,9 +1643,9 @@ def test_v3_rag_plan_preview_json_includes_rewrite_query(monkeypatch: pytest.Mon
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _rag_preview_only(
         query: str,
@@ -1757,9 +1758,9 @@ def test_v3_rag_plan_execution_token_json_bypasses_clarify(monkeypatch: pytest.M
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     calls: dict[str, int] = {"preview": 0, "rag": 0}
 
@@ -1877,9 +1878,9 @@ def test_v3_rag_plan_preview_fail_json_no_token(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _rag_preview_fail(
         query: str,
@@ -1980,9 +1981,9 @@ def test_v3_rag_plan_preview_sse_parity(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CHATBI_V3_PLAN_PREVIEW_CONFIRM", "1")
 
     index = _reload_api_index(monkeypatch)
+    import api.agent as agent_module
     import api.tools as tools_mod
     import api.unified_chat as unified_chat
-    import api.agent as agent_module
 
     async def _rag_preview_only(
         query: str,
@@ -2093,8 +2094,8 @@ def test_v2_agent_latency_exceeded_v1_fallback_rag(monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv("AGENT_MAX_LATENCY_MS", "1")
 
     index = _reload_api_index(monkeypatch)
-    import api.unified_chat as unified_chat
     import api.agent as agent_module
+    import api.unified_chat as unified_chat
 
     async def _rag_ok_exec(
         *,

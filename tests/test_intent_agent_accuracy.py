@@ -14,7 +14,6 @@ import pytest
 from api.intent_agent import IntentDecision, decide_intent_v2
 from api.tools import Tool
 
-
 ExpectedTool = Literal["rag_search", "text2sql_query", "direct_answer"]
 
 
@@ -577,7 +576,6 @@ def _portfolio_intent_cases() -> list[IntentCase]:
 def test_portfolio_intent_hints_mock_llm_routing(monkeypatch: pytest.MonkeyPatch) -> None:
     """Stub LLM：验证 intent_hints 注入路径下 Portfolio 问句路由期望（不触网）。"""
     import api.intent_agent as ia
-
     from api.intent_hints import build_intent_hints_prompt_block, load_resolved_hints
 
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
@@ -608,8 +606,11 @@ def test_portfolio_intent_hints_mock_llm_routing(monkeypatch: pytest.MonkeyPatch
 def test_portfolio_intent_hints_disabled_no_block_in_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
     """INTENT_HINTS_ENABLED=0 时注入块为空，行为仍可走 mock LLM。"""
     import api.intent_agent as ia
-
-    from api.intent_hints import build_intent_hints_prompt_block, clear_intent_hints_cache, load_resolved_hints
+    from api.intent_hints import (
+        build_intent_hints_prompt_block,
+        clear_intent_hints_cache,
+        load_resolved_hints,
+    )
 
     monkeypatch.setenv("CHATBI_V2_INTENT_LLM", "true")
     monkeypatch.setenv("INTENT_HINTS_ENABLED", "false")

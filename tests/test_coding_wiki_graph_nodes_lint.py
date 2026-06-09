@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from tools.coding_wiki_graph_nodes_lint import (
     DEFAULT_SYNTH_DIR,
     lint_markdown_file,

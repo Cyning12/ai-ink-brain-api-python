@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-
 ChunkType = Literal["module_doc", "function", "class", "method"]
 
 

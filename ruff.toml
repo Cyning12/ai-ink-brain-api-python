@@ -1,0 +1,17 @@
+# P4 · REF-PEP8 · 真值：docs/standards/CODING_BACKEND_L2_v1_zh.md §5
+target-version = "py311"
+line-length = 120
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "E501", # 行宽：模块化 Epic 后再渐进 format，避免 P4 全仓 diff
+    "E402", # rag_env import 触发 .env 加载后的 intentional import
+    "B008", # FastAPI Depends() 默认参数 idiomatic
+    "UP017", # datetime.UTC 迁移 · P4+ 批次
+    "UP038", # isinstance (X, Y) · 渐进
+    "UP041", # 保留 asyncio.TimeoutError 显式语义
+]
+
+[format]
+quote-style = "double"
