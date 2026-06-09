@@ -1,6 +1,6 @@
 # 起草后端编码规范 L2（P2 · 对称前端 active）
 
-> **状态**：draft  
+> **状态**：建议签收（L2 **active** v1.1 · 2026-06-09）
 > **schedule_ref**：编码规范 Epic · P2 后端  
 > **epic**：`standards-engineering`（工作区 [`00_OUTLINE`](../../../docs/standards/00_OUTLINE_工程编码规范改进_v1_zh.md) §5 P2）  
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（规约层 · 无业务流程变更）  
@@ -50,7 +50,7 @@
 
 - [x] 新建 `docs/standards/CODING_BACKEND_L2_v1_zh.md`（参照前端 L2 结构）
 - [x] 新建 `docs/standards/README.md`（链 L1 · 本 L2 · 私仓 pointer）
-- [x] 条文覆盖：`api/`、`api/index.py` 路由层、ingest、RAG、Unified Chat、错误 registry、结构化日志
+- [x] 条文覆盖：后端服务层（路由、ingest、RAG、Unified Chat、错误 registry、结构化日志 · 见 L2 §1）
 - [x] 映射 L1 B-01～B-12；REF：REF-PEP8、REF-GOOG-PY、REF-MS-REST、REF-OWASP-API（见工作区 [`SOURCES`](../../../docs/standards/SOURCES_编码规范外部参考_v1_zh.md)）
 - [x] §4 PR 自检（叠加 L1 §4）；`code_quality_bar: strict` 链 Harness [`§5.9`](../../../docs/harness/HARNESS_V2_PLAN.md)
 - [x] 反模式节选 `AP-01～`（对齐前端 AF 风格；可引用工作区 `ANTI_PATTERNS` 规划）
@@ -59,7 +59,7 @@
 
 ## 非范围
 
-- **不** 在本 task 内大规模改 `api/` 实现（属后续 tech-debt task）
+- **不** 在本 task 内改 Python 服务实现（属后续 tech-debt task）
 - **不** 复制 L1 全文进后端仓
 - **不** 前端 L2 条文修改
 - P3 `.mdc`、P4 Ruff 升严可 **另 task** 或本 task 子阶段（由 22 帽拆分建议）
@@ -68,7 +68,14 @@
 
 ## 行为变更（Delta）
 
-**无** — 文档真值；无对外 API 行为变更。
+无
+
+（文档真值 · 无对外 HTTP 行为变更。）
+
+### ADDED
+
+- `docs/standards/CODING_BACKEND_L2_v1_zh.md`（**active** v1.1）
+- `docs/standards/README.md`、三方验收 Prompt、R1 评审报告
 
 ---
 
@@ -96,12 +103,12 @@
 
 ## 验收标准
 
-- [x] `docs/standards/CODING_BACKEND_L2_v1_zh.md` 存在且状态 `draft`
+- [x] `docs/standards/CODING_BACKEND_L2_v1_zh.md` 存在且状态 **active** v1.1
 - [x] 每条 `P-xx` 标注 `遵循 B-xx`；B-01～B-12 无遗漏
 - [x] §4 PR 自检可勾选；链 Harness §5.9 `code_quality_bar`
 - [x] `docs/standards/README.md` 可链达 L2 与 L1
 - [x] `AGENTS.md` 或 `docs/tasks/README.md` 可发现 L2 入口
-- [x] 工作区 `docs/standards/README.md` 后端行更新为 `draft`（由 CLOSE 或工作区 task 同步）
+- [x] 工作区 `docs/standards/README.md` 后端行更新（由 CLOSE 或工作区 task 同步）
 - [x] （可选）`PROMPT_third_party_review_BACKEND_L2_v1_zh.md` 初稿
 
 **合并前必绿（本仓 · 文档 task）**：无 pytest 要求；若改动触发 CI，须 `pytest tests -m "not intent_eval and not intent_benchmark"` 绿。
@@ -139,7 +146,7 @@
 |----|------|
 | 涉及文件 | `docs/standards/CODING_BACKEND_L2_v1_zh.md`、`docs/standards/README.md`、`docs/standards/PROMPT_third_party_review_BACKEND_L2_v1_zh.md`；`AGENTS.md`、`docs/tasks/README.md`、`docs/README.md`；工作区 `docs/standards/README.md` |
 | 图谱变更点 | 无 |
-| 工作区同步 | `docs/standards/README.md` 后端行 → **draft** ✅ |
+| 工作区同步 | `docs/standards/README.md` 后端行 → **active**（本仓已签收；工作区待同步） |
 
 ---
 
@@ -147,8 +154,8 @@
 
 | 项 | 结果 |
 |----|------|
-| 命令 | Read：前端 L2、L1、task、PROJECT_CONFIG、structured_error_registry、pytest.yml、api/rag_env.py 抽样 |
-| 结论 | pass（文档交付；未改 `api/`） |
+| 命令 | Read：前端 L2、L1、task、PROJECT_CONFIG、structured_error_registry、pytest.yml；L2 落地指向抽样 |
+| 结论 | pass（文档交付；未改 Python 服务实现） |
 | 要点 | P-01～P-15 覆盖 B-01～B-12；§4 PR 自检链 Harness §5.9；Ruff P4 标待办 |
 
 ---
