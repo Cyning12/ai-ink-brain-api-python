@@ -45,12 +45,14 @@ def test_unified_unauthorized(monkeypatch: pytest.MonkeyPatch):
 def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE", "1")
     index = _reload_api_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     class _DummyOAI:
         pass
 
     monkeypatch.setattr(unified_chat, "OpenAI", lambda api_key, base_url: _DummyOAI())
+    monkeypatch.setattr(json_handler, "OpenAI", lambda api_key, base_url: _DummyOAI())
 
     def fake_get_store():  # noqa: ANN001
         class _S:
@@ -60,14 +62,23 @@ def test_unified_prefer_text2sql(monkeypatch: pytest.MonkeyPatch):
         return _S()
 
     monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+    monkeypatch.setattr(json_handler, "get_text2sql_store", fake_get_store)
     monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: "select 1 as count from public.agent_info")  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "llm_generate_sql", lambda *, oai, model, prompt: "select 1 as count from public.agent_info")  # noqa: ARG005
     monkeypatch.setattr(
         unified_chat,
         "apply_chatbi_sql_gate",
         lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
     )
+    monkeypatch.setattr(
+        json_handler,
+        "apply_chatbi_sql_gate",
+        lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
+    )
     monkeypatch.setattr(unified_chat, "execute_select_sql", lambda sql, limit_rows=200: (["count"], [{"count": 0}]))  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "execute_select_sql", lambda sql, limit_rows=200: (["count"], [{"count": 0}]))  # noqa: ARG005
     monkeypatch.setattr(unified_chat, "llm_summarize", lambda *, oai, model, prompt: "共有 0 条。")  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "llm_summarize", lambda *, oai, model, prompt: "共有 0 条。")  # noqa: ARG005
 
     client = TestClient(index.app)
     res = client.post(
@@ -90,6 +101,7 @@ def test_unified_router_trace_db_toggle(monkeypatch: pytest.MonkeyPatch):
     # 1) DEBUG_ROUTER_TRACE_DB=1 默认写入 router_trace_v1
     # 2) DEBUG_ROUTER_TRACE_DB=0 且 debug_router=false 不写入 router_trace_v1
     # 3) DEBUG_ROUTER_TRACE_DB=0 但 debug_router=true 强制写入 router_trace_v1
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     class _DummyChatMsg:
@@ -116,6 +128,7 @@ def test_unified_router_trace_db_toggle(monkeypatch: pytest.MonkeyPatch):
         saved: list[dict[str, Any]] = []
 
         monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+        monkeypatch.setattr(json_handler, "openai_siliconflow_client", lambda: _DummyOpenAI())
 
         def fake_get_store():  # noqa: ANN001
             class _S:
@@ -138,12 +151,15 @@ def test_unified_router_trace_db_toggle(monkeypatch: pytest.MonkeyPatch):
                 return _Rpc()
 
         monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+        monkeypatch.setattr(json_handler, "get_text2sql_store", fake_get_store)
         monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+        monkeypatch.setattr(json_handler, "supabase_client", lambda: _Sb())
 
         def fake_async_save(payload: dict[str, Any]) -> None:
             saved.append(payload)
 
         monkeypatch.setattr(unified_chat, "_async_save_rag_log", fake_async_save)
+        monkeypatch.setattr(json_handler, "_async_save_rag_log", fake_async_save)
         return saved
 
     # case 1: env=1 -> 写入
@@ -208,6 +224,7 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("DEBUG_ROUTER_TRACE_DB", "1")
     monkeypatch.setenv("DEBUG_ROUTER_EVIDENCE_DB", "0")
     index = _reload_api_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     saved: list[dict[str, Any]] = []
@@ -216,12 +233,14 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
         saved.append(payload)
 
     monkeypatch.setattr(unified_chat, "_async_save_rag_log", fake_async_save)
+    monkeypatch.setattr(json_handler, "_async_save_rag_log", fake_async_save)
 
     class _DummyOAI:
         pass
 
     # text2sql 分支用 OpenAI(...) 实例
     monkeypatch.setattr(unified_chat, "OpenAI", lambda api_key, base_url: _DummyOAI())
+    monkeypatch.setattr(json_handler, "OpenAI", lambda api_key, base_url: _DummyOAI())
 
     def fake_get_store():  # noqa: ANN001
         class _S:
@@ -231,11 +250,18 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
         return _S()
 
     monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+    monkeypatch.setattr(json_handler, "get_text2sql_store", fake_get_store)
 
     long_sql = "select '" + ("x" * 2100) + "' as big"
     monkeypatch.setattr(unified_chat, "llm_generate_sql", lambda *, oai, model, prompt: long_sql)  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "llm_generate_sql", lambda *, oai, model, prompt: long_sql)  # noqa: ARG005
     monkeypatch.setattr(
         unified_chat,
+        "apply_chatbi_sql_gate",
+        lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
+    )
+    monkeypatch.setattr(
+        json_handler,
         "apply_chatbi_sql_gate",
         lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
     )
@@ -243,7 +269,9 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
     cols = [f"c{i}" for i in range(25)]
     rows = [{c: ("y" * 200 if c == "c0" else i) for c in cols} for i in range(12)]
     monkeypatch.setattr(unified_chat, "execute_select_sql", lambda sql, limit_rows=200: (cols, rows))  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "execute_select_sql", lambda sql, limit_rows=200: (cols, rows))  # noqa: ARG005
     monkeypatch.setattr(unified_chat, "llm_summarize", lambda *, oai, model, prompt: "ok")  # noqa: ARG005
+    monkeypatch.setattr(json_handler, "llm_summarize", lambda *, oai, model, prompt: "ok")  # noqa: ARG005
 
     client = TestClient(index.app)
     res = client.post(
@@ -330,6 +358,7 @@ def test_unified_router_trace_text2sql_exec_v1(monkeypatch: pytest.MonkeyPatch):
 
 def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
     index = _reload_api_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     class _EmbObj:
@@ -366,11 +395,13 @@ def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
             return _ChatResp("rag answer")
 
     monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+    monkeypatch.setattr(json_handler, "openai_siliconflow_client", lambda: _DummyOpenAI())
 
     async def fake_rewrite(*, oai, query, history, chat_model):  # noqa: ANN001
         return "rewritten"
 
     monkeypatch.setattr(unified_chat, "rewrite_query_with_history", fake_rewrite)
+    monkeypatch.setattr(json_handler, "rewrite_query_with_history", fake_rewrite)
 
     class _Rpc:
         def __init__(self, name: str):
@@ -423,6 +454,7 @@ def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
             return _TableQuery()
 
     monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+    monkeypatch.setattr(json_handler, "supabase_client", lambda: _Sb())
 
     client = TestClient(index.app)
     res = client.post(
@@ -440,6 +472,7 @@ def test_unified_prefer_rag(monkeypatch: pytest.MonkeyPatch):
 
 def test_unified_rag_structured_recall_cn_date(monkeypatch: pytest.MonkeyPatch):
     index = _reload_api_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     class _EmbObj:
@@ -474,11 +507,13 @@ def test_unified_rag_structured_recall_cn_date(monkeypatch: pytest.MonkeyPatch):
             return _ChatResp("rag answer")
 
     monkeypatch.setattr(unified_chat, "openai_siliconflow_client", lambda: _DummyOpenAI())
+    monkeypatch.setattr(json_handler, "openai_siliconflow_client", lambda: _DummyOpenAI())
 
     async def fake_rewrite(*, oai, query, history, chat_model):  # noqa: ANN001
         return query
 
     monkeypatch.setattr(unified_chat, "rewrite_query_with_history", fake_rewrite)
+    monkeypatch.setattr(json_handler, "rewrite_query_with_history", fake_rewrite)
 
     class _Rpc:
         def __init__(self, name: str):
@@ -529,6 +564,7 @@ def test_unified_rag_structured_recall_cn_date(monkeypatch: pytest.MonkeyPatch):
             return _TableQuery()
 
     monkeypatch.setattr(unified_chat, "supabase_client", lambda: _Sb())
+    monkeypatch.setattr(json_handler, "supabase_client", lambda: _Sb())
 
     client = TestClient(index.app)
     res = client.post(

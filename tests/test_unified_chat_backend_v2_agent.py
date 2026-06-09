@@ -151,6 +151,7 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
 
     index = _reload_api_index(monkeypatch)
     import api.agent as agent_module
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     async def _text2sql_fail_exec(*, query: str, history: list[dict[str, Any]] | None = None,
@@ -210,6 +211,7 @@ def test_v2_json_multi_tool_sql_fail_then_rag(monkeypatch: pytest.MonkeyPatch):
     ]
 
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
         _ = (query, history, tools, min_confidence, timeout, kwargs)
@@ -249,6 +251,7 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
     index = _reload_api_index(monkeypatch)
     import api.agent as agent_module
     import api.rag_env as rag_env_module
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     # mock text2sql tool returns sql + rows with id_number
@@ -289,6 +292,7 @@ def test_v2_db_log_text2sql_exec_trace_filters_id_number(monkeypatch: pytest.Mon
         _make_tool("direct_answer", _rag_ok_exec),
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
         _ = (query, history, tools, min_confidence, timeout, kwargs)
@@ -540,6 +544,7 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
 
     index = _reload_api_index(monkeypatch)
     import api.agent as agent_module
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     # [mock ①a] 首步 rag_search：ToolResult.error_code=RAG_RETRIEVE_EMPTY（模拟检索无命中）。
@@ -584,6 +589,7 @@ def test_v2_rag_empty_gated_fallback(monkeypatch: pytest.MonkeyPatch):
     ]
     # [mock ②] 见文件头说明：替换 get_tool_registry，本轮仅使用 dummy_tools。
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     # [mock ③] 见文件头说明：替换 decide_intent_v2；首工具 rag_search + has_aggregation_signals 驱动 gating。
     async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
@@ -624,6 +630,7 @@ def test_v2_text2sql_write_denied_stops_without_rag(monkeypatch: pytest.MonkeyPa
 
     index = _reload_api_index(monkeypatch)
     import api.agent as agent_module
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     t2s_calls = {"n": 0}
@@ -667,6 +674,7 @@ def test_v2_text2sql_write_denied_stops_without_rag(monkeypatch: pytest.MonkeyPa
         _make_tool("direct_answer", _rag_must_not_run),
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     async def _fake_intent(
         *,
@@ -718,6 +726,7 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
     monkeypatch.setenv("INTENT_MIN_CONFIDENCE", "0.6")
 
     index = _reload_api_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     clear_intent_cache()
@@ -767,6 +776,7 @@ def test_v2_natural_diary_query_rag_empty_fallback_to_direct(monkeypatch: pytest
     ]
     # [mock ②] 仅替换工具表；[mock ③] 不使用——走真实 decide_intent_v2（启发式）。
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     client = TestClient(index.app)
     res = client.post(
@@ -2126,6 +2136,9 @@ def test_v2_agent_latency_exceeded_v1_fallback_rag(monkeypatch: pytest.MonkeyPat
         _make_tool("text2sql_query", _rag_ok_exec),
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    import api.unified.json_handler as json_handler
+
+    monkeypatch.setattr(json_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     async def _slow_decide_intent_v2(
         *,

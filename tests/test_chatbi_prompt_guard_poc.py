@@ -93,6 +93,7 @@ def test_unified_json_block_before_llm(monkeypatch: pytest.MonkeyPatch, capsys: 
     monkeypatch.setenv("CHATBI_PROMPT_GUARD_MODE", "block")
     monkeypatch.setenv("CHATBI_JSON_LOG", "1")
     index = _reload_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     _called: dict[str, bool] = {"sql": False}
@@ -102,6 +103,7 @@ def test_unified_json_block_before_llm(monkeypatch: pytest.MonkeyPatch, capsys: 
         raise AssertionError("llm_generate_sql must not run when prompt guard blocks")
 
     monkeypatch.setattr(unified_chat, "llm_generate_sql", _no_llm)
+    monkeypatch.setattr(json_handler, "llm_generate_sql", _no_llm)
 
     _reset_chatbi_obs_logger()
     client = TestClient(index.app)
@@ -142,12 +144,14 @@ def test_unified_json_warn_logs_once_and_continues(monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv("CHATBI_PROMPT_GUARD_MODE", "warn")
     monkeypatch.setenv("CHATBI_JSON_LOG", "1")
     index = _reload_index(monkeypatch)
+    import api.unified.json_handler as json_handler
     import api.unified_chat as unified_chat
 
     class _DummyOAI:
         pass
 
     monkeypatch.setattr(unified_chat, "OpenAI", lambda api_key, base_url: _DummyOAI())
+    monkeypatch.setattr(json_handler, "OpenAI", lambda api_key, base_url: _DummyOAI())
 
     def fake_get_store() -> Any:
         class _S:
@@ -157,8 +161,14 @@ def test_unified_json_warn_logs_once_and_continues(monkeypatch: pytest.MonkeyPat
         return _S()
 
     monkeypatch.setattr(unified_chat, "get_text2sql_store", fake_get_store)
+    monkeypatch.setattr(json_handler, "get_text2sql_store", fake_get_store)
     monkeypatch.setattr(
         unified_chat,
+        "llm_generate_sql",
+        lambda *, oai, model, prompt: "select 1 as count from public.agent_info",  # noqa: ARG005
+    )
+    monkeypatch.setattr(
+        json_handler,
         "llm_generate_sql",
         lambda *, oai, model, prompt: "select 1 as count from public.agent_info",  # noqa: ARG005
     )
@@ -168,12 +178,27 @@ def test_unified_json_warn_logs_once_and_continues(monkeypatch: pytest.MonkeyPat
         lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
     )
     monkeypatch.setattr(
+        json_handler,
+        "apply_chatbi_sql_gate",
+        lambda sql_raw, *, principal, policies, run_id=None, request_id=None: (sql_raw.strip(), "select"),  # noqa: ARG005
+    )
+    monkeypatch.setattr(
         unified_chat,
         "execute_select_sql",
         lambda sql, limit_rows=200: (["count"], [{"count": 1}]),  # noqa: ARG005
     )
     monkeypatch.setattr(
+        json_handler,
+        "execute_select_sql",
+        lambda sql, limit_rows=200: (["count"], [{"count": 1}]),  # noqa: ARG005
+    )
+    monkeypatch.setattr(
         unified_chat,
+        "llm_summarize",
+        lambda *, oai, model, prompt: "共 1 条。",  # noqa: ARG005
+    )
+    monkeypatch.setattr(
+        json_handler,
         "llm_summarize",
         lambda *, oai, model, prompt: "共 1 条。",  # noqa: ARG005
     )
