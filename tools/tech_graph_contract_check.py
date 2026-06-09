@@ -21,6 +21,7 @@ BACKEND_CONTRACT_SOURCES = [
     REPO_ROOT / "api" / "agent.py",
     REPO_ROOT / "api" / "chatbi_events.py",
     REPO_ROOT / "api" / "tools.py",
+    REPO_ROOT / "api" / "tools_text2sql.py",
 ]
 
 
