@@ -7,7 +7,7 @@
 
 # W7 · Tool 注册表拆分
 
-> **状态**: active（PR 待 merge）
+> **状态**: done（PR [#155](https://github.com/Cyning12/ai-ink-brain-api-python/pull/155) · 2026-06-09）
 > **slug**: `api-tools-registry-split`
 > **git_branch**: `task/api-tools-w7`
 > **风险**: Medium
