@@ -7,7 +7,7 @@
 
 # W6 · Agent 循环子模块拆分
 
-> **状态**: active（PR 待 merge）
+> **状态**: done（PR [#153](https://github.com/Cyning12/ai-ink-brain-api-python/pull/153) · 2026-06-09）
 > **slug**: `api-agent-loop-split`
 > **git_branch**: `task/api-agent-w6`
 > **风险**: High
@@ -95,4 +95,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-06-09 | v1：W6 task 初稿 — agent 循环子模块拆分 |
-| 2026-06-09 | v1.1：实现完成 · PR 待 merge |
+| 2026-06-09 | v1.1：实现完成 · PR [#153](https://github.com/Cyning12/ai-ink-brain-api-python/pull/153) merge · 关账 |
