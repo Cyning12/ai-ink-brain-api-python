@@ -457,6 +457,7 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
 
     index = _reload_api_index(monkeypatch)
     import api.agent as agent_module
+    import api.unified.sse_handler as sse_handler
     import api.unified_chat as unified_chat
 
     async def _sql_exec(*, query: str, history: list[dict[str, Any]] | None = None,
@@ -502,6 +503,7 @@ def test_v2_sse_stream_sql_result_jsonable_encoder(monkeypatch: pytest.MonkeyPat
         _make_tool("direct_answer", _rag_ok_exec),
     ]
     monkeypatch.setattr(unified_chat, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
+    monkeypatch.setattr(sse_handler, "get_tool_registry", lambda: _DummyRegistry(dummy_tools))
 
     async def _fake_decide_intent_v2(*, query: str, history: list[dict[str, Any]], tools: list[Tool], min_confidence: float, timeout: float, **kwargs: Any):  # noqa: ANN001
         _ = (query, history, tools, min_confidence, timeout, kwargs)
