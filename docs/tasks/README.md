@@ -15,7 +15,7 @@
 **编码规范排期（§1.5）**：
 
 - **P3+P4（当前棒）**：[`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md)
-- **Tech-debt Epic（模块拆分）**：[`active/task_standards_backend_api_modularization_manifest_v1.md`](active/task_standards_backend_api_modularization_manifest_v1.md) · **禁止** 单 task 改全 Python 服务目录
+- **Tech-debt Epic（模块拆分）**：[`done/task_standards_backend_api_modularization_manifest_v1.md`](done/task_standards_backend_api_modularization_manifest_v1.md) · **Epic CLOSE**（W1～W8 done · 2026-06-09）
 
 **Wiki 排期导航（L2 · 防孤岛）**：[`../coding_wiki/concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) — pointer 至 RECENT，**不**替代排期真值。
 
