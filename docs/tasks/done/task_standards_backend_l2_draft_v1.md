@@ -1,6 +1,6 @@
 # 起草后端编码规范 L2（P2 · 对称前端 active）
 
-> **状态**：建议签收（L2 **active** v1.1 · 2026-06-09）
+> **状态**：**done** — L2 **active** v1.1 · PR [#143](https://github.com/Cyning12/ai-ink-brain-api-python/pull/143) · 2026-06-09
 > **schedule_ref**：编码规范 Epic · P2 后端  
 > **epic**：`standards-engineering`（工作区 [`00_OUTLINE`](../../../docs/standards/00_OUTLINE_工程编码规范改进_v1_zh.md) §5 P2）  
 > **关联图谱**：`docs/_tech_graph/99_spec.md`（规约层 · 无业务流程变更）  

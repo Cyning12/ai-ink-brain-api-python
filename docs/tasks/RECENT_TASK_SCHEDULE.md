@@ -119,13 +119,13 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **7** 个 task + 1 附属 AGENT_PROMPT |
+| **active/**           | **9** 个 task + 1 附属 AGENT_PROMPT |
 | **done/**             | **65+** 个 `.md`（含 P0 OpenSpec×TDD Loop 母+3 子） |
 | **_views/done.md**    | 随关账同步（含 P0 Loop 四单 · 2026-05-30）                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：链式 `orchestration` · `required` → **50 必落盘**（见 §0.0）                                                 |
 | **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿 · W1 **done** Loop R1） |
-| **近期当前**            | P0 OpenSpec×TDD Loop **done**（#94）· P2 Loop **done** · 见 §1.1 业务 active |
+| **近期当前**            | **编码规范 P3+P4**（§1.5）· P0 OpenSpec×TDD Loop **done** · 见 §1.1 业务 active |
 | **V3 P2-1 韧性** | P2-1a/b/c **done** · Loop **done** |
 
 
@@ -141,7 +141,22 @@
 | 4b    | `task_chatbi_v3_lowconf_rag_preview_v1.md`                              | `draft`    | 低置信 §5-3 **RAG 全栈** | P2 · 先 Ink Harness |
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
+| 8     | `task_standards_backend_p3_p4_l3_ruff_v1.md`                              | `draft`    | 编码规范 P3+P4 · mdc+Ruff | §1.5 **当前棒** |
+| 9     | `task_standards_backend_api_modularization_manifest_v1.md`              | `draft`    | 服务层模块化 Epic MANIFEST | §1.5 · P3+P4 后 |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
+
+### 1.5 编码规范 Epic（`standards-engineering` · 2026-06-09）
+
+> **OUTLINE**：工作区 [`00_OUTLINE_工程编码规范改进_v1_zh.md`](../../../docs/standards/00_OUTLINE_工程编码规范改进_v1_zh.md) §5  
+> **L2 后端**：[`docs/standards/CODING_BACKEND_L2_v1_zh.md`](../standards/CODING_BACKEND_L2_v1_zh.md) **active** v1.1 · PR [#143](https://github.com/Cyning12/ai-ink-brain-api-python/pull/143)
+
+| 阶段 | task | 状态 | 说明 |
+|------|------|------|------|
+| **P2 · L2** | [`done/task_standards_backend_l2_draft_v1.md`](done/task_standards_backend_l2_draft_v1.md) | **done** | R1 签收 · L2 active |
+| **P3+P4** | [`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md) | **draft** · **当前棒** | `.mdc` + Ruff CI · 小 task |
+| **Tech-debt Epic** | [`active/task_standards_backend_api_modularization_manifest_v1.md`](active/task_standards_backend_api_modularization_manifest_v1.md) | **draft** | W1～W8 模块拆分 · **MANIFEST 仅** · 禁止单 task 改全服务目录 |
+
+**执行顺序**：P3+P4 **先** → Epic W1（env 收敛）→ W2/W3（路由）→ W4/W5（Unified）→ W6～W8。
 
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
@@ -474,7 +489,7 @@ flowchart TD
 | 2026-05-29 | **任务整合**：P2 Loop 母单 + R1/R2 · #86/#87 归 R1 关账 · 单 PR `task/chatbi-v3-p2-loop-v1` |
 | 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
 | 2026-06-08 | **§1.4 Phase 2 G3 CLOSE**：semi_auto 物理退场 · SPEC 全面生效 · DEPRECATED 横幅 · task → `done/` |
-| 2026-06-08 | **§1.3 semi_auto 退场 Epic CLOSE**：G1 #135 + G2 #137/#138 · MANIFEST → `done/` · 全面废弃条件满足 |
+| 2026-06-09 | **§1.5 编码规范 Epic**：P2 done #143 · P3+P4 task + api 模块化 MANIFEST |
 
 
 ---
