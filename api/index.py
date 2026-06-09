@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import hmac
 import json
-import os
 import re
 import sys
 import time
@@ -67,9 +66,18 @@ from .query_rewrite import rewrite_query_with_history
 from .rag_embedding_guard import ensure_embedding_alignment
 from .rag_env import (
     admin_secret,
+    api_key_optional,
+    content_default_year,
     llm_execute_with_circuit_breaker,
+    max_x_sources_header_chars,
     pick_supabase_service_key,
     pick_supabase_url,
+    rag_debug_enabled,
+    siliconflow_api_key_optional,
+    siliconflow_base,
+    siliconflow_chat_model,
+    siliconflow_embedding_dimensions,
+    siliconflow_embedding_model,
     supabase_execute_with_retry,
 )
 from .rag_logging import (
@@ -83,22 +91,11 @@ from .rag_shared import parse_match_threshold, strip_doc_context_prefix
 app = FastAPI(title="AI-Ink-Brain RAG API")
 register_rate_limit_middleware(app)
 
-DEFAULT_YEAR = int(os.getenv("CONTENT_DEFAULT_YEAR", "2026"))
-SILICONFLOW_BASE = os.getenv("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1").rstrip("/")
-SILICONFLOW_EMBEDDING_MODEL = (
-    os.getenv("SILICONFLOW_EMBEDDING_MODEL", "").strip() or "Qwen/Qwen3-Embedding-0.6B"
-)
-SILICONFLOW_EMBEDDING_DIMENSIONS = int(os.getenv("SILICONFLOW_EMBEDDING_DIMENSIONS", "1024"))
-SILICONFLOW_CHAT_MODEL = os.getenv("SILICONFLOW_CHAT_MODEL", "deepseek-ai/DeepSeek-V4-Pro")
-
 MATCH_COUNT = 10
 CONTEXT_MAX_CHARS = 6000
 
 # 流式响应末尾携带引用来源（JSON）的分隔符
 SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
-
-# x-sources Header 的安全上限（percent-encoding 后容易膨胀；超限会触发 Node/undici 的 headers overflow）
-MAX_X_SOURCES_HEADER_CHARS = int(os.getenv("MAX_X_SOURCES_HEADER_CHARS", "6000"))
 
 def fetch_keyword_hits(sb: Any, query_text: str, *, match_count: int = 12) -> list[dict[str, Any]]:
     """Keyword 路：调用 Supabase RPC keyword_documents（FTS）。"""
@@ -131,15 +128,8 @@ def _fetch_keyword_hits_for_fallback(sb: Any, query_text: str, match_count: int)
     return fetch_keyword_hits(sb, query_text, match_count=match_count)
 
 
-def _rag_debug_enabled() -> bool:
-    v = (os.getenv("DEBUG_RAG") or os.getenv("RAG_DEBUG") or "").strip().lower()
-    if v in ("1", "true", "yes", "on"):
-        return True
-    return os.getenv("NODE_ENV", "").strip().lower() == "development"
-
-
 def _rag_log(msg: str) -> None:
-    if _rag_debug_enabled():
+    if rag_debug_enabled():
         print(f"[rag-debug] {msg}", flush=True)
 
 
@@ -200,7 +190,7 @@ def _require_auth(
     x_admin_token: str | None = None,
 ) -> None:
     expected_admin = admin_secret()
-    expected_api = (os.getenv("API_KEY") or "").strip() or None
+    expected_api = api_key_optional()
     if not expected_admin and not expected_api:
         raise HTTPException(status_code=500, detail="未配置 SYNC_ADMIN_SECRET 或 API_KEY")
     token = ""
@@ -264,10 +254,10 @@ async def _require_rag_history_auth(
 code_retrieval.bind_index_symbols(
     build_sources_payload_=build_sources_payload,
     parse_match_threshold_=parse_match_threshold,
-    siliconflow_base_=SILICONFLOW_BASE,
-    siliconflow_embedding_model_=SILICONFLOW_EMBEDDING_MODEL,
-    siliconflow_embedding_dimensions_=SILICONFLOW_EMBEDDING_DIMENSIONS,
-    siliconflow_chat_model_=SILICONFLOW_CHAT_MODEL,
+    siliconflow_base_=siliconflow_base(),
+    siliconflow_embedding_model_=siliconflow_embedding_model(),
+    siliconflow_embedding_dimensions_=siliconflow_embedding_dimensions(),
+    siliconflow_chat_model_=siliconflow_chat_model(),
     match_count_=MATCH_COUNT,
     rag_log_=_rag_log,
 )
@@ -300,7 +290,7 @@ def _collect_date_hints(text: str) -> list[str]:
 
     for m in re.finditer(r"(?<![\d])(\d{1,2})[-/](\d{1,2})(?![\d])", text):
         mo, d = int(m.group(1)), int(m.group(2))
-        for h in _filename_title_hints(DEFAULT_YEAR, mo, d):
+        for h in _filename_title_hints(content_default_year(), mo, d):
             hints.add(h)
 
     return sorted(hints)
@@ -482,7 +472,7 @@ def _component_status(name: str, ok: bool, detail: str | None = None) -> dict[st
 def _build_ready_components() -> list[dict[str, Any]]:
     supabase_url = (pick_supabase_url() or "").strip()
     supabase_key = (pick_supabase_service_key() or "").strip()
-    siliconflow_api_key = (os.getenv("SILICONFLOW_API_KEY") or "").strip()
+    siliconflow_api_key = siliconflow_api_key_optional()
 
     components: list[dict[str, Any]] = []
     if supabase_url and supabase_key:
@@ -732,7 +722,7 @@ async def chat(
         raise HTTPException(status_code=400, detail="Missing session_id")
     session_id = session_id_raw.strip()
 
-    api_key = os.getenv("SILICONFLOW_API_KEY", "").strip()
+    api_key = siliconflow_api_key_optional()
     if not api_key:
         raise HTTPException(status_code=500, detail="Missing SILICONFLOW_API_KEY")
 
@@ -758,7 +748,7 @@ async def chat(
     t_history_ms = int((time.perf_counter() - t0) * 1000)
 
     date_hints = _collect_date_hints(query)
-    oai = OpenAI(api_key=api_key, base_url=SILICONFLOW_BASE)
+    oai = OpenAI(api_key=api_key, base_url=siliconflow_base())
 
     t1 = time.perf_counter()
     try:
@@ -766,7 +756,7 @@ async def chat(
             oai=oai,
             query=query,
             history=history,
-            chat_model=SILICONFLOW_CHAT_MODEL,
+            chat_model=siliconflow_chat_model(),
         )
     except Exception as exc:  # noqa: BLE001
         _rag_log(f"rewrite_query failed: {exc!s}")
@@ -778,7 +768,7 @@ async def chat(
 
     _rag_log(
         f"last_user_query(len={len(query)})={_short(query, 500)!r} "
-        f"| date_hints={date_hints} | DEFAULT_YEAR={DEFAULT_YEAR}"
+        f"| date_hints={date_hints} | DEFAULT_YEAR={content_default_year()}"
     )
 
     # Embedding 优雅降级：向量服务异常时，退化为 keyword-only（FTS）检索，保持服务“半离线可用”
@@ -786,12 +776,13 @@ async def chat(
     embedding_error: str | None = None
     t2 = time.perf_counter()
     try:
+        emb_model = siliconflow_embedding_model()
         emb_kw: dict[str, Any] = {
-            "model": SILICONFLOW_EMBEDDING_MODEL,
+            "model": emb_model,
             "input": [embed_input],
         }
-        if "Qwen3-Embedding" in SILICONFLOW_EMBEDDING_MODEL:
-            emb_kw["dimensions"] = SILICONFLOW_EMBEDDING_DIMENSIONS
+        if "Qwen3-Embedding" in emb_model:
+            emb_kw["dimensions"] = siliconflow_embedding_dimensions()
         emb_res = llm_execute_with_circuit_breaker(lambda: oai.embeddings.create(**emb_kw))
         vec = list(emb_res.data[0].embedding)
     except CircuitBreakerOpenError as exc:
@@ -892,7 +883,7 @@ async def chat(
         fused_hits = fuse_hits_rrf(vector_hits, keyword_hits, max_total=22)
         hits = fused_hits
 
-        if _rag_debug_enabled():
+        if rag_debug_enabled():
             fb = keyword_fallback
             _rag_log(
                 "retrieve_summary "
@@ -941,7 +932,7 @@ async def chat(
             flush=True,
         )
 
-        if _rag_debug_enabled():
+        if rag_debug_enabled():
             titles = []
             for h in hits:
                 c = h.get("content") if isinstance(h.get("content"), str) else ""
@@ -1010,10 +1001,11 @@ async def chat(
             safe="",
         )
         # 保护：Header 过大将导致 Next/Node fetch 直接失败（UND_ERR_HEADERS_OVERFLOW）
-        if sources_header and len(sources_header) > MAX_X_SOURCES_HEADER_CHARS:
+        max_sources_chars = max_x_sources_header_chars()
+        if sources_header and len(sources_header) > max_sources_chars:
             _rag_log(
                 "x-sources header too large: "
-                f"{len(sources_header)}>{MAX_X_SOURCES_HEADER_CHARS}; "
+                f"{len(sources_header)}>{max_sources_chars}; "
                 "will omit header and rely on stream tail JSON"
             )
             sources_header = None
@@ -1025,7 +1017,7 @@ async def chat(
         nonlocal gen_finished_ms
         try:
             stream = oai.chat.completions.create(
-                model=SILICONFLOW_CHAT_MODEL,
+                model=siliconflow_chat_model(),
                 messages=chat_messages,
                 temperature=0.2,
                 stream=True,
@@ -1065,8 +1057,8 @@ async def chat(
                 "generate": gen_finished_ms,
             },
             "models": {
-                "embedding": SILICONFLOW_EMBEDDING_MODEL,
-                "chat": SILICONFLOW_CHAT_MODEL,
+                "embedding": siliconflow_embedding_model(),
+                "chat": siliconflow_chat_model(),
             },
             "match": build_rag_match_meta(
                 match_count=MATCH_COUNT,
