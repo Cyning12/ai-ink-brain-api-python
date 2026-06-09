@@ -14,6 +14,7 @@
 - **如果你要做任务实现/验收**：从 [`docs/tasks/RECENT_TASK_SCHEDULE.md`](tasks/RECENT_TASK_SCHEDULE.md) 进入，或按状态视图 [`docs/tasks/_views/`](tasks/_views/) 浏览 `active/`、`done/` 中的 `task_*.md`（每个 Task 需要写明 `状态`）
 - **如果你要做 ChatBI V2/V3 相关实现**：读 [`docs/spec/v3-agent/`](spec/v3-agent/) 与 [`docs/spec/`](spec/) 中对应 SPEC
 - **如果你要做关账回顾/编码 Wiki（L2）**：读 [`docs/coding_wiki/index.md`](coding_wiki/index.md) → [`docs/coding_wiki/CODING_WIKI.md`](coding_wiki/CODING_WIKI.md)；**改代码仍优先回 L0 图谱**
+- **如果你要查后端编码规范 L2（P-xx · 遵循 B-xx）**：读 [`docs/standards/README.md`](standards/README.md) → [`docs/standards/CODING_BACKEND_L2_v1_zh.md`](standards/CODING_BACKEND_L2_v1_zh.md)（L1 在工作区 `docs/standards/`）
 - **如果你要查历史流程快照（Legacy · 非 L0）**：读 `docs/flows/` 的版本化流程快照（已被 `docs/_tech_graph/` 取代；仅做历史对比时打开）
 - **如果你要做 UI 协议对齐（SSE、events、timeline）**：读 `docs/UI/`
 - **如果你要做 Text2SQL**：读 `docs/text2sql/`

@@ -13,7 +13,8 @@
 4. [`docs/tasks/RECENT_TASK_SCHEDULE.md`](docs/tasks/RECENT_TASK_SCHEDULE.md) → 具体 `active/task_*.md`
 5. [`docs/harness/README.md`](docs/harness/README.md) — Harness 帽子链、落盘、**链式 `orchestration` 常模**（细则 **不** 堆本文；见 Chain SPEC + `PROMPT_*_chain_serial_*`）
 6. [`docs/coding_wiki/index.md`](docs/coding_wiki/index.md) — 关账回顾 L2；**改代码仍 L0 图谱优先**
-7. 跨仓协作：工作区 [`Projects/AGENTS.md`](../../Projects/AGENTS.md) **§2**
+7. [`docs/standards/README.md`](docs/standards/README.md) — 编码规范 L2（`P-xx` · 遵循 `B-xx`；L1 在工作区 `docs/standards/`）
+8. 跨仓协作：工作区 [`Projects/AGENTS.md`](../../Projects/AGENTS.md) **§2**
 
 > **docs 分类导航**（含 UI / text2sql / diary 等扩展条）见 [`docs/README.md`](docs/README.md) **§1**。
 
@@ -26,6 +27,7 @@
 | `docs/diary/` | 验收留证、实验报告；**默认不读**，仅 task / `@` 指向 |
 | `docs/diary/jsonPKmermaid/` | 图谱行为实验轨；非实验任务勿遍历 |
 | `docs/spec/` | SDD 规格（ChatBI 等） |
+| `docs/standards/` | 后端编码规范 L2（`CODING_BACKEND_L2_v1_zh.md`） |
 
 ---
 
