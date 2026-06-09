@@ -7,6 +7,12 @@ from collections.abc import Awaitable, Callable
 from typing import Any, Literal
 
 from .agent_memory import AgentMemoryStore
+from .agent_tool_runner import (
+    intent_signals_from_query,
+    next_tool_after_success,
+    select_tool,
+    tool_to_mode,
+)
 from .chatbi_agent_models import (
     AGENT_THINK_TEXT_CLIP,
     AgentFinalView,
@@ -20,11 +26,17 @@ from .chatbi_events import emit_simulated_llm as _emit_simulated_llm
 from .chatbi_failure import FailureTypeHandler
 from .chatbi_failure import has_aggregation_signals as _has_aggregation_signals
 from .chatbi_json_log import chatbi_json_log_enabled, log_chatbi_record
+from .chatbi_plan_token import (
+    mint_clarify_plan_bypass_token,
+    plan_preview_confirm_enabled,
+    plan_token_ttl_s,
+    verify_clarify_plan_bypass_token,
+)
 from .intent_agent import IntentDecision, build_intent_path_obs, decide_intent_v2
 from .intent_router import decide_intent as decide_intent_v1
 from .text2sql_core import is_text2sql_intent
 from .text2sql_grounding import grounding_prefix_for_intent
-from .tools import Tool, ToolName, ToolResult, tool_mode_map
+from .tools import Tool, ToolName, ToolResult
 
 # 契约静态扫描锚点：实现已迁至 chatbi_events，锚点字面量须保留于本文件供 contract check
 _CONTRACT_ANCHOR_AGENT_CLARIFY = _agent_chain(
@@ -86,17 +98,6 @@ class ChatBIAgent:
         self._max_steps = max(1, int(os.getenv("AGENT_MAX_STEPS", "5")))
         self._max_latency_ms = max(1000, int(os.getenv("AGENT_MAX_LATENCY_MS", "45000")))
         self._min_confidence = float(os.getenv("INTENT_MIN_CONFIDENCE", "0.6"))
-
-    def _select_tool(self, tool_name: ToolName) -> Tool:
-        t = self._tools.get(tool_name)
-        if not t:
-            # 类型上不应发生：因为工具来自 registry
-            raise RuntimeError(f"Unknown tool: {tool_name}")
-        return t
-
-    def _tool_to_mode(self, tool: ToolName) -> V1Mode:
-        m = tool_mode_map()[tool]
-        return m  # type: ignore[return-value]
 
     async def run(
         self,
@@ -177,7 +178,7 @@ class ChatBIAgent:
                 step1_tool = intent.fallback
             else:
                 step1_tool = intent.tool
-            step1_mode = self._tool_to_mode(step1_tool)
+            step1_mode = tool_to_mode(step1_tool)
             step1_conf = intent.confidence
             step1_reasoning = intent.reasoning
             step1_fallback = intent.fallback
@@ -189,12 +190,6 @@ class ChatBIAgent:
             "true",
             "yes",
             "on",
-        )
-        from .chatbi_plan_token import (
-            mint_clarify_plan_bypass_token,
-            plan_preview_confirm_enabled,
-            plan_token_ttl_s,
-            verify_clarify_plan_bypass_token,
         )
 
         _plan_bypass_tool: ToolName | None = None
@@ -231,7 +226,7 @@ class ChatBIAgent:
         # 用户已持有效 plan_execution_token：本轮回放首步须回到确认时的工具，而非低置信 fallback。
         if _plan_bypass_tool:
             step1_tool = _plan_bypass_tool
-            step1_mode = self._tool_to_mode(step1_tool)
+            step1_mode = tool_to_mode(step1_tool)
             if _plan_bypass_tool == "rag_search":
                 step1_reasoning = "已校验 plan_execution_token，按用户确认放行执行 RAG 检索。"
             else:
@@ -239,7 +234,7 @@ class ChatBIAgent:
 
         # Step 循环：必须多步（允许成功在 2 步内结束，但失败应触发继续）
         current_tool: ToolName = step1_tool
-        current_mode: V1Mode = self._tool_to_mode(current_tool)
+        current_mode: V1Mode = tool_to_mode(current_tool)
         current_tool_result: ToolResult
         current_thought = step1_reasoning[:200]
 
@@ -420,7 +415,7 @@ class ChatBIAgent:
             _cl_msg = "待您澄清（低置信度）"
             plan_preview_payload: dict[str, Any] | None = None
             plan_ttl_s = plan_token_ttl_s()
-            _clarify_mode = self._tool_to_mode(_clarify_tool)
+            _clarify_mode = tool_to_mode(_clarify_tool)
             if _clarify_tool == "rag_search":
                 ttl_notice = (
                     f"若确认按预览检索方案继续：请在 {plan_ttl_s} 秒内在**下一轮同一问题**的请求 JSON 中带 "
@@ -615,11 +610,11 @@ class ChatBIAgent:
                     current_tool = "text2sql_query"
                 else:
                     current_tool = "direct_answer"
-                current_mode = self._tool_to_mode(current_tool)
+                current_mode = tool_to_mode(current_tool)
                 current_thought = "Agent 超时，降级到 V1 规则路由。"
                 agent_step_routing = "agent_soft_timeout_v1"
 
-            tool = self._select_tool(current_tool)
+            tool = select_tool(tools_map=self._tools, tool_name=current_tool)
             call_history: list[dict[str, Any]] = turn_history[-6:]
             if emit is not None:
                 if step_idx > 1:
@@ -780,14 +775,14 @@ class ChatBIAgent:
                     ans = current_tool_result.data["answer"]
                 else:
                     ans = "对话生成失败。"
-                # 把“当前工具结果”作为对话历史注入，供后续工具 rewrite 使用
+                # 把"当前工具结果"作为对话历史注入，供后续工具 rewrite 使用
                 turn_history.append({"query": query, "response": ans})
 
-                # 成功后仍可继续：若问题语义需要“数值 + 原因/解释”双证据，则进入下一工具
-                next_tool = _next_tool_after_success(query=query, tool_used=current_tool)
+                # 成功后仍可继续：若问题语义需要"数值 + 原因/解释"双证据，则进入下一工具
+                next_tool = next_tool_after_success(query=query, tool_used=current_tool)
                 if next_tool and step_idx < max_steps:
                     next_action2: Literal["continue", "final_answer"] = "continue"
-                    next_mode2 = self._tool_to_mode(next_tool)
+                    next_mode2 = tool_to_mode(next_tool)
                     next_thought2 = "已获取结构化数据，继续调用文档检索解释原因并整合回答。"
                     steps.append(
                         AgentStepView(
@@ -1062,35 +1057,4 @@ class ChatBIAgent:
         return AgentRunView(intent_decision=intent, steps=steps, final=final)
 
 
-def _next_tool_after_success(*, query: str, tool_used: ToolName) -> ToolName | None:
-    """多步 ReAct 的 P0 最小“继续条件”。
-
-    仅在明显需要“数值 + 解释/原因”的语义下，允许从 SQL 成功继续调用 RAG。
-    """
-    q = (query or "").lower()
-    if tool_used == "text2sql_query":
-        if any(k in q for k in ["原因", "下降", "解释", "为什么", "提升", "增长", "减少", "增加"]):
-            return "rag_search"
-        return None
-    if tool_used == "rag_search":
-        if is_text2sql_intent(query):
-            return "text2sql_query"
-        return None
-    return None
-
-
-def intent_signals_from_query(query: str) -> Any:
-    # 复用 intent gating 字段语义：用于 prefer 强制时也能正确 gated_sql fallback
-    llm_prefers_sql = is_text2sql_intent(query)
-    has_aggregation_signals = _has_aggregation_signals(query)
-    # StructuredSignals 是 IntentDecision 内部类型；为了避免循环依赖，这里用 Any 传入其结构
-    # unified_chat/agent.py 只按属性访问：llm_prefers_sql / has_aggregation_signals
-    return type(
-        "StructuredSignalsLite",
-        (),
-        {"llm_prefers_sql": llm_prefers_sql, "has_aggregation_signals": has_aggregation_signals},
-    )()
-
-
 __all__ = ["ChatBIAgent", "AgentRunView", "AgentFinalView", "AgentStepView"]
-
