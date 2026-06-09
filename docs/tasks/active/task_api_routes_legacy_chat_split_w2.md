@@ -98,15 +98,15 @@
 
 ## 验收标准
 
-- [ ] `api/routes/legacy_chat.py` 存在且 ruff 绿
-- [ ] `api/index.py` 仍包含所有路由注册（@app.post/get），但 handler body 已下沉
-- [ ] `index.py` 行数从 ~1197 降至 ~<850（W2 单一目标；最终 <400 需 W3～W8 完成）
-- [ ] `tests/test_legacy_chat_route.py` 通过（mock streaming）
-- [ ] `tests/test_legacy_chat_history_route.py` 通过
-- [ ] `tests/test_chat_suggested_questions_route.py` 仍通过
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `ruff check api tests` 全绿
-- [ ] 单 PR 触及 `api/*.py` 数量 ≤8
+- [x] `api/routes/legacy_chat.py` 存在且 ruff 绿
+- [x] `api/index.py` 仍包含所有路由注册（@app.post/get），但 handler body 已下沉
+- [x] `index.py` 行数从 ~1197 降至 ~<850（W2 单一目标；最终 <400 需 W3～W8 完成）
+- [x] `tests/test_legacy_chat_route.py` 通过（mock streaming）
+- [x] `tests/test_legacy_chat_history_route.py` 通过
+- [x] `tests/test_chat_suggested_questions_route.py` 仍通过
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
+- [x] `ruff check api tests` 全绿
+- [x] 单 PR 触及 `api/*.py` 数量 ≤8
 
 ---
 
@@ -115,3 +115,24 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-06-09 | v1：W2 task 初稿 — legacy chat 路由下沉 |
+
+---
+
+### 自检结论（40）
+
+| # | 验收项 | 结果 | 命令输出要点 |
+|---|--------|------|-------------|
+| 1 | `api/routes/legacy_chat.py` 存在且 ruff 绿 | **PASS** | `test -f` → EXISTS；`ruff check` → All checks passed |
+| 2 | `api/index.py` 仍包含所有路由注册，handler body 已下沉 | **PASS** | `@app.post("/api/py/chat")` 等注册存在；body 仅薄层 `await chat(...)` 转发 |
+| 3 | `index.py` 行数 <850 | **PASS** | `wc -l` → 438 行（目标 <850） |
+| 4 | `tests/test_legacy_chat_route.py` 通过 | **PASS** | 5 passed（401/400/400/500/200 mock streaming） |
+| 5 | `tests/test_legacy_chat_history_route.py` 通过 | **PASS** | 3 passed（401/400/200 mock） |
+| 6 | `tests/test_chat_suggested_questions_route.py` 仍通过 | **PASS** | 1 passed |
+| 7 | `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿 | **PASS** | 347 passed, 1 skipped, 2 deselected |
+| 8 | `ruff check api tests` 全绿 | **PASS** | All checks passed |
+| 9 | 单 PR 触及 `api/*.py` 数量 ≤8 | **PASS** | 共 4 个：`api/index.py`, `api/rag_shared.py`, `api/routes/__init__.py`, `api/routes/legacy_chat.py` |
+| 10 | 契约不变 | **PASS** | path/method/request/response 无变更；`_contract_manifest.json` 未修改 |
+
+**总体结论**：通过，无阻塞项。
+
+**建议**：Lead 可 CLOSE 本 task 并合并 PR。
