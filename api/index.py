@@ -61,7 +61,15 @@ from .rag_shared import (
     build_sources_payload,
     parse_match_threshold,
 )
-from .routes.legacy_chat import chat, chat_history, chat_suggested_questions
+from .routes.legacy_chat import (
+    chat as _legacy_chat,
+)
+from .routes.legacy_chat import (
+    chat_history as _legacy_chat_history,
+)
+from .routes.legacy_chat import (
+    chat_suggested_questions as _legacy_chat_suggested_questions,
+)
 
 app = FastAPI(title="AI-Ink-Brain RAG API")
 register_rate_limit_middleware(app)
@@ -219,7 +227,7 @@ def health() -> dict[str, Any]:
 
 
 @app.get("/api/py/chat/history")
-async def chat_history_route(
+async def chat_history(
     session_id: str = Query(..., description="与 POST /api/py/chat 相同的 session_id"),
     limit: int = Query(100, ge=1, le=200, description="最多返回最近多少轮完整问答"),
     authorization: str | None = Header(default=None),
@@ -227,7 +235,7 @@ async def chat_history_route(
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
     x_chatbi_access_token: str | None = Header(default=None, alias="x-chatbi-access-token"),
 ) -> dict[str, Any]:
-    return await chat_history(
+    return await _legacy_chat_history(
         session_id=session_id,
         limit=limit,
         authorization=authorization,
@@ -345,14 +353,14 @@ async def chatbi_access_verify(
 
 
 @app.post("/api/py/chat")
-async def chat_route(
+async def chat(
     request: Request,
     background_tasks: BackgroundTasks,
     authorization: str | None = Header(default=None),
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> StreamingResponse:
-    return await chat(
+    return await _legacy_chat(
         request=request,
         background_tasks=background_tasks,
         authorization=authorization,
@@ -434,5 +442,5 @@ async def py_admin_ingest(
 
 
 @app.get("/api/py/chat/suggested-questions")
-def chat_suggested_questions_route() -> JSONResponse:
-    return chat_suggested_questions()
+def chat_suggested_questions() -> JSONResponse:
+    return _legacy_chat_suggested_questions()
