@@ -138,5 +138,6 @@
 - `../done/task_portfolio_rag_demo_v1.md`（2026-06-03 验收通过：Portfolio W2/W3/W5 RUNBOOK + sync + 五问留证 · KPI 100% · `PORTFOLIO-RAG-DEMO@2026-06-01` · reinspect `reinspect_portfolio_rag_demo_w5_20260603_v1.md` · 分支 `task/portfolio-rag-w5-v1`）
 - `../done/task_api_env_rag_env_consolidation_w1.md`（2026-06-09 验收通过：Epic T1 W1 · `index.py` env 收敛至 `rag_env` · PR #146 · 50 `task_api_env_rag_env_consolidation_w1_reinspect_2026-06-09.md` · `CODING_BACKEND_L2@2026-06-09`）
 - `../done/task_api_agent_loop_split_w6.md`（2026-06-09 验收通过：Epic W6 · agent tool runner + persist 子模块 · PR #153 · `CODING_BACKEND_L2@2026-06-09`）
+- `../done/task_api_tools_registry_split_w7.md`（2026-06-09 验收通过：Epic W7 · tools RAG/Text2SQL 子模块 · PR #155 · `CODING_BACKEND_L2@2026-06-09`）
 - `../done/task_standards_backend_p3_p4_l3_ruff_v1.md`（2026-06-09 验收通过：P3+P4 L3 `.mdc` + Ruff CI · PR #145 · `CODING_BACKEND_L2@2026-06-09`）
 
