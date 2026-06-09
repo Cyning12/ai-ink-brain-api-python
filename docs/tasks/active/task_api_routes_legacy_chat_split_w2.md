@@ -7,7 +7,7 @@
 
 # W2 · Legacy Chat 路由下沉
 
-> **状态**：active（执行中）
+> **状态**：done（PR 待创建 · 2026-06-09）
 > **slug**：`api-routes-legacy-chat-split`
 > **git_branch**：`task/api-routes-legacy-w2`
 > **风险**：Medium
@@ -136,3 +136,39 @@
 **总体结论**：通过，无阻塞项。
 
 **建议**：Lead 可 CLOSE 本 task 并合并 PR。
+
+---
+
+## 关闭回溯（CLOSE · 2026-06-09）
+
+### 执行路线
+
+| 序号 | 阶段 | 关键动作 | 落盘工件 | 对应 commit |
+|------|------|----------|----------|-------------|
+| 1 | DRAFT | task 文件创建 + validate | `task_api_routes_legacy_chat_split_w2.md` | api-python@8f781e7 |
+| 2 | explore | 影响面 grep 分析 | `invoke_20260609_explore_*` | api-python@8f781e7 |
+| 3 | 22 R1 | 审查报告 + 下一棒 Prompt | `reviews/task_*_audit_R1_*` | api-python@e857c1d |
+| 4 | 30 | 代码实现：下沉 + 测试 + 共享函数迁移 | `api/routes/legacy_chat.py` 等 6 文件 | api-python@3477405 |
+| 5 | 40 | 自检结论回填 | task 文件 §自检结论 | api-python@46824a6 |
+| 6 | 50 | 独立复检 + _rag_log 去重修复 | `reinspect_results/reinspect_*` | api-python@7ceef42 |
+| 7 | CLOSE | task 状态 done + 关闭回溯 | task 文件 §关闭回溯 | api-python@57ef8c4 → PR |
+
+### 分仓 Commit 索引
+
+#### api-python（ai-ink-brain-api-python）
+- `57ef8c4` docs(harness): 50 W2 复检 invoke 落盘
+- `7ceef42` refactor(api): W2 50 复检修复 — _rag_log 去重 + 复检报告
+- `46824a6` docs(harness): 40 W2 自检结论回填 — 全项 PASS
+- `cfcc80b` docs(harness): 40 W2 自检 invoke 落盘
+- `3477405` refactor(api): W2 legacy chat 路由下沉至 api/routes/legacy_chat.py
+- `fde20d0` docs(harness): 30 W2 实现 invoke 落盘
+- `e857c1d` docs(harness): 22 R1 审查 W2 legacy chat split + 下一棒 30 执行 invoke
+- `8f781e7` docs(harness): W2 explore invoke + task draft — legacy chat route split
+
+### KPI
+
+- 验收标准：10/10 PASS
+- 新增测试：8 例（5 + 3），全部通过
+- 代码行数：index.py 1197 → 438（-64%）
+- ruff + pytest：全绿
+- 契约变更：无
