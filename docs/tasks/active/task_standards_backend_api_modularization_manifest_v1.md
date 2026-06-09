@@ -4,7 +4,7 @@
 > **schedule_ref**：编码规范 Epic · §1.5 Tech-debt  
 > **epic**：`standards-engineering` · 子主题 **`api-modularization`**  
 > **前置**：L2 [`CODING_BACKEND_L2_v1_zh.md`](../../standards/CODING_BACKEND_L2_v1_zh.md) **active**（P-01 路由薄层 · B-01）  
-> **建议顺序**：先 CLOSE [`task_standards_backend_p3_p4_l3_ruff_v1.md`](task_standards_backend_p3_p4_l3_ruff_v1.md)（Ruff 背压）→ 再按下列 **W1→W8** 逐 PR  
+> **建议顺序**：P3+P4 **done** · PR [#145](https://github.com/Cyning12/ai-ink-brain-api-python/pull/145) · W1 **done** [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) → **W2→W8** 逐 PR  
 > **关联图谱**：`docs/_tech_graph/11_flow_api.md` · `10_flow_*.ai.md` · 改拓扑须 `graph_query`
 
 ---
@@ -56,7 +56,7 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 
 | ID | 主题 | 现状行数 | 目标（摘要） | 建议 slug | 分支建议 | 风险 |
 |----|------|----------|--------------|-----------|----------|------|
-| **W1** | `rag_env` 收敛 | `rag_env` 234 · `index` 顶散落 env | 新代码零散落 `os.getenv`；`index` 顶层常量迁入 `rag_env` helper | `api-env-rag-env-consolidation` | `task/api-env-rag-env-w1` | Low |
+| **W1** | `rag_env` 收敛 | `rag_env` 234 · `index` 顶散落 env | 新代码零散落 `os.getenv`；`index` 顶层常量迁入 `rag_env` helper | `api-env-rag-env-consolidation` | `task/api-env-rag-env-w1` | Low · **done** PR [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) |
 | **W2** | Legacy chat 路由下沉 | `index` 内 chat/retrieve 大块 | 抽 `api/routes/legacy_chat.py`（或 `api/legacy_chat/`）；`index` 仅 register | `api-routes-legacy-chat-split` | `task/api-routes-legacy-w2` | Medium |
 | **W3** | Admin ingest 路由下沉 | `index` admin/sync 段 | 抽 `api/routes/admin_ingest.py`；ingest 仍调 `ingest_pipeline` | `api-routes-admin-ingest-split` | `task/api-routes-admin-w3` | Medium |
 | **W4** | Unified JSON 路径 | `unified_chat` JSON handler 段 | 抽 `api/unified/json_handler.py`（名可调整） | `api-unified-json-split` | `task/api-unified-json-w4` | High |

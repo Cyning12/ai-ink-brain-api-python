@@ -1,6 +1,6 @@
 # W1 · `rag_env` 收敛（index 顶层 env 迁入 helper）
 
-> **状态**：in_progress  
+> **状态**：done（PR [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) · 2026-06-09）
 > **epic**：`standards-engineering/api-modularization`  
 > **manifest_ref**：W1 · task_standards_backend_api_modularization_manifest_v1.md  
 > **test_strategy**：`required`  

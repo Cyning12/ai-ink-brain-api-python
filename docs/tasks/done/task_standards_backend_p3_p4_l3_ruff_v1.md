@@ -1,6 +1,6 @@
 # 后端编码规范 P3+P4（L3 `.mdc` 短链 + Ruff CI）
 
-> **状态**：in_progress
+> **状态**：done（PR [#145](https://github.com/Cyning12/ai-ink-brain-api-python/pull/145) · 2026-06-09）
 > **schedule_ref**：编码规范 Epic · §1.5 P3/P4  
 > **epic**：`standards-engineering`（工作区 [`00_OUTLINE`](../../../docs/standards/00_OUTLINE_工程编码规范改进_v1_zh.md) §5 P3/P4）  
 > **前置**：[`done/task_standards_backend_l2_draft_v1.md`](../done/task_standards_backend_l2_draft_v1.md) · PR [#143](https://github.com/Cyning12/ai-ink-brain-api-python/pull/143) · L2 **active** v1.1  
