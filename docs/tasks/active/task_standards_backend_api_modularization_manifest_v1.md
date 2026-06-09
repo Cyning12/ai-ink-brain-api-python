@@ -1,6 +1,6 @@
 # MANIFEST · 后端 Python 服务模块化 Tech-Debt Epic
 
-> **状态**：draft（Epic 母单 · **MANIFEST 仅** · 无实现）  
+> **状态**：active（Epic 母单 · **MANIFEST** · W1 **done** · W2～W8 执行中）  
 > **schedule_ref**：编码规范 Epic · §1.5 Tech-debt  
 > **epic**：`standards-engineering` · 子主题 **`api-modularization`**  
 > **前置**：L2 [`CODING_BACKEND_L2_v1_zh.md`](../../standards/CODING_BACKEND_L2_v1_zh.md) **active**（P-01 路由薄层 · B-01）  
@@ -14,7 +14,8 @@
 | 字段 | 值 |
 |------|-----|
 | **task_slug** | `standards-backend-api-modularization-manifest` |
-| **orchestration** | **MANIFEST 仅** — 子 task 各自 `task/<slug>` + 链式 PROMPT |
+| **orchestration** | **Epic 链** — 子 task 各自 `task/<slug>` + 链式 PROMPT（见下） |
+| **chain_prompt** | Cursor 全 Epic：[`PROMPT_cursor_task_chain_serial_v1_T1_standards-backend-api-modularization-w1-w8_zh.md`](../../harness/prompts/PROMPT_cursor_task_chain_serial_v1_T1_standards-backend-api-modularization-w1-w8_zh.md) · CC 续跑 W2～W8：[`PROMPT_claude_chain_serial_v1_T1_standards-backend-api-modularization-w2-w8_zh.md`](../../harness/prompts/PROMPT_claude_chain_serial_v1_T1_standards-backend-api-modularization-w2-w8_zh.md) |
 | **test_strategy** | `not_applicable` |
 | **test_strategy_note** | 母单无代码；子 task 均为 `required` + pytest |
 | **freeze_id** | `CODING_BACKEND_L2@2026-06-09` |

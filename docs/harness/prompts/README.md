@@ -35,6 +35,7 @@
 | **P1 · post-close** | [`PROMPT_claude_post_close_P1_full_zh.md`](PROMPT_claude_post_close_P1_full_zh.md) · [`PROMPT_claude_post_close_P1_v2_zh.md`](PROMPT_claude_post_close_P1_v2_zh.md) |
 | **P3 · T0/T2d** | [`PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T0_gov-docs-noise-p3_zh.md) · [`PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md`](PROMPT_claude_chain_serial_v1_T2d_gov-docs-noise-p3_zh.md) |
 | **T3 · 母单关账** | [`PROMPT_claude_T3_gov-docs-noise-line-close_zh.md`](PROMPT_claude_T3_gov-docs-noise-line-close_zh.md) |
+| **编码规范 · api 模块化 Epic** | MANIFEST [`task_standards_backend_api_modularization_manifest_v1.md`](../../tasks/active/task_standards_backend_api_modularization_manifest_v1.md) · W1～W8 Cursor [`PROMPT_cursor_task_chain_serial_v1_T1_standards-backend-api-modularization-w1-w8_zh.md`](PROMPT_cursor_task_chain_serial_v1_T1_standards-backend-api-modularization-w1-w8_zh.md) · **W2～W8 CC** [`PROMPT_claude_chain_serial_v1_T1_standards-backend-api-modularization-w2-w8_zh.md`](PROMPT_claude_chain_serial_v1_T1_standards-backend-api-modularization-w2-w8_zh.md) · W1 **done** [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) |
 
 **工作区混放审查**（非本后端 task）：**不要**写入本仓 `docs/harness/reviews/`；见 archive。
 
