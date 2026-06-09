@@ -7,7 +7,7 @@
 
 # W4 · Unified JSON 路径下沉
 
-> **状态**：active（执行中）
+> **状态**：done（PR 待创建 · 2026-06-09）
 > **slug**：`api-unified-json-split`
 > **git_branch**：`task/api-unified-json-w4`
 > **风险**：High
@@ -90,15 +90,42 @@ W4 须对照 `docs/_tech_graph/_contract_manifest.json`：
 
 ## 验收标准
 
-- [ ] `api/unified/json_handler.py` 存在且 ruff 绿
-- [ ] `api/unified_chat.py` 仍包含 `handle_unified_chat_stream`（SSE 不动）
-- [ ] `unified_chat.py` 行数从 ~3236 降至 ~<2200
-- [ ] `tests/test_unified_chat_backend_v1.py` 仍通过
-- [ ] `tests/test_unified_chat_backend_v2_agent.py` 仍通过
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿
-- [ ] `ruff check api tests` 全绿
-- [ ] `manifest_check` + `contract_check` 全绿
-- [ ] 单 PR 触及 `api/*.py` 数量 ≤8
+- [x] `api/unified/json_handler.py` 存在且 ruff 绿
+- [x] `api/unified_chat.py` 仍包含 `handle_unified_chat_stream`（SSE 不动）
+- [x] `unified_chat.py` 行数从 ~3236 降至 2084
+- [x] `tests/test_unified_chat_backend_v1.py` 仍通过
+- [x] `tests/test_unified_chat_backend_v2_agent.py` 仍通过
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` 全绿（352 passed）
+- [x] `ruff check api tests` 全绿
+- [x] `manifest_check` + `contract_check` 全绿
+- [x] 单 PR 触及 2 个 `api/*.py` + 2 个测试文件（≤8）
+
+---
+
+## 自检结论（40）
+
+| # | 验收项 | 结果 |
+|---|--------|------|
+| 1 | `api/unified/json_handler.py` 存在且 ruff 绿 | PASS |
+| 2 | SSE 路径未动 | PASS |
+| 3 | `unified_chat.py` 2084 行（目标 <2200） | PASS |
+| 4 | `test_unified_chat_backend_v1.py` 通过 | PASS |
+| 5 | `test_unified_chat_backend_v2_agent.py` 通过 | PASS |
+| 6 | pytest 352 passed | PASS |
+| 7 | ruff 全绿 | PASS |
+| 8 | manifest + contract 全绿 | PASS |
+| 9 | 单 PR 触及 2 个 `api/*.py` | PASS |
+
+**总体结论**：通过，无阻塞。
+
+---
+
+## 关闭回溯（CLOSE · 2026-06-09）
+
+| 阶段 | Commit |
+|------|--------|
+| DRAFT | `@b7341e4` |
+| 30 | `@b502bf5` |
 
 ---
 
