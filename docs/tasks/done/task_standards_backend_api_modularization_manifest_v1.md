@@ -1,6 +1,6 @@
 # MANIFEST · 后端 Python 服务模块化 Tech-Debt Epic
 
-> **状态**：active（Epic 母单 · **MANIFEST** · W1～W6 **done** · W7 当前棒）  
+> **状态**：`done` — **Epic CLOSE**（W1～W8 均 done · 2026-06-09）  
 > **schedule_ref**：编码规范 Epic · §1.5 Tech-debt  
 > **epic**：`standards-engineering` · 子主题 **`api-modularization`**  
 > **前置**：L2 [`CODING_BACKEND_L2_v1_zh.md`](../../standards/CODING_BACKEND_L2_v1_zh.md) **active**（P-01 路由薄层 · B-01）  
@@ -31,10 +31,10 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 
 **完成态（Epic CLOSE 条件）**：
 
-- [ ] 下表 **W1～W8** 子 task 均 **done**（或显式 **defer** 行 + 人签理由）
-- [ ] 无子 task 在「非范围」外触及未列模块
-- [ ] `_tech_graph` / `_manifest` 与拆分后 import 路径一致
-- [ ] RECENT §1.5 更新为 **CLOSE**
+- [x] 下表 **W1～W8** 子 task 均 **done**（或显式 **defer** 行 + 人签理由）
+- [x] 无子 task 在「非范围」外触及未列模块
+- [x] `_tech_graph` / `_manifest` 与拆分后 import 路径一致
+- [x] RECENT §1.5 更新为 **CLOSE**
 
 ---
 
@@ -58,13 +58,13 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 | ID | 主题 | 现状行数 | 目标（摘要） | 建议 slug | 分支建议 | 风险 |
 |----|------|----------|--------------|-----------|----------|------|
 | **W1** | `rag_env` 收敛 | `rag_env` 234 · `index` 顶散落 env | 新代码零散落 `os.getenv`；`index` 顶层常量迁入 `rag_env` helper | `api-env-rag-env-consolidation` | `task/api-env-rag-env-w1` | Low · **done** PR [#146](https://github.com/Cyning12/ai-ink-brain-api-python/pull/146) |
-| **W2** | Legacy chat 路由下沉 | `index` 内 chat/retrieve 大块 | 抽 `api/routes/legacy_chat.py`（或 `api/legacy_chat/`）；`index` 仅 register | `api-routes-legacy-chat-split` | `task/api-routes-legacy-w2` | Medium |
-| **W3** | Admin ingest 路由下沉 | `index` admin/sync 段 | 抽 `api/routes/admin_ingest.py`；ingest 仍调 `ingest_pipeline` | `api-routes-admin-ingest-split` | `task/api-routes-admin-w3` | Medium |
-| **W4** | Unified JSON 路径 | `unified_chat` JSON handler 段 | 抽 `api/unified/json_handler.py`（名可调整） | `api-unified-json-split` | `task/api-unified-json-w4` | High |
-| **W5** | Unified SSE 路径 | `unified_chat` stream 段 | 抽 `api/unified/sse_handler.py`；契约 `_contract_manifest` 必对照 | `api-unified-sse-split` | `task/api-unified-sse-w5` | High |
+| **W2** | Legacy chat 路由下沉 | `index` 内 chat/retrieve 大块 | 抽 `api/routes/legacy_chat.py`（或 `api/legacy_chat/`）；`index` 仅 register | `api-routes-legacy-chat-split` | `task/api-routes-legacy-w2` | Medium · **done** PR [#149](https://github.com/Cyning12/ai-ink-brain-api-python/pull/149) |
+| **W3** | Admin ingest 路由下沉 | `index` admin/sync 段 | 抽 `api/routes/admin_ingest.py`；ingest 仍调 `ingest_pipeline` | `api-routes-admin-ingest-split` | `task/api-routes-admin-w3` | Medium · **done** PR [#150](https://github.com/Cyning12/ai-ink-brain-api-python/pull/150) |
+| **W4** | Unified JSON 路径 | `unified_chat` JSON handler 段 | 抽 `api/unified/json_handler.py`（名可调整） | `api-unified-json-split` | `task/api-unified-json-w4` | High · **done** PR [#151](https://github.com/Cyning12/ai-ink-brain-api-python/pull/151) |
+| **W5** | Unified SSE 路径 | `unified_chat` stream 段 | 抽 `api/unified/sse_handler.py`；契约 `_contract_manifest` 必对照 | `api-unified-sse-split` | `task/api-unified-sse-w5` | High · **done** PR [#152](https://github.com/Cyning12/ai-ink-brain-api-python/pull/152) |
 | **W6** | Agent 循环 | `agent` ~1095 | 抽 tool 调度 / persist 子模块；`ChatBIAgent` 薄编排 | `api-agent-loop-split` | `task/api-agent-w6` | High · **done** PR [#153](https://github.com/Cyning12/ai-ink-brain-api-python/pull/153) |
 | **W7** | Tool 注册表 | `tools` ~958 | `text2sql_*` vs RAG tools 分文件；保留 `get_tool_registry()` 入口 | `api-tools-registry-split` | `task/api-tools-w7` | Medium · **done** PR [#155](https://github.com/Cyning12/ai-ink-brain-api-python/pull/155) |
-| **W8** | Intent 栈 | `intent_agent` 746 + `intent_router` 346 | 表驱动与 LLM 路径分文件；不混改 Unified | `api-intent-stack-split` | `task/api-intent-w8` | Medium |
+| **W8** | Intent 栈 | `intent_agent` 746 + `intent_router` 346 | 表驱动与 LLM 路径分文件；不混改 Unified | `api-intent-stack-split` | `task/api-intent-w8` | Medium · **done** PR [#157](https://github.com/Cyning12/ai-ink-brain-api-python/pull/157) |
 
 ### 显式 defer（Epic 外 · 需单独立项）
 
@@ -112,10 +112,10 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 
 ## Epic 验收标准
 
-- [ ] W1～W8 均有对应 `task_*` 且状态 **done** 或 **defer（人签）**
-- [ ] `index.py` 降至 **<400 行**（软上限 · 或 documented 例外）
-- [ ] `unified_chat.py` 降至 **<800 行** 或拆为多文件 package（`api/unified/`）
-- [ ] 无 open 子 task 违反 D1
+- [x] W1～W8 均有对应 `task_*` 且状态 **done** 或 **defer（人签）**
+- [x] `index.py` 降至 **<400 行**（软上限 · 或 documented 例外）— **349 行**
+- [x] `unified_chat.py` 降至 **<800 行** 或拆为多文件 package（`api/unified/`）— **477 行**
+- [x] 无 open 子 task 违反 D1
 - [ ] Coding Wiki 可选 synthesis：`api-modularization-ink-backend`（关账后）
 
 ---
@@ -124,4 +124,5 @@ L2 **P-01** 要求路由 **薄**（handler ~80 行软上限）、领域逻辑下
 
 | 日期 | 说明 |
 |------|------|
+| 2026-06-09 | Epic **CLOSE** · W8 done PR #157 · W1～W8 全绿 |
 | 2026-06-09 | v1：Epic MANIFEST 初稿 · W1～W8 批次 |

@@ -7,7 +7,7 @@
 
 # W8 · Intent 栈拆分
 
-> **状态**: active
+> **状态**: done（PR [#157](https://github.com/Cyning12/ai-ink-brain-api-python/pull/157) · 2026-06-09）
 > **slug**: `api-intent-stack-split`
 > **git_branch**: `task/api-intent-w8`
 > **风险**: Medium

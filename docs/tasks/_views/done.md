@@ -139,5 +139,7 @@
 - `../done/task_api_env_rag_env_consolidation_w1.md`（2026-06-09 验收通过：Epic T1 W1 · `index.py` env 收敛至 `rag_env` · PR #146 · 50 `task_api_env_rag_env_consolidation_w1_reinspect_2026-06-09.md` · `CODING_BACKEND_L2@2026-06-09`）
 - `../done/task_api_agent_loop_split_w6.md`（2026-06-09 验收通过：Epic W6 · agent tool runner + persist 子模块 · PR #153 · `CODING_BACKEND_L2@2026-06-09`）
 - `../done/task_api_tools_registry_split_w7.md`（2026-06-09 验收通过：Epic W7 · tools RAG/Text2SQL 子模块 · PR #155 · `CODING_BACKEND_L2@2026-06-09`）
+- `../done/task_api_intent_stack_split_w8.md`（2026-06-09 验收通过：Epic W8 · intent rules + LLM 子模块 · PR #157 · `CODING_BACKEND_L2@2026-06-09`）
+- `../done/task_standards_backend_api_modularization_manifest_v1.md`（2026-06-09 Epic CLOSE：W1～W8 全 done · `CODING_BACKEND_L2@2026-06-09`）
 - `../done/task_standards_backend_p3_p4_l3_ruff_v1.md`（2026-06-09 验收通过：P3+P4 L3 `.mdc` + Ruff CI · PR #145 · `CODING_BACKEND_L2@2026-06-09`）
 
