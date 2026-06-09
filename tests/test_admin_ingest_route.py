@@ -12,13 +12,17 @@ def test_admin_ingest_type_code(monkeypatch: pytest.MonkeyPatch):
     index = importlib.import_module("api.index")
     importlib.reload(index)
 
+    import api.routes.admin_ingest as admin_ingest_mod
+
+    importlib.reload(admin_ingest_mod)
+
     called: dict[str, object] = {}
 
     def fake_process_code_files(repo_root):
         called["repo_root"] = repo_root
         return {"filesScanned": 1, "chunksTotal": 2, "chunksInserted": 2, "rowsDeleted": 0}
 
-    monkeypatch.setattr(index, "process_code_files", fake_process_code_files)
+    monkeypatch.setattr(admin_ingest_mod, "process_code_files", fake_process_code_files)
 
     client = TestClient(index.app)
     res = client.post(
@@ -38,13 +42,17 @@ def test_admin_ingest_type_code_repo_path(monkeypatch: pytest.MonkeyPatch, tmp_p
     index = importlib.import_module("api.index")
     importlib.reload(index)
 
+    import api.routes.admin_ingest as admin_ingest_mod
+
+    importlib.reload(admin_ingest_mod)
+
     called: dict[str, object] = {}
 
     def fake_process_code_files(repo_root):
         called["repo_root"] = repo_root
         return {"filesScanned": 1, "chunksTotal": 1, "chunksInserted": 1, "rowsDeleted": 0}
 
-    monkeypatch.setattr(index, "process_code_files", fake_process_code_files)
+    monkeypatch.setattr(admin_ingest_mod, "process_code_files", fake_process_code_files)
 
     client = TestClient(index.app)
     res = client.post(

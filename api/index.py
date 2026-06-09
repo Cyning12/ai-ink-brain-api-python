@@ -8,9 +8,6 @@ RAG 聊天服务：日期查询扩展 + SiliconFlow 向量 + Supabase match_docu
 
 from __future__ import annotations
 
-import asyncio
-import hmac
-from pathlib import Path
 from typing import Any
 
 from fastapi import (
@@ -18,7 +15,6 @@ from fastapi import (
     Depends,
     FastAPI,
     Header,
-    HTTPException,
     Query,
     Request,
 )
@@ -35,19 +31,9 @@ from . import (
 from .chatbi_principal import (
     ChatBiPrincipal,
     require_chatbi_principal,
-    resolve_chatbi_from_plain_token,
 )
 from .chatbi_rate_limit import register_rate_limit_middleware
-from .code_ingest import process_code_files
-from .ingest_pipeline import (
-    create_sync_job,
-    get_job,
-    process_markdown_files,
-    run_sync_job_sync,
-)
 from .rag_env import (
-    admin_secret,
-    api_key_optional,
     pick_supabase_service_key,
     pick_supabase_url,
     siliconflow_api_key_optional,
@@ -60,6 +46,15 @@ from .rag_shared import (
     _rag_log,
     build_sources_payload,
     parse_match_threshold,
+)
+from .routes.admin_ingest import (
+    py_admin_ingest as _legacy_admin_ingest,
+)
+from .routes.admin_ingest import (
+    py_admin_sync_get as _legacy_admin_sync_get,
+)
+from .routes.admin_ingest import (
+    py_admin_sync_post as _legacy_admin_sync_post,
 )
 from .routes.legacy_chat import (
     chat as _legacy_chat,
@@ -78,73 +73,6 @@ MATCH_COUNT = 10
 CONTEXT_MAX_CHARS = 6000
 
 SOURCES_JSON_SEPARATOR = "---RAG_SOURCES_JSON---"
-
-
-def _require_auth(
-    authorization: str | None,
-    x_blog_admin_token: str | None,
-    x_admin_token: str | None = None,
-) -> None:
-    expected_admin = admin_secret()
-    expected_api = api_key_optional()
-    if not expected_admin and not expected_api:
-        raise HTTPException(status_code=500, detail="未配置 SYNC_ADMIN_SECRET 或 API_KEY")
-    token = ""
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-    elif x_blog_admin_token:
-        token = x_blog_admin_token.strip()
-    elif x_admin_token:
-        token = x_admin_token.strip()
-
-    def _match(expected: str | None) -> bool:
-        if not expected:
-            return False
-        if len(token) != len(expected):
-            return False
-        return hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8"))
-
-    if not (_match(expected_admin) or _match(expected_api)):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-
-def _try_chatbi_bearer_plain(plain: str) -> bool:
-    """尝试将明文当作 ChatBI DB token 校验。成功返回 True；`bad_hash` 返回 False（回退 Ink）；其它 401 原样抛出。"""
-    t = plain.strip()
-    if not t:
-        return False
-    try:
-        resolve_chatbi_from_plain_token(t)
-        return True
-    except HTTPException as e:
-        if e.status_code != 401:
-            raise
-        det = e.detail if isinstance(e.detail, dict) else {}
-        if det.get("reason") == "bad_hash":
-            return False
-        raise
-
-
-async def _require_rag_history_auth(
-    *,
-    authorization: str | None,
-    x_blog_admin_token: str | None,
-    x_admin_token: str | None,
-    x_chatbi_access_token: str | None,
-) -> None:
-    """ChatBI：`X-ChatBI-Access-Token` 或 `Authorization: Bearer <明文>`；否则 Ink admin / API_KEY。"""
-    if (x_chatbi_access_token or "").strip():
-        await asyncio.to_thread(resolve_chatbi_from_plain_token, (x_chatbi_access_token or "").strip())
-        return
-    auth = (authorization or "").strip()
-    bearer_plain = ""
-    if auth.lower().startswith("bearer "):
-        bearer_plain = auth[7:].strip()
-    if bearer_plain:
-        ok = await asyncio.to_thread(_try_chatbi_bearer_plain, bearer_plain)
-        if ok:
-            return
-    _require_auth(authorization, x_blog_admin_token, x_admin_token)
 
 
 code_retrieval.bind_index_symbols(
@@ -376,22 +304,11 @@ async def py_admin_sync_post(
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> JSONResponse:
-    _require_auth(authorization, x_blog_admin_token, x_admin_token)
-    job_inner = create_sync_job()
-    jid = job_inner["id"]
-
-    async def runner() -> None:
-        await asyncio.to_thread(run_sync_job_sync, jid)
-
-    background_tasks.add_task(runner)
-    job_view = get_job(jid)
-    return JSONResponse(
-        status_code=202,
-        content={
-            "ok": True,
-            "job": job_view,
-            "statusUrl": f"/api/py/admin/sync?jobId={jid}",
-        },
+    return await _legacy_admin_sync_post(
+        background_tasks=background_tasks,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
     )
 
 
@@ -402,14 +319,12 @@ async def py_admin_sync_get(
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> dict[str, Any]:
-    _require_auth(authorization, x_blog_admin_token, x_admin_token)
-    jid = job_id.strip()
-    if not jid:
-        raise HTTPException(status_code=400, detail="Missing required query param: jobId")
-    job = get_job(jid)
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    return {"ok": True, "job": job}
+    return await _legacy_admin_sync_get(
+        job_id=job_id,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
 
 
 @app.post("/api/py/admin/ingest")
@@ -420,25 +335,13 @@ async def py_admin_ingest(
     x_blog_admin_token: str | None = Header(default=None, alias="x-blog-admin-token"),
     x_admin_token: str | None = Header(default=None, alias="x-admin-token"),
 ) -> JSONResponse:
-    _require_auth(authorization, x_blog_admin_token, x_admin_token)
-    try:
-        t = (type or "markdown").strip().lower()
-        if t == "markdown":
-            result = await asyncio.to_thread(process_markdown_files)
-        elif t == "code":
-            root: Path | None = None
-            if repo_path and repo_path.strip():
-                root = Path(repo_path.strip()).expanduser().resolve()
-            result = await asyncio.to_thread(process_code_files, root)
-        else:
-            raise HTTPException(status_code=400, detail="Invalid ingest type")
-        return JSONResponse(content={"ok": True, **result})
-    except Exception as exc:  # noqa: BLE001
-        msg = str(exc)
-        status = 500
-        if "维度" in msg or "Unsupported" in msg:
-            status = 400
-        return JSONResponse({"ok": False, "error": msg}, status_code=status)
+    return await _legacy_admin_ingest(
+        type=type,
+        repo_path=repo_path,
+        authorization=authorization,
+        x_blog_admin_token=x_blog_admin_token,
+        x_admin_token=x_admin_token,
+    )
 
 
 @app.get("/api/py/chat/suggested-questions")
