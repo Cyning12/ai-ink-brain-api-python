@@ -121,9 +121,51 @@
 | F1 | `fp-db-disconnect` | <例：Supabase 不可用> | `500 DATABASE_DISCONNECT` | 是 | 服务暂不可用提示 | `tests/test_*.py::test_*` |
 | F2 | `fp-invalid-json` | <例：参数非法> | `422` + 结构化 `detail` | 否 | 字段级错误说明 | — |
 
-> **L2 Phase C（设计）**：`Scenario ID` / `F#` 与 `_test_manifest.json` `entries[].id` 对齐规则见 [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) **§4.4**（实现期双向校验 **另 task**）。
+> **思考未闭合**：§4 仍有 `（待填）` 且无合法 **思考轮控制** → 22 **退回 10** · 30 **拒开工**（见 [`hats/10-requirements.md`](../harness/prompts/hats/10-requirements.md) §思考轮）。
 
 ---
+
+## 思考轮次（高复杂度 / orchestration 含 rethink 时 · 10 帽预置）
+
+> **何时启用**：`audit_profile: full`、触 `api/` 契约、跨仓、或 Agent rethink 链。简单 task **可删本节**。  
+> **真值**：[`docs/harness/prompts/hats/10-requirements.md`](../harness/prompts/hats/10-requirements.md) §思考轮 · [`22-task-audit.md`](../harness/prompts/hats/22-task-audit.md)（22 可 **退回 10**）。
+
+### 思考轮控制（Agent 填 · 22 审）
+
+| 字段 | 值 |
+|------|-----|
+| **actual_last_round** | `R5` / `R3` / … |
+| **early_stop** | `no` / `yes` |
+| **early_stop_reason** | （`early_stop=yes` **必填**） |
+| **residual_risks** | `none` 或逐条（**必填**） |
+
+### R0 · 读 task / SPEC / 非范围
+
+**回填区：** `（待填）`
+
+### R1 · 代码事实
+
+**回填区：** `（待填）`
+
+### R2 · 方案对比
+
+**回填区：** `（待填）`
+
+### R3 · 边界 / 测试 / failure_paths
+
+**回填区：** `（待填）`
+
+### R4 · pytest / PR 策略
+
+**回填区：** `（待填）`
+
+### R5 · 图谱/契约增量 + 关账判断
+
+**回填区：** `（待填）`
+
+---
+
+> **L2 Phase C（设计）**：`Scenario ID` / `F#` 与 `_test_manifest.json` `entries[].id` 对齐规则见 [`SPEC-Governance-L2-Anchor-Test-Manifest-v1.md`](../spec/governance/SPEC-Governance-L2-Anchor-Test-Manifest-v1.md) **§4.4**（实现期双向校验 **另 task**）。
 
 ## 验收标准
 

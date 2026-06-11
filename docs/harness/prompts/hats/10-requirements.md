@@ -46,6 +46,43 @@
 - 验收与失败路径已 **可操作化**，或已输出 **阻塞清单**（缺哪些字段就无法开工）。  
 - 达到约定篇幅上限时输出 **摘要 + 待续项**。
 
+## 思考轮模板（10 帽 · 高复杂度 task）
+
+> **适用**：`orchestration` 含 Agent rethink、跨模块/跨仓、或 **`audit_profile: full` / `human_only`** 的 task。  
+> **OSS fork 阶段 C**：工作区 PILOT §5.2 · cyning-harness `TASK_TEMPLATE_upstream_pr_v1.md`（**R0+R1–R5 硬预置**）。  
+> **Ink 前后端**：复制 [`docs/tasks/templates/TASK_TEMPLATE.md`](../../../tasks/templates/TASK_TEMPLATE.md) **§思考轮次** 或本节结构进 task §4。
+
+### 10 帽必须做什么
+
+- task §4 **预置 R0（读 task）+ R1–R5 五个思考槽**（标题 + 回填区），**不得**折叠为「可选 R4/R5」或仅写 R1–R3。  
+- 同步填 **`思考轮控制`** 表：`actual_last_round` · `early_stop` · `early_stop_reason` · `residual_risks`。  
+- invoke `PROMPT_*_rethink_*` 轮数 **对齐** task §4 槽位。
+
+### Agent 可裁量 · 须留痕
+
+| 行为 | 要求 |
+|------|------|
+| **提前停止**（如 R3 已收敛） | `early_stop=yes` · **必填** reason · **必填** `residual_risks`（无则 `none`）· `actual_last_round` 指向最后完成轮 |
+| **增加轮次**（R6+） | §4 末尾追加 `### R6 · …` + **`扩展理由`** |
+| **未执行轮** | 回填区写 `（跳过 · 见思考轮控制）`；**禁止**留 `（待填）` 却宣称思考完成 |
+
+### 默认轮语义
+
+| 轮 | 主题 |
+|----|------|
+| **R0** | 读 task / SPEC / 非范围 / 依赖 |
+| **R1** | 代码事实（路径 · 行为 · 复现） |
+| **R2** | 方案对比（≥2 方案 · 推荐 · 弃选理由） |
+| **R3** | 边界 / 测试 / 回归面 |
+| **R4** | 测试命令 · PR/关账策略 |
+| **R5** | 图谱/契约增量 · 与验收对齐 |
+
+### 与 22 / 30 分界
+
+- **10 不签发** `HG-AUDIT-R1`；思考落盘后交 **22 R1** 审查是否充分。  
+- **22 不通过** → **「退回 10 帽」** + 回填清单 → **10 补思考** → **22 R+1**（此阶段 **禁止** 附 30 Prompt）。  
+- **22 通过 + 维护者签** `HG-AUDIT-R1` → 30 方可开工（与 §下一棒 A/B 并存；**思考未闭合时推荐路径 A**）。
+
 ## 交接物
 
 - 可粘贴进子仓 `task_*.md` 或 harness `docs/harness/tasks/active/` 的正文块；并注明建议 `test_strategy` 取值（`required` / `recommended` / `not_applicable` + `test_strategy_note`）。  
@@ -94,6 +131,7 @@
 | 2026-05-13 | v1.1：承接任务审核帽 `reviews` 回填与交接说明 |
 | 2026-05-14 | v1.2：链 [`templates/TEMPLATE-requirements-invoke.md`](templates/TEMPLATE-requirements-invoke.md)；占位符未替换则 Agent 须追问 |
 | 2026-05-22 | v1.3：§下一棒 A/B — `（推荐）` 标题、推荐规则表、冲突优先级；链 §3.4 状态栏 |
+| 2026-06-11 | v1.4：§思考轮模板 R0+R1–R5 · 提前停/增轮留痕 · 22 退回 10 |
 
 ---
 
