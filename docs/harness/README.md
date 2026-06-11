@@ -9,7 +9,7 @@
 
 | 场景 | 路径 |
 |------|------|
-| 写 task / **下一棒双 Prompt** | `TEMPLATE-requirements`（**A:22** + **B:30**，人择一） |
+| 写 task / **下一棒双 Prompt** | `TEMPLATE-requirements`（**A:22** + **B:30**，人择一） · **高复杂度** 预置 R0–R5 见 [`hats/10-requirements.md`](prompts/hats/10-requirements.md) §思考轮 |
 | 任务审核 22 | [`reviews/README.md`](reviews/README.md) → `TEMPLATE-task-audit` |
 | 执行 + 自检 | `TEMPLATE-execute` → `TEMPLATE-self-check` |
 | **三方复检** | `TEMPLATE-independent-reinspect` → [`../tasks/reinspect_results/`](../tasks/reinspect_results/README.md) |
@@ -145,3 +145,4 @@ rsync -a docs/harness/prompts/templates/TEMPLATE-independent-reinspect-invoke.md
 | 2026-05-25 | v6：§2.1 taxonomy；**不**建 `domains/` |
 | 2026-05-25 | v7：**git mv** 完成（prompts 子目录 + invokes/reviews `by-task/`） |
 | 2026-06-08 | v8：§1 日常读序改 **链式常模** 为默认；`HANDOFF_SEMI_AUTO` 标考古 |
+| 2026-06-11 | v9：§1 链 **10/22 思考轮** R0–R5 · 22 退回 10 |

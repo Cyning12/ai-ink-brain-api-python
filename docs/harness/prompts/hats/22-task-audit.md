@@ -15,6 +15,11 @@
   - **无阻塞** 时：使用「零阻塞」模板，写明 **已核对项** 与 **结论：可进入执行帽** 或 **维持 pending**。  
   - **有阻塞** 时：写 **阻塞项**、**建议回填位置**（task 小节标题）、**交给任务帽的清单**（逐条可勾选）。  
 - 若本轮有阻塞且已由 **任务帽** 完成回填：在 **新一轮** 审查文档中对比 **diff / 更新后的 task 片段**，写 **R2/R3…** 结论。  
+- **思考轮审查**（task §4 含 R0–R5 或 **思考轮控制** 时 **必做**）：  
+  - 核对 `actual_last_round` 与各轮回填是否闭合（含 `（跳过 · 见思考轮控制）` 的合法性）。  
+  - **`early_stop=yes`**：审查 reason 是否充分；`residual_risks` 为 `none` 或已逐条落入 task §失败路径 / §验收标准。  
+  - **不通过** → 审查文单列 **「退回 10 帽」**（补哪几轮 · 缺什么事实/方案 · 未收敛风险）；下一棒 **必须** 为 [`templates/TEMPLATE-requirements-invoke`](templates/TEMPLATE-requirements-invoke.md) + 本帽 **R+1**；**禁止**附 30 Prompt。  
+  - **通过** → 可写「思考轮审查：通过」；**仍不**代改 `HG-AUDIT-R1`（维护者签 task 表）。  
 - 在 **最终通过** 的审查文档中撰写 **「签收 / 关闭」** 节：声明 **本 task 可结束** 或 **须继续的条件**；此为 **任务正式结束点**（与 task 头部 `done` 对齐）。  
 - 按 **「交接物」**：**有下一棒** 时在对话与审查 md 输出 **「下一棒可复制 Prompt」**；**终轮签收、无下一棒** 时改输出 **「执行路线与 Commit 回溯」**（见 [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)），**省略** Prompt 小节。
 
@@ -101,7 +106,7 @@
 ## 输出形状
 
 1. **文件**：`task_<slug>_audit_R<轮次>_YYYYMMDD.md`；相对路径为 **`docs/harness/reviews/`**（轮次规则见 [`../reviews/README.md`](../reviews/README.md)）。  
-2. **文内结构**（建议）：**元信息** → **审查结论摘要** → **阻塞 / 非阻塞** → **需任务帽回填清单**（若有）→ **是否建议执行帽开工** → **签收 / 关闭** → **二选一收尾**：**「下一棒可复制 Prompt」**（`text` 围栏，有下一棒时）或 **「执行路线与 Commit 回溯」**（终轮无下一棒时，见 [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)）；与对话逐字/语义一致。
+2. **文内结构**（建议）：**元信息** → **审查结论摘要** → **思考轮审查**（有 §4 时）→ **阻塞 / 非阻塞** → **需任务帽回填清单**或 **退回 10 帽清单**（若有）→ **是否建议执行帽开工** → **签收 / 关闭** → **二选一收尾**：**「下一棒可复制 Prompt」**（`text` 围栏，有下一棒时）或 **「执行路线与 Commit 回溯」**（终轮无下一棒时，见 [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md)）；与对话逐字/语义一致。
 
 ## 停止条件
 
@@ -129,6 +134,7 @@
 | 2026-05-17 | v1.6：交接物链 [`handoff/HANDOFF_AUTO_COMMIT.md`](handoff/HANDOFF_AUTO_COMMIT.md) |
 | 2026-05-17 | v1.7：终轮无下一棒 → [`handoff/HANDOFF_CLOSE_TRACE.md`](handoff/HANDOFF_CLOSE_TRACE.md) 执行路线与 commit 回溯 |
 | 2026-05-30 | v1.8：OpenSpec×TDD 勾选项表（Loop R2 · SPEC §4.2 · 链 validate CLI） |
+| 2026-06-11 | v1.9：思考轮审查 · 不通过退回 10 帽 · R+1 复审 |
 
 ---
 
