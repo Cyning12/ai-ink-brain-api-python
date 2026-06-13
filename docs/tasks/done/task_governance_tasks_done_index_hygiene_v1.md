@@ -1,11 +1,11 @@
 # Task：后端 docs/tasks done 索引卫生治理（域 Hub + Wiki 链路同步）
 
-> **状态**：done（2026-06-13 验收通过）  
+> **状态**：done（2026-06-13 验收通过 · freeze_id `GOV-TASKS-DONE-HYGIENE@2026-06-13`）  
 > **关联 Issue/PR**：#160  
 > **前端依赖**：无  
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
-> **Harness 字段真值**：`[docs/harness/HARNESS_V2_PLAN.md](../harness/HARNESS_V2_PLAN.md)` **§5**；链式常模：`[docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)` + `[docs/harness/prompts/PROMPT_*_chain_serial_*](../harness/prompts/README.md)`。`**semi_auto` 已 deprecated**（历史见 `[HANDOFF_SEMI_AUTO.md](../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)`）。  
+> **Harness 字段真值**：`[docs/harness/HARNESS_V2_PLAN.md](../../harness/HARNESS_V2_PLAN.md)` **§5**；链式常模：`[docs/spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md](../../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md)` + `[docs/harness/prompts/PROMPT_*_chain_serial_*](../../harness/prompts/README.md)`。`**semi_auto` 已 deprecated**（历史见 `[HANDOFF_SEMI_AUTO.md](../../harness/prompts/handoff/HANDOFF_SEMI_AUTO.md)`）。  
 > **行为变更 Delta / Scenario**：见 **§3 失败路径**；TDD 与分层测试决策见 `[docs/tasks/README.md](../README.md)` **§test_strategy**。
 
 ---
@@ -20,11 +20,11 @@
 | **graph_delta_note**   | 纯文档索引 + Wiki 指针治理；无 `api/` 拓扑变更                                                                                                    |
 | **test_strategy**      | `not_applicable`                                                                                                                   |
 | **test_strategy_note** | 无 `api/` 行为变更；验证靠链接自检 + 50 书面复检                                                                                                    |
-| **freeze_id**          | （本 task 关账后生成，如 `GOV-TASKS-DONE-HYGIENE@2026-06-13`）                                                                               |
+| **freeze_id**          | `GOV-TASKS-DONE-HYGIENE@2026-06-13`                                                                                                |
 | **gates_before_code**  | `HG-TASK-DRAFT` → `HG-AUDIT-R1` → `HG-REINSPECT`                                                                                   |
 | **semi_auto**          | `deprecated` — 新 task 使用链式 orchestration                                                                                           |
 | **orchestration**      | `Cursor Task 链` / `Claude Code` 串行（文档-only，无 api 编码）                                                                               |
-| **chain_prompt**       | `[docs/harness/prompts/PROMPT_cursor_task_chain_serial_v1.md](../harness/prompts/PROMPT_cursor_task_chain_serial_v1.md)`（或 CC 等价链） |
+| **chain_prompt**       | `[docs/harness/prompts/PROMPT_cursor_task_chain_serial_v1.md](../../harness/prompts/PROMPT_cursor_task_chain_serial_v1.md)`（或 CC 等价链） |
 | **audit_profile**      | `full`                                                                                                                             |
 | **git_branch**         | `task/governance-tasks-done-hygiene-v1`                                                                                            |
 | **experience_capture** | `recommended`                                                                                                                      |
@@ -112,8 +112,8 @@
 
 ### C) 40：链接自检结论回填 task
 
-- [ ] **C1** 运行相对链接自检（可用手工 `rg` / `markdown-link-check` / Python 脚本）
-- [ ] **C2** 在 task §8「自检结论」填：命令、pass/fail、BROKEN 链接清单
+- [x] **C1** 运行相对链接自检（可用手工 `rg` / `markdown-link-check` / Python 脚本）
+- [x] **C2** 在 task §8「自检结论」填：命令、pass/fail、BROKEN 链接清单
 
 ### D) 50：独立复检落盘
 
@@ -140,7 +140,7 @@
 
 ## §3 失败路径
 
-> 本 task 为纯文档索引治理，失败路径聚焦「索引断链 / 流程漂移 / 关账过早」。
+> 本 task 为纯文档索引治理，失败路径聚焦「索引断链 / 流程漂移 / 关账过早」。本单于 2026-06-13 已关账，以下路径在验收时已完成验证。
 
 
 | #   | Scenario ID                | 触发条件                                                      | 系统行为          | 可重试 | 用户/Agent 可见   | 测试 / 检查                          |
@@ -151,8 +151,6 @@
 | F4  | `fp-views-done-rebloated`  | `_views/done.md` 被改回长列表                                   | 薄指针失效         | 否   | 索引回退          | 40 检查 `_views/done.md` 行数 ≤15    |
 | F5  | `fp-agent-reads-old-views` | Agent 只读旧 `_views/done.md` 长列表而忽略 Hub                     | 上下文浪费 / 遗漏域分组 | 是   | 无直接错误         | 在 `README.md` 与 Wiki 读序中显式指向 Hub |
 
-
-> **思考未闭合**：§5 仍有 `（待填）` 且无合法 **思考轮控制** → 22 **退回 10** · 30 **拒开工**。
 
 ---
 
@@ -175,42 +173,55 @@
 ## §5 思考轮次（高复杂度 / orchestration 含 rethink 时 · 10 帽预置）
 
 > **何时启用**：`audit_profile: full`、跨索引治理、Agent rethink 链。  
-> **真值**：`[docs/harness/prompts/hats/10-requirements.md](../harness/prompts/hats/10-requirements.md)` §思考轮 · `[22-task-audit.md](../harness/prompts/hats/22-task-audit.md)`。
+> **真值**：`[docs/harness/prompts/hats/10-requirements.md](../../harness/prompts/hats/10-requirements.md)` §思考轮 · `[docs/harness/prompts/hats/22-task-audit.md](../../harness/prompts/hats/22-task-audit.md)`。
 
 ### 思考轮控制（Agent 填 · 22 审）
 
 
 | 字段                    | 值                         |
 | --------------------- | ------------------------- |
-| **actual_last_round** | `R5` / `R3` / …           |
-| **early_stop**        | `no` / `yes`              |
-| **early_stop_reason** | （`early_stop=yes` **必填**） |
-| **residual_risks**    | `none` 或逐条（**必填**）        |
+| **actual_last_round** | `R0`（本单 docs-only · 未走完整 R1–R5 长思考 · 已人签关账） |
+| **early_stop**        | `yes`                     |
+| **early_stop_reason** | 纯文档索引治理 · 范围清晰 · 无 api/契约变更 · 30 执行中按需思考并由 40/50 验证；关账后卫生修复确认 §3 矛盾已消 |
+| **residual_risks**    | `none`                    |
 
 
 ### R0 · 读 task / SPEC / 非范围
 
-**回填区：** `（待填）`
+- 已读 `docs/tasks/README.md`、`docs/tasks/_views/done.md`、`RECENT_TASK_SCHEDULE.md` §6.1/§6.6。
+- 已确认 `done/` 约 138 篇扁平文件，`_views/done.md` 原长列表超 100 行，超出薄指针阈值。
+- 非范围：不 bulk `git mv`、不改 `api/`、不改业务 SPEC。
 
-### R1 · 代码事实
+### R1 · 代码/文档事实
 
-**回填区：** `（待填）`
+- `docs/tasks/README.md` 归档流程未提及域子目录与 Hub；需在「任务归档流程」插入 Hub / `done_by_domain` 更新步骤。
+- `docs/coding_wiki/index.md` 与 `task-schedule-ink-backend.md` 未链到 `done/README.md`。
+- 现有 syntheses `source_task` 均指向扁平 `done/task_*.md`，P0 保持不变。
 
 ### R2 · 方案对比
 
-**回填区：** `（待填）`
+- 方案 α（选中）：P0 只做 Hub + 薄指针 + `done_by_domain`，不改物理路径。
+- 方案 β（排除）：P0 bulk `git mv`，风险高、review 面大、易破坏现有 `source_task` 与 Wiki 链接。
+- 维护关系：Hub 为日常浏览真值；`_views/done_by_domain.md` 与 Hub 双向同步；`_views/done.md` 仅作薄指针。
 
 ### R3 · 边界 / 测试 / failure_paths
 
-**回填区：** `（待填）`
+- 自检：Python 脚本扫描 7 文件 356 个仓内相对链接，要求 zero BROKEN。
+- 防 Agent 回退：在 `README.md`、Wiki 读序、`_views/done.md` 维护纪律中显式指向 Hub。
+- 50 抽检：覆盖六域表一致性、`_views/done.md` 行数 ≤15、跨仓链接可解释。
 
 ### R4 · 链接自检 / PR 策略
 
-**回填区：** `（待填）`
+- 使用临时 Python 脚本解析 Markdown 相对链接，扫描 7 个目标文件。
+- PR body 含验收标准勾选、50 报告路径、文档-only / pytest skip 说明。
+- CI：无 `api/` 变更，pytest 不强制重跑；ruff / markdown lint 按配置执行。
 
 ### R5 · 图谱/契约增量 + 关账判断
 
-**回填区：** `（待填）`
+- 不改 `docs/_tech_graph/`、不改 `api/` 契约。
+- freeze_id：`GOV-TASKS-DONE-HYGIENE@2026-06-13`。
+- RECENT §6.6 已按治理 Epic 更新。
+- 关账判断：验收标准全满足、50 pass、PR #160 已合。
 
 ---
 
@@ -267,7 +278,9 @@
 | 关键 env   | 无                                                                                                                                                                                                                                                       |
 | SQL 执行顺序 | 无                                                                                                                                                                                                                                                       |
 | 接口变更     | 无                                                                                                                                                                                                                                                       |
-| 图谱变更点    | 无                                                                                                                                                                                                                                                       |
+| 图谱变更点    | 无                                                                                                                                                                                                         |
+| 关账后卫生修复 | 2026-06-13：§3 移除「思考未闭合→30 拒开工」矛盾注；§5 回填 R0–R5 关账豁免；§2 C1/C2 勾选；reinspect 链改 `done/`；`coding_wiki/index.md` §维护补 Hub 纪律；invoke README task 路径改 `done/`。 |
+| 关账后卫生修复 | 2026-06-13：§3 移除「思考未闭合→30 拒开工」矛盾注；§5 回填 R0–R5 关账豁免；§2 C1/C2 勾选；reinspect 链改 `done/`；`coding_wiki/index.md` §维护补 Hub 纪律；invoke README task 路径改 `done/`。 |                                                                                                                                                                                                                                                       |
 
 
 ---
@@ -297,7 +310,7 @@
 
 ## §11 执行路线与 Commit 回溯（关闭轮回填）
 
-> 见 `[HANDOFF_CLOSE_TRACE.md](../harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)` §2。  
+> 见 `[HANDOFF_CLOSE_TRACE.md](../../harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)` §2。  
 > 本 task 关账时由 22/40/50 回填：阶段表、分仓 commit、关联工件路径。
 
 ---
