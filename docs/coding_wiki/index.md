@@ -71,3 +71,5 @@
 
 - 时间线：[`log.md`](log.md)  
 - 新增 ingest：先改 `log.md`，再增 syntheses 行于上表
+- 关账任务归档时：同步更新 [`docs/tasks/done/README.md`](../tasks/done/README.md) Hub 对应域表一行 + [`docs/tasks/_views/done_by_domain.md`](../tasks/_views/done_by_domain.md)；**保持** [`docs/tasks/_views/done.md`](../tasks/_views/done.md) 薄指针，禁止追加长列表
+- 上表 `source_task` 仍指向 `docs/tasks/done/` 扁平路径（L1 真值）；浏览历史任务优先用 Hub / `done_by_domain.md`

@@ -118,7 +118,7 @@
 
 1. §验收 `- [x]` · 头部 `done（日期 · freeze_id）`  
 2. `git mv` → `docs/tasks/done/`（与头部 **同一 commit**）  
-3. [`_views/done.md`](../_views/done.md) 一行  
+3. [`_views/done.md`](../_views/done.md) 保持薄指针；关账时更新 `done/README.md` Hub 一行 + `_views/done_by_domain.md`  
 4. docs task：[`SKILL-docs-governance.md`](SKILL-docs-governance.md) **H1–H5**  
 5. **`experience_capture`** / **`kpi_rubric`**：CLOSE_TRACE §4 步骤 6–7 核对  
 6. 对话或 invoke：**HANDOFF_CLOSE_TRACE**（无下一棒时）
@@ -142,6 +142,7 @@
 |------|------|
 | 2026-05-27 | v1 草案：单 task 帽链索引 + 落盘 + 关账（蒸馏） |
 | 2026-05-31 | v1.1：格式对齐六类 SKILL；KPI v1.2 / 00 / experience_capture 摘要；本仓相对路径 |
+| 2026-06-13 | v1.3：关账 checklist 第 3 项对齐 Hub 纪律（薄指针 + Hub / `done_by_domain`）；来源：`task_governance_tasks_done_index_hygiene_v1.md` |
 | 2026-05-31 | v1.2：新建 task 必填 KPI；`kpi_aggregator` 默认 CLOSE |
 
 ---

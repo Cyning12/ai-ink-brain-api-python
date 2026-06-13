@@ -1,6 +1,6 @@
 # 独立复检报告 · governance-tasks-done-hygiene
 
-> **Task**：[`docs/tasks/active/task_governance_tasks_done_index_hygiene_v1.md`](../active/task_governance_tasks_done_index_hygiene_v1.md)  
+> **Task**：[`docs/tasks/done/task_governance_tasks_done_index_hygiene_v1.md`](../done/task_governance_tasks_done_index_hygiene_v1.md)  
 > **复检日期**：2026-06-13  
 > **复检人**：50 帽（独立）  
 > **结论**：**pass / 无阻塞**

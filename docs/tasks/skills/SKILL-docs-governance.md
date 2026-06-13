@@ -51,7 +51,7 @@
 | # | 检查项 | 动作 | 真值 |
 |---|--------|------|------|
 | H1 | **reinspect 文件名** | `reinspect_{task_slug}_YYYYMMDD_vN.md`；**禁止** `reinspec_` 等 typo | 本节 + [`reinspect_results/README.md`](../reinspect_results/README.md) |
-| H2 | **`_views/done.md`** | 新增一行链 `../done/task_*.md`（含 reinspect 路径若适用） | [`../README.md`](../README.md) §归档 |
+| H2 | **`_views/done.md`** | 关账时更新 `docs/tasks/done/README.md` Hub 对应域表一行 + `docs/tasks/_views/done_by_domain.md`；**禁止**向 `_views/done.md` 追加长列表（薄指针 ≤15 行） | [`../README.md`](../README.md) §归档 |
 | H3 | **`RECENT_TASK_SCHEDULE` §8** | 修订记录增一行（日期 + task/Loop 摘要） | 与 §6.6 状态一致；**建议与 ST5/git mv 同批或下一 commit** |
 | H4 | **§6.6 / Roadmap 行** | 若交付了 SPEC 阶段（如 T4 Pilot），同步 **planned → draft/done**；**勿删** Loop 专用行 | 治理 SPEC / 母 task；**与 task 头部 done 同步** |
 | H5 | **交叉引用** | `_views`、invoke、reinspect 内链指向 **rename 后** 路径 | `rg` 旧文件名 |
@@ -63,9 +63,12 @@
 # 无 reinspec_ typo 残留
 ! rg -l 'reinspec_' docs/tasks/reinspect_results/ docs/tasks/_views/done.md 2>/dev/null
 
-# 关账 task 在 done/ 且 _views 有链
+# 关账 task 在 done/ 且 Hub / done_by_domain 已更新
 test -f docs/tasks/done/<your-task>.md
-rg '<your-task>' docs/tasks/_views/done.md
+rg '<your-task>' docs/tasks/done/README.md docs/tasks/_views/done_by_domain.md
+
+# 薄指针未被改回长列表
+test "$(wc -l < docs/tasks/_views/done.md)" -le 15
 ```
 
 ---
@@ -95,6 +98,7 @@ rg '<your-task>' docs/tasks/_views/done.md
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-06-13 | v1.1：H2 与 VERIFY 对齐 Hub 纪律（`done/README.md` + `done_by_domain` · 禁止 `_views/done.md` 长列表）；来源：`task_governance_tasks_done_index_hygiene_v1.md` |
 | 2026-05-27 | v1 草案：预填模板 + 关账 hygiene H1–H6（T4+L2 Loop 蒸馏） |
 
 ---
