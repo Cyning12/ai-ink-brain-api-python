@@ -1,7 +1,7 @@
 # Task：后端 docs/tasks done 索引卫生治理（域 Hub + Wiki 链路同步）
 
-> **状态**：draft  
-> **关联 Issue/PR**：待开 PR（文档-only）  
+> **状态**：done（2026-06-13 验收通过）  
+> **关联 Issue/PR**：#160  
 > **前端依赖**：无  
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
@@ -123,8 +123,8 @@
 ### E) PR
 
 - [x] **E1** 开 PR 合 `main`，body 含验收勾选 + 50 路径
-- [ ] **E2** CI 绿；文档-only 无 pytest 回归，写明 skip 理由
-- [ ] **E3** `Fixes` 无（或链治理 Epic 若有）
+- [x] **E2** CI 绿；文档-only 无 pytest 回归，写明 skip 理由
+- [x] **E3** `Fixes` 无（或链治理 Epic 若有）
 
 ---
 
@@ -281,7 +281,7 @@
 - [x] `docs/tasks/README.md` 归档流程已更新（域子目录 + Hub 纪律）
 - [x] Coding Wiki：`task-schedule-ink-backend` + `index.md` + `CODING_WIKI.md` 已链 Hub，读序写明 L1 vs L2
 - [x] 50 reinspect 落盘，结论 pass/无阻塞
-- [ ] PR 已开，CI 绿（文档-only，pytest 无回归，body 写明 skip 理由）
+- [x] PR 已开，CI 绿（文档-only，pytest 无回归，body 写明 skip 理由）
 
 **测试 / TDD（与 `test_strategy` 对齐）**：
 

@@ -25,6 +25,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-13 | [../done/task_governance_tasks_done_index_hygiene_v1.md](../done/task_governance_tasks_done_index_hygiene_v1.md) | done 索引卫生治理 · Hub + 薄指针 + Wiki 链路同步 · PR #160 · `GOV-TASKS-DONE-HYGIENE@2026-06-13` |
 | 2026-06-08 | [../done/task_governance_kimi_harness_pilot_recentsync_v1.md](../done/task_governance_kimi_harness_pilot_recentsync_v1.md) | — |
 | 2026-06-06 | [../done/task_gov_docs_noise_p3_index_v1.md](../done/task_gov_docs_noise_p3_index_v1.md) | — |
 | 2026-06-06 | [../done/task_gov_docs_noise_p2_readorder_v1.md](../done/task_gov_docs_noise_p2_readorder_v1.md) | — |
