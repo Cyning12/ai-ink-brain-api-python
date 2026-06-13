@@ -63,12 +63,13 @@ pytest tests/test_coding_wiki_graph_nodes_lint.py -q
 1. 仅 **done** task（或已 accepted 的 SPEC 摘要）进入 `syntheses/`。  
 2. 每页：**摘要**（背景、决策、验收要点）+ **wikilink** 至 L1；**禁止**复制 review/SPEC 全文。  
 3. 更新 `index.md` 与 `log.md`（`YYYY-MM-DD` 前缀行）。  
-4. **进行中** task 仅可在 `log.md` 记一行，不写 `syntheses/`。
+4. 同步在 [`docs/tasks/done/README.md`](../tasks/done/README.md) Hub 对应域表追加一行，并更新 [`docs/tasks/_views/done_by_domain.md`](../tasks/_views/done_by_domain.md)。域推断见 [`FRAGMENT_task_domain_infer_v1_zh.md`](../../../cyning-harness/harness/templates/FRAGMENT_task_domain_infer_v1_zh.md)。  
+5. **进行中** task 仅可在 `log.md` 记一行，不写 `syntheses/`。
 
 ### 4.2 Query
 
 1. 先读 `index.md` → 按主题打开 1～3 页。  
-2. **任务规划 / 开工前**：读 [`concepts/task-schedule-ink-backend`](concepts/task-schedule-ink-backend.md) 或 L1 [`RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) §0·§1.1，再打开目标 `active/task_*.md`（排期真值 **不** 以 Wiki 替代 RECENT）。  
+2. **任务规划 / 开工前**：读 [`concepts/task-schedule-ink-backend`](concepts/task-schedule-ink-backend.md) 或 L1 [`RECENT_TASK_SCHEDULE.md`](../tasks/RECENT_TASK_SCHEDULE.md) §0·§1.1；浏览历史 done task 优先用 [`docs/tasks/done/README.md`](../tasks/done/README.md) 域 Hub 或 [`_views/done_by_domain.md`](../tasks/_views/done_by_domain.md)。再打开目标 `active/task_*.md`（排期真值 **不** 以 Wiki 替代 RECENT）。  
 3. 若 frontmatter 含 `graph_nodes`：记下种子 `id`，对每个 id 执行 `python tools/tech_graph_graph_query.py neighbors <id>`，再按需 `downstream`/`upstream`。  
 4. 需影响面/依赖遍历 → **并行** 使用 `graph_query`（L0），不以 Wiki 替代。  
 5. 答案可写回 Wiki 时：小改直接编辑；大改走新 task + 再 ingest。

@@ -52,6 +52,8 @@
 | `governance-recent-schedule-wiki-sync` | [[syntheses/governance-recent-schedule-wiki-sync]] | `docs/tasks/done/task_governance_recent_schedule_wiki_sync_v1.md` |
 | `wiki-ctx-ab-multi-bq3-recheck` | [[syntheses/wiki-ctx-ab-multi-bq3-recheck]] | `docs/tasks/done/task_wiki_ctx_ab_multi_bq3_recheck_v1.md` |
 
+> **L1 真值说明**：上表 `source_task` 指向 `docs/tasks/done/` 扁平路径（task 文件本身）。浏览历史任务优先用 [`docs/tasks/done/README.md`](../tasks/done/README.md) 域 Hub 或 [`_views/done_by_domain.md`](../tasks/_views/done_by_domain.md)；Hub 只改善浏览，**不**替代 `source_task` 指向的 L1 真值。
+
 ---
 
 ## 治理与实验
