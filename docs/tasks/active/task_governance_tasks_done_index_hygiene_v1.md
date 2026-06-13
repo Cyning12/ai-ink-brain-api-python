@@ -122,7 +122,7 @@
 
 ### E) PR
 
-- [ ] **E1** 开 PR 合 `main`，body 含验收勾选 + 50 路径
+- [x] **E1** 开 PR 合 `main`，body 含验收勾选 + 50 路径
 - [ ] **E2** CI 绿；文档-only 无 pytest 回归，写明 skip 理由
 - [ ] **E3** `Fixes` 无（或链治理 Epic 若有）
 
