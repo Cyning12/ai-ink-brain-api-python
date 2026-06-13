@@ -74,39 +74,39 @@
 
 ### A) `docs/tasks` 索引层
 
-- [ ] **A1** 新建 `docs/tasks/done/README.md`（Hub · 按域分组表）
+- [x] **A1** 新建 `docs/tasks/done/README.md`（Hub · 按域分组表）
   - 域：`harness` · `governance` · `chatbi` · `engineering` · `standards` · `epics`
   - 每域表：关账日 · 链接 · freeze_id / 一行摘要
   - Epic / MANIFEST / Loop 母单独立一节
   - 底部链 `[FRAGMENT_task_domain_infer_v1_zh.md](../../../cyning-harness/harness/templates/FRAGMENT_task_domain_infer_v1_zh.md)`
-- [ ] **A2** 新建 `docs/tasks/_views/done_by_domain.md`
+- [x] **A2** 新建 `docs/tasks/_views/done_by_domain.md`
   - 与 Hub 语义一致，路径相对 `../done/<domain>/task_*.md`
   - Epic 母单单独一节
-- [ ] **A3** 重写 `docs/tasks/_views/done.md` 为薄指针
+- [x] **A3** 重写 `docs/tasks/_views/done.md` 为薄指针
   - ≤15 行
   - 快速入口：Hub、`done_by_domain.md`、`in_progress.md`
   - 维护纪律：关账更新 Hub / `done_by_domain`；**勿**在本文件追加长列表
-- [ ] **A4** `docs/tasks/done/<domain>/` 目录结构声明（P0 不 mass `git mv`）
+- [x] **A4** `docs/tasks/done/<domain>/` 目录结构声明（P0 不 mass `git mv`）
   - 在 Hub 中说明目标子目录 slug
   - 保留现有扁平文件不动，P1 子 task 再分批迁移
-- [ ] **A5** 索引表链到 **现有** `done/task_*.md`
+- [x] **A5** 索引表链到 **现有** `done/task_*.md`
   - 路径仍用扁平相对路径（如 `../done/task_governance_xxx_v1.md`），确保 P0 不破坏链接
-- [ ] **A6** `docs/tasks/README.md` 归档流程更新
+- [x] **A6** `docs/tasks/README.md` 归档流程更新
   - 在「任务归档流程」中增：「更新 `done/README.md` Hub 对应域表一行」
   - 强化「禁止只把头部改成 done 而文件仍留在 active/」的硬规则
   - 新增「域子目录 + Hub 纪律」段落
 
 ### B) Coding Wiki 同步（与 task 同 PR）
 
-- [ ] **B1** `docs/coding_wiki/concepts/task-schedule-ink-backend.md`
+- [x] **B1** `docs/coding_wiki/concepts/task-schedule-ink-backend.md`
   - 「Epic 分区」与「链接」节增 `docs/tasks/done/README.md` Hub 指针
   - 写明：L1 真值仍在 `RECENT` 与 `done/task_*.md`，L2 Wiki 只链不替代
-- [ ] **B2** `docs/coding_wiki/index.md`
+- [x] **B2** `docs/coding_wiki/index.md`
   - 在「综合」或「维护」节说明：syntheses `source_task` 指向 L1 `done/` 扁平路径；Hub 只改善浏览，不改 frontmatter 真值
-- [ ] **B3** `docs/coding_wiki/CODING_WIKI.md`
+- [x] **B3** `docs/coding_wiki/CODING_WIKI.md`
   - §4.1 ingest / §4.2 query 中增「关账更新 Hub 一行」指针
   - 链 `[FRAGMENT_task_domain_infer_v1_zh.md](../../../cyning-harness/harness/templates/FRAGMENT_task_domain_infer_v1_zh.md)`
-- [ ] **B4** 已有 syntheses 的 `source_task` 路径 **保持有效**
+- [x] **B4** 已有 syntheses 的 `source_task` 路径 **保持有效**
   - P0 仍扁平路径则不改 frontmatter 路径
   - 若 Hub 路径与旧路径冲突，以旧路径为准，Hub 中注明「待 P1 物理迁移后更新」
 
@@ -117,8 +117,8 @@
 
 ### D) 50：独立复检落盘
 
-- [ ] **D1** `docs/tasks/reinspect_results/reinspect_governance_tasks_done_index_hygiene_20260613_v1.md`
-- [ ] **D2** 结论：pass / 无阻塞；列出抽检的链接与域表一致性
+- [x] **D1** `docs/tasks/reinspect_results/reinspect_governance_tasks_done_index_hygiene_20260613_v1.md`
+- [x] **D2** 结论：pass / 无阻塞；列出抽检的链接与域表一致性
 
 ### E) PR
 
@@ -251,9 +251,9 @@
 
 | 项   | 结果                                                                                                                                  |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 命令  | `<例：python tools/verify_markdown_links.py docs/tasks/done/README.md docs/tasks/_views/done_by_domain.md docs/tasks/_views/done.md>` |
-| 结论  | `pass / fail`                                                                                                                       |
-| 要点  | `<BROKEN 链接清单或零 BROKEN 证明>`                                                                                                         |
+| 命令  | `python3 /tmp/check_links2.py`（扫描 7 个文件：`docs/tasks/done/README.md`、`_views/done_by_domain.md`、`_views/done.md`、`docs/tasks/README.md`、`docs/coding_wiki/concepts/task-schedule-ink-backend.md`、`docs/coding_wiki/index.md`、`docs/coding_wiki/CODING_WIKI.md`） |
+| 结论  | `pass`                                                                                                                              |
+| 要点  | 356 个仓内相对链接 zero BROKEN；3 个跨仓链接指向 `cyning-harness/harness/templates/FRAGMENT_task_domain_infer_v1_zh.md`（工作区中存在，本仓独立检查时不计入 broken）；`_views/done.md` 行数 10 ≤15。 |
 
 
 ---
@@ -274,13 +274,13 @@
 
 ## §10 验收标准
 
-- [ ] `done/README.md` 可按域浏览，覆盖 `harness / governance / chatbi / engineering / standards / epics` 主域
-- [ ] `_views/done.md` ≤15 行，且指向 Hub
-- [ ] `_views/done_by_domain.md` 与 Hub 一致
-- [ ] 索引相对链接自检 zero BROKEN
-- [ ] `docs/tasks/README.md` 归档流程已更新（域子目录 + Hub 纪律）
-- [ ] Coding Wiki：`task-schedule-ink-backend` + `index.md` + `CODING_WIKI.md` 已链 Hub，读序写明 L1 vs L2
-- [ ] 50 reinspect 落盘，结论 pass/无阻塞
+- [x] `done/README.md` 可按域浏览，覆盖 `harness / governance / chatbi / engineering / standards / epics` 主域
+- [x] `_views/done.md` ≤15 行，且指向 Hub
+- [x] `_views/done_by_domain.md` 与 Hub 一致
+- [x] 索引相对链接自检 zero BROKEN
+- [x] `docs/tasks/README.md` 归档流程已更新（域子目录 + Hub 纪律）
+- [x] Coding Wiki：`task-schedule-ink-backend` + `index.md` + `CODING_WIKI.md` 已链 Hub，读序写明 L1 vs L2
+- [x] 50 reinspect 落盘，结论 pass/无阻塞
 - [ ] PR 已开，CI 绿（文档-only，pytest 无回归，body 写明 skip 理由）
 
 **测试 / TDD（与 `test_strategy` 对齐）**：

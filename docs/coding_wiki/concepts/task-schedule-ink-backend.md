@@ -24,9 +24,10 @@ graph_nodes: []
 ## Agent 读序（规划 / 开工前）
 
 1. 本页或 [`RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md) §0 · §1.1  
-2. 打开 1～3 个 `docs/tasks/active/task_*.md`  
-3. 若改接口/表/RPC → `python tools/tech_graph_graph_query.py` + `_manifest.json`  
-4. 若关账回顾 → [`index.md`](../index.md) → `syntheses/<slug>.md` → pointer L1 done task  
+2. 浏览历史 done task 优先用 [`docs/tasks/done/README.md`](../../tasks/done/README.md) Hub 或 [`_views/done_by_domain.md`](../../tasks/_views/done_by_domain.md)；L1 真值仍在 `done/task_*.md`，Hub 只改善浏览。  
+3. 打开 1～3 个 `docs/tasks/active/task_*.md`  
+4. 若改接口/表/RPC → `python tools/tech_graph_graph_query.py` + `_manifest.json`  
+5. 若关账回顾 → [`index.md`](../index.md) → `syntheses/<slug>.md` → pointer L1 done task  
 
 **禁止**：仅读本 Wiki 页推断排期或改 `api/`；与 RECENT 矛盾时 **L1 为准**。
 
@@ -107,6 +108,7 @@ graph_nodes: []
 ## 链接
 
 - 排期真值：[`RECENT_TASK_SCHEDULE.md`](../../tasks/RECENT_TASK_SCHEDULE.md)  
+- **done 任务 Hub**：[`docs/tasks/done/README.md`](../../tasks/done/README.md) · 分组表 [`_views/done_by_domain.md`](../../tasks/_views/done_by_domain.md)  
 - Task 落盘规则：[`docs/tasks/README.md`](../../tasks/README.md)  
 - P2 Loop SKILL：[`SKILL-harness-loop-batch.md`](../../tasks/skills/SKILL-harness-loop-batch.md)  
 - 三方读序 smoke：[`conclusion_smoke_zh.md`](../../harness/experiments/task_schedule_read_smoke_v1/conclusion_smoke_zh.md)  

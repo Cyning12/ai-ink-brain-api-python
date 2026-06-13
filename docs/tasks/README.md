@@ -77,7 +77,7 @@ docs/tasks/
 - **`reinspect_results/`**：**50 帽三方复检** — 关账必选。  
 - **Harness**：[`../harness/README.md`](../harness/README.md)；10 结束输出 **下一棒 A（22）+ B（30）**，由人择一。
 
-审查回填清单由 **需求帽**（[`../harness/prompts/10-requirements.md`](../harness/prompts/10-requirements.md)）更新本仓 `docs/tasks/`、`docs/spec/`。
+审查回填清单由 **需求帽**（[`../harness/prompts/hats/10-requirements.md`](../harness/prompts/hats/10-requirements.md)）更新本仓 `docs/tasks/`、`docs/spec/`。
 
 ---
 
@@ -107,11 +107,34 @@ docs/tasks/
 2. **更新头部状态**：将 `> **状态**：...` 改为 `done（YYYY-MM-DD 验收通过）`（日期为实际验收日）。  
 3. **移动文件**：在仓库根执行 `git mv docs/tasks/active/<文件名>.md docs/tasks/done/`，**禁止**仅复制内容而遗留 `active/` 同名文件。  
    - **硬规则**：**禁止**只把头部改成 `done` 而文件仍留在 `active/`（会误导 Agent）；**`done` 状态与 `git mv` 须在同一提交内完成**，真值以 **目录位置 + 头部状态** 双一致为准。  
-4. **更新已完成索引**：在 `docs/tasks/_views/done.md` 追加一行指向 `../done/<文件名>.md` 的相对链接（可附简短验收说明，与现有条目风格一致）。  
+4. **更新已完成索引**：
+   - 在 `docs/tasks/done/README.md` Hub 对应域表追加一行（日期 · 链接 · freeze_id / 一行摘要）。
+   - 同步在 `docs/tasks/_views/done_by_domain.md` 对应域表追加一行。
+   - **`docs/tasks/_views/done.md` 保持薄指针（≤15 行），禁止追加长列表**。  
 5. **若任务曾列入进行中视图**：检查 `docs/tasks/_views/in_progress.md`，移除或更新对该任务的引用（避免双轨）。  
 6. **配对前端 / 跨仓任务**：若头部或正文引用了 `ai-ink-brain/content/tasks/active/task_*.md`，须在 `ai-ink-brain` 仓按 **`content/tasks/README.md`** 执行归档：**`git mv`** 至 **`content/tasks/done/`**，更新 **`content/tasks/_views/done.md`**，头部 **`状态`** 改为 `done（YYYY-MM-DD 验收通过）`。（**不**移动 `docs/spec/` 下规格文件，规格持续维护、不因任务归档而搬迁。）
 
 > 说明：`_views/*.md` 只做链接聚合，不作为真值；真值以任务文件头部 `状态` + 文件所在目录（`active/` 或 `done/`）为准。
+
+### 域子目录 + Hub 纪律（P0 起生效）
+
+为降低 `done/` 扁平堆积与 `_views/done.md` 过长导致的浏览成本，引入 **域 Hub** 模式：
+
+- **日常浏览入口**：`docs/tasks/done/README.md`（按域分组表）。
+- **薄指针**：`docs/tasks/_views/done.md` ≤15 行，只链 Hub 与 `done_by_domain.md`。
+- **分组视图**：`docs/tasks/_views/done_by_domain.md` 与 Hub 语义一致。
+- **P0 不 mass `git mv`**：物理文件仍扁平存放于 `done/`，Hub 与 `done_by_domain.md` 中的链接仍使用 `../done/<file>.md`。
+- **P1 批量迁移**：未来子 task 将物理文件 `git mv` 到 `done/<domain>/`，届时 Hub / `done_by_domain.md` 链接同步更新。
+- **域推断**：[`FRAGMENT_task_domain_infer_v1_zh.md`](../../../cyning-harness/harness/templates/FRAGMENT_task_domain_infer_v1_zh.md)。
+
+| 域 slug | 说明 | 目标目录 |
+|---------|------|----------|
+| `harness` | 本仓流程 / CI / 帽子 | `done/harness/` |
+| `governance` | Wiki / 索引 / 治理线 | `done/governance/` |
+| `chatbi` | ChatBI V2/V3 · unified chat | `done/chatbi/` |
+| `engineering` | 图谱闸口 / RAG / 跨仓工程 | `done/engineering/` |
+| `standards` | 编码规范 · api 模块化 Epic | `done/standards/` |
+| `epics` | 母单 · MANIFEST · Loop | `done/epics/` |
 
 ---
 
