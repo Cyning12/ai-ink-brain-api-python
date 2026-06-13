@@ -167,7 +167,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
-| — | [task_standards_backend_p3_p4_l3_ruff_v1.md](./task_standards_backend_p3_p4_l3_ruff_v1.md) | — |
+| 2026-06-09 | [task_standards_backend_p3_p4_l3_ruff_v1.md](./task_standards_backend_p3_p4_l3_ruff_v1.md) | `CODING_BACKEND_L2@2026-06-09` · L3 mdc + Ruff CI · PR [#145](https://github.com/Cyning12/ai-ink-brain-api-python/pull/145) |
 | — | [task_standards_backend_l2_draft_v1.md](./task_standards_backend_l2_draft_v1.md) | — |
 | — | [task_api_tools_registry_split_w7.md](./task_api_tools_registry_split_w7.md) | — |
 | — | [task_api_intent_stack_split_w8.md](./task_api_intent_stack_split_w8.md) | — |

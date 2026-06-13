@@ -14,7 +14,7 @@
 
 **编码规范排期（§1.5）**：
 
-- **P3+P4（当前棒）**：[`active/task_standards_backend_p3_p4_l3_ruff_v1.md`](active/task_standards_backend_p3_p4_l3_ruff_v1.md)
+- **P3+P4**：[`done/task_standards_backend_p3_p4_l3_ruff_v1.md`](done/task_standards_backend_p3_p4_l3_ruff_v1.md) · **done**（PR [#145](https://github.com/Cyning12/ai-ink-brain-api-python/pull/145) · 2026-06-09）
 - **Tech-debt Epic（模块拆分）**：[`done/task_standards_backend_api_modularization_manifest_v1.md`](done/task_standards_backend_api_modularization_manifest_v1.md) · **Epic CLOSE**（W1～W8 done · 2026-06-09）
 
 **Wiki 排期导航（L2 · 防孤岛）**：[`../coding_wiki/concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) — pointer 至 RECENT，**不**替代排期真值。

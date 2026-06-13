@@ -119,13 +119,13 @@
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | **本表角色**              | **最近任务安排真值**                                                                                   |
 | **排期 Wiki hub**       | [`concepts/task-schedule-ink-backend.md`](../coding_wiki/concepts/task-schedule-ink-backend.md) · **不**替代本表 |
-| **active/**           | **9** 个 task + 1 附属 AGENT_PROMPT |
+| **active/**           | **11** 个 task + 1 附属 AGENT_PROMPT |
 | **done/**             | **65+** 个 `.md`（含 P0 OpenSpec×TDD Loop 母+3 子） |
 | **_views/done.md**    | 随关账同步（含 P0 Loop 四单 · 2026-05-30）                                                                                   |
 | **Harness 改进**        | **done**（P0+P1 收口）               |
 | **Harness 关账**        | **常模**：链式 `orchestration` · `required` → **50 必落盘**（见 §0.0）                                                 |
 | **Wiki 治理**           | **阶段收口**（#83 · diary 验收 · #87 文稿 · W1 **done** Loop R1） |
-| **近期当前**            | **编码规范 P3+P4**（§1.5）· P0 OpenSpec×TDD Loop **done** · 见 §1.1 业务 active |
+| **近期当前**            | **编码规范 P3+P4 done**（§1.5）· P0 OpenSpec×TDD Loop **done** · 见 §1.1 业务 active |
 | **V3 P2-1 韧性** | P2-1a/b/c **done** · Loop **done** |
 
 
@@ -141,8 +141,6 @@
 | 4b    | `task_chatbi_v3_lowconf_rag_preview_v1.md`                              | `draft`    | 低置信 §5-3 **RAG 全栈** | P2 · 先 Ink Harness |
 | 5     | `task_chatbi_v3_debt_from_v2_multiturn_v1.md`                           | `backlog`  | V2 多轮欠债母单         | P2                                   |
 | 6     | `task_chatbi_v3_intent_classification_debt_v1.md`                       | `backlog`  | Intent vNext      | P4                                   |
-| 8     | `task_standards_backend_p3_p4_l3_ruff_v1.md`                              | `in_progress` | 编码规范 P3+P4 · mdc+Ruff | §1.5 **当前棒** |
-| 9     | `task_standards_backend_api_modularization_manifest_v1.md`              | `draft`    | 服务层模块化 Epic MANIFEST | §1.5 · P3+P4 后 |
 | 7     | `task_chatbi_v3_low_confidence_plan_preview_confirm_v1_AGENT_PROMPT.md` | 附属         | Agent Prompt      | —                                    |
 
 ### 1.5 编码规范 Epic（`standards-engineering` · 2026-06-09）
