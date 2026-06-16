@@ -160,6 +160,23 @@
 
 **执行顺序**：P3+P4 **done** → W1～W8 **done** · **Epic CLOSE**。
 
+### 1.6 图谱 YAML 图源迁移 Epic（`graph-yaml-migration` · **CLOSE** · 2026-06-16）
+
+> **Epic MANIFEST**：[`done/task_engineering_graph_yaml_migration_epic_v1.md`](done/task_engineering_graph_yaml_migration_epic_v1.md) · **freeze**：`GRAPH-YAML-P0@786e32d`  
+> **目标**：将 `docs/_tech_graph/*.ai.md` 双轨维护模式迁为 `.graph.yaml` 单一编辑源，统一由 `scripts/graph_yaml_compile.py` 生成 `.md`。
+
+| 阶段 | Graph | PR | Task 文件 |
+|------|-------|-----|-----------|
+| **P0** | `00_main` | #163 / #164 | [`done/task_engineering_graph_yaml_p0_00_main_v1.md`](done/task_engineering_graph_yaml_p0_00_main_v1.md) |
+| **P1** | `10_flow_rag` | #166 | [`done/task_engineering_graph_yaml_p1_10_flow_rag_v1.md`](done/task_engineering_graph_yaml_p1_10_flow_rag_v1.md) |
+| **P2** | `11_flow_text2sql` | #167 | [`done/task_engineering_graph_yaml_p2_11_flow_text2sql_v1.md`](done/task_engineering_graph_yaml_p2_11_flow_text2sql_v1.md) |
+| **P3a** | `12_flow_fts` | #168 | [`done/task_engineering_graph_yaml_p3a_12_flow_fts_v1.md`](done/task_engineering_graph_yaml_p3a_12_flow_fts_v1.md) |
+| **P3b** | `13_flow_supabase_rpc` | #169 | [`done/task_engineering_graph_yaml_p3b_13_flow_supabase_rpc_v1.md`](done/task_engineering_graph_yaml_p3b_13_flow_supabase_rpc_v1.md) |
+| **P4** | `14_runtime_observability` | #170 | [`done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md`](done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md) |
+| **P5** | `15_e2e_boundary` | #171 | [`done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md`](done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md) |
+
+**关账**：PR #172（Epic 落盘 + `done.md` / `done_by_domain.md` 视图更新）已合入 `main`。
+
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
 > **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](done/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
@@ -492,6 +509,7 @@ flowchart TD
 | 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
 | 2026-06-08 | **§1.4 Phase 2 G3 CLOSE**：semi_auto 物理退场 · SPEC 全面生效 · DEPRECATED 横幅 · task → `done/` |
 | 2026-06-09 | **§1.5 编码规范 Epic**：P2 done #143 · P3+P4 task + api 模块化 MANIFEST |
+| 2026-06-16 | **§1.6 图谱 YAML 图源迁移 Epic CLOSE**：P0～P5 共 7 graph · `.graph.yaml` 唯一编辑源 · PR #163～#172 |
 
 
 ---
