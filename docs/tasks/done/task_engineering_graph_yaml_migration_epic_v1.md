@@ -4,6 +4,29 @@
 > **关联**：`docs/_tech_graph/*.graph.yaml` 全量图源迁移
 > **Issue/PR**：PR #166～#171
 
+## Harness 元信息（执行 Agent 必读）
+
+| 字段 | 值 |
+|------|-----|
+| **test_strategy** | `required` |
+| **freeze_id** | `GRAPH-YAML-P0@786e32d` |
+| **semi_auto** | `false` |
+| **orchestration** | `Claude Code` |
+| **chain_prompt** | `docs/harness/prompts/PROMPT_claude_chain_serial_v1_T1_graph-yaml-epic-closeout_zh.md`（按需创建） |
+| **audit_profile** | `post_close` |
+| **git_branch** | `task/graph-yaml-epic-closeout` |
+| **experience_capture** | `required` |
+| **kpi_rubric** | `KPI_RUBRIC_v1_2` |
+| **kpi_aggregator** | `CLOSE` |
+
+### 人工闸 `human_gate`
+
+| human_gate_id | status | blocks_hats | 说明 |
+|---------------|--------|-------------|------|
+| HG-TASK-DRAFT | signed | 22-R1,30 | Epic 关账范围与验收标准人扫 |
+| HG-AUDIT-R1 | signed | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
+| HG-REINSPECT | signed | done | 50 复检后人签、合并 PR 前 |
+
 ---
 
 ## 背景与目标
@@ -33,7 +56,16 @@
 
 ---
 
-## 验收标准（全部达成）
+## 失败路径
+
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 | 测试 |
+|---|-------------|----------|----------|--------|----------|------|
+| F1 | `fp-epic-meta-missing` | Epic task 文件未填写 Harness 元信息 | `task_validate` 报错 | 否 | CI `tech-graph` 失败 | `tools/harness_task_validate.py` |
+| F2 | `fp-epic-view-stale` | `done.md` / `done_by_domain.md` 未同步关账 | 索引与 done 目录不一致 | 否 | PR review 不通过 | 人工检查 |
+
+---
+
+## 验收标准
 
 - [x] 7 个 graph 均有 `.graph.yaml` 唯一编辑源
 - [x] 7 个 `.md` 均由脚本生成
