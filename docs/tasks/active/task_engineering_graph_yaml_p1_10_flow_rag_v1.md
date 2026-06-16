@@ -202,12 +202,12 @@ P1 同时承担**公共工具改造**：扩展 `scripts/graph_yaml_compile.py` �
 
 ### 实施清单
 
-- [ ] 1.1 扩展 `scripts/graph_yaml_compile.py`：增加 CLI `--graph-id` / `--all`，内部函数接受 `graph_id` 参数
-- [ ] 1.2 创建 `docs/_tech_graph/10_flow_rag.graph.yaml`
-- [ ] 1.3 生成 `docs/_tech_graph/10_flow_rag.md`
-- [ ] 1.4 标记 `10_flow_rag.ai.md` deprecated
-- [ ] 1.5 新增 `tests/test_graph_yaml_p1_10_flow_rag.py`
-- [ ] 1.6 本地跑 `ruff check api tests`、`pytest tests -m "not intent_eval and not intent_benchmark"`、`bash scripts/verify-tech-graph.sh`
+- [x] 1.1 扩展 `scripts/graph_yaml_compile.py`：增加 CLI `--graph-id` / `--all`，内部函数接受 `graph_id` 参数
+- [x] 1.2 创建 `docs/_tech_graph/10_flow_rag.graph.yaml`
+- [x] 1.3 生成 `docs/_tech_graph/10_flow_rag.md`
+- [x] 1.4 标记 `10_flow_rag.ai.md` deprecated
+- [x] 1.5 新增 `tests/test_graph_yaml_p1_10_flow_rag.py`
+- [x] 1.6 本地跑 `ruff check api tests`、`pytest tests -m "not intent_eval and not intent_benchmark"`、`bash scripts/verify-tech-graph.sh`
 - [ ] 1.7 提交、推分支、建 PR、等 CI 绿后 merge
 
 ---
@@ -229,8 +229,26 @@ P1 同时承担**公共工具改造**：扩展 `scripts/graph_yaml_compile.py` �
 | 项 | 结果 |
 |----|------|
 | 命令 | `pytest tests/test_graph_yaml_p1_10_flow_rag.py -v` |
-| 结论 | pending |
-| 要点 | 待 30 完成后回填 |
+| 结论 | **pass** |
+| 要点 | 9/9 通过；`--check --graph-id 10_flow_rag` exit 0；`00_main` 回测通过 |
+
+| 项 | 结果 |
+|----|------|
+| 命令 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` |
+| 结论 | **pass** |
+| 要点 | 369 passed, 1 skipped, 2 deselected |
+
+| 项 | 结果 |
+|----|------|
+| 命令 | `ruff check api tests` |
+| 结论 | **pass** |
+| 要点 | All checks passed |
+
+| 项 | 结果 |
+|----|------|
+| 命令 | `bash scripts/verify-tech-graph.sh` |
+| 结论 | **pass** |
+| 要点 | OK: verify-tech-graph passed |
 
 ---
 
