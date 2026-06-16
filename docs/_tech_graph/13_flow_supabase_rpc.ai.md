@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P3b 后唯一编辑源为 13_flow_supabase_rpc.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 13_flow_supabase_rpc.md
+
 ```mermaid
 flowchart LR
   %% Supabase RPC + Tables (service_role)

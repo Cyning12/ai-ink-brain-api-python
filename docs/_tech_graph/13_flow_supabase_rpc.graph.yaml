@@ -1,0 +1,173 @@
+# 13_flow_supabase_rpc 唯一编辑源
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 13_flow_supabase_rpc.md
+# AI 协议历史版见 13_flow_supabase_rpc.ai.md（已标记 @deprecated · 源迁 YAML）
+
+graph_id: "13_flow_supabase_rpc"
+title: "Supabase RPC 子流程"
+description: "Supabase 客户端鉴权、连接池、documents/code_chunks 表与 RPC、rag_conversation_logs 归档流程"
+version: "2026-06-16"
+
+direction: "LR"
+
+nodes:
+  - id: "C"
+    label: "(DB: public.code_chunks)"
+  - id: "CHAT"
+    label: "RAG/Unified Chat"
+  - id: "D"
+    label: "(DB: public.documents)"
+  - id: "ERR_NET"
+    label: ">Network/Timeout"
+  - id: "ERR_RPC_MISSING"
+    label: ">RPC 不存在/函数名错误"
+  - id: "ING"
+    label: "Ingest Pipeline"
+  - id: "KC"
+    label: "rpc keyword_code_chunks()"
+  - id: "KD"
+    label: "rpc keyword_documents()"
+  - id: "L"
+    label: "(DB: public.rag_conversation_logs)"
+  - id: "MC"
+    label: "rpc match_code_chunks()"
+  - id: "MD"
+    label: "rpc match_documents()"
+  - id: "POOL"
+    label: "(连接池)"
+  - id: "RC"
+    label: "rpc refresh_code_chunks_fts_tokens_for_paths()"
+  - id: "RD"
+    label: "rpc refresh_documents_fts_tokens_for_paths()"
+  - id: "SB"
+    label: "Supabase Client"
+
+edges:
+  - from: "AUTH"
+    to: "ERR_AUTH"
+    mark: "[err]"
+    anchors:
+      - path: "api/index.py"
+        symbol: "_require_auth"
+      - path: "api/code_retrieval.py"
+        symbol: "_require_code_api_auth"
+  - from: "AUTH"
+    to: "POOL"
+    mark: "[ok]"
+  - from: "CHAT"
+    to: "L"
+    anchors:
+      - path: "api/database_manager.py"
+  - from: "CHAT"
+    to: "L"
+    mark: "::archives"
+    type: "archives"
+  - from: "ING"
+    to: "C"
+    mark: "::triggers"
+    type: "triggers"
+  - from: "ING"
+    to: "D"
+    mark: "::triggers"
+    type: "triggers"
+  - from: "ING"
+    to: "RC"
+    mark: "::triggers"
+    type: "triggers"
+    anchors:
+      - path: "api/ingest_pipeline.py"
+  - from: "ING"
+    to: "RD"
+    mark: "::triggers"
+    type: "triggers"
+  - from: "KC"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "KD"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "MC"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "MD"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "POOL"
+    to: "C"
+  - from: "POOL"
+    to: "D"
+  - from: "POOL"
+    to: "ERR_NET"
+    mark: "[err]"
+    anchors:
+      - path: "api/rag_recall_tools.py"
+        symbol: "rpc_execute_with_retry"
+  - from: "POOL"
+    to: "KC"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/code_chunks.sql"
+        symbol: "keyword_code_chunks"
+  - from: "POOL"
+    to: "KD"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "keyword_documents"
+  - from: "POOL"
+    to: "L"
+    anchors:
+      - path: "supabase/sql/create_rag_conversation_logs.sql"
+  - from: "POOL"
+    to: "MC"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/code_chunks.sql"
+        symbol: "match_code_chunks"
+  - from: "POOL"
+    to: "MD"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/init.sql"
+        symbol: "match_documents"
+  - from: "POOL"
+    to: "RC"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/code_chunks.sql"
+        symbol: "refresh_code_chunks_fts_tokens_for_paths"
+  - from: "POOL"
+    to: "RD"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "refresh_documents_fts_tokens_for_paths"
+  - from: "RC"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "RD"
+    to: "ERR_RPC_MISSING"
+    mark: "[err]"
+  - from: "SB"
+    to: "AUTH"
+    anchors:
+      - path: "api/rag_env.py"
+        symbol: "supabase_client"
+
+notes: |
+  ### 客户端与鉴权
+
+  - `SB` 通过 `api/rag_env.py::supabase_client` 初始化，使用 `service_role` 密钥。
+  - `AUTH` 分支覆盖 `api/index.py::_require_auth`、`api/index.py::unified_chat_route`、`api/code_retrieval.py::_require_code_api_auth`。
+
+  ### 关键 SQL 文件
+
+  - `supabase/sql/init.sql`：`match_documents`
+  - `supabase/sql/hybrid_search.sql`：`keyword_documents`、`refresh_documents_fts_tokens_for_paths`
+  - `supabase/sql/code_chunks.sql`：`match_code_chunks`、`keyword_code_chunks`、`refresh_code_chunks_fts_tokens_for_paths`
+  - `supabase/sql/create_rag_conversation_logs.sql`：`rag_conversation_logs`
