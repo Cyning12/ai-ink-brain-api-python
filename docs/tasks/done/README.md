@@ -133,6 +133,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-16 | [task_engineering_graph_yaml_doc_hygiene_p0_v1.md](./task_engineering_graph_yaml_doc_hygiene_p0_v1.md) | Inform 闭环 P0 · Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归 |
 | 2026-06-16 | [task_engineering_graph_yaml_post_epic_fix_v1.md](./task_engineering_graph_yaml_post_epic_fix_v1.md) | Post-Epic 修复 · `--all` · CI YAML · merge `f12e2a6` |
 | 2026-06-16 | [task_engineering_graph_yaml_p0_00_main_v1.md](./task_engineering_graph_yaml_p0_00_main_v1.md) | 00_main YAML 图源试点 · KPI 88% · PR 待开 |
 | 2026-06-06 | [task_rag_keyword_websearch_date_normalize_v1.md](./task_rag_keyword_websearch_date_normalize_v1.md) | — |

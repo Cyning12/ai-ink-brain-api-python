@@ -2,11 +2,11 @@
 
 | 项 | 内容 |
 | --- | --- |
-| **版本** | v1.0 |
+| **版本** | v1.2 |
 | **日期** | 2026-06-16 |
 | **状态** | `proposal` · 待 task / Epic 立项 |
 | **仓库** | `ai-ink-brain-api-python` |
-| **关联 L0** | [`00_main.md`](./00_main.md) · [`00_main.ai.md`](./00_main.ai.md) · [`graph.json`](./graph.json) · [`graph_v2_schema.md`](./graph_v2_schema.md) |
+| **关联 L0** | [`00_main.md`](./00_main.md) · [`00_main.graph.yaml`](./00_main.graph.yaml) · [`graph.json`](./graph.json) · [`graph_v2_schema.md`](./graph_v2_schema.md) |
 | **关联清单** | [`_manifest.json`](./_manifest.json) · [`_contract_manifest.json`](./_contract_manifest.json) |
 | **关联 L2** | [`docs/coding_wiki/`](../coding_wiki/) · [`WIKI_REQUIREMENTS_COMPARISON_v1_zh.md`](../coding_wiki/WIKI_REQUIREMENTS_COMPARISON_v1_zh.md) |
 | **trace 示例** | [`examples/harness_trace_v1.example.json`](./examples/harness_trace_v1.example.json) |
@@ -361,9 +361,18 @@ edges:
 
 ---
 
+## 已知遗留
+
+### 幽灵节点
+
+`graph.json` / `.graph.yaml` 中允许 **边引用未在 `nodes` 列表声明的节点**（俗称「幽灵节点」）。该行为继承自现有 `graph.json` 的设计，用于表达跨图引用或外部抽象；当前 task 不手改拓扑，也不引入 `external_ref` schema。后续若需显式建模，应单独立项并在 schema 层补 `external_ref` 字段。
+
+---
+
 ## 修订记录
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v1.2 | 2026-06-16 | 增 §已知遗留 · 幽灵节点（边可引用未声明节点 · 继承 graph.json · `external_ref` 另 task） |
 | v1.1 | 2026-06-16 | YAML 图源已落地 · `.ai.md` deprecated · `graph.json` export 仍为过渡方案 |
 | v1.0 | 2026-06-16 | 初版 · Q&A 落盘 · trace 示例 JSON |
