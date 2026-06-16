@@ -177,6 +177,28 @@
 
 **关账**：PR #172（Epic 落盘 + `done.md` / `done_by_domain.md` 视图更新）已合入 `main`。
 
+**Post-Epic 修复**（2026-06-16 · **CLOSE**）：[`done/task_engineering_graph_yaml_post_epic_fix_v1.md`](done/task_engineering_graph_yaml_post_epic_fix_v1.md) · merge `f12e2a6` · 修复 `--all --check` · CI 增 YAML 校验 · 7 图 md 同步 · 规约文档更新。
+
+#### 1.6 续 · Inform 闭环（串行 · **active**）
+
+> **执行顺序**：**P0 →（CI 绿 + merge）→ P1** · 各 task 独立 PR · **禁止 P0 未 merge 开 P1**  
+
+**P1 硬闸门**：P0 done + HG-REINSPECT + **P0 PR CI 全绿 + merge 入 `main`**
+
+| # | slug | task | 分支 | 状态 |
+| --- | --- | --- | --- | --- |
+| **1** | `graph-yaml-doc-hygiene-p0` | [`active/task_engineering_graph_yaml_doc_hygiene_p0_v1.md`](active/task_engineering_graph_yaml_doc_hygiene_p0_v1.md) | `task/graph-yaml-doc-hygiene-p0` | **active** · HG-TASK-DRAFT **approved** |
+| **2** | `graph-yaml-export-yaml-p1` | [`active/task_engineering_graph_yaml_export_from_yaml_p1_v1.md`](active/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | `task/graph-yaml-export-yaml-p1` | **active** · 30 blocked_by **P0 CI 绿 + merge** |
+
+**串行启动（复制即用）**：[`PROMPT_START_SERIAL_v1.md`](../harness/invokes/by-task/graph-yaml-inform-closure-chain/PROMPT_START_SERIAL_v1.md) · 链常模 [`PROMPT_cursor_task_chain_serial_v1_T1_graph-yaml-inform-closure_zh.md`](../harness/prompts/PROMPT_cursor_task_chain_serial_v1_T1_graph-yaml-inform-closure_zh.md)
+
+**P0 摘要**：Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归（纯文档+compile 模板 · ~15 min）  
+**P1 摘要**：`tech_graph_graph_export.py` 改读 YAML · manifest TIP · `99_spec` 去过渡表述（工具 · ~1–2 天）
+
+**invoke**：[`PROMPT_START_SERIAL_v1.md`](../harness/invokes/by-task/graph-yaml-inform-closure-chain/PROMPT_START_SERIAL_v1.md)（串行）· 分步见各 slug 目录
+
+**后续（本链外）**：G0 本体扫描 → 删 `.ai.md` · `external_ref` schema
+
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
 > **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](done/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
@@ -509,6 +531,7 @@ flowchart TD
 | 2026-05-29 | **P2 Loop META done**：R1 关账 + R2 熔断 + 母单归档 · REPORT `REPORT_completion_chatbi_v3_p2_loop_v1.md` · §5 P2-1 全 **done** |
 | 2026-06-08 | **§1.4 Phase 2 G3 CLOSE**：semi_auto 物理退场 · SPEC 全面生效 · DEPRECATED 横幅 · task → `done/` |
 | 2026-06-09 | **§1.5 编码规范 Epic**：P2 done #143 · P3+P4 task + api 模块化 MANIFEST |
+| 2026-06-16 | **§1.6 Post-Epic 修复 CLOSE**：`--all` bug · CI YAML check · 7 图 md 漂移 · `99_spec` 机器轨 · merge `f12e2a6` |
 | 2026-06-16 | **§1.6 图谱 YAML 图源迁移 Epic CLOSE**：P0～P5 共 7 graph · `.graph.yaml` 唯一编辑源 · PR #163～#172 |
 
 

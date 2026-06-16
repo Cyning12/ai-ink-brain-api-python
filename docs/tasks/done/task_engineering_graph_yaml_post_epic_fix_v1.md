@@ -1,6 +1,6 @@
 # Task · 图谱 YAML Epic 后修复（Post-Epic Fix）
 
-> **状态**：`active`（**HG-TASK-DRAFT approved** · 可开 30）  
+> **状态**：`done`（**HG-REINSPECT signed** · 2026-06-16 关账）  
 > **前置 Epic**：`[task_engineering_graph_yaml_migration_epic_v1.md](../done/task_engineering_graph_yaml_migration_epic_v1.md)` · **done**  
 > **复查依据**：2026-06-16 维护者复查 · YAML↔JSON 一致 · `--all` bug · CI 双源 · 文档漂移  
 > **invoke**：`[PROMPT_START_30_v1.md](../harness/invokes/by-task/graph-yaml-post-epic-fix/PROMPT_START_30_v1.md)`
@@ -28,7 +28,7 @@
 | human_gate_id     | status  | blocks_hats | 说明                                                          |
 | ----------------- | ------- | ----------- | ----------------------------------------------------------- |
 | **HG-TASK-DRAFT** | **approved** | 30          | 范围与非范围人签                                                    |
-| **HG-REINSPECT**  | pending | done        | 40 后 · 本 task 可 skip 50（纯工具+文档 · audit_profile: post_close） |
+| **HG-REINSPECT**  | **signed** | done        | 40 复检通过 · 本 task skip 50（纯工具+文档 · audit_profile: post_close） |
 
 
 ---
@@ -48,13 +48,13 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 
 ## 范围
 
-- [ ] **D1** 修复 `scripts/graph_yaml_compile.py` · `all_graph_ids()`（`*.graph.yaml` → graph_id 不含 `.graph`）
-- [ ] **D2** 新增/扩展 pytest：`--all --check` exit 0
-- [ ] **D3** `python scripts/graph_yaml_compile.py --all` 重生成 7 张 `.md`（仅 `generated_at` 与 Mermaid/notes 漂移）
-- [ ] **D4** `scripts/verify-tech-graph.sh` 增加 YAML 校验步骤（在 export 前或后 · 见 invoke）
-- [ ] **D5** 更新 `docs/_tech_graph/99_spec.md` §机器轨表述（编辑源 YAML · `.ai.md` deprecated · export 过渡）
-- [ ] **D6** 更新 `docs/_tech_graph/99_mermaid_protocol.md` · `QNA_graph_wiki_history_upgrade_v1_zh.md` 相关节（最小 diff）
-- [ ] **D7** 检查 `15_e2e_boundary.md` / `.graph.yaml` 内对 `.ai.md` 的正文引用 → 改 pointer 到 `.md` 或 `notes`
+- [x] **D1** 修复 `scripts/graph_yaml_compile.py` · `all_graph_ids()`（`*.graph.yaml` → graph_id 不含 `.graph`）
+- [x] **D2** 新增/扩展 pytest：`--all --check` exit 0
+- [x] **D3** `python scripts/graph_yaml_compile.py --all` 重生成 7 张 `.md`（仅 `generated_at` 与 Mermaid/notes 漂移）
+- [x] **D4** `scripts/verify-tech-graph.sh` 增加 YAML 校验步骤（在 export 前或后 · 见 invoke）
+- [x] **D5** 更新 `docs/_tech_graph/99_spec.md` §机器轨表述（编辑源 YAML · `.ai.md` deprecated · export 过渡）
+- [x] **D6** 更新 `docs/_tech_graph/99_mermaid_protocol.md` · `QNA_graph_wiki_history_upgrade_v1_zh.md` 相关节（最小 diff）
+- [x] **D7** 检查 `15_e2e_boundary.md` / `.graph.yaml` 内对 `.ai.md` 的正文引用 → 改 pointer 到 `.md` 或 `notes`
 
 ## 非范围
 
@@ -79,12 +79,12 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 
 ## 验收标准
 
-- [ ] `python scripts/graph_yaml_compile.py --all --check` → **exit 0**
-- [ ] 7 张 `.md` 的 Mermaid body（忽略 `generated_at`）与 fresh compile **一致**
-- [ ] `pytest tests/test_graph_yaml*.py -q` 全绿
-- [ ] `bash scripts/verify-tech-graph.sh` 全绿（本地可 skip human_gate 步若 git 不可用 · CI 须绿）
-- [ ] `99_spec` 机器轨表述已更新 · 无「唯一真值仍是 .ai.md」歧义
-- [ ] task §自检结论已填 · invoke 30/40 落盘
+- [x] `python scripts/graph_yaml_compile.py --all --check` → **exit 0**
+- [x] 7 张 `.md` 的 Mermaid body（忽略 `generated_at`）与 fresh compile **一致**
+- [x] `pytest tests/test_graph_yaml*.py -q` 全绿
+- [x] `bash scripts/verify-tech-graph.sh` 全绿（本地可 skip human_gate 步若 git 不可用 · CI 须绿）
+- [x] `99_spec` 机器轨表述已更新 · 无「唯一真值仍是 .ai.md」歧义
+- [x] task §自检结论已填 · invoke 30/40 落盘
 
 **合并前必绿**：`pytest tests -m "not intent_eval and not intent_benchmark"`
 
@@ -105,9 +105,10 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 | `docs/_tech_graph/99_mermaid_protocol.md` | D6：双轨制表与转换方向更新为 YAML 源 |
 | `docs/_tech_graph/QNA_graph_wiki_history_upgrade_v1_zh.md` | D6：修订记录新增 v1.1 行 |
 | `docs/harness/invokes/by-task/graph-yaml-post-epic-fix/invoke_20260616_30_graph-yaml-post-epic-fix.md` | 30 invoke 落盘 |
+| `docs/harness/invokes/by-task/graph-yaml-post-epic-fix/invoke_20260616_40_graph-yaml-post-epic-fix.md` | 40 invoke 落盘 |
 
 
-### 自检结论
+### 自检结论（30 帽）
 
 
 | # | 命令 | 退出码 | 摘要 |
@@ -119,6 +120,17 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 | 5 | `ruff check api tests` | 0 | All checks passed |
 
 
+### 自检结论（40 帽回填）
+
+| # | 命令 | 退出码 | 摘要 |
+| --- | --- | --- | --- |
+| 1 | `pytest tests/test_graph_yaml*.py -q` | 0 | 64 passed |
+| 2 | `python scripts/graph_yaml_compile.py --all --check` | 0 | 7 graph 全 OK |
+| 3 | Mermaid body vs `generate_md()`（7 图） | — | 7/7 无 drift |
+| 4 | `bash scripts/verify-tech-graph.sh` 核心步 | 0 | manifest → yaml check → export → drift → equiv 全绿 |
+
+**结论**：**PASS** · merge `f12e2a6` · HG-REINSPECT signed · 50 skip
+
 ---
 
 ## 修订记录
@@ -126,6 +138,7 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 
 | 日期         | 说明              |
 | ---------- | --------------- |
+| 2026-06-16 | 关账 · 40 复检 PASS · task → `done/` |
 | 2026-06-16 | 初稿 · Epic 复查后修复 |
 
 

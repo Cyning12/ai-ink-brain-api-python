@@ -117,6 +117,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-16 | [../done/task_engineering_graph_yaml_post_epic_fix_v1.md](../done/task_engineering_graph_yaml_post_epic_fix_v1.md) | Post-Epic 修复 · `--all` · CI YAML check · 文档对齐 · merge `f12e2a6` |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_migration_epic_v1.md](../done/task_engineering_graph_yaml_migration_epic_v1.md) | YAML 图源迁移 Epic · P0-P5 全 7 graph 完成 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md](../done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md) | YAML 图源迁移 P5 · `15_e2e_boundary` · PR #171 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md](../done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md) | YAML 图源迁移 P4 · `14_runtime_observability` · PR #170 |
