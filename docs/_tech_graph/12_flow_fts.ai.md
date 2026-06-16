@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P3a 后唯一编辑源为 12_flow_fts.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 12_flow_fts.md
+
 ```mermaid
 flowchart TD
   %% FTS: tsvector('simple', content + alias) + websearch_to_tsquery
