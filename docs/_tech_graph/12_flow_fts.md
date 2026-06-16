@@ -1,47 +1,129 @@
+---
+graph_id: 12_flow_fts
+version: 2026-06-16
+generated_at: 2026-06-16T11:03:24Z
+source: docs/_tech_graph/12_flow_fts.graph.yaml
+---
+
+# FTS 子流程
+
+全文检索写入/更新触发、tsvector 生成、GIN 索引、查询召回与 I18N 扩展流程
+
+## Mermaid
+
 ```mermaid
 flowchart TD
-    %% FTS: tsvector('simple', content + alias) + websearch_to_tsquery
+    ALIAS[rag_fts_alias_text()]
+    CLEAN[candidate clean & limits]
+    FTS_NULL[fts_tokens is null?]
+    GLOSS[data/i18n_glossary.json]
+    I18N[I18N_EXPAND_ENABLED?]
+    IDX[(GIN: documents_fts_tokens_gin)]
+    MATCH[fts_tokens @@ tsquery]
+    NOX[graceful fallback]
+    ORQ[OR compose]
+    QS[keyword_query_text()]
+    RANK[ts_rank_cd score]
+    REFRESH[refresh_documents_fts_tokens_for_paths()]
+    TRG[trigger: documents_fts_tokens_update]
+    TSQ[websearch_to_tsquery('simple', query_text)]
+    TSV[to_tsvector('simple', content + alias)]
+    W[Write/Update content]
 
-    %% 写入流
-    W[写入/更新内容] --> TRG[Trigger 更新<br/>documents_fts_tokens_update]
-    TRG --> ALIAS[别名生成<br/>rag_fts_alias_text()]
-    ALIAS --> TSV[to_tsvector<br/>content + alias]
-    TSV --> IDX[GIN 索引<br/>documents_fts_tokens_gin]
-
-    %% 查询流
-    Q[查询文本] --> QS[Query 预处理<br/>normalize / expand]
-    QS --> RPC[RPC 调用<br/>keyword_documents()]
-    RPC --> TSQ[websearch_to_tsquery]
-    TSQ --> MATCH[fts_tokens @@ tsquery]
-    MATCH -->|fts_tokens null| REF[refresh_documents_fts_tokens_for_paths]
-    REF --> RPC
-    MATCH --> RANK[ts_rank_cd 评分]
-    RANK --> OUT[TopK 结果]
-
-    %% B2 变体
-    subgraph B2_Index["B2 索引侧别名"]
-        ALIAS
-    end
-
-    subgraph B2_Query["B2.1 查询侧扩展"]
-        QS
-    end
-
-    %% I18N 跨语言
-    QS --> I18N{I18N_EXPAND_ENABLED?}
-    I18N -->|glossary| GLOSS[i18n_glossary.json<br/>ZH → EN]
-    I18N -->|off / error| NOX[降级回退<br/>raw query only]
-
-    GLOSS --> CLEAN[候选清洗<br/>limit / chars]
-    CLEAN --> ORQ[OR 组合<br/>raw OR en1 OR ...]
+    ALIAS --> TSV
+    CLEAN --> ORQ
+    FTS_NULL --"[no]"--> RANK
+    FTS_NULL --"[yes]"--> REFRESH
+    // → supabase/sql/hybrid_search.sql::refresh_documents_fts_tokens_for_paths
+    GLOSS --> CLEAN
+    I18N --"[on & mode=glossary]"--> GLOSS
+    I18N --"[off / err]"--> NOX
+    MATCH --"fts_tokens is null ?>"--> FTS_NULL
+    MATCH --> RANK
+    NOX --> RPC
     ORQ --> RPC
+    Q --> QS
+    QS --"?>"--> I18N
+    QS --> RPC
+    // → api/rag_recall_tools.py::keyword_query_text_with_i18n_meta
+    // → api/index.py::fetch_keyword_hits
+    // → api/unified_chat.py::rpc_execute_with_retry
+    RANK --> OUT
+    REFRESH --> RPC
+    RPC --"~>"--> TSQ
+    // → supabase/sql/hybrid_search.sql::keyword_documents
+    TRG --> ALIAS
+    // → supabase/sql/hybrid_search.sql::rag_fts_alias_text
+    TSQ --> MATCH
+    TSV --> IDX
+    // → supabase/sql/hybrid_search.sql#L16
+    W --"::triggers"--> TRG
+    // → supabase/sql/hybrid_search.sql::documents_fts_tokens_update
 
-    %% 样式
-    classDef write fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef read fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    classDef i18n fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
-
-    class W,TRG,ALIAS,TSV,IDX write
-    class Q,QS,RPC,TSQ,MATCH,RANK,OUT read
-    class I18N,GLOSS,NOX,CLEAN,ORQ i18n
+    classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef doc fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
+    classDef infra fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
 ```
+
+## Structured Data
+
+### Nodes
+
+| ID | Label | Kind |
+|----|-------|------|
+| ALIAS | rag_fts_alias_text() |  |
+| CLEAN | candidate clean & limits |  |
+| FTS_NULL | fts_tokens is null? |  |
+| GLOSS | data/i18n_glossary.json |  |
+| I18N | I18N_EXPAND_ENABLED? |  |
+| IDX | (GIN: documents_fts_tokens_gin) |  |
+| MATCH | fts_tokens @@ tsquery |  |
+| NOX | graceful fallback |  |
+| ORQ | OR compose |  |
+| QS | keyword_query_text() |  |
+| RANK | ts_rank_cd score |  |
+| REFRESH | refresh_documents_fts_tokens_for_paths() |  |
+| TRG | trigger: documents_fts_tokens_update |  |
+| TSQ | websearch_to_tsquery('simple', query_text) |  |
+| TSV | to_tsvector('simple', content + alias) |  |
+| W | Write/Update content |  |
+
+### Edges
+
+| From | To | Mark | Type | Label | Anchors |
+|------|----|------|------|-------|---------|
+| ALIAS | TSV | -> | depends_on |  |  |
+| CLEAN | ORQ | -> | depends_on |  |  |
+| FTS_NULL | RANK | [no] | depends_on |  |  |
+| FTS_NULL | REFRESH | [yes] | depends_on |  | 1 anchor(s) |
+| GLOSS | CLEAN | -> | depends_on |  |  |
+| I18N | GLOSS | [on & mode=glossary] | depends_on |  |  |
+| I18N | NOX | [off / err] | depends_on |  |  |
+| MATCH | FTS_NULL | -> | condition | fts_tokens is null ?> |  |
+| MATCH | RANK | -> | depends_on |  |  |
+| NOX | RPC | -> | depends_on |  |  |
+| ORQ | RPC | -> | depends_on |  |  |
+| Q | QS | -> | depends_on |  | 1 anchor(s) |
+| QS | I18N | ?> | condition |  | 1 anchor(s) |
+| QS | RPC | -> | depends_on |  | 3 anchor(s) |
+| RANK | OUT | -> | depends_on |  |  |
+| REFRESH | RPC | -> | depends_on |  |  |
+| RPC | TSQ | ~> | async_calls |  | 1 anchor(s) |
+| TRG | ALIAS | -> | depends_on |  | 1 anchor(s) |
+| TSQ | MATCH | -> | depends_on |  |  |
+| TSV | IDX | -> | depends_on |  | 1 anchor(s) |
+| W | TRG | ::triggers | triggers |  | 1 anchor(s) |
+
+## Notes
+
+### B2 变体覆盖
+
+- **B2 索引侧别名**：`ALIAS` 节点在写入流通过 `rag_fts_alias_text()` 生成索引别名。
+- **B2.1 查询侧扩展**：`QS` 节点在查询流根据配置做 keyword expand / i18n 扩展。
+
+### 关键文件
+
+- SQL 定义：`supabase/sql/hybrid_search.sql`（trigger / tsvector / GIN / `keyword_documents` RPC）
+- Python 入口：`api/rag_recall_tools.py::keyword_query_text_with_i18n_meta`
+
+

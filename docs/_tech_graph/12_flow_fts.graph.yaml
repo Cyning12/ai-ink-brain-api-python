@@ -1,0 +1,137 @@
+# 12_flow_fts 唯一编辑源
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 12_flow_fts.md
+# AI 协议历史版见 12_flow_fts.ai.md（已标记 @deprecated · 源迁 YAML）
+
+graph_id: "12_flow_fts"
+title: "FTS 子流程"
+description: "全文检索写入/更新触发、tsvector 生成、GIN 索引、查询召回与 I18N 扩展流程"
+version: "2026-06-16"
+
+direction: "TD"
+
+nodes:
+  - id: "ALIAS"
+    label: "rag_fts_alias_text()"
+  - id: "CLEAN"
+    label: "candidate clean & limits"
+  - id: "FTS_NULL"
+    label: "fts_tokens is null?"
+  - id: "GLOSS"
+    label: "data/i18n_glossary.json"
+  - id: "I18N"
+    label: "I18N_EXPAND_ENABLED?"
+  - id: "IDX"
+    label: "(GIN: documents_fts_tokens_gin)"
+  - id: "MATCH"
+    label: "fts_tokens @@ tsquery"
+  - id: "NOX"
+    label: "graceful fallback"
+  - id: "ORQ"
+    label: "OR compose"
+  - id: "QS"
+    label: "keyword_query_text()"
+  - id: "RANK"
+    label: "ts_rank_cd score"
+  - id: "REFRESH"
+    label: "refresh_documents_fts_tokens_for_paths()"
+  - id: "TRG"
+    label: "trigger: documents_fts_tokens_update"
+  - id: "TSQ"
+    label: "websearch_to_tsquery('simple', query_text)"
+  - id: "TSV"
+    label: "to_tsvector('simple', content + alias)"
+  - id: "W"
+    label: "Write/Update content"
+
+edges:
+  - from: "ALIAS"
+    to: "TSV"
+  - from: "CLEAN"
+    to: "ORQ"
+  - from: "FTS_NULL"
+    to: "RANK"
+    mark: "[no]"
+  - from: "FTS_NULL"
+    to: "REFRESH"
+    mark: "[yes]"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "refresh_documents_fts_tokens_for_paths"
+  - from: "GLOSS"
+    to: "CLEAN"
+  - from: "I18N"
+    to: "GLOSS"
+    mark: "[on & mode=glossary]"
+  - from: "I18N"
+    to: "NOX"
+    mark: "[off / err]"
+  - from: "MATCH"
+    to: "FTS_NULL"
+    type: "condition"
+    label: "fts_tokens is null ?>"
+  - from: "MATCH"
+    to: "RANK"
+  - from: "NOX"
+    to: "RPC"
+  - from: "ORQ"
+    to: "RPC"
+  - from: "Q"
+    to: "QS"
+    anchors:
+      - path: "api/rag_recall_tools.py"
+  - from: "QS"
+    to: "I18N"
+    mark: "?>"
+    type: "condition"
+    anchors:
+      - path: "api/rag_recall_tools.py"
+  - from: "QS"
+    to: "RPC"
+    anchors:
+      - path: "api/rag_recall_tools.py"
+        symbol: "keyword_query_text_with_i18n_meta"
+      - path: "api/index.py"
+        symbol: "fetch_keyword_hits"
+      - path: "api/unified_chat.py"
+        symbol: "rpc_execute_with_retry"
+  - from: "RANK"
+    to: "OUT"
+  - from: "REFRESH"
+    to: "RPC"
+  - from: "RPC"
+    to: "TSQ"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "keyword_documents"
+  - from: "TRG"
+    to: "ALIAS"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "rag_fts_alias_text"
+  - from: "TSQ"
+    to: "MATCH"
+  - from: "TSV"
+    to: "IDX"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        line: 16
+  - from: "W"
+    to: "TRG"
+    mark: "::triggers"
+    type: "triggers"
+    anchors:
+      - path: "supabase/sql/hybrid_search.sql"
+        symbol: "documents_fts_tokens_update"
+
+notes: |
+  ### B2 变体覆盖
+
+  - **B2 索引侧别名**：`ALIAS` 节点在写入流通过 `rag_fts_alias_text()` 生成索引别名。
+  - **B2.1 查询侧扩展**：`QS` 节点在查询流根据配置做 keyword expand / i18n 扩展。
+
+  ### 关键文件
+
+  - SQL 定义：`supabase/sql/hybrid_search.sql`（trigger / tsvector / GIN / `keyword_documents` RPC）
+  - Python 入口：`api/rag_recall_tools.py::keyword_query_text_with_i18n_meta`
