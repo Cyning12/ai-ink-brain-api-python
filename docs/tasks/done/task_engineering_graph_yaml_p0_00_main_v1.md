@@ -1,6 +1,6 @@
 # Task · 图谱 YAML 源 P0（00_main · Graph Source v3 试点）
 
-> **状态**：`active`（**HG-TASK-DRAFT approved** · 可派 00/10）  
+> **状态**：`done`（**HG-GRAPH-P0-SIGNOFF approved** · 2026-06-16）  
 > **schedule_ref**：图谱 YAML 试点 · P0  
 > **epic**：Engineering · `_tech_graph` Graph Source v3  
 > **关联图谱**：`[00_main.md](../_tech_graph/00_main.md)` · `[QNA_graph_wiki_history_upgrade_v1_zh.md](../_tech_graph/QNA_graph_wiki_history_upgrade_v1_zh.md)`  
@@ -35,7 +35,7 @@
 | **HG-TASK-DRAFT**       | **approved** | 10, 22, 30  | task 初稿 · SPEC/QNA 对齐 · **人签后开 10**                                                                                                              |
 | **HG-AUDIT-R1**         | **approved** | 30          | 22 R1 落盘 + 思考轮闭合 · 人签后 30                                                                                                                        |
 | **HG-REINSPECT**        | **approved** | CLOSE       | 50 复检落盘 · 人签后 CLOSE                                                                                                                              |
-| **HG-GRAPH-P0-SIGNOFF** | pending      | done        | `[HG-GRAPH-P0-CLOSE_checklist](../../harness/invokes/by-task/graph-yaml-p0-00-main/HG-GRAPH-P0-CLOSE_checklist_v1_zh.md)` 全勾 · 人签后 `git mv` done |
+| **HG-GRAPH-P0-SIGNOFF** | **approved** | done        | `[HG-GRAPH-P0-CLOSE_checklist](../../harness/invokes/by-task/graph-yaml-p0-00-main/HG-GRAPH-P0-CLOSE_checklist_v1_zh.md)` 全勾 · 人签后 `git mv` done |
 
 
 ### 帽序（硬 · 由 00 总调度执行）
@@ -225,57 +225,65 @@
 
 ## 实现备忘（30 回填）
 
-| 路径 | 说明 |
-| ----------------------------------------------------- | -------- |
-| `docs/_tech_graph/00_main.graph.yaml` | P0 编辑源（26 节点 / 36 边，对齐 graph_v2_schema + 99_mermaid_protocol） |
-| `scripts/graph_yaml_compile.py` | YAML→MD 转换器 + --check diff 校验 |
-| `docs/_tech_graph/00_main.md` | 人类可读版（Mermaid + 结构化表格 + frontmatter） |
-| `tests/test_graph_yaml_compile.py` | 8 条 pytest 用例（red→green，覆盖 F1/F2 + R2 锚点格式） |
-| `docs/harness/invokes/by-task/graph-yaml-p0-00-main/` | invoke 链（含本 30 执行 invoke） |
+
+| 路径                                                    | 说明                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------- |
+| `docs/_tech_graph/00_main.graph.yaml`                 | P0 编辑源（26 节点 / 36 边，对齐 graph_v2_schema + 99_mermaid_protocol） |
+| `scripts/graph_yaml_compile.py`                       | YAML→MD 转换器 + --check diff 校验                                 |
+| `docs/_tech_graph/00_main.md`                         | 人类可读版（Mermaid + 结构化表格 + frontmatter）                          |
+| `tests/test_graph_yaml_compile.py`                    | 8 条 pytest 用例（red→green，覆盖 F1/F2 + R2 锚点格式）                   |
+| `docs/harness/invokes/by-task/graph-yaml-p0-00-main/` | invoke 链（含本 30 执行 invoke）                                     |
+
 
 **P0 决策备忘**：
+
 - `00_main.md` 不嵌入 `AUTO:ENDPOINTS_AND_ANCHORS` 块（保持人类友好）；`_manifest.json` 仍由现有工具维护
 - `00_main.ai.md` 保留并标记 `@deprecated · 源迁 YAML`，P0 不删除
 - 脚本路径确认放 `scripts/`（与 `scripts/verify-tech-graph.sh` 同目录）
 
-
 ### 自检结论（执行者）
 
-| # | 命令 | 退出码 | 摘要 |
-| --- | ------- | --- | --- |
-| 1 | `pytest tests/test_graph_yaml_compile.py -v` | 0 | 8 passed（YAML 存在/解析、节点/边/锚点匹配、--check 模式、锚点格式） |
-| 2 | `python scripts/graph_yaml_compile.py --check` | 0 | YAML 与 graph.json 00_main 切片一致 |
-| 3 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | 360 passed, 1 skipped, 2 deselected |
-| 4 | `bash scripts/verify-tech-graph.sh` | 1 | manifest/test_manifest/harness gate 均 OK；exit 1 因其他 task 的 human_gate pending（非本 task 阻塞） |
+
+| #   | 命令                                                           | 退出码 | 摘要                                                                                        |
+| --- | ------------------------------------------------------------ | --- | ----------------------------------------------------------------------------------------- |
+| 1   | `pytest tests/test_graph_yaml_compile.py -v`                 | 0   | 8 passed（YAML 存在/解析、节点/边/锚点匹配、--check 模式、锚点格式）                                            |
+| 2   | `python scripts/graph_yaml_compile.py --check`               | 0   | YAML 与 graph.json 00_main 切片一致                                                            |
+| 3   | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0   | 360 passed, 1 skipped, 2 deselected                                                       |
+| 4   | `bash scripts/verify-tech-graph.sh`                          | 1   | manifest/test_manifest/harness gate 均 OK；exit 1 因其他 task 的 human_gate pending（非本 task 阻塞） |
+
 
 **40 帽独立复跑确认（2026-06-16）**：
+
 - 命令 1–3 全部通过，退出码与 30 帽记录一致
 - 交付物核对全部通过（见下表）
 - 无新增失败项，无需打回 30
 
 **OpenSpec × TDD 三维自检**：
+
 - Completeness：F1/F2/F3 均有测例或命令证据（YAML 解析失败、graph diff 失败、脚本 --check 模式）
 - Correctness：锚点格式匹配 99_mermaid_protocol.md §3（// → path#line 或 // → path::symbol）
 - Coherence：P0 不嵌入 AUTO 块，与 task 非范围一致；未删 .ai.md，未引入 cyning-harness
 
 **残余风险处理**：
+
 - R1-kind 缺失：YAML schema 允许 kind 缺失（graph.json 00_main 节点无 kind 字段），diff 校验兼容
 - R2-锚点渲染：4 条边带 anchors，pytest 中断言锚点注释格式符合 protocol
 - R3-AUTO 块策略：00_main.md 不嵌入 AUTO 块，已在生成 MD 中书面记录；_manifest.json 仍由现有工具维护
-
 
 ### KPI（00）
 
 **rubric**: KPI_RUBRIC_v1_2 · **汇总**: 88% · **状态**: pass · **帽**: 10→22→30→40→50→CLOSE
 
-| hat_code | round | agent_mode | D1 | D2 | D3 | D4 | D5 | judgment_notes |
-|----------|-------|------------|----|----|----|----|----|----------------|
-| 10 | R0–R3 | task_subagent | 100 | 100 | 100 | 100 | — | early_stop=yes 理由充分；A/B Prompt 全文输出 |
-| 22 | R1 | task_subagent | 100 | 100 | 100 | 100 | — | 零阻塞 PASS；残余风险 3 项书面钉住 |
-| 30 | R1 | task_subagent | 100 | 60 | 100 | 100 | — | D2 warn：00_main.graph.yaml 头部注释误将新源标为「历史 AI 协议版」，00 发现并修正（commit d064915） |
-| 40 | R1 | task_subagent | 100 | 100 | 100 | 100 | — | 独立复跑 3 条命令全部通过 |
-| 50 | close | task_subagent | 100 | 100 | 100 | 100 | 100 | 独立复跑 + 7 项验收标准全 pass，建议 CLOSE |
-| 00 | CLOSE | main_chat | 100 | 100 | 100 | 100 | 100 | gate 检查合规，未代签；分仓 commit 可追溯 |
+
+| hat_code | round | agent_mode    | D1  | D2  | D3  | D4  | D5  | judgment_notes                                                            |
+| -------- | ----- | ------------- | --- | --- | --- | --- | --- | ------------------------------------------------------------------------- |
+| 10       | R0–R3 | task_subagent | 100 | 100 | 100 | 100 | —   | early_stop=yes 理由充分；A/B Prompt 全文输出                                       |
+| 22       | R1    | task_subagent | 100 | 100 | 100 | 100 | —   | 零阻塞 PASS；残余风险 3 项书面钉住                                                     |
+| 30       | R1    | task_subagent | 100 | 60  | 100 | 100 | —   | D2 warn：00_main.graph.yaml 头部注释误将新源标为「历史 AI 协议版」，00 发现并修正（commit d064915） |
+| 40       | R1    | task_subagent | 100 | 100 | 100 | 100 | —   | 独立复跑 3 条命令全部通过                                                            |
+| 50       | close | task_subagent | 100 | 100 | 100 | 100 | 100 | 独立复跑 + 7 项验收标准全 pass，建议 CLOSE                                             |
+| 00       | CLOSE | main_chat     | 100 | 100 | 100 | 100 | 100 | gate 检查合规，未代签；分仓 commit 可追溯                                               |
+
 
 **计算**：D1=100, D2=min(100,100,60,100,100,100)=60, D3=100, D4=100, D5=100 → 100×20% + 60×30% + 100×15% + 100×15% + 100×20% = 88%
 
