@@ -248,6 +248,11 @@
 | 3 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | 360 passed, 1 skipped, 2 deselected |
 | 4 | `bash scripts/verify-tech-graph.sh` | 1 | manifest/test_manifest/harness gate 均 OK；exit 1 因其他 task 的 human_gate pending（非本 task 阻塞） |
 
+**40 帽独立复跑确认（2026-06-16）**：
+- 命令 1–3 全部通过，退出码与 30 帽记录一致
+- 交付物核对全部通过（见下表）
+- 无新增失败项，无需打回 30
+
 **OpenSpec × TDD 三维自检**：
 - Completeness：F1/F2/F3 均有测例或命令证据（YAML 解析失败、graph diff 失败、脚本 --check 模式）
 - Correctness：锚点格式匹配 99_mermaid_protocol.md §3（// → path#line 或 // → path::symbol）
