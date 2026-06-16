@@ -1,0 +1,182 @@
+# 14_runtime_observability 唯一编辑源
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 14_runtime_observability.md
+# AI 协议历史版见 14_runtime_observability.ai.md（已标记 @deprecated · 源迁 YAML）
+
+graph_id: "14_runtime_observability"
+title: "Runtime/Observability 子流程"
+description: "Unified Chat 运行时可观测性视角：SSE 事件包、工具调用、RAG/Text2SQL 证据、错误最短路径、调试开关"
+version: "2026-06-16"
+
+nodes:
+  - id: "AM"
+    label: "assistant.message"
+  - id: "DONE"
+    label: "event: done"
+  - id: "ENV"
+    label: "Debug env toggles"
+  - id: "ENV_KEYS"
+    label: '"DEBUG_RAG / RAG_DEBUG / NODE_ENV / DEBUG_INGEST / DEBUG_INTENT_CACHE / DEBUG_AGENT_DB_LOG / DEBUG_ROUTER_EVIDENCE / DEBUG_ROUTER_EVIDENCE_DB / DEBUG_ROUTER_TRACE_DB"'
+  - id: "ERR"
+    label: "error"
+  - id: "EV"
+    label: "event: chain"
+  - id: "E_EMB"
+    label: "Embedding error -> keyword-only"
+  - id: "E_EXECSQL"
+    label: "TEXT2SQL_DATABASE_URL missing / DB error"
+  - id: "E_GENSQL"
+    label: "validate_sql_readonly [err"
+  - id: "E_ROUTER"
+    label: "未实现工具路由 / 参数错误"
+  - id: "E_RPC"
+    label: "RPC error / retries exhausted"
+  - id: "JSON"
+    label: "JSON response"
+  - id: "LAT"
+    label: "latency"
+  - id: "QX"
+    label: "rag.query_expand"
+  - id: "R1"
+    label: "router.decision"
+  - id: "REQ"
+    label: "HTTP Request"
+  - id: "RS"
+    label: "rag.sources"
+  - id: "SQLR"
+    label: "sql.result"
+  - id: "SQL_KEYS"
+    label: '"{sql, columns, rows[0..20], truncated}"'
+  - id: "SRC_KEYS"
+    label: '"{id, content, filename, score, path, url}"'
+  - id: "SSE"
+    label: "{SSE?"
+  - id: "TCE"
+    label: "tool.call.end"
+  - id: "TCE_KEYS"
+    label: '"{output, error, latency_ms}"'
+  - id: "TCS"
+    label: "tool.call.start"
+  - id: "TCS_KEYS"
+    label: '"{tool, input}"'
+
+edges:
+  - from: "AM"
+    to: "LOG"
+    mark: "::archives"
+    type: "archives"
+    anchors:
+      - path: "api/database_manager.py"
+        symbol: "save_debug_log"
+  - from: "ENV"
+    to: "ENV_KEYS"
+    anchors:
+      - path: "api/index.py"
+        symbol: "_rag_debug_enabled"
+      - path: "api/ingest_pipeline.py"
+        line: 33
+  - from: "ERR"
+    to: "E_EMB"
+    label: "stage=rag.embed"
+  - from: "ERR"
+    to: "E_EXECSQL"
+    label: "stage=text2sql.execute_sql"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "handle_unified_chat(_stream)"
+      - path: "api/text2sql_core.py"
+        symbol: "execute_select_sql"
+  - from: "ERR"
+    to: "E_GENSQL"
+    label: "stage=text2sql.generate_sql"
+  - from: "ERR"
+    to: "E_ROUTER"
+    label: "stage=router"
+  - from: "ERR"
+    to: "E_RPC"
+    label: "stage=rag.retrieve"
+  - from: "EV"
+    to: "AM"
+    label: "type=assistant.message"
+  - from: "EV"
+    to: "ERR"
+    label: "type=error"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "_event"
+  - from: "EV"
+    to: "LAT"
+    label: "type=latency"
+  - from: "EV"
+    to: "QX"
+    label: "type=rag.query_expand"
+  - from: "EV"
+    to: "R1"
+    label: "type=router.decision"
+  - from: "EV"
+    to: "RS"
+    label: "type=rag.sources"
+  - from: "EV"
+    to: "SQLR"
+    label: "type=sql.result"
+  - from: "EV"
+    to: "TCE"
+    label: "type=tool.call.end"
+  - from: "EV"
+    to: "TCS"
+    label: "type=tool.call.start"
+  - from: "LOG"
+    to: "DB"
+  - from: "REQ"
+    to: "SSE"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "handle_unified_chat_stream"
+  - from: "RS"
+    to: "SRC_KEYS"
+    label: "payload.sources[*]"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "_build_rag_sources_event"
+      - path: "api/index.py"
+        symbol: "build_sources_payload"
+  - from: "SQLR"
+    to: "SQL_KEYS"
+    label: "payload"
+    anchors:
+      - path: "api/unified_chat.py"
+        line: 425
+  - from: "SSE"
+    to: "DONE"
+    mark: "[yes]"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "_sse"
+  - from: "SSE"
+    to: "EV"
+    mark: "[yes]"
+  - from: "SSE"
+    to: "JSON"
+    mark: "[no]"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "handle_unified_chat"
+  - from: "TCE"
+    to: "TCE_KEYS"
+    label: "payload"
+  - from: "TCS"
+    to: "TCS_KEYS"
+    label: "payload"
+
+notes: |
+  ### 运维 HTTP 入口
+
+  - `/api/py/live` — health live
+  - `/api/py/ready` — readiness
+
+  ### Debug 开关
+
+  `DEBUG_RAG`、`RAG_DEBUG`、`NODE_ENV`、`DEBUG_INGEST`、`DEBUG_INTENT_CACHE`、`DEBUG_AGENT_DB_LOG`、`DEBUG_ROUTER_EVIDENCE`、`DEBUG_ROUTER_EVIDENCE_DB`、`DEBUG_ROUTER_TRACE_DB`
+
+  ### 说明
+
+  本图为运行/排障视角，不重复 RAG/Text2SQL/FTS 业务主链路；详细事件契约见 `_contract_manifest.json`。
