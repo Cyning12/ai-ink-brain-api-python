@@ -162,9 +162,9 @@
 - **00_main 节点**：graph.json 中 26 个节点（graph_id=00_main），无 `kind` 字段（P2-0 遗留），含 Q/E/U1/U2/C1/CR1/CR2/A1/A2/CH/CV/HL/H1/SQ/RAG/T2S/FTS/RPC/EV_TYPES/AUTH 等业务节点 + RAG_DOC/T2S_DOC/FTS_DOC/RPC_DOC/OBS_DOC/E2E_DOC 等文档引用节点。
 - **00_main 边**：36 条，类型仅 `depends_on`（32）与 `branches`（4）；`branches` 集中在 U1/U2 → RAG/T2S（::branches 标记）。
 - **锚点**：仅 4 条边带 anchors（Q→E、U1→AUTH、U2→AUTH、U2→EV_TYPES），其余 32 条边 anchors=[]。
-- **现有 CI**：`.github/workflows/tech-graph.yml` → `bash scripts/verify-tech-graph.sh` 已含 manifest_check / export --check / drift / equivalence / token_estimate；**无** YAML 相关步餤。P0 须追加 `graph_yaml` 校验步餤（或 pre-commit），但**不改动**现有 `verify-tech-graph.sh` 核心链路（避免破坏其他 graph 校验）。
+- **现有 CI**：`.github/workflows/tech-graph.yml` → `bash scripts/verify-tech-graph.sh` 已含 manifest_check / export --check / drift / equivalence / token_estimate；**无** YAML 相关步骤。P0 须追加 `graph_yaml` 校验步骤（或 pre-commit），但**不改动**现有 `verify-tech-graph.sh` 核心链路（避免破坏其他 graph 校验）。
 - **00_main.ai.md**：含 Mermaid 图 + AUTO:ENDPOINTS_AND_ANCHORS 自动生成块（来自 _manifest.json）+ 子图链接列表。
-- **00_main.md**：人类友好版，Mermaid 更简潔，无 AUTO 块，无 AI 协议标记。
+- **00_main.md**：人类友好版，Mermaid 更简洁，无 AUTO 块，无 AI 协议标记。
 
 ### R2 · 方案对比（YAML schema · 生成 MD 结构 · 脚本语言）
 
@@ -172,7 +172,7 @@
 |------|------|------|--------------|
 | **方案 1**：YAML 源 → Python 生成 .md + 校验 graph.json | 编辑 `00_main.graph.yaml` → 脚本生成 `00_main.md`（含 Mermaid + 结构化表格）→ 同时校验与 graph.json 00_main 切片一致 | **推荐** | 最小 diff：只新增 YAML 源 + 生成脚本 + 校验；保留现有 graph.json 机器轨不动；与 QNA §2 工作流一致；人类读 .md，AI 未来读 YAML |
 | **方案 2**：YAML 源 → 直接 emit graph.json 子集 + 再生成 .md | YAML 同时作为 graph.json 的 00_main 子集来源 | 弃选 | P0 目标不是替换 graph.json 导出器（现有 `tech_graph_graph_export.py` 已负责 .ai.md → graph.json）；改 graph.json 来源会触发现有 CI 等价校验大面积变动，超 P0 范围 |
-| **方案 3**：JSON 源替代 YAML | 手写 JSON 作�a 00_main 编辑源 | 弃选 | JSON 无注释、手写拓扑差、与 QNA 推荐方向矛盾；仅适合聚合（_manifest.json） |
+| **方案 3**：JSON 源替代 YAML | 手写 JSON 作为 00_main 编辑源 | 弃选 | JSON 无注释、手写拓扑差、与 QNA 推荐方向矛盾；仅适合聚合（_manifest.json） |
 
 **结论**：方案 1（YAML → .md + diff 校验）为 P0 唯一可行路径；脚本语言 Python（与现有 tools/ 一致）。
 
@@ -181,7 +181,7 @@
 - **F1 `fp-yaml-parse`**：可操作 —— PyYAML 解析异常 catch → exit 1 + 行号，CI 日志可见。
 - **F2 `fp-graph-diff`**：可操作 —— 脚本比对 YAML 生成的节点/边集合与 graph.json 00_main 切片，diff 输出节点/边清单，exit 1。
 - **F3 `fp-gate-draft`**：已滿足 —— HG-TASK-DRAFT approved，HG-AUDIT-R1 pending 阻塞 30。
-- **pre-commit vs CI**：建议 **CI only**（`.github/workflows/tech-graph.yml` 追加 job 或 `verify-tech-graph.sh` 追加步餤）；pre-commit 可选（本地开发便利），但非 P0 必须。
+- **pre-commit vs CI**：建议 **CI only**（`.github/workflows/tech-graph.yml` 追加 job 或 `verify-tech-graph.sh` 追加步骤）；pre-commit 可选（本地开发便利），但非 P0 必须。
 - **与 _manifest 关系**：P0 **不联动** —— _manifest.json 仍由现有机制维护；YAML 中不嵌入 manifest 数据；00_main.md 中 AUTO:ENDPOINTS_AND_ANCHORS 块在 P0 可保留现状（由现有工具生成），或改为静态引用 _manifest.json（30 帽决策）。
 - **与 graph.json 关系**：YAML 为**新增源**，graph.json 仍为**机器真值**；P0 只校验一致性，不反向写入。
 
