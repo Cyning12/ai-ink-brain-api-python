@@ -1,7 +1,7 @@
 ---
 graph_id: 12_flow_fts
 version: 2026-06-16
-generated_at: 2026-06-16T11:03:24Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/12_flow_fts.graph.yaml
 ---
 
@@ -43,7 +43,9 @@ flowchart TD
     NOX --> RPC
     ORQ --> RPC
     Q --> QS
+    // → api/rag_recall_tools.py
     QS --"?>"--> I18N
+    // → api/rag_recall_tools.py
     QS --> RPC
     // → api/rag_recall_tools.py::keyword_query_text_with_i18n_meta
     // → api/index.py::fetch_keyword_hits

@@ -1,7 +1,7 @@
 ---
 graph_id: 15_e2e_boundary
 version: 2026-06-16
-generated_at: 2026-06-16T11:28:01Z
+generated_at: 2026-06-16T12:10:04Z
 source: docs/_tech_graph/15_e2e_boundary.graph.yaml
 ---
 
@@ -105,7 +105,7 @@ flowchart TD
 ### 锚点与真值来源
 
 - **后端端点/表/RPC 真值**：`docs/_tech_graph/_manifest.json`
-- **SSE 事件集合 + 最小字段键**：`docs/_tech_graph/14_runtime_observability.ai.md`
+- **SSE 事件集合 + 最小字段键**：`docs/_tech_graph/14_runtime_observability.md`
 - **前端 SSE 消费锚点**：`../ai-ink-brain/components/unified-chat/UnifiedChatPageClient.tsx`
 - **前端 BFF 透传锚点**：`../ai-ink-brain/app/api/py/unified/chat/stream/route.ts`
 

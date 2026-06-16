@@ -1,7 +1,7 @@
 ---
 graph_id: 11_flow_text2sql
 version: 2026-06-16
-generated_at: 2026-06-16T10:57:34Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/11_flow_text2sql.graph.yaml
 ---
 
@@ -39,12 +39,15 @@ flowchart TD
     // → api/intent_router.py::decide_intent
     INT --"[non_text2sql]"--> OUT0
     INT --"[text2sql]"--> RET
+    // → api/text2sql_store.py
     RET --> PF
+    // → api/text2sql_schema_prefetch.py
     RET --"依赖语料"--> SPEC
     PF --"[ok|skip]"--> PROMPT
     PF --"[err]"--> ERR_PF
     ERR_PF --> OUT1
     PROMPT --> GEN
+    // → api/text2sql_core.py
     GEN --"~>"--> VAL
     // → api/text2sql_core.py::validate_sql_readonly
     VAL --"[ok]"--> EXEC

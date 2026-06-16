@@ -1,7 +1,7 @@
 ---
 graph_id: 13_flow_supabase_rpc
 version: 2026-06-16
-generated_at: 2026-06-16T11:13:23Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/13_flow_supabase_rpc.graph.yaml
 ---
 
@@ -34,10 +34,12 @@ flowchart LR
     // → api/code_retrieval.py::_require_code_api_auth
     AUTH --"[ok]"--> POOL
     CHAT --> L
+    // → api/database_manager.py
     CHAT --"::archives"--> L
     ING --"::triggers"--> C
     ING --"::triggers"--> D
     ING --"::triggers"--> RC
+    // → api/ingest_pipeline.py
     ING --"::triggers"--> RD
     KC --"[err]"--> ERR_RPC_MISSING
     KD --"[err]"--> ERR_RPC_MISSING
@@ -52,6 +54,7 @@ flowchart LR
     POOL --"~>"--> KD
     // → supabase/sql/hybrid_search.sql::keyword_documents
     POOL --> L
+    // → supabase/sql/create_rag_conversation_logs.sql
     POOL --"~>"--> MC
     // → supabase/sql/code_chunks.sql::match_code_chunks
     POOL --"~>"--> MD

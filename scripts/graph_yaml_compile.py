@@ -56,17 +56,18 @@ def extract_graph_json_slice(graph_id: str):
 def format_anchor_comment(anchor: dict) -> str:
     """Format anchor as Mermaid comment per 99_mermaid_protocol.md §3.
 
-    Returns empty string if anchor lacks both line and symbol, so the caller
-    can skip rendering invalid anchors.
+    Returns empty string if anchor lacks path.
     """
     path = anchor.get("path", "")
     symbol = anchor.get("symbol", "")
     line = anchor.get("line")
+    if not path:
+        return ""
     if line is not None:
         return f"// → {path}#L{line}"
     if symbol:
         return f"// → {path}::{symbol}"
-    return ""
+    return f"// → {path}"
 
 
 def generate_mermaid(data: dict) -> str:
@@ -325,7 +326,7 @@ def check_graph(graph_id: str) -> bool:
 
 
 def all_graph_ids() -> list[str]:
-    return sorted(p.stem for p in TECH_GRAPH_DIR.glob("*.graph.yaml"))
+    return sorted(p.name[: -len(".graph.yaml")] for p in TECH_GRAPH_DIR.glob("*.graph.yaml"))
 
 
 def main():

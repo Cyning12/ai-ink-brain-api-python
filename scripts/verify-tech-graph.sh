@@ -18,6 +18,9 @@ echo "==> verify-tech-graph: harness human_gate (PR diff vs origin/main)"
 git fetch origin main --depth=1 2>/dev/null || true
 python tools/harness_human_gate_check.py --pr-diff --base origin/main
 
+echo "==> verify-tech-graph: graph.yaml compile --check (all graphs)"
+python scripts/graph_yaml_compile.py --all --check
+
 echo "==> verify-tech-graph: graph.json export --check"
 python tools/tech_graph_graph_export.py --check
 
