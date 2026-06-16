@@ -1,7 +1,7 @@
 ---
 graph_id: 11_flow_text2sql
 version: 2026-06-16
-generated_at: 2026-06-16T10:45:49Z
+generated_at: 2026-06-16T10:57:34Z
 source: docs/_tech_graph/11_flow_text2sql.graph.yaml
 ---
 
@@ -130,3 +130,23 @@ flowchart TD
 | OUT1 | OUT | -> | depends_on |  |  |
 | OUT2 | OUT | -> | depends_on |  |  |
 | OUT | LOG | ::archives | archives |  | 1 anchor(s) |
+
+## Notes
+
+### ChatBI V2 多轮锚点
+
+Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sync_persist_chatbi_v2_agent_log` 在 `rag_conversation_logs.tool_results.text2sql_grounding` 写入 `primary_table` / `resolved_tables` / `sql_excerpt`；次轮 `api/agent_memory.py::load` 合并进 `history[]`。
+
+### V3 P0 · Schema 预取
+
+当用户问题含 INSERT/UPDATE 类语义且向量检索 DDL 列锚点不足时，在 LLM 生成 SQL 之前执行只读 `information_schema.columns` 预取（与 `chatbi_sql_table_policy` 可见写权限对齐），将列清单注入 `build_sql_prompt`；失败返回 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`。
+
+相关环境变量：
+- `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断历史注入 prompt
+- `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS`
+- `TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS`
+
+### V3 P1-1 · SQL AST 硬化
+
+`api/chatbi_sql_gate.py::apply_chatbi_sql_gate` 使用 AST（sqlparse）→ 表策略 `chatbi_sql_table_policy`（min_* / 无行拒绝）→ 档位与 L2 收窄。
+

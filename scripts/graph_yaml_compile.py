@@ -187,6 +187,20 @@ def generate_sub_graph_links(graph_id: str) -> str:
 """
 
 
+def generate_notes_section(data: dict) -> str:
+    """Render optional `notes` field as markdown section."""
+    notes = data.get("notes")
+    if not notes:
+        return ""
+    if isinstance(notes, str):
+        body = notes
+    elif isinstance(notes, list):
+        body = "\n\n".join(str(n) for n in notes)
+    else:
+        body = str(notes)
+    return f"\n\n## Notes\n\n{body}\n"
+
+
 def generate_md(data: dict) -> str:
     graph_id = data.get("graph_id", "00_main")
     title = data.get("title", graph_id)
@@ -209,6 +223,8 @@ source: docs/_tech_graph/{graph_id}.graph.yaml
     sub_graph_links = generate_sub_graph_links(graph_id)
     sub_graph_section = f"\n\n{sub_graph_links}" if sub_graph_links else ""
 
+    notes_section = generate_notes_section(data)
+
     body = f"""{header}
 
 ## Mermaid
@@ -221,7 +237,7 @@ source: docs/_tech_graph/{graph_id}.graph.yaml
 
 {generate_node_table(data)}
 
-{generate_edge_table(data)}{sub_graph_section}
+{generate_edge_table(data)}{notes_section}{sub_graph_section}
 """
     return frontmatter + "\n" + body
 
