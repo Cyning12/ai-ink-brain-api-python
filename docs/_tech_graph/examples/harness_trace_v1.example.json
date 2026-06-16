@@ -1,0 +1,128 @@
+{
+  "schema_version": "harness_trace_v1",
+  "trace_id": "trace_20260615_143022_abc123",
+  "task_slug": "fix_login_bug",
+  "invoke_snapshot_path": "docs/harness/invokes/by-task/fix_login_bug/invoke_30_20260615.md",
+  "git_commit": "a3f2c9e1d0b4a7c8e5f6",
+  "triggered_by": "hat_30",
+  "graph_freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
+  "graph_id": "00_main",
+  "started_at": "2026-06-15T14:30:22Z",
+  "ended_at": "2026-06-15T14:30:45Z",
+  "status": "success",
+  "steps": [
+    {
+      "step_id": 1,
+      "node_id": "Q",
+      "node_label": "用户请求",
+      "entered_at": "2026-06-15T14:30:22.000Z",
+      "exited_at": "2026-06-15T14:30:22.010Z",
+      "status": "success",
+      "input_summary": "POST /api/py/unified/chat/stream"
+    },
+    {
+      "step_id": 2,
+      "edge_id": "Q--E",
+      "edge_label": "",
+      "traversed_at": "2026-06-15T14:30:22.010Z",
+      "latency_ms": 0
+    },
+    {
+      "step_id": 3,
+      "node_id": "E",
+      "node_label": "@router.dispatch",
+      "entered_at": "2026-06-15T14:30:22.010Z",
+      "exited_at": "2026-06-15T14:30:22.015Z",
+      "status": "success",
+      "output_summary": "routed to U2"
+    },
+    {
+      "step_id": 4,
+      "edge_id": "E--U2",
+      "edge_label": "POST /api/py/unified/chat/stream",
+      "traversed_at": "2026-06-15T14:30:22.015Z",
+      "latency_ms": 0
+    },
+    {
+      "step_id": 5,
+      "node_id": "U2",
+      "node_label": "Unified SSE",
+      "entered_at": "2026-06-15T14:30:22.015Z",
+      "exited_at": "2026-06-15T14:30:22.030Z",
+      "status": "success",
+      "output_summary": "branch to RAG"
+    },
+    {
+      "step_id": 6,
+      "edge_id": "U2--RAG",
+      "edge_label": "::branches",
+      "traversed_at": "2026-06-15T14:30:22.030Z",
+      "latency_ms": 0
+    },
+    {
+      "step_id": 7,
+      "node_id": "AUTH",
+      "node_label": "AUTH (require_chatbi_principal)",
+      "entered_at": "2026-06-15T14:30:22.030Z",
+      "exited_at": "2026-06-15T14:30:22.045Z",
+      "status": "success",
+      "output_summary": "authorized user_id=123"
+    },
+    {
+      "step_id": 8,
+      "edge_id": "U2--AUTH",
+      "edge_label": "",
+      "traversed_at": "2026-06-15T14:30:22.045Z",
+      "latency_ms": 15
+    },
+    {
+      "step_id": 9,
+      "node_id": "RAG",
+      "node_label": "RAG 子流程",
+      "entered_at": "2026-06-15T14:30:22.045Z",
+      "exited_at": "2026-06-15T14:30:35.200Z",
+      "status": "success",
+      "details": {
+        "embedding_model": "siliconflow",
+        "retrieved_chunks": 5,
+        "fts_hits": 12,
+        "vector_hits": 8
+      }
+    },
+    {
+      "step_id": 10,
+      "node_id": "LLM",
+      "node_label": "async def llm_answer",
+      "entered_at": "2026-06-15T14:30:35.200Z",
+      "exited_at": "2026-06-15T14:30:44.500Z",
+      "status": "success",
+      "details": {
+        "model": "claude-3-sonnet",
+        "input_tokens": 1500,
+        "output_tokens": 450
+      }
+    },
+    {
+      "step_id": 11,
+      "node_id": "OUT",
+      "node_label": "返回 JSON / SSE",
+      "entered_at": "2026-06-15T14:30:44.500Z",
+      "exited_at": "2026-06-15T14:30:45.000Z",
+      "status": "success",
+      "output_summary": "streamed 3 events"
+    }
+  ],
+  "aggregated_metrics": {
+    "total_latency_ms": 23000,
+    "node_count": 6,
+    "edge_count": 5,
+    "status": "success",
+    "failure_node": null,
+    "total_input_tokens": 1500,
+    "total_output_tokens": 450
+  },
+  "related_artifacts": [
+    "docs/harness/invokes/by-task/fix_login_bug/invoke_30_20260615.md",
+    "docs/harness/reviews/fix_login_bug_audit_R1_20260615.md"
+  ]
+}
