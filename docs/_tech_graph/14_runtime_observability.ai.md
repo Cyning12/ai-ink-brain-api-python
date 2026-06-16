@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P4 后唯一编辑源为 14_runtime_observability.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 14_runtime_observability.md
+
 ```mermaid
 flowchart TD
   %% Runtime / Observability View (SSE events + error branches)
