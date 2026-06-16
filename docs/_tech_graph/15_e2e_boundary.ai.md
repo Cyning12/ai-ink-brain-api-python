@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P5 后唯一编辑源为 15_e2e_boundary.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 15_e2e_boundary.md
+
 ```mermaid
 flowchart TD
   %% 15_e2e_boundary: Cross-repo boundary + contracts (AI protocol)

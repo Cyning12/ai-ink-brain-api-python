@@ -117,6 +117,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-16 | [../done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md](../done/task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md) | YAML 图源迁移 P5 · `15_e2e_boundary` · PR #171 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md](../done/task_engineering_graph_yaml_p4_14_runtime_observability_v1.md) | YAML 图源迁移 P4 · `14_runtime_observability` · PR #170 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_p3b_13_flow_supabase_rpc_v1.md](../done/task_engineering_graph_yaml_p3b_13_flow_supabase_rpc_v1.md) | YAML 图源迁移 P3b · `13_flow_supabase_rpc` · PR #169 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_p3a_12_flow_fts_v1.md](../done/task_engineering_graph_yaml_p3a_12_flow_fts_v1.md) | YAML 图源迁移 P3a · `12_flow_fts` · PR #168 |

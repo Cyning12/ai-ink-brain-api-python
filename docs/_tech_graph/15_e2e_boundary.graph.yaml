@@ -1,0 +1,103 @@
+# 15_e2e_boundary 唯一编辑源
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 15_e2e_boundary.md
+# AI 协议历史版见 15_e2e_boundary.ai.md（已标记 @deprecated · 源迁 YAML）
+
+graph_id: "15_e2e_boundary"
+title: "E2E Boundary/Contract 子流程"
+description: "跨仓边界与契约视图：前端 ↔ BFF ↔ Python FastAPI ↔ Supabase，以及 SSE 事件包最小键名"
+version: "2026-06-16"
+
+nodes:
+  - id: "BE"
+    label: "BE"
+  - id: "BFF"
+    label: "BFF"
+  - id: "CHAIN_SHAPE"
+    label: "CHAIN_SHAPE"
+  - id: "CONTENT"
+    label: "CONTENT"
+  - id: "CONTENT_ROOT"
+    label: "CONTENT_ROOT"
+  - id: "DONE_SHAPE"
+    label: "DONE_SHAPE"
+  - id: "FE"
+    label: "FE"
+  - id: "FE_PARSE"
+    label: "FE_PARSE"
+  - id: "FE_STREAM"
+    label: "FE_STREAM"
+  - id: "PY_SSE"
+    label: "PY_SSE"
+  - id: "RS_KEYS"
+    label: "RS_KEYS"
+  - id: "SB_MATCH_DOCS"
+    label: "SB_MATCH_DOCS"
+  - id: "SB_TRUTH"
+    label: "SB_TRUTH"
+  - id: "SSE_ENV"
+    label: "SSE_ENV"
+  - id: "SSE_EVENTS"
+    label: "SSE_EVENTS"
+
+edges:
+  - from: "BE"
+    to: "SB_TRUTH"
+  - from: "BFF"
+    to: "PY_SSE"
+  - from: "CONTENT"
+    to: "CONTENT_ROOT"
+  - from: "CONTENT_ROOT"
+    to: "BE"
+  - from: "EV_TYPES"
+    to: "RS_KEYS"
+  - from: "EV_TYPES"
+    to: "SQL_KEYS"
+  - from: "FE"
+    to: "FE_STREAM"
+  - from: "FE_STREAM"
+    to: "BFF"
+    anchors:
+      - path: "api/index.py"
+        symbol: "unified_chat_stream_route"
+  - from: "FE_STREAM"
+    to: "FE_PARSE"
+    mark: "~>"
+    type: "async_calls"
+  - from: "PY_SSE"
+    to: "BE"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "_sse"
+  - from: "PY_SSE"
+    to: "SSE_EVENTS"
+    mark: "::yields"
+    type: "yields"
+  - from: "SB_TRUTH"
+    to: "SB"
+  - from: "SB_TRUTH"
+    to: "SB_MATCH_DOCS"
+  - from: "SSE_EVENTS"
+    to: "CHAIN_SHAPE"
+  - from: "SSE_EVENTS"
+    to: "DONE_SHAPE"
+  - from: "SSE_EVENTS"
+    to: "EV_TYPES"
+  - from: "SSE_EVENTS"
+    to: "SSE_ENV"
+    anchors:
+      - path: "api/unified_chat.py"
+        symbol: "_event"
+
+notes: |
+  ### 锚点与真值来源
+
+  - **后端端点/表/RPC 真值**：`docs/_tech_graph/_manifest.json`
+  - **SSE 事件集合 + 最小字段键**：`docs/_tech_graph/14_runtime_observability.ai.md`
+  - **前端 SSE 消费锚点**：`../ai-ink-brain/components/unified-chat/UnifiedChatPageClient.tsx`
+  - **前端 BFF 透传锚点**：`../ai-ink-brain/app/api/py/unified/chat/stream/route.ts`
+
+  ### 说明
+
+  本图只表达“跨仓边界 + 契约锚点”，不展开前端组件树与后端业务子流程。跨仓契约门禁入口为 `python tools/tech_graph_contract_check.py`，已接入 CI `.github/workflows/tech-graph-contract.yml`。
