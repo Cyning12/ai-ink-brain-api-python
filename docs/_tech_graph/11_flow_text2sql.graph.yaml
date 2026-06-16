@@ -1,0 +1,176 @@
+# 11_flow_text2sql 唯一编辑源
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 11_flow_text2sql.md
+# AI 协议历史版见 11_flow_text2sql.ai.md（已标记 @deprecated · 源迁 YAML）
+
+graph_id: "11_flow_text2sql"
+title: "Text2SQL 子流程"
+description: "Text2SQL 意图判定、schema 预取、SQL 生成/校验/执行/总结流程"
+version: "2026-06-16"
+
+nodes:
+  - id: "INT"
+    label: "Intent Check"
+  - id: "OUT0"
+    label: "返回 non_text2sql 提示"
+  - id: "RET"
+    label: "text2sql_store.search()"
+  - id: "PF"
+    label: "run_text2sql_schema_prefetch_sync"
+  - id: "ERR_PF"
+    label: ">TEXT2SQL_SCHEMA_PREFETCH_FAILED"
+  - id: "PROMPT"
+    label: "build_sql_prompt()"
+  - id: "GEN"
+    label: "async def llm_generate_sql"
+  - id: "VAL"
+    label: "validate_sql_readonly()"
+  - id: "EXEC"
+    label: "execute_select_sql()"
+  - id: "ERR_VALIDATE"
+    label: ">validate_sql_readonly err"
+  - id: "ERR_EXEC"
+    label: ">execute_select_sql err"
+  - id: "ERR_DSN"
+    label: ">Missing env"
+  - id: "DET"
+    label: "try_summarize_aggregate()"
+  - id: "SUM"
+    label: "async def llm_summarize"
+  - id: "OUT2"
+    label: "未查到数据"
+  - id: "OUT1"
+    label: "errors.generate_sql"
+  - id: "SPEC"
+    label: ">docs/text2sql/v1/sql/supabase_init.sql"
+
+edges:
+  - from: "IN"
+    to: "AUTH"
+    anchors:
+      - path: "api/index.py"
+        symbol: "_require_auth"
+  - from: "AUTH"
+    to: "INT"
+    mark: "[ok]"
+  - from: "AUTH"
+    to: "ERR_AUTH"
+    mark: "[err]"
+    anchors:
+      - path: "api/intent_router.py"
+        symbol: "is_text2sql_intent"
+      - path: "api/intent_router.py"
+        symbol: "decide_intent"
+  - from: "INT"
+    to: "OUT0"
+    mark: "[non_text2sql]"
+  - from: "INT"
+    to: "RET"
+    mark: "[text2sql]"
+    anchors:
+      - path: "api/text2sql_store.py"
+  - from: "RET"
+    to: "PF"
+    anchors:
+      - path: "api/text2sql_schema_prefetch.py"
+  - from: "RET"
+    to: "SPEC"
+    label: "依赖语料"
+  - from: "PF"
+    to: "PROMPT"
+    type: "condition"
+    label: "[ok|skip]"
+  - from: "PF"
+    to: "ERR_PF"
+    type: "condition"
+    label: "[err]"
+  - from: "ERR_PF"
+    to: "OUT1"
+  - from: "PROMPT"
+    to: "GEN"
+    anchors:
+      - path: "api/text2sql_core.py"
+  - from: "GEN"
+    to: "VAL"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "api/text2sql_core.py"
+        symbol: "validate_sql_readonly"
+  - from: "VAL"
+    to: "EXEC"
+    mark: "[ok]"
+  - from: "VAL"
+    to: "ERR_VALIDATE"
+    mark: "[err]"
+    anchors:
+      - path: "api/text2sql_core.py"
+        symbol: "validate_sql_readonly"
+  - from: "ERR_VALIDATE"
+    to: "OUT1"
+  - from: "EXEC"
+    to: "DB"
+    mark: "~>"
+    type: "async_calls"
+    anchors:
+      - path: "api/text2sql_core.py"
+        symbol: "execute_select_sql"
+  - from: "EXEC"
+    to: "ERR_EXEC"
+    mark: "[err]"
+    anchors:
+      - path: "api/text2sql_core.py"
+        symbol: "execute_select_sql"
+  - from: "ERR_EXEC"
+    to: "OUT1"
+  - from: "DB"
+    to: "ERR_DSN"
+    label: "TEXT2SQL_DATABASE_URL missing"
+    anchors:
+      - path: "api/text2sql_core.py"
+        line: 88
+  - from: "ERR_DSN"
+    to: "OUT1"
+  - from: "DB"
+    to: "DET"
+    label: "rows==1&1 numeric"
+  - from: "DB"
+    to: "SUM"
+    label: "rows>0"
+  - from: "DB"
+    to: "OUT2"
+    label: "rows==0"
+  - from: "DET"
+    to: "OUT"
+  - from: "SUM"
+    to: "OUT"
+    mark: "~>"
+    type: "async_calls"
+  - from: "OUT1"
+    to: "OUT"
+  - from: "OUT2"
+    to: "OUT"
+  - from: "OUT"
+    to: "LOG"
+    mark: "::archives"
+    type: "archives"
+    anchors:
+      - path: "api/database_manager.py"
+        symbol: "save_debug_log"
+
+notes: |
+  ### ChatBI V2 多轮锚点
+
+  Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sync_persist_chatbi_v2_agent_log` 在 `rag_conversation_logs.tool_results.text2sql_grounding` 写入 `primary_table` / `resolved_tables` / `sql_excerpt`；次轮 `api/agent_memory.py::load` 合并进 `history[]`。
+
+  ### V3 P0 · Schema 预取
+
+  当用户问题含 INSERT/UPDATE 类语义且向量检索 DDL 列锚点不足时，在 LLM 生成 SQL 之前执行只读 `information_schema.columns` 预取（与 `chatbi_sql_table_policy` 可见写权限对齐），将列清单注入 `build_sql_prompt`；失败返回 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`。
+
+  相关环境变量：
+  - `TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断历史注入 prompt
+  - `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS`
+  - `TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS`
+
+  ### V3 P1-1 · SQL AST 硬化
+
+  `api/chatbi_sql_gate.py::apply_chatbi_sql_gate` 使用 AST（sqlparse）→ 表策略 `chatbi_sql_table_policy`（min_* / 无行拒绝）→ 档位与 L2 收窄。

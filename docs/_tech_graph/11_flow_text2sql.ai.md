@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P2 后唯一编辑源为 11_flow_text2sql.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 11_flow_text2sql.md
+
 ```mermaid
 flowchart TD
   %% Entry: /api/py/text2sql/chat | unified router → text2sql
