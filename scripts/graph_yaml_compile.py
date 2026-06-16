@@ -175,12 +175,14 @@ def generate_sub_graph_links(graph_id: str) -> str:
 
 - `Struct`: [`01_struct.md`](01_struct.md)
 - `Version`: [`02_version.md`](02_version.md)
-- `RAG Flow`: [`10_flow_rag.md`](10_flow_rag.md)（[AI 协议版](10_flow_rag.ai.md)）
-- `Text2SQL Flow`: [`11_flow_text2sql.md`](11_flow_text2sql.md)（[AI 协议版](11_flow_text2sql.ai.md)）
-- `FTS Flow`: [`12_flow_fts.md`](12_flow_fts.md)（[AI 协议版](12_flow_fts.ai.md)）
-- `Supabase RPC`: [`13_flow_supabase_rpc.md`](13_flow_supabase_rpc.md)（[AI 协议版](13_flow_supabase_rpc.ai.md)）
-- `Runtime/Observability`: [`14_runtime_observability.md`](14_runtime_observability.md)（[AI 协议版](14_runtime_observability.ai.md)）
-- `E2E Boundary/Contract`: [`15_e2e_boundary.md`](15_e2e_boundary.md)（[AI 协议版](15_e2e_boundary.ai.md)）
+- `Struct`: [`01_struct.md`](01_struct.md)（编辑源：[01_struct.graph.yaml](01_struct.graph.yaml)）
+- `Version`: [`02_version.md`](02_version.md)（编辑源：[02_version.graph.yaml](02_version.graph.yaml)）
+- `RAG Flow`: [`10_flow_rag.md`](10_flow_rag.md)（编辑源：[10_flow_rag.graph.yaml](10_flow_rag.graph.yaml)）
+- `Text2SQL Flow`: [`11_flow_text2sql.md`](11_flow_text2sql.md)（编辑源：[11_flow_text2sql.graph.yaml](11_flow_text2sql.graph.yaml)）
+- `FTS Flow`: [`12_flow_fts.md`](12_flow_fts.md)（编辑源：[12_flow_fts.graph.yaml](12_flow_fts.graph.yaml)）
+- `Supabase RPC`: [`13_flow_supabase_rpc.md`](13_flow_supabase_rpc.md)（编辑源：[13_flow_supabase_rpc.graph.yaml](13_flow_supabase_rpc.graph.yaml)）
+- `Runtime/Observability`: [`14_runtime_observability.md`](14_runtime_observability.md)（编辑源：[14_runtime_observability.graph.yaml](14_runtime_observability.graph.yaml)）
+- `E2E Boundary/Contract`: [`15_e2e_boundary.md`](15_e2e_boundary.md)（编辑源：[15_e2e_boundary.graph.yaml](15_e2e_boundary.graph.yaml)）
 - `Spec`: [`99_spec.md`](99_spec.md)
 - `Mermaid Protocol`: [`99_mermaid_protocol.md`](99_mermaid_protocol.md) — 拓扑图绘制规范（Python/FastAPI 适配版）
 
