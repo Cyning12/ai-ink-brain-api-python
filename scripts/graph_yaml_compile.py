@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Compile 00_main.graph.yaml → 00_main.md (Mermaid + structured tables).
+"""Compile <graph_id>.graph.yaml → <graph_id>.md (Mermaid + structured tables).
 
 Usage:
-    python scripts/graph_yaml_compile.py              # Generate 00_main.md
-    python scripts/graph_yaml_compile.py --check      # Diff vs graph.json, exit 1 on mismatch
+    python scripts/graph_yaml_compile.py                          # Generate 00_main.md (default)
+    python scripts/graph_yaml_compile.py --graph-id 10_flow_rag   # Generate 10_flow_rag.md
+    python scripts/graph_yaml_compile.py --all                    # Generate all .graph.yaml
+    python scripts/graph_yaml_compile.py --check                  # Diff 00_main vs graph.json
+    python scripts/graph_yaml_compile.py --check --graph-id 10_flow_rag
 """
 
 import argparse
@@ -16,13 +19,21 @@ import yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-YAML_PATH = REPO_ROOT / "docs" / "_tech_graph" / "00_main.graph.yaml"
-MD_PATH = REPO_ROOT / "docs" / "_tech_graph" / "00_main.md"
-GRAPH_JSON_PATH = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
+TECH_GRAPH_DIR = REPO_ROOT / "docs" / "_tech_graph"
+GRAPH_JSON_PATH = TECH_GRAPH_DIR / "graph.json"
 
 
-def load_yaml():
-    with YAML_PATH.open("r", encoding="utf-8") as f:
+def yaml_path_for(graph_id: str) -> Path:
+    return TECH_GRAPH_DIR / f"{graph_id}.graph.yaml"
+
+
+def md_path_for(graph_id: str) -> Path:
+    return TECH_GRAPH_DIR / f"{graph_id}.md"
+
+
+def load_yaml(graph_id: str):
+    path = yaml_path_for(graph_id)
+    with path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -31,7 +42,7 @@ def load_graph_json():
         return json.load(f)
 
 
-def extract_graph_json_slice(graph_id="00_main"):
+def extract_graph_json_slice(graph_id: str):
     data = load_graph_json()
     nodes = [n for n in data.get("nodes", []) if n.get("graph_id") == graph_id]
     edges = [
@@ -43,7 +54,11 @@ def extract_graph_json_slice(graph_id="00_main"):
 
 
 def format_anchor_comment(anchor: dict) -> str:
-    """Format anchor as Mermaid comment per 99_mermaid_protocol.md §3."""
+    """Format anchor as Mermaid comment per 99_mermaid_protocol.md §3.
+
+    Returns empty string if anchor lacks both line and symbol, so the caller
+    can skip rendering invalid anchors.
+    """
     path = anchor.get("path", "")
     symbol = anchor.get("symbol", "")
     line = anchor.get("line")
@@ -51,19 +66,15 @@ def format_anchor_comment(anchor: dict) -> str:
         return f"// → {path}#L{line}"
     if symbol:
         return f"// → {path}::{symbol}"
-    return f"// → {path}"
+    return ""
 
 
 def generate_mermaid(data: dict) -> str:
     nodes = {n["id"]: n for n in data.get("nodes", [])}
     edges = data.get("edges", [])
+    direction = data.get("direction", "TD")
 
-    lines = ["flowchart TD"]
-
-    # Group edges by from-node for readability
-    edges_by_from: dict[str, list] = {}
-    for e in edges:
-        edges_by_from.setdefault(e["from"], []).append(e)
+    lines = [f"flowchart {direction}"]
 
     # Render nodes with shapes based on heuristic
     for nid, node in nodes.items():
@@ -92,16 +103,18 @@ def generate_mermaid(data: dict) -> str:
         anchors = e.get("anchors", [])
 
         if label:
-            edge_line = f"    {src} --\"{label}\"--> {dst}"
+            edge_line = f'    {src} --"{label}"--> {dst}'
         elif mark and mark != "->":
-            edge_line = f"    {src} --\"{mark}\"--> {dst}"
+            edge_line = f'    {src} --"{mark}"--> {dst}'
         else:
             edge_line = f"    {src} --> {dst}"
 
         lines.append(edge_line)
 
         for anchor in anchors:
-            lines.append(f"    {format_anchor_comment(anchor)}")
+            comment = format_anchor_comment(anchor)
+            if comment:
+                lines.append(f"    {comment}")
 
     lines.append("")
 
@@ -153,40 +166,11 @@ def generate_edge_table(data: dict) -> str:
     return "\n".join(lines)
 
 
-def generate_md(data: dict) -> str:
-    graph_id = data.get("graph_id", "00_main")
-    title = data.get("title", graph_id)
-    description = data.get("description", "")
-    version = data.get("version", "")
-    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    frontmatter = f"""---
-graph_id: {graph_id}
-version: {version}
-generated_at: {generated_at}
-source: docs/_tech_graph/00_main.graph.yaml
----
-"""
-
-    header = f"# {title}\n\n{description}\n".strip()
-
-    mermaid = generate_mermaid(data)
-
-    body = f"""{header}
-
-## Mermaid
-
-```mermaid
-{mermaid}
-```
-
-## Structured Data
-
-{generate_node_table(data)}
-
-{generate_edge_table(data)}
-
-## Sub-graph Links
+def generate_sub_graph_links(graph_id: str) -> str:
+    """Return sub-graph links section; only 00_main gets the full hub."""
+    if graph_id != "00_main":
+        return ""
+    return """## Sub-graph Links
 
 - `Struct`: [`01_struct.md`](01_struct.md)
 - `Version`: [`02_version.md`](02_version.md)
@@ -201,13 +185,51 @@ source: docs/_tech_graph/00_main.graph.yaml
 
 > **P0 决策备忘**：`00_main.md` 不嵌入 `AUTO:ENDPOINTS_AND_ANCHORS` 块（保持人类友好）；`_manifest.json` 仍由现有工具维护。
 """
+
+
+def generate_md(data: dict) -> str:
+    graph_id = data.get("graph_id", "00_main")
+    title = data.get("title", graph_id)
+    description = data.get("description", "")
+    version = data.get("version", "")
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    frontmatter = f"""---
+graph_id: {graph_id}
+version: {version}
+generated_at: {generated_at}
+source: docs/_tech_graph/{graph_id}.graph.yaml
+---
+"""
+
+    header = f"# {title}\n\n{description}".strip()
+
+    mermaid = generate_mermaid(data)
+
+    sub_graph_links = generate_sub_graph_links(graph_id)
+    sub_graph_section = f"\n\n{sub_graph_links}" if sub_graph_links else ""
+
+    body = f"""{header}
+
+## Mermaid
+
+```mermaid
+{mermaid}
+```
+
+## Structured Data
+
+{generate_node_table(data)}
+
+{generate_edge_table(data)}{sub_graph_section}
+"""
     return frontmatter + "\n" + body
 
 
-def diff_check() -> tuple[bool, str]:
+def diff_check(graph_id: str) -> tuple[bool, str]:
     """Return (ok, diff_text)."""
-    yaml_data = load_yaml()
-    json_nodes, json_edges = extract_graph_json_slice("00_main")
+    yaml_data = load_yaml(graph_id)
+    json_nodes, json_edges = extract_graph_json_slice(graph_id)
 
     yaml_nodes = {n["id"]: n for n in yaml_data.get("nodes", [])}
     yaml_node_ids = set(yaml_nodes.keys())
@@ -268,30 +290,61 @@ def diff_check() -> tuple[bool, str]:
     return True, ""
 
 
+def compile_graph(graph_id: str, output: Path | None = None) -> None:
+    data = load_yaml(graph_id)
+    md = generate_md(data)
+    out_path = output if output else md_path_for(graph_id)
+    out_path.write_text(md, encoding="utf-8")
+    print(f"Generated: {out_path}")
+
+
+def check_graph(graph_id: str) -> bool:
+    ok, diff_text = diff_check(graph_id)
+    if ok:
+        print(f"OK: YAML matches graph.json {graph_id} slice")
+        return True
+    print(f"ERROR: Diff detected for {graph_id}:", file=sys.stderr)
+    print(diff_text, file=sys.stderr)
+    return False
+
+
+def all_graph_ids() -> list[str]:
+    return sorted(p.stem for p in TECH_GRAPH_DIR.glob("*.graph.yaml"))
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Compile 00_main.graph.yaml to 00_main.md")
+    parser = argparse.ArgumentParser(description="Compile <graph_id>.graph.yaml to <graph_id>.md")
+    parser.add_argument("--graph-id", default="00_main", help="Graph ID to compile (default: 00_main)")
+    parser.add_argument("--all", action="store_true", help="Compile all *.graph.yaml files")
     parser.add_argument("--check", action="store_true", help="Diff YAML against graph.json")
-    parser.add_argument("--output", type=Path, default=MD_PATH, help="Output MD path")
+    parser.add_argument("--output", type=Path, default=None, help="Output MD path (single graph only)")
     args = parser.parse_args()
 
-    if not YAML_PATH.exists():
-        print(f"ERROR: YAML source not found: {YAML_PATH}", file=sys.stderr)
+    if args.all:
+        if args.output:
+            print("ERROR: --output cannot be used with --all", file=sys.stderr)
+            sys.exit(2)
+        graph_ids = all_graph_ids()
+        failed = False
+        for graph_id in graph_ids:
+            if args.check:
+                if not check_graph(graph_id):
+                    failed = True
+            else:
+                compile_graph(graph_id)
+        sys.exit(1 if failed else 0)
+
+    graph_id = args.graph_id
+    yaml_path = yaml_path_for(graph_id)
+    if not yaml_path.exists():
+        print(f"ERROR: YAML source not found: {yaml_path}", file=sys.stderr)
         sys.exit(1)
 
     if args.check:
-        ok, diff_text = diff_check()
-        if ok:
-            print("OK: YAML matches graph.json 00_main slice")
-            sys.exit(0)
-        else:
-            print("ERROR: Diff detected:", file=sys.stderr)
-            print(diff_text, file=sys.stderr)
-            sys.exit(1)
+        ok = check_graph(graph_id)
+        sys.exit(0 if ok else 1)
 
-    data = load_yaml()
-    md = generate_md(data)
-    args.output.write_text(md, encoding="utf-8")
-    print(f"Generated: {args.output}")
+    compile_graph(graph_id, output=args.output)
 
 
 if __name__ == "__main__":

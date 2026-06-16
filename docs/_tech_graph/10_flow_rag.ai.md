@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P1 后唯一编辑源为 10_flow_rag.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 10_flow_rag.md
+
 ```mermaid
 flowchart TD
   %% Entry: /api/py/chat | /api/py/unified/chat(.stream)
