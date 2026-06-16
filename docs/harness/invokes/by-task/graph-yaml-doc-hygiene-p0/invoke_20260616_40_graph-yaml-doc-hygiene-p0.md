@@ -24,8 +24,7 @@ date: 2026-06-16
 - 未触碰 `tools/tech_graph_graph_export.py`、`tools/tech_graph_manifest_check.py`、`graph.json` 拓扑、`external_ref` schema
 - 未删除任意 `.ai.md`
 
-## 下一步
-- `git mv` task → `docs/tasks/done/`
-- 更新 `docs/tasks/_views/done.md`、`done_by_domain.md`、`RECENT_TASK_SCHEDULE.md` §1.6 续
-- commit · push · 开 PR → 等 CI 绿 → merge 入 main
-- **P0 merge 前不得启动 P1**
+## 后续（已执行）
+- PR [#176](https://github.com/Cyning12/ai-ink-brain-api-python/pull/176) · CI 全绿 · merged `57f1035`
+- `RECENT_TASK_SCHEDULE.md` §1.6 续 已更新：P0 merged · P1 unblocked
+- **P0 merge 后，P1 `graph-yaml-export-yaml-p1` 方可开 30**
