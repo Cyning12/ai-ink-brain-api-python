@@ -78,7 +78,7 @@ Post-Epic 修复已更新 `99_spec`（YAML 编辑源 · `.ai.md` deprecated）�
 - [x] `python scripts/graph_yaml_compile.py --all --check` → exit 0
 - [x] `bash scripts/verify-tech-graph.sh` 全绿
 - [x] task §自检结论已填 · invoke 30/40 落盘 · 本 task → `done/`
-- [ ] P0 PR **CI 全绿** 且 **已 merge 入 `main`**（**此后** P1 方可开 30 · 见串行链硬闸门）
+- [x] P0 PR **CI 全绿** 且 **已 merge 入 `main`**（merge commit `57f1035`）
 
 **合并前必绿**：`pytest tests -m "not intent_eval and not intent_benchmark"`
 
