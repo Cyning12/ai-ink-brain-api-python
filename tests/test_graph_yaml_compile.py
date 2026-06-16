@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 GRAPH_YAML = REPO_ROOT / "docs" / "_tech_graph" / "00_main.graph.yaml"
 GRAPH_JSON = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
@@ -179,7 +178,7 @@ class TestGraphYamlCompile:
             if in_mermaid:
                 mermaid_lines.append(line)
 
-        anchor_lines = [l for l in mermaid_lines if "// →" in l]
+        anchor_lines = [line for line in mermaid_lines if "// →" in line]
         for line in anchor_lines:
             assert anchor_pattern.search(line), (
                 f"Anchor line does not match protocol format: {line}"
