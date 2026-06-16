@@ -33,8 +33,8 @@
 | human_gate_id           | status       | blocks_hats | 说明                                                                                                                                               |
 | ----------------------- | ------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **HG-TASK-DRAFT**       | **approved** | 10, 22, 30  | task 初稿 · SPEC/QNA 对齐 · **人签后开 10**                                                                                                              |
-| **HG-AUDIT-R1**         | pending      | 30          | 22 R1 落盘 + 思考轮闭合 · 人签后 30                                                                                                                        |
-| **HG-REINSPECT**        | pending      | CLOSE       | 50 复检落盘 · 人签后 CLOSE                                                                                                                              |
+| **HG-AUDIT-R1**         | **approved** | 30          | 22 R1 落盘 + 思考轮闭合 · 人签后 30                                                                                                                        |
+| **HG-REINSPECT**        | **approved** | CLOSE       | 50 复检落盘 · 人签后 CLOSE                                                                                                                              |
 | **HG-GRAPH-P0-SIGNOFF** | pending      | done        | `[HG-GRAPH-P0-CLOSE_checklist](../../harness/invokes/by-task/graph-yaml-p0-00-main/HG-GRAPH-P0-CLOSE_checklist_v1_zh.md)` 全勾 · 人签后 `git mv` done |
 
 
@@ -141,12 +141,13 @@
 ### 思考轮控制
 
 
-| 字段                    | 值      |
-| --------------------- | ------ |
-| **actual_last_round** | `R3` |
-| **early_stop** | `yes` |
-| **early_stop_reason** | `R3 已收敛：方案推荐（YAML→MD 单向）明确；CI 仅追加 diff 校验不改动现有 workflow；failure_paths F1/F2/F3 均可操作；P0 与 _manifest 不联动；R4/R5 为执行期命令占位与远期规划，可在 22 审查中书面确认，无需额外思考轮` |
-| **residual_risks** | `1) graph.json 中 00_main 节点无 kind 字段（P2-0 遗留），YAML schema 需决定是否补 kind 或允踱缺失；2) 锚点仅在 Q→E、U1→AUTH、U2→AUTH、U2→EV_TYPES 四条边存在，YAML→MD 生成时锚点渲染格式须与 99_mermaid_protocol.md 对齐；3) P1 迁移 10_flow_rag 时其 .ai.md 含 Mermaid + AUTO 块，YAML schema 需扩展以支持子图引用与 AUTO 注入块` |
+| 字段                    | 值                                                                                                                                                                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **actual_last_round** | `R3`                                                                                                                                                                                                                                                        |
+| **early_stop**        | `yes`                                                                                                                                                                                                                                                       |
+| **early_stop_reason** | `R3 已收敛：方案推荐（YAML→MD 单向）明确；CI 仅追加 diff 校验不改动现有 workflow；failure_paths F1/F2/F3 均可操作；P0 与 _manifest 不联动；R4/R5 为执行期命令占位与远期规划，可在 22 审查中书面确认，无需额外思考轮`                                                                                                           |
+| **residual_risks**    | `1) graph.json 中 00_main 节点无 kind 字段（P2-0 遗留），YAML schema 需决定是否补 kind 或允踱缺失；2) 锚点仅在 Q→E、U1→AUTH、U2→AUTH、U2→EV_TYPES 四条边存在，YAML→MD 生成时锚点渲染格式须与 99_mermaid_protocol.md 对齐；3) P1 迁移 10_flow_rag 时其 .ai.md 含 Mermaid + AUTO 块，YAML schema 需扩展以支持子图引用与 AUTO 注入块` |
+
 
 ### R0 · 读 task / QNA / 非范围
 
@@ -168,11 +169,13 @@
 
 ### R2 · 方案对比（YAML schema · 生成 MD 结构 · 脚本语言）
 
-| 方案 | 描述 | 推荐 | 弃选/保留理由 |
-|------|------|------|--------------|
-| **方案 1**：YAML 源 → Python 生成 .md + 校验 graph.json | 编辑 `00_main.graph.yaml` → 脚本生成 `00_main.md`（含 Mermaid + 结构化表格）→ 同时校验与 graph.json 00_main 切片一致 | **推荐** | 最小 diff：只新增 YAML 源 + 生成脚本 + 校验；保留现有 graph.json 机器轨不动；与 QNA §2 工作流一致；人类读 .md，AI 未来读 YAML |
-| **方案 2**：YAML 源 → 直接 emit graph.json 子集 + 再生成 .md | YAML 同时作为 graph.json 的 00_main 子集来源 | 弃选 | P0 目标不是替换 graph.json 导出器（现有 `tech_graph_graph_export.py` 已负责 .ai.md → graph.json）；改 graph.json 来源会触发现有 CI 等价校验大面积变动，超 P0 范围 |
-| **方案 3**：JSON 源替代 YAML | 手写 JSON 作为 00_main 编辑源 | 弃选 | JSON 无注释、手写拓扑差、与 QNA 推荐方向矛盾；仅适合聚合（_manifest.json） |
+
+| 方案                                                | 描述                                                                                            | 推荐     | 弃选/保留理由                                                                                                                     |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
+| **方案 1**：YAML 源 → Python 生成 .md + 校验 graph.json   | 编辑 `00_main.graph.yaml` → 脚本生成 `00_main.md`（含 Mermaid + 结构化表格）→ 同时校验与 graph.json 00_main 切片一致 | **推荐** | 最小 diff：只新增 YAML 源 + 生成脚本 + 校验；保留现有 graph.json 机器轨不动；与 QNA §2 工作流一致；人类读 .md，AI 未来读 YAML                                     |
+| **方案 2**：YAML 源 → 直接 emit graph.json 子集 + 再生成 .md | YAML 同时作为 graph.json 的 00_main 子集来源                                                           | 弃选     | P0 目标不是替换 graph.json 导出器（现有 `tech_graph_graph_export.py` 已负责 .ai.md → graph.json）；改 graph.json 来源会触发现有 CI 等价校验大面积变动，超 P0 范围 |
+| **方案 3**：JSON 源替代 YAML                            | 手写 JSON 作为 00_main 编辑源                                                                        | 弃选     | JSON 无注释、手写拓扑差、与 QNA 推荐方向矛盾；仅适合聚合（_manifest.json）                                                                           |
+
 
 **结论**：方案 1（YAML → .md + diff 校验）为 P0 唯一可行路径；脚本语言 Python（与现有 tools/ 一致）。
 
@@ -222,20 +225,38 @@
 
 ## 实现备忘（30 回填）
 
-
-| 路径                                                    | 说明       |
+| 路径 | 说明 |
 | ----------------------------------------------------- | -------- |
-| `docs/_tech_graph/00_main.graph.yaml`                 | P0 编辑源   |
-| `scripts/graph_yaml_compile.py`                       | 待建       |
-| `docs/harness/invokes/by-task/graph-yaml-p0-00-main/` | invoke 链 |
+| `docs/_tech_graph/00_main.graph.yaml` | P0 编辑源（26 节点 / 36 边，对齐 graph_v2_schema + 99_mermaid_protocol） |
+| `scripts/graph_yaml_compile.py` | YAML→MD 转换器 + --check diff 校验 |
+| `docs/_tech_graph/00_main.md` | 人类可读版（Mermaid + 结构化表格 + frontmatter） |
+| `tests/test_graph_yaml_compile.py` | 8 条 pytest 用例（red→green，覆盖 F1/F2 + R2 锚点格式） |
+| `docs/harness/invokes/by-task/graph-yaml-p0-00-main/` | invoke 链（含本 30 执行 invoke） |
+
+**P0 决策备忘**：
+- `00_main.md` 不嵌入 `AUTO:ENDPOINTS_AND_ANCHORS` 块（保持人类友好）；`_manifest.json` 仍由现有工具维护
+- `00_main.ai.md` 保留并标记 `@deprecated · 源迁 YAML`，P0 不删除
+- 脚本路径确认放 `scripts/`（与 `scripts/verify-tech-graph.sh` 同目录）
 
 
 ### 自检结论（执行者）
 
-
-| #   | 命令      | 退出码 | 摘要  |
+| # | 命令 | 退出码 | 摘要 |
 | --- | ------- | --- | --- |
-| —   | （40 回填） | —   | —   |
+| 1 | `pytest tests/test_graph_yaml_compile.py -v` | 0 | 8 passed（YAML 存在/解析、节点/边/锚点匹配、--check 模式、锚点格式） |
+| 2 | `python scripts/graph_yaml_compile.py --check` | 0 | YAML 与 graph.json 00_main 切片一致 |
+| 3 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | 360 passed, 1 skipped, 2 deselected |
+| 4 | `bash scripts/verify-tech-graph.sh` | 1 | manifest/test_manifest/harness gate 均 OK；exit 1 因其他 task 的 human_gate pending（非本 task 阻塞） |
+
+**OpenSpec × TDD 三维自检**：
+- Completeness：F1/F2/F3 均有测例或命令证据（YAML 解析失败、graph diff 失败、脚本 --check 模式）
+- Correctness：锚点格式匹配 99_mermaid_protocol.md §3（// → path#line 或 // → path::symbol）
+- Coherence：P0 不嵌入 AUTO 块，与 task 非范围一致；未删 .ai.md，未引入 cyning-harness
+
+**残余风险处理**：
+- R1-kind 缺失：YAML schema 允许 kind 缺失（graph.json 00_main 节点无 kind 字段），diff 校验兼容
+- R2-锚点渲染：4 条边带 anchors，pytest 中断言锚点注释格式符合 protocol
+- R3-AUTO 块策略：00_main.md 不嵌入 AUTO 块，已在生成 MD 中书面记录；_manifest.json 仍由现有工具维护
 
 
 ### KPI（00）
