@@ -1,8 +1,8 @@
 # Task：图谱 YAML 图源迁移 P1 — `10_flow_rag`
 
-> **状态**：draft
+> **状态**：done
 > **关联图谱**：`docs/_tech_graph/10_flow_rag.md`
-> **关联 Issue/PR**：承接 Epic `task_engineering_graph_yaml_migration_epic_v1.md` · PR #165
+> **关联 Issue/PR**：承接 Epic `task_engineering_graph_yaml_migration_epic_v1.md` · PR #166
 > **前端依赖**：无
 
 > 落盘规则：新任务一律新建在 `docs/tasks/active/`；验收通过后改状态为 `done` 并 `git mv` 到 `docs/tasks/done/`，同时更新 `docs/tasks/_views/*.md` 索引。  
@@ -29,9 +29,9 @@
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|
-| HG-TASK-DRAFT | pending | 22-R1,30 | P1 范围与验收标准人扫 |
-| HG-AUDIT-R1 | pending | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
-| HG-REINSPECT | pending | done | 50 复检后人签、合并 PR 前 |
+| HG-TASK-DRAFT | signed | 22-R1,30 | P1 范围与验收标准人扫 |
+| HG-AUDIT-R1 | signed | 30 | 22 R1 落盘 `docs/harness/reviews/` 后人签 |
+| HG-REINSPECT | signed | done | 50 复检后人签、合并 PR 前 |
 
 ---
 

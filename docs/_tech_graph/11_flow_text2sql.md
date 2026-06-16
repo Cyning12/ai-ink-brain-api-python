@@ -1,69 +1,132 @@
+---
+graph_id: 11_flow_text2sql
+version: 2026-06-16
+generated_at: 2026-06-16T10:45:49Z
+source: docs/_tech_graph/11_flow_text2sql.graph.yaml
+---
+
+# Text2SQL 子流程
+
+Text2SQL 意图判定、schema 预取、SQL 生成/校验/执行/总结流程
+
+## Mermaid
+
 ```mermaid
 flowchart TD
-    %% Entry: /api/py/text2sql/chat | unified router → text2sql
+    INT[Intent Check]
+    OUT0[返回 non_text2sql 提示]
+    RET[text2sql_store.search()]
+    PF[run_text2sql_schema_prefetch_sync]
+    ERR_PF[>TEXT2SQL_SCHEMA_PREFETCH_FAILED]
+    PROMPT[build_sql_prompt()]
+    GEN[async def llm_generate_sql]
+    VAL[validate_sql_readonly()]
+    EXEC[execute_select_sql()]
+    ERR_VALIDATE[>validate_sql_readonly err]
+    ERR_EXEC[>execute_select_sql err]
+    ERR_DSN[>Missing env]
+    DET[try_summarize_aggregate()]
+    SUM[async def llm_summarize]
+    OUT2[未查到数据]
+    OUT1[errors.generate_sql]
+    SPEC[>docs/text2sql/v1/sql/supabase_init.sql]
 
-    %% Query 阶段
-    IN[入口 Query] --> AUTH[鉴权<br/>ChatBI Bearer / API_KEY / admin_secret()]
-    AUTH --> INT[Intent 判定<br/>is_text2sql_intent]
-
-    INT -->|non_text2sql| OUT0[返回 non_text2sql 提示]
-
-    %% Work 阶段
-    INT -->|text2sql| RET[语料检索<br/>text2sql_store.search()]
-    RET --> PROMPT[SQL Prompt 构建<br/>DDL + Examples]
-    PROMPT --> GEN[LLM 生成 SQL]
-    GEN --> VAL[SQL 校验<br/>仅 SELECT / WITH]
-    VAL -->|err| OUT1[errors.generate_sql]
-
-    %% 执行分支
-    VAL -->|ok| EXEC[执行 SQL<br/>TEXT2SQL_DATABASE_URL]
-    EXEC -->|env missing / db err| OUT1
-
-    EXEC -->|单值数值| DET[确定性总结<br/>try_summarize_aggregate()]
-    EXEC -->|多行| SUM[LLM 总结]
-    EXEC -->|零行| OUT2[未查到数据]
-
-    %% 输出
-    DET --> OUT[返回 JSON<br/>answer / sql / rows / retrieved / errors]
-    SUM --> OUT
+    IN --> AUTH
+    // → api/index.py::_require_auth
+    AUTH --"[ok]"--> INT
+    AUTH --"[err]"--> ERR_AUTH
+    // → api/intent_router.py::is_text2sql_intent
+    // → api/intent_router.py::decide_intent
+    INT --"[non_text2sql]"--> OUT0
+    INT --"[text2sql]"--> RET
+    RET --> PF
+    RET --"依赖语料"--> SPEC
+    PF --"[ok|skip]"--> PROMPT
+    PF --"[err]"--> ERR_PF
+    ERR_PF --> OUT1
+    PROMPT --> GEN
+    GEN --"~>"--> VAL
+    // → api/text2sql_core.py::validate_sql_readonly
+    VAL --"[ok]"--> EXEC
+    VAL --"[err]"--> ERR_VALIDATE
+    // → api/text2sql_core.py::validate_sql_readonly
+    ERR_VALIDATE --> OUT1
+    EXEC --"~>"--> DB
+    // → api/text2sql_core.py::execute_select_sql
+    EXEC --"[err]"--> ERR_EXEC
+    // → api/text2sql_core.py::execute_select_sql
+    ERR_EXEC --> OUT1
+    DB --"TEXT2SQL_DATABASE_URL missing"--> ERR_DSN
+    // → api/text2sql_core.py#L88
+    ERR_DSN --> OUT1
+    DB --"rows==1&1 numeric"--> DET
+    DB --"rows>0"--> SUM
+    DB --"rows==0"--> OUT2
+    DET --> OUT
+    SUM --"~>"--> OUT
     OUT1 --> OUT
     OUT2 --> OUT
+    OUT --"::archives"--> LOG
+    // → api/database_manager.py::save_debug_log
 
-    %% 依赖
-    RET --> SPEC[> docs/text2sql/v1/sql/supabase_init.sql]
-
-    %% 样式
-    classDef query fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef work fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    classDef out fill:#fff8e1,stroke:#ff6f00,stroke-width:2px
-    classDef err fill:#ffebee,stroke:#b71c1c,stroke-width:1px
-
-    class IN,Auth,INT query
-    class RET,PROMPT,GEN,VAL,EXEC,DET,SUM work
-    class OUT,OUT0 out
-    class OUT1,OUT2 err
-    class SPEC err
+    classDef phase fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef doc fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
+    classDef infra fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
 ```
 
-## 补充：ChatBI V2 多轮锚点（2026-05-09）
+## Structured Data
 
-Unified Agent 路径下，成功执行 Text2SQL 后由 `api/unified_chat.py::_sync_persist_chatbi_v2_agent_log`（经 `_await_persist_chatbi_v2_agent_log`）在 `rag_conversation_logs.tool_results.text2sql_grounding` 写入 `primary_table` / `resolved_tables` / `sql_excerpt`（由 `api/text2sql_grounding.py` 从 SQL 解析）。次轮 `api/agent_memory.py::load` 合并进 `history[]`，经 `api/query_rewrite.py::history_to_rewrite_block` 与 `api/agent.py`（Intent 历史前缀）注入 Text2SQL 检索与生成。
+### Nodes
 
-## V3 P0（2026-05-11）· Agent `api/tools.text2sql_execute`
+| ID | Label | Kind |
+|----|-------|------|
+| INT | Intent Check |  |
+| OUT0 | 返回 non_text2sql 提示 |  |
+| RET | text2sql_store.search() |  |
+| PF | run_text2sql_schema_prefetch_sync |  |
+| ERR_PF | >TEXT2SQL_SCHEMA_PREFETCH_FAILED |  |
+| PROMPT | build_sql_prompt() |  |
+| GEN | async def llm_generate_sql |  |
+| VAL | validate_sql_readonly() |  |
+| EXEC | execute_select_sql() |  |
+| ERR_VALIDATE | >validate_sql_readonly err |  |
+| ERR_EXEC | >execute_select_sql err |  |
+| ERR_DSN | >Missing env |  |
+| DET | try_summarize_aggregate() |  |
+| SUM | async def llm_summarize |  |
+| OUT2 | 未查到数据 |  |
+| OUT1 | errors.generate_sql |  |
+| SPEC | >docs/text2sql/v1/sql/supabase_init.sql |  |
 
-- **结构化**：`ToolResult.data.text2sql_phases_ms`（`retrieve` / `llm_sql` / `validate` / `db` / `llm_summary`，已执行阶段为整数 ms；聚合快路径跳过 `llm_summary` 时不写入该键）。
-- **增量 SSE**（`chain_emit` 有值时）：`text2sql.phase.start` / `text2sql.phase.end`，`step_id` 与 `payload.subphase_id` 形如 `text2sql.phase.<phase_id>`；契约见 `docs/_tech_graph/_contract_manifest.json`。
-- **超时**：`CHATBI_TEXT2SQL_LLM_SQL_TIMEOUT_S` / `CHATBI_TEXT2SQL_LLM_SUMMARY_TIMEOUT_S` → 回退 `CHATBI_TEXT2SQL_LLM_TIMEOUT_S` → 默认 `120` 秒；`asyncio.wait_for` 包裹 LLM 线程调用。
-- **总结模型**：`CHATBI_TEXT2SQL_SUMMARY_LLM_MODEL` 未设时与 `INTENT_LLM_MODEL` 默认一致。
-- **对话块预算**：`TEXT2SQL_DIALOGUE_CONTEXT_MAX_LEN`（默认 8000）截断 `history_to_rewrite_block` 再注入 `build_sql_prompt`。
-- **P0-3 结构预取（2026-05-12）**：当用户问题含 **INSERT/UPDATE 类语义** 且向量检索 DDL **列锚点不足** 时，在调用 LLM 生成 SQL 之前执行 **只读** `information_schema.columns` 预取（与 `chatbi_sql_table_policy` 可见写权限对齐），将列清单注入 `build_sql_prompt`；失败返回 `TEXT2SQL_SCHEMA_PREFETCH_FAILED`，不盲写。环境变量：`TEXT2SQL_SCHEMA_PREFETCH`（默认随 `TEXT2SQL_DATABASE_URL` 启用）、`TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS`、`TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS`。协议版图见 `11_flow_text2sql.ai.md`（`PF` 节点）。
+### Edges
 
-## V3 P1-1（2026-05-14）· Text2SQL 后闸 SQL AST 硬化
-
-- **实现**：`api/chatbi_sql_gate.py` 中 `apply_chatbi_sql_gate`：**AST（sqlparse）→ 表策略 `chatbi_sql_table_policy`（min_* / 无行拒绝）→ 档位与 L2 收窄**；`CHATBI_JSON_LOG=1` 时 `sql_gate_deny` 可含 **`ast_rule_id`**。  
-- **单测**：`tests/test_chatbi_sql_ast_gate_v1.py`（负例 / 正例 / 阶段顺序 / JSON 字段）。  
-- **子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md` **§2.1**；任务：`docs/tasks/done/task_chatbi_v3_sql_ast_text2sql_gate_v1.md`（已归档）。
-
-## V3 P1-4（2026-05-13）· 低置信澄清短路（`agent.clarify`）
-
-当 `CHATBI_V3_LOW_CONFIDENCE_CLARIFY=1` 且 Unified Agent 判定「SQL 候选 + 低置信」时，`api/agent.py` 在首轮 `text2sql_execute` 之前短路并下发 `agent.clarify`；`CHATBI_JSON_LOG=1` 时额外输出 `message=agent_clarify_short_circuit`（`run_id` 与 SSE `meta` 同源）。JSON 与 SSE 批量 replay 路径由 `api/unified_chat.py` 与 emit 增量路径对齐补帧。
+| From | To | Mark | Type | Label | Anchors |
+|------|----|------|------|-------|---------|
+| IN | AUTH | -> | depends_on |  | 1 anchor(s) |
+| AUTH | INT | [ok] | depends_on |  |  |
+| AUTH | ERR_AUTH | [err] | depends_on |  | 2 anchor(s) |
+| INT | OUT0 | [non_text2sql] | depends_on |  |  |
+| INT | RET | [text2sql] | depends_on |  | 1 anchor(s) |
+| RET | PF | -> | depends_on |  | 1 anchor(s) |
+| RET | SPEC | -> | depends_on | 依赖语料 |  |
+| PF | PROMPT | -> | condition | [ok\|skip] |  |
+| PF | ERR_PF | -> | condition | [err] |  |
+| ERR_PF | OUT1 | -> | depends_on |  |  |
+| PROMPT | GEN | -> | depends_on |  | 1 anchor(s) |
+| GEN | VAL | ~> | async_calls |  | 1 anchor(s) |
+| VAL | EXEC | [ok] | depends_on |  |  |
+| VAL | ERR_VALIDATE | [err] | depends_on |  | 1 anchor(s) |
+| ERR_VALIDATE | OUT1 | -> | depends_on |  |  |
+| EXEC | DB | ~> | async_calls |  | 1 anchor(s) |
+| EXEC | ERR_EXEC | [err] | depends_on |  | 1 anchor(s) |
+| ERR_EXEC | OUT1 | -> | depends_on |  |  |
+| DB | ERR_DSN | -> | depends_on | TEXT2SQL_DATABASE_URL missing | 1 anchor(s) |
+| ERR_DSN | OUT1 | -> | depends_on |  |  |
+| DB | DET | -> | depends_on | rows==1&1 numeric |  |
+| DB | SUM | -> | depends_on | rows>0 |  |
+| DB | OUT2 | -> | depends_on | rows==0 |  |
+| DET | OUT | -> | depends_on |  |  |
+| SUM | OUT | ~> | async_calls |  |  |
+| OUT1 | OUT | -> | depends_on |  |  |
+| OUT2 | OUT | -> | depends_on |  |  |
+| OUT | LOG | ::archives | archives |  | 1 anchor(s) |
