@@ -365,4 +365,5 @@ edges:
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v1.1 | 2026-06-16 | YAML 图源已落地 · `.ai.md` deprecated · `graph.json` export 仍为过渡方案 |
 | v1.0 | 2026-06-16 | 初版 · Q&A 落盘 · trace 示例 JSON |

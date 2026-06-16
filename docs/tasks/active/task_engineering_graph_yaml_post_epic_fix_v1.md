@@ -93,21 +93,30 @@ Epic YAML 迁移已关账（7×`.graph.yaml` · pytest 62 绿 · 逐图 `--check
 ## 实现备忘（30 回填）
 
 
-| 路径                                 | 说明  |
+| 路径 | 说明 |
 | ---------------------------------- | --- |
-| `scripts/graph_yaml_compile.py`    | D1  |
-| `scripts/verify-tech-graph.sh`     | D4  |
-| `tests/test_graph_yaml_compile.py` | D2  |
-| `docs/_tech_graph/*.md`            | D3  |
-| `docs/_tech_graph/99_spec.md`      | D5  |
+| `scripts/graph_yaml_compile.py` | D1：修复 `all_graph_ids()` 用 `p.name[:-11]` 取 graph_id；同步修复 `format_anchor_comment()` 渲染裸 `path` 锚点 |
+| `scripts/verify-tech-graph.sh` | D4：在 `tech_graph_graph_export.py --check` 前增加 `graph_yaml_compile.py --all --check` |
+| `tests/test_graph_yaml_compile.py` | D2：新增 `test_all_graph_ids_returns_seven_ids_without_graph_suffix`、`test_compile_all_check_mode_exits_zero` |
+| `tests/test_graph_yaml_p*.py` | D2：锚点格式正则允许裸 `path`（`(?:#L\d+\|::\w+)?`） |
+| `docs/_tech_graph/*.md` | D3：7 张 `.md` 由脚本重生成（仅 `generated_at` 与裸 path 锚点漂移） |
+| `docs/_tech_graph/15_e2e_boundary.graph.yaml` | D7：`notes` 中 `14_runtime_observability.ai.md` → `.md` |
+| `docs/_tech_graph/99_spec.md` | D5：§机器轨 更新为「YAML 编辑源 · `.ai.md` deprecated · export 过渡」 |
+| `docs/_tech_graph/99_mermaid_protocol.md` | D6：双轨制表与转换方向更新为 YAML 源 |
+| `docs/_tech_graph/QNA_graph_wiki_history_upgrade_v1_zh.md` | D6：修订记录新增 v1.1 行 |
+| `docs/harness/invokes/by-task/graph-yaml-post-epic-fix/invoke_20260616_30_graph-yaml-post-epic-fix.md` | 30 invoke 落盘 |
 
 
 ### 自检结论
 
 
-| #   | 命令      | 退出码 | 摘要  |
+| # | 命令 | 退出码 | 摘要 |
 | --- | ------- | --- | --- |
-| —   | （40 回填） | —   | —   |
+| 1 | `pytest tests/test_graph_yaml*.py -q` | 0 | 64 passed |
+| 2 | `python scripts/graph_yaml_compile.py --all --check` | 0 | 7 graph 全 OK |
+| 3 | `bash scripts/verify-tech-graph.sh` | 0 | 全步骤 OK |
+| 4 | `pytest tests -m "not intent_eval and not intent_benchmark" -q` | 0 | 416 passed, 1 skipped, 2 deselected |
+| 5 | `ruff check api tests` | 0 | All checks passed |
 
 
 ---

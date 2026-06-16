@@ -1,7 +1,7 @@
 ---
 graph_id: 00_main
 version: 2026-06-16
-generated_at: 2026-06-16T08:29:53Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/00_main.graph.yaml
 ---
 
@@ -177,3 +177,4 @@ flowchart TD
 - `Mermaid Protocol`: [`99_mermaid_protocol.md`](99_mermaid_protocol.md) — 拓扑图绘制规范（Python/FastAPI 适配版）
 
 > **P0 决策备忘**：`00_main.md` 不嵌入 `AUTO:ENDPOINTS_AND_ANCHORS` 块（保持人类友好）；`_manifest.json` 仍由现有工具维护。
+

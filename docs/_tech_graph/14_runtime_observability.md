@@ -1,7 +1,7 @@
 ---
 graph_id: 14_runtime_observability
 version: 2026-06-16
-generated_at: 2026-06-16T11:21:05Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/14_runtime_observability.graph.yaml
 ---
 

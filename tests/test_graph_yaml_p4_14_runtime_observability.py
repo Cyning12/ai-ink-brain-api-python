@@ -146,7 +146,7 @@ class TestGraphYamlP414RuntimeObservability:
         md_content = Path(tmp_path).read_text(encoding="utf-8")
         Path(tmp_path).unlink(missing_ok=True)
 
-        anchor_pattern = re.compile(r"//\s*→\s+[^\s]+(?:#L\d+|::\w+)")
+        anchor_pattern = re.compile(r"//\s*→\s+[^\s]+(?:#L\d+|::\w+)?")
         mermaid_lines = []
         in_mermaid = False
         for line in md_content.splitlines():

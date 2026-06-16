@@ -1,7 +1,7 @@
 ---
 graph_id: 10_flow_rag
 version: 2026-06-16
-generated_at: 2026-06-16T10:34:43Z
+generated_at: 2026-06-16T12:08:13Z
 source: docs/_tech_graph/10_flow_rag.graph.yaml
 ---
 
