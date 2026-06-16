@@ -75,6 +75,10 @@ jobs:
             if [[ "$f" == *_AGENT_PROMPT* ]]; then
               continue
             fi
+            if [[ "$(basename "$f")" == README.md ]]; then
+              echo "Skip README index: $f"
+              continue
+            fi
             if [ ! -f "$f" ]; then
               echo "Skip missing path (deleted-only in diff): $f"
               continue

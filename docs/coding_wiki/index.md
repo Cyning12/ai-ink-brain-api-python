@@ -9,6 +9,7 @@
 | 页 | 说明 |
 |----|------|
 | [[concepts/llm-wiki-layers]] | L0/L1/L2 与 Harness / 图谱分工 |
+| [[concepts/graph-wiki-history-upgrade-v1]] | **图谱+Wiki History 升级 Q&A（proposal）** · 链 `_tech_graph/QNA_*` |
 | [[concepts/task-schedule-ink-backend]] | **任务排期 hub** · 链 RECENT · 防 active 孤岛 |
 | [[concepts/test-strategy-ink-backend]] | 跨 Epic 测试策略指针（非 coverage 真值） |
 

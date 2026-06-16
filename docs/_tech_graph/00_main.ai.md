@@ -1,3 +1,7 @@
+# @deprecated · 源迁 YAML
+# P0 后唯一编辑源为 00_main.graph.yaml；本文件保留为历史 AI 协议版
+# 人类可读版由 scripts/graph_yaml_compile.py 生成 → 00_main.md
+
 ```mermaid
 flowchart TD
   %% version: 2026-04-24 (main) — 拓扑协议 v2-Python 适配
