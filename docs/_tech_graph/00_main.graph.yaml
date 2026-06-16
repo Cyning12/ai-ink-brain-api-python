@@ -1,6 +1,6 @@
-# @deprecated · 源迁 YAML
-# 本文件为历史 AI 协议版，P0 后唯一编辑源为 00_main.graph.yaml
+# 00_main 唯一编辑源（P0）
 # 人类可读版由 scripts/graph_yaml_compile.py 生成 → 00_main.md
+# AI 协议历史版见 00_main.ai.md（已标记 @deprecated · 源迁 YAML）
 
 graph_id: "00_main"
 title: "主路由图"
