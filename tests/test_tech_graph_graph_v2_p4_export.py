@@ -6,16 +6,38 @@ from tools.tech_graph_graph_export import FREEZE_ID, build_graph_payload
 from tools.tech_graph_graph_v2_schema import validate_graph_v2
 
 
+def _write_yaml_graph(d: Path, graph_id: str, body: str) -> None:
+    (d / f"{graph_id}.graph.yaml").write_text(body, encoding="utf-8")
+
+
 def test_export_includes_graphs_and_graph_id(tmp_path: Path) -> None:
     d = tmp_path / "docs" / "_tech_graph"
     d.mkdir(parents=True)
-    (d / "a_flow.ai.md").write_text(
-        "```mermaid\nflowchart TD\n  X --\"->\"--> Y\n```\n",
-        encoding="utf-8",
+    _write_yaml_graph(
+        d,
+        "a_flow",
+        '''graph_id: "a_flow"
+title: "A Flow"
+nodes:
+  - id: "X"
+  - id: "Y"
+edges:
+  - from: "X"
+    to: "Y"
+''',
     )
-    (d / "b_flow.ai.md").write_text(
-        "```mermaid\nflowchart TD\n  Y --\"->\"--> Z\n```\n",
-        encoding="utf-8",
+    _write_yaml_graph(
+        d,
+        "b_flow",
+        '''graph_id: "b_flow"
+title: "B Flow"
+nodes:
+  - id: "P"
+  - id: "Z"
+edges:
+  - from: "P"
+    to: "Z"
+''',
     )
     payload = build_graph_payload(d, generated_at="2026-05-17T12:00:00Z", freeze_id=FREEZE_ID)
     validate_graph_v2(payload)
