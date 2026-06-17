@@ -1,10 +1,10 @@
 # Task · 图谱 YAML · 删除 deprecated `.ai.md`（Post-G0）
 
-> **状态**：`active`（**HG-TASK-DRAFT pending** · 串行链 **#2/3** · **blocked_by G0 留档**）  
+> **状态**：`active`（**30 执行中** · 串行链 **#2/3** · **可开 30**）  
 > **schedule_ref**：RECENT **§1.7 G0 链 #2**  
-> **blocked_by**：[`task_ontology_inventory_scan_g0_v1.md`](../../../docs/harness/tasks/active/task_ontology_inventory_scan_g0_v1.md) · **HG-INVENTORY-ARCHIVED signed** + inventory **已 merge 留档**  
+> **blocked_by**：~~G0 留档~~ **done** · [`task_ontology_inventory_scan_g0_v1.md`](../../../docs/harness/tasks/done/harness/task_ontology_inventory_scan_g0_v1.md)  
 > **前置 Inform**：[`task_engineering_graph_yaml_export_from_yaml_p1_v1.md`](../done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) · **done**  
-> **invoke**：（30 启动时创建 `docs/harness/invokes/by-task/graph-yaml-remove-ai-md/`）
+> **invoke**：（30 执行中）
 
 ---
 
@@ -14,20 +14,16 @@
 | --- | --- |
 | **task_slug** | `graph-yaml-remove-ai-md` |
 | **test_strategy** | `required` |
-| **test_strategy_note** | 删 7 文件 · 须 export/compile/verify 全绿 · pytest 无回归 |
-| **audit_profile** | `post_close` |
-| **orchestration** | `Claude Code`（30→40 · 50 skip） |
 | **git_branch** | `task/graph-yaml-remove-ai-md` |
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **freeze_id** | `GRAPH-YAML-REMOVE-AI-MD` |
-| **epic** | 图谱 YAML 迁移 · G0 后继 |
 
 ### 人工闸
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | pending | 30 | 范围与非范围人签 |
-| **HG-INVENTORY-ARCHIVED** | pending | 30 | **须 G0 task 已签** · inventory 已留档 |
+| **HG-TASK-DRAFT** | **approved** | 30 | G0 关账后开 30 |
+| **HG-INVENTORY-ARCHIVED** | **approved** | — | G0 已签 · 2026-06-17 |
 | **HG-REINSPECT** | pending | done | 40 后 · skip 50 |
 
 ### 开 30 硬闸门（四项齐备 · 缺一 STOP）
@@ -51,13 +47,13 @@
 
 ## 范围
 
-- [ ] **D1** 删除 7 个文件：`00_main.ai.md` … `15_e2e_boundary.ai.md`
-- [ ] **D2** 全仓 `rg '\.ai\.md' docs/_tech_graph`：除 QNA **历史讨论节**外，无「编辑源 / 机器轨 = ai.md」类表述 · 必要处改 pointer 到 `.graph.yaml` / `.md`
-- [ ] **D3** 更新 `QNA_graph_wiki_history_upgrade_v1_zh.md`：修订 **v1.3**（P1 export YAML 单源 · `.ai.md` 已物理删除 · 历史节保留）
-- [ ] **D4** 更新 `99_spec.md` / `99_mermaid_protocol.md` / `graph_v2_schema.md`（若仍提 ai 轨为并存编辑源）
-- [ ] **D5** 移除或更新仍引用 `.ai.md` 的 pytest（如 `test_*_ai_md_deprecated`）→ 改为「文件不存在」或删用例
-- [ ] **D6** 清理 `RECENT_TASK_SCHEDULE.md` §1.6 续 变更日志中 **「待 merge」** 过时行（与 Inform/G0 链一致）
-- [ ] **D7** `bash scripts/verify-tech-graph.sh` + 全量 pytest 绿
+- [x] **D1** 删除 7 个文件：`00_main.ai.md` … `15_e2e_boundary.ai.md`
+- [x] **D2** 全仓 `rg '\.ai\.md' docs/_tech_graph`：规约/QNA 已更新 · 历史 Q&A 节保留
+- [x] **D3** 更新 `QNA_graph_wiki_history_upgrade_v1_zh.md`：修订 **v1.3**
+- [x] **D4** 更新 `99_spec.md` / `99_mermaid_protocol.md` / `graph_v2_schema.md`
+- [x] **D5** pytest `*_ai_md_deprecated` → `*_ai_md_removed` · `dual_track_manifest.json` v3
+- [x] **D6** 清理 `RECENT_TASK_SCHEDULE.md` §1.6/§1.7 过时「待 merge」行
+- [x] **D7** `bash scripts/verify-tech-graph.sh` + pytest **419 passed**
 
 ## 非范围
 
@@ -80,12 +76,12 @@
 
 ## 验收标准
 
-- [ ] `find docs/_tech_graph -name '*.ai.md' | wc -l` → **0**
-- [ ] `python tools/tech_graph_graph_export.py --check` → exit 0
-- [ ] `python scripts/graph_yaml_compile.py --all --check` → exit 0
-- [ ] `bash scripts/verify-tech-graph.sh` → 全绿
-- [ ] `pytest tests -m "not intent_eval and not intent_benchmark"` → 全绿
-- [ ] QNA v1.3 · RECENT 日志已整理
+- [x] `find docs/_tech_graph -name '*.ai.md' | wc -l` → **0**
+- [x] `python tools/tech_graph_graph_export.py --check` → exit 0
+- [x] `python scripts/graph_yaml_compile.py --all --check` → exit 0
+- [x] `bash scripts/verify-tech-graph.sh` → 全绿
+- [x] `pytest tests -m "not intent_eval and not intent_benchmark"` → 419 passed
+- [x] QNA v1.3 · RECENT 日志已整理
 - [ ] PR **CI 全绿 + merge** · task → `done/`
 
 ---
@@ -104,13 +100,19 @@
 
 | 路径 | 说明 |
 | --- | --- |
-| | （30 回填） |
+| `docs/_tech_graph/*.ai.md` | 7 文件已删 |
+| `docs/_tech_graph/99_mermaid_protocol.md` | 双轨改 YAML→md→graph.json |
+| `docs/_tech_graph/QNA_graph_wiki_history_upgrade_v1_zh.md` | v1.3 |
+| `docs/diary/jsonPKmermaid/fixtures/gate_ctx_c_v1/dual_track_manifest.json` | v3 · yaml 轨 |
+| `tests/test_graph_yaml_p*_*.py` | 6× `*_ai_md_removed` |
 
 ### 自检结论
 
 | # | 命令 | 退出码 | 摘要 |
 | --- | --- | --- | --- |
-| | | | |
+| 1 | `find docs/_tech_graph -name '*.ai.md' \| wc -l` | 0 | 0 |
+| 2 | `bash scripts/verify-tech-graph.sh` | 0 | 全绿 |
+| 3 | `pytest tests -m "not intent_eval and not intent_benchmark"` | 0 | 419 passed |
 
 ---
 

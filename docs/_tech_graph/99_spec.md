@@ -43,7 +43,7 @@ flowchart TD
 
 > `python tools/tech_graph_drift_check.py` 对 `docs/_tech_graph/*.md` 做 **子串匹配**；新增端点/表/env 时 **优先在本节追加一行**，避免静默过期。详规见 `docs/diary/2026-06-02-tech-graph-drift-check-option-A_playbook_v1_zh.md`。
 
-**HTTP 端点（示例）**：`/api/py/live` `/api/py/ready` `/api/py/unified/chat/graph` `/api/py/unified/chat/graph/stream`
+**HTTP 端点（示例）**：`/api/py/live` `/api/py/ready` `/api/py/text2sql/chat` `/api/py/unified/chat/graph` `/api/py/unified/chat/graph/stream`
 
 **Supabase 表名（示例）**：`chatbi_access_tokens`
 
@@ -55,7 +55,7 @@ flowchart TD
 | --- | --- |
 | **专文** | [`docs/spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) |
 | **L2 字段** | `docs/coding_wiki/syntheses/*.md` 可选 frontmatter `graph_nodes`（`id` + `relation`） |
-| **机器轨** | 单图编辑源为 `.graph.yaml`；`.ai.md` 已 deprecated（只读对照）；`graph.json` 由 **YAML export** 生成 · **禁止** 手改 `graph.json` |
+| **机器轨** | 单图编辑源为 `.graph.yaml`；`graph.json` 由 **YAML export** 生成 · **禁止** 手改 `graph.json` · `.ai.md` 已删除（Post-G0） |
 | **Agent** | `graph_nodes` 仅作 **种子**；影响面须 `python tools/tech_graph_graph_query.py`（`neighbors` / `downstream` / `upstream`） |
 | **Lint** | `python tools/coding_wiki_graph_nodes_lint.py`（syntheses frontmatter · T4 ops） |
 | **Pilot（2026-05-27）** | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |

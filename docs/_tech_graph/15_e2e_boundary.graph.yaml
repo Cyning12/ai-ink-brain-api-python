@@ -1,6 +1,6 @@
 # 15_e2e_boundary 唯一编辑源
 # 人类可读版由 scripts/graph_yaml_compile.py 生成 → 15_e2e_boundary.md
-# AI 协议历史版见 15_e2e_boundary.ai.md（已标记 @deprecated · 源迁 YAML）
+# 历史 .ai.md 已删除（Post-G0 · graph-yaml-remove-ai-md）
 
 graph_id: "15_e2e_boundary"
 title: "E2E Boundary/Contract 子流程"

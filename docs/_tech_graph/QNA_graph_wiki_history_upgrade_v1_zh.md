@@ -12,7 +12,8 @@
 | **trace 示例** | [`examples/harness_trace_v1.example.json`](./examples/harness_trace_v1.example.json) |
 | **理论背景** | 本体论 + OOP + 图论 + History · cyning-harness / HGM 提案 |
 
-> **背景**：本文档记录当前后端「Mermaid 人类版 + `.ai.md` 机器版 + JSON 门禁/依赖」实践，在引入完整 **History** 与 **YAML 图源** 前的评价与升级方向。  
+> **背景**：本文档记录后端「Mermaid 人类版 + `.ai.md` 机器版 + JSON 门禁/依赖」**历史时期**实践与升级方向。  
+> **当前态（v1.3+）**：编辑源为 `*.graph.yaml` · export 读 YAML · **`.ai.md` 已物理删除**（Post-G0 · 2026-06-17）。下文 Q&A **保留历史讨论原文**。
 > **定位**：Q&A 草稿 · 供未来 engineering task（如 tech_graph v3 / trace / wiki 编译层）起草引用；**非**已签收实现真值。
 
 ---
@@ -373,6 +374,7 @@ edges:
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v1.3 | 2026-06-17 | P1 export YAML 单源 · 7× `.ai.md` 物理删除（Post-G0）· 历史 Q&A 节保留 |
 | v1.2 | 2026-06-16 | 增 §已知遗留 · 幽灵节点（边可引用未声明节点 · 继承 graph.json · `external_ref` 另 task） |
 | v1.1 | 2026-06-16 | YAML 图源已落地 · `.ai.md` deprecated · `graph.json` export 仍为过渡方案 |
 | v1.0 | 2026-06-16 | 初版 · Q&A 落盘 · trace 示例 JSON |

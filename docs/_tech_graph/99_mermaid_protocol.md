@@ -10,12 +10,11 @@
 |------|------|--------|------|
 | `.graph.yaml` | 单图编辑源 | 开发者 / LLM | 结构化、版本可控、唯一真相源 |
 | `.md` | 人类可读版 | 脚本生成 | 简洁、易读、裸边可用 |
-| `.ai.md` | AI 协议历史版 | LLM / 脚本 | deprecated · 不再编辑 |
 
 **转换方向**：
 - 编辑 `.graph.yaml` → `scripts/graph_yaml_compile.py` 生成 `.md`
-- `.ai.md` → 渲染为图 / export 为 `graph.json`（**过渡**，export 迁移另 task）
-- 三者语义等价；新增/修改拓扑须改 YAML
+- `tools/tech_graph_graph_export.py` 自 YAML 导出 `graph.json`
+- **`.ai.md` 轨已物理删除**（2026-06-17 · Post-G0）；历史讨论见 QNA §历史节
 
 ---
 

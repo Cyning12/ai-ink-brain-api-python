@@ -3,7 +3,7 @@
 > **状态**：`draft` · P2-0 + **P2-4a**（`kind` + `graphs[]` + `edges[].ref`）  
 > **落盘路径（默认）**：与本目录 `graph.json` 同文件，`schema_version: graph_v2`  
 > **关联 task**：`docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md`  
-> **导出**：自 `*.graph.yaml` 导出时写入 `graphs[]` 与各节点/边的 `graph_id`；`*.ai.md` 历史来源 deprecated；**无** `graphs` 键时仍按 P2-0 验收（FP-4-4）
+> **导出**：自 `*.graph.yaml` 导出时写入 `graphs[]` 与各节点/边的 `graph_id`；`source_ai_path` 为历史字段（`.ai.md` 已删除）；**无** `graphs` 键时仍按 P2-0 验收（FP-4-4）
 
 ---
 
@@ -66,7 +66,7 @@
 | --- | --- | --- |
 | `id` | string | 分图 id（默认与 `*.graph.yaml` 文件名去后缀一致） |
 | `title` | string | 展示用标题（导出默认同 `id`） |
-| `source_ai_path` | string | 可选；历史来源 `.ai.md` 仓库相对路径（YAML 迁移中） |
+| `source_ai_path` | string | 可选；历史来源路径（`.ai.md` 已删除 · 仅迁移期 metadata） |
 
 ---
 
