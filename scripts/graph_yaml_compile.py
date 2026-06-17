@@ -173,10 +173,8 @@ def generate_sub_graph_links(graph_id: str) -> str:
         return ""
     return """## Sub-graph Links
 
-- `Struct`: [`01_struct.md`](01_struct.md)
-- `Version`: [`02_version.md`](02_version.md)
-- `Struct`: [`01_struct.md`](01_struct.md)（编辑源：[01_struct.graph.yaml](01_struct.graph.yaml)）
-- `Version`: [`02_version.md`](02_version.md)（编辑源：[02_version.graph.yaml](02_version.graph.yaml)）
+- `Struct`: [`01_struct.md`](01_struct.md)（手写 · 无 `.graph.yaml`）
+- `Version`: [`02_version.md`](02_version.md)（手写 · 无 `.graph.yaml`）
 - `RAG Flow`: [`10_flow_rag.md`](10_flow_rag.md)（编辑源：[10_flow_rag.graph.yaml](10_flow_rag.graph.yaml)）
 - `Text2SQL Flow`: [`11_flow_text2sql.md`](11_flow_text2sql.md)（编辑源：[11_flow_text2sql.graph.yaml](11_flow_text2sql.graph.yaml)）
 - `FTS Flow`: [`12_flow_fts.md`](12_flow_fts.md)（编辑源：[12_flow_fts.graph.yaml](12_flow_fts.graph.yaml)）

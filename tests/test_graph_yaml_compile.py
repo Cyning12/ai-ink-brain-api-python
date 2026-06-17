@@ -255,3 +255,43 @@ class TestGraphYamlCompile:
                     f"Sub-graph Links contains .ai.md reference: {line}"
                 )
         assert in_subgraph, "Sub-graph Links section not found in generated 00_main.md"
+
+    def test_00_main_subgraph_no_dead_yaml_href(self):
+        """NIT-1: Struct/Version must not link non-existent .graph.yaml files."""
+        if not COMPILE_SCRIPT.exists():
+            pytest.skip("Compile script not yet created")
+
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            tmp_path = f.name
+        result = subprocess.run(
+            [sys.executable, str(COMPILE_SCRIPT), "--graph-id", "00_main", "--output", tmp_path],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+        if result.returncode != 0:
+            pytest.skip(f"Generation failed: {result.stderr}")
+
+        md_content = Path(tmp_path).read_text(encoding="utf-8")
+        Path(tmp_path).unlink(missing_ok=True)
+
+        dead_yaml = ("01_struct.graph.yaml", "02_version.graph.yaml")
+        in_subgraph = False
+        for line in md_content.splitlines():
+            if line.strip() == "## Sub-graph Links":
+                in_subgraph = True
+                continue
+            if in_subgraph:
+                if line.startswith("## "):
+                    break
+                for name in dead_yaml:
+                    assert name not in line, (
+                        f"Sub-graph Links contains dead .graph.yaml href: {line}"
+                    )
+                if "01_struct" in line or "02_version" in line:
+                    assert "手写" in line or "无" in line, (
+                        f"Struct/Version line should note hand-written: {line}"
+                    )
+        assert in_subgraph, "Sub-graph Links section not found"

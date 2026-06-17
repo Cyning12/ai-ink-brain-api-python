@@ -201,16 +201,15 @@
 
 **后续（本链外）**：见 **§1.7 G0 链**（本体扫描 → 留档 → 删 `.ai.md`）· `external_ref` 见 backlog task
 
-#### 1.7 G0 链 · 本体扫描与 `.ai.md` 退场（**#1 done · #2 active**）
+#### 1.7 G0 链 · 本体扫描与 `.ai.md` 退场（**#1–#2 done · NIT active**）
 
-> **执行顺序**：**G0 扫描 → 留档（HG-INVENTORY-ARCHIVED）→ 删 `.ai.md`** · NIT Sub-graph **可并行**  
-> **P3 决策**：G0 扫描 **允许** 7× `@deprecated` `.ai.md` 仍存在 · inventory 标 `legacy_pending_delete` · **删文件在后继 task**
+> **执行顺序**：**G0 扫描 → 留档 → 删 `.ai.md` → Sub-graph NIT** · NIT 可与 #2 并行但 **#2 已 merge**
 
 | # | slug | task | 仓 | 分支 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| **1** | `ontology-inventory-scan-g0` | [`docs/harness/tasks/done/harness/task_ontology_inventory_scan_g0_v1.md`](../../harness/tasks/done/harness/task_ontology_inventory_scan_g0_v1.md) | 工作区 + cyning-harness + Ink 后端 | `task/ontology-inventory-scan-g0` | **done** · HG-INVENTORY-ARCHIVED **signed** · 2026-06-17 |
-| **2** | `graph-yaml-remove-ai-md` | [`active/task_engineering_graph_yaml_remove_ai_md_v1.md`](active/task_engineering_graph_yaml_remove_ai_md_v1.md) | Ink 后端 | `task/graph-yaml-remove-ai-md` | **active** · 可开 30 |
-| ∥ | `graph-yaml-subgraph-nit` | [`active/task_engineering_graph_yaml_subgraph_nit_v1.md`](active/task_engineering_graph_yaml_subgraph_nit_v1.md) | Ink 后端 | `task/graph-yaml-subgraph-nit` | **active** · 并行 NIT-1 |
+| **1** | `ontology-inventory-scan-g0` | [`docs/harness/tasks/done/harness/task_ontology_inventory_scan_g0_v1.md`](../../harness/tasks/done/harness/task_ontology_inventory_scan_g0_v1.md) | 工作区 + cyning-harness | `task/ontology-inventory-scan-g0` | **done** · 2026-06-17 |
+| **2** | `graph-yaml-remove-ai-md` | [`done/task_engineering_graph_yaml_remove_ai_md_v1.md`](done/task_engineering_graph_yaml_remove_ai_md_v1.md) | Ink 后端 | `task/graph-yaml-remove-ai-md` | **done** · PR #179 merged |
+| ∥ | `graph-yaml-subgraph-nit` | [`active/task_engineering_graph_yaml_subgraph_nit_v1.md`](active/task_engineering_graph_yaml_subgraph_nit_v1.md) | Ink 后端 | `task/graph-yaml-subgraph-nit` | **active** · 30 执行中 |
 | — | `external_ref` backlog | [`active/task_engineering_graph_yaml_external_ref_backlog_v1.md`](active/task_engineering_graph_yaml_external_ref_backlog_v1.md) | Ink 后端 | — | **backlog** |
 
 **Prompt · invoke**：[`PROMPT_ontology_inventory_scan_G0_v1_zh.md`](../../cyning-harness/docs/methodology/graph/PROMPT_ontology_inventory_scan_G0_v1_zh.md) **v1.3** · [`PROMPT_START_30_v1.md`](../../harness/invokes/by-task/ontology-inventory-scan-g0/PROMPT_START_30_v1.md)
@@ -553,7 +552,8 @@ flowchart TD
 | 2026-06-16 | **§1.6 续 Inform 闭环 P0 done**：`task_engineering_graph_yaml_doc_hygiene_p0_v1.md` 关账 · PR #176 merged |
 | 2026-06-17 | **§1.6 续 Inform 闭环 P1 done**：`task_engineering_graph_yaml_export_from_yaml_p1_v1.md` 关账 · PR #178 merged |
 | 2026-06-17 | **§1.7 G0 #1 done**：`ontology-inventory-scan-g0` 关账 · HG-INVENTORY-ARCHIVED signed |
-| 2026-06-17 | **§1.7 G0 #2 active**：`graph-yaml-remove-ai-md` 删 7× `.ai.md` · 30 执行中 |
+| 2026-06-17 | **§1.7 G0 #2 done**：`graph-yaml-remove-ai-md` 关账 · PR #179 merge · 0× `.ai.md` |
+| 2026-06-17 | **§1.7 G0 NIT**：`graph-yaml-subgraph-nit` 30 执行中 |
 | 2026-06-16 | **§1.6 Post-Epic 修复 CLOSE**：`--all` bug · CI YAML check · 7 图 md 漂移 · `99_spec` 机器轨 · merge `f12e2a6` |
 | 2026-06-16 | **§1.6 图谱 YAML 图源迁移 Epic CLOSE**：P0～P5 共 7 graph · `.graph.yaml` 唯一编辑源 · PR #163～#172 |
 
