@@ -14,6 +14,7 @@ from tools.tech_graph_graph_v2_reference import (
     collect_reference_edges,
 )
 from tools.tech_graph_graph_v2_schema import GraphV2SchemaError, validate_graph_v2
+from tools.tech_graph_graph_v2_yaml import build_yaml_graph_v2
 
 
 def _minimal_v2(*, generated_at: str = "2026-05-17T00:00:00Z") -> dict:
@@ -177,11 +178,22 @@ def test_equivalence_fails_below_anchor_threshold() -> None:
 def test_run_check_passes_on_synthetic_v2(tmp_path: Path) -> None:
     d = tmp_path / "docs" / "_tech_graph"
     d.mkdir(parents=True)
-    (d / "z.ai.md").write_text(
-        "```mermaid\nflowchart TD\n  A --\"->\"--> B\n  // → api/a.py#L1\n```\n",
+    (d / "z.graph.yaml").write_text(
+        '''graph_id: "z"
+title: "Z"
+nodes:
+  - id: "A"
+  - id: "B"
+edges:
+  - from: "A"
+    to: "B"
+    anchors:
+      - path: "api/a.py"
+        line: 1
+''',
         encoding="utf-8",
     )
-    ref = build_reference_graph_v2(d, generated_at="2026-05-17T00:00:00Z")
+    ref = build_yaml_graph_v2(d, generated_at="2026-05-17T00:00:00Z", freeze_id="TECH_GRAPH_S2_FREEZE_20260517_V2_2")
     out = d / "graph.json"
     out.write_text(json.dumps(ref, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     assert (

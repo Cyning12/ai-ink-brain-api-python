@@ -484,15 +484,8 @@ def _run_backend_check(*, manifest_path: Path) -> int:
             )
             return 1
 
-        ai_main = REPO_ROOT / "docs" / "_tech_graph" / "00_main.ai.md"
-        if ai_main.exists():
-            t = _read_text(ai_main)
-            if "<!-- AUTO:ENDPOINTS_AND_ANCHORS BEGIN -->" in t and "<!-- AUTO:ENDPOINTS_AND_ANCHORS END -->" in t:
-                print("OK: manifest matches code/SQL truth (endpoints/rpc/tables/env + anchors resolvable).")
-                print("TIP: 若 `docs/_tech_graph/00_main.ai.md` 的 auto 区块未同步，可运行：python tools/tech_graph_render_ai.py")
-                return 0
-
         print("OK: manifest matches code/SQL truth (endpoints/rpc/tables/env + anchors resolvable).")
+        print("TIP: 图谱编辑源已迁 `.graph.yaml`；manifest 真值见 `docs/_tech_graph/_manifest.json`，主图见 `00_main.graph.yaml`。")
         return 0
 
     except FileNotFoundError as exc:

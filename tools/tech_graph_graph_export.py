@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-从 `docs/_tech_graph/*.ai.md` 导出 `graph.json`（P2-1 · graph_v2）。
+从 `docs/_tech_graph/*.graph.yaml` 导出 `graph.json`（P1 · graph_v2）。
 
 退出码（stderr 含 FP 标记，便于 CI / PR 说明）：
 - 0：写入成功或 `--check` 与已提交文件一致
@@ -10,7 +10,8 @@ from __future__ import annotations
 - 4：FP-2 — 再生成与已提交对象语义不一致（stderr 附差异摘要）
 
 与 `tools/tech_graph_contract_check.py` **并行互补**，禁止合并逻辑。
-v1 扁平导出（`raw_edges_to_graph_dict`）仅保留供解析单测；CI 主路径为 graph_v2。
+*.ai.md 解析函数（`collect_raw_edges` / `raw_edges_to_graph_dict`）仅保留供单测 / 迁移对照；
+CI 主路径默认自 `*.graph.yaml` 构建。
 """
 
 import argparse
@@ -414,17 +415,15 @@ def build_graph_payload(
     generated_at: str | None = None,
     freeze_id: str = FREEZE_ID,
 ) -> dict[str, Any]:
-    """自 *.ai.md 构建 P2-0 graph_v2 载荷（与参考图构建器一致）。"""
-    from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
+    """自 *.graph.yaml 构建 P2-0 graph_v2 载荷（默认 YAML 单源）。"""
+    from tools.tech_graph_graph_v2_yaml import build_yaml_graph_v2
 
     if generated_at is None:
         generated_at = _utc_now_iso_z()
-    export_root = _resolve_export_repo_root(input_root)
-    return build_reference_graph_v2(
+    return build_yaml_graph_v2(
         input_root,
         generated_at=generated_at,
         freeze_id=freeze_id,
-        export_root=export_root,
     )
 
 
@@ -508,7 +507,7 @@ def run_check(*, input_root: Path, output_path: Path) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="从 docs/_tech_graph/*.ai.md 导出 graph.json（graph_v2）。"
+        description="从 docs/_tech_graph/*.graph.yaml 导出 graph.json（graph_v2）。"
     )
     parser.add_argument(
         "--input",

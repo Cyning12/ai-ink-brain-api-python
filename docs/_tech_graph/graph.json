@@ -625,7 +625,7 @@
       ],
       "from": "IN",
       "graph_id": "10_flow_rag",
-      "label": "date-like ?>",
+      "label": "date-like ?",
       "mark": "->",
       "sync": true,
       "to": "B1",
@@ -764,7 +764,7 @@
       "anchors": [],
       "from": "TEND",
       "graph_id": "10_flow_rag",
-      "label": "includes",
+      "label": "",
       "mark": "->",
       "sync": true,
       "to": "TEND_KEYS",
@@ -1049,7 +1049,7 @@
       "anchors": [],
       "from": "PF",
       "graph_id": "11_flow_text2sql",
-      "label": "?>[err]",
+      "label": "[err]",
       "mark": "->",
       "sync": true,
       "to": "ERR_PF",
@@ -1059,7 +1059,7 @@
       "anchors": [],
       "from": "PF",
       "graph_id": "11_flow_text2sql",
-      "label": "?>[ok|skip]",
+      "label": "[ok|skip]",
       "mark": "->",
       "sync": true,
       "to": "PROMPT",
@@ -1437,7 +1437,7 @@
       ],
       "from": "CHAT",
       "graph_id": "13_flow_supabase_rpc",
-      "label": "select",
+      "label": "",
       "mark": "->",
       "sync": true,
       "to": "L",
@@ -1707,7 +1707,7 @@
       ],
       "from": "SB",
       "graph_id": "13_flow_supabase_rpc",
-      "label": "service_role",
+      "label": "",
       "mark": "->",
       "sync": true,
       "to": "AUTH",
@@ -2209,42 +2209,49 @@
     }
   ],
   "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
-  "generated_at": "2026-06-04T08:24:47Z",
+  "generated_at": "2026-06-17T01:15:25Z",
   "graphs": [
     {
       "id": "00_main",
       "source_ai_path": "docs/_tech_graph/00_main.ai.md",
-      "title": "00_main"
+      "source_yaml_path": "docs/_tech_graph/00_main.graph.yaml",
+      "title": "主路由图"
     },
     {
       "id": "10_flow_rag",
       "source_ai_path": "docs/_tech_graph/10_flow_rag.ai.md",
-      "title": "10_flow_rag"
+      "source_yaml_path": "docs/_tech_graph/10_flow_rag.graph.yaml",
+      "title": "RAG 子流程"
     },
     {
       "id": "11_flow_text2sql",
       "source_ai_path": "docs/_tech_graph/11_flow_text2sql.ai.md",
-      "title": "11_flow_text2sql"
+      "source_yaml_path": "docs/_tech_graph/11_flow_text2sql.graph.yaml",
+      "title": "Text2SQL 子流程"
     },
     {
       "id": "12_flow_fts",
       "source_ai_path": "docs/_tech_graph/12_flow_fts.ai.md",
-      "title": "12_flow_fts"
+      "source_yaml_path": "docs/_tech_graph/12_flow_fts.graph.yaml",
+      "title": "FTS 子流程"
     },
     {
       "id": "13_flow_supabase_rpc",
       "source_ai_path": "docs/_tech_graph/13_flow_supabase_rpc.ai.md",
-      "title": "13_flow_supabase_rpc"
+      "source_yaml_path": "docs/_tech_graph/13_flow_supabase_rpc.graph.yaml",
+      "title": "Supabase RPC 子流程"
     },
     {
       "id": "14_runtime_observability",
       "source_ai_path": "docs/_tech_graph/14_runtime_observability.ai.md",
-      "title": "14_runtime_observability"
+      "source_yaml_path": "docs/_tech_graph/14_runtime_observability.graph.yaml",
+      "title": "Runtime/Observability 子流程"
     },
     {
       "id": "15_e2e_boundary",
       "source_ai_path": "docs/_tech_graph/15_e2e_boundary.ai.md",
-      "title": "15_e2e_boundary"
+      "source_yaml_path": "docs/_tech_graph/15_e2e_boundary.graph.yaml",
+      "title": "E2E Boundary/Contract 子流程"
     }
   ],
   "nodes": [
@@ -2341,7 +2348,7 @@
     {
       "graph_id": "10_flow_rag",
       "id": "CTX",
-      "label": "CTX"
+      "label": "Context Build"
     },
     {
       "graph_id": "00_main",
@@ -2356,7 +2363,7 @@
     {
       "graph_id": "10_flow_rag",
       "id": "DB",
-      "label": "(DB: rag_conversation_logs)"
+      "label": "DB: rag_conversation_logs"
     },
     {
       "graph_id": "11_flow_text2sql",
@@ -2516,7 +2523,7 @@
     {
       "graph_id": "10_flow_rag",
       "id": "FUSE",
-      "label": "FUSE"
+      "label": "fuse_hits_rrf()"
     },
     {
       "graph_id": "11_flow_text2sql",
@@ -2876,12 +2883,12 @@
     {
       "graph_id": "10_flow_rag",
       "id": "TEND",
-      "label": "TEND"
+      "label": "tool.call.end payload.keys"
     },
     {
       "graph_id": "10_flow_rag",
       "id": "TEND_KEYS",
-      "label": "\"output.{vector_hits,structured_hits,keyword_hits_raw,keyword_hits_rewrite,hits,retry_count,embedding_error}<br/>error, latency_ms\""
+      "label": "output.{vector_hits,structured_hits,keyword_hits_raw,keyword_hits_rewrite,hits,retry_count,embedding_error}<br/>error, latency_ms"
     },
     {
       "graph_id": "12_flow_fts",

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 """
-graph_v2 等价检查（P2-0 草案）。
+graph_v2 等价检查（P1）。
 
-对照：自 *.ai.md 构建的参考 v2 vs 已提交 graph.json。
+对照：自 *.graph.yaml 构建的参考 v2 vs 已提交 graph.json。
 退出码：
 - 0：通过
 - 2：FP-1 输入/解析失败
@@ -24,12 +24,12 @@ if str(_REPO_BOOT) not in sys.path:
     sys.path.insert(0, str(_REPO_BOOT))
 
 from tools.tech_graph_graph_export import REPO_ROOT, TechGraphParseError
-from tools.tech_graph_graph_v2_reference import build_reference_graph_v2
 from tools.tech_graph_graph_v2_schema import (
     SCHEMA_VERSION_V2,
     GraphV2SchemaError,
     validate_graph_v2,
 )
+from tools.tech_graph_graph_v2_yaml import build_yaml_graph_v2
 
 DEFAULT_INPUT = REPO_ROOT / "docs" / "_tech_graph"
 DEFAULT_GRAPH = REPO_ROOT / "docs" / "_tech_graph" / "graph.json"
@@ -227,7 +227,7 @@ def run_equivalence_check(
         return 3
 
     try:
-        reference = build_reference_graph_v2(
+        reference = build_yaml_graph_v2(
             input_root, generated_at=gen, freeze_id=freeze_id
         )
     except TechGraphParseError as exc:
@@ -270,7 +270,7 @@ def run_equivalence_check(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="graph_v2 参考图 vs 已提交 graph.json 等价检查（P2-0）"
+        description="graph_v2 参考图 vs 已提交 graph.json 等价检查（P1 · YAML 参考）"
     )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--graph", type=Path, default=DEFAULT_GRAPH)
