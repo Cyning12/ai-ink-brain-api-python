@@ -179,17 +179,18 @@
 
 **Post-Epic 修复**（2026-06-16 · **CLOSE**）：[`done/task_engineering_graph_yaml_post_epic_fix_v1.md`](done/task_engineering_graph_yaml_post_epic_fix_v1.md) · merge `f12e2a6` · 修复 `--all --check` · CI 增 YAML 校验 · 7 图 md 同步 · 规约文档更新。
 
-#### 1.6 续 · Inform 闭环（串行 · **P0 merged / P1 可开 30**）
+#### 1.6 续 · Inform 闭环（串行 · **P0 merged / P1 merged · Inform YAML 单源闭环完成**）
 
-> **执行顺序**：**P0 →（CI 绿 + merge）→ P1** · 各 task 独立 PR · **禁止 P0 未 merge 开 P1**  
-> **P0 PR 状态**：[#176](https://github.com/Cyning12/ai-ink-brain-api-python/pull/176) · CI 全绿 · **merged** `57f1035`
+> **执行顺序**：**P0 →（CI 绿 + merge）→ P1（CI 绿 + merge）** · 各 task 独立 PR · **禁止 P0 未 merge 开 P1**  
+> **P0 PR 状态**：[#176](https://github.com/Cyning12/ai-ink-brain-api-python/pull/176) · CI 全绿 · **merged** `57f1035`  
+> **P1 PR 状态**：[#178](https://github.com/Cyning12/ai-ink-brain-api-python/pull/178) · CI 全绿 · **merged** `5b8455b`
 
 **P1 硬闸门**：✓ P0 done + HG-REINSPECT + **P0 PR CI 全绿 + merge 入 `main`**
 
 | # | slug | task | 分支 | 状态 |
 | --- | --- | --- | --- | --- |
 | **1** | `graph-yaml-doc-hygiene-p0` | [`done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md`](done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md) | `task/graph-yaml-doc-hygiene-p0` | **done** · HG-TASK-DRAFT **approved** · HG-REINSPECT **signed** · PR #176 merged `57f1035` |
-| **2** | `graph-yaml-export-yaml-p1` | [`active/task_engineering_graph_yaml_export_from_yaml_p1_v1.md`](active/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | `task/graph-yaml-export-yaml-p1` | **active** · 30 **unblocked** · 须从 `main` 拉最新后开分支 |
+| **2** | `graph-yaml-export-yaml-p1` | [`done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md`](done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | `task/graph-yaml-export-yaml-p1` | **done** · HG-REINSPECT **signed** · PR #178 merged `5b8455b` |
 
 **串行启动（复制即用）**：[`PROMPT_START_SERIAL_v1.md`](../harness/invokes/by-task/graph-yaml-inform-closure-chain/PROMPT_START_SERIAL_v1.md) · 链常模 [`PROMPT_cursor_task_chain_serial_v1_T1_graph-yaml-inform-closure_zh.md`](../harness/prompts/PROMPT_cursor_task_chain_serial_v1_T1_graph-yaml-inform-closure_zh.md)
 
