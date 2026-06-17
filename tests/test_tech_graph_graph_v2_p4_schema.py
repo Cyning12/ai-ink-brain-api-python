@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from tools.tech_graph_graph_v2_schema import (
@@ -117,3 +120,37 @@ def test_p4a2_rejects_ref_and_from_to_together() -> None:
     }
     with pytest.raises(GraphV2SchemaError, match="互斥"):
         validate_graph_v2({**base, "edges": [bad]})
+
+
+def test_f1_rejects_missing_schema_version() -> None:
+    """F1：缺 schema_version 时 validate_graph_v2 非 0。"""
+    base = _minimal_v2()
+    del base["schema_version"]
+    with pytest.raises(GraphV2SchemaError, match="缺少根字段"):
+        validate_graph_v2(base)
+
+
+def test_f1_rejects_broken_ref_node_id() -> None:
+    """F1：ref.node_id 为空字符串时 validate_graph_v2 非 0。"""
+    base = _minimal_v2(with_graphs=True)
+    base["edges"].append(
+        {
+            "ref": {"node_id": ""},
+            "mark": "->",
+            "type": "depends_on",
+            "sync": True,
+            "label": "",
+            "anchors": [],
+        }
+    )
+    with pytest.raises(GraphV2SchemaError, match="ref.node_id"):
+        validate_graph_v2(base)
+
+
+def test_committed_graph_json_passes_validate() -> None:
+    """回归：已提交 graph.json 仍通过 validate_graph_v2。"""
+    repo_graph = Path(__file__).resolve().parents[1] / "docs" / "_tech_graph" / "graph.json"
+    if not repo_graph.is_file():
+        pytest.skip("无已提交 graph.json")
+    data = json.loads(repo_graph.read_text(encoding="utf-8"))
+    validate_graph_v2(data)

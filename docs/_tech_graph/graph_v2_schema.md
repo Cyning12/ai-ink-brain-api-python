@@ -1,8 +1,9 @@
 # graph_v2 schema（P2-0 + P2-4a）
 
+> **canonical schema**：[`graph_v2.schema.json`](./graph_v2.schema.json) · 本文为人读说明；字段必填/类型/取值以 JSON 为准。  
 > **状态**：`draft` · P2-0 + **P2-4a**（`kind` + `graphs[]` + `edges[].ref`）  
 > **落盘路径（默认）**：与本目录 `graph.json` 同文件，`schema_version: graph_v2`  
-> **关联 task**：`docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md`  
+> **关联 task**：`docs/tasks/active/task_engineering_tech_graph_v2_p4_extended_v1.md` / `task_engineering_graph_v2_schema_dual_track_v1.md`  
 > **导出**：自 `*.graph.yaml` 导出时写入 `graphs[]` 与各节点/边的 `graph_id`；`source_ai_path` 为历史字段（`.ai.md` 已删除）；**无** `graphs` 键时仍按 P2-0 验收（FP-4-4）
 
 ---
@@ -17,6 +18,8 @@
 | `nodes` | array | **必** | **必** | 见 §2 |
 | `edges` | array | **必** | **必** | 见 §3 |
 | `graphs` | array | **禁** | **导出必有** | 分图目录；元素见 §5 |
+
+字段的完整机器真值（必填集、类型、互斥规则）见 [`graph_v2.schema.json`](./graph_v2.schema.json)。
 
 ---
 
@@ -118,3 +121,4 @@
 | v0.1 | 2026-05-17 | P2-0 最小 schema |
 | v0.2 | 2026-05-17 | P2-4a-1：`kind` |
 | v0.3 | 2026-05-17 | P2-4a-2：`graphs[]`、`ref`、导出 graph_id |
+| v0.4 | 2026-06-17 | 双轨：新增 `graph_v2.schema.json` 机器真值；MD 改人读索引；校验器改读 JSON |

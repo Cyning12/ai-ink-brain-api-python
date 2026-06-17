@@ -214,6 +214,24 @@
 
 **G1 HGM**：G0 链已收口 · 可议 [`task_cyning_harness_g1_hgm_v2_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_hgm_v2_v1.md)（工作区 · 须 HG-TASK-DRAFT）
 
+#### 1.8 规范层 · graph_v2 schema 双轨（**deferred** · 建议 G1 后）
+
+> **L3**：[`GUIDE_inform_spec_layer_format_selection_v1_zh.md`](../../../../ai_coding_governance/methodology/graph/GUIDE_inform_spec_layer_format_selection_v1_zh.md) · 与 G1 **轨正交** · 实现勿混 cyning-harness 金样 PR
+
+| slug | task | 状态 | 说明 |
+| --- | --- | --- | --- |
+| `graph-v2-schema-dual-track` | [`active/task_engineering_graph_v2_schema_dual_track_v1.md`](active/task_engineering_graph_v2_schema_dual_track_v1.md) | **active** · G1 done · [`PROMPT_START_30_v1.md`](../harness/invokes/by-task/graph-v2-schema-dual-track/PROMPT_START_30_v1.md) |
+
+**硬前置**：Inform P0–P1 + G0 **done** · **软建议**：工作区 G1 CLOSE 后再 30
+
+#### 1.9 Post-G1 · 产品 G1.1（**deferred** · DECISIONS 已拍板）
+
+> **序列表**：[`POST_G1_SEQUENCE_v1_zh.md`](../../../../docs/harness/guides/POST_G1_SEQUENCE_v1_zh.md) · **决策**：[`DECISIONS_hgm_g1_maintainer_v1_zh.md`](../../../cyning-harness/docs/methodology/graph/DECISIONS_hgm_g1_maintainer_v1_zh.md)
+
+| slug | task | 状态 |
+| --- | --- | --- |
+| `cyning-harness-g1-1-axioms-patch` | [`../../harness/tasks/active/task_cyning_harness_g1_1_axioms_patch_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_1_axioms_patch_v1.md) | **deferred** · G1 npm 发布后 |
+
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
 > **Epic MANIFEST**：[`task_harness_semi_auto_retirement_manifest_v1.md`](done/task_harness_semi_auto_retirement_manifest_v1.md) · **freeze**：`GOV-HARNESS-CHAIN-SEMI-AUTO-RETIRE@2026-06-08`  
