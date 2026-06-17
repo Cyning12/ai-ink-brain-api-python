@@ -164,12 +164,10 @@ class TestGraphYamlP414RuntimeObservability:
                 f"Anchor line does not match protocol format: {line}"
             )
 
-    def test_14_runtime_observability_ai_md_deprecated(self):
-        """F3: .ai.md must be marked deprecated."""
+    def test_14_runtime_observability_ai_md_removed(self):
+        """Post-G0: deprecated .ai.md must not exist on disk."""
         ai_md = REPO_ROOT / "docs" / "_tech_graph" / "14_runtime_observability.ai.md"
-        assert ai_md.exists(), f".ai.md not found: {ai_md}"
-        content = ai_md.read_text(encoding="utf-8")
-        assert "@deprecated · 源迁 YAML" in content, ".ai.md missing deprecation header"
+        assert not ai_md.exists(), f".ai.md should be deleted: {ai_md}"
 
     def test_00_main_regression_after_script_change(self):
         """F3: Script parameterization must not break 00_main."""
