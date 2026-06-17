@@ -107,12 +107,14 @@ docs/tasks/
 2. **更新头部状态**：将 `> **状态**：...` 改为 `done（YYYY-MM-DD 验收通过）`（日期为实际验收日）。  
 3. **移动文件**：在仓库根执行 `git mv docs/tasks/active/<文件名>.md docs/tasks/done/`，**禁止**仅复制内容而遗留 `active/` 同名文件。  
    - **硬规则**：**禁止**只把头部改成 `done` 而文件仍留在 `active/`（会误导 Agent）；**`done` 状态与 `git mv` 须在同一提交内完成**，真值以 **目录位置 + 头部状态** 双一致为准。  
-4. **更新已完成索引**：
+   - **禁止瘦身**：移入 `done/` 后仍须保留 Harness 元信息（含 `test_strategy`）、§失败路径、§验收标准；**不可**新建仅摘要版 done 稿（CI `task_validate` 会 FAIL）。  
+4. **机械校验（push 前必跑）**：`python tools/harness_task_validate.py docs/tasks/done/<文件>.md` → **OK**（与 CI job `task_validate` 同脚本；`verify-tech-graph` / `pytest` **不能**替代）。  
+5. **更新已完成索引**：
    - 在 `docs/tasks/done/README.md` Hub 对应域表追加一行（日期 · 链接 · freeze_id / 一行摘要）。
    - 同步在 `docs/tasks/_views/done_by_domain.md` 对应域表追加一行。
    - **`docs/tasks/_views/done.md` 保持薄指针（≤15 行），禁止追加长列表**。  
-5. **若任务曾列入进行中视图**：检查 `docs/tasks/_views/in_progress.md`，移除或更新对该任务的引用（避免双轨）。  
-6. **配对前端 / 跨仓任务**：若头部或正文引用了 `ai-ink-brain/content/tasks/active/task_*.md`，须在 `ai-ink-brain` 仓按 **`content/tasks/README.md`** 执行归档：**`git mv`** 至 **`content/tasks/done/`**，更新 **`content/tasks/_views/done.md`**，头部 **`状态`** 改为 `done（YYYY-MM-DD 验收通过）`。（**不**移动 `docs/spec/` 下规格文件，规格持续维护、不因任务归档而搬迁。）
+6. **若任务曾列入进行中视图**：检查 `docs/tasks/_views/in_progress.md`，移除或更新对该任务的引用（避免双轨）。  
+7. **配对前端 / 跨仓任务**：若头部或正文引用了 `ai-ink-brain/content/tasks/active/task_*.md`，须在 `ai-ink-brain` 仓按 **`content/tasks/README.md`** 执行归档：**`git mv`** 至 **`content/tasks/done/`**，更新 **`content/tasks/_views/done.md`**，头部 **`状态`** 改为 `done（YYYY-MM-DD 验收通过）`。（**不**移动 `docs/spec/` 下规格文件，规格持续维护、不因任务归档而搬迁。）
 
 > 说明：`_views/*.md` 只做链接聚合，不作为真值；真值以任务文件头部 `状态` + 文件所在目录（`active/` 或 `done/`）为准。
 

@@ -13,3 +13,49 @@ alwaysApply: true
 4. **禁止**：在未获 task 显式指向时，默认去读 `Projects/docs/harness/prompts/`（工作区）；跨子仓 Harness **任务单** 见工作区 `docs/harness/tasks/` — 须在 **Open `Projects/`** 下执行，遵守工作区 `05-harness-workspace.mdc`
 
 关账回溯见 [`HANDOFF_CLOSE_TRACE.md`](docs/harness/prompts/handoff/HANDOFF_CLOSE_TRACE.md)。**`semi_auto` 已 deprecated**（历史细则见 [`05-harness-semi-auto.mdc`](05-harness-semi-auto.mdc) · **不**作为新 task 默认读序）。
+
+## 关账 / 归档 · CI 门禁（`task_validate` · 强制）
+
+> **规律**：本地 `verify-tech-graph` + `pytest` 全绿 **不能** 替代 `task_validate`。PR 中凡 **新增/修改** `docs/tasks/active/*.md` 或 `docs/tasks/done/*.md`，CI **必跑** `python tools/harness_task_validate.py`（job 名 **`task_validate`**）。
+
+### 关账前本地必跑（缺一禁止 push）
+
+```bash
+# 1. 业务验证（改码 / 图谱）
+bash scripts/verify-tech-graph.sh
+pytest tests -m "not intent_eval and not intent_benchmark" -q
+
+# 2. task 机械校验（与 CI task_validate 同脚本）
+for f in docs/tasks/active/*.md docs/tasks/done/task_*.md; do
+  [ -f "$f" ] && [[ "$(basename "$f")" != README.md ]] && \
+    python tools/harness_task_validate.py "$f" || exit 1
+done
+# 或仅 diff 内 task（模拟 PR）：
+# git diff --name-only origin/main...HEAD -- 'docs/tasks/active/*.md' 'docs/tasks/done/*.md' | while read f; do ...
+```
+
+### `active/` → `done/` 禁止「瘦身归档」
+
+移入 `docs/tasks/done/` 时 **须保留** 校验器要求的完整结构（参考同目录已绿 done task，如 `task_engineering_graph_yaml_export_from_yaml_p1_v1.md`）：
+
+| 必填 | 说明 |
+|------|------|
+| **Harness 元信息** `test_strategy` | 缺失 → `HARNESS-META-MISSING` **立即 FAIL** |
+| `test_strategy_note` | `not_applicable` 时必填 |
+| **§失败路径** 表 | ≥1 行数据 · 空表 → `FAILURE-PATHS-EMPTY` |
+| **§验收标准** | `test_strategy=required` 时正文须含 **`pytest`** |
+| 人工闸表 | 关账状态可改 `signed` / `skip`，**不可删表** |
+
+**禁止**：为「简洁」新建仅含 slug/freeze/验收勾选的 done 摘要稿。
+
+### 反复出现的失败模式
+
+| 模式 | 本地看起来 | CI 实际挂 |
+|------|------------|-----------|
+| 只跑 verify + pytest | 全绿 | `task_validate` FAIL |
+| done 瘦身缺 `test_strategy` | 未跑 validate | `HARNESS-META-MISSING` |
+| done 删光 §失败路径 | 未跑 validate | `FAILURE-PATHS-EMPTY` |
+| required 但验收无 pytest 字样 | 未跑 validate | `TEST-STRATEGY-REQUIRED-PYTEST` |
+| 同一 PR 改 active + 新建 done | active OK · done FAIL | job 整体 exit 1 |
+
+真值脚本：[`tools/harness_task_validate.py`](tools/harness_task_validate.py) · 规范 [`SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md`](docs/spec/governance/SPEC-Governance-Harness-OpenSpec-TDD-P0-v1.md) §4.1

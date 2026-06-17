@@ -10,5 +10,6 @@ alwaysApply: true
 
 - **push 后**：须对照 `gh pr diff` 更新 PR **Summary**；Test plan 可由 `pr-post-ci` workflow 勾选，**不**替代 Summary。
 - **禁止** Required checks 未全绿时 `gh pr merge`。
+- **push 前**（task 有改动时）：须跑 `python tools/harness_task_validate.py` 于 **diff 内全部** `docs/tasks/active/*.md` 与 `docs/tasks/done/*.md`（见 [`06-harness-in-repo.mdc`](06-harness-in-repo.mdc) §关账 CI 门禁）· **不可** 仅跑 verify/pytest。
 - **`automerge` 标签**：仅 **人** 可打；且 diff **不得** 含 `api/`、`tests/`、`.github/workflows/`（见 `.mergify.yml`）。
 - **多主题 PR**：Summary 须分节，禁止仅依赖 bot 统计表。

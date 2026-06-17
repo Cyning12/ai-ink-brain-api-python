@@ -1,9 +1,9 @@
 # Task · 图谱 Sub-graph 死链修复（NIT-1 · 可并行）
 
-> **状态**：`active`（**HG-TASK-DRAFT pending** · **与 G0 链并行** · 建议先于删 `.ai.md` merge）  
+> **状态**：`active`（**30 执行中** · **HG-TASK-DRAFT approved**）  
 > **schedule_ref**：RECENT **§1.7 并行 NIT**  
-> **前置**：Inform 闭环 **done** · 复查 NIT-1（2026-06-17）  
-> **invoke**：（30 启动时创建 `docs/harness/invokes/by-task/graph-yaml-subgraph-nit/`）
+> **前置**：#2 `graph-yaml-remove-ai-md` **done**（PR #179）  
+> **invoke**：[`graph-yaml-subgraph-nit/`](../harness/invokes/by-task/graph-yaml-subgraph-nit/)
 
 ---
 
@@ -13,38 +13,24 @@
 | --- | --- |
 | **task_slug** | `graph-yaml-subgraph-nit` |
 | **test_strategy** | `required` |
-| **test_strategy_note** | 改 compile 模板 + 重生成 00_main + pytest 锁链有效性 |
-| **audit_profile** | `post_close` |
-| **orchestration** | `Claude Code`（30→40 · 50 skip） |
 | **git_branch** | `task/graph-yaml-subgraph-nit` |
-| **worktree_root** | `ai-ink-brain-api-python/` |
 | **freeze_id** | `GRAPH-YAML-SUBGRAPH-NIT` |
 
 ### 人工闸
 
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
-| **HG-TASK-DRAFT** | pending | 30 | 范围人签 |
+| **HG-TASK-DRAFT** | **approved** | 30 | #2 merge 后开 |
 | **HG-REINSPECT** | pending | done | 40 后 · skip 50 |
-
----
-
-## 背景与目标
-
-Inform P0 将 Sub-graph 链改为「编辑源 `*.graph.yaml`」，但 **`01_struct` / `02_version` 无对应 `.graph.yaml`**（Epic 仅迁移 7 张 flow + `00_main`），导致 `00_main.md` 存在 **死链**。
-
-**完成态**：Sub-graph 中 Struct/Version **不链向不存在的 yaml**；7 张 flow 仍链正确 yaml；pytest 防回归。
 
 ---
 
 ## 范围
 
-- [ ] **D1** 修改 `generate_sub_graph_links()`：
-  - `01_struct` / `02_version`：仅链 `.md`，**或** 标注「手写 · 无 `.graph.yaml`」（二选一 · 30 选最小 diff）
-  - 7 张 flow：保持「编辑源 `*.graph.yaml`」
-- [ ] **D2** `python scripts/graph_yaml_compile.py --graph-id 00_main` 重生成 `00_main.md`
-- [ ] **D3** `tests/test_graph_yaml_compile.py` 扩展：`test_00_main_subgraph_no_dead_yaml_href`（Struct/Version 不指向不存在的 `.graph.yaml`）
-- [ ] **D4** `--all --check` · verify-tech-graph 全绿
+- [x] **D1** 修改 `generate_sub_graph_links()`：Struct/Version 仅链 `.md`（手写 · 无 yaml）
+- [x] **D2** 重生成 `00_main.md`
+- [x] **D3** `test_00_main_subgraph_no_dead_yaml_href`
+- [x] **D4** `--all --check` · verify-tech-graph 全绿
 
 ## 非范围
 
@@ -64,9 +50,9 @@ Inform P0 将 Sub-graph 链改为「编辑源 `*.graph.yaml`」，但 **`01_stru
 
 ## 验收标准
 
-- [ ] `00_main.md` Sub-graph 无指向不存在文件的 `.graph.yaml` 链
-- [ ] flow 子图 yaml 链仍正确
-- [ ] pytest + verify 全绿
+- [x] `00_main.md` Sub-graph 无指向不存在文件的 `.graph.yaml` 链
+- [x] flow 子图 yaml 链仍正确
+- [x] pytest + verify 全绿
 - [ ] PR merge · task → `done/`
 
 ---
@@ -75,7 +61,16 @@ Inform P0 将 Sub-graph 链改为「编辑源 `*.graph.yaml`」，但 **`01_stru
 
 | 路径 | 说明 |
 | --- | --- |
-| | （30 回填） |
+| `scripts/graph_yaml_compile.py` | `generate_sub_graph_links()` 去死链 |
+| `docs/_tech_graph/00_main.md` | 重生成 |
+| `tests/test_graph_yaml_compile.py` | `test_00_main_subgraph_no_dead_yaml_href` |
+
+### 自检结论
+
+| # | 命令 | 退出码 | 摘要 |
+| --- | --- | --- | --- |
+| 1 | `pytest tests/test_graph_yaml_compile.py -q` | 0 | 12 passed |
+| 2 | `bash scripts/verify-tech-graph.sh` | 0 | 全绿 |
 
 ---
 
