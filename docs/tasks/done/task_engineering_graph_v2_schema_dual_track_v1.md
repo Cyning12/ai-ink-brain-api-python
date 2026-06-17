@@ -149,7 +149,7 @@ Agent 消费               ← 仍 graph_query + manifest 切片 · 不默认 @ 
 | 文件列表           | `docs/_tech_graph/graph_v2.schema.json`<br>`tools/tech_graph_graph_v2_schema.py`<br>`docs/_tech_graph/graph_v2_schema.md`<br>`docs/_tech_graph/99_spec.md`<br>`scripts/verify-tech-graph.sh`<br>`tests/test_tech_graph_graph_v2_p4_schema.py` |
 | JSON 路径决策      | `docs/_tech_graph/graph_v2.schema.json`（与 `graph.json` 同目录 · task 建议优先路径） |
 | 与 Python 同步策略  | 校验器在导入时加载 JSON：必填字段集、允许 `kind`、类型映射、互斥规则均来自 JSON；Python 仅保留跨引用检查（节点存在性、graph_id 存在性、重复 id）与 `GraphV2SchemaError` 语义。 |
-| PR / merge SHA | （CLOSE 回填）                             |
+| PR / merge SHA | PR [#182](https://github.com/Cyning12/ai-ink-brain-api-python/pull/182) · merge `a59a2a8` · 后续回填 `af363db` |
 
 
 ---
