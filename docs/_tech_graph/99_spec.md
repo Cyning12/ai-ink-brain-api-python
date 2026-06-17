@@ -55,7 +55,7 @@ flowchart TD
 | --- | --- |
 | **专文** | [`docs/spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md`](../spec/governance/SPEC-Governance-Wiki-TechGraph-Bridge-v1.md) |
 | **L2 字段** | `docs/coding_wiki/syntheses/*.md` 可选 frontmatter `graph_nodes`（`id` + `relation`） |
-| **机器轨** | 单图编辑源为 `.graph.yaml`；`graph.json` 由 **YAML export** 生成 · **禁止** 手改 `graph.json` · `.ai.md` 已删除（Post-G0） |
+| **机器轨** | 单图编辑源为 `.graph.yaml`；`graph.json` 由 **YAML export** 生成 · **禁止** 手改 `graph.json` · `.ai.md` 已删除（Post-G0）· `graph_v2.schema.json` 为 schema 机器真值，见 [`graph_v2_schema.md`](./graph_v2_schema.md) |
 | **Agent** | `graph_nodes` 仅作 **种子**；影响面须 `python tools/tech_graph_graph_query.py`（`neighbors` / `downstream` / `upstream`） |
 | **Lint** | `python tools/coding_wiki_graph_nodes_lint.py`（syntheses frontmatter · T4 ops） |
 | **Pilot（2026-05-27）** | `docs/coding_wiki/syntheses/query-rewrite-observability.md` |

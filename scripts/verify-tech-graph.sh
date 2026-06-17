@@ -24,6 +24,9 @@ python scripts/graph_yaml_compile.py --all --check
 echo "==> verify-tech-graph: graph.json export --check"
 python tools/tech_graph_graph_export.py --check
 
+echo "==> verify-tech-graph: graph_v2 schema validation"
+python tools/tech_graph_graph_v2_schema.py
+
 echo "==> verify-tech-graph: docs literal drift"
 python tools/tech_graph_drift_check.py
 

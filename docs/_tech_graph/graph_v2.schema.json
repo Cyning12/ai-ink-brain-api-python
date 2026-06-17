@@ -1,0 +1,43 @@
+{
+  "$id": "graph_v2.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-ink-brain graph_v2",
+  "description": "Committed graph.json payload schema. 覆盖 P2-0 + P2-4a：nodes[].kind、graphs[]、edges[].ref。FP-4-4：无 graphs/ref 时仍合法。",
+  "schema_version": "graph_v2",
+  "default_graph_id": "main",
+  "allowed_node_kinds": ["flow", "struct", "external"],
+  "required_root_keys": ["schema_version", "generated_at", "freeze_id", "nodes", "edges"],
+  "required_node_keys": ["id", "label"],
+  "required_edge_keys": ["mark", "type", "sync", "label", "anchors"],
+  "required_anchor_keys": ["path", "symbol"],
+  "required_graph_keys": ["id", "title"],
+  "optional_graph_string_keys": ["source_ai_path", "source_yaml_path"],
+  "type_map": {
+    "schema_version": "string",
+    "generated_at": "string",
+    "freeze_id": "string",
+    "id": "string",
+    "label": "string",
+    "title": "string",
+    "mark": "string",
+    "type": "string",
+    "sync": "boolean",
+    "path": "string",
+    "symbol": "string",
+    "line": "integer",
+    "kind": "string",
+    "graph_id": "string",
+    "source_ai_path": "string",
+    "source_yaml_path": "string",
+    "node_id": "string"
+  },
+  "edge_mode": {
+    "topological_keys": ["from", "to"],
+    "reference_key": "ref",
+    "mutually_exclusive_groups": [["ref"], ["from", "to"]]
+  },
+  "ref": {
+    "required_keys": ["node_id"],
+    "optional_keys": ["graph_id"]
+  }
+}
