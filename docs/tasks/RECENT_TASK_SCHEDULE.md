@@ -199,7 +199,23 @@
 
 **invoke**：[`PROMPT_START_SERIAL_v1.md`](../harness/invokes/by-task/graph-yaml-inform-closure-chain/PROMPT_START_SERIAL_v1.md)（串行）· 分步见各 slug 目录
 
-**后续（本链外）**：G0 本体扫描 → 删 `.ai.md` · `external_ref` schema
+**后续（本链外）**：见 **§1.7 G0 链**（本体扫描 → 留档 → 删 `.ai.md`）· `external_ref` 见 backlog task
+
+#### 1.7 G0 链 · 本体扫描与 `.ai.md` 退场（**active**）
+
+> **执行顺序**：**G0 扫描 → 留档（HG-INVENTORY-ARCHIVED）→ 删 `.ai.md`** · NIT Sub-graph **可并行**  
+> **P3 决策**：G0 扫描 **允许** 7× `@deprecated` `.ai.md` 仍存在 · inventory 标 `legacy_pending_delete` · **删文件在后继 task**
+
+| # | slug | task | 仓 | 分支 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| **1** | `ontology-inventory-scan-g0` | [`docs/harness/tasks/active/task_ontology_inventory_scan_g0_v1.md`](../../harness/tasks/active/task_ontology_inventory_scan_g0_v1.md) | 工作区 + cyning-harness + Ink 后端 | `task/ontology-inventory-scan-g0` | **active** · HG-TASK-DRAFT **approved** · 可开 30 |
+| **2** | `graph-yaml-remove-ai-md` | [`active/task_engineering_graph_yaml_remove_ai_md_v1.md`](active/task_engineering_graph_yaml_remove_ai_md_v1.md) | Ink 后端 | `task/graph-yaml-remove-ai-md` | **active** · blocked_by #1 留档 |
+| ∥ | `graph-yaml-subgraph-nit` | [`active/task_engineering_graph_yaml_subgraph_nit_v1.md`](active/task_engineering_graph_yaml_subgraph_nit_v1.md) | Ink 后端 | `task/graph-yaml-subgraph-nit` | **active** · 并行 NIT-1 |
+| — | `external_ref` backlog | [`active/task_engineering_graph_yaml_external_ref_backlog_v1.md`](active/task_engineering_graph_yaml_external_ref_backlog_v1.md) | Ink 后端 | — | **backlog** |
+
+**Prompt · invoke**：[`PROMPT_ontology_inventory_scan_G0_v1_zh.md`](../../cyning-harness/docs/methodology/graph/PROMPT_ontology_inventory_scan_G0_v1_zh.md) **v1.3** · [`PROMPT_START_30_v1.md`](../../harness/invokes/by-task/ontology-inventory-scan-g0/PROMPT_START_30_v1.md)
+
+**G1 HGM**：仍 blocked · 须 G0 大纲 §12 + 本链 #1 留档后再议 [`task_cyning_harness_g1_hgm_v2_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_hgm_v2_v1.md)
 
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 
