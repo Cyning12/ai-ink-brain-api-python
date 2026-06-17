@@ -536,6 +536,7 @@ flowchart TD
 | 2026-06-16 | **§1.6 续 Inform 闭环 P0 done**：`task_engineering_graph_yaml_doc_hygiene_p0_v1.md` 关账 · P0 PR 待 merge；P1 仍 blocked_until_merge |
 | 2026-06-16 | **§1.6 Post-Epic 修复 CLOSE**：`--all` bug · CI YAML check · 7 图 md 漂移 · `99_spec` 机器轨 · merge `f12e2a6` |
 | 2026-06-16 | **§1.6 图谱 YAML 图源迁移 Epic CLOSE**：P0～P5 共 7 graph · `.graph.yaml` 唯一编辑源 · PR #163～#172 |
+| 2026-06-17 | **§1.6 续 Inform 闭环 P1 done**：`task_engineering_graph_yaml_export_from_yaml_p1_v1.md` 关账 · graph.json export 改读 YAML · CI 不再依赖 `.ai.md` · PR 待 merge |
 
 
 ---

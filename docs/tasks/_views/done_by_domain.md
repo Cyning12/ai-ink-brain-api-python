@@ -117,6 +117,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-17 | [../done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md](../done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | Inform 闭环 P1 · graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md` |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md](../done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md) | Inform 闭环 P0 · Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归 |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_post_epic_fix_v1.md](../done/task_engineering_graph_yaml_post_epic_fix_v1.md) | Post-Epic 修复 · `--all` · CI YAML check · 文档对齐 · merge `f12e2a6` |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_migration_epic_v1.md](../done/task_engineering_graph_yaml_migration_epic_v1.md) | YAML 图源迁移 Epic · P0-P5 全 7 graph 完成 |
