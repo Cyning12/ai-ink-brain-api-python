@@ -214,15 +214,15 @@
 
 **G1 HGM**：G0 链已收口 · 可议 [`task_cyning_harness_g1_hgm_v2_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_hgm_v2_v1.md)（工作区 · 须 HG-TASK-DRAFT）
 
-#### 1.8 规范层 · graph_v2 schema 双轨（**deferred** · 建议 G1 后）
+#### 1.8 规范层 · graph_v2 schema 双轨（**done** · 2026-06-17）
 
 > **L3**：[`GUIDE_inform_spec_layer_format_selection_v1_zh.md`](../../../../ai_coding_governance/methodology/graph/GUIDE_inform_spec_layer_format_selection_v1_zh.md) · 与 G1 **轨正交** · 实现勿混 cyning-harness 金样 PR
 
 | slug | task | 状态 | 说明 |
 | --- | --- | --- | --- |
-| `graph-v2-schema-dual-track` | [`active/task_engineering_graph_v2_schema_dual_track_v1.md`](active/task_engineering_graph_v2_schema_dual_track_v1.md) | **active** · G1 done · [`PROMPT_START_30_v1.md`](../harness/invokes/by-task/graph-v2-schema-dual-track/PROMPT_START_30_v1.md) |
+| `graph-v2-schema-dual-track` | [`done/task_engineering_graph_v2_schema_dual_track_v1.md`](done/task_engineering_graph_v2_schema_dual_track_v1.md) | **done** · PR [#182](https://github.com/Cyning12/ai-ink-brain-api-python/pull/182) · merge `a59a2a8` | JSON canonical · `tools/tech_graph_graph_v2_schema.py` 改读 JSON · `verify-tech-graph.sh` 接入 |
 
-**硬前置**：Inform P0–P1 + G0 **done** · **软建议**：工作区 G1 CLOSE 后再 30
+**硬前置**：Inform P0–P1 + G0 **done** · 工作区 G1 **done** · T1 30/40 关账
 
 #### 1.9 Post-G1 · 产品 G1.1（**deferred** · DECISIONS 已拍板）
 
