@@ -43,5 +43,6 @@ timeline
   2026-06-05 : 0d0507d auto: api/chain_chat.py
   2026-06-08 : f86a32a auto: api/text2sql_core.py
   2026-06-09 : 7f2a27c auto: api/agent.py
+  2026-06-21 : 7006668 auto: supabase/sql/ops_desk_p0_schema.sql
 ```
 
