@@ -12,3 +12,4 @@ numpy
 psycopg[binary]
 pyyaml
 sqlparse
+pglast

@@ -212,7 +212,7 @@
 | ∥ | `graph-yaml-subgraph-nit` | [`done/task_engineering_graph_yaml_subgraph_nit_v1.md`](done/task_engineering_graph_yaml_subgraph_nit_v1.md) | Ink 后端 | **done** · PR #180 |
 | — | `external_ref` backlog | [`active/task_engineering_graph_yaml_external_ref_backlog_v1.md`](active/task_engineering_graph_yaml_external_ref_backlog_v1.md) | Ink 后端 | **backlog** |
 
-**G1 HGM**：G0 链已收口 · 可议 [`task_cyning_harness_g1_hgm_v2_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_hgm_v2_v1.md)（工作区 · 须 HG-TASK-DRAFT）
+**G1 HGM**：G0 链已收口 · [`task_cyning_harness_g1_hgm_v2_v1.md`](../../harness/tasks/done/cyning-harness/task_cyning_harness_g1_hgm_v2_v1.md) · **done**
 
 #### 1.8 规范层 · graph_v2 schema 双轨（**done** · 2026-06-17）
 
@@ -230,7 +230,7 @@
 
 | slug | task | 状态 |
 | --- | --- | --- |
-| `cyning-harness-g1-1-axioms-patch` | [`../../harness/tasks/active/task_cyning_harness_g1_1_axioms_patch_v1.md`](../../harness/tasks/active/task_cyning_harness_g1_1_axioms_patch_v1.md) | **deferred** · G1 npm 发布后 |
+| `cyning-harness-g1-1-axioms-patch` | [`../../harness/tasks/done/cyning-harness/task_cyning_harness_g1_1_axioms_patch_v1.md`](../../harness/tasks/done/cyning-harness/task_cyning_harness_g1_1_axioms_patch_v1.md) | **done** · npm `@2.0.1` |
 
 ### 1.3 semi_auto 退场双轨（**A+B done** · Epic CLOSE · 2026-06-08）
 

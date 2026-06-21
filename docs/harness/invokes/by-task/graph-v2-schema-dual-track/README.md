@@ -3,7 +3,8 @@
 | 项 | 值 |
 | --- | --- |
 | **task_slug** | `graph-v2-schema-dual-track` |
-| **task** | [`docs/tasks/active/task_engineering_graph_v2_schema_dual_track_v1.md`](../../../tasks/active/task_engineering_graph_v2_schema_dual_track_v1.md) |
+| **task** | [`docs/tasks/done/task_engineering_graph_v2_schema_dual_track_v1.md`](../../../tasks/done/task_engineering_graph_v2_schema_dual_track_v1.md) · **done** |
+| **PR** | [#182](https://github.com/Cyning12/ai-ink-brain-api-python/pull/182) · merge `a59a2a8` |
 | **schedule_ref** | RECENT **§1.8** |
 | **Open Folder** | **`ai-ink-brain-api-python/`** |
 | **git_branch** | `task/graph-v2-schema-dual-track` |

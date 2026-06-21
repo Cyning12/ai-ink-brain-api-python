@@ -176,6 +176,10 @@
       "chatbi_sql_table_policy",
       "code_chunks",
       "documents",
+      "ops_issues",
+      "ops_pull_requests",
+      "ops_repos",
+      "ops_sync_runs",
       "rag_conversation_logs"
     ],
     "rpc": [
