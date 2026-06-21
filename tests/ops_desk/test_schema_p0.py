@@ -1,13 +1,15 @@
 """Ops Desk P0 schema DDL 验收测试。
 
-本测试需要可写 PostgreSQL 连接（TEXT2SQL_DATABASE_URL）。
-未配置、无法连接或无 DDL 权限时跳过；在 public schema 中建表并清理。
+本测试需要 PostgreSQL 连接（TEXT2SQL_DATABASE_URL）。
+- 若 public 中四表不存在：自动创建 DDL，运行写测试，最后 rollback 清理。
+- 若 public 中四表已存在：跳过写测试，仅执行只读结构验证，不破坏数据。
 """
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import NamedTuple
 
 import pytest
 
@@ -36,53 +38,17 @@ SCHEMA_PATH = REPO_ROOT / "supabase" / "sql" / "ops_desk_p0_schema.sql"
 ROLLBACK_PATH = REPO_ROOT / "supabase" / "sql" / "ops_desk_p0_schema_rollback.sql"
 
 
+class SchemaInfo(NamedTuple):
+    name: str
+    created_by_us: bool
+
+
 def _dsn() -> str | None:
     return (os.getenv("TEXT2SQL_DATABASE_URL") or "").strip() or None
 
 
 def _read_sql(path: Path) -> str:
     return path.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def db_schema():
-    """在 public schema 中应用 P0 DDL，测试模块结束后 rollback 清理。
-
-    若 public 中已存在四表（可能已被其他流程创建或正在使用），
-    直接跳过避免破坏现有数据。
-    """
-    dsn = _dsn()
-    if not dsn or psycopg is None:
-        pytest.skip("TEXT2SQL_DATABASE_URL 未配置或 psycopg 未安装")
-
-    schema_name = "public"
-    try:
-        conn = psycopg.connect(dsn, autocommit=True)
-    except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"无法连接数据库: {exc}")
-
-    try:
-        existing = [
-            t
-            for t in ("ops_repos", "ops_issues", "ops_pull_requests", "ops_sync_runs")
-            if _table_exists(conn, schema_name, t)
-        ]
-        if existing:
-            pytest.skip(f"public schema 已存在 {existing}，跳过避免破坏数据")
-
-        rollback = _read_sql(ROLLBACK_PATH)
-        ddl = _read_sql(SCHEMA_PATH)
-        try:
-            with conn.cursor() as cur:
-                cur.execute(rollback)
-                cur.execute(ddl)
-        except psycopg.errors.InsufficientPrivilege as exc:
-            pytest.skip(f"当前数据库用户无 DDL 权限: {exc}")
-        yield schema_name
-    finally:
-        with conn.cursor() as cur:
-            cur.execute(_read_sql(ROLLBACK_PATH))
-        conn.close()
 
 
 def _table_exists(conn, schema: str, table: str) -> bool:
@@ -95,24 +61,188 @@ def _table_exists(conn, schema: str, table: str) -> bool:
         return cur.fetchone() is not None
 
 
-def test_four_tables_exist(db_schema: str) -> None:
+@pytest.fixture(scope="module")
+def db_schema():
+    """返回 public schema 信息；若表不存在则创建并在模块结束时清理。"""
+    dsn = _dsn()
+    if not dsn or psycopg is None:
+        pytest.skip("TEXT2SQL_DATABASE_URL 未配置或 psycopg 未安装")
+
+    schema_name = "public"
+    try:
+        conn = psycopg.connect(dsn, autocommit=True)
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"无法连接数据库: {exc}")
+
+    created_by_us = False
+    try:
+        existing = [
+            t
+            for t in ("ops_repos", "ops_issues", "ops_pull_requests", "ops_sync_runs")
+            if _table_exists(conn, schema_name, t)
+        ]
+        if not existing:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(_read_sql(ROLLBACK_PATH))
+                    cur.execute(_read_sql(SCHEMA_PATH))
+                created_by_us = True
+            except psycopg.errors.InsufficientPrivilege as exc:
+                pytest.skip(f"当前数据库用户无 DDL 权限: {exc}")
+        yield SchemaInfo(name=schema_name, created_by_us=created_by_us)
+    finally:
+        if created_by_us:
+            with conn.cursor() as cur:
+                cur.execute(_read_sql(ROLLBACK_PATH))
+        conn.close()
+
+
+def _require_writable(info: SchemaInfo) -> None:
+    if not info.created_by_us:
+        pytest.skip("public 中表已存在，跳过写测试以避免破坏数据")
+
+
+def test_four_tables_exist(db_schema: SchemaInfo) -> None:
     dsn = _dsn()
     assert dsn
     conn = psycopg.connect(dsn)
     try:
         for table in ("ops_repos", "ops_issues", "ops_pull_requests", "ops_sync_runs"):
-            assert _table_exists(conn, db_schema, table), f"{table} 未创建"
+            assert _table_exists(conn, db_schema.name, table), f"{table} 未创建"
     finally:
         conn.close()
 
 
-def test_repo_full_name_generated(db_schema: str) -> None:
+def _get_constraint_defs(conn, schema: str, table: str) -> list[str]:
+    with conn.cursor() as cur:
+        cur.execute(
+            "select pg_get_constraintdef(oid) from pg_constraint "
+            "where conrelid = (%s || '.' || %s)::regclass",
+            (schema, table),
+        )
+        return [row[0] for row in cur.fetchall() if row[0]]
+
+
+def test_issue_columns_and_constraints(db_schema: SchemaInfo) -> None:
+    """只读验证 ops_issues 列与 (repo_id, number) 唯一约束。"""
+    dsn = _dsn()
+    assert dsn
+    conn = psycopg.connect(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "select column_name from information_schema.columns "
+                "where table_schema = %s and table_name = %s",
+                (db_schema.name, "ops_issues"),
+            )
+            columns = {row[0] for row in cur.fetchall()}
+            for col in (
+                "id", "repo_id", "number", "title", "body", "state",
+                "labels", "assignees", "milestone", "created_at", "updated_at",
+                "closed_at", "author", "html_url", "scan_tags",
+            ):
+                assert col in columns, f"ops_issues 缺少列 {col}"
+
+        defs = _get_constraint_defs(conn, db_schema.name, "ops_issues")
+        joined = "\n".join(defs)
+        assert "UNIQUE (repo_id, number)" in joined
+        assert "state = ANY (ARRAY['open'::text, 'closed'::text])" in joined
+        assert "FOREIGN KEY (repo_id) REFERENCES ops_repos(id) ON DELETE CASCADE" in joined
+    finally:
+        conn.close()
+
+
+def test_pull_request_columns_and_constraints(db_schema: SchemaInfo) -> None:
+    """只读验证 ops_pull_requests 列与 (repo_id, number) 唯一约束。"""
+    dsn = _dsn()
+    assert dsn
+    conn = psycopg.connect(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "select column_name from information_schema.columns "
+                "where table_schema = %s and table_name = %s",
+                (db_schema.name, "ops_pull_requests"),
+            )
+            columns = {row[0] for row in cur.fetchall()}
+            for col in (
+                "id", "repo_id", "number", "title", "body", "state", "draft",
+                "labels", "created_at", "updated_at", "closed_at", "merged_at",
+                "author", "html_url", "head_ref", "base_ref", "checks_conclusion",
+                "review_decision", "first_review_at", "additions", "deletions", "changed_files",
+            ):
+                assert col in columns, f"ops_pull_requests 缺少列 {col}"
+
+        defs = _get_constraint_defs(conn, db_schema.name, "ops_pull_requests")
+        joined = "\n".join(defs)
+        assert "UNIQUE (repo_id, number)" in joined
+        assert "state = ANY (ARRAY['open'::text, 'closed'::text, 'merged'::text])" in joined
+        assert "FOREIGN KEY (repo_id) REFERENCES ops_repos(id) ON DELETE CASCADE" in joined
+    finally:
+        conn.close()
+
+
+def test_sync_runs_columns_and_status_check(db_schema: SchemaInfo) -> None:
+    """只读验证 ops_sync_runs 列与 status CHECK 约束。"""
+    dsn = _dsn()
+    assert dsn
+    conn = psycopg.connect(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "select column_name from information_schema.columns "
+                "where table_schema = %s and table_name = %s",
+                (db_schema.name, "ops_sync_runs"),
+            )
+            columns = {row[0] for row in cur.fetchall()}
+            for col in (
+                "id", "repo_id", "started_at", "finished_at", "status",
+                "cursor", "records_issue", "records_pr", "error_message", "trigger",
+            ):
+                assert col in columns, f"ops_sync_runs 缺少列 {col}"
+
+        defs = _get_constraint_defs(conn, db_schema.name, "ops_sync_runs")
+        joined = "\n".join(defs)
+        for status in ("pending", "running", "success", "failed", "partial"):
+            assert status in joined, f"status CHECK 缺少 {status}"
+        for trigger in ("cron", "manual", "initial"):
+            assert trigger in joined, f"trigger CHECK 缺少 {trigger}"
+        assert "FOREIGN KEY (repo_id) REFERENCES ops_repos(id) ON DELETE CASCADE" in joined
+    finally:
+        conn.close()
+
+
+def test_repo_columns_and_constraints(db_schema: SchemaInfo) -> None:
+    """只读验证 ops_repos 列与 (owner, name) 唯一约束。"""
+    dsn = _dsn()
+    assert dsn
+    conn = psycopg.connect(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "select column_name from information_schema.columns "
+                "where table_schema = %s and table_name = %s",
+                (db_schema.name, "ops_repos"),
+            )
+            columns = {row[0] for row in cur.fetchall()}
+            for col in ("id", "owner", "name", "full_name", "default_branch", "created_at", "updated_at"):
+                assert col in columns, f"ops_repos 缺少列 {col}"
+
+        defs = _get_constraint_defs(conn, db_schema.name, "ops_repos")
+        joined = "\n".join(defs)
+        assert "UNIQUE (owner, name)" in joined
+    finally:
+        conn.close()
+
+
+def test_repo_full_name_generated(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning full_name",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning full_name",
                 ("MoonshotAI", "kimi-code"),
             )
             row = cur.fetchone()
@@ -122,25 +252,26 @@ def test_repo_full_name_generated(db_schema: str) -> None:
         conn.close()
 
 
-def test_issue_repo_number_unique(db_schema: str) -> None:
+def test_issue_repo_number_unique(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             cur.execute(
-                f"insert into {db_schema}.ops_issues "
+                f"insert into {db_schema.name}.ops_issues "
                 "(repo_id, number, title, state, created_at, updated_at) "
                 "values (%s, %s, %s, %s, now(), now())",
                 (repo_id, 1, "first", "open"),
             )
             with pytest.raises(psycopg.errors.UniqueViolation):
                 cur.execute(
-                    f"insert into {db_schema}.ops_issues "
+                    f"insert into {db_schema.name}.ops_issues "
                     "(repo_id, number, title, state, created_at, updated_at) "
                     "values (%s, %s, %s, %s, now(), now())",
                     (repo_id, 1, "second", "open"),
@@ -149,25 +280,26 @@ def test_issue_repo_number_unique(db_schema: str) -> None:
         conn.close()
 
 
-def test_pull_request_repo_number_unique(db_schema: str) -> None:
+def test_pull_request_repo_number_unique(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             cur.execute(
-                f"insert into {db_schema}.ops_pull_requests "
+                f"insert into {db_schema.name}.ops_pull_requests "
                 "(repo_id, number, title, state, created_at, updated_at) "
                 "values (%s, %s, %s, %s, now(), now())",
                 (repo_id, 1, "first", "open"),
             )
             with pytest.raises(psycopg.errors.UniqueViolation):
                 cur.execute(
-                    f"insert into {db_schema}.ops_pull_requests "
+                    f"insert into {db_schema.name}.ops_pull_requests "
                     "(repo_id, number, title, state, created_at, updated_at) "
                     "values (%s, %s, %s, %s, now(), now())",
                     (repo_id, 1, "second", "open"),
@@ -176,25 +308,26 @@ def test_pull_request_repo_number_unique(db_schema: str) -> None:
         conn.close()
 
 
-def test_sync_runs_status_check(db_schema: str) -> None:
+def test_sync_runs_status_check(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             for status in ("pending", "running", "success", "failed", "partial"):
                 cur.execute(
-                    f"insert into {db_schema}.ops_sync_runs "
+                    f"insert into {db_schema.name}.ops_sync_runs "
                     "(repo_id, status, trigger) values (%s, %s, %s)",
                     (repo_id, status, "cron"),
                 )
             with pytest.raises(psycopg.errors.CheckViolation):
                 cur.execute(
-                    f"insert into {db_schema}.ops_sync_runs "
+                    f"insert into {db_schema.name}.ops_sync_runs "
                     "(repo_id, status, trigger) values (%s, %s, %s)",
                     (repo_id, "invalid", "cron"),
                 )
@@ -202,19 +335,20 @@ def test_sync_runs_status_check(db_schema: str) -> None:
         conn.close()
 
 
-def test_issue_state_check(db_schema: str) -> None:
+def test_issue_state_check(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             with pytest.raises(psycopg.errors.CheckViolation):
                 cur.execute(
-                    f"insert into {db_schema}.ops_issues "
+                    f"insert into {db_schema.name}.ops_issues "
                     "(repo_id, number, title, state, created_at, updated_at) "
                     "values (%s, %s, %s, %s, now(), now())",
                     (repo_id, 2, "bad", "unknown"),
@@ -223,19 +357,20 @@ def test_issue_state_check(db_schema: str) -> None:
         conn.close()
 
 
-def test_pull_request_state_check(db_schema: str) -> None:
+def test_pull_request_state_check(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             with pytest.raises(psycopg.errors.CheckViolation):
                 cur.execute(
-                    f"insert into {db_schema}.ops_pull_requests "
+                    f"insert into {db_schema.name}.ops_pull_requests "
                     "(repo_id, number, title, state, created_at, updated_at) "
                     "values (%s, %s, %s, %s, now(), now())",
                     (repo_id, 2, "bad", "unknown"),
@@ -244,25 +379,26 @@ def test_pull_request_state_check(db_schema: str) -> None:
         conn.close()
 
 
-def test_repo_cascade_delete(db_schema: str) -> None:
+def test_repo_cascade_delete(db_schema: SchemaInfo) -> None:
+    _require_writable(db_schema)
     dsn = _dsn()
     conn = psycopg.connect(dsn)
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"insert into {db_schema}.ops_repos (owner, name) values (%s, %s) returning id",
+                f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
             repo_id = cur.fetchone()[0]
             cur.execute(
-                f"insert into {db_schema}.ops_issues "
+                f"insert into {db_schema.name}.ops_issues "
                 "(repo_id, number, title, state, created_at, updated_at) "
                 "values (%s, %s, %s, %s, now(), now())",
                 (repo_id, 3, "cascade test", "open"),
             )
-            cur.execute(f"delete from {db_schema}.ops_repos where id = %s", (repo_id,))
+            cur.execute(f"delete from {db_schema.name}.ops_repos where id = %s", (repo_id,))
             cur.execute(
-                f"select 1 from {db_schema}.ops_issues where repo_id = %s", (repo_id,)
+                f"select 1 from {db_schema.name}.ops_issues where repo_id = %s", (repo_id,)
             )
             assert cur.fetchone() is None
     finally:

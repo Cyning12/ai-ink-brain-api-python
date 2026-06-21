@@ -37,6 +37,66 @@ classDiagram
     +timestamptz created_at
   }
 
+  class ops_repos {
+    +uuid id
+    +text owner
+    +text name
+    +text full_name
+    +text default_branch
+    +timestamptz created_at
+    +timestamptz updated_at
+  }
+
+  class ops_issues {
+    +uuid id
+    +uuid repo_id
+    +int number
+    +text title
+    +text state
+    +text[] labels
+    +text[] assignees
+    +timestamptz created_at
+    +timestamptz updated_at
+    +timestamptz closed_at
+    +text author
+    +text html_url
+    +text[] scan_tags
+  }
+
+  class ops_pull_requests {
+    +uuid id
+    +uuid repo_id
+    +int number
+    +text title
+    +text state
+    +bool draft
+    +text[] labels
+    +timestamptz created_at
+    +timestamptz updated_at
+    +timestamptz closed_at
+    +timestamptz merged_at
+    +text author
+    +text html_url
+    +text head_ref
+    +text base_ref
+  }
+
+  class ops_sync_runs {
+    +uuid id
+    +uuid repo_id
+    +timestamptz started_at
+    +timestamptz finished_at
+    +text status
+    +timestamptz cursor
+    +int records_issue
+    +int records_pr
+    +text trigger
+  }
+
+  ops_issues --> ops_repos : repo_id
+  ops_pull_requests --> ops_repos : repo_id
+  ops_sync_runs --> ops_repos : repo_id
+
   class FileMeta {
     +string category (req)
     +string slug (req)
