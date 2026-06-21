@@ -1,6 +1,6 @@
 # Task · Ops Desk P0-1 · Supabase Schema
 
-> **状态**：`pending`  
+> **状态**：`done（2026-06-21 验收通过）`  
 > **SPEC**：[`SPEC_ops_desk_kimi_code_mvp_v1_zh.md`](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_desk_kimi_code_mvp_v1_zh.md) · §7 · §13 P0-1  
 > **invoke 真值**：[`ROUND_03_R2_gha_sync_schema.md`](../../../../docs/harness/invokes/by-task/ops-desk-kimi-code-spec-refine/rounds/ROUND_03_R2_gha_sync_schema.md) §3.3  
 > **依赖**：无（P0 链首棒）  
