@@ -1,6 +1,6 @@
 # Task · 规范层 · graph_v2 JSON Schema 双轨（Inform · Post-G0）
 
-> **状态**：`done`（**HG-TASK-DRAFT approved** · G1 **done** · **30/40 T1 完成**）  
+> **状态**：`done（2026-06-17）`（PR #182 merge `a59a2a8` · HG-TASK-DRAFT approved · 30/40 关账）  
 > **schedule_ref**：RECENT **§1.8**  
 > **L3 真值**：`[GUIDE_inform_spec_layer_format_selection_v1_zh.md](../../../../ai_coding_governance/methodology/graph/GUIDE_inform_spec_layer_format_selection_v1_zh.md)` §3.2 · §5  
 > **blocked_by（软）**：`[task_cyning_harness_g1_hgm_v2_v1.md](../../harness/tasks/done/cyning-harness/task_cyning_harness_g1_hgm_v2_v1.md)` · **done**  
@@ -72,21 +72,13 @@ Agent 消费               ← 仍 graph_query + manifest 切片 · 不默认 @ 
 
 ## 范围
 
-- [ ] **D1** 落盘 `docs/_tech_graph/graph_v2.schema.json`（或 `schemas/graph_v2.schema.json` · 30 前在 §实现备忘 定格路径）
-  - 覆盖 P2-0 + P2-4a：`nodes[].kind` · `graphs[]` · `edges[].ref` · FP-4-4 兼容
-  - 与当前 `validate_graph_v2` 行为 **等价**（以现有 pytest 为基准）
-- [ ] **D2** 重构 `tools/tech_graph_graph_v2_schema.py`：校验逻辑 **单一真值** 来自 D1（可保留 Python 类型辅助 · 禁止双份字段表漂移）
-- [ ] **D3** 更新 `graph_v2_schema.md`：
-  - 文首 `canonical schema: graph_v2.schema.json`
-  - 字段表改为「摘要 + 链 JSON」或标注「以 JSON 为准」
-  - 保留 failure_paths · CLI 表 · 修订记录
-- [ ] **D4** CI / `verify-tech-graph.sh`：export 后 schema 校验仍绿；若有 drift 检查 MD 索引行（可选 · 最小）
-- [ ] **D5** pytest：
-  - 现有 `test_tech_graph_graph_v2*.py` 全绿
-  - 新增：故意破坏 JSON schema 版本 / 缺字段 → 非 0 exit
-  - 回归：`graph.json` committed 仍 pass `validate_graph_v2`
-- [ ] **D6** 更新 `99_spec.md` §机器轨 一行：schema 双轨指针（若与 §Wiki 桥接不冲突）
-- [ ] **D7** （可选）`graph_id_from_source_path` 等遗留 `.ai.md` 措辞 → `.graph.yaml` / 中性 stem（仅 docstring · 无行为变更）
+- [x] **D1** 落盘 `docs/_tech_graph/graph_v2.schema.json`
+- [x] **D2** 重构 `tools/tech_graph_graph_v2_schema.py`
+- [x] **D3** 更新 `graph_v2_schema.md`
+- [x] **D4** CI / `verify-tech-graph.sh`
+- [x] **D5** pytest（含 F1 可失败用例）
+- [x] **D6** 更新 `99_spec.md` §机器轨
+- [x] **D7** `graph_id_from_source_path` docstring
 
 ---
 
@@ -131,13 +123,13 @@ Agent 消费               ← 仍 graph_query + manifest 切片 · 不默认 @ 
 
 ## 验收标准
 
-- [ ] `docs/_tech_graph/graph_v2.schema.json` 存在且可被校验脚本加载
-- [ ] `python tools/tech_graph_graph_export.py --check` → exit 0
-- [ ] `pytest tests/test_tech_graph_graph*.py tests/test_graph_yaml*.py -q` 全绿
-- [ ] `graph_v2_schema.md` 含 canonical 指针 · 无「仅 MD 为真值」歧义
-- [ ] 故意破坏 JSON 必填字段的 pytest 用例 **可失败**（F1）
-- [ ] task §实现备忘 · §自检结论 · invoke 30/40（立项后）
-- [ ] RECENT §1.8 状态同步
+- [x] `docs/_tech_graph/graph_v2.schema.json` 存在且可被校验脚本加载
+- [x] `python tools/tech_graph_graph_export.py --check` → exit 0
+- [x] `pytest tests/test_tech_graph_graph*.py tests/test_graph_yaml*.py -q` 全绿
+- [x] `graph_v2_schema.md` 含 canonical 指针 · 无「仅 MD 为真值」歧义
+- [x] 故意破坏 JSON 必填字段的 pytest 用例 **可失败**（F1）
+- [x] task §实现备忘 · §自检结论 · invoke 30/40
+- [x] RECENT §1.8 状态同步
 
 ---
 
