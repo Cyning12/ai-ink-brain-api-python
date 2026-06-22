@@ -29,12 +29,12 @@ from . import (
     unified_chat,
     unified_chat_graph,
 )
-from .ops import ops_router
 from .chatbi_principal import (
     ChatBiPrincipal,
     require_chatbi_principal,
 )
 from .chatbi_rate_limit import register_rate_limit_middleware
+from .ops import ops_router
 from .rag_env import (
     pick_supabase_service_key,
     pick_supabase_url,

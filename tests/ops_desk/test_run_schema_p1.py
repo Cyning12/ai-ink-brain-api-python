@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import uuid
 from pathlib import Path
 from typing import NamedTuple
 
@@ -244,7 +243,7 @@ def test_store_layer_upsert_and_events(db_schema: SchemaInfo, monkeypatch: pytes
                 f"insert into {db_schema.name}.ops_repos (owner, name) values (%s, %s) returning id",
                 ("MoonshotAI", "kimi-code"),
             )
-            repo_id = cur.fetchone()[0]
+            _repo_id = cur.fetchone()[0]
 
         # 使用真实 supabase client 需要 URL/key；这里直接通过 psycopg 构造一个 mock client
         class FakeClient:
@@ -329,7 +328,7 @@ def test_store_layer_upsert_and_events(db_schema: SchemaInfo, monkeypatch: pytes
                                 )
                             row = cur.fetchone()
                             cols = [desc[0] for desc in cur.description]
-                            return type("Res", (), {"data": [dict(zip(cols, row))]})
+                            return type("Res", (), {"data": [dict(zip(cols, row, strict=False))]})
 
                         where = " and ".join(
                             f"{c} = %s" if op == "eq" else f"{c} > %s"
@@ -344,7 +343,7 @@ def test_store_layer_upsert_and_events(db_schema: SchemaInfo, monkeypatch: pytes
                         if self._limit:
                             q += f" limit {self._limit}"
                         cur.execute(q, params)
-                        rows = [dict(zip([desc[0] for desc in cur.description], row)) for row in cur.fetchall()]
+                        rows = [dict(zip([desc[0] for desc in cur.description], row, strict=False)) for row in cur.fetchall()]
                         res = type("Res", (), {"data": rows})
                         if self._count:
                             cur.execute(f"select count(*) from {db_schema.name}.{self._name} where {where}" if where else f"select count(*) from {db_schema.name}.{self._name}", params)
