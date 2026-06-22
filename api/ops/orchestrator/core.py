@@ -6,8 +6,8 @@ import re
 from typing import Any
 
 from api.ops.agents.issue_analyst import analyze_issue
-from api.ops.llm import synthesize_answer
 from api.ops.constants import DEFAULT_DAYS
+from api.ops.llm import synthesize_answer
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
 

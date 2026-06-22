@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from api.ops.scan.store import ScanIngestResult
 from api.ops.sync.github_client import (
     FAIL_FAST_STATUS,
     MAX_RETRIES,
@@ -17,6 +18,21 @@ from api.ops.sync.github_client import (
 )
 from api.ops.sync.runner import run_sync
 from api.ops.sync.store import OpsSyncStore, resolve_trigger
+
+
+@pytest.fixture(autouse=True)
+def _stub_scan_ingest(monkeypatch: pytest.MonkeyPatch) -> None:
+    """P0 sync 测试不依赖真实 ISSUE_SCAN 文件；扫描步骤默认返回成功。"""
+
+    def fake_ingest(_repo_id: str, _run_id: str, **_: Any) -> ScanIngestResult:
+        return ScanIngestResult(
+            snapshot_id="scan-1",
+            status="success",
+            total_open=0,
+            counts={},
+        )
+
+    monkeypatch.setattr("api.ops.sync.runner.ingest_scan_after_github_sync", fake_ingest)
 
 
 def _issue(number: int, updated_at: str = "2026-06-01T10:00:00Z") -> dict[str, Any]:
