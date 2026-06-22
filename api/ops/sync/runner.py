@@ -168,7 +168,8 @@ def main() -> int:
         f"cursor={result.cursor} error={result.error_message or ''} "
         f"scan_snapshot_id={result.scan_snapshot_id or ''}"
     )
-    return 0 if result.status == "success" else 1
+    # cron 兼容：issue/PR 同步成功但 scan 被跳过或部分失败时不阻断 GHA
+    return 0 if result.status in ("success", "partial") else 1
 
 
 if __name__ == "__main__":
