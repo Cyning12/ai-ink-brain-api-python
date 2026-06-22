@@ -7,6 +7,7 @@ from typing import Any
 
 from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.llm import synthesize_answer
+from api.ops.constants import DEFAULT_DAYS
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
 
@@ -54,14 +55,7 @@ def is_fast_intent(intent: str) -> bool:
 
 def fast_respond(intent: str, slots: dict[str, Any], queries: OpsQueries) -> dict[str, Any]:
     if intent == Intent.METRICS_TREND:
-        return {
-            "type": "metrics",
-            "metrics": [
-                queries.cycle_time_metric(),
-                queries.review_time_metric(),
-                queries.issue_throughput_metric(),
-            ],
-        }
+        return {"type": "metrics", "metrics": _metrics_for_slots(slots, queries)}
     if intent == Intent.ISSUE_LIST:
         items, total = queries.fetch_issues()
         return {"type": "issue_list", "items": items, "total": total}
@@ -227,13 +221,47 @@ def run_fast(
     return {"run_id": run_id, "status": "done", "answer": answer, "route": "fast"}
 
 
+def _metrics_for_slots(slots: dict[str, Any], queries: OpsQueries) -> list[dict[str, Any]]:
+    """Demo / fast path：slots 指定 metric 时只查单指标。"""
+    days = int(slots.get("days") or DEFAULT_DAYS)
+    metric = slots.get("metric")
+    fetchers = {
+        "issue-throughput": queries.issue_throughput_metric,
+        "cycle-time": queries.cycle_time_metric,
+        "review-time": queries.review_time_metric,
+    }
+    if metric in fetchers:
+        return [fetchers[metric](days)]
+    return [
+        queries.cycle_time_metric(days),
+        queries.review_time_metric(days),
+        queries.issue_throughput_metric(days),
+    ]
+
+
+def _format_metric_line(metric_payload: dict[str, Any]) -> str:
+    name = metric_payload.get("metric", "")
+    days = metric_payload.get("days", DEFAULT_DAYS)
+    summary = metric_payload.get("summary") or {}
+    if name == "issue-throughput":
+        total = summary.get("total", 0)
+        avg = summary.get("avg_per_day", 0)
+        return f"最近 {days} 天 closed issue 共 {total} 个，平均每天 {avg} 个。"
+    if name == "cycle-time":
+        avg = summary.get("avg_hours", 0)
+        return f"最近 {days} 天 PR cycle time 平均 {avg} 小时。"
+    if name == "review-time":
+        median = summary.get("median_hours", summary.get("avg_hours", 0))
+        return f"最近 {days} 天 PR review time 中位数 {median} 小时。"
+    return f"{name}: {summary}"
+
+
 def _render_fast_answer(intent: str, result: dict[str, Any]) -> str:
-    if intent == "demo":
+    if intent == Intent.DEMO:
         return result.get("answer", "")
-    if intent == "metrics_trend":
+    if intent == Intent.METRICS_TREND:
         metrics = result.get("metrics", [])
-        lines = [f"{m['metric']}: 平均 {m['summary'].get('avg_hours', 0)} 小时" for m in metrics]
-        return "\n".join(lines)
-    if intent in ("issue_list", "pr_list"):
+        return "\n".join(_format_metric_line(m) for m in metrics)
+    if intent in (Intent.ISSUE_LIST, Intent.PR_LIST):
         return f"共 {result.get('total', 0)} 条记录"
     return str(result)

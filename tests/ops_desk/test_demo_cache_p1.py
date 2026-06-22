@@ -34,13 +34,13 @@ class FakeQueries:
         return self.pulls.get(number)
 
     def cycle_time_metric(self, days: int = 30) -> dict[str, Any]:
-        return {"metric": "cycle-time", "summary": {"avg_hours": 48.0}}
+        return {"metric": "cycle-time", "days": days, "summary": {"avg_hours": 48.0}}
 
     def review_time_metric(self, days: int = 30) -> dict[str, Any]:
-        return {"metric": "review-time", "summary": {"avg_hours": 12.0}}
+        return {"metric": "review-time", "days": days, "summary": {"avg_hours": 12.0, "median_hours": 10.5}}
 
     def issue_throughput_metric(self, days: int = 30) -> dict[str, Any]:
-        return {"metric": "issue-throughput", "summary": {"total": 2}}
+        return {"metric": "issue-throughput", "days": days, "summary": {"total": 42, "avg_per_day": 1.4}}
 
     def fetch_issues(
         self,
@@ -264,6 +264,22 @@ def test_demo_cache_miss_d1_writes_back(client: TestClient) -> None:
     assert cached is not None
     assert cached["answer_json"]["answer"] == data["answer"]
     assert len(client.llm_calls) == 0
+    assert "closed issue 共 42 个" in data["answer"]
+    assert "cycle-time" not in data["answer"]
+
+
+def test_demo_cache_miss_d2_single_metric_answer(client: TestClient) -> None:
+    resp = client.post(
+        "/api/py/ops/chat/messages",
+        json={"message": "PR review time 中位数是多少？"},
+        headers={"x-ops-secret": "test"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["demo_id"] == "D3"
+    assert data["demo_hit"] is False
+    assert "review time 中位数 10.5 小时" in data["answer"]
+    assert "cycle-time" not in data["answer"]
 
 
 def test_demo_cache_miss_d4_deep_then_hit(client: TestClient) -> None:
