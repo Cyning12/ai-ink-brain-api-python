@@ -184,7 +184,7 @@ class TestGraphYamlCompile:
                 f"Anchor line does not match protocol format: {line}"
             )
 
-    def test_all_graph_ids_returns_seven_ids_without_graph_suffix(self):
+    def test_all_graph_ids_returns_eight_ids_without_graph_suffix(self):
         """BUG-1: all_graph_ids() must strip '.graph.yaml' (not leave '.graph')."""
         if not COMPILE_SCRIPT.exists():
             pytest.skip("Compile script not yet created")
@@ -195,7 +195,7 @@ class TestGraphYamlCompile:
                 "import sys; sys.path.insert(0, 'scripts'); "
                 "from graph_yaml_compile import all_graph_ids; "
                 "ids = all_graph_ids(); "
-                "assert len(ids) == 7, f'expected 7 graph ids, got {len(ids)}: {ids}'; "
+                "assert len(ids) == 8, f'expected 8 graph ids, got {len(ids)}: {ids}'; "
                 "assert all(not i.endswith('.graph') for i in ids), ids; "
                 "print(ids)",
             ],
