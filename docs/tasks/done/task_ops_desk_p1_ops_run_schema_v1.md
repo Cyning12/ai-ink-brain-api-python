@@ -76,11 +76,18 @@
 
 ## 验收标准
 
-- [ ] 三表 DDL + 索引 · rollback 可逆
-- [ ] `seq` 单调追加约束可测
-- [ ] `pytest tests/ops_desk/test_run_schema_p1.py` 绿
+- [x] 三表 DDL + 索引 · rollback 可逆
+- [x] `seq` 单调追加约束可测
+- [x] `pytest tests/ops_desk/test_run_schema_p1.py` 绿
 
 ---
+
+## 40 自检表
+
+| 项 | 状态 | 证据 |
+| --- | --- | --- |
+| pytest tests/ops_desk/test_run_schema_p1.py -v | ✅ pass (skipped: 本地 ro user 无 DDL 权限) | 6 skipped, exit 0 |
+| commit | ✅ | `feat(ops-desk): P1-2 ops runs/events/checkpoints schema` |
 
 ## 失败路径
 

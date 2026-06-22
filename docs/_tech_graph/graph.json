@@ -2238,7 +2238,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/llm.py",
+          "symbol": "chat_completion"
+        }
+      ],
       "from": "ANALYST",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2248,7 +2253,16 @@
       "type": "async_calls"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/agents/issue_analyst.py",
+          "symbol": "analyze_issue"
+        },
+        {
+          "path": "api/ops/queries.py",
+          "symbol": "fetch_issue_by_number"
+        }
+      ],
       "from": "ANALYST",
       "graph_id": "16_flow_ops_chat",
       "label": "只读 ops_issues/pr",
@@ -2258,7 +2272,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "review_result"
+        }
+      ],
       "from": "ANALYST",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2288,7 +2307,12 @@
       "type": "condition"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "run_fast / run_deep"
+        }
+      ],
       "from": "CLASSIFY",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2298,7 +2322,16 @@
       "type": "gates"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/chat.py",
+          "symbol": "chat_messages"
+        },
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.create_run"
+        }
+      ],
       "from": "DEEP",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2328,7 +2361,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.append_event"
+        }
+      ],
       "from": "EVT",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2348,7 +2386,12 @@
       "type": "condition"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "run_fast"
+        }
+      ],
       "from": "FAST",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2358,7 +2401,16 @@
       "type": "async_calls"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/metrics.py",
+          "symbol": "cycle_time"
+        },
+        {
+          "path": "api/ops/lists.py",
+          "symbol": "list_issues"
+        }
+      ],
       "from": "FAST",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2378,7 +2430,16 @@
       "type": "yields"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/runs.py",
+          "symbol": "get_events"
+        },
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.get_events"
+        }
+      ],
       "from": "GET_EVT",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2388,7 +2449,16 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/runs.py",
+          "symbol": "get_run"
+        },
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.get_run"
+        }
+      ],
       "from": "GET_RUN",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2398,7 +2468,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.save_checkpoint"
+        }
+      ],
       "from": "LG",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2418,7 +2493,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/queries.py",
+          "symbol": "OpsQueries"
+        }
+      ],
       "from": "METRICS",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2430,8 +2510,12 @@
     {
       "anchors": [
         {
-          "path": "api/ops/",
-          "symbol": "chat_messages (P1 · 规划)"
+          "path": "api/ops/chat.py",
+          "symbol": "chat_messages"
+        },
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "classify_intent"
         }
       ],
       "from": "OPS_REQ",
@@ -2443,7 +2527,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/runs.py",
+          "symbol": "stream_run"
+        }
+      ],
       "from": "OPS_SSE",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2463,7 +2552,16 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/runs.py",
+          "symbol": "retry_run"
+        },
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore.retry_run"
+        }
+      ],
       "from": "RETRY",
       "graph_id": "16_flow_ops_chat",
       "label": "retry_token 幂等",
@@ -2473,7 +2571,12 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "run_deep"
+        }
+      ],
       "from": "REVIEW",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2493,7 +2596,12 @@
       "type": "condition"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "review_result"
+        }
+      ],
       "from": "REVIEW",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2503,7 +2611,16 @@
       "type": "condition"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "run_deep"
+        },
+        {
+          "path": "api/ops/agents/issue_analyst.py",
+          "symbol": "analyze_issue"
+        }
+      ],
       "from": "RUN",
       "graph_id": "16_flow_ops_chat",
       "label": "delegate",
@@ -2523,7 +2640,12 @@
       "type": "triggers"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/store/runs.py",
+          "symbol": "OpsRunStore"
+        }
+      ],
       "from": "RUN",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2533,7 +2655,16 @@
       "type": "depends_on"
     },
     {
-      "anchors": [],
+      "anchors": [
+        {
+          "path": "api/ops/orchestrator/core.py",
+          "symbol": "synthesize"
+        },
+        {
+          "path": "api/ops/llm.py",
+          "symbol": "synthesize_answer"
+        }
+      ],
       "from": "SYNTH",
       "graph_id": "16_flow_ops_chat",
       "label": "",
@@ -2544,7 +2675,7 @@
     }
   ],
   "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
-  "generated_at": "2026-06-22T07:47:58Z",
+  "generated_at": "2026-06-22T09:10:18Z",
   "graphs": [
     {
       "id": "00_main",

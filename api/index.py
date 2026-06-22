@@ -23,6 +23,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from . import (
     chain_chat,
     code_retrieval,
+    ops,  # noqa: F401
     rag_env,  # noqa: F401 — 触发 REPO_ROOT .env 加载
     text2sql_api,
     unified_chat,
@@ -33,6 +34,7 @@ from .chatbi_principal import (
     require_chatbi_principal,
 )
 from .chatbi_rate_limit import register_rate_limit_middleware
+from .ops import ops_router
 from .rag_env import (
     pick_supabase_service_key,
     pick_supabase_url,
@@ -347,3 +349,6 @@ async def py_admin_ingest(
 @app.get("/api/py/chat/suggested-questions")
 def chat_suggested_questions() -> JSONResponse:
     return _legacy_chat_suggested_questions()
+
+
+app.include_router(ops_router, prefix="/api/py")

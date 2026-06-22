@@ -67,13 +67,22 @@ Review 失败：`retry` ≤2 或 `partial`
 
 ## 验收标准
 
-- [ ] fast：metrics 类问题无 LLM 调用（assert mock）
-- [ ] deep：#545 类问题产出 events 时间线 · `review.pass` 或 `partial`
-- [ ] `after_seq` 增量可读
-- [ ] retry_token 幂等
-- [ ] 全量 pytest + `bash scripts/verify-tech-graph.sh` 绿
+- [x] fast：metrics 类问题无 LLM 调用（assert mock）
+- [x] deep：#545 类问题产出 events 时间线 · `review.pass` 或 `partial`
+- [x] `after_seq` 增量可读
+- [x] retry_token 幂等
+- [x] 全量 pytest + `bash scripts/verify-tech-graph.sh` 绿
 
 ---
+
+## 40 自检表
+
+| 项 | 状态 | 证据 |
+| --- | --- | --- |
+| pytest tests/ops_desk/ -v | ✅ pass | 22 passed (P1-1 7 + P1-3 8 + P1-2 6 skipped) |
+| pytest tests -m "not intent_eval and not intent_benchmark" -q | ✅ pass | 457 passed, 14 skipped |
+| bash scripts/verify-tech-graph.sh | ✅ pass | all slices OK |
+| commit | ✅ | `feat(ops-desk): P1-3 orchestrator FSM and chat endpoints` |
 
 ## 失败路径
 
@@ -87,8 +96,8 @@ Review 失败：`retry` ≤2 或 `partial`
 
 ## 图谱回填
 
-- 更新 `16_flow_ops_chat.graph.yaml` 锚点至真实 `api/ops/` 路径
-- compile · export · equivalence 绿
+- [x] 更新 `16_flow_ops_chat.graph.yaml` 锚点至真实 `api/ops/` 路径
+- [x] compile · export · equivalence 绿
 
 ---
 

@@ -56,13 +56,21 @@
 
 ## 验收标准
 
-- [ ] 三 metrics 端点返回 `{ series[], summary, as_of, sync_status }` 或等价结构
-- [ ] issues/pulls 分页 `limit`/`offset` 或 cursor · 默认 `days=30` 过滤
-- [ ] 空库 / 无 repo 种子 → 404 或结构化空结果（task 内写死一种）
-- [ ] `pytest tests/ops_desk/test_metrics_api_p1.py` 绿
-- [ ] 全量 pytest 绿
+- [x] 三 metrics 端点返回 `{ series[], summary, as_of, sync_status }` 或等价结构
+- [x] issues/pulls 分页 `limit`/`offset` 或 cursor · 默认 `days=30` 过滤
+- [x] 空库 / 无 repo 种子 → 404 或结构化空结果（task 内写死一种）
+- [x] `pytest tests/ops_desk/test_metrics_api_p1.py` 绿
+- [x] 全量 pytest 绿
 
 ---
+
+## 40 自检表
+
+| 项 | 状态 | 证据 |
+| --- | --- | --- |
+| pytest tests/ops_desk/test_metrics_api_p1.py -v | ✅ pass | 7 passed |
+| ruff check api/ops tests/ops_desk | ✅ pass | All checks passed |
+| commit | ✅ | `feat(ops-desk): P1-1 metrics and list API` |
 
 ## 失败路径
 
@@ -76,8 +84,8 @@
 
 ## 图谱
 
-- 实现后更新 [`16_flow_ops_chat.graph.yaml`](../../_tech_graph/16_flow_ops_chat.graph.yaml) 锚点 · `METRICS` 节点
-- compile + `graph.json` export · `--check` 绿
+- 实现后更新 [`16_flow_ops_chat.graph.yaml`](../../_tech_graph/16_flow_ops_chat.graph.yaml) 锚点 · `METRICS` 节点（P1-3 统一回填）
+- compile + `graph.json` export · `--check` 绿（P1-3 统一跑）
 
 ---
 
