@@ -173,6 +173,8 @@
 - [ ] <验收项 2>
 - [ ] <验收项 3>
 - [ ] PR 上 `pytest` workflow 全绿（本地等价：`pytest tests -m "not intent_eval and not intent_benchmark"`）
+- [ ] PR 上 `tech-graph` workflow 全绿（本地等价：`bash scripts/verify-tech-graph.sh` 与 `python tools/tech_graph_contract_check.py`）
+- [ ] 若新增/修改 **SQL 表、RPC、端点、env**，同步更新 `docs/_tech_graph/_manifest.json`（`_contract_manifest.json` 若涉 SSE/契约）
 - [ ] **L2**：无新增无注解万能 dict；路由/模块边界符合 P-01
 - [ ] **L1 B-07/B-10**：diff 限于 scope；与 `test_strategy` 一致
 
