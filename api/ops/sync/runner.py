@@ -1,0 +1,143 @@
+"""Ops Desk GitHub sync 编排与 sync_runs 状态机。"""
+
+from __future__ import annotations
+
+import sys
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any
+
+from .github_client import GitHubClient, GitHubSyncError
+from .store import OpsSyncStore, resolve_trigger
+
+
+@dataclass(frozen=True)
+class SyncRunResult:
+    run_id: str
+    status: str
+    records_issue: int
+    records_pr: int
+    cursor: datetime | None
+    error_message: str | None = None
+
+
+def _max_updated(items: list[dict[str, Any]], fallback: datetime | None) -> datetime | None:
+    best = fallback
+    for item in items:
+        ts = GitHubClient.parse_github_ts(item.get("updated_at"))
+        if ts is None:
+            continue
+        if best is None or ts > best:
+            best = ts
+    return best
+
+
+def run_sync(
+    *,
+    trigger: str | None = None,
+    github: GitHubClient | None = None,
+    store: OpsSyncStore | None = None,
+) -> SyncRunResult:
+    """pending → running → success|failed|partial。"""
+    gh = github or GitHubClient.from_env()
+    db = store or OpsSyncStore()
+
+    repo_id = db.ensure_repo()
+    cursor = db.get_last_success_cursor(repo_id)
+    has_prior = db.has_any_sync_run(repo_id)
+    resolved_trigger = resolve_trigger(trigger, has_prior_run=has_prior, has_cursor=cursor is not None)
+
+    run_id = db.create_sync_run(repo_id, resolved_trigger)
+    db.update_sync_run(run_id, status="running")
+
+    records_issue = 0
+    records_pr = 0
+    synced_items: list[dict[str, Any]] = []
+
+    try:
+        issues = gh.fetch_issues(cursor)
+        for issue in issues:
+            db.upsert_issue(repo_id, issue)
+            records_issue += 1
+            synced_items.append(issue)
+
+        pulls = gh.fetch_pull_requests(cursor)
+        for pr in pulls:
+            db.upsert_pull_request(repo_id, pr)
+            records_pr += 1
+            synced_items.append(pr)
+
+        new_cursor = _max_updated(synced_items, cursor) or cursor
+        finished = datetime.now(timezone.utc).isoformat()
+        db.update_sync_run(
+            run_id,
+            status="success",
+            finished_at=finished,
+            cursor=new_cursor.isoformat() if new_cursor else None,
+            records_issue=records_issue,
+            records_pr=records_pr,
+            error_message=None,
+        )
+        return SyncRunResult(
+            run_id=run_id,
+            status="success",
+            records_issue=records_issue,
+            records_pr=records_pr,
+            cursor=new_cursor,
+        )
+
+    except GitHubSyncError as exc:
+        status = "failed"
+        if records_issue + records_pr > 0 and not exc.fail_fast:
+            status = "partial"
+        finished = datetime.now(timezone.utc).isoformat()
+        db.update_sync_run(
+            run_id,
+            status=status,
+            finished_at=finished,
+            records_issue=records_issue,
+            records_pr=records_pr,
+            error_message=str(exc),
+        )
+        return SyncRunResult(
+            run_id=run_id,
+            status=status,
+            records_issue=records_issue,
+            records_pr=records_pr,
+            cursor=cursor,
+            error_message=str(exc),
+        )
+
+    except Exception as exc:  # noqa: BLE001
+        status = "partial" if records_issue + records_pr > 0 else "failed"
+        finished = datetime.now(timezone.utc).isoformat()
+        db.update_sync_run(
+            run_id,
+            status=status,
+            finished_at=finished,
+            records_issue=records_issue,
+            records_pr=records_pr,
+            error_message=str(exc),
+        )
+        return SyncRunResult(
+            run_id=run_id,
+            status=status,
+            records_issue=records_issue,
+            records_pr=records_pr,
+            cursor=cursor,
+            error_message=str(exc),
+        )
+
+
+def main() -> int:
+    result = run_sync()
+    print(
+        f"sync_run={result.run_id} status={result.status} "
+        f"issues={result.records_issue} prs={result.records_pr} "
+        f"cursor={result.cursor} error={result.error_message or ''}"
+    )
+    return 0 if result.status == "success" else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
