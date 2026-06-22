@@ -1,7 +1,7 @@
 ---
 graph_id: 00_main
 version: 2026-06-16
-generated_at: 2026-06-17T02:59:50Z
+generated_at: 2026-06-22T07:47:58Z
 source: docs/_tech_graph/00_main.graph.yaml
 ---
 
@@ -39,6 +39,8 @@ flowchart TD
     RPC_DOC[>13_flow_supabase_rpc.md]
     OBS_DOC[>14_runtime_observability.md]
     E2E_DOC[>15_e2e_boundary.md]
+    OPS_CHAT[Ops Chat (P1)]
+    OPS_CHAT_DOC[>16_flow_ops_chat.md]
 
     Q --> E
     // → api/index.py#L434
@@ -56,6 +58,9 @@ flowchart TD
     E --"POST /api/py/admin/ingest"--> A2
     E --"加载"--> OBS_DOC
     E --"加载"--> E2E_DOC
+    E --"POST /ops/chat/messages (P1)"--> OPS_CHAT
+    E --"加载"--> OPS_CHAT_DOC
+    OPS_CHAT --"加载"--> OPS_CHAT_DOC
     U1 --"::branches"--> RAG
     U1 --"::branches"--> T2S
     U1 --> U2
@@ -85,7 +90,7 @@ flowchart TD
     classDef doc fill:#fff8e1,stroke:#ff6f00,stroke-width:1px
     classDef infra fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
     class Q,E,U1,U2,RAG,T2S,RPC,FTS phase
-    class RAG_DOC,T2S_DOC,FTS_DOC,RPC_DOC,OBS_DOC,E2E_DOC doc
+    class RAG_DOC,T2S_DOC,FTS_DOC,RPC_DOC,OBS_DOC,E2E_DOC,OPS_CHAT_DOC doc
     class AUTH,EV_TYPES infra
 ```
 
@@ -121,6 +126,8 @@ flowchart TD
 | RPC_DOC | >13_flow_supabase_rpc.md |  |
 | OBS_DOC | >14_runtime_observability.md |  |
 | E2E_DOC | >15_e2e_boundary.md |  |
+| OPS_CHAT | Ops Chat (P1) |  |
+| OPS_CHAT_DOC | >16_flow_ops_chat.md |  |
 
 ### Edges
 
@@ -141,6 +148,9 @@ flowchart TD
 | E | A2 | -> | depends_on | POST /api/py/admin/ingest |  |
 | E | OBS_DOC | -> | depends_on | 加载 |  |
 | E | E2E_DOC | -> | depends_on | 加载 |  |
+| E | OPS_CHAT | -> | depends_on | POST /ops/chat/messages (P1) |  |
+| E | OPS_CHAT_DOC | -> | depends_on | 加载 |  |
+| OPS_CHAT | OPS_CHAT_DOC | -> | depends_on | 加载 |  |
 | U1 | RAG | ::branches | branches |  |  |
 | U1 | T2S | ::branches | branches |  |  |
 | U1 | U2 | -> | depends_on |  |  |
@@ -173,6 +183,7 @@ flowchart TD
 - `Supabase RPC`: [`13_flow_supabase_rpc.md`](13_flow_supabase_rpc.md)（编辑源：[13_flow_supabase_rpc.graph.yaml](13_flow_supabase_rpc.graph.yaml)）
 - `Runtime/Observability`: [`14_runtime_observability.md`](14_runtime_observability.md)（编辑源：[14_runtime_observability.graph.yaml](14_runtime_observability.graph.yaml)）
 - `E2E Boundary/Contract`: [`15_e2e_boundary.md`](15_e2e_boundary.md)（编辑源：[15_e2e_boundary.graph.yaml](15_e2e_boundary.graph.yaml)）
+- `Ops Desk Chat`: [`16_flow_ops_chat.md`](16_flow_ops_chat.md)（编辑源：[16_flow_ops_chat.graph.yaml](16_flow_ops_chat.graph.yaml) · P1 规划）
 - `Spec`: [`99_spec.md`](99_spec.md)
 - `Mermaid Protocol`: [`99_mermaid_protocol.md`](99_mermaid_protocol.md) — 拓扑图绘制规范（Python/FastAPI 适配版）
 
