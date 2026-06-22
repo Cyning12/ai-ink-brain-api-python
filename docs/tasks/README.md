@@ -108,7 +108,10 @@ docs/tasks/
 3. **移动文件**：在仓库根执行 `git mv docs/tasks/active/<文件名>.md docs/tasks/done/`，**禁止**仅复制内容而遗留 `active/` 同名文件。  
    - **硬规则**：**禁止**只把头部改成 `done` 而文件仍留在 `active/`（会误导 Agent）；**`done` 状态与 `git mv` 须在同一提交内完成**，真值以 **目录位置 + 头部状态** 双一致为准。  
    - **禁止瘦身**：移入 `done/` 后仍须保留 Harness 元信息（含 `test_strategy`）、§失败路径、§验收标准；**不可**新建仅摘要版 done 稿（CI `task_validate` 会 FAIL）。  
-4. **机械校验（push 前必跑）**：`python tools/harness_task_validate.py docs/tasks/done/<文件>.md` → **OK**（与 CI job `task_validate` 同脚本；`verify-tech-graph` / `pytest` **不能**替代）。  
+4. **机械校验（push 前必跑）**：
+   - `python tools/harness_task_validate.py docs/tasks/done/<文件>.md` → **OK**（与 CI job `task_validate` 同脚本）。
+   - 若任务涉及 **SQL 表 / RPC / 端点 / env** 变更：`bash scripts/verify-tech-graph.sh` → **OK**（与 CI `manifest_check` 同脚本）。
+   - `verify-tech-graph` / `pytest` **不能**替代 `harness_task_validate`。  
 5. **更新已完成索引**：
    - 在 `docs/tasks/done/README.md` Hub 对应域表追加一行（日期 · 链接 · freeze_id / 一行摘要）。
    - 同步在 `docs/tasks/_views/done_by_domain.md` 对应域表追加一行。
