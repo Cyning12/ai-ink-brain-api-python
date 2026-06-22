@@ -2,7 +2,8 @@
 
 > **薄指针**：完整导航见 [`../done/README.md`](../done/README.md) · 分组表见 [`done_by_domain.md`](./done_by_domain.md)。
 > **维护纪律**：关账时更新 Hub / `done_by_domain`；**勿**在本文件追加长列表。
-> **最近关账**：2026-06-17 · `task_engineering_graph_yaml_export_from_yaml_p1_v1.md` → Inform 闭环 P1（graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md`）  
+> **最近关账**：2026-06-22 · P1 后端链 `task_ops_desk_p1_metrics_api_v1` / `task_ops_desk_p1_ops_run_schema_v1` / `task_ops_desk_p1_orchestrator_core_v1` → metrics/list API · ops_runs/events schema · Orchestrator FSM Chat
+> · 2026-06-17 · `task_engineering_graph_yaml_export_from_yaml_p1_v1.md` → Inform 闭环 P1（graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md`）  
 > · 2026-06-16 · `task_engineering_graph_yaml_doc_hygiene_p0_v1.md` → Inform 闭环 P0（Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归）  
 > · 2026-06-16 · `task_engineering_graph_yaml_post_epic_fix_v1.md` → Post-Epic 修复（`--all` bug · CI YAML 校验 · 文档对齐）  
 > · 2026-06-16 · `task_engineering_graph_yaml_p5_15_e2e_boundary_v1.md` → YAML 图源 P5 `15_e2e_boundary`  
