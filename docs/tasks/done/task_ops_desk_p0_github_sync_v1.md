@@ -98,7 +98,7 @@
 | 状态机 | `test_sync_success_state_machine` | 0 | **pass** · pending→running→success |
 | ruff | `ruff check api/ops scripts/ops_sync_kimi_code.py tests/ops_desk/test_sync_p0.py` | 0 | **pass** |
 
-**commit SHA（40）**：见 CLOSE merge SHA  
+**commit SHA（40）**：`35173b3`  
 **总体结论**：全部通过 · 建议合并 `task/ops-desk-p0-github-sync` → `main`
 
 **50 独立复检 R1**：[`task_ops_desk_p0_github_sync_v1_reinspect_R1_20260621.md`](../../../../docs/harness/reviews/task_ops_desk_p0_github_sync_v1_reinspect_R1_20260621.md) · **pass** · 2026-06-22
