@@ -340,7 +340,7 @@ class OpsQueries:
             buckets[bucket] = buckets.get(bucket, 0) + 1
 
         series = [{"bucket": b, "count": c} for b, c in sorted(buckets.items())]
-        total = sum(c for _, c in series)
+        total = sum(item["count"] for item in series)
         return {
             "metric": "issue-throughput",
             "days": days,
