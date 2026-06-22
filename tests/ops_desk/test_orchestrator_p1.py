@@ -9,8 +9,25 @@ from fastapi.testclient import TestClient
 
 from api.index import app
 from api.ops import chat, runs
+from api.ops.demo_cache import DemoClassifier
 from api.ops.orchestrator import Intent, classify_intent, is_fast_intent, review_result
 from api.ops.store import OpsRunStore
+
+
+class FakeDemoCache:
+    """让现有 orchestrator 测试不访问 ops_demo_answers 表；始终 miss。"""
+
+    def __init__(self) -> None:
+        self.classifier = DemoClassifier()
+
+    def get(self, demo_id: str) -> dict[str, Any] | None:
+        return None
+
+    def set(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        return {"demo_id": args[0] if args else None}
+
+    def delete(self, demo_id: str) -> None:
+        return None
 
 
 class FakeQueries:
@@ -140,6 +157,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
     app.dependency_overrides[chat._queries] = lambda: fake_queries
     app.dependency_overrides[chat._store] = lambda: fake_store
+    app.dependency_overrides[chat._demo_cache] = lambda: FakeDemoCache()
     app.dependency_overrides[runs._store] = lambda: fake_store
 
     def fake_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3) -> str:

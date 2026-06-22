@@ -117,6 +117,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-22 | [../done/task_ops_desk_p1_demo_cache_v1.md](../done/task_ops_desk_p1_demo_cache_v1.md) | Ops Desk P1-6 · Demo Cache `ops_demo_answers` · D1-D4 · fast hit / deep write-back · TTL 24h · `OPS-DESK-KIMI-CODE-P1-DEMO-CACHE` |
 | 2026-06-21 | [../done/task_ops_desk_p0_supabase_schema_v1.md](../done/task_ops_desk_p0_supabase_schema_v1.md) | Ops Desk P0-1 · Supabase 四表 DDL · rollback · pytest · `OPS-DESK-KIMI-CODE-P0-SUPABASE-SCHEMA` |
 | 2026-06-17 | [../done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md](../done/task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | Inform 闭环 P1 · graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md` |
 | 2026-06-16 | [../done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md](../done/task_engineering_graph_yaml_doc_hygiene_p0_v1.md) | Inform 闭环 P0 · Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归 |
