@@ -164,6 +164,26 @@
       "anchors": [],
       "from": "E",
       "graph_id": "00_main",
+      "label": "POST /ops/chat/messages (P1)",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_CHAT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_CHAT_DOC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "E",
+      "graph_id": "00_main",
       "label": "GET /api/py/chat/suggested-questions",
       "mark": "->",
       "sync": true,
@@ -208,6 +228,16 @@
       "mark": "->",
       "sync": true,
       "to": "RPC",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "OPS_CHAT",
+      "graph_id": "00_main",
+      "label": "加载",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_CHAT_DOC",
       "type": "depends_on"
     },
     {
@@ -2206,10 +2236,315 @@
       "sync": true,
       "to": "SSE_ENV",
       "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ANALYST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "OPS_LLM",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [],
+      "from": "ANALYST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "只读 ops_issues/pr",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "ANALYST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "REVIEW",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "CLASSIFY",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "DEEP",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "CLASSIFY",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "FAST",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "CLASSIFY",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "::gates",
+      "sync": true,
+      "to": "NOT_UC",
+      "type": "gates"
+    },
+    {
+      "anchors": [],
+      "from": "DEEP",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "RUN",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "DEMO",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "ANS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EVT",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "ANS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "EVT",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "FAST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "DEMO",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "FAST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "~>",
+      "sync": false,
+      "to": "EVT",
+      "type": "async_calls"
+    },
+    {
+      "anchors": [],
+      "from": "FAST",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "METRICS",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "GET_EVT",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "::yields",
+      "sync": true,
+      "to": "EVT",
+      "type": "yields"
+    },
+    {
+      "anchors": [],
+      "from": "GET_EVT",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "GET_RUN",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "LG",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CKPT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "METRICS",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "ANS",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "METRICS",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [
+        {
+          "path": "api/ops/",
+          "symbol": "chat_messages (P1 · 规划)"
+        }
+      ],
+      "from": "OPS_REQ",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "CLASSIFY",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "OPS_SSE",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "::yields",
+      "sync": true,
+      "to": "EVT",
+      "type": "yields"
+    },
+    {
+      "anchors": [],
+      "from": "PARTIAL",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "EVT",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RETRY",
+      "graph_id": "16_flow_ops_chat",
+      "label": "retry_token 幂等",
+      "mark": "->",
+      "sync": true,
+      "to": "RUN",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "REVIEW",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "ANALYST",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "REVIEW",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "PARTIAL",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "REVIEW",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "?>",
+      "sync": true,
+      "to": "SYNTH",
+      "type": "condition"
+    },
+    {
+      "anchors": [],
+      "from": "RUN",
+      "graph_id": "16_flow_ops_chat",
+      "label": "delegate",
+      "mark": "->",
+      "sync": true,
+      "to": "ANALYST",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "RUN",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "::triggers",
+      "sync": true,
+      "to": "LG",
+      "type": "triggers"
+    },
+    {
+      "anchors": [],
+      "from": "RUN",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "OPS_SB",
+      "type": "depends_on"
+    },
+    {
+      "anchors": [],
+      "from": "SYNTH",
+      "graph_id": "16_flow_ops_chat",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "EVT",
+      "type": "depends_on"
     }
   ],
   "freeze_id": "TECH_GRAPH_S2_FREEZE_20260519_V2_3",
-  "generated_at": "2026-06-21T11:08:19Z",
+  "generated_at": "2026-06-22T07:47:58Z",
   "graphs": [
     {
       "id": "00_main",
@@ -2252,6 +2587,12 @@
       "source_ai_path": "docs/_tech_graph/15_e2e_boundary.ai.md",
       "source_yaml_path": "docs/_tech_graph/15_e2e_boundary.graph.yaml",
       "title": "E2E Boundary/Contract 子流程"
+    },
+    {
+      "id": "16_flow_ops_chat",
+      "source_ai_path": "docs/_tech_graph/16_flow_ops_chat.ai.md",
+      "source_yaml_path": "docs/_tech_graph/16_flow_ops_chat.graph.yaml",
+      "title": "Ops Desk Chat / Orchestrator 子流程"
     }
   ],
   "nodes": [
@@ -2274,6 +2615,16 @@
       "graph_id": "14_runtime_observability",
       "id": "AM",
       "label": "assistant.message"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "ANALYST",
+      "label": "issue_analyst · 子 Agent"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "ANS",
+      "label": "final.answer · END"
     },
     {
       "graph_id": "00_main",
@@ -2321,6 +2672,16 @@
       "label": "RAG/Unified Chat"
     },
     {
+      "graph_id": "16_flow_ops_chat",
+      "id": "CKPT",
+      "label": "ops_run_checkpoints"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "CLASSIFY",
+      "label": "OpsOrchestrator.classify_intent"
+    },
+    {
       "graph_id": "12_flow_fts",
       "id": "CLEAN",
       "label": "candidate clean & limits"
@@ -2364,6 +2725,16 @@
       "graph_id": "10_flow_rag",
       "id": "DB",
       "label": "DB: rag_conversation_logs"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "DEEP",
+      "label": "route=deep"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "DEMO",
+      "label": "ops_demo_answers"
     },
     {
       "graph_id": "11_flow_text2sql",
@@ -2456,6 +2827,11 @@
       "label": "event: chain"
     },
     {
+      "graph_id": "16_flow_ops_chat",
+      "id": "EVT",
+      "label": "ops_run_events · seq++"
+    },
+    {
       "graph_id": "00_main",
       "id": "EV_TYPES",
       "label": "EV_TYPES"
@@ -2489,6 +2865,11 @@
       "graph_id": "14_runtime_observability",
       "id": "E_RPC",
       "label": "RPC error / retries exhausted"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "FAST",
+      "label": "route=fast"
     },
     {
       "graph_id": "15_e2e_boundary",
@@ -2529,6 +2910,16 @@
       "graph_id": "11_flow_text2sql",
       "id": "GEN",
       "label": "async def llm_generate_sql"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "GET_EVT",
+      "label": "GET /ops/runs/{id}/events?after_seq="
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "GET_RUN",
+      "label": "GET /ops/runs/{id}"
     },
     {
       "graph_id": "12_flow_fts",
@@ -2616,6 +3007,11 @@
       "label": "latency"
     },
     {
+      "graph_id": "16_flow_ops_chat",
+      "id": "LG",
+      "label": "LangGraph checkpointer"
+    },
+    {
       "graph_id": "10_flow_rag",
       "id": "LLM",
       "label": "async def llm_answer"
@@ -2641,6 +3037,16 @@
       "label": "rpc match_documents()"
     },
     {
+      "graph_id": "16_flow_ops_chat",
+      "id": "METRICS",
+      "label": "metrics template · GET /ops/metrics/*"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "NOT_UC",
+      "label": "≠ Unified Chat /api/py/unified/chat"
+    },
+    {
       "graph_id": "12_flow_fts",
       "id": "NOX",
       "label": "graceful fallback"
@@ -2649,6 +3055,36 @@
       "graph_id": "00_main",
       "id": "OBS_DOC",
       "label": ">14_runtime_observability.md"
+    },
+    {
+      "graph_id": "00_main",
+      "id": "OPS_CHAT",
+      "label": "Ops Chat (P1)"
+    },
+    {
+      "graph_id": "00_main",
+      "id": "OPS_CHAT_DOC",
+      "label": ">16_flow_ops_chat.md"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "OPS_LLM",
+      "label": "OPS_LLM provider"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "OPS_REQ",
+      "label": "POST /ops/chat/messages"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "OPS_SB",
+      "label": "Supabase ops_*"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "OPS_SSE",
+      "label": "GET /ops/runs/{id}/stream · progress only"
     },
     {
       "graph_id": "12_flow_fts",
@@ -2679,6 +3115,11 @@
       "graph_id": "10_flow_rag",
       "id": "OUT_NO_DATA",
       "label": "no_data / 不确定回答"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "PARTIAL",
+      "label": "synthesize_partial"
     },
     {
       "graph_id": "11_flow_text2sql",
@@ -2761,6 +3202,16 @@
       "label": "text2sql_store.search()"
     },
     {
+      "graph_id": "16_flow_ops_chat",
+      "id": "RETRY",
+      "label": "POST /ops/runs/{id}/retry"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "REVIEW",
+      "label": "review_gate · 20帽"
+    },
+    {
       "graph_id": "00_main",
       "id": "RPC",
       "label": "Supabase RPC 子流程"
@@ -2779,6 +3230,11 @@
       "graph_id": "15_e2e_boundary",
       "id": "RS_KEYS",
       "label": "RS_KEYS"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "RUN",
+      "label": "ops_runs · run_id"
     },
     {
       "graph_id": "10_flow_rag",
@@ -2849,6 +3305,11 @@
       "graph_id": "11_flow_text2sql",
       "id": "SUM",
       "label": "async def llm_summarize"
+    },
+    {
+      "graph_id": "16_flow_ops_chat",
+      "id": "SYNTH",
+      "label": "synthesize"
     },
     {
       "graph_id": "00_main",
