@@ -1,6 +1,8 @@
 # Task · Ops Desk P2-2 · Scan Ingest（后端）
 
-> **状态**：`pending`  
+> **状态**：`done`  
+> **PR**：#191  
+> **合并 SHA**：`938cdeae`  
 > **SPEC**：§7 · §8  
 > **R5**：[`ROUND_06_R5_track_c_deps.md`](../../../../docs/harness/invokes/by-task/ops-desk-kimi-code-spec-refine/rounds/ROUND_06_R5_track_c_deps.md)  
 > **协调**：[`task_ops_desk_p2_scan_ingest_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_scan_ingest_v1.md)  
@@ -27,12 +29,12 @@ GHA sync 同批拉取工作区 ISSUE_SCAN markdown → 解析 → 写入 `ops_sc
 
 ### 完成态
 
-- [ ] `supabase/sql/ops_desk_p2_scan_schema.sql` + rollback（`ops_scan_snapshots` · `ops_sync_run_artifacts`）
-- [ ] `api/ops/scan/`：parser · store · `GET /ops/scan/summary`
-- [ ] sync runner 扩展：ingest scan 步骤 · 写 artifacts 关联
-- [ ] GHA：checkout 工作区 ISSUE_SCAN 路径（见 §数据源）
-- [ ] `tests/ops_desk/test_scan_ingest_p2.py`（mock markdown · 无真实 Supabase 写）
-- [ ] 全量 pytest 绿 · ruff 绿
+- [x] `supabase/sql/ops_desk_p2_scan_schema.sql` + rollback（`ops_scan_snapshots` · `ops_sync_run_artifacts`）
+- [x] `api/ops/scan/`：parser · store · `GET /ops/scan/summary`
+- [x] sync runner 扩展：ingest scan 步骤 · 写 artifacts 关联
+- [x] GHA：checkout 工作区 ISSUE_SCAN 路径（见 §数据源）
+- [x] `tests/ops_desk/test_scan_ingest_p2.py`（mock markdown · 无真实 Supabase 写）
+- [x] 全量 pytest 绿 · ruff 绿
 
 ---
 
@@ -81,12 +83,28 @@ GHA sync 同批拉取工作区 ISSUE_SCAN markdown → 解析 → 写入 `ops_sc
 
 ## 失败路径
 
-| 场景 | 行为 |
-| --- | --- |
-| 工作区 checkout 失败 | scan 步骤 skip · sync_run partial · API 返回 503 + 末次 snapshot |
-| markdown 格式漂移 | parser 最佳努力 · 单测锁定样例文件 |
-| DDL 未执行 | ingest 跳过 · pytest 测 parser 层 |
+| 失败场景 | 影响 | 兜底 |
+| --- | --- | --- |
+| 工作区 checkout 失败 | scan 步骤 skip | sync_run 标记 partial；API 返回 503 + 末次 snapshot |
+| markdown 格式漂移 | parser 可能漏读 tier | 最佳努力解析；单测锁定样例文件 |
+| DDL 未执行 | snapshot/artifact 表不存在 | ingest 跳过；pytest 测 parser 层 |
 
+---
+
+## 行为变更
+
+### ADDED
+- `ops_scan_snapshots` / `ops_graph_snapshots` / `ops_sync_run_artifacts` 三张表及 rollback
+- `api/ops/scan/`：parser / store / `GET /api/py/ops/scan/summary`
+- sync runner 成功后调用 `ingest_scan_after_github_sync`
+- GHA workflow sparse checkout `cyning-ink-workspace` `docs/harness/guides/`
+
+### MODIFIED
+- `docs/_tech_graph/_manifest.json` 补录新增表
+- `tests/ops_desk/test_sync_p0.py` 增加 scan ingest stub，保持 P0 状态机测试独立
+
+### REMOVED
+- 无
 ---
 
 ## 验收标准
