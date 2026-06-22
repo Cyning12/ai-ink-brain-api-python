@@ -150,6 +150,9 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
     monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
     monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
+    # issue_analyst / core import these names directly, so also patch their module bindings.
+    monkeypatch.setattr("api.ops.agents.issue_analyst.chat_completion", fake_chat_completion)
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
 
     yield TestClient(app)
     app.dependency_overrides.clear()
