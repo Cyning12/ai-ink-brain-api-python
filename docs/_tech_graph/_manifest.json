@@ -176,6 +176,7 @@
       "chatbi_sql_table_policy",
       "code_chunks",
       "documents",
+      "ops_demo_answers",
       "ops_issues",
       "ops_pull_requests",
       "ops_repos",
