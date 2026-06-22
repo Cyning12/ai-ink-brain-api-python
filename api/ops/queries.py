@@ -207,6 +207,46 @@ class OpsQueries:
         limited = rows[offset : offset + min(limit, MAX_LIMIT)]
         return limited, total
 
+    def fetch_issue_by_number(self, number: int) -> dict[str, Any] | None:
+        def _once() -> dict[str, Any] | None:
+            repo_id = self._repo_id()
+            if not repo_id:
+                return None
+            res = (
+                self.client.table("ops_issues")
+                .select("*")
+                .eq("repo_id", repo_id)
+                .eq("number", number)
+                .limit(1)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            if rows and isinstance(rows[0], dict):
+                return rows[0]
+            return None
+
+        return supabase_execute_with_retry(_once)
+
+    def fetch_pull_by_number(self, number: int) -> dict[str, Any] | None:
+        def _once() -> dict[str, Any] | None:
+            repo_id = self._repo_id()
+            if not repo_id:
+                return None
+            res = (
+                self.client.table("ops_pull_requests")
+                .select("*")
+                .eq("repo_id", repo_id)
+                .eq("number", number)
+                .limit(1)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            if rows and isinstance(rows[0], dict):
+                return rows[0]
+            return None
+
+        return supabase_execute_with_retry(_once)
+
     def cycle_time_metric(self, days: int = DEFAULT_DAYS) -> dict[str, Any]:
         rows = self._fetch_rows("ops_issues", days, {"state": "closed"})
         values: list[float] = []

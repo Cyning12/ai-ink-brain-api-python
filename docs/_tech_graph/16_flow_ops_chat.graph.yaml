@@ -58,8 +58,10 @@ edges:
     to: "CLASSIFY"
     mark: "->"
     anchors:
-      - path: "api/ops/"
-        symbol: "chat_messages (P1 · 规划)"
+      - path: "api/ops/chat.py"
+        symbol: "chat_messages"
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "classify_intent"
   - from: "CLASSIFY"
     to: "FAST"
     mark: "?>"
@@ -80,51 +82,92 @@ edges:
     mark: "?>"
     type: "condition"
     label: "metrics/list"
+    anchors:
+      - path: "api/ops/metrics.py"
+        symbol: "cycle_time"
+      - path: "api/ops/lists.py"
+        symbol: "list_issues"
   - from: "FAST"
     to: "EVT"
     mark: "~>"
     type: "async_calls"
     label: "optional light events"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "run_fast"
   - from: "DEMO"
     to: "ANS"
     mark: "->"
   - from: "METRICS"
     to: "OPS_SB"
     mark: "->"
+    anchors:
+      - path: "api/ops/queries.py"
+        symbol: "OpsQueries"
   - from: "METRICS"
     to: "ANS"
     mark: "->"
   - from: "DEEP"
     to: "RUN"
     mark: "->"
+    anchors:
+      - path: "api/ops/chat.py"
+        symbol: "chat_messages"
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.create_run"
   - from: "RUN"
     to: "OPS_SB"
     mark: "->"
+    anchors:
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore"
   - from: "RUN"
     to: "ANALYST"
     mark: "->"
     label: "delegate"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "run_deep"
+      - path: "api/ops/agents/issue_analyst.py"
+        symbol: "analyze_issue"
   - from: "ANALYST"
     to: "OPS_SB"
     mark: "->"
     label: "只读 ops_issues/pr"
+    anchors:
+      - path: "api/ops/agents/issue_analyst.py"
+        symbol: "analyze_issue"
+      - path: "api/ops/queries.py"
+        symbol: "fetch_issue_by_number"
   - from: "ANALYST"
     to: "OPS_LLM"
     mark: "~>"
     type: "async_calls"
+    anchors:
+      - path: "api/ops/llm.py"
+        symbol: "chat_completion"
   - from: "ANALYST"
     to: "REVIEW"
     mark: "->"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "review_result"
   - from: "REVIEW"
     to: "SYNTH"
     mark: "?>"
     type: "condition"
     label: "[ok] pass"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "review_result"
   - from: "REVIEW"
     to: "ANALYST"
     mark: "?>"
     type: "condition"
     label: "[retry] ≤2"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "run_deep"
   - from: "REVIEW"
     to: "PARTIAL"
     mark: "?>"
@@ -133,12 +176,20 @@ edges:
   - from: "SYNTH"
     to: "EVT"
     mark: "->"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "synthesize"
+      - path: "api/ops/llm.py"
+        symbol: "synthesize_answer"
   - from: "PARTIAL"
     to: "EVT"
     mark: "->"
   - from: "EVT"
     to: "OPS_SB"
     mark: "->"
+    anchors:
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.append_event"
   - from: "EVT"
     to: "ANS"
     mark: "->"
@@ -150,12 +201,25 @@ edges:
   - from: "LG"
     to: "CKPT"
     mark: "->"
+    anchors:
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.save_checkpoint"
   - from: "GET_RUN"
     to: "OPS_SB"
     mark: "->"
+    anchors:
+      - path: "api/ops/runs.py"
+        symbol: "get_run"
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.get_run"
   - from: "GET_EVT"
     to: "OPS_SB"
     mark: "->"
+    anchors:
+      - path: "api/ops/runs.py"
+        symbol: "get_events"
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.get_events"
   - from: "GET_EVT"
     to: "EVT"
     mark: "::yields"
@@ -166,15 +230,26 @@ edges:
     mark: "::yields"
     type: "yields"
     label: "progress only"
+    anchors:
+      - path: "api/ops/runs.py"
+        symbol: "stream_run"
   - from: "RETRY"
     to: "RUN"
     mark: "->"
     label: "retry_token 幂等"
+    anchors:
+      - path: "api/ops/runs.py"
+        symbol: "retry_run"
+      - path: "api/ops/store/runs.py"
+        symbol: "OpsRunStore.retry_run"
   - from: "CLASSIFY"
     to: "NOT_UC"
     mark: "::gates"
     type: "gates"
     label: "禁止复用 chain"
+    anchors:
+      - path: "api/ops/orchestrator/core.py"
+        symbol: "run_fast / run_deep"
 
 notes: |
   ### 分期
@@ -190,9 +265,11 @@ notes: |
   - **仅借鉴** intent→step→emit 结构与 event type 命名
   - 数据源：`ops_*` 同步表 · 非 `rag_conversation_logs`
 
-  ### 锚点（P1 实现时回填）
+  ### 锚点（P1 实现已回填）
 
-  - `api/ops/orchestrator/` · `api/ops/chat/`（规划）
+  - `api/ops/chat.py` · `api/ops/runs.py`
+  - `api/ops/orchestrator/core.py` · `api/ops/agents/issue_analyst.py`
+  - `api/ops/store/runs.py` · `api/ops/llm.py`
   - 前端 BFF：`../ai-ink-brain/app/api/ops/chat/`（规划）
   - 规格：`../ai-ink-brain/docs/tasks/specs/SPEC_ops_desk_kimi_code_mvp_v1_zh.md` §4.6
   - 思考轮：`../../docs/harness/invokes/by-task/ops-desk-kimi-code-spec-refine/rounds/ROUND_09_R8_orchestrator_langgraph.md`

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from api.ops import lists, metrics
+from api.ops import chat, lists, metrics, runs
 
 ops_router = APIRouter()
 ops_router.include_router(metrics.router)
 ops_router.include_router(lists.router)
+ops_router.include_router(chat.router)
+ops_router.include_router(runs.router)

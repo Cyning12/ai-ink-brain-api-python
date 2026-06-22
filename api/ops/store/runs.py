@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-import uuid
 from typing import Any
 
 from api.rag_env import supabase_execute_with_retry
