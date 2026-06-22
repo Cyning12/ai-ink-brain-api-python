@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from api.ops.scan.store import ingest_scan_after_github_sync
+
 from .github_client import GitHubClient, GitHubSyncError
 from .store import OpsSyncStore, resolve_trigger
 
@@ -19,6 +21,7 @@ class SyncRunResult:
     records_pr: int
     cursor: datetime | None
     error_message: str | None = None
+    scan_snapshot_id: str | None = None
 
 
 def _max_updated(items: list[dict[str, Any]], fallback: datetime | None) -> datetime | None:
@@ -78,12 +81,40 @@ def run_sync(
             records_pr=records_pr,
             error_message=None,
         )
+
+        scan_snapshot_id: str | None = None
+        scan_status = "success"
+        scan_error: str | None = None
+        try:
+            scan_result = ingest_scan_after_github_sync(repo_id, run_id)
+            scan_snapshot_id = scan_result.snapshot_id
+            if scan_result.status != "success":
+                scan_status = "partial"
+                scan_error = scan_result.error_message or "scan ingest failed"
+        except Exception as exc:  # noqa: BLE001
+            scan_status = "partial"
+            scan_error = f"scan ingest exception: {exc}"
+
+        if scan_status == "partial":
+            db.update_sync_run(run_id, status="partial", error_message=scan_error)
+            return SyncRunResult(
+                run_id=run_id,
+                status="partial",
+                records_issue=records_issue,
+                records_pr=records_pr,
+                cursor=new_cursor,
+                error_message=scan_error,
+                scan_snapshot_id=scan_snapshot_id,
+            )
+
         return SyncRunResult(
             run_id=run_id,
             status="success",
             records_issue=records_issue,
             records_pr=records_pr,
             cursor=new_cursor,
+            error_message=None,
+            scan_snapshot_id=scan_snapshot_id,
         )
 
     except GitHubSyncError as exc:
@@ -134,7 +165,8 @@ def main() -> int:
     print(
         f"sync_run={result.run_id} status={result.status} "
         f"issues={result.records_issue} prs={result.records_pr} "
-        f"cursor={result.cursor} error={result.error_message or ''}"
+        f"cursor={result.cursor} error={result.error_message or ''} "
+        f"scan_snapshot_id={result.scan_snapshot_id or ''}"
     )
     return 0 if result.status == "success" else 1
 

@@ -21,10 +21,23 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       OPS_SYNC_TRIGGER: ${{ github.event_name == 'workflow_dispatch' && 'manual' || 'cron' }}
+      OPS_SCAN_INDEX_PATH: workspace/docs/harness/guides/ISSUE_SCAN_kimi_code_open_c2_v1_zh.md
+      OPS_SCAN_RAW_URL: https://raw.githubusercontent.com/Cyning12/cyning-ink-workspace/main/docs/harness/guides/ISSUE_SCAN_kimi_code_open_c2_v1_zh.md
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Checkout workspace ISSUE_SCAN
+        uses: actions/checkout@v5
+        with:
+          repository: Cyning12/cyning-ink-workspace
+          ref: main
+          path: workspace
+          token: ${{ secrets.WORKSPACE_REPO_TOKEN }}
+          sparse-checkout: |
+            docs/harness/guides/
+          sparse-checkout-cone-mode: false
 
       - name: Setup Python
         uses: actions/setup-python@v6
