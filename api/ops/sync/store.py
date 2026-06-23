@@ -89,6 +89,47 @@ class OpsSyncStore:
 
         return supabase_execute_with_retry(_once)
 
+    def get_recent_sync_runs(self, repo_id: str, *, limit: int = 20) -> list[dict[str, Any]]:
+        def _once() -> list[dict[str, Any]]:
+            sb = _client()
+            res = (
+                sb.table("ops_sync_runs")
+                .select("id, started_at, finished_at, status, trigger, records_issue, records_pr, error_message")
+                .eq("repo_id", repo_id)
+                .order("started_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            return [r for r in rows if isinstance(r, dict)]
+
+        return supabase_execute_with_retry(_once)
+
+    def get_artifacts_by_run_ids(self, run_ids: list[str]) -> dict[str, dict[str, Any]]:
+        def _once() -> dict[str, dict[str, Any]]:
+            if not run_ids:
+                return {}
+            sb = _client()
+            res = (
+                sb.table("ops_sync_run_artifacts")
+                .select("sync_run_id, scan_snapshot_id, graph_snapshot_id")
+                .in_("sync_run_id", run_ids)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            result: dict[str, dict[str, Any]] = {}
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                rid = str(row.get("sync_run_id"))
+                result[rid] = {
+                    "scan_snapshot_id": row.get("scan_snapshot_id"),
+                    "graph_snapshot_id": row.get("graph_snapshot_id"),
+                }
+            return result
+
+        return supabase_execute_with_retry(_once)
+
     def create_sync_run(self, repo_id: str, trigger: str) -> str:
         def _once() -> str:
             sb = _client()
