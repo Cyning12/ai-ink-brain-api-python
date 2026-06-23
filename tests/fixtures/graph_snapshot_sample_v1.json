@@ -1,0 +1,41 @@
+{
+  "schema_version": "graph_v2",
+  "freeze_id": "KIMI-META-GRAPH-V2-BATCH@0fa2d54f",
+  "generated_at": "2026-06-18T14:26:55Z",
+  "graphs": [
+    {
+      "id": "00_main",
+      "source_yaml_path": "docs/_tech_graph/00_main.graph.yaml",
+      "title": "顶层流程总图"
+    }
+  ],
+  "nodes": [
+    {
+      "graph_id": "00_main",
+      "id": "AC",
+      "label": "agent-core"
+    },
+    {
+      "graph_id": "00_main",
+      "id": "CLI",
+      "label": "kimi CLI / TUI"
+    },
+    {
+      "graph_id": "00_main",
+      "id": "SDK",
+      "label": "node-sdk"
+    }
+  ],
+  "edges": [
+    {
+      "anchors": [],
+      "from": "CLI",
+      "graph_id": "00_main",
+      "label": "",
+      "mark": "->",
+      "sync": true,
+      "to": "SDK",
+      "type": "depends_on"
+    }
+  ]
+}
