@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from api.ops.graph.store import ingest_graph_after_github_sync
 from api.ops.scan.store import ingest_scan_after_github_sync
 
 from .github_client import GitHubClient, GitHubSyncError
@@ -22,6 +23,7 @@ class SyncRunResult:
     cursor: datetime | None
     error_message: str | None = None
     scan_snapshot_id: str | None = None
+    graph_snapshot_id: str | None = None
 
 
 def _max_updated(items: list[dict[str, Any]], fallback: datetime | None) -> datetime | None:
@@ -95,16 +97,34 @@ def run_sync(
             scan_status = "partial"
             scan_error = f"scan ingest exception: {exc}"
 
-        if scan_status == "partial":
-            db.update_sync_run(run_id, status="partial", error_message=scan_error)
+        graph_snapshot_id: str | None = None
+        graph_status = "success"
+        graph_error: str | None = None
+        try:
+            graph_result = ingest_graph_after_github_sync(repo_id, run_id)
+            graph_snapshot_id = graph_result.snapshot_id
+            if graph_result.status != "success":
+                graph_status = "partial"
+                graph_error = graph_result.error_message or "graph ingest failed"
+        except Exception as exc:  # noqa: BLE001
+            graph_status = "partial"
+            graph_error = f"graph ingest exception: {exc}"
+
+        # 合并 scan + graph 状态
+        if scan_status == "partial" or graph_status == "partial":
+            combined_error = "; ".join(
+                e for e in [scan_error, graph_error] if e
+            ) or "partial ingest"
+            db.update_sync_run(run_id, status="partial", error_message=combined_error)
             return SyncRunResult(
                 run_id=run_id,
                 status="partial",
                 records_issue=records_issue,
                 records_pr=records_pr,
                 cursor=new_cursor,
-                error_message=scan_error,
+                error_message=combined_error,
                 scan_snapshot_id=scan_snapshot_id,
+                graph_snapshot_id=graph_snapshot_id,
             )
 
         return SyncRunResult(
@@ -115,6 +135,7 @@ def run_sync(
             cursor=new_cursor,
             error_message=None,
             scan_snapshot_id=scan_snapshot_id,
+            graph_snapshot_id=graph_snapshot_id,
         )
 
     except GitHubSyncError as exc:
@@ -166,9 +187,10 @@ def main() -> int:
         f"sync_run={result.run_id} status={result.status} "
         f"issues={result.records_issue} prs={result.records_pr} "
         f"cursor={result.cursor} error={result.error_message or ''} "
-        f"scan_snapshot_id={result.scan_snapshot_id or ''}"
+        f"scan_snapshot_id={result.scan_snapshot_id or ''} "
+        f"graph_snapshot_id={result.graph_snapshot_id or ''}"
     )
-    # cron 兼容：issue/PR 同步成功但 scan 被跳过或部分失败时不阻断 GHA
+    # cron 兼容：issue/PR 同步成功但 scan/graph 被跳过或部分失败时不阻断 GHA
     return 0 if result.status in ("success", "partial") else 1
 
 

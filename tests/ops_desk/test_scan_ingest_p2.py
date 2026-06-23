@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.index import app
+from api.ops.graph.store import GraphIngestResult
 from api.ops.scan.parser import parse_issue_scan
 from api.ops.scan.router import get_scan_store
 from api.ops.scan.store import (
@@ -287,7 +288,7 @@ class FakeGitHubEmpty:
 def test_runner_ingests_scan_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: dict[str, Any] = {}
 
-    def fake_ingest(repo_id: str, run_id: str, **kwargs: Any) -> ScanIngestResult:
+    def fake_scan_ingest(repo_id: str, run_id: str, **kwargs: Any) -> ScanIngestResult:
         captured.update({"repo_id": repo_id, "run_id": run_id, **kwargs})
         return ScanIngestResult(
             snapshot_id="scan-1",
@@ -296,7 +297,15 @@ def test_runner_ingests_scan_on_success(monkeypatch: pytest.MonkeyPatch) -> None
             counts={"C3-P0": 2, "C3-P1": 6, "C3-P2": 3, "OBSERVE": 5},
         )
 
-    monkeypatch.setattr("api.ops.sync.runner.ingest_scan_after_github_sync", fake_ingest)
+    def fake_graph_ingest(_repo_id: str, _run_id: str, **_: Any) -> GraphIngestResult:
+        return GraphIngestResult(
+            snapshot_id="graph-1",
+            status="success",
+            meta={"node_count": 3},
+        )
+
+    monkeypatch.setattr("api.ops.sync.runner.ingest_scan_after_github_sync", fake_scan_ingest)
+    monkeypatch.setattr("api.ops.sync.runner.ingest_graph_after_github_sync", fake_graph_ingest)
 
     store = FakeRunStore()
     result = run_sync(trigger="manual", github=FakeGitHubEmpty(), store=store)  # type: ignore[arg-type]
@@ -308,7 +317,7 @@ def test_runner_ingests_scan_on_success(monkeypatch: pytest.MonkeyPatch) -> None
 
 
 def test_runner_partial_when_scan_fails(monkeypatch: pytest.MonkeyPatch) -> None:
-    def fake_ingest(_repo_id: str, _run_id: str, **kwargs: Any) -> ScanIngestResult:
+    def fake_scan_ingest(_repo_id: str, _run_id: str, **kwargs: Any) -> ScanIngestResult:
         return ScanIngestResult(
             snapshot_id=None,
             status="skipped",
@@ -317,14 +326,22 @@ def test_runner_partial_when_scan_fails(monkeypatch: pytest.MonkeyPatch) -> None
             error_message="scan index not found",
         )
 
-    monkeypatch.setattr("api.ops.sync.runner.ingest_scan_after_github_sync", fake_ingest)
+    def fake_graph_ingest(_repo_id: str, _run_id: str, **_: Any) -> GraphIngestResult:
+        return GraphIngestResult(
+            snapshot_id="graph-1",
+            status="success",
+            meta={"node_count": 3},
+        )
+
+    monkeypatch.setattr("api.ops.sync.runner.ingest_scan_after_github_sync", fake_scan_ingest)
+    monkeypatch.setattr("api.ops.sync.runner.ingest_graph_after_github_sync", fake_graph_ingest)
 
     store = FakeRunStore()
     result = run_sync(trigger="manual", github=FakeGitHubEmpty(), store=store)  # type: ignore[arg-type]
 
     assert result.status == "partial"
     assert result.scan_snapshot_id is None
-    assert result.error_message == "scan index not found"
+    assert "scan index not found" in (result.error_message or "")
     assert store.runs[-1]["status"] == "partial"
 
 
