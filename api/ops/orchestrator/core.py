@@ -9,7 +9,7 @@ from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.constants import DEFAULT_DAYS
 from api.ops.llm import synthesize_answer
 from api.ops.queries import OpsQueries
-from api.ops.store import OpsRunStore
+from api.ops.store.runs import OpsRunStore
 
 
 class Intent:
@@ -162,13 +162,21 @@ def run_deep(
     attempt = 0
     final_verdict = "partial"
     analyst_result: dict[str, Any] = {}
+    review_feedback: dict[str, Any] | None = None
     while attempt <= max_retries:
-        analyst_result = analyze_issue(query, issue_number, queries)
+        analyst_result = analyze_issue(query, issue_number, queries, review_feedback=review_feedback)
+        # A4: expanded payload
         store.append_event(
             run_id,
             "issue_analyst",
             "agent.tool.result",
-            payload={"issue_number": issue_number, "confidence": analyst_result.get("confidence")},
+            payload={
+                "issue_number": issue_number,
+                "confidence": analyst_result.get("confidence"),
+                "reasoning": analyst_result.get("reasoning"),
+                "suggestion": analyst_result.get("suggestion"),
+                "citations": analyst_result.get("citations", []),
+            },
             node_id="issue_analyst",
         )
 
@@ -191,6 +199,8 @@ def run_deep(
         if attempt > max_retries:
             final_verdict = "partial"
             break
+        # A3: 携带 feedback 进入下一轮
+        review_feedback = detail
 
     answer = synthesize(query, analyst_result)
     store.append_event(
