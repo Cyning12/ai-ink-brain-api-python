@@ -1,9 +1,9 @@
 # Task · Ops Desk P2-1 · Graph Tab（后端）
 
-> **状态**：`pending`  
+> **状态**：`done`  
 > **SPEC**：§4.5 · §7  
 > **R5**：[`ROUND_06_R5_track_c_deps.md`](../../../../docs/harness/invokes/by-task/ops-desk-kimi-code-spec-refine/rounds/ROUND_06_R5_track_c_deps.md)  
-> **协调**：[`task_ops_desk_p2_graph_tab_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_graph_tab_v1.md)  
+> **协调**：[`task_ops_desk_p2_graph_tab_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_graph_tab_v1.md)  
 > **依赖**：P0-2 sync ✅ · P2-2 scan schema ✅（`ops_graph_snapshots` 已建）
 
 ---
@@ -23,13 +23,13 @@
 
 ## 背景与目标
 
-GHA sync 同批拉取 `kimi-code-meta` 的 `graph.json`（及可选 `.cyning-harness/manifest.json`）→ 写入 `ops_graph_snapshots`；暴露 graph summary 与 **模块×Issue 矩阵** API。
+GHA sync 同批拉取 **`Cyning12/kimi-code`** @ **`cyning/meta`** 的 `graph.json`（本地路径前缀 `kimi-code-meta/` · 见 [`POINTER`](../../../../docs/harness/guides/POINTER_kimi_code_meta_git_mapping_v1_zh.md)）→ 写入 `ops_graph_snapshots`；暴露 graph summary 与 **模块×Issue 矩阵** API。
 
 ### 完成态
 
 - [ ] `api/ops/graph/`：validator · store · router
 - [ ] sync runner 扩展：`ingest_graph_after_github_sync` · 写 `ops_sync_run_artifacts.graph_snapshot_id`
-- [ ] GHA：checkout `kimi-code-meta` `cyning/meta` · 路径 `docs/_tech_graph/graph.json`
+- [ ] GHA：checkout **`Cyning12/kimi-code`** · `cyning/meta` · 路径 `docs/_tech_graph/graph.json`（落盘 `workspace/kimi-code-meta/`）
 - [ ] `GET /api/py/ops/graph/summary` · `GET /api/py/ops/graph/module-issues`
 - [ ] `tests/ops_desk/test_graph_ingest_p2.py`（fixture graph.json · mock Supabase）
 - [ ] 全量 pytest 绿 · ruff 绿 · `_manifest.json` 端点同步
@@ -40,11 +40,12 @@ GHA sync 同批拉取 `kimi-code-meta` 的 `graph.json`（及可选 `.cyning-har
 
 | 资源 | 路径 |
 | --- | --- |
-| graph.json | `kimi-code-meta/docs/_tech_graph/graph.json`（本地）· GHA 同路径 @ `cyning/meta` |
+| graph.json | 本地 `kimi-code-meta/docs/_tech_graph/graph.json` · GHA：**`Cyning12/kimi-code`** @ `cyning/meta` |
 | manifest | `kimi-code-meta/.cyning-harness/manifest.json` → `manifest_version` |
+| 映射真值 | [`POINTER_kimi_code_meta_git_mapping_v1_zh.md`](../../../../docs/harness/guides/POINTER_kimi_code_meta_git_mapping_v1_zh.md) |
 | 开发降级 | `tests/fixtures/graph_snapshot_sample_v1.json`（真实结构子集） |
 
-**GHA 拉取**：checkout `kimi-code-meta` · 需 Secret `KIMI_META_REPO_TOKEN` 或 public 只读 checkout（与 P2-2 `WORKSPACE_REPO_TOKEN` 模式对称）。
+**GHA 拉取**：checkout repository **`Cyning12/kimi-code`** · ref **`cyning/meta`** · Secret **`KIMI_META_REPO_TOKEN`**（PAT 授权该 fork · 与 P2-2 `WORKSPACE_REPO_TOKEN` 模式对称）。
 
 ---
 
@@ -87,11 +88,25 @@ graph ingest 失败 → sync_run **partial**（Issue/PR/scan 仍保留）· 与 
 
 ## 失败路径
 
-| 场景 | 行为 |
-| --- | --- |
-| kimi-code-meta checkout 失败 | graph 步骤 skip · sync_run partial |
-| graph.json 校验失败 | 记录 error · partial · 保留末次 snapshot |
-| 无 snapshot | API 404 `GRAPH_SNAPSHOT_NOT_FOUND` |
+| 失败场景 | 影响 | 兜底 |
+| --- | --- | --- |
+| `Cyning12/kimi-code` checkout 失败或缺 `KIMI_META_REPO_TOKEN` | graph 步骤 skip | sync_run **partial** · Issue/PR/scan 仍保留 |
+| graph.json 校验失败 | 无新 snapshot | 记录 error · partial · 保留末次 snapshot |
+| 无 snapshot | API 404 | `GRAPH_SNAPSHOT_NOT_FOUND` |
+
+---
+
+## 行为变更
+
+### ADDED
+- GHA checkout **`Cyning12/kimi-code`** @ `cyning/meta`（落盘 `workspace/kimi-code-meta/`）
+- `api/ops/graph/` · ingest · summary/module-issues API
+
+### MODIFIED
+- `docs/tasks/done/task_ops_desk_p2_graph_tab_backend_v1.md` · POINTER 远程映射说明
+
+### REMOVED
+- 无
 
 ---
 

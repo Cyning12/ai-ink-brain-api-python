@@ -28,6 +28,8 @@ def _default_graph_json_path() -> Path:
     raw = (os.getenv("OPS_GRAPH_JSON_PATH") or "").strip()
     if raw:
         return Path(raw)
+    # graph 源：GitHub Cyning12/kimi-code @ cyning/meta · checkout 落盘 workspace/kimi-code-meta/
+    # 映射真值：Projects/docs/harness/guides/POINTER_kimi_code_meta_git_mapping_v1_zh.md
     return Path("workspace/kimi-code-meta/docs/_tech_graph/graph.json")
 
 
