@@ -25,6 +25,7 @@ jobs:
       OPS_SCAN_RAW_URL: https://raw.githubusercontent.com/Cyning12/cyning-ink-workspace/main/docs/harness/guides/ISSUE_SCAN_kimi_code_open_c2_v1_zh.md
       WORKSPACE_REPO_TOKEN: ${{ secrets.WORKSPACE_REPO_TOKEN }}
       KIMI_META_REPO_TOKEN: ${{ secrets.KIMI_META_REPO_TOKEN }}
+      # OPS_GRAPH_* 路径相对 checkout path=workspace/kimi-code-meta（远程仓 Cyning12/kimi-code）
       OPS_GRAPH_JSON_PATH: workspace/kimi-code-meta/docs/_tech_graph/graph.json
       OPS_MANIFEST_JSON_PATH: workspace/kimi-code-meta/.cyning-harness/manifest.json
       OPS_GRAPH_SOURCE_BRANCH: cyning/meta
@@ -50,11 +51,11 @@ jobs:
         run: |
           echo "::warning::WORKSPACE_REPO_TOKEN not configured; ISSUE_SCAN ingest will be skipped."
 
-      - name: Checkout kimi-code-meta graph
+      - name: Checkout kimi-code graph (Cyning12/kimi-code @ cyning/meta)
         if: ${{ env.KIMI_META_REPO_TOKEN != '' }}
         uses: actions/checkout@v5
         with:
-          repository: Cyning12/kimi-code-meta
+          repository: Cyning12/kimi-code
           ref: cyning/meta
           path: workspace/kimi-code-meta
           token: ${{ secrets.KIMI_META_REPO_TOKEN }}
