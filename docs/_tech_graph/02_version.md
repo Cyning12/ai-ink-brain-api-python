@@ -46,5 +46,6 @@ timeline
   2026-06-21 : 7006668 auto: supabase/sql/ops_desk_p0_schema.sql
   2026-06-22 : P0-2 Ops Desk GHA sync MoonshotAI/kimi-code · ops_sync_kimi_code.yml + api/ops/sync/
   2026-06-22 : P1 规划 16_flow_ops_chat · Orchestrator fast/deep · ops_runs/events · 00_main 挂链
+  2026-06-23 : e3163693 auto: api/ops/demo_cache.py
 ```
 

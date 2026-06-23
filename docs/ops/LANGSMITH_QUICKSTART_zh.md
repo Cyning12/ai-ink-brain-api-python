@@ -1,6 +1,8 @@
-# LangSmith · Ops Desk 快速上手（api-python）
+# LangSmith · Ops Desk 快速上手（api-python · 遗留）
 
-> 规划与排期：工作区 [`GUIDE_ops_desk_langsmith_eval_v1_zh.md`](../../../../docs/harness/guides/GUIDE_ops_desk_langsmith_eval_v1_zh.md)  
+> **推荐改用 Langfuse Cloud 试用**：[`LANGFUSE_QUICKSTART_zh.md`](./LANGFUSE_QUICKSTART_zh.md) · [`GUIDE_ops_desk_langfuse_eval_v1_zh.md`](../../../../docs/harness/guides/GUIDE_ops_desk_langfuse_eval_v1_zh.md)
+
+> 规划与排期（遗留）：工作区 [`GUIDE_ops_desk_langsmith_eval_v1_zh.md`](../../../../docs/harness/guides/GUIDE_ops_desk_langsmith_eval_v1_zh.md)  
 > 官方文档：[Custom instrumentation · @traceable](https://docs.langchain.com/langsmith/annotate-code)
 
 ---

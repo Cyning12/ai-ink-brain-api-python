@@ -14,7 +14,7 @@ class DemoClassifier:
 
     QUESTIONS: dict[str, dict[str, Any]] = {
         "D1": {
-            "patterns": ["open issue", "issue 有多少", "issue 数"],
+            "patterns": ["open issue", "issue 有多少", "issue 数", "最近30天", "30天", "issue 中位数"],
             "intent": "metrics_trend",
             "params": {"metric": "issue-throughput", "days": 30},
             "query_template": "kimi-code 最近 30 天 open issue 有多少？",
@@ -26,7 +26,7 @@ class DemoClassifier:
             "query_template": "PR cycle time 最近 30 天趋势如何？",
         },
         "D3": {
-            "patterns": ["review time", "review_time"],
+            "patterns": ["review time", "review_time", "中位数", "median", "评审时间"],
             "intent": "metrics_trend",
             "params": {"metric": "review-time", "days": 30},
             "query_template": "PR review time 中位数是多少？",

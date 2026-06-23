@@ -24,9 +24,37 @@ class Intent:
 def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
     """基于规则快速分类；返回 (intent, slots)。"""
     msg = message.lower().strip()
+    slots: dict[str, Any] = {}
+
+    days_match = re.search(r"(\d+)\s*天", message)
+    if days_match:
+        slots["days"] = int(days_match.group(1))
+
+    if any(k in msg for k in ("cycle time", "cycle_time", "pr cycle", "周期")):
+        slots["metric"] = "cycle-time"
+        return Intent.METRICS_TREND, slots
+
+    if any(k in msg for k in ("review time", "review_time", "评审")) or (
+        any(k in msg for k in ("中位数", "median"))
+        and any(k in msg for k in ("pr", "review", "评审"))
+    ):
+        slots["metric"] = "review-time"
+        return Intent.METRICS_TREND, slots
+
+    if re.search(r"\bissues?\b", msg) or "issue" in msg:
+        if any(
+            k in msg
+            for k in ("多少", "吞吐", "throughput", "有多少", "几个", "中位数", "median", "closed", "关闭")
+        ):
+            slots["metric"] = "issue-throughput"
+            return Intent.METRICS_TREND, slots
+
+    if any(k in msg for k in ("中位数", "median")):
+        slots["metric"] = "review-time"
+        return Intent.METRICS_TREND, slots
 
     if any(k in msg for k in ("cycle", "review time", "throughput", "metric", "指标", "均耗时")):
-        return Intent.METRICS_TREND, {}
+        return Intent.METRICS_TREND, slots
 
     if re.search(r"issues?\s*列表|issue.*列表|bug.*列表", msg) or msg in ("issues", "issue list"):
         return Intent.ISSUE_LIST, {}

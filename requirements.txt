@@ -6,7 +6,9 @@ supabase
 python-dotenv
 pytest
 requests
-# 可选 · Ops Desk LangSmith 观测/评测（见 docs/ops/LANGSMITH_QUICKSTART_zh.md）
+# 可选 · Ops Desk Langfuse 观测/评测（见 docs/ops/LANGFUSE_QUICKSTART_zh.md）
+# langfuse>=4.0.0
+# 遗留 LangSmith：docs/ops/LANGSMITH_QUICKSTART_zh.md
 # langsmith>=0.2.0
 ruff==0.9.10
 faiss-cpu
