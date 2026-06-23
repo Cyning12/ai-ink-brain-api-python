@@ -1,9 +1,9 @@
 # Task · Ops Desk P2-1 · Graph Tab（后端）
 
-> **状态**：`pending`  
+> **状态**：`done`  
 > **SPEC**：§4.5 · §7  
 > **R5**：[`ROUND_06_R5_track_c_deps.md`](../../../../docs/harness/invokes/by-task/ops-desk-kimi-code-spec-refine/rounds/ROUND_06_R5_track_c_deps.md)  
-> **协调**：[`task_ops_desk_p2_graph_tab_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_graph_tab_v1.md)  
+> **协调**：[`task_ops_desk_p2_graph_tab_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_graph_tab_v1.md)  
 > **依赖**：P0-2 sync ✅ · P2-2 scan schema ✅（`ops_graph_snapshots` 已建）
 
 ---
@@ -88,11 +88,25 @@ graph ingest 失败 → sync_run **partial**（Issue/PR/scan 仍保留）· 与 
 
 ## 失败路径
 
-| 场景 | 行为 |
-| --- | --- |
-| kimi-code-meta checkout 失败 | graph 步骤 skip · sync_run partial |
-| graph.json 校验失败 | 记录 error · partial · 保留末次 snapshot |
-| 无 snapshot | API 404 `GRAPH_SNAPSHOT_NOT_FOUND` |
+| 失败场景 | 影响 | 兜底 |
+| --- | --- | --- |
+| `Cyning12/kimi-code` checkout 失败或缺 `KIMI_META_REPO_TOKEN` | graph 步骤 skip | sync_run **partial** · Issue/PR/scan 仍保留 |
+| graph.json 校验失败 | 无新 snapshot | 记录 error · partial · 保留末次 snapshot |
+| 无 snapshot | API 404 | `GRAPH_SNAPSHOT_NOT_FOUND` |
+
+---
+
+## 行为变更
+
+### ADDED
+- GHA checkout **`Cyning12/kimi-code`** @ `cyning/meta`（落盘 `workspace/kimi-code-meta/`）
+- `api/ops/graph/` · ingest · summary/module-issues API
+
+### MODIFIED
+- `docs/tasks/done/task_ops_desk_p2_graph_tab_backend_v1.md` · POINTER 远程映射说明
+
+### REMOVED
+- 无
 
 ---
 
