@@ -189,6 +189,8 @@ SDK 只负责上报；**Dashboard** 在 Langfuse Cloud 或本地 **http://localh
 
 产品侧用户可见时间线仍为 Supabase `ops_run_events`；Langfuse 为维护者/debug 轨。
 
+**调度 baseline（过程态）**：[`SNAPSHOT_ops_desk_chat_dispatch_P1a_baseline_v1_zh.md`](../../../../docs/harness/guides/SNAPSHOT_ops_desk_chat_dispatch_P1a_baseline_v1_zh.md)
+
 ---
 
 ## 8. 后续：生产自建全链（预留）
