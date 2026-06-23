@@ -353,6 +353,9 @@ class FakeRunStore:
         self.runs.append({"id": run_id, "status": "pending", "trigger": trigger})
         return run_id
 
+    def find_claimable_manual_sync_run(self, repo_id: str) -> str | None:
+        return None
+
     def update_sync_run(self, run_id: str, **fields: Any) -> None:
         self.run_updates.append({"run_id": run_id, **fields})
         for run in self.runs:
