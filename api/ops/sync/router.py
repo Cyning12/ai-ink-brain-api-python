@@ -17,7 +17,7 @@ from api.ops.sync.dispatch import (
     has_active_sync_workflow_run,
 )
 from api.ops.sync.github_client import REPO_NAME, REPO_OWNER
-from api.ops.sync.store import OpsSyncStore
+from api.ops.sync.store import OpsSyncStore, SyncRunAlreadyActiveError
 
 router = APIRouter(prefix="/ops/sync", tags=["ops-sync"])
 
@@ -57,14 +57,26 @@ def trigger_sync(
                 detail={"code": "SYNC_ALREADY_RUNNING", "run_id": str(last.get("id")), "source": "supabase"},
             )
 
+    # 原子 claim：先写入 pending manual（依赖 idx_ops_sync_runs_one_active_per_repo）
+    claim_run_id: str | None = None
+    try:
+        claim_run_id = store.create_sync_run(repo_id, "manual")
+    except SyncRunAlreadyActiveError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "SYNC_ALREADY_RUNNING", "source": "supabase_claim", "message": str(exc)},
+        ) from exc
+
     # 409：GHA 已有 queued/in_progress（checkout/pip 阶段 · Supabase 尚未写入）
     try:
         if has_active_sync_workflow_run(token=token):
+            store.fail_sync_run(claim_run_id, "github_actions already active")
             raise HTTPException(
                 status_code=409,
                 detail={"code": "SYNC_ALREADY_RUNNING", "source": "github_actions"},
             )
     except GitHubDispatchError as exc:
+        store.fail_sync_run(claim_run_id, f"github runs query failed: {exc}")
         raise HTTPException(
             status_code=502,
             detail={
@@ -78,6 +90,7 @@ def trigger_sync(
     try:
         _dispatch_sync(token=token)
     except GitHubDispatchError as exc:
+        store.fail_sync_run(claim_run_id, f"dispatch failed: {exc}")
         raise HTTPException(
             status_code=502,
             detail={
@@ -91,6 +104,7 @@ def trigger_sync(
         "dispatched": True,
         "workflow": DISPATCH_WORKFLOW_FILE.replace(".yml", ""),
         "repository": f"{DISPATCH_REPO_OWNER}/{DISPATCH_REPO_NAME}",
+        "claim_run_id": claim_run_id,
     }
 
 

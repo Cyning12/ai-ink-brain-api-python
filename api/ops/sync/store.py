@@ -3,13 +3,25 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from api.rag_env import pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from supabase import create_client
 
 from .github_client import REPO_NAME, REPO_OWNER, GitHubClient
+
+
+class SyncRunAlreadyActiveError(Exception):
+    """同一 repo 已有 pending/running sync run（并发 claim 或唯一索引）。"""
+
+
+def _is_unique_violation(exc: BaseException) -> bool:
+    code = getattr(exc, "code", None)
+    if code == "23505":
+        return True
+    text = str(exc).lower()
+    return "23505" in text or "duplicate key" in text or "unique constraint" in text
 
 
 def _client() -> Any:
@@ -130,17 +142,53 @@ class OpsSyncStore:
 
         return supabase_execute_with_retry(_once)
 
+    def find_claimable_manual_sync_run(self, repo_id: str) -> str | None:
+        """API trigger 预写入的 pending manual run；GHA runner 复用。"""
+
+        def _once() -> str | None:
+            sb = _client()
+            res = (
+                sb.table("ops_sync_runs")
+                .select("id")
+                .eq("repo_id", repo_id)
+                .eq("trigger", "manual")
+                .eq("status", "pending")
+                .order("started_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            if rows and isinstance(rows[0], dict) and rows[0].get("id"):
+                return str(rows[0]["id"])
+            return None
+
+        return supabase_execute_with_retry(_once)
+
     def create_sync_run(self, repo_id: str, trigger: str) -> str:
         def _once() -> str:
             sb = _client()
             row = {"repo_id": repo_id, "status": "pending", "trigger": trigger}
-            res = sb.table("ops_sync_runs").insert(row).execute()
+            try:
+                res = sb.table("ops_sync_runs").insert(row).execute()
+            except Exception as exc:  # noqa: BLE001
+                if _is_unique_violation(exc):
+                    raise SyncRunAlreadyActiveError(str(exc)) from exc
+                raise
             data = res.data if isinstance(res.data, list) else []
             if data and isinstance(data[0], dict) and data[0].get("id"):
                 return str(data[0]["id"])
             raise RuntimeError("ops_sync_runs insert 未返回 id")
 
         return supabase_execute_with_retry(_once)
+
+    def fail_sync_run(self, run_id: str, error_message: str) -> None:
+        finished = datetime.now(timezone.utc).isoformat()
+        self.update_sync_run(
+            run_id,
+            status="failed",
+            finished_at=finished,
+            error_message=error_message,
+        )
 
     def update_sync_run(self, run_id: str, **fields: Any) -> None:
         def _once() -> None:

@@ -107,6 +107,13 @@ class FakeStore:
         self.runs.append({"id": run_id, "status": "pending", "trigger": trigger})
         return run_id
 
+    def find_claimable_manual_sync_run(self, repo_id: str) -> str | None:
+        assert repo_id == self.repo_id
+        for run in reversed(self.runs):
+            if run.get("trigger") == "manual" and run.get("status") == "pending":
+                return str(run["id"])
+        return None
+
     def update_sync_run(self, run_id: str, **fields: Any) -> None:
         self.run_updates.append({"run_id": run_id, **fields})
         for run in self.runs:
@@ -169,6 +176,17 @@ def test_sync_success_state_machine() -> None:
     assert store.runs[-1]["trigger"] == "manual"
     assert len(store.issues) == 1
     assert len(store.prs) == 1
+
+
+def test_sync_manual_reuses_api_claimed_pending_run() -> None:
+    store = FakeStore()
+    store.runs.append({"id": "run-claimed", "status": "pending", "trigger": "manual"})
+    gh = FakeGitHub(issues=[_issue(1)], pulls=[])
+    result = run_sync(trigger="manual", github=gh, store=store)  # type: ignore[arg-type]
+
+    assert result.run_id == "run-claimed"
+    assert len(store.runs) == 1
+    assert store.runs[0]["status"] == "success"
 
 
 def test_sync_incremental_passes_cursor() -> None:

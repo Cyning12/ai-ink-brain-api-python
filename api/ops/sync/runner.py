@@ -52,7 +52,11 @@ def run_sync(
     has_prior = db.has_any_sync_run(repo_id)
     resolved_trigger = resolve_trigger(trigger, has_prior_run=has_prior, has_cursor=cursor is not None)
 
-    run_id = db.create_sync_run(repo_id, resolved_trigger)
+    run_id: str | None = None
+    if resolved_trigger == "manual":
+        run_id = db.find_claimable_manual_sync_run(repo_id)
+    if run_id is None:
+        run_id = db.create_sync_run(repo_id, resolved_trigger)
     db.update_sync_run(run_id, status="running")
 
     records_issue = 0

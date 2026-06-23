@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from api.index import app
 from api.ops.sync.dispatch import GitHubDispatchError, dispatch_sync_workflow
 from api.ops.sync.router import _store
+from api.ops.sync.store import SyncRunAlreadyActiveError
 
 _sync_router_mod = importlib.import_module("api.ops.sync.router")
 
@@ -52,6 +53,20 @@ def _make_store(
 
         def get_artifacts_by_run_ids(self, run_ids: list[str]) -> dict[str, dict[str, Any]]:
             return {rid: self._artifacts.get(rid, {}) for rid in run_ids}
+
+        def create_sync_run(self, repo_id: str, trigger: str) -> str:
+            for run in self._runs:
+                if run.get("status") in ("pending", "running"):
+                    raise SyncRunAlreadyActiveError("active sync run exists")
+            run_id = f"run-claim-{len(self._runs) + 1}"
+            self._runs.insert(0, {"id": run_id, "status": "pending", "trigger": trigger})
+            return run_id
+
+        def fail_sync_run(self, run_id: str, error_message: str) -> None:
+            for run in self._runs:
+                if run.get("id") == run_id:
+                    run["status"] = "failed"
+                    run["error_message"] = error_message
 
     return FakeStore()
 
@@ -191,6 +206,28 @@ def test_trigger_409_github_actions_active(monkeypatch: pytest.MonkeyPatch) -> N
     resp = tc.post("/api/py/ops/sync/trigger", headers={"x-ops-secret": ""})
     assert resp.status_code == 409
     assert resp.json()["detail"]["source"] == "github_actions"
+    assert any(r.get("status") == "failed" for r in store._runs)
+    app.dependency_overrides.clear()
+
+
+def test_trigger_409_concurrent_claim(monkeypatch: pytest.MonkeyPatch) -> None:
+    """双 tab 并发：读时无 active run，但 insert claim 被唯一索引挡住。"""
+    monkeypatch.setenv("OPS_DESK_SECRET", "")
+    monkeypatch.setenv("OPS_GITHUB_DISPATCH_TOKEN", "ghp_test")
+
+    store = _make_store(runs=[{"id": "run-1", "status": "success", "started_at": "2026-06-23T08:00:00Z"}])
+
+    def _raise_claim(_repo_id: str, _trigger: str) -> str:
+        raise SyncRunAlreadyActiveError("duplicate key idx_ops_sync_runs_one_active_per_repo")
+
+    store.create_sync_run = _raise_claim  # type: ignore[method-assign]
+    app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: False)
+
+    tc = TestClient(app)
+    resp = tc.post("/api/py/ops/sync/trigger", headers={"x-ops-secret": ""})
+    assert resp.status_code == 409
+    assert resp.json()["detail"]["source"] == "supabase_claim"
     app.dependency_overrides.clear()
 
 
