@@ -14,7 +14,9 @@ from api.ops.sync.dispatch import (
     DISPATCH_WORKFLOW_FILE,
     GitHubDispatchError,
     dispatch_sync_workflow,
+    has_active_sync_workflow_run,
 )
+from api.ops.sync.github_client import REPO_NAME, REPO_OWNER
 from api.ops.sync.store import OpsSyncStore
 
 router = APIRouter(prefix="/ops/sync", tags=["ops-sync"])
@@ -43,8 +45,8 @@ def trigger_sync(
             detail={"code": "DISPATCH_TOKEN_MISSING", "message": "OPS_GITHUB_DISPATCH_TOKEN 未配置"},
         )
 
-    # 409：已有 running/pending sync
-    repo_id = store.ensure_repo(DISPATCH_REPO_OWNER, DISPATCH_REPO_NAME)
+    # 409：Supabase 最近 run 仍在 pending/running（sync 脚本阶段）
+    repo_id = store.ensure_repo(REPO_OWNER, REPO_NAME)
     recent = store.get_recent_sync_runs(repo_id, limit=1)
     if recent:
         last = recent[0]
@@ -52,8 +54,25 @@ def trigger_sync(
         if status in ("pending", "running"):
             raise HTTPException(
                 status_code=409,
-                detail={"code": "SYNC_ALREADY_RUNNING", "run_id": str(last.get("id"))},
+                detail={"code": "SYNC_ALREADY_RUNNING", "run_id": str(last.get("id")), "source": "supabase"},
             )
+
+    # 409：GHA 已有 queued/in_progress（checkout/pip 阶段 · Supabase 尚未写入）
+    try:
+        if has_active_sync_workflow_run(token=token):
+            raise HTTPException(
+                status_code=409,
+                detail={"code": "SYNC_ALREADY_RUNNING", "source": "github_actions"},
+            )
+    except GitHubDispatchError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "code": "GITHUB_DISPATCH_FAILED",
+                "message": str(exc),
+                "status_code": exc.status_code,
+            },
+        ) from exc
 
     # dispatch
     try:
@@ -82,7 +101,7 @@ def list_sync_runs(
     _: None = Depends(require_ops_secret),
 ) -> dict[str, Any]:
     """获取最近 sync runs，含 artifact 布尔字段。"""
-    repo_id = store.ensure_repo(DISPATCH_REPO_OWNER, DISPATCH_REPO_NAME)
+    repo_id = store.ensure_repo(REPO_OWNER, REPO_NAME)
     runs = store.get_recent_sync_runs(repo_id, limit=limit)
 
     # join artifacts 布尔字段

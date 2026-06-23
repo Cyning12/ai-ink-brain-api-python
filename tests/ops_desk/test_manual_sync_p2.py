@@ -170,11 +170,27 @@ def test_trigger_409_already_running(monkeypatch: pytest.MonkeyPatch) -> None:
     runs = [{"id": "run-1", "status": "running", "started_at": "2026-06-23T08:00:00Z"}]
     store = _make_store(runs=runs)
     app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: False)
 
     tc = TestClient(app)
     resp = tc.post("/api/py/ops/sync/trigger", headers={"x-ops-secret": ""})
     assert resp.status_code == 409
     assert resp.json()["detail"]["code"] == "SYNC_ALREADY_RUNNING"
+    app.dependency_overrides.clear()
+
+
+def test_trigger_409_github_actions_active(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("OPS_DESK_SECRET", "")
+    monkeypatch.setenv("OPS_GITHUB_DISPATCH_TOKEN", "ghp_test")
+
+    store = _make_store(runs=[{"id": "run-1", "status": "success", "started_at": "2026-06-23T08:00:00Z"}])
+    app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: True)
+
+    tc = TestClient(app)
+    resp = tc.post("/api/py/ops/sync/trigger", headers={"x-ops-secret": ""})
+    assert resp.status_code == 409
+    assert resp.json()["detail"]["source"] == "github_actions"
     app.dependency_overrides.clear()
 
 
@@ -184,6 +200,7 @@ def test_trigger_502_github_fail(monkeypatch: pytest.MonkeyPatch) -> None:
 
     store = _make_store(runs=[])
     app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: False)
 
     def fake_dispatch(*, token: str | None = None) -> dict[str, Any]:
         raise GitHubDispatchError("GitHub 403", status_code=403)
@@ -203,6 +220,7 @@ def test_trigger_200_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
     store = _make_store(runs=[{"id": "run-1", "status": "success", "started_at": "2026-06-23T07:00:00Z"}])
     app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: False)
 
     dispatched = {"dispatched": True}
     monkeypatch.setattr(_sync_router_mod, "dispatch_sync_workflow", lambda *, token: dispatched)
@@ -319,6 +337,7 @@ def test_trigger_secret_required(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPS_GITHUB_DISPATCH_TOKEN", "ghp_test")
     store = _make_store(runs=[])
     app.dependency_overrides[_store] = lambda: store
+    monkeypatch.setattr(_sync_router_mod, "has_active_sync_workflow_run", lambda *, token: False)
     monkeypatch.setattr(_sync_router_mod, "dispatch_sync_workflow", lambda *, token: {"dispatched": True})
 
     tc = TestClient(app)
