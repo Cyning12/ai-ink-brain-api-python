@@ -90,10 +90,10 @@ python examples/ops_desk_langfuse_sample.py
 
 ```bash
 cd ai-ink-brain-api-python
-pip install -U langfuse
+pip install -r requirements.txt
 ```
 
-可选：已写入 `requirements.txt` 注释行；观测环境再 `pip install langfuse`。
+`langfuse>=4.0.0` 已纳入 `requirements.txt`（P2-5a）；Vercel/Railway 部署会自动安装。仅本地增量更新时可 `pip install -U langfuse`。
 
 ---
 

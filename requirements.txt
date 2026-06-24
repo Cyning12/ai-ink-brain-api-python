@@ -6,11 +6,9 @@ supabase
 python-dotenv
 pytest
 requests
-# Optional · Ops Desk Langfuse tracing (P2-5a)
-#   pip install "langfuse>=4.0.0"
-#   启用：LANGFUSE_TRACING=true + LANGFUSE_PUBLIC_KEY/SECRET_KEY
-#   文档：docs/ops/LANGFUSE_QUICKSTART_zh.md
-# langfuse>=4.0.0
+# Ops Desk Langfuse tracing (P2-5a) · 生产/staging 开 LANGFUSE_TRACING 时必需
+# 文档：docs/ops/LANGFUSE_QUICKSTART_zh.md
+langfuse>=4.0.0,<5
 # 遗留 LangSmith：docs/ops/LANGSMITH_QUICKSTART_zh.md
 # langsmith>=0.2.0
 ruff==0.9.10
