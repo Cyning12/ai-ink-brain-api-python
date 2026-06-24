@@ -85,3 +85,17 @@ def test_langfuse_provider_respects_base_url(monkeypatch) -> None:
 
     assert tracing_provider() == "langfuse"
     assert tracing_enabled() is True
+
+
+def test_traceable_bare_decorator_when_langfuse_on(monkeypatch) -> None:
+    """裸 @traceable 开启 Langfuse 时不应 observe(fn)(fn) 误执行。"""
+    monkeypatch.setenv("LANGFUSE_TRACING", "true")
+    monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
+    monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
+    monkeypatch.delenv("LANGSMITH_TRACING", raising=False)
+
+    @traceable
+    def parse_output(response: str) -> str:
+        return response.strip()
+
+    assert parse_output("  hello  ") == "hello"
