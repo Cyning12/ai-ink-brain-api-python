@@ -18,6 +18,9 @@ class LlmUsage:
     latency_ms: int = 0
     step: str = "other"
     usage_missing: bool = False
+    prompt_cache_hit_tokens: int = 0
+    prompt_cache_miss_tokens: int = 0
+    cached_tokens: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -29,6 +32,9 @@ class LlmUsage:
             "latency_ms": self.latency_ms,
             "step": self.step,
             "usage_missing": self.usage_missing,
+            "prompt_cache_hit_tokens": self.prompt_cache_hit_tokens,
+            "prompt_cache_miss_tokens": self.prompt_cache_miss_tokens,
+            "cached_tokens": self.cached_tokens,
         }
 
     @classmethod
@@ -44,6 +50,9 @@ class LlmUsage:
             latency_ms=int(raw.get("latency_ms", 0) or 0),
             step=step or str(raw.get("step", "other")),
             usage_missing=bool(raw.get("usage_missing", False)),
+            prompt_cache_hit_tokens=int(raw.get("prompt_cache_hit_tokens", 0) or 0),
+            prompt_cache_miss_tokens=int(raw.get("prompt_cache_miss_tokens", 0) or 0),
+            cached_tokens=int(raw.get("cached_tokens", 0) or 0),
         )
 
 

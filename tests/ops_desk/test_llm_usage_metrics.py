@@ -104,6 +104,9 @@ def test_llm_usage_dataclass_defaults() -> None:
     assert u.latency_ms == 0
     assert u.step == "other"
     assert u.usage_missing is False
+    assert u.prompt_cache_hit_tokens == 0
+    assert u.prompt_cache_miss_tokens == 0
+    assert u.cached_tokens == 0
 
 
 def test_llm_completion_result_to_dict() -> None:
@@ -140,6 +143,9 @@ def test_chat_completion_writes_usage_event(monkeypatch) -> None:
     assert len(usage_events) == 1
     assert usage_events[0]["payload"]["prompt_tokens"] == 10
     assert usage_events[0]["payload"]["step"] == "analyze"
+    assert usage_events[0]["payload"]["prompt_cache_hit_tokens"] == 0
+    assert usage_events[0]["payload"]["prompt_cache_miss_tokens"] == 0
+    assert usage_events[0]["payload"]["cached_tokens"] == 0
 
 
 def test_chat_completion_no_store_no_event(monkeypatch) -> None:
@@ -241,6 +247,45 @@ def test_build_metrics_json_with_usage() -> None:
     assert metrics["llm"]["total_tokens"] == 27
     assert metrics["llm"]["latency_ms"] == 180
     assert metrics["llm"]["provider"] == "sf"
+    assert metrics["llm"]["provider_cache"] == {
+        "hit_tokens": 0,
+        "miss_tokens": 0,
+        "cached_tokens": 0,
+    }
+
+
+def test_build_metrics_json_provider_cache_sums() -> None:
+    u1 = LlmUsage(
+        provider="sf",
+        model="m1",
+        prompt_tokens=100,
+        completion_tokens=50,
+        total_tokens=150,
+        latency_ms=100,
+        step="analyze",
+        prompt_cache_hit_tokens=80,
+        prompt_cache_miss_tokens=20,
+        cached_tokens=80,
+    )
+    u2 = LlmUsage(
+        provider="sf",
+        model="m1",
+        prompt_tokens=50,
+        completion_tokens=25,
+        total_tokens=75,
+        latency_ms=80,
+        step="synthesize",
+        prompt_cache_hit_tokens=30,
+        prompt_cache_miss_tokens=20,
+        cached_tokens=30,
+    )
+    metrics = _build_metrics_json(route="deep", intent="issue_contribution", llm_calls=2, llm_usages=[u1, u2])
+
+    assert metrics["llm"]["provider_cache"] == {
+        "hit_tokens": 110,
+        "miss_tokens": 40,
+        "cached_tokens": 110,
+    }
 
 
 def test_build_metrics_json_cache_hit() -> None:
@@ -298,6 +343,9 @@ def test_metrics_summary_structure(monkeypatch) -> None:
     assert result["total_llm_calls"] == 0
     assert result["total_runs"] == 0
     assert result["by_route"] == {}
+    assert result["provider_cache_hit_tokens"] == 0
+    assert result["provider_cache_miss_tokens"] == 0
+    assert "provider_cache_hit_rate" not in result
 
 
 def test_metrics_summary_with_data(monkeypatch) -> None:
@@ -342,6 +390,145 @@ def test_metrics_summary_with_data(monkeypatch) -> None:
     assert result["by_route"]["deep"]["llm_calls"] == 2
     assert result["by_route"]["fast"]["runs"] == 1
     assert result["by_route"]["fast"]["cache_hits"] == 1
+
+
+def test_metrics_summary_provider_cache_aggregation(monkeypatch) -> None:
+    """metrics summary 聚合 provider_cache 字段，不影响 cache_hit_rate。"""
+    from api.ops.metrics import metrics_summary
+
+    mock_client = MagicMock()
+    mock_res = MagicMock()
+    mock_res.data = [
+        {
+            "metrics_json": {
+                "route": "deep",
+                "llm": {
+                    "calls": 2,
+                    "total_tokens": 100,
+                    "provider_cache": {"hit_tokens": 60, "miss_tokens": 40, "cached_tokens": 60},
+                },
+            },
+            "created_at": "2026-06-20T00:00:00Z",
+        },
+        {
+            "metrics_json": {
+                "route": "deep",
+                "llm": {
+                    "calls": 1,
+                    "total_tokens": 50,
+                    "provider_cache": {"hit_tokens": 20, "miss_tokens": 30, "cached_tokens": 20},
+                },
+            },
+            "created_at": "2026-06-21T00:00:00Z",
+        },
+    ]
+    mock_client.table.return_value.select.return_value.gte.return_value.execute.return_value = mock_res
+    monkeypatch.setattr("api.ops.metrics.get_supabase_client", lambda: mock_client)
+
+    result = metrics_summary(days=7)
+    assert result["provider_cache_hit_tokens"] == 80
+    assert result["provider_cache_miss_tokens"] == 70
+    assert result["provider_cache_hit_rate"] == round(80 / 150, 4)
+    assert result["cache_hits"] == 0
+    assert result["cache_misses"] == 2
+    assert result["cache_hit_rate"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# B10: SiliconFlow provider cache 字段解析
+# ---------------------------------------------------------------------------
+
+def test_siliconflow_parses_provider_cache_fields(monkeypatch) -> None:
+    """SiliconFlow usage 含 cache 字段时正确解析。"""
+    monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": "ok"}}],
+                "usage": {
+                    "prompt_tokens": 128,
+                    "completion_tokens": 64,
+                    "total_tokens": 192,
+                    "prompt_cache_hit_tokens": 100,
+                    "prompt_cache_miss_tokens": 28,
+                    "prompt_tokens_details": {"cached_tokens": 100},
+                },
+            }
+
+    monkeypatch.setattr("api.ops.llm.providers.siliconflow.requests.post", lambda *args, **kwargs: FakeResponse())
+
+    provider = SiliconFlowProvider()
+    result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
+
+    assert result.usage.prompt_cache_hit_tokens == 100
+    assert result.usage.prompt_cache_miss_tokens == 28
+    assert result.usage.cached_tokens == 100
+    assert result.usage.usage_missing is False
+
+
+def test_siliconflow_missing_cache_fields_defaults_zero(monkeypatch) -> None:
+    """SiliconFlow usage 无 cache 字段时记 0，不标 usage_missing。"""
+    monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": "ok"}}],
+                "usage": {
+                    "prompt_tokens": 15,
+                    "completion_tokens": 10,
+                    "total_tokens": 25,
+                },
+            }
+
+    monkeypatch.setattr("api.ops.llm.providers.siliconflow.requests.post", lambda *args, **kwargs: FakeResponse())
+
+    provider = SiliconFlowProvider()
+    result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
+
+    assert result.usage.prompt_cache_hit_tokens == 0
+    assert result.usage.prompt_cache_miss_tokens == 0
+    assert result.usage.cached_tokens == 0
+    assert result.usage.usage_missing is False
+
+
+def test_chat_completion_writes_provider_cache_in_event(monkeypatch) -> None:
+    """chat_completion 将 provider cache 字段写入 llm.usage event。"""
+    monkeypatch.delenv("LANGFUSE_TRACING", raising=False)
+    monkeypatch.delenv("LANGSMITH_TRACING", raising=False)
+
+    store = FakeOpsRunStore()
+    fake = FakeProvider(
+        usage=LlmUsage(
+            provider="siliconflow",
+            model="Qwen/Qwen2.5-72B-Instruct",
+            prompt_tokens=128,
+            completion_tokens=64,
+            total_tokens=192,
+            latency_ms=500,
+            step="analyze",
+            prompt_cache_hit_tokens=100,
+            prompt_cache_miss_tokens=28,
+            cached_tokens=100,
+        )
+    )
+    monkeypatch.setattr("api.ops.llm.get_llm_provider", lambda: fake)
+
+    chat_completion([{"role": "user", "content": "hi"}], step="analyze", run_id="run-pc-001", store=store)
+
+    usage_events = [e for e in store.events if e["event_type"] == "llm.usage"]
+    assert len(usage_events) == 1
+    payload = usage_events[0]["payload"]
+    assert payload["prompt_cache_hit_tokens"] == 100
+    assert payload["prompt_cache_miss_tokens"] == 28
+    assert payload["cached_tokens"] == 100
 
 
 # ---------------------------------------------------------------------------

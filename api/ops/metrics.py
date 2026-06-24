@@ -75,6 +75,8 @@ def metrics_summary(
         total_llm_calls = 0
         cache_hits = 0
         cache_misses = 0
+        provider_cache_hit_tokens = 0
+        provider_cache_miss_tokens = 0
         by_route: dict[str, dict[str, Any]] = {}
 
         for row in rows:
@@ -87,6 +89,10 @@ def metrics_summary(
             if isinstance(llm, dict):
                 total_tokens += int(llm.get("total_tokens") or 0)
                 total_llm_calls += int(llm.get("calls") or 0)
+                provider_cache = llm.get("provider_cache") or {}
+                if isinstance(provider_cache, dict):
+                    provider_cache_hit_tokens += int(provider_cache.get("hit_tokens") or 0)
+                    provider_cache_miss_tokens += int(provider_cache.get("miss_tokens") or 0)
 
             # Cache 聚合
             cache = m.get("cache") or {}
@@ -113,7 +119,14 @@ def metrics_summary(
         total_cacheable = cache_hits + cache_misses
         cache_hit_rate = round(cache_hits / total_cacheable, 4) if total_cacheable > 0 else 0.0
 
-        return {
+        total_provider_cacheable = provider_cache_hit_tokens + provider_cache_miss_tokens
+        provider_cache_hit_rate = (
+            round(provider_cache_hit_tokens / total_provider_cacheable, 4)
+            if total_provider_cacheable > 0
+            else 0.0
+        )
+
+        result: dict[str, Any] = {
             "window_days": days,
             "total_runs": total_runs,
             "total_tokens": total_tokens,
@@ -121,8 +134,13 @@ def metrics_summary(
             "cache_hits": cache_hits,
             "cache_misses": cache_misses,
             "cache_hit_rate": cache_hit_rate,
+            "provider_cache_hit_tokens": provider_cache_hit_tokens,
+            "provider_cache_miss_tokens": provider_cache_miss_tokens,
             "by_route": by_route,
         }
+        if total_provider_cacheable > 0:
+            result["provider_cache_hit_rate"] = provider_cache_hit_rate
+        return result
 
     from api.rag_env import supabase_execute_with_retry
     return supabase_execute_with_retry(_aggregate_once)

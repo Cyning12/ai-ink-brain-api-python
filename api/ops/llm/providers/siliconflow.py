@@ -56,6 +56,7 @@ class SiliconFlowProvider(OpsLlmProvider):
         content = str(data["choices"][0]["message"]["content"])
         usage_raw = data.get("usage") or {}
 
+        prompt_tokens_details = usage_raw.get("prompt_tokens_details") or {}
         usage = LlmUsage(
             provider=self.name,
             model=self._model(model),
@@ -65,5 +66,8 @@ class SiliconFlowProvider(OpsLlmProvider):
             latency_ms=latency_ms,
             step=kwargs.get("step", "other"),
             usage_missing=not bool(usage_raw),
+            prompt_cache_hit_tokens=int(usage_raw.get("prompt_cache_hit_tokens", 0) or 0),
+            prompt_cache_miss_tokens=int(usage_raw.get("prompt_cache_miss_tokens", 0) or 0),
+            cached_tokens=int(prompt_tokens_details.get("cached_tokens", 0) or 0),
         )
         return LlmCompletionResult(content=content, usage=usage)

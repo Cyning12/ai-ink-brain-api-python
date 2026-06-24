@@ -284,6 +284,14 @@ def _build_metrics_json(
     total_completion = sum(u.completion_tokens for u in llm_usages)
     total_tokens = sum(u.total_tokens for u in llm_usages)
     total_latency = sum(u.latency_ms for u in llm_usages)
+    provider_cache_hit = sum(u.prompt_cache_hit_tokens for u in llm_usages)
+    provider_cache_miss = sum(u.prompt_cache_miss_tokens for u in llm_usages)
+    provider_cache_cached = sum(u.cached_tokens for u in llm_usages)
+    provider_cache = {
+        "hit_tokens": provider_cache_hit,
+        "miss_tokens": provider_cache_miss,
+        "cached_tokens": provider_cache_cached,
+    }
     metrics: dict[str, Any] = {
         "route": route,
         "intent": intent,
@@ -298,6 +306,7 @@ def _build_metrics_json(
             "completion_tokens": 0,
             "total_tokens": 0,
             "latency_ms": 0,
+            "provider_cache": provider_cache,
         }
     else:
         provider = llm_usages[0].provider if llm_usages else ""
@@ -310,6 +319,7 @@ def _build_metrics_json(
             "completion_tokens": total_completion,
             "total_tokens": total_tokens,
             "latency_ms": total_latency,
+            "provider_cache": provider_cache,
         }
     return metrics
 
