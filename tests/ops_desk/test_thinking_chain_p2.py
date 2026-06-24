@@ -180,7 +180,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
             usage=LlmUsage(provider="siliconflow", model="Qwen/Qwen2.5-72B-Instruct", prompt_tokens=10, completion_tokens=5, total_tokens=15, latency_ms=100, step="analyze"),
         )
 
-    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> Any:
+    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]], **kwargs: Any) -> Any:
         from api.ops.llm.types import LlmCompletionResult, LlmUsage
         return LlmCompletionResult(
             content="综合建议：#545 值得参与。",
@@ -278,7 +278,7 @@ def test_run_deep_retry_carries_feedback(monkeypatch: pytest.MonkeyPatch) -> Non
             usage=LlmUsage(provider="siliconflow", model="Qwen/Qwen2.5-72B-Instruct", prompt_tokens=10, completion_tokens=5, total_tokens=15, latency_ms=100, step="analyze"),
         )
 
-    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> Any:
+    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]], **kwargs: Any) -> Any:
         from api.ops.llm.types import LlmCompletionResult, LlmUsage
         return LlmCompletionResult(
             content="综合建议：#545 值得参与。",

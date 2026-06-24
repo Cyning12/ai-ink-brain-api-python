@@ -8,6 +8,7 @@ from typing import Any
 from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.constants import DEFAULT_DAYS
 from api.ops.llm import synthesize_answer
+from api.ops.llm.types import LlmUsage
 from api.ops.queries import OpsQueries
 from api.ops.store.runs import OpsRunStore
 from api.ops.tracing import traceable, update_current_span_metadata
@@ -127,12 +128,18 @@ def review_result(result: dict[str, Any], queries: OpsQueries) -> tuple[str, dic
     return "pass", {}
 
 
-def synthesize(query: str, result: dict[str, Any]) -> str:
+def synthesize(
+    query: str,
+    result: dict[str, Any],
+    *,
+    run_id: str | None = None,
+    store: OpsRunStore | None = None,
+) -> tuple[str, LlmUsage | None]:
     evidence = result.get("evidence", [])
     if result.get("found") is False:
-        return result.get("reasoning", "未能找到相关 issue。")
-    llm_result = synthesize_answer(query, evidence)
-    return llm_result.content
+        return result.get("reasoning", "未能找到相关 issue。"), None
+    llm_result = synthesize_answer(query, evidence, run_id=run_id, store=store)
+    return llm_result.content, llm_result.usage
 
 
 @traceable(capture_input=False, capture_output=False)
@@ -184,16 +191,7 @@ def run_deep(
         # 收集 analyze_issue 的 usage
         _usage_raw = analyst_result.get("_llm_usage", {})
         if _usage_raw:
-            from api.ops.llm.types import LlmUsage
-            u = LlmUsage(
-                provider=_usage_raw.get("usage", {}).get("provider", ""),
-                model=_usage_raw.get("usage", {}).get("model", ""),
-                prompt_tokens=_usage_raw.get("usage", {}).get("prompt_tokens", 0),
-                completion_tokens=_usage_raw.get("usage", {}).get("completion_tokens", 0),
-                total_tokens=_usage_raw.get("usage", {}).get("total_tokens", 0),
-                latency_ms=_usage_raw.get("usage", {}).get("latency_ms", 0),
-                step="analyze",
-            )
+            u = LlmUsage.from_dict(_usage_raw, step="analyze")
             llm_calls += 1
             llm_usages.append(u)
         # A4: expanded payload
@@ -233,9 +231,10 @@ def run_deep(
         # A3: 携带 feedback 进入下一轮
         review_feedback = detail
 
-    answer = synthesize(query, analyst_result)
-    # synthesize 也调用 chat_completion，但 synthesize_answer 不返回 usage 到上层
-    # 这里通过 monkeypatch 或全局收集器暂无法捕获，留待后续改进
+    answer, synth_usage = synthesize(query, analyst_result, run_id=run_id, store=store)
+    if synth_usage is not None:
+        llm_calls += 1
+        llm_usages.append(synth_usage)
     store.append_event(
         run_id,
         "orchestrator",

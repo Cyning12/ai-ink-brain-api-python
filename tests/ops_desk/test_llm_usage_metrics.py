@@ -56,6 +56,11 @@ class FakeOpsRunStore:
             self.runs[run_id] = {}
         self.runs[run_id]["metrics_json"] = metrics_json
 
+    def update_run(self, run_id: str, **fields: Any) -> None:
+        if run_id not in self.runs:
+            self.runs[run_id] = {}
+        self.runs[run_id].update(fields)
+
 
 class FakeProvider:
     """Mock LLM Provider，返回固定 usage。"""
@@ -355,15 +360,142 @@ def test_tracing_off_does_not_call_update_generation_usage(monkeypatch) -> None:
     update_current_generation_usage(u)
 
 
+def test_langfuse_usage_mirror_calls_update_current_generation(monkeypatch) -> None:
+    """Langfuse on 时使用 update_current_generation(usage_details=...)。"""
+    monkeypatch.setenv("LANGFUSE_TRACING", "true")
+    monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-test")
+    monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-test")
+
+    calls: list[dict[str, Any]] = []
+
+    class FakeClient:
+        def update_current_generation(self, **kwargs: Any) -> None:
+            calls.append(kwargs)
+
+    monkeypatch.setattr("api.ops.tracing.tracing_provider", lambda: "langfuse")
+    monkeypatch.setattr("langfuse.get_client", lambda: FakeClient())
+
+    from api.ops.tracing import update_current_generation_usage
+
+    u = LlmUsage(
+        provider="siliconflow",
+        model="Qwen/Qwen2.5-72B-Instruct",
+        prompt_tokens=128,
+        completion_tokens=194,
+        total_tokens=322,
+    )
+    update_current_generation_usage(u)
+
+    assert len(calls) == 1
+    assert calls[0]["usage_details"] == {"input": 128, "output": 194, "total": 322}
+    assert calls[0]["model"] == "Qwen/Qwen2.5-72B-Instruct"
+
+
 # ---------------------------------------------------------------------------
 # B9: run_deep 集成 — 验证 analyze_issue 返回的 _llm_usage 被正确消费
 # ---------------------------------------------------------------------------
+
+def test_llm_usage_from_dict_flat_and_nested() -> None:
+    flat = LlmUsage(
+        provider="siliconflow",
+        model="Qwen/Qwen2.5-72B-Instruct",
+        prompt_tokens=128,
+        completion_tokens=216,
+        total_tokens=344,
+        latency_ms=7805,
+        step="analyze",
+    ).to_dict()
+    u_flat = LlmUsage.from_dict(flat, step="analyze")
+    assert u_flat.provider == "siliconflow"
+    assert u_flat.total_tokens == 344
+
+    nested = {"usage": flat}
+    u_nested = LlmUsage.from_dict(nested, step="analyze")
+    assert u_nested.total_tokens == 344
+
+
+def test_run_deep_metrics_collects_analyze_usage_shape(monkeypatch) -> None:
+    """run_deep 消费 analyze_issue 的扁平 _llm_usage，写入非零 metrics_json。"""
+    from api.ops.orchestrator.core import run_deep
+
+    store = FakeOpsRunStore()
+    run_id = "run-deep-metrics"
+    store.runs[run_id] = {}
+
+    analyze_usage = LlmUsage(
+        provider="siliconflow",
+        model="Qwen/Qwen2.5-72B-Instruct",
+        prompt_tokens=128,
+        completion_tokens=216,
+        total_tokens=344,
+        latency_ms=7805,
+        step="analyze",
+    )
+    synth_usage = LlmUsage(
+        provider="siliconflow",
+        model="Qwen/Qwen2.5-72B-Instruct",
+        prompt_tokens=50,
+        completion_tokens=30,
+        total_tokens=80,
+        latency_ms=1200,
+        step="synthesize",
+    )
+
+    def fake_analyze_issue(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        return {
+            "found": True,
+            "evidence": [{"issue_number": 545}],
+            "reasoning": "ok",
+            "suggestion": "s",
+            "confidence": 0.9,
+            "citations": [],
+            "_llm_usage": analyze_usage.to_dict(),
+        }
+
+    def fake_synthesize_answer(
+        query: str,
+        evidence: list[dict[str, Any]],
+        *,
+        run_id: str | None = None,
+        store: Any = None,
+    ) -> LlmCompletionResult:
+        if run_id and store:
+            from api.ops.llm import _write_usage_event
+
+            _write_usage_event(run_id, synth_usage, store)
+        return LlmCompletionResult(content="final answer", usage=synth_usage)
+
+    mock_queries = MagicMock()
+    mock_queries.fetch_issue_by_number.return_value = {
+        "title": "Test",
+        "state": "open",
+        "labels": [],
+        "scan_tags": [],
+        "html_url": "https://github.com/test/issues/545",
+    }
+    mock_queries.fetch_pull_by_number.return_value = None
+
+    monkeypatch.setattr("api.ops.orchestrator.core.analyze_issue", fake_analyze_issue)
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
+
+    run_deep(run_id, "test", {"issue_number": 545}, store, mock_queries, intent="issue_contribution")
+
+    metrics = store.runs[run_id]["metrics_json"]
+    assert metrics["llm"]["calls"] == 2
+    assert metrics["llm"]["total_tokens"] == 424
+    assert metrics["llm"]["provider"] == "siliconflow"
+    assert metrics["route"] == "deep"
+    assert metrics["intent"] == "issue_contribution"
+
+    usage_events = [e for e in store.events if e["event_type"] == "llm.usage"]
+    assert len(usage_events) == 1
+    assert usage_events[0]["payload"]["step"] == "synthesize"
+
 
 def test_analyze_issue_returns_llm_usage_shape(monkeypatch) -> None:
     """analyze_issue 返回的 _llm_usage 可被 run_deep 消费。"""
     from api.ops.agents.issue_analyst import analyze_issue
 
-    # Mock chat_completion 返回固定结果
     fake_usage = LlmUsage(
         provider="siliconflow",
         model="Qwen/Qwen2.5-72B-Instruct",
@@ -379,7 +511,6 @@ def test_analyze_issue_returns_llm_usage_shape(monkeypatch) -> None:
     )
     monkeypatch.setattr("api.ops.agents.issue_analyst.chat_completion", lambda *args, **kwargs: fake_result)
 
-    # Mock queries
     mock_queries = MagicMock()
     mock_queries.fetch_issue_by_number.return_value = {
         "title": "Test Issue",
@@ -395,7 +526,6 @@ def test_analyze_issue_returns_llm_usage_shape(monkeypatch) -> None:
     assert result["found"] is True
     assert "_llm_usage" in result
     usage_dict = result["_llm_usage"]
-    # issue_analyst 返回的 _llm_usage 是 LlmUsage.to_dict() 结果
     assert usage_dict["prompt_tokens"] == 20
     assert usage_dict["total_tokens"] == 30
     assert usage_dict["step"] == "analyze"
