@@ -62,6 +62,23 @@ def _run_demo_cache_hit(
         status="done",
         final_answer={"answer": answer, "demo_id": demo_id, "demo_hit": True},
     )
+    # B6: cache hit 写 metrics（token=0, hit=true）
+    metrics_json = {
+        "cache": {"demo_id": demo_id, "hit": True, "source": "ops_demo_answers"},
+        "llm": {
+            "provider": "",
+            "model": "",
+            "calls": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "latency_ms": 0,
+        },
+        "route": "fast",
+        "intent": "demo",
+    }
+    store.update_run_metrics_json(run_id, metrics_json)
+    store.append_event(run_id, "orchestrator", "run.metrics", payload=metrics_json, node_id="fast.metrics")
     store.append_event(run_id, "orchestrator", "run.end", node_id="fast.end")
     return {
         "run_id": run_id,

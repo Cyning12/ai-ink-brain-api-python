@@ -35,6 +35,8 @@ def analyze_issue(
     issue_number: int,
     queries: OpsQueries,
     review_feedback: dict[str, Any] | None = None,
+    run_id: str | None = None,
+    store: Any = None,
 ) -> dict[str, Any]:
     """深析单个 issue；不调用任何 Git 写 API。"""
     issue = queries.fetch_issue_by_number(issue_number)
@@ -82,8 +84,8 @@ def analyze_issue(
         "输出 JSON：{reasoning, suggestion, confidence(0-1), citations:[{number, url}]}"
     )
 
-    raw = chat_completion([{"role": "user", "content": prompt}], temperature=0.3)
-    parsed = _parse_llm_json(raw)
+    raw = chat_completion([{"role": "user", "content": prompt}], step="analyze", run_id=run_id, store=store)
+    parsed = _parse_llm_json(raw.content)
 
     citations = parsed.get("citations", [])
     # A1: Review 前用 DB html_url 归一化
@@ -93,10 +95,11 @@ def analyze_issue(
         "issue_number": issue_number,
         "found": True,
         "evidence": evidence,
-        "reasoning": parsed.get("reasoning", raw),
+        "reasoning": parsed.get("reasoning", raw.content),
         "suggestion": parsed.get("suggestion", ""),
         "confidence": float(parsed.get("confidence", 0.7)),
         "citations": citations,
+        "_llm_usage": raw.usage.to_dict(),
     }
 
 

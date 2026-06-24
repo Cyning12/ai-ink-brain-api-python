@@ -180,13 +180,21 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
     llm_calls: list[dict[str, Any]] = []
 
-    def fake_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3) -> str:
+    def fake_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3, **kwargs: Any) -> Any:
         llm_calls.append({"messages": messages})
-        return '{"reasoning": "分析完成", "suggestion": "建议参与", "confidence": 0.85, "citations": [{"number": 545, "url": "https://github.com/MoonshotAI/kimi-code/issues/545"}]}'
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+        return LlmCompletionResult(
+            content='{"reasoning": "分析完成", "suggestion": "建议参与", "confidence": 0.85, "citations": [{"number": 545, "url": "https://github.com/MoonshotAI/kimi-code/issues/545"}]}',
+            usage=LlmUsage(provider="siliconflow", model="Qwen/Qwen2.5-72B-Instruct", prompt_tokens=10, completion_tokens=5, total_tokens=15, latency_ms=100, step="analyze"),
+        )
 
-    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> str:
+    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> Any:
         llm_calls.append({"query": query})
-        return "综合建议：#545 值得参与。"
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+        return LlmCompletionResult(
+            content="综合建议：#545 值得参与。",
+            usage=LlmUsage(provider="siliconflow", model="Qwen/Qwen2.5-72B-Instruct", prompt_tokens=8, completion_tokens=4, total_tokens=12, latency_ms=80, step="synthesize"),
+        )
 
     monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
     monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)

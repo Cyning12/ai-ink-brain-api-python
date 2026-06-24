@@ -131,7 +131,8 @@ def synthesize(query: str, result: dict[str, Any]) -> str:
     evidence = result.get("evidence", [])
     if result.get("found") is False:
         return result.get("reasoning", "未能找到相关 issue。")
-    return synthesize_answer(query, evidence)
+    llm_result = synthesize_answer(query, evidence)
+    return llm_result.content
 
 
 @traceable(capture_input=False, capture_output=False)
@@ -176,8 +177,25 @@ def run_deep(
     final_verdict = "partial"
     analyst_result: dict[str, Any] = {}
     review_feedback: dict[str, Any] | None = None
+    llm_calls = 0
+    llm_usages: list[Any] = []
     while attempt <= max_retries:
-        analyst_result = analyze_issue(query, issue_number, queries, review_feedback=review_feedback)
+        analyst_result = analyze_issue(query, issue_number, queries, review_feedback=review_feedback, run_id=run_id, store=store)
+        # 收集 analyze_issue 的 usage
+        _usage_raw = analyst_result.get("_llm_usage", {})
+        if _usage_raw:
+            from api.ops.llm.types import LlmUsage
+            u = LlmUsage(
+                provider=_usage_raw.get("usage", {}).get("provider", ""),
+                model=_usage_raw.get("usage", {}).get("model", ""),
+                prompt_tokens=_usage_raw.get("usage", {}).get("prompt_tokens", 0),
+                completion_tokens=_usage_raw.get("usage", {}).get("completion_tokens", 0),
+                total_tokens=_usage_raw.get("usage", {}).get("total_tokens", 0),
+                latency_ms=_usage_raw.get("usage", {}).get("latency_ms", 0),
+                step="analyze",
+            )
+            llm_calls += 1
+            llm_usages.append(u)
         # A4: expanded payload
         store.append_event(
             run_id,
@@ -216,6 +234,8 @@ def run_deep(
         review_feedback = detail
 
     answer = synthesize(query, analyst_result)
+    # synthesize 也调用 chat_completion，但 synthesize_answer 不返回 usage 到上层
+    # 这里通过 monkeypatch 或全局收集器暂无法捕获，留待后续改进
     store.append_event(
         run_id,
         "orchestrator",
@@ -229,12 +249,70 @@ def run_deep(
         final_answer={"answer": answer, "issue_number": issue_number, "verdict": final_verdict},
     )
     store.append_event(run_id, "orchestrator", "run.end", node_id="deep.end")
+    # B5: run 级 metrics_json 汇总
+    metrics_json = _build_metrics_json(
+        route="deep",
+        intent=intent or "issue_contribution",
+        llm_calls=llm_calls,
+        llm_usages=llm_usages,
+    )
+    store.update_run_metrics_json(run_id, metrics_json)
+    store.append_event(
+        run_id,
+        "orchestrator",
+        "run.metrics",
+        payload=metrics_json,
+        node_id="deep.metrics",
+    )
     return {
         "run_id": run_id,
         "status": final_verdict,
         "answer": answer,
         "issue_number": issue_number,
     }
+
+
+def _build_metrics_json(
+    route: str,
+    intent: str,
+    llm_calls: int,
+    llm_usages: list[Any],
+    cache_hit: bool = False,
+    demo_id: str | None = None,
+) -> dict[str, Any]:
+    """汇总 run 级 metrics_json。"""
+    total_prompt = sum(u.prompt_tokens for u in llm_usages)
+    total_completion = sum(u.completion_tokens for u in llm_usages)
+    total_tokens = sum(u.total_tokens for u in llm_usages)
+    total_latency = sum(u.latency_ms for u in llm_usages)
+    metrics: dict[str, Any] = {
+        "route": route,
+        "intent": intent,
+    }
+    if cache_hit:
+        metrics["cache"] = {"demo_id": demo_id or "", "hit": True, "source": "ops_demo_answers"}
+        metrics["llm"] = {
+            "provider": llm_usages[0].provider if llm_usages else "",
+            "model": llm_usages[0].model if llm_usages else "",
+            "calls": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "latency_ms": 0,
+        }
+    else:
+        provider = llm_usages[0].provider if llm_usages else ""
+        model = llm_usages[0].model if llm_usages else ""
+        metrics["llm"] = {
+            "provider": provider,
+            "model": model,
+            "calls": llm_calls,
+            "prompt_tokens": total_prompt,
+            "completion_tokens": total_completion,
+            "total_tokens": total_tokens,
+            "latency_ms": total_latency,
+        }
+    return metrics
 
 
 def run_fast(
@@ -269,6 +347,21 @@ def run_fast(
         final_answer={"answer": answer, "type": result.get("type")},
     )
     store.append_event(run_id, "orchestrator", "run.end", node_id="fast.end")
+    # B5: fast 路径也写 metrics_json（无 LLM 调用）
+    metrics_json = _build_metrics_json(
+        route="fast",
+        intent=intent,
+        llm_calls=0,
+        llm_usages=[],
+    )
+    store.update_run_metrics_json(run_id, metrics_json)
+    store.append_event(
+        run_id,
+        "orchestrator",
+        "run.metrics",
+        payload=metrics_json,
+        node_id="fast.metrics",
+    )
     return {"run_id": run_id, "status": "done", "answer": answer, "route": "fast"}
 
 
