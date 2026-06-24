@@ -1,9 +1,10 @@
 # Task · Ops Desk P2-5a-ext · LLM 用量 · 缓存指标（后端）
 
-> **状态**：`active` · 2026-06-24  
+> **状态**：`done` · 2026-06-24  
 > **SCOPE**：[`SCOPE_NOTE_langfuse_usage_metrics_addendum_v1_zh.md`](../../../../docs/harness/invokes/by-task/ops-desk-p2-langfuse-tracing/SCOPE_NOTE_langfuse_usage_metrics_addendum_v1_zh.md)  
-> **协调**：[`task_ops_desk_p2_llm_usage_metrics_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_llm_usage_metrics_v1.md)  
-> **前置**：P2-5a · main 含 #204
+> **协调**：[`task_ops_desk_p2_llm_usage_metrics_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_llm_usage_metrics_v1.md)  
+> **前置**：P2-5a · main 含 #204 · #207 已合
+> **PR**：#208 → main · merge SHA `7a74b435`
 
 ---
 
@@ -26,9 +27,9 @@ P2-5a 已接 Langfuse trace。本 task 补齐 **项目内部** token / 缓存指
 
 ### 完成态
 
-- [ ] B1–B9（SCOPE addendum §5）
-- [ ] V5–V9 验收
-- [ ] PR merged → main
+- [x] B1–B9（SCOPE addendum §5）
+- [x] V5–V9 验收
+- [x] PR #208 merged → main · `7a74b435`
 
 ---
 
