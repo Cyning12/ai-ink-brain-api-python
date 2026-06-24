@@ -61,7 +61,13 @@ def chat_completion(
     return result
 
 
-def synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> LlmCompletionResult:
+def synthesize_answer(
+    query: str,
+    evidence: list[dict[str, Any]],
+    *,
+    run_id: str | None = None,
+    store: Any = None,
+) -> LlmCompletionResult:
     prompt = (
         "你是一位 Ops Desk 助手。基于以下证据回答用户问题。\n"
         "要求：\n"
@@ -70,7 +76,12 @@ def synthesize_answer(query: str, evidence: list[dict[str, Any]]) -> LlmCompleti
         "3. 若证据不足，明确说明。\n\n"
         f"用户问题：{query}\n\n证据：\n{evidence}\n\n回答："
     )
-    return chat_completion([{"role": "user", "content": prompt}], step="synthesize")
+    return chat_completion(
+        [{"role": "user", "content": prompt}],
+        step="synthesize",
+        run_id=run_id,
+        store=store,
+    )
 
 
 __all__ = ["LlmCompletionResult", "LlmUsage", "chat_completion", "synthesize_answer"]

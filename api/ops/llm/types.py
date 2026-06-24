@@ -31,6 +31,21 @@ class LlmUsage:
             "usage_missing": self.usage_missing,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any], *, step: str | None = None) -> LlmUsage:
+        """从 LlmUsage.to_dict() 或嵌套 {usage: {...}} 还原。"""
+        raw = data.get("usage", data) if isinstance(data.get("usage"), dict) else data
+        return cls(
+            provider=str(raw.get("provider", "")),
+            model=str(raw.get("model", "")),
+            prompt_tokens=int(raw.get("prompt_tokens", 0) or 0),
+            completion_tokens=int(raw.get("completion_tokens", 0) or 0),
+            total_tokens=int(raw.get("total_tokens", 0) or 0),
+            latency_ms=int(raw.get("latency_ms", 0) or 0),
+            step=step or str(raw.get("step", "other")),
+            usage_missing=bool(raw.get("usage_missing", False)),
+        )
+
 
 @dataclass
 class LlmCompletionResult:

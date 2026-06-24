@@ -145,13 +145,20 @@ def update_current_generation_usage(usage: Any) -> None:
     try:
         from langfuse import get_client
 
-        get_client().update_current_observation(
-            usage={
-                "input": usage.prompt_tokens,
-                "output": usage.completion_tokens,
-                "total": usage.total_tokens,
-                "unit": "TOKENS",
-            }
-        )
+        client = get_client()
+        usage_details = {
+            "input": int(usage.prompt_tokens or 0),
+            "output": int(usage.completion_tokens or 0),
+            "total": int(usage.total_tokens or 0),
+        }
+        # Langfuse SDK ≥4 使用 update_current_generation + usage_details；
+        # 旧版 update_current_observation(usage=...) 在 4.9.x 已不存在，会静默失败导致 UI token=0。
+        if hasattr(client, "update_current_generation"):
+            client.update_current_generation(
+                usage_details=usage_details,
+                model=getattr(usage, "model", None) or None,
+            )
+        elif hasattr(client, "update_current_observation"):
+            client.update_current_observation(usage=usage_details)
     except Exception:
         return
