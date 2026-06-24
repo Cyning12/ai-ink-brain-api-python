@@ -56,3 +56,12 @@ P2-5a 已接 Langfuse trace。本 task 补齐 **项目内部** token / 缓存指
 ## 给执行 Agent
 
 - CHAIN：[`PROMPT_CHAIN_30_40_50_CLOSE_v1.md`](../../../../docs/harness/invokes/by-task/ops-desk-p2-llm-usage-metrics/PROMPT_CHAIN_30_40_50_CLOSE_v1.md)
+
+---
+
+## 验收标准
+
+- `pytest tests/ops_desk/test_llm_usage_metrics.py -v` 绿
+- `pytest tests/ops_desk/ -q` 绿
+- `pytest tests -m "not intent_eval and not intent_benchmark" -q` 绿
+- SCOPE V5–V9 通过
