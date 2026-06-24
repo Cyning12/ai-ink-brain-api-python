@@ -55,9 +55,15 @@ def traceable(*decorator_args: Any, **decorator_kwargs: Any) -> Callable[[F], F]
         provider = tracing_provider()
         if provider == "none":
             return fn
+        # 裸 @traceable：decorator_args[0] 即 fn，勿再传给 observe(*args)
+        observe_args = (
+            ()
+            if len(decorator_args) == 1 and decorator_args[0] is fn and not decorator_kwargs
+            else decorator_args
+        )
         if provider == "langfuse":
-            return _langfuse_observe(fn, decorator_args, decorator_kwargs)
-        return _langsmith_traceable(fn, decorator_args, decorator_kwargs)
+            return _langfuse_observe(fn, observe_args, decorator_kwargs)
+        return _langsmith_traceable(fn, observe_args, decorator_kwargs)
 
     if len(decorator_args) == 1 and callable(decorator_args[0]) and not decorator_kwargs:
         return _wrap(decorator_args[0])
