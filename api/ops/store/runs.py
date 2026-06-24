@@ -76,6 +76,10 @@ class OpsRunStore:
 
         supabase_execute_with_retry(_once)
 
+    def update_run_metrics_json(self, run_id: str, metrics_json: dict[str, Any]) -> None:
+        """写 run 级 metrics_json；与 update_run 区分以便追踪。"""
+        self.update_run(run_id, metrics_json=metrics_json)
+
     def next_seq(self, run_id: str) -> int:
         def _once() -> int:
             res = (

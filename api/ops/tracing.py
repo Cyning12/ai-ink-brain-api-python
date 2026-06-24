@@ -136,3 +136,22 @@ def update_current_span_metadata(metadata: dict[str, Any]) -> None:
         get_client().update_current_span(metadata=metadata)
     except Exception:
         return
+
+
+def update_current_generation_usage(usage: Any) -> None:
+    """将 LLM usage 同步到当前 Langfuse generation；未开启或失败时静默跳过。"""
+    if tracing_provider() != "langfuse":
+        return
+    try:
+        from langfuse import get_client
+
+        get_client().update_current_observation(
+            usage={
+                "input": usage.prompt_tokens,
+                "output": usage.completion_tokens,
+                "total": usage.total_tokens,
+                "unit": "TOKENS",
+            }
+        )
+    except Exception:
+        return
