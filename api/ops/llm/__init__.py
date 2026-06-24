@@ -32,6 +32,9 @@ def _write_usage_event(run_id: str, usage: LlmUsage, store: Any) -> None:
             "latency_ms": usage.latency_ms,
             "step": usage.step,
             "usage_missing": usage.usage_missing,
+            "prompt_cache_hit_tokens": usage.prompt_cache_hit_tokens,
+            "prompt_cache_miss_tokens": usage.prompt_cache_miss_tokens,
+            "cached_tokens": usage.cached_tokens,
         },
         node_id=f"llm.{usage.step}",
     )
