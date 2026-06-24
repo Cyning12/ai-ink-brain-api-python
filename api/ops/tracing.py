@@ -81,6 +81,9 @@ def _langfuse_observe(fn: F, decorator_args: tuple[Any, ...], decorator_kwargs: 
         observe_kwargs["name"] = name
     if as_type is not None:
         observe_kwargs["as_type"] = as_type
+    for key in ("capture_input", "capture_output"):
+        if key in decorator_kwargs:
+            observe_kwargs[key] = decorator_kwargs[key]
 
     if decorator_args or observe_kwargs:
         return observe(*decorator_args, **observe_kwargs)(fn)
@@ -112,3 +115,18 @@ def flush_traces() -> None:
             Client().flush()
         except Exception:
             return
+
+
+def update_current_span_metadata(metadata: dict[str, Any]) -> None:
+    """为当前 Langfuse span/observation 附加 metadata；未开启或失败时静默跳过。
+
+    用于 deep 路径根 span 写入 ops_run_id / route / intent / issue_number 等结构化标签。
+    """
+    if tracing_provider() != "langfuse":
+        return
+    try:
+        from langfuse import get_client
+
+        get_client().update_current_span(metadata=metadata)
+    except Exception:
+        return

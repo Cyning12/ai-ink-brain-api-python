@@ -1,8 +1,8 @@
 # Task · Ops Desk P2-5a · Langfuse Tracing（后端）
 
-> **状态**：`active` · 2026-06-24  
+> **状态**：`done` · 2026-06-24  
 > **SCOPE**：[`SCOPE_NOTE_langfuse_tracing_v1_zh.md`](../../../../docs/harness/invokes/by-task/ops-desk-p2-langfuse-tracing/SCOPE_NOTE_langfuse_tracing_v1_zh.md)  
-> **协调**：[`task_ops_desk_p2_langfuse_tracing_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_langfuse_tracing_v1.md)
+> **协调**：[`task_ops_desk_p2_langfuse_tracing_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_langfuse_tracing_v1.md)
 
 ---
 

@@ -10,6 +10,7 @@ from api.ops.constants import DEFAULT_DAYS
 from api.ops.llm import synthesize_answer
 from api.ops.queries import OpsQueries
 from api.ops.store.runs import OpsRunStore
+from api.ops.tracing import traceable, update_current_span_metadata
 
 
 class Intent:
@@ -95,6 +96,7 @@ def fast_respond(intent: str, slots: dict[str, Any], queries: OpsQueries) -> dic
     return {"type": "unknown", "answer": "未识别意图"}
 
 
+@traceable(capture_input=False, capture_output=False)
 def review_result(result: dict[str, Any], queries: OpsQueries) -> tuple[str, dict[str, Any]]:
     """Review V1–V4；返回 (verdict, detail)。"""
     citations = result.get("citations", [])
@@ -132,6 +134,7 @@ def synthesize(query: str, result: dict[str, Any]) -> str:
     return synthesize_answer(query, evidence)
 
 
+@traceable(capture_input=False, capture_output=False)
 def run_deep(
     run_id: str,
     query: str,
@@ -139,18 +142,28 @@ def run_deep(
     store: OpsRunStore,
     queries: OpsQueries,
     max_retries: int = 2,
+    intent: str | None = None,
 ) -> dict[str, Any]:
     """deep path：issue_analyst → review → synthesize → events。"""
+    issue_number = slots.get("issue_number", 545)
+    update_current_span_metadata(
+        {
+            "ops_run_id": run_id,
+            "route": "deep",
+            "intent": intent or "issue_contribution",
+            "issue_number": issue_number,
+        }
+    )
+
     store.append_event(run_id, "orchestrator", "run.start", node_id="deep.start")
     store.append_event(
         run_id,
         "orchestrator",
         "router.decision",
-        payload={"route": "deep", "intent": "issue_contribution", "slots": slots},
+        payload={"route": "deep", "intent": intent or "issue_contribution", "slots": slots},
         node_id="classify",
     )
 
-    issue_number = slots.get("issue_number", 545)
     store.append_event(
         run_id,
         "orchestrator",

@@ -117,6 +117,11 @@
 | `TEXT2SQL_SCHEMA_PREFETCH` | 写入/更新意图下是否在 LLM 生成前 **只读预取** `information_schema.columns` | 可选 | `api/text2sql_schema_prefetch.py::schema_prefetch_enabled()` | `0`/`false`/`no`/`off` 关闭；`1`/`true` 强制开启；**未设**时若已配置 **`TEXT2SQL_DATABASE_URL`** 则默认开启 | 依赖 `TEXT2SQL_DATABASE_URL` |
 | `TEXT2SQL_SCHEMA_PREFETCH_TIMEOUT_MS` | 预取查询 `SET LOCAL statement_timeout`（毫秒） | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`8000`**；clamp `200..60000` | 与项目无关 |
 | `TEXT2SQL_SCHEMA_PREFETCH_MAX_ROWS` | 预取结果 `LIMIT` 上限 | 可选 | `api/text2sql_schema_prefetch.py::fetch_public_table_columns_sync()` | 默认 **`2000`**；clamp `10..20000` | 与项目无关 |
+| `LANGFUSE_TRACING` | 是否开启 Ops Desk deep 路径 Langfuse trace | 可选 | `api/ops/tracing.py:tracing_provider()` | 默认 **`false`**；`1`/`true`/`yes`/`on` 开启；**生产默认关闭** | 与项目无关 |
+| `LANGFUSE_PUBLIC_KEY` | Langfuse Cloud Project Public Key | 开启时必填 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 形如 `pk-lf-...`；**勿提交 Git** | 与项目无关 |
+| `LANGFUSE_SECRET_KEY` | Langfuse Cloud Project Secret Key | 开启时必填 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 形如 `sk-lf-...`；**勿提交 Git** | 与项目无关 |
+| `LANGFUSE_BASE_URL` | Langfuse API 基础 URL | 可选 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 默认 **`https://jp.cloud.langfuse.com`**（Japan 区） | 与项目无关 |
+| `LANGFUSE_TRACING_ENVIRONMENT` | Langfuse trace environment 标签 | 可选 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 默认未设置；常见 `development` / `staging` / `production` | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 
