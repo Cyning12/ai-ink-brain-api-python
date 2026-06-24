@@ -47,5 +47,6 @@ timeline
   2026-06-22 : P0-2 Ops Desk GHA sync MoonshotAI/kimi-code · ops_sync_kimi_code.yml + api/ops/sync/
   2026-06-22 : P1 规划 16_flow_ops_chat · Orchestrator fast/deep · ops_runs/events · 00_main 挂链
   2026-06-23 : e3163693 auto: api/ops/demo_cache.py
+  2026-06-24 : 52ff03f8 auto: api/ops/agents/issue_analyst.py
 ```
 

@@ -133,6 +133,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-06-24 | [task_ops_desk_p2_langfuse_tracing_v1.md](./task_ops_desk_p2_langfuse_tracing_v1.md) | Ops Desk P2-5a · Langfuse tracing（Japan Cloud）· deep 路径 `@traceable` · `flush_traces()` · 生产默认关闭 · `OPS-DESK-KIMI-CODE-P2-LANGFUSE-TRACING` |
 | 2026-06-22 | [task_ops_desk_p1_demo_cache_v1.md](./task_ops_desk_p1_demo_cache_v1.md) | Ops Desk P1-6 · Demo Cache `ops_demo_answers` · D1-D4 · fast hit / deep write-back · TTL 24h · `OPS-DESK-KIMI-CODE-P1-DEMO-CACHE` |
 | 2026-06-21 | [task_ops_desk_p0_supabase_schema_v1.md](./task_ops_desk_p0_supabase_schema_v1.md) | Ops Desk P0-1 · Supabase 四表 DDL · rollback · pytest · `OPS-DESK-KIMI-CODE-P0-SUPABASE-SCHEMA` |
 | 2026-06-17 | [task_engineering_graph_yaml_export_from_yaml_p1_v1.md](./task_engineering_graph_yaml_export_from_yaml_p1_v1.md) | Inform 闭环 P1 · graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md` |

@@ -6,6 +6,7 @@ from typing import Any
 
 from api.ops.llm import chat_completion
 from api.ops.queries import OpsQueries
+from api.ops.tracing import traceable
 
 
 def _normalize_citations(
@@ -28,6 +29,7 @@ def _normalize_citations(
     return normalized
 
 
+@traceable(capture_input=False, capture_output=False)
 def analyze_issue(
     query: str,
     issue_number: int,

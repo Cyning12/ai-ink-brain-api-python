@@ -1,8 +1,8 @@
 # Task · Ops Desk P2-5a · Langfuse Tracing（后端）
 
-> **状态**：`active` · 2026-06-24  
+> **状态**：`done` · 2026-06-24  
 > **SCOPE**：[`SCOPE_NOTE_langfuse_tracing_v1_zh.md`](../../../../docs/harness/invokes/by-task/ops-desk-p2-langfuse-tracing/SCOPE_NOTE_langfuse_tracing_v1_zh.md)  
-> **协调**：[`task_ops_desk_p2_langfuse_tracing_v1.md`](../../../../docs/harness/tasks/active/task_ops_desk_p2_langfuse_tracing_v1.md)
+> **协调**：[`task_ops_desk_p2_langfuse_tracing_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_langfuse_tracing_v1.md)
 
 ---
 
@@ -71,14 +71,35 @@ Install the Langfuse AI skill from github.com/langfuse/skills and use it to add 
 
 ## 失败路径
 
-| 条件 | 行为 |
-| --- | --- |
-| Langfuse 网络失败 | Chat 成功 · trace 丢弃 |
-| 缺 key + TRACING=true | no-op |
-| pytest CI | 无 LANGFUSE key · 全绿 |
+| Scenario ID | 条件 | 行为 |
+| --- | --- | --- |
+| F1 | Langfuse 网络失败 | Chat 成功 · trace 丢弃 |
+| F2 | 缺 key + TRACING=true | no-op |
+| F3 | pytest CI | 无 LANGFUSE key · 全绿 |
+
+---
+
+## 行为变更（Delta）
+
+### ADDED
+- `api/ops/llm.py`: `chat_completion` 增加 `@traceable(run_type="llm")`
+- `api/ops/agents/issue_analyst.py`: `analyze_issue` 增加 `@traceable`
+- `api/ops/orchestrator/core.py`: `run_deep` / `review_result` 增加 `@traceable`；`run_deep` 新增 `intent` 参数并写入 trace metadata
+- `api/ops/chat.py`: deep 路径出口增加 `flush_traces()`
+- `api/ops/tracing.py`: 新增 `update_current_span_metadata` helper；`@traceable` 支持 `capture_input` / `capture_output`
+- `tests/ops_desk/test_tracing_shim.py`: 扩展回归测试
+
+### MODIFIED
+- `requirements.txt`: langfuse optional 安装说明
+- `docs/meta/PROJECT_CONFIG_AI_INK_BRAIN_API_PYTHON.md`: 新增 `LANGFUSE_*` 环境变量表
+- `docs/ops/langfuse.env.example`: Japan URL + 生产默认 false 注释
+
+### REMOVED
+- 无
 
 ---
 
 ## 实现备忘
 
-（子 Agent 回填 PR · span 名 · PROJECT_CONFIG 节号）
+- PR: https://github.com/Cyning12/ai-ink-brain-api-python/pull/202
+- 合并后回填 SHA。

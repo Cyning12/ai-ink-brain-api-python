@@ -7,6 +7,8 @@ from typing import Any
 
 import requests
 
+from api.ops.tracing import traceable
+
 
 def _api_key() -> str:
     return (os.getenv("SILICONFLOW_API_KEY") or os.getenv("OPENAI_API_KEY") or "").strip()
@@ -20,6 +22,7 @@ def _base() -> str:
     return (os.getenv("OPS_LLM_BASE") or "https://api.siliconflow.cn/v1").strip()
 
 
+@traceable(run_type="llm")
 def chat_completion(messages: list[dict[str, str]], temperature: float = 0.3) -> str:
     """同步单轮 LLM 调用；测试时 monkeypatch 此函数。"""
     key = _api_key()

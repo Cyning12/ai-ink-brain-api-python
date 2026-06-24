@@ -2,7 +2,8 @@
 
 > **薄指针**：完整导航见 [`../done/README.md`](../done/README.md) · 分组表见 [`done_by_domain.md`](./done_by_domain.md)。
 > **维护纪律**：关账时更新 Hub / `done_by_domain`；**勿**在本文件追加长列表。
-> **最近关账**：2026-06-22 · P2-2 后端 `task_ops_desk_p2_scan_ingest_backend_v1` → scan ingest（`ops_scan_snapshots` / `ops_sync_run_artifacts` / parser / summary API / GHA sparse checkout）
+> **最近关账**：2026-06-24 · P2-5a 后端 `task_ops_desk_p2_langfuse_tracing_v1` → Langfuse tracing（deep 路径 `@traceable` · Japan Cloud · 生产默认关闭）
+> · 2026-06-22 · P2-2 后端 `task_ops_desk_p2_scan_ingest_backend_v1` → scan ingest（`ops_scan_snapshots` / `ops_sync_run_artifacts` / parser / summary API / GHA sparse checkout）
 > · 2026-06-22 · P1 后端链 `task_ops_desk_p1_metrics_api_v1` / `task_ops_desk_p1_ops_run_schema_v1` / `task_ops_desk_p1_orchestrator_core_v1` / `task_ops_desk_p1_demo_cache_v1` → metrics/list API · ops_runs/events schema · Orchestrator FSM Chat · Demo Cache D1-D4
 > · 2026-06-17 · `task_engineering_graph_yaml_export_from_yaml_p1_v1.md` → Inform 闭环 P1（graph.json export 改读 YAML · 单源闭环 · CI 不再依赖 `.ai.md`）  
 > · 2026-06-16 · `task_engineering_graph_yaml_doc_hygiene_p0_v1.md` → Inform 闭环 P0（Sub-graph 去 `.ai.md` 链 · QNA 幽灵节点 · pytest 防回归）  

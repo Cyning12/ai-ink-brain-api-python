@@ -13,6 +13,7 @@ from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_
 from api.ops.orchestrator.core import Intent
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
+from api.ops.tracing import flush_traces
 
 router = APIRouter(prefix="/ops/chat", tags=["ops-chat"])
 
@@ -106,15 +107,20 @@ def chat_messages(
 
         run = store.create_run(query=body.message, route="deep", session_id=body.session_id)
         run_id = str(run["id"])
-        result = run_deep(run_id, body.message, demo_match["params"], store, queries)
-        if result["status"] in ("done", "partial"):
-            demo_cache.set(
-                demo_match["demo_id"],
-                {"answer": result.get("answer", ""), **demo_match["params"]},
-                query_template=demo_match["query_template"],
-                params=demo_match["params"],
-            )
-        return {"route": "deep", **result, "demo_id": demo_match["demo_id"], "demo_hit": False}
+        result = run_deep(
+            run_id, body.message, demo_match["params"], store, queries, intent=demo_match["intent"]
+        )
+        try:
+            if result["status"] in ("done", "partial"):
+                demo_cache.set(
+                    demo_match["demo_id"],
+                    {"answer": result.get("answer", ""), **demo_match["params"]},
+                    query_template=demo_match["query_template"],
+                    params=demo_match["params"],
+                )
+            return {"route": "deep", **result, "demo_id": demo_match["demo_id"], "demo_hit": False}
+        finally:
+            flush_traces()
 
     intent, slots = classify_intent(body.message)
 
@@ -156,5 +162,8 @@ def chat_messages(
         result = run_fast(run_id, body.message, intent, slots, store, queries)
         return {"run_id": run_id, "route": route, "status": result["status"], "answer": result.get("answer")}
 
-    result = run_deep(run_id, body.message, slots, store, queries)
-    return {"run_id": run_id, "route": route, "status": result["status"]}
+    result = run_deep(run_id, body.message, slots, store, queries, intent=intent)
+    try:
+        return {"run_id": run_id, "route": route, "status": result["status"]}
+    finally:
+        flush_traces()
