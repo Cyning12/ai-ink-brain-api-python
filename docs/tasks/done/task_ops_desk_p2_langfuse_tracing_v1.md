@@ -102,4 +102,5 @@ Install the Langfuse AI skill from github.com/langfuse/skills and use it to add 
 ## 实现备忘
 
 - PR: https://github.com/Cyning12/ai-ink-brain-api-python/pull/202
-- 合并后回填 SHA。
+- Merge SHA: `7a001274219ab8c41ca6e08e09de0b37101faa27`
+- Cloud UI 截图：维护者在 local/staging 配置 `LANGFUSE_TRACING=true` + Japan keys 后，跑 `examples/ops_desk_langfuse_sample.py` 或 Demo D4 deep 后于 Langfuse Cloud Tracing 页截图。
