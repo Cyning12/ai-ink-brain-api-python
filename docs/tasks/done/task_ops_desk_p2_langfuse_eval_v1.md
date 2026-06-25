@@ -2,6 +2,7 @@
 
 > **状态**：`done` · **script CLOSE** · 2026-06-25  
 > **协调 task**：Projects [`task_ops_desk_p2_langfuse_eval_v1.md`](../../../../docs/harness/tasks/done/task_ops_desk_p2_langfuse_eval_v1.md)  
+> **人验**：[`CHECKLIST_ops_desk_p2_langfuse_eval_human_v1_zh.md`](../../../../docs/harness/reviews/CHECKLIST_ops_desk_p2_langfuse_eval_human_v1_zh.md) · pending  
 > **PR**：#216 → main · merge `16a3d4b0`
 
 ---
