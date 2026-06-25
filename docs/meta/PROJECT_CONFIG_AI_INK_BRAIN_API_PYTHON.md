@@ -122,11 +122,11 @@
 | `LANGFUSE_SECRET_KEY` | Langfuse Cloud Project Secret Key | 开启时必填 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 形如 `sk-lf-...`；**勿提交 Git** | 与项目无关 |
 | `LANGFUSE_BASE_URL` | Langfuse API 基础 URL | 可选 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 默认 **`https://jp.cloud.langfuse.com`**（Japan 区） | 与项目无关 |
 | `LANGFUSE_TRACING_ENVIRONMENT` | Langfuse trace environment 标签 | 可选 | `api/ops/tracing.py`（经 `langfuse.get_client()`） | 默认未设置；常见 `development` / `staging` / `production` | 与项目无关 |
-| `OPS_LLM_PROVIDER` | Ops Desk LLM Provider 选择 | 可选 | `api/ops/llm/factory.py:get_llm_provider()` | 默认 `siliconflow`；可选 `bailian`（Phase 1 stub，未实现） | 与项目无关 |
+| `OPS_LLM_PROVIDER` | Ops Desk LLM Provider 选择 | 可选 | `api/ops/llm/factory.py:get_llm_provider()` | 默认 `siliconflow`；可选 `bailian`（Phase 2 已实现 · OpenAI 兼容 Chat） | 与项目无关 |
 | **Ops Desk 缓存指标对照** | **Demo 缓存**（`ops_demo_answers`）→ `metrics_json.cache.hit` · summary `cache_hit_rate`；**Provider KV cache**（SiliconFlow prompt 前缀）→ `metrics_json.llm.provider_cache.*` · summary `provider_cache_hit_tokens` / `provider_cache_miss_tokens`（**禁止**与 Demo `cache_hit_rate` 混用） | — | `api/ops/orchestrator/core.py` · `api/ops/metrics.py` | — | 与项目无关 |
-| `BAILIAN_API_KEY` | 百炼 DashScope API Key（预留） | 可选 | `api/ops/llm/providers/bailian.py`（Phase 2 实现） | 留空：Phase 1 不启用 | 与项目无关 |
-| `BAILIAN_BASE_URL` | 百炼 OpenAI 兼容 Base URL（预留） | 可选 | `api/ops/llm/providers/bailian.py`（Phase 2 实现） | 默认未设置 | 与项目无关 |
-| `BAILIAN_MODEL` | 百炼模型名（预留） | 可选 | `api/ops/llm/providers/bailian.py`（Phase 2 实现） | 默认未设置 | 与项目无关 |
+| `BAILIAN_API_KEY` | 百炼 Ops Desk Chat API Key | `OPS_LLM_PROVIDER=bailian` 时必填 | `api/ops/llm/providers/bailian.py` | 可 fallback `DASHSCOPE_API_KEY`；**勿与 RAG Embedding env 混读前缀** | 与项目无关 |
+| `BAILIAN_BASE_URL` | 百炼 OpenAI 兼容 Base URL | 可选 | `api/ops/llm/providers/bailian.py` | 默认 `https://dashscope.aliyuncs.com/compatible-mode/v1`；地域见 [官方文档](https://help.aliyun.com/zh/model-studio/regions/) | 与项目无关 |
+| `BAILIAN_MODEL` | 百炼 Chat 模型 id | 可选 | `api/ops/llm/providers/bailian.py` | 默认 `qwen-plus`；模型列表见 [官方文档](https://help.aliyun.com/zh/model-studio/getting-started/models) | 与项目无关 |
 
 补充：`.cursorrules` 文本里提到 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`，但代码实际优先读取 `NEXT_PUBLIC_SUPABASE_URL` 与 `SUPABASE_SERVICE_ROLE_KEY`（并支持别名）。**以代码为准**。
 

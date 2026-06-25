@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastapi import HTTPException
+
+from api.ops.llm.errors import OpsLlmMisconfiguredError
 from api.ops.llm.factory import get_llm_provider
 from api.ops.llm.types import LlmCompletionResult, LlmUsage
 from api.ops.tracing import traceable, tracing_enabled, update_current_generation_usage
@@ -54,7 +57,13 @@ def chat_completion(
     测试时 monkeypatch 此函数或 get_llm_provider() 返回值。
     """
     provider = get_llm_provider()
-    result = provider.complete(messages, temperature=temperature, step=step)
+    try:
+        result = provider.complete(messages, temperature=temperature, step=step)
+    except OpsLlmMisconfiguredError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "LLM_PROVIDER_MISCONFIGURED", "message": str(exc)},
+        ) from exc
     # 确保 usage 携带 step
     result.usage.step = step
     if tracing_enabled():
