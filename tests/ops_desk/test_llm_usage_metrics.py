@@ -627,6 +627,82 @@ def test_siliconflow_parses_provider_cache_fields(monkeypatch) -> None:
     assert result.usage.usage_missing is False
 
 
+def test_bailian_parses_provider_cache_fields(monkeypatch) -> None:
+    """百炼 usage 含嵌套 cache 字段时正确映射到 LlmUsage。"""
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("BAILIAN_API_KEY", "test-bailian-key")
+    monkeypatch.delenv("BAILIAN_MODEL", raising=False)
+
+    class FakeResponse:
+        status_code = 200
+        ok = True
+        text = ""
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": "百炼 cache 回答"}}],
+                "usage": {
+                    "prompt_tokens": 200,
+                    "completion_tokens": 50,
+                    "total_tokens": 250,
+                    "prompt_tokens_details": {
+                        "cached_tokens": 120,
+                        "cache_creation_input_tokens": 80,
+                    },
+                },
+            }
+
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    provider = get_llm_provider()
+    assert isinstance(provider, BailianProvider)
+    result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
+
+    assert result.usage.provider == "bailian"
+    assert result.usage.prompt_cache_hit_tokens == 120
+    assert result.usage.prompt_cache_miss_tokens == 80
+    assert result.usage.cached_tokens == 120
+    assert result.usage.usage_missing is False
+
+
+def test_bailian_missing_cache_fields_defaults_zero(monkeypatch) -> None:
+    """百炼 usage 无 cache 嵌套字段时记 0，不标 usage_missing。"""
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("BAILIAN_API_KEY", "test-bailian-key")
+    monkeypatch.delenv("BAILIAN_MODEL", raising=False)
+
+    class FakeResponse:
+        status_code = 200
+        ok = True
+        text = ""
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": "百炼回答"}}],
+                "usage": {
+                    "prompt_tokens": 20,
+                    "completion_tokens": 10,
+                    "total_tokens": 30,
+                },
+            }
+
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    provider = get_llm_provider()
+    result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
+
+    assert result.usage.prompt_cache_hit_tokens == 0
+    assert result.usage.prompt_cache_miss_tokens == 0
+    assert result.usage.cached_tokens == 0
+    assert result.usage.usage_missing is False
+
+
 def test_siliconflow_missing_cache_fields_defaults_zero(monkeypatch) -> None:
     """SiliconFlow usage 无 cache 字段时记 0，不标 usage_missing。"""
     monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
