@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import os
-import time
 from typing import Any
 
-import requests
-
+from api.ops.llm.errors import OpsLlmMisconfiguredError
+from api.ops.llm.model_catalog import SILICONFLOW_DEFAULT_MODEL
 from api.ops.llm.providers.base import OpsLlmProvider
-from api.ops.llm.types import LlmCompletionResult, LlmUsage
+from api.ops.llm.providers.openai_compatible import openai_compatible_complete
+from api.ops.llm.types import LlmCompletionResult
 
 
 class SiliconFlowProvider(OpsLlmProvider):
@@ -25,7 +25,7 @@ class SiliconFlowProvider(OpsLlmProvider):
     def _model(self, override: str | None = None) -> str:
         if override:
             return override.strip()
-        return (os.getenv("OPS_LLM_MODEL") or "Qwen/Qwen2.5-72B-Instruct").strip()
+        return (os.getenv("OPS_LLM_MODEL") or SILICONFLOW_DEFAULT_MODEL).strip()
 
     def _base(self) -> str:
         return (os.getenv("OPS_LLM_BASE") or "https://api.siliconflow.cn/v1").strip()
@@ -40,34 +40,15 @@ class SiliconFlowProvider(OpsLlmProvider):
     ) -> LlmCompletionResult:
         key = self._api_key()
         if not key:
-            raise RuntimeError("缺少 LLM API Key（SILICONFLOW_API_KEY / OPENAI_API_KEY）")
+            raise OpsLlmMisconfiguredError("缺少 LLM API Key（SILICONFLOW_API_KEY / OPENAI_API_KEY）")
 
-        started_at = time.time()
-        resp = requests.post(
-            f"{self._base()}/chat/completions",
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"model": self._model(model), "messages": messages, "temperature": temperature},
-            timeout=60,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        latency_ms = int((time.time() - started_at) * 1000)
-
-        content = str(data["choices"][0]["message"]["content"])
-        usage_raw = data.get("usage") or {}
-
-        prompt_tokens_details = usage_raw.get("prompt_tokens_details") or {}
-        usage = LlmUsage(
+        resolved_model = self._model(model)
+        return openai_compatible_complete(
             provider=self.name,
-            model=self._model(model),
-            prompt_tokens=int(usage_raw.get("prompt_tokens", 0)),
-            completion_tokens=int(usage_raw.get("completion_tokens", 0)),
-            total_tokens=int(usage_raw.get("total_tokens", 0)),
-            latency_ms=latency_ms,
-            step=kwargs.get("step", "other"),
-            usage_missing=not bool(usage_raw),
-            prompt_cache_hit_tokens=int(usage_raw.get("prompt_cache_hit_tokens", 0) or 0),
-            prompt_cache_miss_tokens=int(usage_raw.get("prompt_cache_miss_tokens", 0) or 0),
-            cached_tokens=int(prompt_tokens_details.get("cached_tokens", 0) or 0),
+            base_url=self._base(),
+            api_key=key,
+            model=resolved_model,
+            messages=messages,
+            temperature=temperature,
+            step=str(kwargs.get("step", "other")),
         )
-        return LlmCompletionResult(content=content, usage=usage)

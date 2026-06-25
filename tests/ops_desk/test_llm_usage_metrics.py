@@ -3,7 +3,7 @@
 覆盖：
 - usage 解析与 event 写入
 - cache hit 无 llm.usage event
-- OPS_LLM_PROVIDER=bailian 明确错误
+- OPS_LLM_PROVIDER=bailian mock HTTP / 缺 key → 503
 - metrics summary API 零值
 - 内部 metrics 始终写（tracing off 也写）
 - Langfuse 仅镜像（tracing on 才同步）
@@ -15,8 +15,13 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
+from api.index import app
+from api.ops import chat
 from api.ops.llm import chat_completion
+from api.ops.llm.errors import OpsLlmMisconfiguredError
 from api.ops.llm.factory import get_llm_provider
 from api.ops.llm.providers.bailian import BailianProvider
 from api.ops.llm.providers.siliconflow import SiliconFlowProvider
@@ -298,15 +303,163 @@ def test_build_metrics_json_cache_hit() -> None:
 
 
 # ---------------------------------------------------------------------------
-# B6: OPS_LLM_PROVIDER=bailian 明确错误
+# B6: OPS_LLM_PROVIDER=bailian
 # ---------------------------------------------------------------------------
 
-def test_bailian_provider_raises_not_implemented(monkeypatch) -> None:
+def test_bailian_provider_missing_key_raises_misconfigured_error(monkeypatch) -> None:
     monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.delenv("BAILIAN_API_KEY", raising=False)
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
     provider = get_llm_provider()
     assert isinstance(provider, BailianProvider)
-    with pytest.raises(NotImplementedError, match="BailianProvider"):
+    with pytest.raises(OpsLlmMisconfiguredError, match="BAILIAN_API_KEY"):
         provider.complete([{"role": "user", "content": "hi"}])
+
+
+def test_siliconflow_provider_missing_key_raises_misconfigured_error(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "siliconflow")
+    monkeypatch.delenv("SILICONFLOW_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    provider = get_llm_provider()
+    assert isinstance(provider, SiliconFlowProvider)
+    with pytest.raises(OpsLlmMisconfiguredError, match="SILICONFLOW_API_KEY"):
+        provider.complete([{"role": "user", "content": "hi"}])
+
+
+def test_chat_completion_missing_key_raises_http_503(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.delenv("BAILIAN_API_KEY", raising=False)
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
+    with pytest.raises(HTTPException) as exc_info:
+        chat_completion([{"role": "user", "content": "hi"}])
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.detail == {
+        "code": "LLM_PROVIDER_MISCONFIGURED",
+        "message": "缺少 LLM API Key（BAILIAN_API_KEY / DASHSCOPE_API_KEY）",
+    }
+
+
+def test_chat_messages_bailian_missing_key_returns_503(monkeypatch) -> None:
+    """deep 路径触发真实 chat_completion → 缺 key 时 HTTP 503 结构化错误。"""
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.delenv("BAILIAN_API_KEY", raising=False)
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
+    monkeypatch.delenv("OPS_DESK_SECRET", raising=False)
+
+    class _FakeDemoCache:
+        def __init__(self) -> None:
+            from api.ops.demo_cache import DemoClassifier
+
+            self.classifier = DemoClassifier()
+
+        def get(self, demo_id: str) -> dict[str, Any] | None:
+            return None
+
+        def set(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            return {"demo_id": args[0] if args else None}
+
+    class _FakeQueries:
+        def fetch_issue_by_number(self, number: int) -> dict[str, Any] | None:
+            return {
+                "number": number,
+                "title": "Test issue",
+                "state": "open",
+                "labels": [],
+                "scan_tags": [],
+                "html_url": f"https://github.com/test/issues/{number}",
+            }
+
+        def fetch_pull_by_number(self, number: int) -> dict[str, Any] | None:
+            return None
+
+    class _FakeStore:
+        def __init__(self) -> None:
+            self.runs: dict[str, dict[str, Any]] = {}
+            self._counter = 0
+
+        def create_run(
+            self,
+            query: str,
+            route: str,
+            repo_owner: str = "MoonshotAI",
+            repo_name: str = "kimi-code",
+            session_id: str | None = None,
+        ) -> dict[str, Any]:
+            self._counter += 1
+            run_id = f"run-{self._counter}"
+            self.runs[run_id] = {"id": run_id, "query": query, "route": route, "status": "running"}
+            return self.runs[run_id]
+
+        def append_event(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            return {"event_type": kwargs.get("event_type") or (args[2] if len(args) > 2 else "")}
+
+        def update_run(self, run_id: str, **fields: Any) -> None:
+            if run_id in self.runs:
+                self.runs[run_id].update(fields)
+
+        def update_run_metrics_json(self, run_id: str, metrics_json: dict[str, Any]) -> None:
+            if run_id in self.runs:
+                self.runs[run_id]["metrics_json"] = metrics_json
+
+    fake_store = _FakeStore()
+    app.dependency_overrides[chat._queries] = lambda: _FakeQueries()
+    app.dependency_overrides[chat._store] = lambda: fake_store
+    app.dependency_overrides[chat._demo_cache] = lambda: _FakeDemoCache()
+    try:
+        client = TestClient(app)
+        resp = client.post(
+            "/api/py/ops/chat/messages",
+            json={"message": "#545 适合我吗"},
+            headers={"x-ops-secret": "test"},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert resp.status_code == 503
+    assert resp.json()["detail"]["code"] == "LLM_PROVIDER_MISCONFIGURED"
+    assert "BAILIAN_API_KEY" in resp.json()["detail"]["message"]
+
+
+def test_bailian_provider_complete_mock_http_success(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("BAILIAN_API_KEY", "test-bailian-key")
+    monkeypatch.delenv("BAILIAN_MODEL", raising=False)
+
+    class FakeResponse:
+        status_code = 200
+        ok = True
+        text = ""
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": "百炼回答"}}],
+                "usage": {
+                    "prompt_tokens": 20,
+                    "completion_tokens": 10,
+                    "total_tokens": 30,
+                },
+            }
+
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    provider = get_llm_provider()
+    assert isinstance(provider, BailianProvider)
+    result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
+
+    assert result.content == "百炼回答"
+    assert result.usage.provider == "bailian"
+    assert result.usage.model == "deepseek-v4-pro"
+    assert result.usage.prompt_tokens == 20
+    assert result.usage.completion_tokens == 10
+    assert result.usage.total_tokens == 30
+    assert result.usage.step == "analyze"
+    assert result.usage.prompt_cache_hit_tokens == 0
+    assert result.usage.prompt_cache_miss_tokens == 0
+    assert result.usage.cached_tokens == 0
+    assert result.usage.usage_missing is False
 
 
 def test_factory_default_is_siliconflow(monkeypatch) -> None:
@@ -443,8 +596,9 @@ def test_siliconflow_parses_provider_cache_fields(monkeypatch) -> None:
     monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
 
     class FakeResponse:
-        def raise_for_status(self) -> None:
-            return None
+        status_code = 200
+        ok = True
+        text = ""
 
         def json(self) -> dict[str, Any]:
             return {
@@ -459,7 +613,10 @@ def test_siliconflow_parses_provider_cache_fields(monkeypatch) -> None:
                 },
             }
 
-    monkeypatch.setattr("api.ops.llm.providers.siliconflow.requests.post", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        lambda *args, **kwargs: FakeResponse(),
+    )
 
     provider = SiliconFlowProvider()
     result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
@@ -475,8 +632,9 @@ def test_siliconflow_missing_cache_fields_defaults_zero(monkeypatch) -> None:
     monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
 
     class FakeResponse:
-        def raise_for_status(self) -> None:
-            return None
+        status_code = 200
+        ok = True
+        text = ""
 
         def json(self) -> dict[str, Any]:
             return {
@@ -488,7 +646,10 @@ def test_siliconflow_missing_cache_fields_defaults_zero(monkeypatch) -> None:
                 },
             }
 
-    monkeypatch.setattr("api.ops.llm.providers.siliconflow.requests.post", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        lambda *args, **kwargs: FakeResponse(),
+    )
 
     provider = SiliconFlowProvider()
     result = provider.complete([{"role": "user", "content": "hi"}], step="analyze")
@@ -716,3 +877,77 @@ def test_analyze_issue_returns_llm_usage_shape(monkeypatch) -> None:
     assert usage_dict["prompt_tokens"] == 20
     assert usage_dict["total_tokens"] == 30
     assert usage_dict["step"] == "analyze"
+
+
+# ---------------------------------------------------------------------------
+# P2-5f: 模型链 · 百炼 quota fallback
+# ---------------------------------------------------------------------------
+
+def test_resolve_bailian_model_chain_from_primary() -> None:
+    from api.ops.llm.model_catalog import resolve_bailian_model_chain
+
+    chain = resolve_bailian_model_chain("deepseek-v4-flash")
+    assert chain[0] == "deepseek-v4-flash"
+    assert chain[-1] == "qwen3.7-max"
+    assert "kimi/kimi-k2.7-code" not in chain
+
+
+def test_bailian_quota_error_switches_model(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("BAILIAN_API_KEY", "test-key")
+
+    class QuotaResponse:
+        status_code = 403
+        ok = False
+        text = "AllocationQuota.FreeTierOnly"
+
+        def json(self) -> dict[str, Any]:
+            return {"error": {"code": "AllocationQuota.FreeTierOnly", "message": "no quota"}}
+
+    class OkResponse:
+        status_code = 200
+        ok = True
+        text = ""
+
+        def __init__(self, model: str) -> None:
+            self._model = model
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": f"ok:{self._model}"}}],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
+            }
+
+    def fake_post(*args: Any, **kwargs: Any) -> Any:
+        model = kwargs["json"]["model"]
+        if model in ("kimi/kimi-k2.7-code", "ZHIPU/GLM-5.2"):
+            return QuotaResponse()
+        return OkResponse(model)
+
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        fake_post,
+    )
+
+    provider = get_llm_provider()
+    result = provider.complete(
+        [{"role": "user", "content": "hi"}],
+        model="kimi/kimi-k2.7-code",
+        step="analyze",
+    )
+    assert result.content == "ok:deepseek-v4-pro"
+    assert result.usage.model == "deepseek-v4-pro"
+
+
+def test_chat_models_endpoint_bailian(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.delenv("BAILIAN_MODEL", raising=False)
+    client = TestClient(app)
+    resp = client.get("/api/py/ops/chat/models", headers={"x-ops-secret": "test"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["provider"] == "bailian"
+    assert data["auto_fallback"] is True
+    assert len(data["models"]) == 5
+    assert data["default_model"] == "deepseek-v4-pro"
