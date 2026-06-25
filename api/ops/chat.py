@@ -9,6 +9,8 @@ from pydantic import BaseModel
 
 from api.ops.demo_cache import DemoCacheStore
 from api.ops.deps import get_supabase_client, require_ops_secret
+from api.ops.llm.context import ops_chat_model_override
+from api.ops.llm.model_catalog import get_chat_models_payload
 from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_fast
 from api.ops.orchestrator.core import Intent
 from api.ops.queries import OpsQueries
@@ -21,6 +23,13 @@ router = APIRouter(prefix="/ops/chat", tags=["ops-chat"])
 class ChatMessageRequest(BaseModel):
     message: str
     session_id: str | None = None
+    model: str | None = None
+
+
+@router.get("/models")
+def chat_models(_: None = Depends(require_ops_secret)) -> dict[str, Any]:
+    """当前 Provider 可选 Chat 模型列表（前端下拉）。"""
+    return get_chat_models_payload()
 
 
 def _queries() -> OpsQueries:
@@ -97,6 +106,19 @@ def chat_messages(
     store: OpsRunStore = Depends(_store),
     demo_cache: DemoCacheStore = Depends(_demo_cache),
     _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    token = ops_chat_model_override.set(body.model.strip() if body.model else None)
+    try:
+        return _chat_messages_impl(body, queries, store, demo_cache)
+    finally:
+        ops_chat_model_override.reset(token)
+
+
+def _chat_messages_impl(
+    body: ChatMessageRequest,
+    queries: OpsQueries,
+    store: OpsRunStore,
+    demo_cache: DemoCacheStore,
 ) -> dict[str, Any]:
     demo_match = demo_cache.classifier.classify(body.message)
     if demo_match:

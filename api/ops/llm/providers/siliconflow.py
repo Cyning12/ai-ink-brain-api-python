@@ -6,6 +6,7 @@ import os
 from typing import Any
 
 from api.ops.llm.errors import OpsLlmMisconfiguredError
+from api.ops.llm.model_catalog import SILICONFLOW_DEFAULT_MODEL
 from api.ops.llm.providers.base import OpsLlmProvider
 from api.ops.llm.providers.openai_compatible import openai_compatible_complete
 from api.ops.llm.types import LlmCompletionResult
@@ -24,7 +25,7 @@ class SiliconFlowProvider(OpsLlmProvider):
     def _model(self, override: str | None = None) -> str:
         if override:
             return override.strip()
-        return (os.getenv("OPS_LLM_MODEL") or "Qwen/Qwen2.5-72B-Instruct").strip()
+        return (os.getenv("OPS_LLM_MODEL") or SILICONFLOW_DEFAULT_MODEL).strip()
 
     def _base(self) -> str:
         return (os.getenv("OPS_LLM_BASE") or "https://api.siliconflow.cn/v1").strip()

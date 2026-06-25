@@ -6,12 +6,12 @@ import os
 from typing import Any
 
 from api.ops.llm.errors import OpsLlmMisconfiguredError
+from api.ops.llm.model_catalog import BAILIAN_DEFAULT_MODEL, resolve_bailian_model_chain
 from api.ops.llm.providers.base import OpsLlmProvider
-from api.ops.llm.providers.openai_compatible import openai_compatible_complete
+from api.ops.llm.providers.openai_compatible import openai_compatible_complete_with_policy
 from api.ops.llm.types import LlmCompletionResult
 
 _DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-_DEFAULT_MODEL = "qwen-plus"
 
 
 class BailianProvider(OpsLlmProvider):
@@ -27,7 +27,7 @@ class BailianProvider(OpsLlmProvider):
     def _model(self, override: str | None = None) -> str:
         if override:
             return override.strip()
-        return (os.getenv("BAILIAN_MODEL") or _DEFAULT_MODEL).strip()
+        return (os.getenv("BAILIAN_MODEL") or BAILIAN_DEFAULT_MODEL).strip()
 
     def _base(self) -> str:
         return (os.getenv("BAILIAN_BASE_URL") or _DEFAULT_BASE_URL).strip()
@@ -44,13 +44,15 @@ class BailianProvider(OpsLlmProvider):
         if not key:
             raise OpsLlmMisconfiguredError("缺少 LLM API Key（BAILIAN_API_KEY / DASHSCOPE_API_KEY）")
 
-        resolved_model = self._model(model)
-        return openai_compatible_complete(
+        primary = self._model(model)
+        model_chain = resolve_bailian_model_chain(primary)
+        return openai_compatible_complete_with_policy(
             provider=self.name,
             base_url=self._base(),
             api_key=key,
-            model=resolved_model,
+            model_chain=model_chain,
             messages=messages,
             temperature=temperature,
             step=str(kwargs.get("step", "other")),
+            quota_model_switch=True,
         )

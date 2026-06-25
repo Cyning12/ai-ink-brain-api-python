@@ -426,8 +426,9 @@ def test_bailian_provider_complete_mock_http_success(monkeypatch) -> None:
     monkeypatch.delenv("BAILIAN_MODEL", raising=False)
 
     class FakeResponse:
-        def raise_for_status(self) -> None:
-            return None
+        status_code = 200
+        ok = True
+        text = ""
 
         def json(self) -> dict[str, Any]:
             return {
@@ -450,7 +451,7 @@ def test_bailian_provider_complete_mock_http_success(monkeypatch) -> None:
 
     assert result.content == "百炼回答"
     assert result.usage.provider == "bailian"
-    assert result.usage.model == "qwen-plus"
+    assert result.usage.model == "deepseek-v4-pro"
     assert result.usage.prompt_tokens == 20
     assert result.usage.completion_tokens == 10
     assert result.usage.total_tokens == 30
@@ -595,8 +596,9 @@ def test_siliconflow_parses_provider_cache_fields(monkeypatch) -> None:
     monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
 
     class FakeResponse:
-        def raise_for_status(self) -> None:
-            return None
+        status_code = 200
+        ok = True
+        text = ""
 
         def json(self) -> dict[str, Any]:
             return {
@@ -630,8 +632,9 @@ def test_siliconflow_missing_cache_fields_defaults_zero(monkeypatch) -> None:
     monkeypatch.setenv("SILICONFLOW_API_KEY", "test-key")
 
     class FakeResponse:
-        def raise_for_status(self) -> None:
-            return None
+        status_code = 200
+        ok = True
+        text = ""
 
         def json(self) -> dict[str, Any]:
             return {
@@ -874,3 +877,77 @@ def test_analyze_issue_returns_llm_usage_shape(monkeypatch) -> None:
     assert usage_dict["prompt_tokens"] == 20
     assert usage_dict["total_tokens"] == 30
     assert usage_dict["step"] == "analyze"
+
+
+# ---------------------------------------------------------------------------
+# P2-5f: 模型链 · 百炼 quota fallback
+# ---------------------------------------------------------------------------
+
+def test_resolve_bailian_model_chain_from_primary() -> None:
+    from api.ops.llm.model_catalog import resolve_bailian_model_chain
+
+    chain = resolve_bailian_model_chain("deepseek-v4-flash")
+    assert chain[0] == "deepseek-v4-flash"
+    assert chain[-1] == "qwen3.7-max"
+    assert "kimi/kimi-k2.7-code" not in chain
+
+
+def test_bailian_quota_error_switches_model(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("BAILIAN_API_KEY", "test-key")
+
+    class QuotaResponse:
+        status_code = 403
+        ok = False
+        text = "AllocationQuota.FreeTierOnly"
+
+        def json(self) -> dict[str, Any]:
+            return {"error": {"code": "AllocationQuota.FreeTierOnly", "message": "no quota"}}
+
+    class OkResponse:
+        status_code = 200
+        ok = True
+        text = ""
+
+        def __init__(self, model: str) -> None:
+            self._model = model
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "choices": [{"message": {"content": f"ok:{self._model}"}}],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
+            }
+
+    def fake_post(*args: Any, **kwargs: Any) -> Any:
+        model = kwargs["json"]["model"]
+        if model in ("kimi/kimi-k2.7-code", "ZHIPU/GLM-5.2"):
+            return QuotaResponse()
+        return OkResponse(model)
+
+    monkeypatch.setattr(
+        "api.ops.llm.providers.openai_compatible.requests.post",
+        fake_post,
+    )
+
+    provider = get_llm_provider()
+    result = provider.complete(
+        [{"role": "user", "content": "hi"}],
+        model="kimi/kimi-k2.7-code",
+        step="analyze",
+    )
+    assert result.content == "ok:deepseek-v4-pro"
+    assert result.usage.model == "deepseek-v4-pro"
+
+
+def test_chat_models_endpoint_bailian(monkeypatch) -> None:
+    monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
+    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.delenv("BAILIAN_MODEL", raising=False)
+    client = TestClient(app)
+    resp = client.get("/api/py/ops/chat/models", headers={"x-ops-secret": "test"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["provider"] == "bailian"
+    assert data["auto_fallback"] is True
+    assert len(data["models"]) == 5
+    assert data["default_model"] == "deepseek-v4-pro"
