@@ -130,15 +130,15 @@
     {
       "id": "A8",
       "tier": "A",
-      "title": "FALLBACK · 澄清文案",
+      "title": "FALLBACK · ReAct",
       "demo_id": null,
       "message": "帮我分析一下这个项目整体架构",
       "setup": {},
       "expect": {
-        "route": "fast",
-        "status": "done",
+        "route": "react",
+        "status_in": ["done", "partial"],
         "answer_must_contain_any": ["#545", "issue", "指标"],
-        "llm_usage_events": 0
+        "llm_usage_events_min": 1
       }
     },
     {

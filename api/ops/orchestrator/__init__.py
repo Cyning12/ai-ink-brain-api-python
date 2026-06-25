@@ -12,6 +12,7 @@ from api.ops.orchestrator.core import (
     run_fast,
     synthesize,
 )
+from api.ops.react_loop import run_react_fallback
 
 __all__ = [
     "Intent",
@@ -21,5 +22,6 @@ __all__ = [
     "review_result",
     "run_deep",
     "run_fast",
+    "run_react_fallback",
     "synthesize",
 ]

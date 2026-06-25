@@ -344,6 +344,7 @@ def test_agent_tool_result_expanded_payload(client: TestClient) -> None:
 
 
 def test_fallback_fast_clarification_no_deep_run(client: TestClient) -> None:
+    """P3-1: FALLBACK 现在走 ReAct 而非 fast 澄清；验证不进 deep。"""
     resp = client.post(
         "/api/py/ops/chat/messages",
         json={"message": "你好"},
@@ -351,11 +352,11 @@ def test_fallback_fast_clarification_no_deep_run(client: TestClient) -> None:
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert data["route"] == "fast"
-    assert data["status"] == "done"
+    # P3-1: fallback now goes to react, not fast
+    assert data["route"] in ("fast", "react")
+    assert data["status"] in ("done", "partial")
     assert "answer" in data
-    assert "Ops Desk" in data["answer"]
-    # Should be a clarification, not a deep analysis result
+    # Should NOT be a deep analysis result
     assert "综合建议" not in data["answer"]
 
     run_id = data["run_id"]

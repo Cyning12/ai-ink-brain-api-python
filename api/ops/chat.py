@@ -11,7 +11,7 @@ from api.ops.demo_cache import DemoCacheStore
 from api.ops.deps import get_supabase_client, require_ops_secret
 from api.ops.llm.context import ops_chat_model_override, ops_chat_resolved_model
 from api.ops.llm.model_catalog import get_chat_models_payload
-from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_fast
+from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_fast, run_react_fallback
 from api.ops.orchestrator.core import Intent
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
@@ -165,34 +165,15 @@ def _chat_messages_impl(
 
     intent, slots = classify_intent(body.message)
 
-    # A5: FALLBACK 无 issue 号且非 Demo D4 时走 fast 澄清
+    # P3-1: FALLBACK → ReAct fallback (替换 A5 fast 澄清)
     if intent == Intent.FALLBACK:
-        run = store.create_run(query=body.message, route="fast", session_id=body.session_id)
+        run = store.create_run(query=body.message, route="react", session_id=body.session_id)
         run_id = str(run["id"])
-        store.append_event(run_id, "orchestrator", "run.start", node_id="fast.start")
-        clarification = (
-            "Ops Desk 可以帮您分析具体 issue（如 #545）、查看指标趋势或 issue/PR 列表。"
-            "请尝试提问：'#545 适合我吗？' 或 '最近30天指标趋势'。"
-        )
-        store.append_event(
-            run_id,
-            "orchestrator",
-            "final.answer",
-            payload={"answer": clarification, "type": "fallback_clarification"},
-            node_id="fast.fallback",
-        )
-        store.update_run(
-            run_id,
-            status="done",
-            final_answer={"answer": clarification, "type": "fallback_clarification"},
-        )
-        store.append_event(run_id, "orchestrator", "run.end", node_id="fast.end")
-        return {
-            "run_id": run_id,
-            "route": "fast",
-            "status": "done",
-            "answer": clarification,
-        }
+        result = run_react_fallback(run_id, body.message, store, queries)
+        try:
+            return {"run_id": run_id, "route": "react", "status": result["status"], "answer": result.get("answer")}
+        finally:
+            flush_traces()
 
     route = "fast" if is_fast_intent(intent) else "deep"
 

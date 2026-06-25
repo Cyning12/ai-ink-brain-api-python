@@ -76,6 +76,8 @@ def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
     if issue_match:
         return Intent.ISSUE_CONTRIBUTION, {"issue_number": int(issue_match.group(1))}
 
+    # P3-1: 开放复杂问（含对比、热点、架构等）→ fallback → ReAct
+    # 但保留 misroute 防护：纯 metrics 关键词已在上面处理
     return Intent.FALLBACK, {}
 
 
