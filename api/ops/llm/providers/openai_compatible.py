@@ -47,6 +47,16 @@ def _parse_completion_response(
     content = str(data["choices"][0]["message"]["content"])
     usage_raw = data.get("usage") or {}
     prompt_tokens_details = usage_raw.get("prompt_tokens_details") or {}
+    prompt_cache_hit_tokens = int(usage_raw.get("prompt_cache_hit_tokens", 0) or 0)
+    prompt_cache_miss_tokens = int(usage_raw.get("prompt_cache_miss_tokens", 0) or 0)
+    cached_tokens = int(prompt_tokens_details.get("cached_tokens", 0) or 0)
+    # 百炼无 SF 顶层 cache 键；命中/未命中在 prompt_tokens_details 嵌套字段
+    if provider == "bailian" and prompt_tokens_details:
+        bailian_hit = int(prompt_tokens_details.get("cached_tokens", 0) or 0)
+        bailian_miss = int(prompt_tokens_details.get("cache_creation_input_tokens", 0) or 0)
+        prompt_cache_hit_tokens = bailian_hit
+        prompt_cache_miss_tokens = bailian_miss
+        cached_tokens = bailian_hit
     usage = LlmUsage(
         provider=provider,
         model=model,
@@ -56,9 +66,9 @@ def _parse_completion_response(
         latency_ms=latency_ms,
         step=step,
         usage_missing=not bool(usage_raw),
-        prompt_cache_hit_tokens=int(usage_raw.get("prompt_cache_hit_tokens", 0) or 0),
-        prompt_cache_miss_tokens=int(usage_raw.get("prompt_cache_miss_tokens", 0) or 0),
-        cached_tokens=int(prompt_tokens_details.get("cached_tokens", 0) or 0),
+        prompt_cache_hit_tokens=prompt_cache_hit_tokens,
+        prompt_cache_miss_tokens=prompt_cache_miss_tokens,
+        cached_tokens=cached_tokens,
     )
     return LlmCompletionResult(content=content, usage=usage)
 
