@@ -84,9 +84,9 @@ def react_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
             ),
         )
 
-    monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
+    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
     monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
 
     test_client = TestClient(app)
     test_client.fake_store = fake_store  # type: ignore[attr-defined]
@@ -323,6 +323,40 @@ def test_react_review_reject_limited_retries(monkeypatch: pytest.MonkeyPatch) ->
     def always_fail_review(result: dict[str, Any], queries: Any) -> tuple[str, dict[str, Any]]:
         return "fail", {"rule": "V3", "message": "包含 Git 写操作指令"}
 
+    def fake_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3, **kwargs: Any) -> Any:
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+        content = _mock_llm_responder(messages)
+        return LlmCompletionResult(
+            content=content,
+            usage=LlmUsage(
+                provider="siliconflow",
+                model="Qwen/Qwen2.5-72B-Instruct",
+                prompt_tokens=10,
+                completion_tokens=5,
+                total_tokens=15,
+                latency_ms=100,
+                step=kwargs.get("step", "react"),
+            ),
+        )
+
+    def fake_synthesize_answer(query: str, evidence: list[dict[str, Any]], **kwargs: Any) -> Any:
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+        return LlmCompletionResult(
+            content="综合建议。",
+            usage=LlmUsage(
+                provider="siliconflow",
+                model="Qwen/Qwen2.5-72B-Instruct",
+                prompt_tokens=8,
+                completion_tokens=4,
+                total_tokens=12,
+                latency_ms=80,
+                step="synthesize",
+            ),
+        )
+
+    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
     monkeypatch.setattr("api.ops.orchestrator.core.review_result", always_fail_review)
 
     result = run_react_fallback(
@@ -407,8 +441,8 @@ def test_run_react_fallback_unit(monkeypatch: pytest.MonkeyPatch) -> None:
             ),
         )
 
-    monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
+    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
+    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
     monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
 
     result = run_react_fallback("run-unit", "测试", fake_store, fake_queries, max_steps=6)
