@@ -74,12 +74,21 @@ def chat_completion(..., store: Any = None, ...) -> LlmCompletionResult:
 
 ---
 
+## 行为变更（Delta）
+
+### MODIFIED
+
+- `api/ops/llm/__init__.py` · `chat_completion` 装饰器 `@traceable(run_type="llm")` → `@traceable(run_type="llm", capture_input=False)`：Langfuse `@observe` 不再序列化入参（含 `store` / `OpsStore` / Supabase `service_role`）写入 GENERATION `input`。函数签名、返回值、内部 `_write_usage_event` / `append_event` 双写**不变**——仅观测面 input 脱敏。
+- 其余三处 `@traceable`（`issue_analyst.py:32`、`orchestrator/core.py:100/145`）已带 `capture_input=False`，**无变更**。
+
+---
+
 ## 失败路径
 
-| 触发 | 行为 |
-| --- | --- |
-| `LANGFUSE_TRACING=false` | no-op · 与现网一致 |
-| observe 抛错 | 不阻塞 chat 主路径（保持现有静默/降级纪律） |
+| # | 触发 (Scenario) | 行为 |
+| --- | --- | --- |
+| F1 | `LANGFUSE_TRACING=false` | no-op · 与现网一致 |
+| F2 | observe 抛错 | 不阻塞 chat 主路径（保持现有静默/降级纪律） |
 
 ---
 
