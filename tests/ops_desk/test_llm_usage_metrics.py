@@ -888,8 +888,18 @@ def test_resolve_bailian_model_chain_from_primary() -> None:
 
     chain = resolve_bailian_model_chain("deepseek-v4-flash")
     assert chain[0] == "deepseek-v4-flash"
-    assert chain[-1] == "qwen3.7-max"
+    assert chain[-1] == "qwen3.7-plus"
     assert "kimi/kimi-k2.7-code" not in chain
+
+
+def test_resolve_bailian_model_chain_skips_test_only_after_kimi() -> None:
+    from api.ops.llm.model_catalog import resolve_bailian_model_chain
+
+    chain = resolve_bailian_model_chain("kimi/kimi-k2.7-code")
+    assert chain[0] == "kimi/kimi-k2.7-code"
+    assert "ZHIPU/GLM-5.2" not in chain
+    assert chain[1] == "deepseek-v4-pro"
+    assert chain[-1] == "qwen3.7-plus"
 
 
 def test_bailian_quota_error_switches_model(monkeypatch) -> None:
@@ -920,7 +930,7 @@ def test_bailian_quota_error_switches_model(monkeypatch) -> None:
 
     def fake_post(*args: Any, **kwargs: Any) -> Any:
         model = kwargs["json"]["model"]
-        if model in ("kimi/kimi-k2.7-code", "ZHIPU/GLM-5.2"):
+        if model in ("kimi/kimi-k2.7-code",):
             return QuotaResponse()
         return OkResponse(model)
 

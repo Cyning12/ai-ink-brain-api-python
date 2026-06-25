@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from api.ops.demo_cache import DemoCacheStore
 from api.ops.deps import get_supabase_client, require_ops_secret
-from api.ops.llm.context import ops_chat_model_override
+from api.ops.llm.context import ops_chat_model_override, ops_chat_resolved_model
 from api.ops.llm.model_catalog import get_chat_models_payload
 from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_fast
 from api.ops.orchestrator.core import Intent
@@ -108,9 +108,11 @@ def chat_messages(
     _: None = Depends(require_ops_secret),
 ) -> dict[str, Any]:
     token = ops_chat_model_override.set(body.model.strip() if body.model else None)
+    sticky_token = ops_chat_resolved_model.set(None)
     try:
         return _chat_messages_impl(body, queries, store, demo_cache)
     finally:
+        ops_chat_resolved_model.reset(sticky_token)
         ops_chat_model_override.reset(token)
 
 
