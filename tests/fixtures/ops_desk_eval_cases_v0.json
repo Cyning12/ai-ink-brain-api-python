@@ -1,0 +1,196 @@
+{
+  "schema_version": "ops_desk_eval_cases_v0",
+  "freeze_id": "OPS-DESK-EVAL-CASES-V0",
+  "updated": "2026-06-25",
+  "description": "Ops Desk Chat 回归测评用例 v0 · Tier A 立即可跑 · Tier B 待实现后启用",
+  "notes": [
+    "代码真值 Demo 仅 D1–D4（demo_cache.py）· R6 规划 D5–D8 未进 DemoClassifier",
+    "deep 用例需 LLM Key · cache hit 用例需先跑 miss 或预置 ops_demo_answers",
+    "Langfuse Dataset 导入时 metadata 带 case_id · tier · demo_id"
+  ],
+  "tiers": {
+    "A": "零代码 · 基于现有 D1–D4 + 路由负例 · P2-5b v0 必跑",
+    "B": "eval-only · issue_list/graph 扩展 · v0.1 可选",
+    "C": "P3 ReAct / PR 深析 · 冻结至对应 task"
+  },
+  "setup_sql": {
+    "clear_all_demos": "DELETE FROM public.ops_demo_answers WHERE demo_id IN ('D1','D2','D3','D4');",
+    "clear_one": "DELETE FROM public.ops_demo_answers WHERE demo_id = :demo_id;"
+  },
+  "cases": [
+    {
+      "id": "A1",
+      "tier": "A",
+      "title": "D1 首次 · issue 吞吐 fast",
+      "demo_id": "D1",
+      "message": "kimi-code 最近 30 天 open issue 有多少？",
+      "setup": { "clear_demo_cache": ["D1"] },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "demo_hit": false,
+        "intent": "metrics_trend",
+        "answer_must_contain_any": ["issue", "closed", "关闭", "个"],
+        "answer_must_not_contain": ["cycle time", "review time", "PR cycle", "评审时间"],
+        "llm_usage_events": 0
+      }
+    },
+    {
+      "id": "A2",
+      "tier": "A",
+      "title": "D2 首次 · cycle time fast",
+      "demo_id": "D2",
+      "message": "PR cycle time 最近 30 天趋势如何？",
+      "setup": { "clear_demo_cache": ["D2"] },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "demo_hit": false,
+        "answer_must_contain_any": ["cycle", "周期", "小时"],
+        "answer_must_not_contain": ["review time", "中位数", "issue 有多少"],
+        "llm_usage_events": 0
+      }
+    },
+    {
+      "id": "A3",
+      "tier": "A",
+      "title": "D3 首次 · review time 中位数 fast",
+      "demo_id": "D3",
+      "message": "PR review time 中位数是多少？",
+      "setup": { "clear_demo_cache": ["D3"] },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "demo_hit": false,
+        "answer_must_contain_any": ["review", "评审", "中位数", "小时"],
+        "answer_must_not_contain": ["cycle time", "issue 有多少"],
+        "llm_usage_events": 0
+      }
+    },
+    {
+      "id": "A4",
+      "tier": "A",
+      "title": "D4 首次 deep · #545 深析",
+      "demo_id": "D4",
+      "message": "#545 适合我做吗？",
+      "setup": { "clear_demo_cache": ["D4"], "requires_llm_key": true },
+      "expect": {
+        "route": "deep",
+        "demo_hit": false,
+        "status_in": ["done", "partial"],
+        "llm_usage_events_min": 1,
+        "review_rules": ["V1", "V2", "V3"],
+        "events_must_include": ["llm.usage"]
+      }
+    },
+    {
+      "id": "A5",
+      "tier": "A",
+      "title": "D4 第二次 · demo cache hit",
+      "demo_id": "D4",
+      "message": "#545 适合我做吗？",
+      "setup": { "prerequisite_case": "A4" },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "demo_hit": true,
+        "llm_usage_events": 0,
+        "events_must_include": ["demo.cache.hit"]
+      }
+    },
+    {
+      "id": "A6",
+      "tier": "A",
+      "title": "D1 第二次 · demo cache hit",
+      "demo_id": "D1",
+      "message": "kimi-code 最近 30 天 open issue 有多少？",
+      "setup": { "prerequisite_case": "A1" },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "demo_hit": true,
+        "llm_usage_events": 0,
+        "events_must_include": ["demo.cache.hit"]
+      }
+    },
+    {
+      "id": "A7",
+      "tier": "A",
+      "title": "负例 · 泛 metrics 非 D1 单指标",
+      "demo_id": null,
+      "message": "最近30天指标怎么样？",
+      "setup": { "clear_demo_cache": [] },
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "note": "可能返回三指标混排 · 记录为 baseline · 不与 D1 答案等价",
+        "known_behavior": "multi_metric_or_generic"
+      }
+    },
+    {
+      "id": "A8",
+      "tier": "A",
+      "title": "FALLBACK · 澄清文案",
+      "demo_id": null,
+      "message": "帮我分析一下这个项目整体架构",
+      "setup": {},
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "answer_must_contain_any": ["#545", "issue", "指标"],
+        "llm_usage_events": 0
+      }
+    },
+    {
+      "id": "B1",
+      "tier": "B",
+      "enabled": false,
+      "title": "issue 列表 · eval-only",
+      "demo_id": null,
+      "message": "open issue 列表",
+      "expect": {
+        "route": "fast",
+        "status": "done",
+        "answer_type": "issue_list"
+      },
+      "blocked_by": "无 demo_id · 待 eval runner 或扩 DemoClassifier"
+    },
+    {
+      "id": "B2",
+      "tier": "B",
+      "enabled": false,
+      "title": "scan 标签过滤 · 原 R6 D5",
+      "demo_id": "E5",
+      "message": "Read 工具相关 open issue 有哪些？",
+      "expect": {
+        "route": "fast",
+        "intent": "issue_list",
+        "note": "需 scan_tags / module 过滤实现"
+      },
+      "blocked_by": "P2-5b v0.1 或独立 task"
+    },
+    {
+      "id": "B3",
+      "tier": "B",
+      "enabled": false,
+      "title": "备用 deep issue · 防 #545 overfit",
+      "demo_id": null,
+      "message": "#437 适合我做吗？",
+      "setup": { "requires_llm_key": true },
+      "expect": {
+        "route": "deep",
+        "review_rules": ["V1", "V2", "V3"],
+        "llm_usage_events_min": 1
+      },
+      "blocked_by": "维护者选定稳定 open issue 后启用"
+    }
+  ],
+  "scorers": {
+    "review_v1": "citations 引用 issue/pr 存在于 ops_issues/ops_pull_requests",
+    "review_v2": "citation url 与 DB html_url 一致",
+    "review_v3": "reasoning+suggestion 无 commit/push/merge 写操作词",
+    "review_v4": "confidence>=0.5 或 evidence 非空",
+    "fast_single_metric": "answer_must_contain / must_not_contain",
+    "cache_discipline": "demo_hit 时 llm.usage 计数为 0"
+  }
+}
