@@ -1,0 +1,15 @@
+{
+  "_comment": "复制为 settings.local.json · 本机 overlay · 见 docs/harness/fixtures/claude_settings_v2_baseline_v1.json",
+  "permissions": {
+    "allow": [
+      "Bash(python tools/tech_graph_graph_query.py *)",
+      "Bash(python tools/tech_graph_manifest_check.py)",
+      "Bash(python tools/tech_graph_drift_check.py)",
+      "Bash(python tools/tech_graph_contract_check.py)",
+      "Bash(python tools/tech_graph_graph_export.py --check)",
+      "Bash(rg -n 'ERR_|HTTPException|failure' api/*.py)",
+      "Bash(bash *)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
