@@ -66,7 +66,7 @@ def _write_model_fallback_event(
     )
 
 
-@traceable(run_type="llm")
+@traceable(run_type="llm", capture_input=False)
 def chat_completion(
     messages: list[dict[str, str]],
     *,
