@@ -172,7 +172,25 @@ with langfuse.start_as_current_observation(
 
 ---
 
-## 6. 与 LangSmith 并存
+## 5.1 安全纪律 · 禁止把 `store` / supabase client 传入被 `observe` 序列化的参数
+
+`@traceable` / Langfuse `@observe` 默认采集函数入参。`chat_completion(..., store=...)` 的 `store` 为 `OpsRunStore` 实例，含 Supabase client 与 `service_role` JWT，若被序列化写入 GENERATION `input`，会造成密钥泄露。
+
+**规则**：LLM 入口装饰器必须带 `capture_input=False`（已修复）：
+
+```python
+@traceable(run_type="llm", capture_input=False)
+def chat_completion(messages, ..., store=None):
+    ...
+```
+
+- `capture_input=False` 只影响 Langfuse 观测面，不影响函数实际收到 `store`。
+- 内部 `ops_run_events` / `metrics_json` 双写保持不变。
+- 其他 `@traceable` 路径（`run_deep`、`review_result`、`analyze_issue`）已带 `capture_input=False, capture_output=False`。
+
+---
+
+## 5.2 代码用法
 
 | 开关 | 后端 |
 | --- | --- |
