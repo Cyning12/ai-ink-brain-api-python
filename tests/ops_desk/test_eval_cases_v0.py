@@ -218,6 +218,45 @@ def eval_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr("api.ops.agents.issue_analyst.chat_completion", fake_chat_completion)
     monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
 
+    # A8 (react fallback) needs its own mock because react_loop imports
+    # chat_completion at module level; the patch above does not affect it.
+    _mock_react_call_count = 0
+
+    def fake_react_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3, **kwargs: Any) -> Any:
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+
+        nonlocal _mock_react_call_count
+        _mock_react_call_count += 1
+
+        step = kwargs.get("step", "react")
+        usage = LlmUsage(
+            provider="siliconflow",
+            model="Qwen/Qwen2.5-72B-Instruct",
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+            latency_ms=100,
+            step=step,
+        )
+        _append_llm_usage(kwargs.get("run_id"), kwargs.get("store"), usage)
+
+        # First call: tool call; second call: final answer
+        if _mock_react_call_count == 1:
+            content = (
+                '{"thought": "需要获取 issue 信息", '
+                '"tool": "ops_list_issues", "arguments": {"days": 30, "limit": 10}}'
+            )
+        else:
+            content = (
+                '{"thought": "已收集信息", '
+                '"final_answer": "项目整体架构分析：#545 是一个值得关注的 issue，'
+                '涉及核心指标问题。建议查看相关指标数据。"}'
+            )
+
+        return LlmCompletionResult(content=content, usage=usage)
+
+    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_react_chat_completion)
+
     test_client = TestClient(app)
     test_client.fake_demo_cache = fake_demo_cache  # type: ignore[attr-defined]
     test_client.fake_store = fake_store  # type: ignore[attr-defined]
