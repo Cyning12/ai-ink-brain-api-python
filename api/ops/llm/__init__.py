@@ -12,7 +12,7 @@ from typing import Any
 
 from fastapi import HTTPException
 
-from api.ops.llm.context import ops_chat_model_override
+from api.ops.llm.context import ops_chat_model_override, ops_chat_resolved_model
 from api.ops.llm.errors import OpsLlmMisconfiguredError, OpsLlmRequestError
 from api.ops.llm.factory import get_llm_provider
 from api.ops.llm.types import LlmCompletionResult, LlmUsage
@@ -44,6 +44,28 @@ def _write_usage_event(run_id: str, usage: LlmUsage, store: Any) -> None:
     )
 
 
+def _write_model_fallback_event(
+    run_id: str,
+    store: Any,
+    *,
+    from_model: str,
+    to_model: str,
+    step: str,
+) -> None:
+    store.append_event(
+        run_id,
+        "llm",
+        "llm.model.fallback",
+        payload={
+            "from_model": from_model,
+            "to_model": to_model,
+            "reason": "AllocationQuota.FreeTierOnly",
+            "step": step,
+        },
+        node_id=f"llm.fallback.{step}",
+    )
+
+
 @traceable(run_type="llm")
 def chat_completion(
     messages: list[dict[str, str]],
@@ -59,13 +81,26 @@ def chat_completion(
     测试时 monkeypatch 此函数或 get_llm_provider() 返回值。
     """
     provider = get_llm_provider()
-    resolved_model = model or ops_chat_model_override.get()
+    sticky = ops_chat_resolved_model.get()
+    resolved_model = sticky or model or ops_chat_model_override.get()
+
+    def on_quota_switch(from_model: str, to_model: str) -> None:
+        if run_id and store:
+            _write_model_fallback_event(
+                run_id,
+                store,
+                from_model=from_model,
+                to_model=to_model,
+                step=step,
+            )
+
     try:
         result = provider.complete(
             messages,
             temperature=temperature,
             step=step,
             model=resolved_model,
+            on_quota_model_switch=on_quota_switch if not sticky else None,
         )
     except OpsLlmMisconfiguredError as exc:
         raise HTTPException(
@@ -79,6 +114,7 @@ def chat_completion(
         ) from exc
     # 确保 usage 携带 step
     result.usage.step = step
+    ops_chat_resolved_model.set(result.usage.model)
     if tracing_enabled():
         update_current_generation_usage(result.usage)
     if run_id and store:

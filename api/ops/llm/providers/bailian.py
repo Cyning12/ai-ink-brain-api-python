@@ -55,4 +55,5 @@ class BailianProvider(OpsLlmProvider):
             temperature=temperature,
             step=str(kwargs.get("step", "other")),
             quota_model_switch=True,
+            on_quota_model_switch=kwargs.get("on_quota_model_switch"),
         )

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from typing import Any
 
 import requests
@@ -91,6 +92,7 @@ def openai_compatible_complete_with_policy(
     timeout: int = 60,
     max_attempts: int = _DEFAULT_MAX_ATTEMPTS,
     quota_model_switch: bool = False,
+    on_quota_model_switch: Callable[[str, str], None] | None = None,
 ) -> LlmCompletionResult:
     """按策略调用：同模型最多 max_attempts 次；百炼额度错误可换下一模型。"""
     if not model_chain:
@@ -131,6 +133,9 @@ def openai_compatible_complete_with_policy(
                     f"百炼模型 {model} 无额度（AllocationQuota.FreeTierOnly）",
                     status_code=403,
                 )
+                next_idx = model_chain.index(model) + 1
+                if on_quota_model_switch and next_idx < len(model_chain):
+                    on_quota_model_switch(model, model_chain[next_idx])
                 break
 
             if _is_retryable_status(resp.status_code):
