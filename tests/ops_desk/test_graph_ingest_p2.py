@@ -502,6 +502,42 @@ class FakeGraphStore:
             }
         ]
 
+    def get_module_matrix(self, payload: dict[str, Any], *, state: str = "open") -> list[dict[str, Any]]:
+        """兼容新版 router：委托回旧逻辑（逐节点查 issue）。"""
+        nodes = payload.get("nodes", [])
+        modules: list[dict[str, Any]] = []
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            module_id = node.get("id")
+            label = node.get("label")
+            if not module_id:
+                continue
+            issues = self.get_open_issues_for_module(module_id) if state == "open" else []
+            sample_issues = [
+                {
+                    "number": issue.get("number"),
+                    "title": issue.get("title"),
+                    "state": issue.get("state"),
+                    "labels": issue.get("labels"),
+                }
+                for issue in issues
+            ]
+            modules.append({
+                "module_id": module_id,
+                "label": label,
+                "open_issue_count": len(sample_issues),
+                "p0_count": 0,
+                "p1_count": 0,
+                "p2_count": 0,
+                "issue_numbers": [i.get("number") for i in sample_issues],
+                "sample_issues": sample_issues[:5],
+            })
+        return modules
+
+    def get_module_edges(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+        return []
+
 
 @pytest.fixture
 def graph_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:

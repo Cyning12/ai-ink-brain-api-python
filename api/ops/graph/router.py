@@ -70,36 +70,6 @@ def module_issues(
         )
 
     payload = snapshot.get("payload") or {}
-    nodes = payload.get("nodes", [])
-
-    modules: list[dict[str, Any]] = []
-    for node in nodes:
-        if not isinstance(node, dict):
-            continue
-        module_id = node.get("id")
-        label = node.get("label")
-        graph_id = node.get("graph_id")
-        if not module_id:
-            continue
-
-        # 获取带 module:<id> 标签的 open issues
-        issues = store.get_open_issues_for_module(module_id) if state == "open" else []
-        sample_issues = [
-            {
-                "number": issue.get("number"),
-                "title": issue.get("title"),
-                "state": issue.get("state"),
-                "labels": issue.get("labels"),
-            }
-            for issue in issues
-        ]
-
-        modules.append({
-            "module_id": module_id,
-            "label": label,
-            "graph_id": graph_id,
-            "open_issue_count": len(sample_issues),
-            "sample_issues": sample_issues[:5],  # 最多 5 条
-        })
+    modules = store.get_module_matrix(payload, state=state)
 
     return {"modules": modules}
