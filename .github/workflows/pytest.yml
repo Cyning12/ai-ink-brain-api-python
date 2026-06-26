@@ -27,6 +27,7 @@ jobs:
       NEXT_PUBLIC_ADMIN_SECRET: "secret-token-1234567890"
       API_KEY: "api-key-123"
       TEXT2SQL_DATABASE_URL: "postgresql://u:p@localhost:5432/postgres"
+      OPS_DESK_SECRET_TEST: "test"
 
     steps:
       - name: Checkout

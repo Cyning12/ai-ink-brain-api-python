@@ -5,7 +5,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from api.ops.agents.graph_analyst import analyze_graph
 from api.ops.agents.issue_analyst import analyze_issue
+from api.ops.agents.scan_analyst import analyze_scan
 from api.ops.constants import DEFAULT_DAYS
 from api.ops.llm import synthesize_answer
 from api.ops.llm.types import LlmUsage
@@ -19,6 +21,8 @@ class Intent:
     ISSUE_LIST = "issue_list"
     PR_LIST = "pr_list"
     ISSUE_CONTRIBUTION = "issue_contribution"
+    GRAPH_MODULE = "graph_module"
+    SCAN_STATUS = "scan_status"
     DEMO = "demo"
     FALLBACK = "fallback"
 
@@ -63,6 +67,17 @@ def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
 
     if re.search(r"pulls?\s*列表|pr.*列表|合并请求.*列表", msg) or msg in ("pulls", "pr list"):
         return Intent.PR_LIST, {}
+
+    # P3-3a: graph / scan 专用子 Agent
+    if any(k in msg for k in ("issue_scan", "issue scan", "issu_scan")) or (
+        any(k in msg for k in ("scan", "扫描")) and any(k in msg for k in ("issue", "状态", "summary", "摘要"))
+    ):
+        return Intent.SCAN_STATUS, {}
+
+    if any(k in msg for k in ("模块", "module", "依赖图", "graph")) and any(
+        k in msg for k in ("图", "graph", "模块", "依赖", "matrix", "矩阵")
+    ):
+        return Intent.GRAPH_MODULE, {}
 
     demo_hits = {
         "p0 完成没": "P0 六任务已于 2026-06-22 全部合并并通过人类 checklist。",
@@ -153,9 +168,47 @@ def synthesize(
 ) -> tuple[str, LlmUsage | None]:
     evidence = result.get("evidence", [])
     if result.get("found") is False:
-        return result.get("reasoning", "未能找到相关 issue。"), None
+        return result.get("reasoning", result.get("suggestion", "未能完成分析。")), None
     llm_result = synthesize_answer(query, evidence, run_id=run_id, store=store)
     return llm_result.content, llm_result.usage
+
+
+def _resolve_subagent(intent: str | None) -> tuple[str, Any]:
+    """按 intent 选择子 Agent 与 delegate 函数。"""
+    if intent == Intent.GRAPH_MODULE:
+        return "graph_analyst", analyze_graph
+    if intent == Intent.SCAN_STATUS:
+        return "scan_analyst", analyze_scan
+    return "issue_analyst", analyze_issue
+
+
+def _invoke_subagent(
+    agent_name: str,
+    delegate_fn: Any,
+    query: str,
+    slots: dict[str, Any],
+    queries: OpsQueries,
+    review_feedback: dict[str, Any] | None,
+    run_id: str,
+    store: OpsRunStore,
+) -> dict[str, Any]:
+    if agent_name == "issue_analyst":
+        issue_number = int(slots.get("issue_number", 545))
+        return delegate_fn(
+            query,
+            issue_number,
+            queries,
+            review_feedback=review_feedback,
+            run_id=run_id,
+            store=store,
+        )
+    return delegate_fn(
+        query,
+        queries,
+        review_feedback=review_feedback,
+        run_id=run_id,
+        store=store,
+    )
 
 
 @traceable(capture_input=False, capture_output=False)
@@ -168,13 +221,15 @@ def run_deep(
     max_retries: int = 2,
     intent: str | None = None,
 ) -> dict[str, Any]:
-    """deep path：issue_analyst → review → synthesize → events。"""
-    issue_number = slots.get("issue_number", 545)
+    """deep path：子 Agent → review → synthesize → events（P3-3a 多 Subagent）。"""
+    agent_name, delegate_fn = _resolve_subagent(intent)
+    issue_number = slots.get("issue_number")
     update_current_span_metadata(
         {
             "ops_run_id": run_id,
             "route": "deep",
             "intent": intent or "issue_contribution",
+            "agent": agent_name,
             "issue_number": issue_number,
         }
     )
@@ -184,7 +239,7 @@ def run_deep(
         run_id,
         "orchestrator",
         "router.decision",
-        payload={"route": "deep", "intent": intent or "issue_contribution", "slots": slots},
+        payload={"route": "deep", "intent": intent or "issue_contribution", "slots": slots, "agent": agent_name},
         node_id="classify",
     )
 
@@ -192,7 +247,7 @@ def run_deep(
         run_id,
         "orchestrator",
         "agent.delegate.start",
-        payload={"agent": "issue_analyst", "issue_number": issue_number},
+        payload={"agent": agent_name, "slots": slots},
         node_id="delegate",
     )
 
@@ -203,26 +258,34 @@ def run_deep(
     llm_calls = 0
     llm_usages: list[Any] = []
     while attempt <= max_retries:
-        analyst_result = analyze_issue(query, issue_number, queries, review_feedback=review_feedback, run_id=run_id, store=store)
-        # 收集 analyze_issue 的 usage
+        analyst_result = _invoke_subagent(
+            agent_name,
+            delegate_fn,
+            query,
+            slots,
+            queries,
+            review_feedback,
+            run_id,
+            store,
+        )
         _usage_raw = analyst_result.get("_llm_usage", {})
         if _usage_raw:
             u = LlmUsage.from_dict(_usage_raw, step="analyze")
             llm_calls += 1
             llm_usages.append(u)
-        # A4: expanded payload
         store.append_event(
             run_id,
-            "issue_analyst",
+            agent_name,
             "agent.tool.result",
             payload={
-                "issue_number": issue_number,
+                "agent": agent_name,
                 "confidence": analyst_result.get("confidence"),
                 "reasoning": analyst_result.get("reasoning"),
                 "suggestion": analyst_result.get("suggestion"),
                 "citations": analyst_result.get("citations", []),
+                "issue_number": analyst_result.get("issue_number"),
             },
-            node_id="issue_analyst",
+            node_id=agent_name,
         )
 
         verdict, detail = review_result(analyst_result, queries)
@@ -261,7 +324,12 @@ def run_deep(
     store.update_run(
         run_id,
         status=final_verdict,
-        final_answer={"answer": answer, "issue_number": issue_number, "verdict": final_verdict},
+        final_answer={
+            "answer": answer,
+            "agent": agent_name,
+            "issue_number": analyst_result.get("issue_number"),
+            "verdict": final_verdict,
+        },
     )
     store.append_event(run_id, "orchestrator", "run.end", node_id="deep.end")
     # B5: run 级 metrics_json 汇总
@@ -283,7 +351,8 @@ def run_deep(
         "run_id": run_id,
         "status": final_verdict,
         "answer": answer,
-        "issue_number": issue_number,
+        "agent": agent_name,
+        "issue_number": analyst_result.get("issue_number"),
     }
 
 

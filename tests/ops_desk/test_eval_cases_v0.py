@@ -143,7 +143,7 @@ def _run_case(
 
 @pytest.fixture
 def eval_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.setenv("OPS_DESK_SECRET_TEST", "test")
 
     fake_queries = FakeQueries()
     fake_store = EvalFakeStore()

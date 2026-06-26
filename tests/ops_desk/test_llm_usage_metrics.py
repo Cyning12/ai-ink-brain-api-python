@@ -345,6 +345,7 @@ def test_chat_messages_bailian_missing_key_returns_503(monkeypatch) -> None:
     monkeypatch.delenv("BAILIAN_API_KEY", raising=False)
     monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
     monkeypatch.delenv("OPS_DESK_SECRET", raising=False)
+    monkeypatch.delenv("OPS_DESK_SECRET_TEST", raising=False)
 
     class _FakeDemoCache:
         def __init__(self) -> None:
@@ -1027,7 +1028,7 @@ def test_bailian_quota_error_switches_model(monkeypatch) -> None:
 
 def test_chat_models_endpoint_bailian(monkeypatch) -> None:
     monkeypatch.setenv("OPS_LLM_PROVIDER", "bailian")
-    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.setenv("OPS_DESK_SECRET_TEST", "test")
     monkeypatch.delenv("BAILIAN_MODEL", raising=False)
     client = TestClient(app)
     resp = client.get("/api/py/ops/chat/models", headers={"x-ops-secret": "test"})

@@ -28,6 +28,7 @@ def _clear_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """隔离环境变量，避免泄漏真实 token。"""
     monkeypatch.delenv("OPS_GITHUB_DISPATCH_TOKEN", raising=False)
     monkeypatch.delenv("OPS_DESK_SECRET", raising=False)
+    monkeypatch.delenv("OPS_DESK_SECRET_TEST", raising=False)
 
 
 # ---------------------------------------------------------------------------
@@ -370,7 +371,8 @@ def test_list_runs_limit_too_high(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_trigger_secret_required(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("OPS_DESK_SECRET", "secret-123")
+    monkeypatch.delenv("OPS_DESK_SECRET", raising=False)
+    monkeypatch.setenv("OPS_DESK_SECRET_TEST", "secret-123")
     monkeypatch.setenv("OPS_GITHUB_DISPATCH_TOKEN", "ghp_test")
     store = _make_store(runs=[])
     app.dependency_overrides[_store] = lambda: store
