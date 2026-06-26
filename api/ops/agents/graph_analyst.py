@@ -1,10 +1,10 @@
-"""Ops Desk graph_analyst 子 Agent（只读 · 模块×Issue 矩阵）。"""
+"""Ops Desk graph_analyst 子 Agent（只读 · 模块×Issue 矩阵 + 依赖边）。"""
 
 from __future__ import annotations
 
 from typing import Any
 
-from api.ops.graph.store import OpsGraphStore
+from api.ops.graph.module_matrix import ModuleMatrixService
 from api.ops.llm import chat_completion
 from api.ops.queries import OpsQueries
 from api.ops.tracing import traceable
@@ -19,9 +19,11 @@ def analyze_graph(
     store: Any = None,
 ) -> dict[str, Any]:
     repo_id = queries._repo_id() or "unknown"
-    graph_store = OpsGraphStore(repo_id=repo_id, client=queries.client)
-    snapshot = graph_store.get_latest_snapshot()
-    if not snapshot:
+    service = ModuleMatrixService(repo_id=repo_id, client=queries.client)
+    snapshot = service._sb().table("ops_graph_snapshots").select("*").eq("repo_id", repo_id).order("created_at", desc=True).limit(1).execute()
+    rows = snapshot.data if isinstance(snapshot.data, list) else []
+    row = rows[0] if rows and isinstance(rows[0], dict) else None
+    if not row:
         return {
             "found": False,
             "evidence": [],
@@ -31,31 +33,17 @@ def analyze_graph(
             "citations": [],
         }
 
-    payload = snapshot.get("payload") or {}
-    nodes = payload.get("nodes", [])
-    modules: list[dict[str, Any]] = []
-    for node in nodes[:12]:
-        if not isinstance(node, dict):
-            continue
-        module_id = node.get("id")
-        if not module_id:
-            continue
-        issues = graph_store.get_open_issues_for_module(str(module_id))
-        modules.append(
-            {
-                "module_id": module_id,
-                "label": node.get("label"),
-                "open_issue_count": len(issues),
-                "sample_titles": [i.get("title") for i in issues[:3]],
-            }
-        )
+    payload = row.get("payload") or {}
+    modules = service.build_matrix(payload, state="open")
+    module_edges = service.get_module_edges(payload, relation="depends_on")
 
     evidence = [
         {
             "kind": "graph_snapshot",
-            "snapshot_id": snapshot.get("id"),
-            "node_count": len(nodes),
+            "snapshot_id": row.get("id"),
+            "node_count": len(payload.get("nodes", [])),
             "modules": modules,
+            "module_edges": module_edges,
         }
     ]
 
@@ -68,6 +56,7 @@ def analyze_graph(
     prompt = (
         f"用户问题：{query}\n"
         f"模块×Issue 矩阵摘要：{modules}\n"
+        f"模块依赖边摘要：{module_edges}\n"
         f"{feedback_block}\n\n"
         "请解读模块依赖与 open issue 分布，给出结构化建议。"
         "输出 JSON：{reasoning, suggestion, confidence(0-1), citations:[{number, url}]}"

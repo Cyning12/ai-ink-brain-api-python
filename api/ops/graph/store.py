@@ -11,6 +11,7 @@ from typing import Any
 from api.rag_env import pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from supabase import create_client
 
+from .module_matrix import ModuleMatrixService
 from .validator import GraphValidationError, validate_graph_json
 
 
@@ -141,6 +142,16 @@ class OpsGraphStore:
             return [r for r in rows if isinstance(r, dict)]
 
         return supabase_execute_with_retry(_once)
+
+    def get_module_matrix(self, payload: dict[str, Any], *, state: str = "open") -> list[dict[str, Any]]:
+        """使用共享矩阵服务构建 module×Issue 矩阵。"""
+        service = ModuleMatrixService(repo_id=self.repo_id, client=self._sb())
+        return service.build_matrix(payload, state=state)
+
+    def get_module_edges(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+        """提取 module 级 depends_on 边。"""
+        service = ModuleMatrixService(repo_id=self.repo_id, client=self._sb())
+        return service.get_module_edges(payload, relation="depends_on")
 
 
 def ingest_graph_after_github_sync(
