@@ -72,10 +72,26 @@ def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
         if key in msg:
             return Intent.DEMO, {"answer": answer}
 
-    issue_match = re.search(r"#(\d+)", message)
-    if issue_match:
-        return Intent.ISSUE_CONTRIBUTION, {"issue_number": int(issue_match.group(1))}
+    # P3-1: 对比/多 issue 问句 → fallback → ReAct
+    # 单 issue（仅 1 个 #N、无对比语义）→ ISSUE_CONTRIBUTION（deep）
+    issue_numbers = re.findall(r"#(\d+)", message)
+    unique_issues = sorted(set(int(n) for n in issue_numbers))
+    msg_lower = message.lower()
+    # 强对比词：无论 issue 数量都视为对比
+    strong_comparison = ("对比", "比较", "vs", "which", "哪个", "谁更")
+    # 弱对比词：仅当 ≥2 个不同 issue 号时才视为对比
+    weak_comparison = ("和", "与")
+    has_strong = any(k in msg_lower for k in strong_comparison)
+    has_weak = any(k in msg_lower for k in weak_comparison) and len(unique_issues) >= 2
+    is_comparison = has_strong or has_weak or len(unique_issues) >= 2
+    if is_comparison and unique_issues:
+        return Intent.FALLBACK, {"issue_numbers": unique_issues}
 
+    if issue_numbers:
+        return Intent.ISSUE_CONTRIBUTION, {"issue_number": int(issue_numbers[0])}
+
+    # P3-1: 开放复杂问（含热点、架构等）→ fallback → ReAct
+    # 但保留 misroute 防护：纯 metrics 关键词已在上面处理
     return Intent.FALLBACK, {}
 
 

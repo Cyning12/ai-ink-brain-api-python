@@ -219,6 +219,24 @@ def test_classifier_matches_demos() -> None:
     assert classifier.classify(" totally unrelated ") is None
 
 
+def test_classifier_skips_comparison_questions() -> None:
+    """P3-1: 对比/多 issue 问句不得被 demo 缓存短路。"""
+    classifier = DemoClassifier()
+    assert classifier.classify("对比 #545 和 #600 哪个更适合新手") is None
+    assert classifier.classify("#545 vs #600 谁更适合新手") is None
+    assert classifier.classify("看看 #545 #600 的情况") is None
+
+
+def test_classifier_d4_single_issue_still_works() -> None:
+    """D4 单 issue 语义必须仍命中。"""
+    classifier = DemoClassifier()
+    result = classifier.classify("#545 适合我做吗？")
+    assert result is not None
+    assert result["demo_id"] == "D4"
+    assert result["intent"] == "issue_contribution"
+    assert result["params"]["issue_number"] == 545
+
+
 def test_demo_cache_hit_d1_no_llm(client: TestClient) -> None:
     client.fake_demo_cache.set("D1", {"answer": "D1 cached", "metric": "issue-throughput"})
     resp = client.post(
