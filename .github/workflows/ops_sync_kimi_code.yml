@@ -61,6 +61,7 @@ jobs:
           token: ${{ secrets.KIMI_META_REPO_TOKEN }}
           sparse-checkout: |
             docs/_tech_graph/graph.json
+            docs/_tech_graph/graph_module_flow_map.yaml
             .cyning-harness/manifest.json
           sparse-checkout-cone-mode: false
 

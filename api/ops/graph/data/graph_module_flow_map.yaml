@@ -1,0 +1,112 @@
+# graph_module_flow_map.yaml · L3 模块→flow 映射（machine-readable）
+#
+# 维护规则：
+# - 新增 module_id 须同步更新 docs/_tech_graph/01_struct.md 与本文件
+# - flow 文件名须对应 docs/_tech_graph/*.graph.yaml 真值
+# - agent_core 专链规则 priority 高于默认 turn flow
+
+schema_version: graph_module_flow_map_v1
+source_of_truth:
+  module_table: docs/_tech_graph/01_struct.md
+  flow_registry: docs/_tech_graph/*.graph.yaml
+
+rules:
+  - module_id: cli
+    path_globs:
+      - "apps/kimi-code/**"
+    default_flow: 10_flow_cli_session.graph.yaml
+    severity: required
+
+  - module_id: agent_core
+    path_globs:
+      - "packages/agent-core/**"
+    default_flow: 10_flow_agent_turn.graph.yaml
+    severity: required
+
+  - module_id: agent_core
+    path_globs:
+      - "packages/agent-core/**/builtin/file/read/**"
+      - "packages/agent-core/**/read/**"
+    path_substrings:
+      - read_tool
+      - ReadTool
+    default_flow: 10_flow_read_tool.graph.yaml
+    severity: required
+    priority: 10
+
+  - module_id: agent_core
+    path_globs:
+      - "packages/agent-core/**/skills/**"
+    path_substrings:
+      - skill_load
+      - skill/parser
+    default_flow: 10_flow_skill_load.graph.yaml
+    severity: required
+    priority: 10
+
+  - module_id: agent_core
+    path_globs:
+      - "packages/agent-core/**/context/**"
+      - "packages/agent-core/**/turn/**"
+    path_substrings:
+      - tool_exchange
+      - open_tool_calls
+    default_flow: 10_flow_context_tool_exchange.graph.yaml
+    severity: required
+    priority: 10
+
+  - module_id: node_sdk
+    path_globs:
+      - "packages/node-sdk/**"
+    default_flow: 10_flow_cli_session.graph.yaml
+    severity: warn
+
+  - module_id: monorepo_root
+    path_globs:
+      - "docs/**"
+      - "tools/tech_graph/**"
+      - ".cyning-harness/**"
+    default_flow: none
+    severity: skip
+
+  - module_id: kosong
+    path_globs:
+      - "packages/kosong/**"
+    default_flow: none
+    severity: warn
+
+  - module_id: kaos
+    path_globs:
+      - "packages/kaos/**"
+    default_flow: none
+    severity: warn
+
+  - module_id: oauth
+    path_globs:
+      - "packages/oauth/**"
+    default_flow: none
+    severity: warn
+
+  - module_id: telemetry
+    path_globs:
+      - "packages/telemetry/**"
+    default_flow: none
+    severity: warn
+
+  - module_id: vis
+    path_globs:
+      - "apps/vis/**"
+    default_flow: none
+    severity: skip
+
+  - module_id: acp_adapter
+    path_globs:
+      - "packages/acp-adapter/**"
+    default_flow: none
+    severity: skip
+
+  - module_id: migration_legacy
+    path_globs:
+      - "packages/migration-legacy/**"
+    default_flow: none
+    severity: skip

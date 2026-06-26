@@ -22,7 +22,9 @@ from api.ops.graph.module_matrix import (
     ModuleMatrixService,
     _count_tiers,
     _extract_module_ids,
+    _load_flow_map,
     _match_issue_to_module,
+    flow_map_from_payload,
 )
 from api.ops.graph.router import get_graph_store
 
@@ -165,6 +167,31 @@ class TestExtractModuleIds:
         ids = _extract_module_ids(payload)
         assert ids == ["dup"]
 
+    def test_struct_only_skips_flow_module_id(self) -> None:
+        payload = {
+            "nodes": [
+                {"id": "AC", "label": "agent-core", "module_id": "agent_core", "kind": "struct"},
+                {"id": "FLOW", "label": "scanner.discoverSkills", "module_id": "agent_core", "kind": "flow"},
+                {"id": "CLI", "label": "cli", "module_id": "cli", "kind": "struct"},
+            ]
+        }
+        ids = _extract_module_ids(payload)
+        assert ids == ["agent_core", "cli"]
+
+    def test_label_prefers_struct_node(self, sample_payload: dict[str, Any], sample_issues: list[dict[str, Any]], sample_flow_map: dict[str, dict[str, Any]]) -> None:
+        payload = {
+            **sample_payload,
+            "nodes": sample_payload["nodes"]
+            + [
+                {"id": "SKILL", "label": "scanner.discoverSkills", "module_id": "agent_core", "kind": "flow"},
+            ],
+        }
+        fake = FakeSupabase(sample_issues)
+        service = ModuleMatrixService(repo_id="repo-1", client=fake, flow_map=sample_flow_map)
+        matrix = service.build_matrix(payload, state="open")
+        ac = next(m for m in matrix if m["module_id"] == "agent_core")
+        assert ac["label"] == "agent-core"
+
     def test_empty_payload(self) -> None:
         assert _extract_module_ids({}) == []
         assert _extract_module_ids({"nodes": "bad"}) == []
@@ -190,6 +217,38 @@ class TestMatchIssueToModule:
     def test_no_flow_map_rule(self) -> None:
         issue = {"labels": [], "scan_tags": ["C3-P0"], "title": "x", "body": ""}
         assert _match_issue_to_module(issue, "unknown", {}) is False
+
+    def test_real_issue_545_agent_core_path(self, sample_flow_map: dict[str, dict[str, Any]]) -> None:
+        """Moonshot #545 body 含 packages/agent-core/… 应命中 agent_core。"""
+        issue = {
+            "labels": [],
+            "scan_tags": ["C3-P2"],
+            "title": "maxRecentUserMessages配置项可能有bug",
+            "body": "涉及文件：`packages/agent-core/src/agent/compaction/strategy.ts`",
+        }
+        assert _match_issue_to_module(issue, "agent_core", sample_flow_map) is True
+
+    def test_real_issue_583_telemetry_title(self) -> None:
+        bundled = _load_flow_map()
+        issue = {
+            "labels": [],
+            "scan_tags": ["C2"],
+            "title": "Tool-call telemetry misclassifies Bash cancellation outcomes",
+            "body": "",
+        }
+        assert _match_issue_to_module(issue, "telemetry", bundled) is True
+
+
+class TestBundledFlowMap:
+    def test_bundled_yaml_loads(self) -> None:
+        flow_map = _load_flow_map()
+        assert "agent_core" in flow_map
+        assert "cli" in flow_map
+        assert flow_map["agent_core"]["path_globs"]
+
+    def test_payload_embedded_flow_map(self, sample_flow_map: dict[str, dict[str, Any]]) -> None:
+        payload = {"meta": {"module_flow_map": sample_flow_map}}
+        assert flow_map_from_payload(payload) == sample_flow_map
 
 
 class TestCountTiers:

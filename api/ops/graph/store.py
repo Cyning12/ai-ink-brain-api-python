@@ -11,7 +11,12 @@ from typing import Any
 from api.rag_env import pick_supabase_service_key, pick_supabase_url, supabase_execute_with_retry
 from supabase import create_client
 
-from .module_matrix import ModuleMatrixService
+from .module_matrix import (
+    ModuleMatrixService,
+    _load_flow_map,
+    flow_map_from_payload,
+    flow_map_path_adjacent_to_graph,
+)
 from .validator import GraphValidationError, validate_graph_json
 
 
@@ -145,7 +150,13 @@ class OpsGraphStore:
 
     def get_module_matrix(self, payload: dict[str, Any], *, state: str = "open") -> list[dict[str, Any]]:
         """使用共享矩阵服务构建 module×Issue 矩阵。"""
-        service = ModuleMatrixService(repo_id=self.repo_id, client=self._sb())
+        embedded = flow_map_from_payload(payload)
+        flow_map = embedded if embedded is not None else _load_flow_map()
+        service = ModuleMatrixService(
+            repo_id=self.repo_id,
+            client=self._sb(),
+            flow_map=flow_map,
+        )
         return service.build_matrix(payload, state=state)
 
     def get_module_edges(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -217,6 +228,16 @@ def ingest_graph_after_github_sync(
             pass
 
     branch = source_branch or _default_source_branch()
+
+    # 嵌入 module_flow_map，供生产 API 运行时 join（无 workspace  checkout）
+    map_path = flow_map_path_adjacent_to_graph(path)
+    flow_map = _load_flow_map(map_path if map_path.exists() else None)
+    if flow_map:
+        payload_meta = raw.get("meta")
+        if not isinstance(payload_meta, dict):
+            payload_meta = {}
+        payload_meta["module_flow_map"] = flow_map
+        raw["meta"] = payload_meta
 
     store = OpsGraphStore(repo_id=repo_id, client=client)
     snapshot_id = store.write_snapshot(

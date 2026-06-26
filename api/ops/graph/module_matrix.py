@@ -15,13 +15,34 @@ from typing import Any
 
 from api.rag_env import supabase_execute_with_retry
 
+# 仓内 bundle（生产 API 无 workspace/kimi-code-meta 时使用）
+_BUNDLED_FLOW_MAP = Path(__file__).resolve().parent / "data" / "graph_module_flow_map.yaml"
+
 
 def _default_flow_map_path() -> Path:
     raw = (os.getenv("OPS_GRAPH_MODULE_FLOW_MAP_PATH") or "").strip()
     if raw:
         return Path(raw)
-    # 仓内只读路径（与 ingest 时写入 snapshot meta 的副本一致）
+    if _BUNDLED_FLOW_MAP.exists():
+        return _BUNDLED_FLOW_MAP
+    # GHA sync runner 落盘路径
     return Path("workspace/kimi-code-meta/docs/_tech_graph/graph_module_flow_map.yaml")
+
+
+def flow_map_path_adjacent_to_graph(graph_json_path: Path) -> Path:
+    """graph.json 同目录下的 flow_map（ingest 时优先）。"""
+    return graph_json_path.parent / "graph_module_flow_map.yaml"
+
+
+def flow_map_from_payload(payload: dict[str, Any]) -> dict[str, dict[str, Any]] | None:
+    """从 snapshot payload.meta.module_flow_map 读取（ingest 嵌入）。"""
+    meta = payload.get("meta")
+    if not isinstance(meta, dict):
+        return None
+    raw = meta.get("module_flow_map")
+    if not isinstance(raw, dict) or not raw:
+        return None
+    return raw
 
 
 def _load_flow_map(path: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -62,32 +83,60 @@ def _extract_module_ids(payload: dict[str, Any]) -> list[str]:
     """从 graph payload 提取 distinct module_id。
 
     策略：
-    1. 优先取 node.module_id（post-Epic 结构）
-    2. 次选 node.kind == 'struct' 的 node.id（struct 节点即 module）
+    1. 优先 struct 节点（module 级锚点）
+    2. 次选任意带 module_id 的节点（兼容旧 snapshot）
     3. 去重、保持原序、上限 20
     """
     nodes = payload.get("nodes", [])
     if not isinstance(nodes, list):
         return []
-    seen: set[str] = set()
-    result: list[str] = []
-    for node in nodes:
-        if not isinstance(node, dict):
-            continue
-        module_id = node.get("module_id")
-        if not module_id:
-            # fallback：struct 节点用 node.id 作为 module_id
-            if node.get("kind") == "struct":
+
+    def _collect(*, struct_only: bool) -> list[str]:
+        seen: set[str] = set()
+        result: list[str] = []
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            if struct_only and node.get("kind") != "struct":
+                continue
+            module_id = node.get("module_id")
+            if not module_id and node.get("kind") == "struct":
                 module_id = node.get("id")
-        if not module_id or not isinstance(module_id, str):
+            if not module_id or not isinstance(module_id, str):
+                continue
+            if module_id in seen:
+                continue
+            seen.add(module_id)
+            result.append(module_id)
+            if len(result) >= 20:
+                break
+        return result
+
+    struct_ids = _collect(struct_only=True)
+    if struct_ids:
+        return struct_ids
+    return _collect(struct_only=False)
+
+
+def _module_text_keywords(module_id: str, rule: dict[str, Any]) -> list[str]:
+    """从 module_id 与 flow_map 规则提取 title/body 匹配关键词。"""
+    keywords: set[str] = set()
+    mid = module_id.lower()
+    keywords.add(mid)
+    keywords.add(mid.replace("_", "-"))
+    keywords.add(mid.replace("_", " "))
+    skip_parts = {"packages", "apps", "tools", "docs", "src", "test", "tests"}
+    for glob in rule.get("path_globs", []):
+        if not isinstance(glob, str):
             continue
-        if module_id in seen:
-            continue
-        seen.add(module_id)
-        result.append(module_id)
-        if len(result) >= 20:
-            break
-    return result
+        for part in glob.replace("**", "").strip("/").split("/"):
+            part = part.strip().lower()
+            if part and part not in skip_parts and len(part) >= 3:
+                keywords.add(part)
+    for sub in rule.get("path_substrings", []):
+        if isinstance(sub, str) and sub.strip():
+            keywords.add(sub.strip().lower())
+    return sorted(keywords)
 
 
 def _match_issue_to_module(
@@ -117,19 +166,17 @@ def _match_issue_to_module(
     body = (issue.get("body") or "").lower()
     text = f"{title} {body}"
 
-    # path_substrings 匹配 issue title/body
-    substrings = rule.get("path_substrings", [])
-    for sub in substrings:
-        if sub and sub.lower() in text:
+    # module_id / path 段 / path_substrings 关键词
+    for kw in _module_text_keywords(module_id, rule):
+        if len(kw) >= 3 and kw in text:
             return True
 
-    # path_globs 转换为关键词（取最后一段）做宽松匹配
-    globs = rule.get("path_globs", [])
-    for glob in globs:
-        if not glob:
+    # path_globs 完整前缀（如 packages/agent-core）
+    for glob in rule.get("path_globs", []):
+        if not isinstance(glob, str) or not glob:
             continue
-        keyword = glob.strip("*/").lower()
-        if keyword and keyword in text:
+        prefix = glob.replace("/**", "").replace("**", "").strip("/").lower()
+        if prefix and prefix in text:
             return True
 
     return False
@@ -218,14 +265,19 @@ class ModuleMatrixService:
         if not module_ids:
             return []
 
-        # 获取节点元数据（label 等）
+        # 获取节点元数据（label 等）· struct 节点优先
         nodes = payload.get("nodes", [])
         node_by_module: dict[str, dict[str, Any]] = {}
         for node in nodes if isinstance(nodes, list) else []:
             if not isinstance(node, dict):
                 continue
             mid = node.get("module_id") or (node.get("id") if node.get("kind") == "struct" else None)
-            if mid and isinstance(mid, str):
+            if not mid or not isinstance(mid, str):
+                continue
+            existing = node_by_module.get(mid)
+            if existing is None or (
+                node.get("kind") == "struct" and existing.get("kind") != "struct"
+            ):
                 node_by_module[mid] = node
 
         # 只查一次 open issues
