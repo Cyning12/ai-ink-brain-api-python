@@ -194,8 +194,32 @@ def test_metrics_question_still_fast(react_client: TestClient) -> None:
     assert data.get("route") != "react"
 
 
+def test_comparison_issue_routes_to_react(react_client: TestClient) -> None:
+    """对比 #545 和 #600 哪个更适合新手 → route=react（非 deep、非 cache hit）。"""
+    _reset_mock("multi_step")
+    resp = react_client.post(
+        "/api/py/ops/chat/messages",
+        json={"message": "对比 #545 和 #600 哪个更适合新手"},
+        headers={"x-ops-secret": "test"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["route"] == "react"
+    assert data["status"] in ("done", "partial")
+    assert "answer" in data
+
+    run_id = data["run_id"]
+    events = react_client.fake_store.events.get(run_id, [])  # type: ignore[attr-defined]
+    event_types = [e["event_type"] for e in events]
+    assert "agent.react_step" in event_types
+    assert "agent.tool_call" in event_types
+    assert "agent.tool_result" in event_types
+    assert "final.answer" in event_types
+    assert "run.end" in event_types
+
+
 def test_issue_contribution_still_deep(react_client: TestClient) -> None:
-    """issue_contribution 不应进入 ReAct。"""
+    """单 issue 问句（无对比语义）不应进入 ReAct，仍走 deep。"""
     _reset_mock("final_direct")
     resp = react_client.post(
         "/api/py/ops/chat/messages",
@@ -215,7 +239,6 @@ def test_issue_contribution_still_deep(react_client: TestClient) -> None:
 def test_react_multi_step_tool_chain(react_client: TestClient) -> None:
     """ReAct 多步 tool 调用后得出终答。"""
     _reset_mock("multi_step")
-    # Use a message that has # but no issue number (so classify_intent returns FALLBACK)
     resp = react_client.post(
         "/api/py/ops/chat/messages",
         json={"message": "对比 #545 和 #600 哪个更适合新手"},
@@ -223,12 +246,7 @@ def test_react_multi_step_tool_chain(react_client: TestClient) -> None:
     )
     assert resp.status_code == 200
     data = resp.json()
-    # The message "对比 #545 和 #600 哪个更适合新手" has #545 and #600
-    # classify_intent returns ISSUE_CONTRIBUTION for first #\d+ match (#545)
-    # So this goes to deep, not react. Let's use a message without #\d+
-    # Actually the test message should be something like "这周社区有哪些热点讨论"
-    # But we want to test multi-step. Let's use a message that triggers fallback.
-    assert data["route"] in ("react", "deep")
+    assert data["route"] == "react"
     assert data["status"] in ("done", "partial")
     assert "answer" in data
 
@@ -236,18 +254,16 @@ def test_react_multi_step_tool_chain(react_client: TestClient) -> None:
     events = react_client.fake_store.events.get(run_id, [])  # type: ignore[attr-defined]
     event_types = [e["event_type"] for e in events]
 
-    # Should have react events if route is react
-    if data["route"] == "react":
-        assert "agent.react_step" in event_types
-        assert "agent.tool_call" in event_types
-        assert "agent.tool_result" in event_types
-        assert "final.answer" in event_types
-        assert "run.end" in event_types
+    assert "agent.react_step" in event_types
+    assert "agent.tool_call" in event_types
+    assert "agent.tool_result" in event_types
+    assert "final.answer" in event_types
+    assert "run.end" in event_types
 
-        # Check tool_call payload
-        tool_calls = [e for e in events if e["event_type"] == "agent.tool_call"]
-        assert len(tool_calls) >= 1
-        assert tool_calls[0]["payload"]["tool"] == "ops_list_issues"
+    # Check tool_call payload
+    tool_calls = [e for e in events if e["event_type"] == "agent.tool_call"]
+    assert len(tool_calls) >= 1
+    assert tool_calls[0]["payload"]["tool"] == "ops_list_issues"
 
 
 # ---------------------------------------------------------------------------

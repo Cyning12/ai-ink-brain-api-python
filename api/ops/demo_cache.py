@@ -32,7 +32,7 @@ class DemoClassifier:
             "query_template": "PR review time 中位数是多少？",
         },
         "D4": {
-            "patterns": ["#545", "# 545", "545 适合"],
+            "patterns": ["545 适合"],
             "intent": "issue_contribution",
             "params": {"issue_number": 545},
             "query_template": "#545 适合我做吗？",
@@ -41,6 +41,13 @@ class DemoClassifier:
 
     def classify(self, message: str) -> dict[str, Any] | None:
         msg = message.lower()
+        # P3-1: 对比/多 issue 问句不得被 demo 缓存短路
+        import re
+        issue_numbers = re.findall(r"#(\d+)", message)
+        unique_issues = sorted(set(int(n) for n in issue_numbers))
+        comparison_keywords = ("对比", "比较", "vs", "which", "哪个", "谁更", "和", "与")
+        if any(k in msg for k in comparison_keywords) or len(unique_issues) >= 2:
+            return None
         for demo_id, cfg in self.QUESTIONS.items():
             for pattern in cfg["patterns"]:
                 if pattern in msg:
