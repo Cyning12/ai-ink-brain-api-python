@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from api.index import app
 from api.ops import chat
 from api.ops.orchestrator.core import review_result
+from tests.ops_desk._llm_mocks import patch_ops_llm_imports
 from tests.ops_desk.test_demo_cache_p1 import FakeDemoCacheStore, FakeQueries, FakeStore
 
 FIXTURE_PATH = Path(__file__).resolve().parent.parent / "fixtures" / "ops_desk_eval_cases_v0.json"
@@ -143,7 +144,7 @@ def _run_case(
 
 @pytest.fixture
 def eval_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.setenv("OPS_DESK_SECRET_TEST", "test")
 
     fake_queries = FakeQueries()
     fake_store = EvalFakeStore()
@@ -213,13 +214,13 @@ def eval_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
             usage=usage,
         )
 
-    monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
-    monkeypatch.setattr("api.ops.agents.issue_analyst.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
+    patch_ops_llm_imports(
+        monkeypatch,
+        chat_completion=fake_chat_completion,
+        synthesize_answer=fake_synthesize_answer,
+    )
 
-    # A8 (react fallback) needs its own mock because react_loop imports
-    # chat_completion at module level; the patch above does not affect it.
+    # A8 (react fallback) 使用专用 responder（多步 tool → final）
     _mock_react_call_count = 0
 
     def fake_react_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3, **kwargs: Any) -> Any:

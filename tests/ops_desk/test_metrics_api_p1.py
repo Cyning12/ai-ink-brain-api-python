@@ -132,7 +132,8 @@ def test_list_pulls(client: TestClient) -> None:
 
 
 def test_ops_secret_missing(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("OPS_DESK_SECRET", "test")
+    monkeypatch.setenv("OPS_DESK_SECRET_TEST", "test")
+    monkeypatch.delenv("OPS_DESK_SECRET", raising=False)
     resp = client.get("/api/py/ops/metrics/cycle-time")
     assert resp.status_code == 401
 

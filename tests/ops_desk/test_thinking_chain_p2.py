@@ -22,6 +22,7 @@ from api.ops.demo_cache import DemoClassifier
 from api.ops.orchestrator import Intent, classify_intent, is_fast_intent
 from api.ops.orchestrator.core import run_deep
 from api.ops.store.runs import OpsRunStore
+from tests.ops_desk._llm_mocks import patch_ops_llm_imports
 
 
 class FakeDemoCache:
@@ -187,10 +188,28 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
             usage=LlmUsage(provider="siliconflow", model="Qwen/Qwen2.5-72B-Instruct", prompt_tokens=8, completion_tokens=4, total_tokens=12, latency_ms=80, step="synthesize"),
         )
 
-    monkeypatch.setattr("api.ops.llm.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
-    monkeypatch.setattr("api.ops.agents.issue_analyst.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
+    def fake_react_chat_completion(messages: list[dict[str, str]], temperature: float = 0.3, **kwargs: Any) -> Any:
+        from api.ops.llm.types import LlmCompletionResult, LlmUsage
+
+        return LlmCompletionResult(
+            content='{"thought": "直接回答", "final_answer": "你好，Ops Desk 已就绪。"}',
+            usage=LlmUsage(
+                provider="siliconflow",
+                model="Qwen/Qwen2.5-72B-Instruct",
+                prompt_tokens=10,
+                completion_tokens=5,
+                total_tokens=15,
+                latency_ms=100,
+                step=kwargs.get("step", "react"),
+            ),
+        )
+
+    patch_ops_llm_imports(
+        monkeypatch,
+        chat_completion=fake_chat_completion,
+        synthesize_answer=fake_synthesize_answer,
+    )
+    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_react_chat_completion)
 
     yield TestClient(app)
     app.dependency_overrides.clear()

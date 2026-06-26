@@ -20,6 +20,7 @@ from api.index import app
 from api.ops import chat
 from api.ops.demo_cache import DemoClassifier
 from api.ops.react_loop import run_react_fallback
+from tests.ops_desk._llm_mocks import patch_ops_llm_imports
 from tests.ops_desk.test_thinking_chain_p2 import FakeQueries, FakeStore
 
 
@@ -84,9 +85,12 @@ def react_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
             ),
         )
 
-    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
-    monkeypatch.setattr("api.ops.llm.synthesize_answer", fake_synthesize_answer)
+    patch_ops_llm_imports(
+        monkeypatch,
+        chat_completion=fake_chat_completion,
+        synthesize_answer=fake_synthesize_answer,
+        synthesize=lambda *args, **kwargs: ("综合建议。", None),
+    )
 
     test_client = TestClient(app)
     test_client.fake_store = fake_store  # type: ignore[attr-defined]
@@ -370,9 +374,12 @@ def test_react_review_reject_limited_retries(monkeypatch: pytest.MonkeyPatch) ->
             ),
         )
 
-    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
+    patch_ops_llm_imports(
+        monkeypatch,
+        chat_completion=fake_chat_completion,
+        synthesize_answer=fake_synthesize_answer,
+        synthesize=lambda *args, **kwargs: ("综合建议。", None),
+    )
     monkeypatch.setattr("api.ops.orchestrator.core.review_result", always_fail_review)
 
     result = run_react_fallback(
@@ -457,9 +464,12 @@ def test_run_react_fallback_unit(monkeypatch: pytest.MonkeyPatch) -> None:
             ),
         )
 
-    monkeypatch.setattr("api.ops.react_loop.chat_completion", fake_chat_completion)
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize", lambda *args, **kwargs: ("综合建议。", None))
-    monkeypatch.setattr("api.ops.orchestrator.core.synthesize_answer", fake_synthesize_answer)
+    patch_ops_llm_imports(
+        monkeypatch,
+        chat_completion=fake_chat_completion,
+        synthesize_answer=fake_synthesize_answer,
+        synthesize=lambda *args, **kwargs: ("综合建议。", None),
+    )
 
     result = run_react_fallback("run-unit", "测试", fake_store, fake_queries, max_steps=6)
 
