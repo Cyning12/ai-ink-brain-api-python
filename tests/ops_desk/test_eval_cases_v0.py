@@ -12,8 +12,8 @@ from fastapi.testclient import TestClient
 from api.index import app
 from api.ops import chat
 from api.ops.orchestrator.core import review_result
-from tests.ops_desk.test_demo_cache_p1 import FakeDemoCacheStore, FakeQueries, FakeStore
 from tests.ops_desk._llm_mocks import patch_ops_llm_imports
+from tests.ops_desk.test_demo_cache_p1 import FakeDemoCacheStore, FakeQueries, FakeStore
 
 FIXTURE_PATH = Path(__file__).resolve().parent.parent / "fixtures" / "ops_desk_eval_cases_v0.json"
 CHAT_HEADERS = {"x-ops-secret": "test"}
