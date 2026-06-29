@@ -21,7 +21,7 @@ META_FIELD = re.compile(
 )
 SECTION = re.compile(r"^## (?P<title>.+)$", re.M)
 HUMAN_GATE_HEADER = re.compile(
-    r"^\|\s*human_gate_id\s*\|\s*status\s*\|\s*blocks_hats\s*\|",
+    r"^\s*\|\s*human_gate_id\s*\|\s*status\s*\|\s*blocks_hats\s*\|.*$",
     re.I | re.M,
 )
 
@@ -88,6 +88,23 @@ def _table_rows(section_text: str) -> list[list[str]]:
             continue
         rows.append(cells)
     return rows
+
+
+def _human_gate_rows(text: str) -> list[list[str]]:
+    """解析 human_gate 表数据行（不含表头）。"""
+    m = HUMAN_GATE_HEADER.search(text)
+    if not m:
+        return []
+    body = text[m.end():]
+    lines: list[str] = []
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if not stripped.startswith("|"):
+            break
+        lines.append(stripped)
+    return _table_rows("\n".join(lines))
 
 
 def _touches_api(text: str) -> bool:
@@ -238,7 +255,12 @@ def validate_task_text(text: str, path: Path | None = None) -> ValidationResult:
             )
         )
 
-    if "human_gate_id" in text or "### 人工闸" in text:
+    is_active = bool(path and "docs/tasks/active" in str(path).replace("\\", "/"))
+    is_done = bool(path and "docs/tasks/done" in str(path).replace("\\", "/"))
+    hg_rows = _human_gate_rows(text)
+    has_hg_table = bool(hg_rows)
+
+    if has_hg_table:
         if not HUMAN_GATE_HEADER.search(text):
             findings.append(
                 Finding(
@@ -247,6 +269,47 @@ def validate_task_text(text: str, path: Path | None = None) -> ValidationResult:
                     f"{rel}: human_gate 表须含 human_gate_id | status | blocks_hats 列",
                 )
             )
+        blocks_values = set()
+        for row in hg_rows:
+            if len(row) >= 3:
+                blocks_values.update(row[2].replace(",", " ").split())
+        if "30" in blocks_values:
+            audit_r1_present = any(
+                len(row) >= 1 and "HG-AUDIT-R1" in row[0] for row in hg_rows
+            )
+            if not audit_r1_present:
+                if is_active:
+                    findings.append(
+                        Finding(
+                            "HUMAN-GATE-AUDIT-R1-MISSING",
+                            "error",
+                            f"{rel}: blocks_hats 含 30 时 human_gate 表须含 HG-AUDIT-R1",
+                        )
+                    )
+                elif is_done:
+                    findings.append(
+                        Finding(
+                            "HUMAN-GATE-AUDIT-R1-MISSING",
+                            "warn",
+                            f"{rel}: done task 中 blocks_hats 含 30 建议含 HG-AUDIT-R1（ grandfather 可忽略）",
+                        )
+                    )
+    elif is_active:
+        findings.append(
+            Finding(
+                "HUMAN-GATE-MISSING",
+                "error",
+                f"{rel}: active task 须含 human_gate 表",
+            )
+        )
+    elif is_done:
+        findings.append(
+            Finding(
+                "HUMAN-GATE-MISSING",
+                "warn",
+                f"{rel}: done task 建议补 human_gate 表（ grandfather 可忽略）",
+            )
+        )
 
     return ValidationResult(path=path or Path(rel), findings=findings)
 

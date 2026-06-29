@@ -36,6 +36,10 @@ def test_validate_active_scenario(tmp_path: Path) -> None:
 | **semi_auto** | `true` |
 | **git_branch** | `task/foo` |
 
+| human_gate_id | status | blocks_hats | 说明 |
+| --- | --- | --- | --- |
+| HG-AUDIT-R1 | approved | 30 | 审 |
+
 ## 范围
 
 - [ ] 新增 `tools/harness_task_validate.py`
@@ -164,6 +168,108 @@ def test_json_output(tmp_path: Path) -> None:
     data = json.loads(proc.stdout)
     assert data[0]["ok"] is True
     assert data[0]["errors"] == []
+
+
+def test_hg_missing_active(tmp_path: Path) -> None:
+    task = tmp_path / "docs/tasks/active/task_hg_missing.md"
+    task.parent.mkdir(parents=True, exist_ok=True)
+    task.write_text(
+        """
+## Harness 元信息
+
+| 字段 | 值 |
+| **test_strategy** | `required` |
+| **git_branch** | `task/foo` |
+
+## 行为变更（Delta）
+
+无
+
+## 失败路径
+
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+| F1 | `fp-x` | x | error | 否 | msg |
+
+## 验收标准
+
+- [ ] pytest tests/x.py 绿
+""",
+        encoding="utf-8",
+    )
+    proc = _run(str(task))
+    assert proc.returncode == 1
+    assert "HUMAN-GATE-MISSING" in proc.stdout
+
+
+def test_hg_audit_r1_missing(tmp_path: Path) -> None:
+    task = tmp_path / "docs/tasks/active/task_hg_no_audit_r1.md"
+    task.parent.mkdir(parents=True, exist_ok=True)
+    task.write_text(
+        """
+## Harness 元信息
+
+| 字段 | 值 |
+| **test_strategy** | `required` |
+| **git_branch** | `task/foo` |
+
+| human_gate_id | status | blocks_hats | 说明 |
+| --- | --- | --- | --- |
+| HG-TASK-DRAFT | approved | 30 | 起草 |
+
+## 行为变更（Delta）
+
+无
+
+## 失败路径
+
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+| F1 | `fp-x` | x | error | 否 | msg |
+
+## 验收标准
+
+- [ ] pytest tests/x.py 绿
+""",
+        encoding="utf-8",
+    )
+    proc = _run(str(task))
+    assert proc.returncode == 1
+    assert "HUMAN-GATE-AUDIT-R1-MISSING" in proc.stdout
+
+
+def test_hg_audit_r1_present(tmp_path: Path) -> None:
+    task = tmp_path / "docs/tasks/active/task_hg_ok.md"
+    task.parent.mkdir(parents=True, exist_ok=True)
+    task.write_text(
+        """
+## Harness 元信息
+
+| 字段 | 值 |
+| **test_strategy** | `required` |
+| **git_branch** | `task/foo` |
+
+| human_gate_id | status | blocks_hats | 说明 |
+| --- | --- | --- | --- |
+| HG-TASK-DRAFT | approved | 10-task, 20-task-audit R1 | 起草 |
+| HG-AUDIT-R1 | approved | 30 | 审 |
+
+## 行为变更（Delta）
+
+无
+
+## 失败路径
+
+| # | Scenario ID | 触发条件 | 系统行为 | 可重试 | 用户可见 |
+| F1 | `fp-x` | x | error | 否 | msg |
+
+## 验收标准
+
+- [ ] pytest tests/x.py 绿
+""",
+        encoding="utf-8",
+    )
+    proc = _run(str(task))
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "OK" in proc.stdout
 
 
 def test_all_active_runs() -> None:
