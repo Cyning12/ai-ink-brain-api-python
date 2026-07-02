@@ -5,7 +5,7 @@
 > **schedule_ref**：SPEC §5.3 · §10.4–§10.5 · §12.1 S4 · BLOCKERS B4/B7  
 > **关联 SPEC**：`[SPEC_ops_session_orchestrator_v1_zh.md](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_session_orchestrator_v1_zh.md)` §5.3 · §9.2 · §10 · §12 S4  
 > **前置**：`[task_ops_session_s3_subagent_api_v1.md](../done/task_ops_session_s3_subagent_api_v1.md)` · HG-S3-LOCAL-ACCEPTANCE  
-> **配对前端**：`[task_ops_session_s4_verify_ui_v1.md](../../../ai-ink-brain/content/tasks/active/task_ops_session_s4_verify_ui_v1.md)`  
+> **配对前端**：[`task_ops_session_s4_verify_ui_v1.md`](../../../ai-ink-brain/content/tasks/done/task_ops_session_s4_verify_ui_v1.md)  
 > **依赖**：harness-probe **v0.10.0+**（subprocess CLI · **禁止** Runtime import probe）
 
 ---
