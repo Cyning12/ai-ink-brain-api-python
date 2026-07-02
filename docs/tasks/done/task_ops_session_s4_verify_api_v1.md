@@ -1,6 +1,6 @@
 # Task · Ops Session S4 Verify API（probe subprocess · promote · verify 阻塞）
 
-> **状态**：`30 done` · 待本地验收 `HG-S4-LOCAL-ACCEPTANCE`  
+> **状态**：`done（2026-07-02 · HG-S4-LOCAL-ACCEPTANCE）`  
 > **epic**：Session Orchestrator · S4 `ops-session-s4-verify`  
 > **schedule_ref**：SPEC §5.3 · §10.4–§10.5 · §12.1 S4 · BLOCKERS B4/B7  
 > **关联 SPEC**：`[SPEC_ops_session_orchestrator_v1_zh.md](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_session_orchestrator_v1_zh.md)` §5.3 · §9.2 · §10 · §12 S4  
