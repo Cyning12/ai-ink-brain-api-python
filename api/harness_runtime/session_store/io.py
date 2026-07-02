@@ -117,3 +117,37 @@ def transition_status(session_dir: Path, new_status: SessionStatus) -> SessionMe
     meta.updated_at = datetime.now(timezone.utc)
     save_meta(session_dir, meta)
     return meta
+
+
+def session_dir_for_id(session_id: str, sessions_root: Path | None = None) -> Path:
+    root = sessions_root or default_sessions_root()
+    return root / session_id
+
+
+def list_sessions(
+    *,
+    sessions_root: Path | None = None,
+    status: SessionStatus | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> tuple[list[SessionMeta], int]:
+    """扫描落盘目录 · 按 updated_at 降序。"""
+    root = sessions_root or default_sessions_root()
+    if not root.is_dir():
+        return [], 0
+
+    metas: list[SessionMeta] = []
+    for child in sorted(root.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
+        if not child.is_dir():
+            continue
+        try:
+            meta = load_meta(child)
+        except Exception:
+            continue
+        if status is not None and meta.status != status:
+            continue
+        metas.append(meta)
+
+    total = len(metas)
+    page = metas[offset : offset + limit]
+    return page, total

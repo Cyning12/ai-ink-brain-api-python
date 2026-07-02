@@ -155,6 +155,48 @@ class OpsRunStore:
         self.update_run(run_id, status="running")
         return self.get_run(run_id)
 
+    def list_runs_by_session_id(self, session_id: str, *, limit: int = 50) -> list[dict[str, Any]]:
+        def _once() -> list[dict[str, Any]]:
+            res = (
+                self.client.table("ops_runs")
+                .select("*")
+                .eq("session_id", session_id)
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            return res.data if isinstance(res.data, list) else []
+
+        return supabase_execute_with_retry(_once)
+
+    def list_events_for_session(
+        self,
+        session_id: str,
+        *,
+        after_seq: int = 0,
+        limit: int = 500,
+    ) -> list[dict[str, Any]]:
+        runs = self.list_runs_by_session_id(session_id, limit=50)
+        if not runs:
+            return []
+        run_ids = [str(r["id"]) for r in runs if r.get("id")]
+        if not run_ids:
+            return []
+
+        def _once() -> list[dict[str, Any]]:
+            res = (
+                self.client.table("ops_run_events")
+                .select("*")
+                .in_("run_id", run_ids)
+                .gt("seq", after_seq)
+                .order("ts_ms")
+                .limit(limit)
+                .execute()
+            )
+            return res.data if isinstance(res.data, list) else []
+
+        return supabase_execute_with_retry(_once)
+
     def save_checkpoint(
         self, run_id: str, checkpoint_id: str, state_json: dict[str, Any]
     ) -> dict[str, Any]:
