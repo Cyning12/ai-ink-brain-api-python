@@ -24,6 +24,7 @@
 
 | 关账日 | task | freeze_id / 摘要 |
 |--------|------|------------------|
+| 2026-07-02 | [task_ops_session_s0_schema_v1.md](./task_ops_session_s0_schema_v1.md) | `OPS-SESSION-ORCH-SPEC-V1` · Session S0 schema · gate_sync · harness_runtime 骨架 |
 | 2026-06-02 | [task_harness_invokes_by_task_prompts_sync_v1.md](./task_harness_invokes_by_task_prompts_sync_v1.md) | — |
 | 2026-05-30 | [task_harness_p0_task_validate_v1.md](./task_harness_p0_task_validate_v1.md) | — |
 | 2026-05-30 | [task_harness_p0_status_cursor_v1.md](./task_harness_p0_status_cursor_v1.md) | — |
