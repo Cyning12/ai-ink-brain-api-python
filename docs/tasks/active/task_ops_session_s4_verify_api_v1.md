@@ -1,36 +1,46 @@
 # Task · Ops Session S4 Verify API（probe subprocess · promote · verify 阻塞）
 
-> **状态**：`draft`  
+> **状态**：`30 done` · 待本地验收 `HG-S4-LOCAL-ACCEPTANCE`  
 > **epic**：Session Orchestrator · S4 `ops-session-s4-verify`  
 > **schedule_ref**：SPEC §5.3 · §10.4–§10.5 · §12.1 S4 · BLOCKERS B4/B7  
-> **关联 SPEC**：[`SPEC_ops_session_orchestrator_v1_zh.md`](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_session_orchestrator_v1_zh.md) §5.3 · §9.2 · §10 · §12 S4  
-> **前置**：[`task_ops_session_s3_subagent_api_v1.md`](../done/task_ops_session_s3_subagent_api_v1.md) · HG-S3-LOCAL-ACCEPTANCE  
-> **配对前端**：[`task_ops_session_s4_verify_ui_v1.md`](../../../ai-ink-brain/content/tasks/active/task_ops_session_s4_verify_ui_v1.md)  
+> **关联 SPEC**：`[SPEC_ops_session_orchestrator_v1_zh.md](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_session_orchestrator_v1_zh.md)` §5.3 · §9.2 · §10 · §12 S4  
+> **前置**：`[task_ops_session_s3_subagent_api_v1.md](../done/task_ops_session_s3_subagent_api_v1.md)` · HG-S3-LOCAL-ACCEPTANCE  
+> **配对前端**：`[task_ops_session_s4_verify_ui_v1.md](../../../ai-ink-brain/content/tasks/active/task_ops_session_s4_verify_ui_v1.md)`  
 > **依赖**：harness-probe **v0.10.0+**（subprocess CLI · **禁止** Runtime import probe）
 
 ---
 
+
+
 ## Harness 元信息
 
-| 字段 | 值 |
-| --- | --- |
-| **task_slug** | `ops-session-s4-verify-api` |
-| **module_id** | `OPS-SESSION-ORCH` |
-| **freeze_id** | `OPS-SESSION-ORCH-SPEC-V1` |
-| **test_strategy** | `required` |
-| **worktree_root** | `ai-ink-brain-api-python/` |
-| **git_branch** | `task/ops-session-s4-verify-api` |
-| **blocks** | S5 `ops-session-s5-extract` |
-| **blocked_by** | S3 `ops-session-s3-subagent-api` |
+
+| 字段                | 值                                |
+| ----------------- | -------------------------------- |
+| **task_slug**     | `ops-session-s4-verify-api`      |
+| **module_id**     | `OPS-SESSION-ORCH`               |
+| **freeze_id**     | `OPS-SESSION-ORCH-SPEC-V1`       |
+| **test_strategy** | `required`                       |
+| **worktree_root** | `ai-ink-brain-api-python/`       |
+| **git_branch**    | `task/ops-session-s4-verify-api` |
+| **blocks**        | S5 `ops-session-s5-extract`      |
+| **blocked_by**    | S3 `ops-session-s3-subagent-api` |
+
+
+
 
 ### 人工闸 `human_gate`
 
-| human_gate_id | status | blocks_hats | 说明 |
-| --- | --- | --- | --- |
+
+| human_gate_id | status     | blocks_hats       | 说明                 |
+| ------------- | ---------- | ----------------- | ------------------ |
 | HG-TASK-DRAFT | `approved` | 20-task-audit, 30 | 00 起草 · 2026-07-02 |
-| HG-AUDIT-R1 | `pending` | 30 | 20 R1 后人签 |
+| HG-AUDIT-R1   | `approved` | 30                | 20 R1 后人签          |
+
 
 ---
+
+
 
 ## 背景与目标
 
@@ -40,28 +50,34 @@ S3 已交付 subagent 派工与 deliverables。本 task 接入 **harness-probe s
 
 ### 拍板（00 统筹 · SPEC/BLOCKERS）
 
-| # | 决策 |
-| --- | --- |
-| D1 | **唯一路径**：`api/harness_runtime/adapters/probe_runner.py` → `subprocess` CLI |
-| D2 | promote **前** `verify --ci` **阻塞**；auth 后 `task validate` **可选 warn-only** |
-| D3 | `target_repo` 枚举：`ai-ink-brain-api-python` \| `ai-ink-brain` · `target_branch` 默认各仓 `main` |
-| D4 | 冲突：目标已存在同名 task → `409 PROMOTE_CONFLICT` + diff 摘要 |
-| D5 | Vercel **不**同步全量 verify · API 可返回「仅本地/GHA」提示 |
+
+| #   | 决策                                                                                        |
+| --- | ----------------------------------------------------------------------------------------- |
+| D1  | **唯一路径**：`api/harness_runtime/adapters/probe_runner.py` → `subprocess` CLI                |
+| D2  | promote **前** `verify --ci` **阻塞**；auth 后 `task validate` **可选 warn-only**                |
+| D3  | `target_repo` 枚举：`ai-ink-brain-api-python` | `ai-ink-brain` · `target_branch` 默认各仓 `main` |
+| D4  | 冲突：目标已存在同名 task → `409 PROMOTE_CONFLICT` + diff 摘要                                        |
+| D5  | Vercel **不**同步全量 verify · API 可返回「仅本地/GHA」提示                                              |
+
 
 ---
+
+
 
 ## 范围
 
-- [ ] **`adapters/probe_runner.py`**：`task_validate` · `verify_task`（`HARNESS_PROBE_BIN` · `HARNESS_PROBE_REPO_ROOT` · timeout）
-- [ ] **`POST /ops/sessions/{id}/promote`**：body `{ target_repo, target_branch, confirm: true }` · maintainer 显式确认
-- [ ] **promote 预览**：`GET .../promote/preview`（或 promote dry-run）· 源路径 · 目标路径 · gate 表 · diff 摘要
-- [ ] **复制逻辑**：session `task_*.md` → 业务仓 active task · 追加 `promoted_from_session` / `promoted_at` · 同步 `HG-PROMOTE` / `HG-EXEC-AUTH`（按 SPEC §6.1）
-- [ ] **verify 落盘**：`deliverables/{run_id}/verify_report.json` · `ops_run_events`
+- [x] `adapters/probe_runner.py`：`task_validate` · `verify_task`（`HARNESS_PROBE_BIN` · `HARNESS_PROBE_REPO_ROOT` · timeout）
+- [x] `POST /ops/sessions/{id}/promote`：body `{ target_repo, target_branch, confirm: true }` · maintainer 显式确认
+- [x] **promote 预览**：`GET .../promote/preview`（或 promote dry-run）· 源路径 · 目标路径 · gate 表 · diff 摘要
+- [x] **复制逻辑**：session `task_*.md` → 业务仓 active task · 追加 `promoted_from_session` / `promoted_at` · 同步 `HG-PROMOTE` / `HG-EXEC-AUTH`（按 SPEC §6.1）
+- [x] **verify 落盘**：`deliverables/{run_id}/verify_report.json` · `ops_run_events`
 - [ ] **auth 后可选**：`task validate` on session 草稿（warn · 不阻塞 dispatch）
-- [ ] **pytest**：`tests/harness_runtime/test_session_promote_s4.py` · mock subprocess · conflict · verify fail 阻塞
-- [ ] **回归**：S1–S3 harness_runtime · sessions REST
+- [x] **pytest**：`tests/harness_runtime/test_session_promote_s4.py` · mock subprocess · conflict · verify fail 阻塞
+- [x] **回归**：S1–S3 harness_runtime · sessions REST
 
 ---
+
+
 
 ## 非范围
 
@@ -73,29 +89,48 @@ S3 已交付 subagent 派工与 deliverables。本 task 接入 **harness-probe s
 
 ---
 
+
+
 ## 失败路径
 
-| 场景 | 行为 |
-| --- | --- |
-| probe CLI 不存在 | `503 PROBE_UNAVAILABLE` · message 含安装提示 |
-| verify exit≠0 | `409 VERIFY_FAILED` · 附 report 摘要 · **不**复制文件 |
-| 目标 task 已存在 | `409 PROMOTE_CONFLICT` |
-| 非 `dispatched` / gate 未满足 | `409 SESSION_STATUS_INVALID` 或 gate 说明 |
+
+| 场景                        | 行为                                            |
+| ------------------------- | --------------------------------------------- |
+| probe CLI 不存在             | `503 PROBE_UNAVAILABLE` · message 含安装提示       |
+| verify exit≠0             | `409 VERIFY_FAILED` · 附 report 摘要 · **不**复制文件 |
+| 目标 task 已存在               | `409 PROMOTE_CONFLICT`                        |
+| 非 `dispatched` / gate 未满足 | `409 SESSION_STATUS_INVALID` 或 gate 说明        |
+
 
 ---
 
+
+
 ## 验收标准
 
-- [ ] promote 预览可返回源/目标/gate 摘要
-- [ ] verify 失败时 promote **不**写业务仓
-- [ ] verify 通过后复制 task · `session.promoted` 事件
-- [ ] subprocess 测试 mock 覆盖 validate/verify
-- [ ] `pytest` + `ruff` 绿 · S1–S3 回归
+- [x] promote 预览可返回源/目标/gate 摘要
+- [x] verify 失败时 promote **不**写业务仓
+- [x] verify 通过后复制 task · `session.promoted` 事件
+- [x] subprocess 测试 mock 覆盖 validate/verify
+- [x] `pytest` + `ruff` 绿 · S1–S3 回归
 
 **合并前必绿**：`pytest tests/harness_runtime -q`
 
 ---
 
+### 自检结论（执行者）
+
+| 项 | 结果 |
+| --- | --- |
+| **日期** | 2026-07-02 |
+| **分支** | `task/ops-session-s4-verify-api` |
+
+```text
+ruff → 0 · promote_s4 5 passed · harness 57 passed
+```
+
+---
+
 ## 给 Cursor
 
-`ops-session-s4-verify-api` · Open `ai-ink-brain-api-python/` · **HG-AUDIT-R1 pending 拒开工** · S2–S4 **合并批次 PR** 于 S4 验收后
+`ops-session-s4-verify-api` · **HG-AUDIT-R1 approved** · 30 done · 待人签 checklist

@@ -15,6 +15,7 @@ from api.harness_runtime.errors import (
     SessionSchemaUnsupportedError,
     SessionStatusInvalidError,
 )
+from api.harness_runtime.promote import build_promote_preview, execute_promote
 from api.harness_runtime.session_orchestrator import (
     handle_dispatched_message,
     handle_planning_message,
@@ -50,6 +51,12 @@ class SessionAuthRequest(BaseModel):
     action: Literal["approve", "revise", "cancel"]
 
 
+class SessionPromoteRequest(BaseModel):
+    target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"]
+    target_branch: str = Field(default="main", min_length=1, max_length=120)
+    confirm: bool = False
+
+
 def _queries() -> OpsQueries:
     return OpsQueries(get_supabase_client())
 
@@ -71,12 +78,21 @@ def _meta_to_dict(meta: SessionMeta) -> dict[str, Any]:
 
 
 def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
-    status = 409 if exc.code in {
+    code = exc.code
+    if code == "PROBE_UNAVAILABLE":
+        status = 503
+    elif code in {
+        "VERIFY_FAILED",
+        "PROMOTE_CONFLICT",
+        "PROMOTE_NOT_CONFIRMED",
         "SESSION_SCHEMA_UNSUPPORTED",
         "SESSION_ID_MISMATCH",
         "SESSION_STATUS_INVALID",
-    } else 400
-    return HTTPException(status_code=status, detail={"code": exc.code, "message": str(exc)})
+    }:
+        status = 409
+    else:
+        status = 400
+    return HTTPException(status_code=status, detail={"code": code, "message": str(exc)})
 
 
 def _require_session_meta(session_id: str, root: Path) -> tuple[Path, SessionMeta]:
@@ -290,3 +306,42 @@ def get_session_events(
     _require_session_meta(session_id, root)
     events = store.list_events_for_session(session_id, after_seq=after_seq, limit=limit)
     return {"session_id": session_id, "after_seq": after_seq, "events": events}
+
+
+@router.get("/{session_id}/promote/preview")
+def get_session_promote_preview(
+    session_id: str,
+    target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"] = Query(...),
+    target_branch: str = Query(default="main"),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return build_promote_preview(
+            session_dir, meta, target_repo=target_repo, target_branch=target_branch
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
+
+
+@router.post("/{session_id}/promote")
+def post_session_promote(
+    session_id: str,
+    body: SessionPromoteRequest,
+    store: OpsRunStore = Depends(_store),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return execute_promote(
+            session_dir,
+            meta,
+            target_repo=body.target_repo,
+            target_branch=body.target_branch.strip(),
+            confirm=body.confirm,
+            store=store,
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
