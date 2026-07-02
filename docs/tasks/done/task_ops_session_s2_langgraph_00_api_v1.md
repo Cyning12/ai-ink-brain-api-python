@@ -1,11 +1,13 @@
 # Task · Ops Session S2 LangGraph 00 API（plan · auth interrupt · synthesize · 双写）
 
-> **状态**：`draft`  
+> **状态**：`done（2026-07-02 本地验收通过）`  
 > **epic**：Session Orchestrator · S2 `ops-session-s2-langgraph-00`  
 > **schedule_ref**：SPEC §12.1 S2 · MVP 首片（S0+S1+**S2**）  
 > **关联 SPEC**：[`SPEC_ops_session_orchestrator_v1_zh.md`](../../../ai-ink-brain/docs/tasks/specs/SPEC_ops_session_orchestrator_v1_zh.md) §6–§7 · §9.2 · §12 S2 · §13  
 > **前置**：[`task_ops_session_s1_multiturn_api_v1.md`](../done/task_ops_session_s1_multiturn_api_v1.md) · PR #228 merged  
-> **配对前端**：[`task_ops_session_s2_langgraph_00_ui_v1.md`](../../../ai-ink-brain/content/tasks/active/task_ops_session_s2_langgraph_00_ui_v1.md)  
+> **配对前端**：[`task_ops_session_s2_langgraph_00_ui_v1.md`](../../../ai-ink-brain/content/tasks/done/task_ops_session_s2_langgraph_00_ui_v1.md)  
+> **本地验收**：[`CHECKLIST_ops_session_s2_local_acceptance_v1_zh.md`](../../../docs/harness/reviews/CHECKLIST_ops_session_s2_local_acceptance_v1_zh.md) · HG-S2-LOCAL-ACCEPTANCE  
+> **PR**：暂缓 · 与 S3/S4 合并批次开 PR（`task/ops-session-s2-langgraph-00-api`）  
 > **BLOCKERS**：B3（按钮主 + NL 辅）· B7（probe 可选 · 非阻塞）
 
 ---
@@ -28,7 +30,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
 | HG-TASK-DRAFT | `approved` | 20-task-audit, 30 | 00 起草 · 2026-07-02 |
-| HG-AUDIT-R1 | `pending` | 30 | 20 R1 后人签 |
+| HG-AUDIT-R1 | `approved` | 30 | 20 R1 后人签 · 2026-07-02 |
 
 ---
 
@@ -160,6 +162,7 @@ POST .../messages
 ## 实施清单
 
 - [ ] 0.1 确认/添加 `langgraph` 依赖与 checkpointer 适配（spike）
+- [ ] 0.2 **DB migration** · `supabase/sql/ops_desk_s2_session_00_route.sql`（`ops_runs.route` 加 `session_00`）
 - [ ] 1.1 `SessionState` pydantic · `graph/session_orchestrator_v1.py`
 - [ ] 1.2 节点 `n00_plan` · `n00_present` · `n00_auth_gate` · `n00_synthesize`
 - [ ] 1.3 `sessions.py`：`POST .../auth` · messages 路由改造

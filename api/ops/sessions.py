@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -13,20 +12,23 @@ from api.harness_runtime.errors import (
     HarnessRuntimeError,
     SessionIdMismatchError,
     SessionSchemaUnsupportedError,
+    SessionStatusInvalidError,
+)
+from api.harness_runtime.session_orchestrator import (
+    handle_dispatched_message,
+    handle_planning_message,
+    handle_session_auth,
 )
 from api.harness_runtime.session_store.io import (
     create_session,
     default_sessions_root,
     list_sessions,
     load_meta,
-    save_meta,
     session_dir_for_id,
 )
 from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
-from api.ops.chat_service import ChatMessageRequest, handle_ops_chat_message
 from api.ops.demo_cache import DemoCacheStore
 from api.ops.deps import get_supabase_client, require_ops_secret
-from api.ops.llm.context import ops_chat_model_override, ops_chat_resolved_model
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
 
@@ -41,6 +43,10 @@ class CreateSessionRequest(BaseModel):
 class SessionMessageRequest(BaseModel):
     message: str = Field(min_length=1)
     model: str | None = None
+
+
+class SessionAuthRequest(BaseModel):
+    action: Literal["approve", "revise", "cancel"]
 
 
 def _queries() -> OpsQueries:
@@ -175,24 +181,42 @@ def get_session_route(
 def post_session_message(
     session_id: str,
     body: SessionMessageRequest,
-    queries: OpsQueries = Depends(_queries),
     store: OpsRunStore = Depends(_store),
-    demo_cache: DemoCacheStore = Depends(_demo_cache),
     root: Path = Depends(_sessions_root),
     _: None = Depends(require_ops_secret),
 ) -> dict[str, Any]:
     session_dir, meta = _require_session_meta(session_id, root)
     prior_runs = store.list_runs_by_session_id(session_id, limit=1)
 
-    token = ops_chat_model_override.set(body.model.strip() if body.model else None)
-    sticky_token = ops_chat_resolved_model.set(None)
     try:
-        chat_body = ChatMessageRequest(message=body.message, session_id=session_id, model=body.model)
-        result = handle_ops_chat_message(chat_body, queries, store, demo_cache)
-    finally:
-        ops_chat_resolved_model.reset(sticky_token)
-        ops_chat_model_override.reset(token)
+        if meta.status in (SessionStatus.PLANNING, SessionStatus.AWAITING_AUTH):
+            result = handle_planning_message(
+                session_dir=session_dir,
+                meta=meta,
+                message=body.message,
+                store=store,
+            )
+        elif meta.status == SessionStatus.DISPATCHED:
+            result = handle_dispatched_message(
+                session_dir=session_dir,
+                meta=meta,
+                message=body.message,
+                store=store,
+            )
+        else:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "SESSION_STATUS_INVALID",
+                    "message": f"messages not allowed for status {meta.status.value}",
+                },
+            )
+    except SessionStatusInvalidError as exc:
+        raise _http_error_from_harness(exc) from exc
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
 
+    meta = load_meta(session_dir)
     run_id = str(result.get("run_id", ""))
     if run_id:
         if not prior_runs:
@@ -203,18 +227,38 @@ def post_session_message(
                 payload={"session_id": session_id, "slug": meta.slug},
                 node_id="session.create",
             )
-        meta.latest_run_id = run_id
-        meta.updated_at = datetime.now(timezone.utc)
-        save_meta(session_dir, meta)
-        store.append_event(
-            run_id,
-            "orchestrator",
-            "session.status_changed",
-            payload={"session_id": session_id, "status": meta.status.value},
-            node_id="session.status",
-        )
+        if meta.status != SessionStatus.AWAITING_AUTH or not prior_runs:
+            store.append_event(
+                run_id,
+                "orchestrator",
+                "session.status_changed",
+                payload={"session_id": session_id, "status": meta.status.value},
+                node_id="session.status",
+            )
 
     return {**result, "session_id": session_id}
+
+
+@router.post("/{session_id}/auth")
+def post_session_auth(
+    session_id: str,
+    body: SessionAuthRequest,
+    store: OpsRunStore = Depends(_store),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return handle_session_auth(
+            session_dir=session_dir,
+            meta=meta,
+            action=body.action,
+            store=store,
+        )
+    except SessionStatusInvalidError as exc:
+        raise _http_error_from_harness(exc) from exc
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
 
 
 @router.get("/{session_id}/events")
