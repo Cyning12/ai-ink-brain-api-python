@@ -24,6 +24,18 @@ docs/harness/sessions/
     events.index.yaml       # 可选 · 关联 ops_run_events
 ```
 
+## Git 跟踪策略（BLOCKERS B1 · 已定：A）
+
+**决策**：`docs/harness/sessions/**` 已加入 api-python `.gitignore`；运行时 session 目录 **不入库**。
+
+| 项 | 说明 |
+| --- | --- |
+| **忽略** | `<session_id>/` 下全部内容（meta · task · deliverables · invokes） |
+| **可跟踪** | 本 `README.md`（目录约定说明） |
+| **持久化** | 本地磁盘 / 部署卷；生产环境按 Host 挂载策略 |
+| **导出（可选）** | 维护者可将脱敏 session 快照 export 到 `docs/harness/reviews/` 或本地归档 |
+| **敏感数据** | 含 token / 用户原文的 session **永不** commit |
+
 ## 授权与 human_gate
 
 - 用户在对话中「授权并开始」→ **必须同步**更新本目录内 task 的 **人工闸表**（如 `HG-EXEC-AUTH`）。
@@ -38,3 +50,4 @@ docs/harness/sessions/
 | 日期 | 说明 |
 | --- | --- |
 | 2026-07-01 | 初建目录约定 · 随 Session Orchestrator Epic 实施 |
+| 2026-07-02 | S0：补充 B1 Git 策略 · export 说明 · `harness_runtime` session_store |
