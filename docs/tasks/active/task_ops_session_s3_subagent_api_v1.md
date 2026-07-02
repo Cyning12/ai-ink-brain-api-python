@@ -74,4 +74,4 @@ S2 已交付 00 层 plan → auth → synthesize；`dispatched` 后 messages 为
 
 ## 给 Cursor
 
-`ops-session-s3-subagent-api` · Open `ai-ink-brain-api-python/` · **HG-AUDIT-R1 pending 拒开工** · PR 批次暂定 S4 后
+`ops-session-s3-subagent-api` · Open `ai-ink-brain-api-python/` · **HG-AUDIT-R1 approved** · commit `1fbb5a7d` · PR 批次暂定 S4 后
