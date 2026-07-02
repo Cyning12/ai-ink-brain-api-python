@@ -14,6 +14,7 @@ from api.harness_runtime.errors import (
     SessionSchemaUnsupportedError,
     SessionStatusInvalidError,
 )
+from api.harness_runtime.deliverables import list_deliverables
 from api.harness_runtime.session_orchestrator import (
     handle_dispatched_message,
     handle_planning_message,
@@ -174,6 +175,7 @@ def get_session_route(
         "meta": _meta_to_dict(meta),
         "gate_summary": meta.gate_summary.model_dump(),
         "recent_messages": _recent_messages(store, session_id),
+        "deliverables": list_deliverables(_session_dir),
     }
 
 
@@ -181,7 +183,9 @@ def get_session_route(
 def post_session_message(
     session_id: str,
     body: SessionMessageRequest,
+    queries: OpsQueries = Depends(_queries),
     store: OpsRunStore = Depends(_store),
+    demo_cache: DemoCacheStore = Depends(_demo_cache),
     root: Path = Depends(_sessions_root),
     _: None = Depends(require_ops_secret),
 ) -> dict[str, Any]:
@@ -202,6 +206,9 @@ def post_session_message(
                 meta=meta,
                 message=body.message,
                 store=store,
+                queries=queries,
+                demo_cache=demo_cache,
+                model=body.model,
             )
         else:
             raise HTTPException(
@@ -259,6 +266,16 @@ def post_session_auth(
         raise _http_error_from_harness(exc) from exc
     except HarnessRuntimeError as exc:
         raise _http_error_from_harness(exc) from exc
+
+
+@router.get("/{session_id}/deliverables")
+def get_session_deliverables(
+    session_id: str,
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, _meta = _require_session_meta(session_id, root)
+    return {"session_id": session_id, "items": list_deliverables(session_dir)}
 
 
 @router.get("/{session_id}/events")

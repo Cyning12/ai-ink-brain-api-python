@@ -8,11 +8,16 @@ from typing import Any, Literal
 
 from langgraph.types import Command
 
+from api.harness_runtime.deliverables import write_deliverable, write_invoke_snapshot
 from api.harness_runtime.errors import HarnessRuntimeError, SessionStatusInvalidError
 from api.harness_runtime.gate_sync.human_gate import patch_gate_and_sync
 from api.harness_runtime.graph.session_orchestrator_v1 import compile_for_session
+from api.harness_runtime.nodes.session_subagent import SubagentRuntime
 from api.harness_runtime.session_store.io import save_meta, transition_status
 from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
+from api.ops.chat_service import ChatMessageRequest, handle_ops_chat_message
+from api.ops.demo_cache import DemoCacheStore
+from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
 
 AuthAction = Literal["approve", "revise", "cancel"]
@@ -53,7 +58,11 @@ def handle_planning_message(
     run = store.create_run(query=message, route="session_00", session_id=meta.session_id)
     run_id = str(run["id"])
 
-    graph = compile_for_session(session_dir, task_path)
+    graph = compile_for_session(
+        session_dir,
+        task_path,
+        runtime=SubagentRuntime(session_dir=session_dir, store=store),
+    )
     config = thread_config(meta.session_id, run_id)
     initial = {
         "session_id": meta.session_id,
@@ -122,31 +131,52 @@ def handle_dispatched_message(
     meta: SessionMeta,
     message: str,
     store: OpsRunStore,
+    queries: OpsQueries,
+    demo_cache: DemoCacheStore,
+    model: str | None = None,
 ) -> dict[str, Any]:
-    """dispatched · S2 占位 synthesize。"""
-    _ = session_dir
-    run = store.create_run(query=message, route="session_00", session_id=meta.session_id)
-    run_id = str(run["id"])
-    answer = (
-        "已授权 · 当前 Session 处于 dispatched。\n"
-        "深度分析与 subagent 派工将在 S3 提供；本条为 S2 占位回复。"
-    )
-    store.update_run(run_id, status="done", final_answer={"answer": answer})
-    store.append_event(
-        run_id,
-        "orchestrator",
-        "session.s2_placeholder",
-        payload={"status": meta.status.value},
-        node_id="n00.synthesize.placeholder",
-    )
-    store.append_event(run_id, "orchestrator", "run.end", node_id="n00.end")
-    meta.latest_run_id = run_id
+    """dispatched · S3 走 P1/P3 subagent 编排 + deliverables 落盘。"""
+    chat_body = ChatMessageRequest(message=message, session_id=meta.session_id, model=model)
+    result = handle_ops_chat_message(chat_body, queries, store, demo_cache)
+
+    run_id = str(result.get("run_id", ""))
+    route = str(result.get("route", ""))
+    answer = result.get("answer")
+
+    if run_id:
+        write_deliverable(
+            session_dir,
+            run_id,
+            {
+                "type": "subagent_result",
+                "session_id": meta.session_id,
+                "route": route,
+                "status": result.get("status"),
+                "answer": answer,
+                "query": message,
+            },
+        )
+        write_invoke_snapshot(
+            session_dir,
+            run_id,
+            {"node": "subagent", "route": route, "session_id": meta.session_id},
+        )
+        store.append_event(
+            run_id,
+            "orchestrator",
+            "session.subagent.complete",
+            payload={"route": route, "session_id": meta.session_id},
+            node_id="n_subagent",
+        )
+
+    meta.latest_run_id = run_id or meta.latest_run_id
     meta.updated_at = datetime.now(timezone.utc)
     save_meta(session_dir, meta)
+
     return {
         "run_id": run_id,
-        "route": "session_00",
-        "status": "done",
+        "route": route,
+        "status": result.get("status", "done"),
         "answer": answer,
     }
 
@@ -196,7 +226,11 @@ def handle_session_auth(
         )
 
         task_path = session_dir / meta.primary_task_path
-        graph = compile_for_session(session_dir, task_path)
+        graph = compile_for_session(
+        session_dir,
+        task_path,
+        runtime=SubagentRuntime(session_dir=session_dir, store=store),
+    )
         config = thread_config(meta.session_id, run_id)
         result = graph.invoke(Command(resume=action), config)
 

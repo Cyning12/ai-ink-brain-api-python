@@ -15,5 +15,8 @@ class SessionGraphState(TypedDict, total=False):
     plan_summary: str
     auth_action: str
     answer: str
+    subagent_route: str
+    review_status: str
+    deliverables: dict[str, str]
     gate_snapshot: dict[str, Any]
     error: NotRequired[dict[str, Any]]

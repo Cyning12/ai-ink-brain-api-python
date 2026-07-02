@@ -82,7 +82,7 @@ def node_00_synthesize(state: SessionGraphState) -> SessionGraphState:
         answer = (
             "已授权并开始派工。\n\n"
             f"{plan_summary}\n\n"
-            "深度分析与 subagent 派工将在 S3 提供。"
+            "Subagent 已登记 dispatch · 请在下方继续对话触发 deep/fast/ReAct 分析。"
         )
     elif action == "revise":
         answer = "已收到修改意见，请继续描述计划调整。"
@@ -94,9 +94,6 @@ def node_00_synthesize(state: SessionGraphState) -> SessionGraphState:
 
 
 def route_after_auth(state: SessionGraphState) -> str:
-    action = state.get("auth_action", "")
-    if action == "approve":
-        return "synthesize"
-    if action == "revise":
-        return "plan"
-    return "end"
+    from api.harness_runtime.nodes.session_subagent import route_after_auth as s3_route
+
+    return s3_route(state)

@@ -128,6 +128,7 @@ def test_s2_auth_approve_dual_write(client: TestClient, sessions_root: Path) -> 
     ).json()["events"]
     event_types = [e["event_type"] for e in events]
     assert "gate.approved" in event_types
+    assert "session.dispatch" in event_types
 
 
 def test_s2_auth_wrong_status(client: TestClient) -> None:
@@ -160,25 +161,3 @@ def test_s2_auth_idempotent(client: TestClient) -> None:
     )
     assert again.status_code == 200
     assert again.json().get("idempotent") is True
-
-
-def test_s2_dispatched_placeholder(client: TestClient) -> None:
-    session_id = _create_session(client, "s2-disp")
-    client.post(
-        f"/api/py/ops/sessions/{session_id}/messages",
-        json={"message": "占位测试"},
-        headers={"x-ops-secret": "test"},
-    )
-    client.post(
-        f"/api/py/ops/sessions/{session_id}/auth",
-        json={"action": "approve"},
-        headers={"x-ops-secret": "test"},
-    )
-    msg = client.post(
-        f"/api/py/ops/sessions/{session_id}/messages",
-        json={"message": "dispatched 后再问"},
-        headers={"x-ops-secret": "test"},
-    )
-    assert msg.status_code == 200
-    assert msg.json()["route"] == "session_00"
-    assert "S3" in msg.json()["answer"]

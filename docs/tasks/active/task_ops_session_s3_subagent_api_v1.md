@@ -28,7 +28,7 @@
 | human_gate_id | status | blocks_hats | 说明 |
 | --- | --- | --- | --- |
 | HG-TASK-DRAFT | `approved` | 20-task-audit, 30 | 00 起草 · 2026-07-02 |
-| HG-AUDIT-R1 | `pending` | 30 | 20 R1 后人签 |
+| HG-AUDIT-R1 | `approved` | 30 | 20 R1 后人签 · 2026-07-02 |
 
 ---
 
