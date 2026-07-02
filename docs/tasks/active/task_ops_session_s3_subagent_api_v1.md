@@ -72,6 +72,36 @@ S2 已交付 00 层 plan → auth → synthesize；`dispatched` 后 messages 为
 
 ---
 
+### 自检结论（执行者）
+
+| 项 | 结果 |
+| --- | --- |
+| **日期** | 2026-07-02 |
+| **分支** | `task/ops-session-s3-subagent-api` |
+| **commit** | `1fbb5a7d` |
+
+**命令与退出码**
+
+```text
+ruff check api/harness_runtime api/ops/sessions.py          → 0
+pytest tests/harness_runtime/test_session_orchestrator_s3.py -q → 4 passed
+pytest tests/harness_runtime/test_session_orchestrator_s2.py -q → 5 passed
+pytest tests/harness_runtime/ tests/ops_desk/test_sessions_s1.py tests/ops_desk/test_orchestrator_p1.py -q → 51 passed
+```
+
+**验收项**
+
+| 验收标准 | pass/fail |
+| --- | --- |
+| dispatched 非占位 · deep/fast/react | pass |
+| deliverables 落盘 + events | pass |
+| auth approve → dispatch 路径 | pass |
+| pytest + ruff 绿 | pass |
+
+**已知未测**：浏览器 §3 · 人签 checklist §2 全量 curl（50 已抽检核心路径）。
+
+---
+
 ## 给 Cursor
 
 `ops-session-s3-subagent-api` · Open `ai-ink-brain-api-python/` · **HG-AUDIT-R1 approved** · commit `1fbb5a7d` · PR 批次暂定 S4 后
