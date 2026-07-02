@@ -133,6 +133,9 @@ def execute_promote(
             "harness-probe CLI 未找到；请设置 HARNESS_PROBE_BIN 或 pip install -e harness-probe",
         )
 
+    # 二次确认即 HG-EXEC-AUTH 授权；须在 verify 前写回 task
+    patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
+
     source = _source_task_path(session_dir, meta)
     repo_root = get_repo_root(target_repo)
     passed, report = probe_runner.verify_task(source, repo_root=repo_root, ci=True)
@@ -145,7 +148,13 @@ def execute_promote(
     )
 
     if not passed:
-        raise HarnessRuntimeError("VERIFY_FAILED", "harness-probe verify failed")
+        err = HarnessRuntimeError(
+            "VERIFY_FAILED",
+            "harness-probe verify failed"
+            + (f": {'; '.join(str(x) for x in report.get('blocking_errors', []))}" if report.get("blocking_errors") else ""),
+        )
+        err.verify_report = report  # type: ignore[attr-defined]
+        raise err
 
     target = Path(preview["target_task_path"])
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -159,10 +168,6 @@ def execute_promote(
     target.write_text(body.rstrip() + promoted_header, encoding="utf-8")
 
     patch_gate_and_sync(session_dir, HG_PROMOTE, "approved")
-    try:
-        patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
-    except HarnessRuntimeError:
-        pass
 
     meta = load_meta(session_dir)
     meta.updated_at = datetime.now(timezone.utc)

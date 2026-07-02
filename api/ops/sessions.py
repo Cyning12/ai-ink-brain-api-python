@@ -92,7 +92,11 @@ def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
         status = 409
     else:
         status = 400
-    return HTTPException(status_code=status, detail={"code": code, "message": str(exc)})
+    detail: dict[str, Any] = {"code": code, "message": str(exc)}
+    verify_report = getattr(exc, "verify_report", None)
+    if code == "VERIFY_FAILED" and isinstance(verify_report, dict):
+        detail["verify_report"] = verify_report
+    return HTTPException(status_code=status, detail=detail)
 
 
 def _require_session_meta(session_id: str, root: Path) -> tuple[Path, SessionMeta]:
