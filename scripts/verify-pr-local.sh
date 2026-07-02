@@ -7,6 +7,9 @@ cd "$ROOT"
 
 bash scripts/verify-tech-graph.sh
 
+echo "==> verify-pr-local: task validate (changed vs ${VERIFY_TASK_BASE:-main})"
+bash scripts/verify-task-changes.sh
+
 echo "==> verify-pr-local: contract (tech-graph-contract.yml)"
 python tools/tech_graph_contract_check.py
 
@@ -16,4 +19,4 @@ ruff check api tests
 echo "==> verify-pr-local: pytest"
 pytest tests -m "not intent_eval and not intent_benchmark" -q --tb=short
 
-echo "OK: verify-pr-local passed (tech-graph + contract + pytest)"
+echo "OK: verify-pr-local passed (tech-graph + task validate + contract + ruff + pytest)"

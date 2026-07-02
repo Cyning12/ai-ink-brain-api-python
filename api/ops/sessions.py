@@ -2,31 +2,35 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from api.harness_runtime.deliverables import list_deliverables
 from api.harness_runtime.errors import (
     HarnessRuntimeError,
     SessionIdMismatchError,
     SessionSchemaUnsupportedError,
+    SessionStatusInvalidError,
+)
+from api.harness_runtime.promote import build_promote_preview, execute_promote
+from api.harness_runtime.session_orchestrator import (
+    handle_dispatched_message,
+    handle_planning_message,
+    handle_session_auth,
 )
 from api.harness_runtime.session_store.io import (
     create_session,
     default_sessions_root,
     list_sessions,
     load_meta,
-    save_meta,
     session_dir_for_id,
 )
 from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
-from api.ops.chat_service import ChatMessageRequest, handle_ops_chat_message
 from api.ops.demo_cache import DemoCacheStore
 from api.ops.deps import get_supabase_client, require_ops_secret
-from api.ops.llm.context import ops_chat_model_override, ops_chat_resolved_model
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
 
@@ -41,6 +45,16 @@ class CreateSessionRequest(BaseModel):
 class SessionMessageRequest(BaseModel):
     message: str = Field(min_length=1)
     model: str | None = None
+
+
+class SessionAuthRequest(BaseModel):
+    action: Literal["approve", "revise", "cancel"]
+
+
+class SessionPromoteRequest(BaseModel):
+    target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"]
+    target_branch: str = Field(default="main", min_length=1, max_length=120)
+    confirm: bool = False
 
 
 def _queries() -> OpsQueries:
@@ -64,12 +78,25 @@ def _meta_to_dict(meta: SessionMeta) -> dict[str, Any]:
 
 
 def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
-    status = 409 if exc.code in {
+    code = exc.code
+    if code == "PROBE_UNAVAILABLE":
+        status = 503
+    elif code in {
+        "VERIFY_FAILED",
+        "PROMOTE_CONFLICT",
+        "PROMOTE_NOT_CONFIRMED",
         "SESSION_SCHEMA_UNSUPPORTED",
         "SESSION_ID_MISMATCH",
         "SESSION_STATUS_INVALID",
-    } else 400
-    return HTTPException(status_code=status, detail={"code": exc.code, "message": str(exc)})
+    }:
+        status = 409
+    else:
+        status = 400
+    detail: dict[str, Any] = {"code": code, "message": str(exc)}
+    verify_report = getattr(exc, "verify_report", None)
+    if code == "VERIFY_FAILED" and isinstance(verify_report, dict):
+        detail["verify_report"] = verify_report
+    return HTTPException(status_code=status, detail=detail)
 
 
 def _require_session_meta(session_id: str, root: Path) -> tuple[Path, SessionMeta]:
@@ -168,6 +195,7 @@ def get_session_route(
         "meta": _meta_to_dict(meta),
         "gate_summary": meta.gate_summary.model_dump(),
         "recent_messages": _recent_messages(store, session_id),
+        "deliverables": list_deliverables(_session_dir),
     }
 
 
@@ -184,15 +212,38 @@ def post_session_message(
     session_dir, meta = _require_session_meta(session_id, root)
     prior_runs = store.list_runs_by_session_id(session_id, limit=1)
 
-    token = ops_chat_model_override.set(body.model.strip() if body.model else None)
-    sticky_token = ops_chat_resolved_model.set(None)
     try:
-        chat_body = ChatMessageRequest(message=body.message, session_id=session_id, model=body.model)
-        result = handle_ops_chat_message(chat_body, queries, store, demo_cache)
-    finally:
-        ops_chat_resolved_model.reset(sticky_token)
-        ops_chat_model_override.reset(token)
+        if meta.status in (SessionStatus.PLANNING, SessionStatus.AWAITING_AUTH):
+            result = handle_planning_message(
+                session_dir=session_dir,
+                meta=meta,
+                message=body.message,
+                store=store,
+            )
+        elif meta.status == SessionStatus.DISPATCHED:
+            result = handle_dispatched_message(
+                session_dir=session_dir,
+                meta=meta,
+                message=body.message,
+                store=store,
+                queries=queries,
+                demo_cache=demo_cache,
+                model=body.model,
+            )
+        else:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "SESSION_STATUS_INVALID",
+                    "message": f"messages not allowed for status {meta.status.value}",
+                },
+            )
+    except SessionStatusInvalidError as exc:
+        raise _http_error_from_harness(exc) from exc
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
 
+    meta = load_meta(session_dir)
     run_id = str(result.get("run_id", ""))
     if run_id:
         if not prior_runs:
@@ -203,18 +254,48 @@ def post_session_message(
                 payload={"session_id": session_id, "slug": meta.slug},
                 node_id="session.create",
             )
-        meta.latest_run_id = run_id
-        meta.updated_at = datetime.now(timezone.utc)
-        save_meta(session_dir, meta)
-        store.append_event(
-            run_id,
-            "orchestrator",
-            "session.status_changed",
-            payload={"session_id": session_id, "status": meta.status.value},
-            node_id="session.status",
-        )
+        if meta.status != SessionStatus.AWAITING_AUTH or not prior_runs:
+            store.append_event(
+                run_id,
+                "orchestrator",
+                "session.status_changed",
+                payload={"session_id": session_id, "status": meta.status.value},
+                node_id="session.status",
+            )
 
     return {**result, "session_id": session_id}
+
+
+@router.post("/{session_id}/auth")
+def post_session_auth(
+    session_id: str,
+    body: SessionAuthRequest,
+    store: OpsRunStore = Depends(_store),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return handle_session_auth(
+            session_dir=session_dir,
+            meta=meta,
+            action=body.action,
+            store=store,
+        )
+    except SessionStatusInvalidError as exc:
+        raise _http_error_from_harness(exc) from exc
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
+
+
+@router.get("/{session_id}/deliverables")
+def get_session_deliverables(
+    session_id: str,
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, _meta = _require_session_meta(session_id, root)
+    return {"session_id": session_id, "items": list_deliverables(session_dir)}
 
 
 @router.get("/{session_id}/events")
@@ -229,3 +310,42 @@ def get_session_events(
     _require_session_meta(session_id, root)
     events = store.list_events_for_session(session_id, after_seq=after_seq, limit=limit)
     return {"session_id": session_id, "after_seq": after_seq, "events": events}
+
+
+@router.get("/{session_id}/promote/preview")
+def get_session_promote_preview(
+    session_id: str,
+    target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"] = Query(...),
+    target_branch: str = Query(default="main"),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return build_promote_preview(
+            session_dir, meta, target_repo=target_repo, target_branch=target_branch
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
+
+
+@router.post("/{session_id}/promote")
+def post_session_promote(
+    session_id: str,
+    body: SessionPromoteRequest,
+    store: OpsRunStore = Depends(_store),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return execute_promote(
+            session_dir,
+            meta,
+            target_repo=body.target_repo,
+            target_branch=body.target_branch.strip(),
+            confirm=body.confirm,
+            store=store,
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc

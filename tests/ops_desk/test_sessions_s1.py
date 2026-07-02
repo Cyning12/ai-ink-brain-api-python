@@ -8,12 +8,17 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+from api.harness_runtime.graph.session_orchestrator_v1 import reset_checkpointer_for_tests
 from api.index import app
 from api.ops import sessions
 from tests.ops_desk.test_orchestrator_p1 import FakeDemoCache, FakeQueries, FakeStore
 
 
 class SessionFakeStore(FakeStore):
+    def __init__(self) -> None:
+        super().__init__()
+        self.checkpoints: dict[str, dict[str, Any]] = {}
+
     def list_runs_by_session_id(self, session_id: str, *, limit: int = 50) -> list[dict[str, Any]]:
         rows = [r for r in self.runs.values() if r.get("session_id") == session_id]
         rows.sort(key=lambda r: str(r.get("id", "")), reverse=True)
@@ -35,6 +40,14 @@ class SessionFakeStore(FakeStore):
         events.sort(key=lambda e: e.get("seq", 0))
         return events[:limit]
 
+    def save_checkpoint(
+        self, run_id: str, checkpoint_id: str, state_json: dict[str, Any]
+    ) -> dict[str, Any]:
+        key = f"{run_id}:{checkpoint_id}"
+        row = {"run_id": run_id, "checkpoint_id": checkpoint_id, "state_json": state_json}
+        self.checkpoints[key] = row
+        return row
+
 
 @pytest.fixture
 def sessions_root(tmp_path: Path) -> Path:
@@ -45,6 +58,7 @@ def sessions_root(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch, sessions_root: Path) -> TestClient:
+    reset_checkpointer_for_tests()
     fake_queries = FakeQueries()
     fake_store = SessionFakeStore()
 
@@ -92,6 +106,7 @@ def client(monkeypatch: pytest.MonkeyPatch, sessions_root: Path) -> TestClient:
 
     yield TestClient(app)
     app.dependency_overrides.clear()
+    reset_checkpointer_for_tests()
 
 
 def test_create_and_list_sessions(client: TestClient) -> None:
@@ -129,13 +144,15 @@ def test_get_session_and_messages(client: TestClient) -> None:
     assert msg_resp.status_code == 200
     msg_data = msg_resp.json()
     assert msg_data["session_id"] == session_id
-    assert msg_data["route"] == "fast"
+    assert msg_data["route"] == "session_00"
+    assert msg_data.get("awaiting_auth") is True
     run_id = msg_data["run_id"]
 
     detail_resp = client.get(f"/api/py/ops/sessions/{session_id}", headers={"x-ops-secret": "test"})
     assert detail_resp.status_code == 200
     detail = detail_resp.json()
     assert detail["meta"]["latest_run_id"] == run_id
+    assert detail["meta"]["status"] == "awaiting_auth"
     assert len(detail["recent_messages"]) >= 1
 
     events_resp = client.get(

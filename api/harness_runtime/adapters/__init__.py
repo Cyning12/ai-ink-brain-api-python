@@ -1,1 +1,1 @@
-"""外部适配层占位。"""
+"""Harness Runtime 适配层（probe · 外部 CLI）。"""

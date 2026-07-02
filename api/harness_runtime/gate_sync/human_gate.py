@@ -46,7 +46,7 @@ def render_session_task_template(*, slug: str, title: str) -> str:
 | --- | --- | --- | --- |
 | HG-SESSION-PLAN | pending | dispatch | 00 计划呈现 · 用户授权开始派工 |
 | HG-EXEC-AUTH | pending | 30 | 授权进入实现 / promote |
-| HG-AUDIT-R1 | pending | 30 | promote 后业务 task 开工闸 |
+| HG-AUDIT-R1 | pending | — | promote 后业务 task 开工闸（复制到业务仓后签收） |
 | HG-PROMOTE | pending | — | 显式 promote 到业务仓（可选） |
 
 ## 背景与目标
