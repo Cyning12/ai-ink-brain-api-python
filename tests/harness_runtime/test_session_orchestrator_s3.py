@@ -114,7 +114,6 @@ def test_s3_deliverables_written(client: TestClient, sessions_root: Path) -> Non
     result_path = sessions_root / session_id / "deliverables" / run_id / "result.json"
     assert result_path.is_file()
 
-    dispatch_path = sessions_root / session_id / "deliverables" / run_id
     # auth 路径 dispatch 落在 planning run_id 目录
     planning_runs = list((sessions_root / session_id / "deliverables").iterdir())
     assert len(planning_runs) >= 1

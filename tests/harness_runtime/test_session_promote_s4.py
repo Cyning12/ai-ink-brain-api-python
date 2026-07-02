@@ -8,11 +8,11 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from api.harness_runtime.graph.session_orchestrator_v1 import reset_checkpointer_for_tests
 from api.harness_runtime import promote as promote_mod
+from api.harness_runtime.graph.session_orchestrator_v1 import reset_checkpointer_for_tests
 from api.index import app
 from api.ops import sessions
-from tests.harness_runtime.test_session_orchestrator_s2 import S2FakeStore, _create_session
+from tests.harness_runtime.test_session_orchestrator_s2 import S2FakeStore
 from tests.harness_runtime.test_session_orchestrator_s3 import _approve_session
 from tests.ops_desk.test_orchestrator_p1 import FakeDemoCache, FakeQueries
 

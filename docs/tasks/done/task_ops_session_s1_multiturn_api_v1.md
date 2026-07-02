@@ -60,3 +60,22 @@
 | `api/ops/chat_service.py` | 单轮与 session messages 共享编排 |
 | `api/harness_runtime/session_store/io.py` | `list_sessions` · `session_dir_for_id` |
 | `tests/ops_desk/test_sessions_s1.py` | S1 API 测试 |
+
+---
+
+## 行为变更（Delta）
+
+### ADDED
+
+- `api/ops/sessions.py` · Session REST（create/list/messages/events）
+- `api/ops/chat_service.py` · 单轮与 session messages 共享编排
+
+---
+
+## 失败路径
+
+| # | Scenario ID | 触发 | 行为 |
+|---|-------------|------|------|
+| F1 | fp-session-not-found | 无效 `session_id` | `404 SESSION_NOT_FOUND` |
+| F2 | fp-ops-secret-invalid | 错误或未传 `x-ops-secret` | `401` |
+| F3 | fp-message-empty | messages body 为空 | `422` 校验失败 |

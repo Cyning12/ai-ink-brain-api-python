@@ -93,13 +93,12 @@ S3 已交付 subagent 派工与 deliverables。本 task 接入 **harness-probe s
 
 ## 失败路径
 
-
-| 场景                        | 行为                                            |
-| ------------------------- | --------------------------------------------- |
-| probe CLI 不存在             | `503 PROBE_UNAVAILABLE` · message 含安装提示       |
-| verify exit≠0             | `409 VERIFY_FAILED` · 附 report 摘要 · **不**复制文件 |
-| 目标 task 已存在               | `409 PROMOTE_CONFLICT`                        |
-| 非 `dispatched` / gate 未满足 | `409 SESSION_STATUS_INVALID` 或 gate 说明        |
+| # | Scenario ID | 触发 | 行为 |
+|---|-------------|------|------|
+| F1 | fp-probe-unavailable | probe CLI 不存在 | `503 PROBE_UNAVAILABLE` |
+| F2 | fp-verify-failed | verify exit≠0 | `409 VERIFY_FAILED` · 不复制文件 |
+| F3 | fp-promote-conflict | 目标 task 已存在 | `409 PROMOTE_CONFLICT` |
+| F4 | fp-session-status-invalid | 非 `dispatched` / gate 未满足 | `409 SESSION_STATUS_INVALID` |
 
 
 ---

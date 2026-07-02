@@ -52,7 +52,7 @@
 - **合并前必绿（本地与 CI 同命令）**：
   - **图谱 / manifest**：`bash scripts/verify-tech-graph.sh`（对齐 `tech-graph.yml` · `manifest_check`）
   - **契约**：`python tools/tech_graph_contract_check.py`（对齐 `tech-graph-contract.yml`）
-  - **一键 PR 前**：`bash scripts/verify-pr-local.sh`（上述 + ruff + pytest）
+  - **一键 PR 前**：`bash scripts/verify-pr-local.sh`（tech-graph + **变更 task validate** + contract + ruff + pytest）
   - **pytest 单跑**：`pytest tests -m "not intent_eval and not intent_benchmark"`
   - **Ruff 单跑**：`ruff check api tests`
 

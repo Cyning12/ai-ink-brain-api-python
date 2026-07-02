@@ -61,6 +61,16 @@ S2 已交付 00 层 plan → auth → synthesize；`dispatched` 后 messages 为
 
 ---
 
+## 失败路径
+
+| # | Scenario ID | 触发 | 行为 |
+|---|-------------|------|------|
+| F1 | fp-not-dispatched | 非 `dispatched` 发 messages | `409 SESSION_STATUS_INVALID` |
+| F2 | fp-subagent-timeout | 深析超时 | 结构化错误 · events 记录 |
+| F3 | fp-deliverable-missing | deliverables 目录不可写 | `500` · 不静默 |
+
+---
+
 ## 验收标准
 
 - [x] `dispatched` + messages 触发 deep/fast/react · 非占位文案
