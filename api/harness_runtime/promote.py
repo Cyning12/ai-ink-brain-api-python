@@ -1,22 +1,27 @@
-"""Session promote · probe verify · 业务仓 task 复制（S4 · B4）。"""
+"""Session promote · probe verify · conflict action block/overwrite/merge（S4.2）。"""
 
 from __future__ import annotations
 
+import difflib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
 from api.harness_runtime.adapters import probe_runner
-from api.harness_runtime.deliverables import write_deliverable
+from api.harness_runtime.deliverables import deliverable_dir, write_deliverable
 from api.harness_runtime.errors import HarnessRuntimeError
 from api.harness_runtime.gate_sync.human_gate import build_gate_summary, patch_gate_and_sync
 from api.harness_runtime.session_store.io import REPO_ROOT, load_meta, save_meta
 from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
 
 TargetRepo = Literal["ai-ink-brain-api-python", "ai-ink-brain"]
+ConflictAction = Literal["block", "overwrite", "merge"]
 
 HG_PROMOTE = "HG-PROMOTE"
 HG_EXEC_AUTH = "HG-EXEC-AUTH"
+HG_PROMOTE_OVERWRITE = "HG-PROMOTE-OVERWRITE"
+
+_MAX_DIFF_BYTES = 5 * 1024 * 1024
 
 _TARGET_CONFIG: dict[str, dict[str, Any]] = {
     "ai-ink-brain-api-python": {
@@ -75,6 +80,140 @@ def _target_task_path(session_dir: Path, meta: SessionMeta, target_repo: str) ->
     return get_tasks_dir(target_repo) / source.name
 
 
+def _is_gate_approved(session_dir: Path, gate_id: str) -> bool:
+    meta = load_meta(session_dir)
+    return gate_id in meta.gate_summary.approved
+
+
+def _append_promotion_header(
+    body: str,
+    meta: SessionMeta,
+    target_repo: str,
+    target_branch: str,
+    *,
+    overwrite_of: str | None = None,
+) -> str:
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    header = (
+        f"\n\n> **promoted_from_session**: `{meta.session_id}`\n"
+        f"> **promoted_at**: `{now}`\n"
+        f"> **target_repo**: `{target_repo}` · **target_branch**: `{target_branch}`\n"
+    )
+    if overwrite_of:
+        header += f"> **overwrite_of**: `{overwrite_of}`\n"
+    return body.rstrip() + header
+
+
+def _build_merge_draft(
+    source_text: str,
+    target_text: str,
+    source_label: str = "session draft",
+    target_label: str = "target existing",
+) -> str:
+    source_lines = source_text.splitlines()
+    target_lines = target_text.splitlines()
+    sm = difflib.SequenceMatcher(None, source_lines, target_lines)
+    out: list[str] = [
+        "# Merge Draft",
+        "",
+        f"_Auto-generated merge preview: `{source_label}` ↔ `{target_label}`._",
+        "",
+    ]
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "equal":
+            out.extend(source_lines[i1:i2])
+        elif tag == "replace":
+            out.append(f"<<<<<<< {source_label}")
+            out.extend(source_lines[i1:i2])
+            out.append("=======")
+            out.extend(target_lines[j1:j2])
+            out.append(f">>>>>>> {target_label}")
+        elif tag == "delete":
+            out.append(f"<<<<<<< {source_label}")
+            out.extend(source_lines[i1:i2])
+            out.append("=======")
+            out.append(f">>>>>>> {target_label}")
+        elif tag == "insert":
+            out.append(f"<<<<<<< {source_label}")
+            out.append("=======")
+            out.extend(target_lines[j1:j2])
+            out.append(f">>>>>>> {target_label}")
+    return "\n".join(out) + "\n"
+
+
+def _build_field_diff(source_text: str, target_text: str) -> dict[str, Any]:
+    try:
+        src_summary = build_gate_summary(source_text)
+        tgt_summary = build_gate_summary(target_text)
+    except Exception:
+        return {"gate_status_changed": []}
+    src_map = {g: "approved" for g in src_summary.approved}
+    src_map.update({g: "pending" for g in src_summary.pending})
+    tgt_map = {g: "approved" for g in tgt_summary.approved}
+    tgt_map.update({g: "pending" for g in tgt_summary.pending})
+    changed = []
+    for gid in sorted(set(src_map) | set(tgt_map)):
+        s = src_map.get(gid)
+        t = tgt_map.get(gid)
+        if s != t:
+            changed.append({"gate_id": gid, "source": s, "target": t})
+    return {"gate_status_changed": changed}
+
+
+def build_diff_summary(
+    source_text: str,
+    target_text: str,
+    target_exists: bool = True,
+) -> dict[str, Any]:
+    """生成源/目标 task 的行级 + 字段级 diff 摘要。"""
+    if len(source_text) > _MAX_DIFF_BYTES or len(target_text) > _MAX_DIFF_BYTES:
+        raise HarnessRuntimeError("PROMOTE_DIFF_FAILED", "task file too large for diff")
+
+    source_lines = source_text.splitlines()
+    target_lines = target_text.splitlines() if target_exists else []
+    sm = difflib.SequenceMatcher(None, source_lines, target_lines)
+    added = removed = unchanged = 0
+    hunks: list[dict[str, Any]] = []
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "equal":
+            unchanged += i2 - i1
+        elif tag == "replace":
+            removed += i2 - i1
+            added += j2 - j1
+            hunks.append({"type": "replace", "source_range": [i1, i2], "target_range": [j1, j2]})
+        elif tag == "delete":
+            removed += i2 - i1
+            hunks.append({"type": "delete", "source_range": [i1, i2]})
+        elif tag == "insert":
+            added += j2 - j1
+            hunks.append({"type": "insert", "target_range": [j1, j2]})
+
+    unified = list(
+        difflib.unified_diff(
+            source_lines,
+            target_lines,
+            fromfile="source",
+            tofile="target",
+            lineterm="",
+        )
+    )
+
+    return {
+        "target_exists": target_exists,
+        "has_conflict": target_exists and (added > 0 or removed > 0),
+        "line_stats": {
+            "source_lines": len(source_lines),
+            "target_lines": len(target_lines),
+            "added": added,
+            "removed": removed,
+            "unchanged": unchanged,
+        },
+        "field_diff": _build_field_diff(source_text, target_text),
+        "hunks": hunks[:50],
+        "diff_text": "\n".join(unified[:200]),
+    }
+
+
 def build_promote_preview(
     session_dir: Path,
     meta: SessionMeta,
@@ -86,8 +225,15 @@ def build_promote_preview(
     source = _source_task_path(session_dir, meta)
     target = _target_task_path(session_dir, meta, target_repo)
     conflict = target.is_file()
-    task_body = source.read_text(encoding="utf-8")
-    gate_summary = build_gate_summary(task_body).model_dump()
+    source_text = source.read_text(encoding="utf-8")
+    target_text = target.read_text(encoding="utf-8") if conflict else ""
+    try:
+        diff_summary = build_diff_summary(source_text, target_text, target_exists=conflict)
+    except HarnessRuntimeError:
+        raise
+    except Exception as exc:
+        raise HarnessRuntimeError("PROMOTE_DIFF_FAILED", f"diff failed: {exc}") from exc
+    gate_summary = build_gate_summary(source_text).model_dump()
     return {
         "session_id": meta.session_id,
         "source_task_path": str(source.relative_to(session_dir)),
@@ -97,6 +243,7 @@ def build_promote_preview(
         "target_task_path": str(target),
         "target_exists": conflict,
         "conflict": conflict,
+        "diff_summary": diff_summary,
         "gate_summary": gate_summary,
         "probe_available": probe_runner.probe_available(),
         "verify_hint": "全量 verify 建议本地或 GHA 执行；Vercel 不同步跑 promote 前 verify。",
@@ -105,40 +252,14 @@ def build_promote_preview(
     }
 
 
-def execute_promote(
+def _run_verify(
     session_dir: Path,
     meta: SessionMeta,
-    *,
+    task_path: Path,
     target_repo: str,
-    target_branch: str,
-    confirm: bool,
-    store: Any,
-) -> dict[str, Any]:
-    if not confirm:
-        raise HarnessRuntimeError("PROMOTE_NOT_CONFIRMED", "confirm=true required")
-
-    _require_dispatched(meta)
-    preview = build_promote_preview(
-        session_dir, meta, target_repo=target_repo, target_branch=target_branch
-    )
-    if preview["conflict"]:
-        raise HarnessRuntimeError(
-            "PROMOTE_CONFLICT",
-            f"target task already exists: {preview['target_task_path']}",
-        )
-
-    if not probe_runner.probe_available():
-        raise HarnessRuntimeError(
-            "PROBE_UNAVAILABLE",
-            "harness-probe CLI 未找到；请设置 HARNESS_PROBE_BIN 或 pip install -e harness-probe",
-        )
-
-    # 二次确认即 HG-EXEC-AUTH 授权；须在 verify 前写回 task
-    patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
-
-    source = _source_task_path(session_dir, meta)
+) -> tuple[bool, dict[str, Any]]:
     repo_root = get_repo_root(target_repo)
-    passed, report = probe_runner.verify_task(source, repo_root=repo_root, ci=True)
+    passed, report = probe_runner.verify_task(task_path, repo_root=repo_root, ci=True)
     run_id = meta.latest_run_id or f"promote-{meta.session_id[-8:]}"
     write_deliverable(
         session_dir,
@@ -146,7 +267,6 @@ def execute_promote(
         {"type": "verify_report", "passed": passed, "report": report, "target_repo": target_repo},
         filename="verify_report.json",
     )
-
     if not passed:
         err = HarnessRuntimeError(
             "VERIFY_FAILED",
@@ -155,18 +275,46 @@ def execute_promote(
         )
         err.verify_report = report  # type: ignore[attr-defined]
         raise err
+    return passed, report
 
-    target = Path(preview["target_task_path"])
-    target.parent.mkdir(parents=True, exist_ok=True)
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    body = source.read_text(encoding="utf-8")
-    promoted_header = (
-        f"\n\n> **promoted_from_session**: `{meta.session_id}`\n"
-        f"> **promoted_at**: `{now}`\n"
-        f"> **target_repo**: `{target_repo}` · **target_branch**: `{target_branch}`\n"
+
+def _write_merged_deliverable(
+    session_dir: Path,
+    meta: SessionMeta,
+    source_text: str,
+    target_text: str,
+    target_repo: str,
+) -> Path:
+    run_id = meta.latest_run_id or f"promote-{meta.session_id[-8:]}"
+    out_dir = deliverable_dir(session_dir, run_id)
+    slug_safe = meta.slug.replace("-", "_")
+    draft_name = f"task_{slug_safe}_merged_v1.md"
+    draft_path = out_dir / draft_name
+    draft_body = _build_merge_draft(source_text, target_text)
+    draft_path.write_text(draft_body, encoding="utf-8")
+    write_deliverable(
+        session_dir,
+        run_id,
+        {
+            "type": "merge_draft",
+            "target_repo": target_repo,
+            "draft_path": str(draft_path),
+            "draft_name": draft_name,
+        },
+        filename="merge_draft.json",
     )
-    target.write_text(body.rstrip() + promoted_header, encoding="utf-8")
+    return draft_path
 
+
+def _promote_common_finish(
+    session_dir: Path,
+    meta: SessionMeta,
+    target: Path,
+    target_repo: str,
+    target_branch: str,
+    report: dict[str, Any],
+    store: Any,
+) -> dict[str, Any]:
     patch_gate_and_sync(session_dir, HG_PROMOTE, "approved")
 
     meta = load_meta(session_dir)
@@ -183,7 +331,7 @@ def execute_promote(
                 "target_repo": target_repo,
                 "target_branch": target_branch,
                 "target_task_path": str(target),
-                "verify_passed": passed,
+                "verify_passed": True,
             },
             node_id="n_promote",
         )
@@ -194,8 +342,116 @@ def execute_promote(
         "target_repo": target_repo,
         "target_branch": target_branch,
         "target_task_path": str(target),
-        "verify_passed": passed,
+        "verify_passed": True,
         "verify_report": report,
         "gate_summary": meta.gate_summary.model_dump(),
         "message": "promote 完成 · 未 auto-commit · 请在目标仓手动 git commit。",
     }
+
+
+def execute_promote(
+    session_dir: Path,
+    meta: SessionMeta,
+    *,
+    target_repo: str,
+    target_branch: str,
+    confirm: bool,
+    conflict_action: ConflictAction = "block",
+    store: Any,
+) -> dict[str, Any]:
+    if not confirm:
+        raise HarnessRuntimeError("PROMOTE_NOT_CONFIRMED", "confirm=true required")
+
+    _require_dispatched(meta)
+    preview = build_promote_preview(
+        session_dir, meta, target_repo=target_repo, target_branch=target_branch
+    )
+    diff_summary = preview["diff_summary"]
+
+    source = _source_task_path(session_dir, meta)
+    target = Path(preview["target_task_path"])
+    source_text = source.read_text(encoding="utf-8")
+
+    if not target.is_file():
+        if conflict_action == "merge":
+            raise HarnessRuntimeError(
+                "PROMOTE_MERGE_BASE_MISSING",
+                "merge 须源 task 与目标 task 同时存在",
+            )
+        # 无冲突：沿用 S4 标准 promote 路径
+        if not probe_runner.probe_available():
+            raise HarnessRuntimeError(
+                "PROBE_UNAVAILABLE",
+                "harness-probe CLI 未找到；请设置 HARNESS_PROBE_BIN 或 pip install -e harness-probe",
+            )
+        patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
+        passed, report = _run_verify(session_dir, meta, source, target_repo)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(_append_promotion_header(source_text, meta, target_repo, target_branch), encoding="utf-8")
+        return _promote_common_finish(session_dir, meta, target, target_repo, target_branch, report, store)
+
+    # 以下处理目标已存在（conflict）
+    if conflict_action == "block":
+        err = HarnessRuntimeError(
+            "PROMOTE_CONFLICT",
+            f"target task already exists: {preview['target_task_path']}",
+        )
+        err.diff_summary = diff_summary  # type: ignore[attr-defined]
+        raise err
+
+    if conflict_action == "overwrite":
+        if not _is_gate_approved(session_dir, HG_PROMOTE_OVERWRITE):
+            raise HarnessRuntimeError(
+                "PROMOTE_OVERWRITE_UNCONFIRMED",
+                f"overwrite 须先在 task 中签发 {HG_PROMOTE_OVERWRITE}=approved",
+            )
+        if not probe_runner.probe_available():
+            raise HarnessRuntimeError(
+                "PROBE_UNAVAILABLE",
+                "harness-probe CLI 未找到；请设置 HARNESS_PROBE_BIN 或 pip install -e harness-probe",
+            )
+        patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
+        passed, report = _run_verify(session_dir, meta, source, target_repo)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        overwrite_of = str(target)
+        target.write_text(
+            _append_promotion_header(
+                source_text, meta, target_repo, target_branch, overwrite_of=overwrite_of
+            ),
+            encoding="utf-8",
+        )
+        return _promote_common_finish(session_dir, meta, target, target_repo, target_branch, report, store)
+
+    if conflict_action == "merge":
+        if not target.is_file() or not source.is_file():
+            raise HarnessRuntimeError(
+                "PROMOTE_MERGE_BASE_MISSING",
+                "merge 须源 task 与目标 task 同时存在",
+            )
+        target_text = target.read_text(encoding="utf-8")
+        draft_path = _write_merged_deliverable(
+            session_dir, meta, source_text, target_text, target_repo
+        )
+        if not _is_gate_approved(session_dir, HG_PROMOTE_OVERWRITE):
+            err = HarnessRuntimeError(
+                "PROMOTE_MERGE_BLOCKED",
+                f"merge 须先在 task 中签发 {HG_PROMOTE_OVERWRITE}=approved",
+            )
+            err.merge_draft_path = str(draft_path)  # type: ignore[attr-defined]
+            raise err
+        if not probe_runner.probe_available():
+            raise HarnessRuntimeError(
+                "PROBE_UNAVAILABLE",
+                "harness-probe CLI 未找到；请设置 HARNESS_PROBE_BIN 或 pip install -e harness-probe",
+            )
+        patch_gate_and_sync(session_dir, HG_EXEC_AUTH, "approved")
+        passed, report = _run_verify(session_dir, meta, draft_path, target_repo)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        merged_body = draft_path.read_text(encoding="utf-8")
+        target.write_text(
+            _append_promotion_header(merged_body, meta, target_repo, target_branch),
+            encoding="utf-8",
+        )
+        return _promote_common_finish(session_dir, meta, target, target_repo, target_branch, report, store)
+
+    raise HarnessRuntimeError("PROMOTE_ACTION_INVALID", f"unknown conflict_action: {conflict_action}")

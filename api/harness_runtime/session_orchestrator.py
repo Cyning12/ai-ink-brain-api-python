@@ -8,6 +8,11 @@ from typing import Any, Literal
 
 from langgraph.types import Command
 
+from api.harness_runtime.adapters.ops_protocols import (
+    DemoCacheProtocol,
+    QueriesProtocol,
+    RunStoreProtocol,
+)
 from api.harness_runtime.deliverables import write_deliverable, write_invoke_snapshot
 from api.harness_runtime.errors import HarnessRuntimeError, SessionStatusInvalidError
 from api.harness_runtime.gate_sync.human_gate import patch_gate_and_sync
@@ -15,10 +20,6 @@ from api.harness_runtime.graph.session_orchestrator_v1 import compile_for_sessio
 from api.harness_runtime.nodes.session_subagent import SubagentRuntime
 from api.harness_runtime.session_store.io import save_meta, transition_status
 from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
-from api.ops.chat_service import ChatMessageRequest, handle_ops_chat_message
-from api.ops.demo_cache import DemoCacheStore
-from api.ops.queries import OpsQueries
-from api.ops.store import OpsRunStore
 
 AuthAction = Literal["approve", "revise", "cancel"]
 HG_SESSION_PLAN = "HG-SESSION-PLAN"
@@ -38,7 +39,7 @@ def _checkpoint_payload(meta: SessionMeta, state: dict[str, Any]) -> dict[str, A
     }
 
 
-def _save_checkpoint(store: OpsRunStore, run_id: str, meta: SessionMeta, state: dict[str, Any]) -> None:
+def _save_checkpoint(store: RunStoreProtocol, run_id: str, meta: SessionMeta, state: dict[str, Any]) -> None:
     store.save_checkpoint(run_id, f"{meta.session_id}:latest", _checkpoint_payload(meta, state))
 
 
@@ -51,7 +52,7 @@ def handle_planning_message(
     session_dir: Path,
     meta: SessionMeta,
     message: str,
-    store: OpsRunStore,
+    store: RunStoreProtocol,
 ) -> dict[str, Any]:
     """planning / awaiting_auth · 走 00 图至 interrupt。"""
     task_path = session_dir / meta.primary_task_path
@@ -130,12 +131,16 @@ def handle_dispatched_message(
     session_dir: Path,
     meta: SessionMeta,
     message: str,
-    store: OpsRunStore,
-    queries: OpsQueries,
-    demo_cache: DemoCacheStore,
+    store: RunStoreProtocol,
+    queries: QueriesProtocol,
+    demo_cache: DemoCacheProtocol,
     model: str | None = None,
 ) -> dict[str, Any]:
     """dispatched · S3 走 P1/P3 subagent 编排 + deliverables 落盘。"""
+    # 延迟 import：ChatMessageRequest / handle_ops_chat_message 属于 api.ops 业务实现，
+    # 非 Runtime 可剥离核心的一部分（SPEC §11.2）。
+    from api.ops.chat_service import ChatMessageRequest, handle_ops_chat_message
+
     chat_body = ChatMessageRequest(message=message, session_id=meta.session_id, model=model)
     result = handle_ops_chat_message(chat_body, queries, store, demo_cache)
 
@@ -186,7 +191,7 @@ def handle_session_auth(
     session_dir: Path,
     meta: SessionMeta,
     action: AuthAction,
-    store: OpsRunStore,
+    store: RunStoreProtocol,
 ) -> dict[str, Any]:
     """POST .../auth · 双写 + resume 图。"""
     if action == "approve":

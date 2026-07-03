@@ -15,6 +15,7 @@ from api.harness_runtime.errors import (
 from api.harness_runtime.session_store.schema import GateSummary, SessionMeta
 
 ALLOWED_GATE_STATUSES = frozenset({"pending", "approved"})
+HG_PROMOTE_OVERWRITE = "HG-PROMOTE-OVERWRITE"
 _GATE_HEADER = re.compile(r"^\|\s*human_gate_id\s*\|", re.IGNORECASE)
 _SEPARATOR = re.compile(r"^\|\s*[-:]+\s*\|")
 
@@ -48,6 +49,7 @@ def render_session_task_template(*, slug: str, title: str) -> str:
 | HG-EXEC-AUTH | pending | 30 | 授权进入实现 / promote |
 | HG-AUDIT-R1 | pending | — | promote 后业务 task 开工闸（复制到业务仓后签收） |
 | HG-PROMOTE | pending | — | 显式 promote 到业务仓（可选） |
+| HG-PROMOTE-OVERWRITE | pending | — | overwrite/merge 冲突时 maintainer 二次确认 |
 
 ## 背景与目标
 

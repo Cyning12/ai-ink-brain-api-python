@@ -55,6 +55,7 @@ class SessionPromoteRequest(BaseModel):
     target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"]
     target_branch: str = Field(default="main", min_length=1, max_length=120)
     confirm: bool = False
+    conflict_action: Literal["block", "overwrite", "merge"] = Field(default="block")
 
 
 def _queries() -> OpsQueries:
@@ -85,6 +86,10 @@ def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
         "VERIFY_FAILED",
         "PROMOTE_CONFLICT",
         "PROMOTE_NOT_CONFIRMED",
+        "PROMOTE_OVERWRITE_UNCONFIRMED",
+        "PROMOTE_MERGE_BLOCKED",
+        "PROMOTE_MERGE_BASE_MISSING",
+        "PROMOTE_DIFF_FAILED",
         "SESSION_SCHEMA_UNSUPPORTED",
         "SESSION_ID_MISMATCH",
         "SESSION_STATUS_INVALID",
@@ -96,6 +101,12 @@ def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
     verify_report = getattr(exc, "verify_report", None)
     if code == "VERIFY_FAILED" and isinstance(verify_report, dict):
         detail["verify_report"] = verify_report
+    diff_summary = getattr(exc, "diff_summary", None)
+    if code == "PROMOTE_CONFLICT" and isinstance(diff_summary, dict):
+        detail["diff_summary"] = diff_summary
+    merge_draft_path = getattr(exc, "merge_draft_path", None)
+    if code == "PROMOTE_MERGE_BLOCKED" and isinstance(merge_draft_path, str):
+        detail["merge_draft_path"] = merge_draft_path
     return HTTPException(status_code=status, detail=detail)
 
 
@@ -345,6 +356,7 @@ def post_session_promote(
             target_repo=body.target_repo,
             target_branch=body.target_branch.strip(),
             confirm=body.confirm,
+            conflict_action=body.conflict_action,
             store=store,
         )
     except HarnessRuntimeError as exc:
