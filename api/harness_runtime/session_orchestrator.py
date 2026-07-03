@@ -23,6 +23,7 @@ from api.harness_runtime.session_store.schema import SessionMeta, SessionStatus
 
 AuthAction = Literal["approve", "revise", "cancel"]
 HG_SESSION_PLAN = "HG-SESSION-PLAN"
+HG_PROMOTE_GRAPH = "HG-PROMOTE-GRAPH"
 
 
 def thread_config(session_id: str, run_id: str) -> dict[str, Any]:
@@ -191,88 +192,130 @@ def handle_session_auth(
     session_dir: Path,
     meta: SessionMeta,
     action: AuthAction,
+    gate_id: str = HG_SESSION_PLAN,
     store: RunStoreProtocol,
 ) -> dict[str, Any]:
-    """POST .../auth · 双写 + resume 图。"""
-    if action == "approve":
-        if meta.status == SessionStatus.DISPATCHED and HG_SESSION_PLAN in meta.gate_summary.approved:
+    """POST .../auth · 双写 + resume 图；非计划闸仅更新 task 闸表。"""
+    if gate_id == HG_SESSION_PLAN:
+        if action == "approve":
+            if meta.status == SessionStatus.DISPATCHED and HG_SESSION_PLAN in meta.gate_summary.approved:
+                return {
+                    "session_id": meta.session_id,
+                    "action": action,
+                    "status": meta.status.value,
+                    "idempotent": True,
+                    "message": "已授权，幂等返回。",
+                }
+            if meta.status != SessionStatus.AWAITING_AUTH:
+                raise SessionStatusInvalidError(
+                    f"approve requires awaiting_auth, got {meta.status.value}"
+                )
+
+            meta = patch_gate_and_sync(session_dir, HG_SESSION_PLAN, "approved")
+            meta = transition_status(session_dir, SessionStatus.DISPATCHED)
+
+            run_id = meta.latest_run_id
+            if not run_id:
+                raise HarnessRuntimeError("RUN_ID_MISSING", "latest_run_id required for auth resume")
+
+            store.append_event(
+                run_id,
+                "orchestrator",
+                "gate.approved",
+                payload={"gate_id": HG_SESSION_PLAN, "session_id": meta.session_id},
+                node_id="n00.auth",
+            )
+            store.append_event(
+                run_id,
+                "orchestrator",
+                "session.status_changed",
+                payload={"session_id": meta.session_id, "status": meta.status.value},
+                node_id="session.status",
+            )
+
+            task_path = session_dir / meta.primary_task_path
+            graph = compile_for_session(
+            session_dir,
+            task_path,
+            runtime=SubagentRuntime(session_dir=session_dir, store=store),
+        )
+            config = thread_config(meta.session_id, run_id)
+            result = graph.invoke(Command(resume=action), config)
+
+            answer = str(result.get("answer", "已授权并开始派工。"))
+            _save_checkpoint(store, run_id, meta, result)
+            store.update_run(run_id, status="done", final_answer={"answer": answer, "auth_action": action})
+            store.append_event(run_id, "orchestrator", "run.end", node_id="n00.synthesize")
+
             return {
                 "session_id": meta.session_id,
                 "action": action,
                 "status": meta.status.value,
-                "idempotent": True,
-                "message": "已授权，幂等返回。",
+                "run_id": run_id,
+                "answer": answer,
+                "gate_summary": meta.gate_summary.model_dump(),
             }
-        if meta.status != SessionStatus.AWAITING_AUTH:
-            raise SessionStatusInvalidError(
-                f"approve requires awaiting_auth, got {meta.status.value}"
-            )
 
-        meta = patch_gate_and_sync(session_dir, HG_SESSION_PLAN, "approved")
-        meta = transition_status(session_dir, SessionStatus.DISPATCHED)
+        if action in ("revise", "cancel"):
+            if meta.status not in (SessionStatus.AWAITING_AUTH, SessionStatus.PLANNING):
+                raise SessionStatusInvalidError(
+                    f"{action} requires awaiting_auth or planning, got {meta.status.value}"
+                )
+            meta = transition_status(session_dir, SessionStatus.PLANNING)
+            if meta.latest_run_id:
+                store.append_event(
+                    meta.latest_run_id,
+                    "orchestrator",
+                    "session.auth_revise" if action == "revise" else "session.auth_cancel",
+                    payload={"session_id": meta.session_id, "action": action},
+                    node_id="n00.auth",
+                )
+            msg = "已回到 planning，请重新描述计划。" if action == "revise" else "已取消，可重新发起需求。"
+            return {
+                "session_id": meta.session_id,
+                "action": action,
+                "status": meta.status.value,
+                "message": msg,
+            }
 
-        run_id = meta.latest_run_id
-        if not run_id:
-            raise HarnessRuntimeError("RUN_ID_MISSING", "latest_run_id required for auth resume")
+        raise HarnessRuntimeError("AUTH_ACTION_INVALID", f"unknown action: {action}")
 
-        store.append_event(
-            run_id,
-            "orchestrator",
-            "gate.approved",
-            payload={"gate_id": HG_SESSION_PLAN, "session_id": meta.session_id},
-            node_id="n00.auth",
+    # 非计划闸（如 HG-PROMOTE-OVERWRITE / HG-PROMOTE-GRAPH）：仅更新 task 闸表 + 写事件
+    if action != "approve":
+        raise HarnessRuntimeError(
+            "AUTH_ACTION_INVALID",
+            f"gate {gate_id} only supports approve",
         )
-        store.append_event(
-            run_id,
-            "orchestrator",
-            "session.status_changed",
-            payload={"session_id": meta.session_id, "status": meta.status.value},
-            node_id="session.status",
-        )
 
-        task_path = session_dir / meta.primary_task_path
-        graph = compile_for_session(
-        session_dir,
-        task_path,
-        runtime=SubagentRuntime(session_dir=session_dir, store=store),
+    if gate_id in meta.gate_summary.approved:
+        return {
+            "session_id": meta.session_id,
+            "action": action,
+            "status": meta.status.value,
+            "gate_id": gate_id,
+            "idempotent": True,
+            "message": "已授权，幂等返回。",
+        }
+
+    meta = patch_gate_and_sync(session_dir, gate_id, "approved")
+
+    run_id = meta.latest_run_id
+    if not run_id:
+        raise HarnessRuntimeError("RUN_ID_MISSING", "latest_run_id required for gate approval event")
+
+    store.append_event(
+        run_id,
+        "orchestrator",
+        "gate.approved",
+        payload={"gate_id": gate_id, "session_id": meta.session_id},
+        node_id="n00.auth",
     )
-        config = thread_config(meta.session_id, run_id)
-        result = graph.invoke(Command(resume=action), config)
 
-        answer = str(result.get("answer", "已授权并开始派工。"))
-        _save_checkpoint(store, run_id, meta, result)
-        store.update_run(run_id, status="done", final_answer={"answer": answer, "auth_action": action})
-        store.append_event(run_id, "orchestrator", "run.end", node_id="n00.synthesize")
-
-        return {
-            "session_id": meta.session_id,
-            "action": action,
-            "status": meta.status.value,
-            "run_id": run_id,
-            "answer": answer,
-            "gate_summary": meta.gate_summary.model_dump(),
-        }
-
-    if action in ("revise", "cancel"):
-        if meta.status not in (SessionStatus.AWAITING_AUTH, SessionStatus.PLANNING):
-            raise SessionStatusInvalidError(
-                f"{action} requires awaiting_auth or planning, got {meta.status.value}"
-            )
-        meta = transition_status(session_dir, SessionStatus.PLANNING)
-        if meta.latest_run_id:
-            store.append_event(
-                meta.latest_run_id,
-                "orchestrator",
-                "session.auth_revise" if action == "revise" else "session.auth_cancel",
-                payload={"session_id": meta.session_id, "action": action},
-                node_id="n00.auth",
-            )
-        msg = "已回到 planning，请重新描述计划。" if action == "revise" else "已取消，可重新发起需求。"
-        return {
-            "session_id": meta.session_id,
-            "action": action,
-            "status": meta.status.value,
-            "message": msg,
-        }
-
-    raise HarnessRuntimeError("AUTH_ACTION_INVALID", f"unknown action: {action}")
+    return {
+        "session_id": meta.session_id,
+        "action": action,
+        "status": meta.status.value,
+        "gate_id": gate_id,
+        "gate_summary": meta.gate_summary.model_dump(),
+        "message": f"{gate_id} 已授权。",
+    }

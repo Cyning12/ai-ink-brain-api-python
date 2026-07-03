@@ -50,6 +50,7 @@ def render_session_task_template(*, slug: str, title: str) -> str:
 | HG-AUDIT-R1 | pending | — | promote 后业务 task 开工闸（复制到业务仓后签收） |
 | HG-PROMOTE | pending | — | 显式 promote 到业务仓（可选） |
 | HG-PROMOTE-OVERWRITE | pending | — | overwrite/merge 冲突时 maintainer 二次确认 |
+| HG-PROMOTE-GRAPH | pending | — | graph_delta promote 到 _tech_graph 须显式确认 |
 
 ## 背景与目标
 

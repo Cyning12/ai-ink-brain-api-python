@@ -31,6 +31,7 @@
 | promote 支持 conflict_action | ADDED | `POST .../promote` body | `block` · `overwrite` · `merge` |
 | 新增 merge 草稿生成 | ADDED | `session_store` / deliverables | 生成合并版 task · 人签后落盘 |
 | HG-PROMOTE-OVERWRITE 闸 | ADDED | task human_gate | overwrite/merge 必须人签 |
+| 授权入口 gate_id | ADDED | `POST .../auth` body | `gate_id` 参数支持签发 `HG-PROMOTE-OVERWRITE` |
 
 ---
 
@@ -68,6 +69,7 @@ S4 已实现 `PROMOTE_CONFLICT` 仅 block。人拍板 D2 要求 **block + overwr
 - [ ] overwrite 分支：覆盖目标 task · 追加 `promoted_from_session` / `promoted_at` / `overwrite_of`
 - [ ] merge 分支：生成 `task_<slug>_merged_v1.md` 草稿到 session deliverables → UI 预览 → 人签 `HG-PROMOTE-OVERWRITE` → 落盘到业务仓
 - [ ] 新增 `HG-PROMOTE-OVERWRITE` 人签闸
+- [ ] 扩展 `POST .../auth` 支持 `gate_id=HG-PROMOTE-OVERWRITE` 人签（不切换 session status）
 - [ ] pytest：`tests/harness_runtime/test_session_promote_conflict_s4_2.py` 覆盖 block/overwrite/merge/diff
 - [ ] ruff + pytest 全量绿
 
@@ -91,6 +93,7 @@ S4 已实现 `PROMOTE_CONFLICT` 仅 block。人拍板 D2 要求 **block + overwr
 | F3 | fp-merge-gate-pending | `conflict_action=merge` 但 `HG-PROMOTE-OVERWRITE` 未签 | `409 PROMOTE_MERGE_BLOCKED` | 是（人签后） |
 | F4 | fp-merge-base-missing | merge 时目标或源 task 文件缺失 | `409 PROMOTE_MERGE_BASE_MISSING` | 否 |
 | F5 | fp-diff-tool-failed | diff 生成失败（如二进制或超大文件） | `409 PROMOTE_DIFF_FAILED` | 否 |
+| F6 | fp-auth-gate-not-found | `gate_id=HG-PROMOTE-OVERWRITE` 不在 task human_gate 表 | `400 GATE_NOT_FOUND` | 否 |
 
 ---
 

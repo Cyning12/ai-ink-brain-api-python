@@ -30,6 +30,7 @@
 | --- | --- | --- | --- |
 | graph_delta promote API | ADDED | `api/ops/sessions.py` · 新路由 | 将 session `deliverables/graph_delta/` 复制到目标仓 `_tech_graph/` |
 | HG-PROMOTE-GRAPH 闸 | ADDED | task human_gate | 图谱 promote 须人签（B6） |
+| 授权入口 gate_id | ADDED | `POST .../auth` body | `gate_id` 参数支持签发 `HG-PROMOTE-GRAPH` |
 | graph_delta 预览 | ADDED | `GET .../promote/graph/preview` | 返回待写入 `_tech_graph/` 的文件清单与 diff |
 | 事件扩展 | ADDED | `ops_run_events` | `session.graph_promoted` |
 
@@ -67,6 +68,7 @@ BLOCKERS B6 已拍板：session 内 `deliverables/graph_delta/` 仅暂存，**�
 - [ ] `GET .../promote/graph/preview?target_repo=...`：返回 graph_delta 文件清单、目标路径、diff 摘要
 - [ ] `POST .../promote/graph` body `{ target_repo, target_branch, confirm, conflict_action }`：复制到 `_tech_graph/`
 - [ ] 支持 `HG-PROMOTE-GRAPH` 人签状态校验
+- [ ] 扩展 `POST .../auth` 支持 `gate_id=HG-PROMOTE-GRAPH` 人签（不切换 session status）
 - [ ] 冲突处理复用 S4.2 逻辑（block/overwrite/merge）
 - [ ] 写 `session.graph_promoted` 事件
 - [ ] pytest：`tests/harness_runtime/test_session_graph_promote_s5_2.py`
@@ -92,6 +94,7 @@ BLOCKERS B6 已拍板：session 内 `deliverables/graph_delta/` 仅暂存，**�
 | F3 | fp-graph-conflict | 目标 `_tech_graph/` 文件已存在且 conflict_action=block | `409 GRAPH_PROMOTE_CONFLICT` + diff | 是 |
 | F4 | fp-graph-target-repo-invalid | target_repo 不在允许列表 | `400 INVALID_TARGET_REPO` | 否 |
 | F5 | fp-graph-copy-failed | 文件复制失败 | `500 GRAPH_PROMOTE_COPY_FAILED` | 是 |
+| F6 | fp-auth-gate-not-found | `gate_id=HG-PROMOTE-GRAPH` 不在 task human_gate 表 | `400 GATE_NOT_FOUND` | 否 |
 
 ---
 

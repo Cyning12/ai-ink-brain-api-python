@@ -17,6 +17,7 @@ from api.harness_runtime.errors import (
 )
 from api.harness_runtime.promote import build_promote_preview, execute_promote
 from api.harness_runtime.session_orchestrator import (
+    HG_SESSION_PLAN,
     handle_dispatched_message,
     handle_planning_message,
     handle_session_auth,
@@ -49,6 +50,7 @@ class SessionMessageRequest(BaseModel):
 
 class SessionAuthRequest(BaseModel):
     action: Literal["approve", "revise", "cancel"]
+    gate_id: str = Field(default=HG_SESSION_PLAN, min_length=1)
 
 
 class SessionPromoteRequest(BaseModel):
@@ -291,6 +293,7 @@ def post_session_auth(
             session_dir=session_dir,
             meta=meta,
             action=body.action,
+            gate_id=body.gate_id,
             store=store,
         )
     except SessionStatusInvalidError as exc:
