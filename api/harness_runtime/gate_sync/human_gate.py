@@ -114,17 +114,37 @@ def _replace_gate_status(content: str, gate_id: str, new_status: str) -> str:
         raise GateStatusInvalidError()
 
     rows = parse_gate_table(content)
-    if not any(r.human_gate_id == gate_id for r in rows):
-        raise GateNotFoundError(gate_id)
+    if any(r.human_gate_id == gate_id for r in rows):
+        pattern = re.compile(
+            rf"^(\|\s*{re.escape(gate_id)}\s*\|\s*)([^|]+)(\|.*)$",
+            re.MULTILINE,
+        )
+        updated, count = pattern.subn(rf"\1{new_status}\3", content, count=1)
+        if count != 1:
+            raise GateNotFoundError(gate_id)
+        return updated
 
-    pattern = re.compile(
-        rf"^(\|\s*{re.escape(gate_id)}\s*\|\s*)([^|]+)(\|.*)$",
-        re.MULTILINE,
-    )
-    updated, count = pattern.subn(rf"\1{new_status}\3", content, count=1)
-    if count != 1:
-        raise GateNotFoundError(gate_id)
-    return updated
+    # gate 不存在时：在 human_gate 表最后一行后追加
+    # 定位表结束位置（最后一个 | 开头的行）
+    lines = content.splitlines()
+    header_idx: int | None = None
+    for idx, line in enumerate(lines):
+        if _GATE_HEADER.match(line.strip()):
+            header_idx = idx
+            break
+    if header_idx is None:
+        raise GateTableMissingError()
+
+    last_table_idx = header_idx + 1  # separator
+    for idx in range(header_idx + 2, len(lines)):
+        if lines[idx].strip().startswith("|"):
+            last_table_idx = idx
+        else:
+            break
+
+    new_row = "| " + gate_id + " | " + new_status + " | — | 动态追加 |\n"
+    lines.insert(last_table_idx + 1, new_row)
+    return "\n".join(lines)
 
 
 def patch_gate(task_path: Path, gate_id: str, status: str) -> str:
