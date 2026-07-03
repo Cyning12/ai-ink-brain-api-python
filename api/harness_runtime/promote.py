@@ -1,4 +1,4 @@
-"""Session promote · probe verify · conflict action block/overwrite/merge（S4.2）。"""
+"""Session promote · probe verify · conflict action block/overwrite/merge（S4.2）· graph_delta promote（S5.2）。"""
 
 from __future__ import annotations
 
@@ -20,16 +20,19 @@ ConflictAction = Literal["block", "overwrite", "merge"]
 HG_PROMOTE = "HG-PROMOTE"
 HG_EXEC_AUTH = "HG-EXEC-AUTH"
 HG_PROMOTE_OVERWRITE = "HG-PROMOTE-OVERWRITE"
+HG_PROMOTE_GRAPH = "HG-PROMOTE-GRAPH"
 
 _MAX_DIFF_BYTES = 5 * 1024 * 1024
 
 _TARGET_CONFIG: dict[str, dict[str, Any]] = {
     "ai-ink-brain-api-python": {
         "tasks_subdir": Path("docs/tasks/active"),
+        "graph_subdir": Path("docs/_tech_graph"),
         "default_root": REPO_ROOT,
     },
     "ai-ink-brain": {
         "tasks_subdir": Path("content/tasks/active"),
+        "graph_subdir": Path("docs/_tech_graph"),
         "default_root": REPO_ROOT.parent / "ai-ink-brain",
     },
 }
@@ -60,6 +63,11 @@ def get_tasks_dir(target_repo: str) -> Path:
     return get_repo_root(target_repo) / cfg["tasks_subdir"]
 
 
+def get_graph_dir(target_repo: str) -> Path:
+    cfg = _TARGET_CONFIG[target_repo]
+    return get_repo_root(target_repo) / cfg["graph_subdir"]
+
+
 def _require_dispatched(meta: SessionMeta) -> None:
     if meta.status != SessionStatus.DISPATCHED:
         raise HarnessRuntimeError(
@@ -83,6 +91,20 @@ def _target_task_path(session_dir: Path, meta: SessionMeta, target_repo: str) ->
 def _is_gate_approved(session_dir: Path, gate_id: str) -> bool:
     meta = load_meta(session_dir)
     return gate_id in meta.gate_summary.approved
+
+
+def _require_graph_promote_status(meta: SessionMeta) -> None:
+    allowed = {
+        SessionStatus.DISPATCHED,
+        SessionStatus.REVIEWING,
+        SessionStatus.DONE,
+        SessionStatus.PARTIAL,
+    }
+    if meta.status not in allowed:
+        raise HarnessRuntimeError(
+            "SESSION_STATUS_INVALID",
+            f"graph promote requires dispatched or later, got {meta.status.value}",
+        )
 
 
 def _append_promotion_header(
@@ -455,3 +477,173 @@ def execute_promote(
         return _promote_common_finish(session_dir, meta, target, target_repo, target_branch, report, store)
 
     raise HarnessRuntimeError("PROMOTE_ACTION_INVALID", f"unknown conflict_action: {conflict_action}")
+
+
+def _graph_delta_dir(session_dir: Path) -> Path:
+    return session_dir / "deliverables" / "graph_delta"
+
+
+def _graph_target_path(source: Path, graph_delta_dir: Path, target_repo: str) -> Path:
+    rel = source.relative_to(graph_delta_dir)
+    return get_graph_dir(target_repo) / rel
+
+
+def build_graph_promote_preview(
+    session_dir: Path,
+    meta: SessionMeta,
+    *,
+    target_repo: str,
+    target_branch: str,
+) -> dict[str, Any]:
+    """返回 session graph_delta 复制到目标仓 _tech_graph/ 的预览。"""
+    _require_graph_promote_status(meta)
+    if target_repo not in _TARGET_CONFIG:
+        raise HarnessRuntimeError("INVALID_TARGET_REPO", f"unknown target_repo: {target_repo}")
+
+    graph_dir = _graph_delta_dir(session_dir)
+    if not graph_dir.is_dir():
+        raise HarnessRuntimeError("GRAPH_DELTA_EMPTY", "session has no graph_delta directory")
+
+    source_files = sorted(f for f in graph_dir.rglob("*") if f.is_file())
+    if not source_files:
+        raise HarnessRuntimeError("GRAPH_DELTA_EMPTY", "graph_delta directory is empty")
+
+    target_root = get_graph_dir(target_repo)
+    files: list[dict[str, Any]] = []
+    for src in source_files:
+        rel = src.relative_to(graph_dir)
+        target = target_root / rel
+        target_exists = target.is_file()
+        source_text = src.read_text(encoding="utf-8")
+        target_text = target.read_text(encoding="utf-8") if target_exists else ""
+        try:
+            diff_summary = build_diff_summary(source_text, target_text, target_exists=target_exists)
+        except HarnessRuntimeError:
+            raise
+        except Exception as exc:
+            raise HarnessRuntimeError("PROMOTE_DIFF_FAILED", f"diff failed for {rel}: {exc}") from exc
+
+        files.append(
+            {
+                "source_path": str(src.relative_to(session_dir)),
+                "source_abs": str(src),
+                "target_path": str(target),
+                "target_exists": target_exists,
+                "diff_summary": diff_summary,
+            }
+        )
+
+    conflict_count = sum(1 for f in files if f["target_exists"])
+    return {
+        "session_id": meta.session_id,
+        "source_graph_dir": str(graph_dir.relative_to(session_dir)),
+        "target_repo": target_repo,
+        "target_branch": target_branch,
+        "target_graph_dir": str(_TARGET_CONFIG[target_repo]["graph_subdir"]),
+        "files": files,
+        "conflict_count": conflict_count,
+        "empty": False,
+        "gate_summary": meta.gate_summary.model_dump(),
+        "slug": meta.slug,
+        "title": meta.title,
+    }
+
+
+def execute_graph_promote(
+    session_dir: Path,
+    meta: SessionMeta,
+    *,
+    target_repo: str,
+    target_branch: str,
+    confirm: bool,
+    conflict_action: ConflictAction = "block",
+    store: Any,
+) -> dict[str, Any]:
+    """将 session graph_delta 复制到目标仓 _tech_graph/。"""
+    if not confirm:
+        raise HarnessRuntimeError("PROMOTE_NOT_CONFIRMED", "confirm=true required")
+
+    if not _is_gate_approved(session_dir, HG_PROMOTE_GRAPH):
+        raise HarnessRuntimeError(
+            "GRAPH_PROMOTE_GATE_PENDING",
+            f"graph promote requires {HG_PROMOTE_GRAPH}=approved",
+        )
+
+    preview = build_graph_promote_preview(
+        session_dir, meta, target_repo=target_repo, target_branch=target_branch
+    )
+    files = preview["files"]
+
+    if conflict_action == "block":
+        conflicts = [f for f in files if f["target_exists"]]
+        if conflicts:
+            err = HarnessRuntimeError(
+                "GRAPH_PROMOTE_CONFLICT",
+                f"{len(conflicts)} graph file(s) already exist in target repo",
+            )
+            err.diff_summary = {"conflicts": conflicts}  # type: ignore[attr-defined]
+            raise err
+
+    repo_root = get_repo_root(target_repo)
+    copied: list[dict[str, Any]] = []
+    try:
+        for f in files:
+            target = Path(f["target_path"])
+            target.parent.mkdir(parents=True, exist_ok=True)
+            source = Path(f["source_abs"])
+            source_text = source.read_text(encoding="utf-8")
+
+            if conflict_action == "merge" and f["target_exists"]:
+                target_text = target.read_text(encoding="utf-8")
+                merged_body = _build_merge_draft(
+                    source_text,
+                    target_text,
+                    source_label="session graph delta",
+                    target_label="target existing",
+                )
+                target.write_text(merged_body, encoding="utf-8")
+            else:
+                target.write_text(source_text, encoding="utf-8")
+
+            copied.append(
+                {
+                    "source_path": f["source_path"],
+                    "target_path": f["target_path"],
+                    "target_repo_relative": str(target.relative_to(repo_root)),
+                    "conflict": f["target_exists"],
+                }
+            )
+    except Exception as exc:
+        raise HarnessRuntimeError("GRAPH_PROMOTE_COPY_FAILED", f"copy failed: {exc}") from exc
+
+    patch_gate_and_sync(session_dir, HG_PROMOTE_GRAPH, "approved")
+
+    meta = load_meta(session_dir)
+    meta.updated_at = datetime.now(timezone.utc)
+    save_meta(session_dir, meta)
+
+    if meta.latest_run_id:
+        store.append_event(
+            meta.latest_run_id,
+            "orchestrator",
+            "session.graph_promoted",
+            payload={
+                "session_id": meta.session_id,
+                "target_repo": target_repo,
+                "target_branch": target_branch,
+                "copied_files": copied,
+                "conflict_action": conflict_action,
+            },
+            node_id="n_graph_promote",
+        )
+
+    return {
+        "session_id": meta.session_id,
+        "status": meta.status.value,
+        "target_repo": target_repo,
+        "target_branch": target_branch,
+        "conflict_action": conflict_action,
+        "copied_files": copied,
+        "gate_summary": meta.gate_summary.model_dump(),
+        "message": "graph_delta promote 完成 · 未 auto-commit · 请在目标仓手动 git commit。",
+    }

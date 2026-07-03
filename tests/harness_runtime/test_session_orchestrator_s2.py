@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from api.harness_runtime.graph.session_orchestrator_v1 import reset_checkpointer_for_tests
 from api.index import app
 from api.ops import sessions
-from tests.ops_desk.test_orchestrator_p1 import FakeDemoCache, FakeStore
+from tests.ops_desk.test_orchestrator_p1 import FakeDemoCache, FakeQueries, FakeStore
 
 
 class S2FakeStore(FakeStore):
@@ -61,6 +61,7 @@ def client(monkeypatch: pytest.MonkeyPatch, sessions_root: Path) -> TestClient:
     reset_checkpointer_for_tests()
     fake_store = S2FakeStore()
 
+    app.dependency_overrides[sessions._queries] = lambda: FakeQueries()
     app.dependency_overrides[sessions._store] = lambda: fake_store
     app.dependency_overrides[sessions._demo_cache] = lambda: FakeDemoCache()
     app.dependency_overrides[sessions._sessions_root] = lambda: sessions_root
