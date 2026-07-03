@@ -102,7 +102,6 @@ def client(
 
 def _seed_conflict(client: TestClient, sessions_root: Path, slug: str) -> tuple[str, Path]:
     session_id = _approve_session(client, slug)
-    session_dir = sessions_root / session_id
     preview = client.get(
         f"/api/py/ops/sessions/{session_id}/promote/preview"
         "?target_repo=ai-ink-brain-api-python&target_branch=main",
