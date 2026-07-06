@@ -24,14 +24,19 @@
 | **blocks** | S5.2 `ops-session-s5-graph-promote`（可选）· Epic v1 freeze |
 | **blocked_by** | S5.0 `ops-session-s5-import-boundary-api` |
 
-### 行为变更 Delta
+---
 
-| 变更 | 类型 | 触达 api/ | 说明 |
-| --- | --- | --- | --- |
-| 新增 ADR 文档 | ADDED | `docs/harness/guides/ADR_ops_session_s5_extract_v1_zh.md` | 00 骨架 · 30 回填 |
-| 新增 Host 适配评估 | ADDED | `api/ops` 注入点清单 | 明确 Runtime 与 Host 边界 |
-| 可能的 pyproject 占位 | ADDED | `api/harness_runtime/pyproject.toml`（可选） | 若 ADR 结论走独立子包 |
-| 无 Runtime 逻辑改动 | — | — | 本 task 为决策与适配文档 |
+## 行为变更
+
+### ADDED
+
+| 变更 | 触达 api/ | 说明 |
+| --- | --- | --- |
+| ADR 文档 | — | `docs/harness/guides/ADR_ops_session_s5_extract_v1_zh.md` |
+| Host 适配评估 | `api/ops` 注入点清单 | Runtime 与 Host 边界（文档） |
+| pyproject 占位 | `api/harness_runtime/pyproject.toml` | monorepo 子包化最小占位 |
+
+无 Runtime 逻辑改动。
 
 ---
 
@@ -111,8 +116,9 @@ BLOCKERS B5 已拍板：S0–S4 在 `ai-ink-brain-api-python/api/harness_runtime
 - [ ] 含迁移/留守的 cost/benefit/risk 表
 - [ ] 含 S5.0 边界测试复用策略
 - [ ] 20-task-audit R1 通过 · HG-AUDIT-R1 approved
+- [ ] `pytest tests/harness_runtime -q` 回归绿（无 Runtime 逻辑退化）
 
-**合并前必绿**：ADR 审阅通过 · 无新增失败路径未闭合
+**合并前必绿**：`pytest tests/harness_runtime -q` · ADR 审阅通过 · 无新增失败路径未闭合
 
 ---
 
