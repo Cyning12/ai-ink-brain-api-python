@@ -51,5 +51,7 @@ timeline
   2026-06-25 : f2ee0c57 auto: api/ops/llm/__init__.py
   2026-06-26 : ab701e07 auto: api/ops/demo_cache.py
   2026-07-02 : e9877f22 auto: api/harness_runtime/__init__.py
+  2026-07-03 : 71c26129 auto: api/harness_runtime/gate_sync/human_gate.py
+  2026-07-06 : c9728e14 auto: api/harness_runtime/promote.py
 ```
 

@@ -15,6 +15,7 @@ from api.harness_runtime.errors import (
 from api.harness_runtime.session_store.schema import GateSummary, SessionMeta
 
 ALLOWED_GATE_STATUSES = frozenset({"pending", "approved"})
+HG_PROMOTE_OVERWRITE = "HG-PROMOTE-OVERWRITE"
 _GATE_HEADER = re.compile(r"^\|\s*human_gate_id\s*\|", re.IGNORECASE)
 _SEPARATOR = re.compile(r"^\|\s*[-:]+\s*\|")
 
@@ -48,6 +49,8 @@ def render_session_task_template(*, slug: str, title: str) -> str:
 | HG-EXEC-AUTH | pending | 30 | 授权进入实现 / promote |
 | HG-AUDIT-R1 | pending | — | promote 后业务 task 开工闸（复制到业务仓后签收） |
 | HG-PROMOTE | pending | — | 显式 promote 到业务仓（可选） |
+| HG-PROMOTE-OVERWRITE | pending | — | overwrite/merge 冲突时 maintainer 二次确认 |
+| HG-PROMOTE-GRAPH | pending | — | graph_delta promote 到 _tech_graph 须显式确认 |
 
 ## 背景与目标
 
@@ -111,17 +114,37 @@ def _replace_gate_status(content: str, gate_id: str, new_status: str) -> str:
         raise GateStatusInvalidError()
 
     rows = parse_gate_table(content)
-    if not any(r.human_gate_id == gate_id for r in rows):
-        raise GateNotFoundError(gate_id)
+    if any(r.human_gate_id == gate_id for r in rows):
+        pattern = re.compile(
+            rf"^(\|\s*{re.escape(gate_id)}\s*\|\s*)([^|]+)(\|.*)$",
+            re.MULTILINE,
+        )
+        updated, count = pattern.subn(rf"\1{new_status}\3", content, count=1)
+        if count != 1:
+            raise GateNotFoundError(gate_id)
+        return updated
 
-    pattern = re.compile(
-        rf"^(\|\s*{re.escape(gate_id)}\s*\|\s*)([^|]+)(\|.*)$",
-        re.MULTILINE,
-    )
-    updated, count = pattern.subn(rf"\1{new_status}\3", content, count=1)
-    if count != 1:
-        raise GateNotFoundError(gate_id)
-    return updated
+    # gate 不存在时：在 human_gate 表最后一行后追加
+    # 定位表结束位置（最后一个 | 开头的行）
+    lines = content.splitlines()
+    header_idx: int | None = None
+    for idx, line in enumerate(lines):
+        if _GATE_HEADER.match(line.strip()):
+            header_idx = idx
+            break
+    if header_idx is None:
+        raise GateTableMissingError()
+
+    last_table_idx = header_idx + 1  # separator
+    for idx in range(header_idx + 2, len(lines)):
+        if lines[idx].strip().startswith("|"):
+            last_table_idx = idx
+        else:
+            break
+
+    new_row = "| " + gate_id + " | " + new_status + " | — | 动态追加 |\n"
+    lines.insert(last_table_idx + 1, new_row)
+    return "\n".join(lines)
 
 
 def patch_gate(task_path: Path, gate_id: str, status: str) -> str:

@@ -15,8 +15,14 @@ from api.harness_runtime.errors import (
     SessionSchemaUnsupportedError,
     SessionStatusInvalidError,
 )
-from api.harness_runtime.promote import build_promote_preview, execute_promote
+from api.harness_runtime.promote import (
+    build_graph_promote_preview,
+    build_promote_preview,
+    execute_graph_promote,
+    execute_promote,
+)
 from api.harness_runtime.session_orchestrator import (
+    HG_SESSION_PLAN,
     handle_dispatched_message,
     handle_planning_message,
     handle_session_auth,
@@ -49,12 +55,21 @@ class SessionMessageRequest(BaseModel):
 
 class SessionAuthRequest(BaseModel):
     action: Literal["approve", "revise", "cancel"]
+    gate_id: str = Field(default=HG_SESSION_PLAN, min_length=1)
 
 
 class SessionPromoteRequest(BaseModel):
     target_repo: Literal["ai-ink-brain-api-python", "ai-ink-brain"]
     target_branch: str = Field(default="main", min_length=1, max_length=120)
     confirm: bool = False
+    conflict_action: Literal["block", "overwrite", "merge"] = Field(default="block")
+
+
+class SessionGraphPromoteRequest(BaseModel):
+    target_repo: str = Field(min_length=1, max_length=120)
+    target_branch: str = Field(default="main", min_length=1, max_length=120)
+    confirm: bool = False
+    conflict_action: Literal["block", "overwrite", "merge"] = Field(default="block")
 
 
 def _queries() -> OpsQueries:
@@ -81,21 +96,38 @@ def _http_error_from_harness(exc: HarnessRuntimeError) -> HTTPException:
     code = exc.code
     if code == "PROBE_UNAVAILABLE":
         status = 503
+    elif code == "GRAPH_PROMOTE_COPY_FAILED":
+        status = 500
     elif code in {
         "VERIFY_FAILED",
         "PROMOTE_CONFLICT",
         "PROMOTE_NOT_CONFIRMED",
+        "PROMOTE_OVERWRITE_UNCONFIRMED",
+        "PROMOTE_MERGE_BLOCKED",
+        "PROMOTE_MERGE_BASE_MISSING",
+        "PROMOTE_DIFF_FAILED",
         "SESSION_SCHEMA_UNSUPPORTED",
         "SESSION_ID_MISMATCH",
         "SESSION_STATUS_INVALID",
+        "GRAPH_PROMOTE_GATE_PENDING",
+        "GRAPH_DELTA_EMPTY",
+        "GRAPH_PROMOTE_CONFLICT",
     }:
         status = 409
+    elif code == "INVALID_TARGET_REPO":
+        status = 400
     else:
         status = 400
     detail: dict[str, Any] = {"code": code, "message": str(exc)}
     verify_report = getattr(exc, "verify_report", None)
     if code == "VERIFY_FAILED" and isinstance(verify_report, dict):
         detail["verify_report"] = verify_report
+    diff_summary = getattr(exc, "diff_summary", None)
+    if code in {"PROMOTE_CONFLICT", "GRAPH_PROMOTE_CONFLICT"} and isinstance(diff_summary, dict):
+        detail["diff_summary"] = diff_summary
+    merge_draft_path = getattr(exc, "merge_draft_path", None)
+    if code == "PROMOTE_MERGE_BLOCKED" and isinstance(merge_draft_path, str):
+        detail["merge_draft_path"] = merge_draft_path
     return HTTPException(status_code=status, detail=detail)
 
 
@@ -280,6 +312,7 @@ def post_session_auth(
             session_dir=session_dir,
             meta=meta,
             action=body.action,
+            gate_id=body.gate_id,
             store=store,
         )
     except SessionStatusInvalidError as exc:
@@ -345,6 +378,47 @@ def post_session_promote(
             target_repo=body.target_repo,
             target_branch=body.target_branch.strip(),
             confirm=body.confirm,
+            conflict_action=body.conflict_action,
+            store=store,
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
+
+
+@router.get("/{session_id}/promote/graph/preview")
+def get_session_graph_promote_preview(
+    session_id: str,
+    target_repo: str = Query(...),
+    target_branch: str = Query(default="main"),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return build_graph_promote_preview(
+            session_dir, meta, target_repo=target_repo, target_branch=target_branch
+        )
+    except HarnessRuntimeError as exc:
+        raise _http_error_from_harness(exc) from exc
+
+
+@router.post("/{session_id}/promote/graph")
+def post_session_graph_promote(
+    session_id: str,
+    body: SessionGraphPromoteRequest,
+    store: OpsRunStore = Depends(_store),
+    root: Path = Depends(_sessions_root),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    session_dir, meta = _require_session_meta(session_id, root)
+    try:
+        return execute_graph_promote(
+            session_dir,
+            meta,
+            target_repo=body.target_repo,
+            target_branch=body.target_branch.strip(),
+            confirm=body.confirm,
+            conflict_action=body.conflict_action,
             store=store,
         )
     except HarnessRuntimeError as exc:

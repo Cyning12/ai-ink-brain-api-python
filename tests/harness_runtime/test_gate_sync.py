@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from api.harness_runtime.errors import (
-    GateNotFoundError,
     GateStatusInvalidError,
     GateTableMissingError,
 )
@@ -66,7 +65,7 @@ def test_fp_gate_status_invalid(sessions_tmp: Path) -> None:
     assert exc.value.code == "GATE_STATUS_INVALID"
 
 
-def test_fp_gate_not_found(sessions_tmp: Path) -> None:
+def test_fp_gate_not_found_creates_row(sessions_tmp: Path) -> None:
     session_dir, meta = create_session(
         slug="missing-gate",
         title="Missing Gate",
@@ -74,8 +73,10 @@ def test_fp_gate_not_found(sessions_tmp: Path) -> None:
         session_id="sess_20260702_mg000001",
     )
     task_path = session_dir / meta.primary_task_path
-    with pytest.raises(GateNotFoundError):
-        patch_gate(task_path, "HG-NOT-REAL", "approved")
+    # gate 不存在时自动追加一行，而不是抛错
+    patch_gate(task_path, "HG-NOT-REAL", "approved")
+    content = task_path.read_text(encoding="utf-8")
+    assert "| HG-NOT-REAL | approved |" in content
 
 
 def test_build_gate_summary() -> None:
