@@ -352,3 +352,7 @@ def chat_suggested_questions() -> JSONResponse:
 
 
 app.include_router(ops_router, prefix="/api/py")
+
+from api.agently_lab.bootstrap import register_agently_lab_routes
+
+register_agently_lab_routes(app)
