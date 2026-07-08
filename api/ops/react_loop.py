@@ -8,9 +8,10 @@ from typing import Any
 
 from api.ops.llm import chat_completion
 from api.ops.llm.types import LlmUsage
-from api.ops.orchestrator.core import review_result, synthesize
+from api.ops.orchestrator.core import synthesize
 from api.ops.queries import OpsQueries
 from api.ops.react_tools import _build_v0_registry, _truncate_summary
+from api.ops.review.rules import review_result
 from api.ops.store.runs import OpsRunStore
 from api.ops.tracing import traceable, update_current_span_metadata
 

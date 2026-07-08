@@ -12,6 +12,7 @@ from api.ops.constants import DEFAULT_DAYS
 from api.ops.llm import synthesize_answer
 from api.ops.llm.types import LlmUsage
 from api.ops.queries import OpsQueries
+from api.ops.review.rules import review_result
 from api.ops.store.runs import OpsRunStore
 from api.ops.tracing import traceable, update_current_span_metadata
 
@@ -126,37 +127,6 @@ def fast_respond(intent: str, slots: dict[str, Any], queries: OpsQueries) -> dic
     if intent == Intent.DEMO:
         return {"type": "demo", "answer": slots.get("answer", "你好，Ops Desk 已就绪。")}
     return {"type": "unknown", "answer": "未识别意图"}
-
-
-@traceable(capture_input=False, capture_output=False)
-def review_result(result: dict[str, Any], queries: OpsQueries) -> tuple[str, dict[str, Any]]:
-    """Review V1–V4；返回 (verdict, detail)。"""
-    citations = result.get("citations", [])
-    for cite in citations:
-        number = cite.get("number")
-        if not number:
-            continue
-        issue = queries.fetch_issue_by_number(int(number))
-        pr = queries.fetch_pull_by_number(int(number))
-        if not issue and not pr:
-            return "fail", {"rule": "V1", "message": f"#{number} 不存在于同步表"}
-        url = cite.get("url")
-        if url:
-            expected_issue = issue.get("html_url") if issue else None
-            expected_pr = pr.get("html_url") if pr else None
-            if url not in (expected_issue, expected_pr):
-                return "fail", {"rule": "V2", "message": f"#{number} url 不匹配"}
-
-    text = result.get("reasoning", "") + " " + result.get("suggestion", "")
-    if re.search(r"\b(commit|push|open\s+PR|merge)\b", text, re.I):
-        return "fail", {"rule": "V3", "message": "包含 Git 写操作指令"}
-
-    confidence = float(result.get("confidence", 0))
-    evidence = result.get("evidence", [])
-    if confidence < 0.5 and not evidence:
-        return "partial", {"rule": "V4", "message": "置信度低且缺少证据"}
-
-    return "pass", {}
 
 
 def synthesize(
