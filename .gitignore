@@ -125,3 +125,6 @@ docs/diary/jsonPKmermaid/**/raw/
 # --- Harness sessions（B1 · 本地 Inform 真值 · 不入库）---
 docs/harness/sessions/**
 !docs/harness/sessions/README.md
+
+# Agently lab local workspace
+.agently/
