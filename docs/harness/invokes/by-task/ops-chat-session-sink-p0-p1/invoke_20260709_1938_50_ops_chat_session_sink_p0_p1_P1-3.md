@@ -25,7 +25,7 @@
   pytest tests/ops tests/ops_desk -m "not intent_eval and not intent_benchmark" -q && ruff check api/ops
   ```
 - 上一棒 30 commit：`ai-ink-brain-api-python @ 8f90cb5a`
-- 上一棒 40 commit：`ai-ink-brain-api-python @ <待本回合回填>`
+- 上一棒 40 commit：`ai-ink-brain-api-python @ ea31eae8`
 - 关联任务审核书面结论路径：`ai-ink-brain-api-python/docs/harness/reviews/task_ops_chat_session_sink_p0_p1_v1_audit_R2_20260708.md`
 - 关联 PLAN / 总规：`docs/harness/guides/PLAN_ops_chat_session_sink_p0_p1_v1_zh.md`
 
