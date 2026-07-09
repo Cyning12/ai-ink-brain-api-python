@@ -164,7 +164,7 @@ M	tests/ops_desk/test_llm_usage_metrics.py
 |------|------|----------|----------|-------------|
 | P0-3 | 30 execute | 多轮 Transcript 上下文注入 deep/ReAct | `api/ops/chat_context.py`, `api/ops/chat_service.py`, `api/ops/orchestrator/core.py`, `api/ops/react_loop.py`, `api/ops/agents/*.py`, `api/ops/llm/__init__.py`, `tests/ops/test_chat_context.py` | api-python@515c2f4c |
 | P0-3 | 40 self-check | 复核 P0-3 验收 | task 内 P0-3 30/40 自检结论 | api-python@32201574 |
-| P0-3 | 50 reinspect R1 | 独立复检 + 全局验收 | `ai-ink-brain-api-python/docs/harness/reviews/task_ops_chat_session_sink_p0_p1_v1_audit_R1_20260709_50_P0-3.md` | api-python@<本次> |
+| P0-3 | 50 reinspect R1 | 独立复检 + 全局验收 | `ai-ink-brain-api-python/docs/harness/reviews/task_ops_chat_session_sink_p0_p1_v1_audit_R1_20260709_50_P0-3.md` | api-python@710c3fdf |
 | P0-3 | 合并 | rebase + ff merge to main | — | 待 Lead |
 
 ---
