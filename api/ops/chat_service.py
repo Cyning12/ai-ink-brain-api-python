@@ -6,8 +6,10 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from api.ops.chat_context import load_chat_transcript
 from api.ops.demo_cache import DemoCacheStore
 from api.ops.orchestrator import classify_intent, is_fast_intent, run_deep, run_fast, run_react_fallback
+from api.ops.orchestrator.clarify import clarify_if_fallback
 from api.ops.orchestrator.core import Intent
 from api.ops.queries import OpsQueries
 from api.ops.store import OpsRunStore
@@ -125,11 +127,53 @@ def handle_ops_chat_message(
     intent, slots = classify_intent(body.message)
 
     if intent == Intent.FALLBACK:
-        run = store.create_run(query=body.message, route="react", session_id=body.session_id)
+        transcript = load_chat_transcript(body.session_id, store=store)
+        clarification = clarify_if_fallback(body.message, body.session_id, transcript, slots)
+
+        if clarification.needs_clarification:
+            run = store.create_run(query=body.message, route="clarify", session_id=body.session_id)
+            run_id = str(run["id"])
+            store.append_event(
+                run_id,
+                "orchestrator",
+                "clarify.asked",
+                payload={
+                    "clarify_question": clarification.clarify_question,
+                    "session_id": body.session_id,
+                },
+                node_id="clarify",
+            )
+            return {
+                "run_id": run_id,
+                "route": "clarify",
+                "status": "clarify",
+                "needs_clarification": True,
+                "clarify_question": clarification.clarify_question,
+            }
+
+        resolved_intent = clarification.intent or Intent.FALLBACK
+        resolved_slots = clarification.slots or {}
+
+        if resolved_intent == Intent.FALLBACK:
+            run = store.create_run(query=body.message, route="react", session_id=body.session_id)
+            run_id = str(run["id"])
+            result = run_react_fallback(run_id, body.message, store, queries, session_id=body.session_id)
+            try:
+                return {"run_id": run_id, "route": "react", "status": result["status"], "answer": result.get("answer")}
+            finally:
+                flush_traces()
+
+        route = "fast" if is_fast_intent(resolved_intent) else "deep"
+        run = store.create_run(query=body.message, route=route, session_id=body.session_id)
         run_id = str(run["id"])
-        result = run_react_fallback(run_id, body.message, store, queries, session_id=body.session_id)
+
+        if route == "fast":
+            result = run_fast(run_id, body.message, resolved_intent, resolved_slots, store, queries)
+            return {"run_id": run_id, "route": route, "status": result["status"], "answer": result.get("answer")}
+
+        result = run_deep(run_id, body.message, resolved_slots, store, queries, intent=resolved_intent, session_id=body.session_id)
         try:
-            return {"run_id": run_id, "route": "react", "status": result["status"], "answer": result.get("answer")}
+            return {"run_id": run_id, "route": route, "status": result["status"]}
         finally:
             flush_traces()
 

@@ -92,6 +92,17 @@ def react_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
         synthesize=lambda *args, **kwargs: ("综合建议。", None),
     )
 
+    # P1-3: react_client fixture targets ReAct loop behavior; bypass clarify so
+    # existing ReAct tests continue to exercise the fallback path directly.
+    from api.ops.orchestrator.clarify import ClarifyResult
+
+    monkeypatch.setattr(
+        "api.ops.chat_service.clarify_if_fallback",
+        lambda *args, **kwargs: ClarifyResult(
+            needs_clarification=False, intent="fallback", slots={}
+        ),
+    )
+
     test_client = TestClient(app)
     test_client.fake_store = fake_store  # type: ignore[attr-defined]
     test_client.fake_queries = fake_queries  # type: ignore[attr-defined]
