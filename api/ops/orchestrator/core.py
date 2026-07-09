@@ -16,7 +16,7 @@ from api.ops.llm.types import LlmUsage
 from api.ops.queries import OpsQueries
 from api.ops.review.rules import review_result
 from api.ops.store.runs import OpsRunStore, append_event
-from api.ops.tracing import traceable, update_current_span_metadata
+from api.ops.tracing import trace_span, traceable, update_current_span_metadata
 
 
 class Intent:
@@ -206,6 +206,8 @@ def run_deep(
     update_current_span_metadata(
         {
             "ops_run_id": run_id,
+            "run_id": run_id,
+            "agent_role": "deep",
             "route": "deep",
             "intent": intent or "issue_contribution",
             "agent": agent_name,
@@ -222,18 +224,29 @@ def run_deep(
         payload={"route": "deep", "intent": intent or "issue_contribution", "slots": slots, "agent": agent_name},
         node_id="classify",
     )
-    append_event(
-        run_id,
+    with trace_span(
         "handoff",
-        handoff_payload(
-            from_route="classify",
-            to_route="deep",
-            intent=intent or "issue_contribution",
-            slots=slots,
-            agent=agent_name,
-        ),
-        store=store,
-    )
+        run_type="tool",
+        run_id=run_id,
+        session_id=session_id,
+        agent_role="deep",
+        from_route="classify",
+        to_route="deep",
+        intent=intent or "issue_contribution",
+        agent=agent_name,
+    ):
+        append_event(
+            run_id,
+            "handoff",
+            handoff_payload(
+                from_route="classify",
+                to_route="deep",
+                intent=intent or "issue_contribution",
+                slots=slots,
+                agent=agent_name,
+            ),
+            store=store,
+        )
 
     store.append_event(
         run_id,
@@ -282,24 +295,34 @@ def run_deep(
         )
 
         verdict, detail = review_result(analyst_result, queries)
-        store.append_event(
-            run_id,
+        with trace_span(
             "review",
-            f"review.{verdict}",
-            payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
-            node_id="review",
-        )
-        append_event(
-            run_id,
-            "review",
-            review_payload(
-                verdict=verdict,
-                rule=detail.get("rule"),
-                message=detail.get("message"),
-                attempt=attempt,
-            ),
-            store=store,
-        )
+            run_type="tool",
+            run_id=run_id,
+            session_id=session_id,
+            agent_role="deep",
+            verdict=verdict,
+            rule=detail.get("rule"),
+            attempt=attempt,
+        ):
+            store.append_event(
+                run_id,
+                "review",
+                f"review.{verdict}",
+                payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
+                node_id="review",
+            )
+            append_event(
+                run_id,
+                "review",
+                review_payload(
+                    verdict=verdict,
+                    rule=detail.get("rule"),
+                    message=detail.get("message"),
+                    attempt=attempt,
+                ),
+                store=store,
+            )
 
         if verdict == "pass":
             final_verdict = "done"

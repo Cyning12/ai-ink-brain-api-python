@@ -15,7 +15,7 @@ from api.ops.queries import OpsQueries
 from api.ops.react_tools import _build_v0_registry, _truncate_summary
 from api.ops.review.rules import review_result
 from api.ops.store.runs import OpsRunStore, append_event
-from api.ops.tracing import traceable, update_current_span_metadata
+from api.ops.tracing import trace_span, traceable, update_current_span_metadata
 
 MAX_STEPS_DEFAULT = int(os.getenv("OPS_REACT_MAX_STEPS", "6"))
 MAX_RETRIES_DEFAULT = 2
@@ -41,6 +41,8 @@ def run_react_fallback(
     update_current_span_metadata(
         {
             "ops_run_id": run_id,
+            "run_id": run_id,
+            "agent_role": "react",
             "route": "react",
             "intent": "fallback",
             "max_steps": max_steps,
@@ -59,18 +61,28 @@ def run_react_fallback(
         payload={"route": "react", "intent": "fallback", "max_steps": max_steps},
         node_id="classify",
     )
-    append_event(
-        run_id,
+    with trace_span(
         "handoff",
-        handoff_payload(
-            from_route="classify",
-            to_route="react",
-            intent="fallback",
-            slots={},
-            agent=None,
-        ),
-        store=store,
-    )
+        run_type="tool",
+        run_id=run_id,
+        session_id=session_id,
+        agent_role="react",
+        from_route="classify",
+        to_route="react",
+        intent="fallback",
+    ):
+        append_event(
+            run_id,
+            "handoff",
+            handoff_payload(
+                from_route="classify",
+                to_route="react",
+                intent="fallback",
+                slots={},
+                agent=None,
+            ),
+            store=store,
+        )
 
     # System prompt for ReAct
     system_prompt = _build_react_system_prompt(tools_json)
@@ -225,24 +237,34 @@ def run_react_fallback(
     review_feedback: dict[str, Any] | None = None
     while attempt <= max_retries:
         verdict, detail = review_result(react_result, queries)
-        store.append_event(
-            run_id,
+        with trace_span(
             "review",
-            f"review.{verdict}",
-            payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
-            node_id="review",
-        )
-        append_event(
-            run_id,
-            "review",
-            review_payload(
-                verdict=verdict,
-                rule=detail.get("rule"),
-                message=detail.get("message"),
-                attempt=attempt,
-            ),
-            store=store,
-        )
+            run_type="tool",
+            run_id=run_id,
+            session_id=session_id,
+            agent_role="react",
+            verdict=verdict,
+            rule=detail.get("rule"),
+            attempt=attempt,
+        ):
+            store.append_event(
+                run_id,
+                "review",
+                f"review.{verdict}",
+                payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
+                node_id="review",
+            )
+            append_event(
+                run_id,
+                "review",
+                review_payload(
+                    verdict=verdict,
+                    rule=detail.get("rule"),
+                    message=detail.get("message"),
+                    attempt=attempt,
+                ),
+                store=store,
+            )
 
         if verdict == "pass":
             final_verdict = "done"

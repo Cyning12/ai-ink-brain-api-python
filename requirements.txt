@@ -17,5 +17,5 @@ numpy
 psycopg[binary]
 pyyaml
 sqlparse
-pglast
+pglast==7.15
 langgraph>=0.2,<2
