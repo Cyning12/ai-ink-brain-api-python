@@ -6,13 +6,14 @@ import json
 import os
 from typing import Any
 
+from api.ops.events_schema import handoff_payload, review_payload
 from api.ops.llm import chat_completion
 from api.ops.llm.types import LlmUsage
 from api.ops.orchestrator.core import synthesize
 from api.ops.queries import OpsQueries
 from api.ops.react_tools import _build_v0_registry, _truncate_summary
 from api.ops.review.rules import review_result
-from api.ops.store.runs import OpsRunStore
+from api.ops.store.runs import OpsRunStore, append_event
 from api.ops.tracing import traceable, update_current_span_metadata
 
 MAX_STEPS_DEFAULT = int(os.getenv("OPS_REACT_MAX_STEPS", "6"))
@@ -52,6 +53,18 @@ def run_react_fallback(
         "router.decision",
         payload={"route": "react", "intent": "fallback", "max_steps": max_steps},
         node_id="classify",
+    )
+    append_event(
+        run_id,
+        "handoff",
+        handoff_payload(
+            from_route="classify",
+            to_route="react",
+            intent="fallback",
+            slots={},
+            agent=None,
+        ),
+        store=store,
     )
 
     # System prompt for ReAct
@@ -211,6 +224,17 @@ def run_react_fallback(
             f"review.{verdict}",
             payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
             node_id="review",
+        )
+        append_event(
+            run_id,
+            "review",
+            review_payload(
+                verdict=verdict,
+                rule=detail.get("rule"),
+                message=detail.get("message"),
+                attempt=attempt,
+            ),
+            store=store,
         )
 
         if verdict == "pass":

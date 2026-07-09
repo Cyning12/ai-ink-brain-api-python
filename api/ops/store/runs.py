@@ -5,7 +5,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from api.rag_env import supabase_execute_with_retry
+from api.ops.events_schema import SCHEMA_VERSION
+from api.rag_env import supabase_client, supabase_execute_with_retry
 
 
 class OpsRunStore:
@@ -214,3 +215,27 @@ class OpsRunStore:
             raise RuntimeError("ops_run_checkpoints upsert failed")
 
         return supabase_execute_with_retry(_once)
+
+
+def append_event(
+    run_id: str,
+    kind: str,
+    payload: dict[str, Any],
+    store: OpsRunStore | None = None,
+) -> dict[str, Any]:
+    """标准化事件写入辅助函数（P0-2）。
+
+    - 自动注入 `schema_version` 到 payload（若不存在）。
+    - `kind` 映射为 `event_type`；`agent_role` 按 kind 语义映射：
+      - handoff -> orchestrator
+      - review  -> review
+      - 其他    -> kind
+    - 未提供 store 时，使用全局 supabase_client() 构造 OpsRunStore。
+    """
+    normalized = dict(payload)
+    if "schema_version" not in normalized:
+        normalized["schema_version"] = SCHEMA_VERSION
+
+    agent_role = {"handoff": "orchestrator", "review": "review"}.get(kind, kind)
+    target = store if store is not None else OpsRunStore(supabase_client())
+    return target.append_event(run_id, agent_role, kind, payload=normalized)

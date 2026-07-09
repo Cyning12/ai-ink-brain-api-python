@@ -9,11 +9,12 @@ from api.ops.agents.graph_analyst import analyze_graph
 from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.agents.scan_analyst import analyze_scan
 from api.ops.constants import DEFAULT_DAYS
+from api.ops.events_schema import handoff_payload, review_payload
 from api.ops.llm import synthesize_answer
 from api.ops.llm.types import LlmUsage
 from api.ops.queries import OpsQueries
 from api.ops.review.rules import review_result
-from api.ops.store.runs import OpsRunStore
+from api.ops.store.runs import OpsRunStore, append_event
 from api.ops.tracing import traceable, update_current_span_metadata
 
 
@@ -212,6 +213,18 @@ def run_deep(
         payload={"route": "deep", "intent": intent or "issue_contribution", "slots": slots, "agent": agent_name},
         node_id="classify",
     )
+    append_event(
+        run_id,
+        "handoff",
+        handoff_payload(
+            from_route="classify",
+            to_route="deep",
+            intent=intent or "issue_contribution",
+            slots=slots,
+            agent=agent_name,
+        ),
+        store=store,
+    )
 
     store.append_event(
         run_id,
@@ -265,6 +278,17 @@ def run_deep(
             f"review.{verdict}",
             payload={"rule": detail.get("rule"), "message": detail.get("message"), "attempt": attempt},
             node_id="review",
+        )
+        append_event(
+            run_id,
+            "review",
+            review_payload(
+                verdict=verdict,
+                rule=detail.get("rule"),
+                message=detail.get("message"),
+                attempt=attempt,
+            ),
+            store=store,
         )
 
         if verdict == "pass":
