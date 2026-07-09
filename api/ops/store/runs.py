@@ -216,6 +216,42 @@ class OpsRunStore:
 
         return supabase_execute_with_retry(_once)
 
+    def load_checkpoint(self, run_id: str, checkpoint_id: str) -> dict[str, Any] | None:
+        def _once() -> dict[str, Any] | None:
+            res = (
+                self.client.table("ops_run_checkpoints")
+                .select("*")
+                .eq("run_id", run_id)
+                .eq("checkpoint_id", checkpoint_id)
+                .limit(1)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            if rows and isinstance(rows[0], dict):
+                return rows[0]
+            return None
+
+        return supabase_execute_with_retry(_once)
+
+    def find_latest_checkpoint_for_session(self, session_id: str) -> dict[str, Any] | None:
+        """按 session_id（即 checkpoint_id）查找最新的 checkpoint（跨 run）。"""
+
+        def _once() -> dict[str, Any] | None:
+            res = (
+                self.client.table("ops_run_checkpoints")
+                .select("*")
+                .eq("checkpoint_id", session_id)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            rows = res.data if isinstance(res.data, list) else []
+            if rows and isinstance(rows[0], dict):
+                return rows[0]
+            return None
+
+        return supabase_execute_with_retry(_once)
+
     def save_artifact(
         self, run_id: str, kind: str, payload: dict[str, Any]
     ) -> dict[str, Any]:
