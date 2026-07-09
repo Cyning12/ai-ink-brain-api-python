@@ -108,7 +108,7 @@ def handle_ops_chat_message(
         run = store.create_run(query=body.message, route="deep", session_id=body.session_id)
         run_id = str(run["id"])
         result = run_deep(
-            run_id, body.message, demo_match["params"], store, queries, intent=demo_match["intent"]
+            run_id, body.message, demo_match["params"], store, queries, intent=demo_match["intent"], session_id=body.session_id
         )
         try:
             if result["status"] in ("done", "partial"):
@@ -127,7 +127,7 @@ def handle_ops_chat_message(
     if intent == Intent.FALLBACK:
         run = store.create_run(query=body.message, route="react", session_id=body.session_id)
         run_id = str(run["id"])
-        result = run_react_fallback(run_id, body.message, store, queries)
+        result = run_react_fallback(run_id, body.message, store, queries, session_id=body.session_id)
         try:
             return {"run_id": run_id, "route": "react", "status": result["status"], "answer": result.get("answer")}
         finally:
@@ -142,7 +142,7 @@ def handle_ops_chat_message(
         result = run_fast(run_id, body.message, intent, slots, store, queries)
         return {"run_id": run_id, "route": route, "status": result["status"], "answer": result.get("answer")}
 
-    result = run_deep(run_id, body.message, slots, store, queries, intent=intent)
+    result = run_deep(run_id, body.message, slots, store, queries, intent=intent, session_id=body.session_id)
     try:
         return {"run_id": run_id, "route": route, "status": result["status"]}
     finally:

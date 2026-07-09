@@ -6,6 +6,7 @@ import json
 import os
 from typing import Any
 
+from api.ops.chat_context import load_chat_transcript
 from api.ops.events_schema import handoff_payload, review_payload
 from api.ops.llm import chat_completion
 from api.ops.llm.types import LlmUsage
@@ -28,18 +29,22 @@ def run_react_fallback(
     queries: OpsQueries,
     max_steps: int = MAX_STEPS_DEFAULT,
     max_retries: int = MAX_RETRIES_DEFAULT,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """ReAct fallback 循环：think → tool_call → observe → … → review → synthesize。
 
     与 FSM 路径共用 ops_runs / ops_run_events / Review 闸。
     超限 → status partial + 仍 synthesize（非 500）。
     """
+    transcript = load_chat_transcript(session_id, store=store)
+
     update_current_span_metadata(
         {
             "ops_run_id": run_id,
             "route": "react",
             "intent": "fallback",
             "max_steps": max_steps,
+            "session_id": session_id,
         }
     )
 
@@ -71,8 +76,10 @@ def run_react_fallback(
     system_prompt = _build_react_system_prompt(tools_json)
     messages: list[dict[str, str]] = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": query},
     ]
+    if transcript:
+        messages.extend(transcript)
+    messages.append({"role": "user", "content": query})
 
     step = 0
     final_answer = ""

@@ -128,6 +128,7 @@ def synthesize_answer(
     *,
     run_id: str | None = None,
     store: Any = None,
+    transcript: list[dict[str, str]] | None = None,
 ) -> LlmCompletionResult:
     prompt = (
         "你是一位 Ops Desk 助手。基于以下证据回答用户问题。\n"
@@ -137,8 +138,12 @@ def synthesize_answer(
         "3. 若证据不足，明确说明。\n\n"
         f"用户问题：{query}\n\n证据：\n{evidence}\n\n回答："
     )
+    messages: list[dict[str, str]] = []
+    if transcript:
+        messages.extend(transcript)
+    messages.append({"role": "user", "content": prompt})
     return chat_completion(
-        [{"role": "user", "content": prompt}],
+        messages,
         step="synthesize",
         run_id=run_id,
         store=store,

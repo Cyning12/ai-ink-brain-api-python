@@ -883,6 +883,7 @@ def test_run_deep_metrics_collects_analyze_usage_shape(monkeypatch) -> None:
         *,
         run_id: str | None = None,
         store: Any = None,
+        transcript: list[dict[str, str]] | None = None,
     ) -> LlmCompletionResult:
         if run_id and store:
             from api.ops.llm import _write_usage_event

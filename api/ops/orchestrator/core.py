@@ -8,6 +8,7 @@ from typing import Any
 from api.ops.agents.graph_analyst import analyze_graph
 from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.agents.scan_analyst import analyze_scan
+from api.ops.chat_context import load_chat_transcript
 from api.ops.constants import DEFAULT_DAYS
 from api.ops.events_schema import handoff_payload, review_payload
 from api.ops.llm import synthesize_answer
@@ -136,11 +137,12 @@ def synthesize(
     *,
     run_id: str | None = None,
     store: OpsRunStore | None = None,
+    transcript: list[dict[str, str]] | None = None,
 ) -> tuple[str, LlmUsage | None]:
     evidence = result.get("evidence", [])
     if result.get("found") is False:
         return result.get("reasoning", result.get("suggestion", "未能完成分析。")), None
-    llm_result = synthesize_answer(query, evidence, run_id=run_id, store=store)
+    llm_result = synthesize_answer(query, evidence, run_id=run_id, store=store, transcript=transcript)
     return llm_result.content, llm_result.usage
 
 
@@ -162,6 +164,7 @@ def _invoke_subagent(
     review_feedback: dict[str, Any] | None,
     run_id: str,
     store: OpsRunStore,
+    transcript: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     if agent_name == "issue_analyst":
         issue_number = int(slots.get("issue_number", 545))
@@ -172,6 +175,7 @@ def _invoke_subagent(
             review_feedback=review_feedback,
             run_id=run_id,
             store=store,
+            transcript=transcript,
         )
     return delegate_fn(
         query,
@@ -179,6 +183,7 @@ def _invoke_subagent(
         review_feedback=review_feedback,
         run_id=run_id,
         store=store,
+        transcript=transcript,
     )
 
 
@@ -191,8 +196,11 @@ def run_deep(
     queries: OpsQueries,
     max_retries: int = 2,
     intent: str | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """deep path：子 Agent → review → synthesize → events（P3-3a 多 Subagent）。"""
+    transcript = load_chat_transcript(session_id, store=store)
+
     agent_name, delegate_fn = _resolve_subagent(intent)
     issue_number = slots.get("issue_number")
     update_current_span_metadata(
@@ -202,6 +210,7 @@ def run_deep(
             "intent": intent or "issue_contribution",
             "agent": agent_name,
             "issue_number": issue_number,
+            "session_id": session_id,
         }
     )
 
@@ -250,6 +259,7 @@ def run_deep(
             review_feedback,
             run_id,
             store,
+            transcript=transcript,
         )
         _usage_raw = analyst_result.get("_llm_usage", {})
         if _usage_raw:
@@ -304,7 +314,7 @@ def run_deep(
         # A3: 携带 feedback 进入下一轮
         review_feedback = detail
 
-    answer, synth_usage = synthesize(query, analyst_result, run_id=run_id, store=store)
+    answer, synth_usage = synthesize(query, analyst_result, run_id=run_id, store=store, transcript=transcript)
     if synth_usage is not None:
         llm_calls += 1
         llm_usages.append(synth_usage)

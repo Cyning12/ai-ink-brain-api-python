@@ -17,6 +17,7 @@ def analyze_graph(
     review_feedback: dict[str, Any] | None = None,
     run_id: str | None = None,
     store: Any = None,
+    transcript: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     repo_id = queries._repo_id() or "unknown"
     service = ModuleMatrixService(repo_id=repo_id, client=queries.client)
@@ -61,7 +62,11 @@ def analyze_graph(
         "请解读模块依赖与 open issue 分布，给出结构化建议。"
         "输出 JSON：{reasoning, suggestion, confidence(0-1), citations:[{number, url}]}"
     )
-    raw = chat_completion([{"role": "user", "content": prompt}], step="analyze_graph", run_id=run_id, store=store)
+    messages: list[dict[str, str]] = []
+    if transcript:
+        messages.extend(transcript)
+    messages.append({"role": "user", "content": prompt})
+    raw = chat_completion(messages, step="analyze_graph", run_id=run_id, store=store)
     parsed = _parse_llm_json(raw.content)
     return {
         "found": True,

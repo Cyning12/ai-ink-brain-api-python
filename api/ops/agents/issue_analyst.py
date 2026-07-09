@@ -37,6 +37,7 @@ def analyze_issue(
     review_feedback: dict[str, Any] | None = None,
     run_id: str | None = None,
     store: Any = None,
+    transcript: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     """深析单个 issue；不调用任何 Git 写 API。"""
     issue = queries.fetch_issue_by_number(issue_number)
@@ -84,7 +85,11 @@ def analyze_issue(
         "输出 JSON：{reasoning, suggestion, confidence(0-1), citations:[{number, url}]}"
     )
 
-    raw = chat_completion([{"role": "user", "content": prompt}], step="analyze", run_id=run_id, store=store)
+    messages: list[dict[str, str]] = []
+    if transcript:
+        messages.extend(transcript)
+    messages.append({"role": "user", "content": prompt})
+    raw = chat_completion(messages, step="analyze", run_id=run_id, store=store)
     parsed = _parse_llm_json(raw.content)
 
     citations = parsed.get("citations", [])
