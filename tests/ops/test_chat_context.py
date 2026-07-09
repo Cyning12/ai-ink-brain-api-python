@@ -283,7 +283,6 @@ def test_run_react_fallback_injects_transcript_into_messages(
     fake_store: FakeTranscriptStore,
 ) -> None:
     """ReAct fallback 须在 system prompt 之后、当前问题之前插入 transcript 消息。"""
-    from api.ops.orchestrator.core import Intent
     from api.ops.react_loop import run_react_fallback
 
     queries = FakeTranscriptQueries()

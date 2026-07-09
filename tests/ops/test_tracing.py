@@ -9,11 +9,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from typing import Any
 
 import pytest
-
 
 # -----------------------------------------------------------------------------
 # 基础 tracer 行为
@@ -318,9 +318,9 @@ def test_run_deep_records_trace_span_metadata(
     fake_tracing_store: FakeTracingStore,
 ) -> None:
     """run_deep 调用后，trace_span 与 update_current_span_metadata 均记录 run_id/session_id/agent_role。"""
+    from api.ops.llm.types import LlmCompletionResult, LlmUsage
     from api.ops.orchestrator import core as orchestrator_core
     from api.ops.orchestrator.core import run_deep
-    from api.ops.llm.types import LlmCompletionResult, LlmUsage
 
     span_calls: list[dict[str, Any]] = []
     metadata_calls: list[dict[str, Any]] = []
@@ -406,8 +406,8 @@ def test_run_react_fallback_records_trace_span_metadata(
 ) -> None:
     """run_react_fallback 调用后，trace span 元数据含 run_id/session_id/agent_role。"""
     from api.ops import react_loop as react_module
-    from api.ops.react_loop import run_react_fallback
     from api.ops.llm.types import LlmCompletionResult, LlmUsage
+    from api.ops.react_loop import run_react_fallback
 
     span_calls: list[dict[str, Any]] = []
     metadata_calls: list[dict[str, Any]] = []
