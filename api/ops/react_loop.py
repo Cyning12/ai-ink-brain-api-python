@@ -14,6 +14,7 @@ from api.ops.orchestrator.core import synthesize
 from api.ops.queries import OpsQueries
 from api.ops.react_tools import _build_v0_registry, _truncate_summary
 from api.ops.review.rules import review_result
+from api.ops.store.artifacts import save_artifact_with_failure_event
 from api.ops.store.runs import OpsRunStore, append_event
 from api.ops.tracing import trace_span, traceable, update_current_span_metadata
 
@@ -314,6 +315,18 @@ def run_react_fallback(
         run_id,
         status=final_verdict,
         final_answer={"answer": answer, "verdict": final_verdict},
+    )
+    save_artifact_with_failure_event(
+        run_id,
+        "react.final_answer",
+        {
+            "answer": answer,
+            "verdict": final_verdict,
+            "intent": "fallback",
+            "route": "react",
+            "steps_taken": step,
+        },
+        store=store,
     )
     store.append_event(run_id, "orchestrator", "run.end", node_id="react.end")
 
