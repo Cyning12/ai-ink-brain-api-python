@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from api.ops.chat_context import load_chat_transcript
 from api.ops.events_schema import handoff_payload, review_payload
@@ -15,11 +18,153 @@ from api.ops.queries import OpsQueries
 from api.ops.react_tools import _build_v0_registry, _truncate_summary
 from api.ops.review.rules import review_result
 from api.ops.store.artifacts import save_artifact_with_failure_event
+from api.ops.store.checkpoints import (
+    CheckpointStoreError,
+    find_latest_checkpoint_for_session,
+    save_checkpoint,
+)
 from api.ops.store.runs import OpsRunStore, append_event
 from api.ops.tracing import trace_span, traceable, update_current_span_metadata
 
 MAX_STEPS_DEFAULT = int(os.getenv("OPS_REACT_MAX_STEPS", "6"))
 MAX_RETRIES_DEFAULT = 2
+
+
+def _build_react_state(
+    query: str,
+    session_id: str | None,
+    messages: list[dict[str, str]],
+    step: int,
+    tool_evidence: list[dict[str, Any]],
+    final_answer: str,
+    final_verdict: str,
+    llm_calls: int,
+    llm_usages: list[LlmUsage],
+) -> dict[str, Any]:
+    """构造可序列化的 ReAct checkpoint 状态。"""
+    return {
+        "route": "react",
+        "query": query,
+        "session_id": session_id,
+        "step": step,
+        "messages": list(messages),
+        "tool_evidence": list(tool_evidence),
+        "final_answer": final_answer,
+        "final_verdict": final_verdict,
+        "llm_calls": llm_calls,
+        "llm_usages": [u.to_dict() for u in llm_usages],
+    }
+
+
+def _try_save_checkpoint(
+    run_id: str,
+    session_id: str,
+    query: str,
+    messages: list[dict[str, str]],
+    step: int,
+    tool_evidence: list[dict[str, Any]],
+    final_answer: str,
+    final_verdict: str,
+    llm_calls: int,
+    llm_usages: list[LlmUsage],
+    store: OpsRunStore,
+) -> None:
+    """保存 checkpoint；失败时记录事件但不中断 ReAct 循环。"""
+    state = _build_react_state(
+        query=query,
+        session_id=session_id,
+        messages=messages,
+        step=step,
+        tool_evidence=tool_evidence,
+        final_answer=final_answer,
+        final_verdict=final_verdict,
+        llm_calls=llm_calls,
+        llm_usages=llm_usages,
+    )
+    try:
+        save_checkpoint(run_id, session_id, state, store=store)
+    except Exception as exc:  # pragma: no cover - 防御性降级
+        logger.warning("checkpoint.save_failed: %s", exc)
+        store.append_event(
+            run_id,
+            "orchestrator",
+            "checkpoint.save_failed",
+            payload={"error": str(exc), "session_id": session_id},
+            node_id="react.checkpoint.save_failed",
+        )
+
+
+def _resume_react_state(
+    run_id: str,
+    query: str,
+    session_id: str,
+    cp_row: dict[str, Any],
+    store: OpsRunStore,
+) -> dict[str, Any] | None:
+    """尝试从 checkpoint 行恢复 ReAct 状态。
+
+    成功返回状态字典；失败时记录 checkpoint.corrupted 并返回 None。
+    """
+    try:
+        state_json = cp_row.get("state_json")
+        state = _validate_react_checkpoint(state_json)
+    except CheckpointStoreError as exc:
+        logger.warning("checkpoint.corrupted: %s", exc)
+        store.append_event(
+            run_id,
+            "orchestrator",
+            "checkpoint.corrupted",
+            payload={
+                "error": str(exc),
+                "session_id": session_id,
+                "from_run_id": str(cp_row.get("run_id", "")),
+            },
+            node_id="react.checkpoint.corrupted",
+        )
+        return None
+
+    prev_run_id = str(cp_row.get("run_id", ""))
+    store.append_event(
+        run_id,
+        "orchestrator",
+        "checkpoint.resume",
+        payload={
+            "from_run_id": prev_run_id,
+            "step": state["step"],
+            "session_id": session_id,
+        },
+        node_id="react.checkpoint.resume",
+    )
+
+    messages: list[dict[str, str]] = list(state.get("messages", []))
+    if state.get("query") != query:
+        messages.append({"role": "user", "content": query})
+
+    return {
+        "messages": messages,
+        "step": int(state.get("step", 0)),
+        "tool_evidence": list(state.get("tool_evidence", [])),
+        "final_answer": str(state.get("final_answer", "")),
+        "final_verdict": str(state.get("final_verdict", "partial")),
+        "llm_calls": int(state.get("llm_calls", 0)),
+        "llm_usages": [LlmUsage.from_dict(u) for u in state.get("llm_usages", [])],
+    }
+
+
+def _validate_react_checkpoint(state_json: Any) -> dict[str, Any]:
+    """校验 checkpoint 状态；失败抛出 CheckpointStoreError。"""
+    if not isinstance(state_json, dict):
+        raise CheckpointStoreError("checkpoint state_json is not a dict")
+    for key in ("route", "query", "step", "messages", "tool_evidence"):
+        if key not in state_json:
+            raise CheckpointStoreError(f"checkpoint state missing key: {key}")
+    if state_json.get("route") != "react":
+        raise CheckpointStoreError("checkpoint route is not 'react'")
+    if not isinstance(state_json["messages"], list):
+        raise CheckpointStoreError("checkpoint state messages is not a list")
+    if not isinstance(state_json["step"], int):
+        raise CheckpointStoreError("checkpoint state step is not an int")
+    return state_json
 
 
 @traceable(capture_input=False, capture_output=False)
@@ -37,8 +182,6 @@ def run_react_fallback(
     与 FSM 路径共用 ops_runs / ops_run_events / Review 闸。
     超限 → status partial + 仍 synthesize（非 500）。
     """
-    transcript = load_chat_transcript(session_id, store=store)
-
     update_current_span_metadata(
         {
             "ops_run_id": run_id,
@@ -85,21 +228,38 @@ def run_react_fallback(
             store=store,
         )
 
-    # System prompt for ReAct
-    system_prompt = _build_react_system_prompt(tools_json)
-    messages: list[dict[str, str]] = [
-        {"role": "system", "content": system_prompt},
-    ]
-    if transcript:
-        messages.extend(transcript)
-    messages.append({"role": "user", "content": query})
+    # Try to resume from a previous checkpoint for this session
+    resumed_state: dict[str, Any] | None = None
+    if session_id:
+        cp_row = find_latest_checkpoint_for_session(session_id, store=store)
+        if cp_row:
+            resumed_state = _resume_react_state(run_id, query, session_id, cp_row, store)
 
-    step = 0
-    final_answer = ""
-    llm_calls = 0
-    llm_usages: list[LlmUsage] = []
-    tool_evidence: list[dict[str, Any]] = []
-    final_verdict = "partial"
+    if resumed_state is None:
+        # Cold start
+        transcript = load_chat_transcript(session_id, store=store)
+        system_prompt = _build_react_system_prompt(tools_json)
+        messages: list[dict[str, str]] = [
+            {"role": "system", "content": system_prompt},
+        ]
+        if transcript:
+            messages.extend(transcript)
+        messages.append({"role": "user", "content": query})
+
+        step = 0
+        final_answer = ""
+        llm_calls = 0
+        llm_usages: list[LlmUsage] = []
+        tool_evidence: list[dict[str, Any]] = []
+        final_verdict = "partial"
+    else:
+        messages = resumed_state["messages"]
+        step = resumed_state["step"]
+        final_answer = resumed_state["final_answer"]
+        llm_calls = resumed_state["llm_calls"]
+        llm_usages = resumed_state["llm_usages"]
+        tool_evidence = resumed_state["tool_evidence"]
+        final_verdict = resumed_state["final_verdict"]
 
     while step < max_steps:
         step += 1
@@ -189,6 +349,22 @@ def run_react_fallback(
         )
         messages.append({"role": "assistant", "content": raw_content})
         messages.append({"role": "user", "content": f"Tool result:\n{tool_msg}"})
+
+        # Save checkpoint after each non-final step so that crashes can resume
+        if session_id:
+            _try_save_checkpoint(
+                run_id,
+                session_id,
+                query,
+                messages,
+                step,
+                tool_evidence,
+                final_answer,
+                final_verdict,
+                llm_calls,
+                llm_usages,
+                store,
+            )
 
     else:
         # max_steps exceeded
