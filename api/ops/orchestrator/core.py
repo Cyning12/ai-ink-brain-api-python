@@ -15,6 +15,7 @@ from api.ops.llm import synthesize_answer
 from api.ops.llm.types import LlmUsage
 from api.ops.queries import OpsQueries
 from api.ops.review.rules import review_result
+from api.ops.store.artifacts import save_artifact_with_failure_event
 from api.ops.store.runs import OpsRunStore, append_event
 from api.ops.tracing import trace_span, traceable, update_current_span_metadata
 
@@ -357,6 +358,19 @@ def run_deep(
             "issue_number": analyst_result.get("issue_number"),
             "verdict": final_verdict,
         },
+    )
+    save_artifact_with_failure_event(
+        run_id,
+        "deep.final_answer",
+        {
+            "answer": answer,
+            "agent": agent_name,
+            "issue_number": analyst_result.get("issue_number"),
+            "verdict": final_verdict,
+            "intent": intent or "issue_contribution",
+            "route": "deep",
+        },
+        store=store,
     )
     store.append_event(run_id, "orchestrator", "run.end", node_id="deep.end")
     # B5: run 级 metrics_json 汇总

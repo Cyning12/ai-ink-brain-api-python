@@ -216,6 +216,38 @@ class OpsRunStore:
 
         return supabase_execute_with_retry(_once)
 
+    def save_artifact(
+        self, run_id: str, kind: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
+        """幂等写入 ops_run_artifacts；由 (run_id, kind) 唯一去重。"""
+        row = {"run_id": run_id, "kind": kind, "payload": payload}
+
+        def _once() -> dict[str, Any]:
+            res = (
+                self.client.table("ops_run_artifacts")
+                .upsert(row, on_conflict="run_id,kind")
+                .execute()
+            )
+            data = res.data if isinstance(res.data, list) else []
+            if data and isinstance(data[0], dict):
+                return data[0]
+            raise RuntimeError("ops_run_artifacts upsert did not return row")
+
+        return supabase_execute_with_retry(_once)
+
+    def list_artifacts(self, run_id: str) -> list[dict[str, Any]]:
+        def _once() -> list[dict[str, Any]]:
+            res = (
+                self.client.table("ops_run_artifacts")
+                .select("*")
+                .eq("run_id", run_id)
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return res.data if isinstance(res.data, list) else []
+
+        return supabase_execute_with_retry(_once)
+
 
 def append_event(
     run_id: str,
