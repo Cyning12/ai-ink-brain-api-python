@@ -970,6 +970,13 @@ def test_resolve_bailian_model_chain_from_primary() -> None:
     assert "kimi/kimi-k2.7-code" not in chain
 
 
+def test_resolve_bailian_model_chain_qwen_fallbacks_to_prod_models() -> None:
+    from api.ops.llm.model_catalog import resolve_bailian_model_chain
+
+    chain = resolve_bailian_model_chain("qwen3.7-plus")
+    assert chain == ["qwen3.7-plus", "deepseek-v4-pro", "deepseek-v4-flash"]
+
+
 def test_resolve_bailian_model_chain_skips_test_only_after_kimi() -> None:
     from api.ops.llm.model_catalog import resolve_bailian_model_chain
 
@@ -992,6 +999,14 @@ def test_bailian_quota_error_switches_model(monkeypatch) -> None:
         def json(self) -> dict[str, Any]:
             return {"error": {"code": "AllocationQuota.FreeTierOnly", "message": "no quota"}}
 
+    class FreeQuotaExhaustedResponse:
+        status_code = 403
+        ok = False
+        text = '{"error":{"message":"The free quota has been exhausted."}}'
+
+        def json(self) -> dict[str, Any]:
+            return {"error": {"message": "The free quota has been exhausted."}}
+
     class OkResponse:
         status_code = 200
         ok = True
@@ -1010,6 +1025,8 @@ def test_bailian_quota_error_switches_model(monkeypatch) -> None:
         model = kwargs["json"]["model"]
         if model in ("kimi/kimi-k2.7-code",):
             return QuotaResponse()
+        if model == "qwen3.7-plus":
+            return FreeQuotaExhaustedResponse()
         return OkResponse(model)
 
     monkeypatch.setattr(
@@ -1025,6 +1042,14 @@ def test_bailian_quota_error_switches_model(monkeypatch) -> None:
     )
     assert result.content == "ok:deepseek-v4-pro"
     assert result.usage.model == "deepseek-v4-pro"
+
+    result2 = provider.complete(
+        [{"role": "user", "content": "hi"}],
+        model="qwen3.7-plus",
+        step="analyze",
+    )
+    assert result2.content == "ok:deepseek-v4-pro"
+    assert result2.usage.model == "deepseek-v4-pro"
 
 
 def test_chat_models_endpoint_bailian(monkeypatch) -> None:

@@ -131,7 +131,9 @@ def handle_ops_chat_message(
         clarification = clarify_if_fallback(body.message, body.session_id, transcript, slots)
 
         if clarification.needs_clarification:
-            run = store.create_run(query=body.message, route="clarify", session_id=body.session_id)
+            # clarify 为 API 层路由；落库用 fast（ops_runs_route_check 未含 clarify）。
+            # 语义由 clarify.asked 事件承载；迁移 ops_desk_p1_clarify_route.sql 后可改为 route="clarify"。
+            run = store.create_run(query=body.message, route="fast", session_id=body.session_id)
             run_id = str(run["id"])
             store.append_event(
                 run_id,
