@@ -40,6 +40,20 @@ def get_events(
     return {"run_id": run_id, "after_seq": after_seq, "events": events}
 
 
+@router.get("/{run_id}/artifacts")
+def get_artifacts(
+    run_id: str = Path(...),
+    store: OpsRunStore = Depends(_store),
+    _: None = Depends(require_ops_secret),
+) -> dict[str, Any]:
+    """返回 run 关联的 ops_run_artifacts；无记录时 artifacts=[]。"""
+    run = store.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail={"code": "RUN_NOT_FOUND"})
+    artifacts = store.list_artifacts(run_id)
+    return {"run_id": run_id, "artifacts": artifacts}
+
+
 @router.post("/{run_id}/retry")
 def retry_run(
     run_id: str = Path(...),

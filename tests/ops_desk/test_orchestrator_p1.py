@@ -90,6 +90,7 @@ class FakeStore(OpsRunStore):
     def __init__(self) -> None:  # type: ignore[override]
         self.runs: dict[str, dict[str, Any]] = {}
         self.events: dict[str, list[dict[str, Any]]] = {}
+        self.artifacts: dict[str, list[dict[str, Any]]] = {}
         self._counter = 0
 
     def create_run(
@@ -148,6 +149,9 @@ class FakeStore(OpsRunStore):
     def validate_retry_token(self, run_id: str, retry_token: str) -> bool:
         run = self.get_run(run_id)
         return bool(run) and run.get("retry_token") == retry_token
+
+    def list_artifacts(self, run_id: str) -> list[dict[str, Any]]:
+        return list(self.artifacts.get(run_id, []))
 
 
 @pytest.fixture
@@ -280,3 +284,30 @@ def test_stream_not_implemented(client: TestClient) -> None:
     resp = client.get("/api/py/ops/runs/run-1/stream", headers={"x-ops-secret": "test"})
     assert resp.status_code == 404
     assert resp.json()["detail"]["code"] == "SSE_NOT_IMPLEMENTED"
+
+
+def test_get_run_artifacts_empty(client: TestClient) -> None:
+    resp = client.post(
+        "/api/py/ops/chat/messages",
+        json={"message": "#545 适合我吗"},
+        headers={"x-ops-secret": "test"},
+    )
+    run_id = resp.json()["run_id"]
+
+    art_resp = client.get(
+        f"/api/py/ops/runs/{run_id}/artifacts",
+        headers={"x-ops-secret": "test"},
+    )
+    assert art_resp.status_code == 200
+    body = art_resp.json()
+    assert body["run_id"] == run_id
+    assert body["artifacts"] == []
+
+
+def test_get_run_artifacts_not_found(client: TestClient) -> None:
+    resp = client.get(
+        "/api/py/ops/runs/run-missing/artifacts",
+        headers={"x-ops-secret": "test"},
+    )
+    assert resp.status_code == 404
+    assert resp.json()["detail"]["code"] == "RUN_NOT_FOUND"

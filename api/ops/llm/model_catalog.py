@@ -47,24 +47,25 @@ def bailian_model_ids() -> list[str]:
 
 
 def resolve_bailian_model_chain(primary: str | None) -> list[str]:
-    """从 primary 起向下 fallback；未知 id 则 primary 优先再完整链。
+    """从 primary 起构建 fallback 链；未知 id 则 primary 优先再补生产模型。
 
     若 primary 为 test_only（如 kimi 无额度测试项），配额 fallback 时跳过链中
     其余 test_only（如 ZHIPU），直达 deepseek-v4-pro 等生产模型。
+
+    生产模型 primary 耗尽额度时，回退到其余生产模型（避免链尾模型无后继）。
     """
     chain_ids = bailian_model_ids()
     test_only = bailian_test_only_model_ids()
+    prod_ids = [mid for mid in chain_ids if mid not in test_only]
     if not primary or not primary.strip():
         return list(chain_ids)
     primary = primary.strip()
-    if primary not in chain_ids:
-        return [primary, *[mid for mid in chain_ids if mid not in test_only or mid == primary]]
-    idx = chain_ids.index(primary)
-    tail = chain_ids[idx:]
-    if tail and tail[0] in test_only:
-        prod_tail = [mid for mid in tail[1:] if mid not in test_only]
-        return [tail[0], *prod_tail]
-    return tail
+    if primary in test_only:
+        prod_tail = [mid for mid in prod_ids]
+        return [primary, *prod_tail]
+    if primary in prod_ids:
+        return [primary, *[mid for mid in prod_ids if mid != primary]]
+    return [primary, *prod_ids]
 
 
 def get_chat_models_payload() -> dict[str, Any]:

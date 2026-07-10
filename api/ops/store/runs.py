@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from postgrest.exceptions import APIError
+
 from api.ops.events_schema import SCHEMA_VERSION
 from api.rag_env import supabase_client, supabase_execute_with_retry
 
@@ -273,13 +275,19 @@ class OpsRunStore:
 
     def list_artifacts(self, run_id: str) -> list[dict[str, Any]]:
         def _once() -> list[dict[str, Any]]:
-            res = (
-                self.client.table("ops_run_artifacts")
-                .select("*")
-                .eq("run_id", run_id)
-                .order("created_at", desc=True)
-                .execute()
-            )
+            try:
+                res = (
+                    self.client.table("ops_run_artifacts")
+                    .select("*")
+                    .eq("run_id", run_id)
+                    .order("created_at", desc=True)
+                    .execute()
+                )
+            except APIError as exc:
+                # 迁移 ops_desk_p1_artifacts.sql 未应用时，读路径静默返回空列表
+                if getattr(exc, "code", None) == "PGRST205":
+                    return []
+                raise
             return res.data if isinstance(res.data, list) else []
 
         return supabase_execute_with_retry(_once)

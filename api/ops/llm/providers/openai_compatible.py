@@ -11,25 +11,36 @@ import requests
 from api.ops.llm.errors import OpsLlmRequestError
 from api.ops.llm.types import LlmCompletionResult, LlmUsage
 
-_BAILIAN_QUOTA_MARKER = "AllocationQuota.FreeTierOnly"
+_BAILIAN_QUOTA_MARKERS = (
+    "AllocationQuota.FreeTierOnly",
+    "free quota has been exhausted",
+    "free tier only",
+)
 _DEFAULT_MAX_ATTEMPTS = 3
 
 
+def _text_has_bailian_quota_marker(text: str) -> bool:
+    lowered = text.lower()
+    return any(marker.lower() in lowered for marker in _BAILIAN_QUOTA_MARKERS)
+
+
 def is_bailian_quota_error(response: requests.Response) -> bool:
-    """百炼无额度：403 且 body 含 AllocationQuota.FreeTierOnly。"""
+    """百炼无额度：403 且 body 含已知配额耗尽标记。"""
     if response.status_code != 403:
         return False
+    if _text_has_bailian_quota_marker(response.text):
+        return True
     try:
         data = response.json()
     except ValueError:
-        return _BAILIAN_QUOTA_MARKER in response.text
+        return False
     err = data.get("error")
     if isinstance(err, dict):
         code = str(err.get("code") or err.get("type") or "")
         message = str(err.get("message") or "")
-        if _BAILIAN_QUOTA_MARKER in code or _BAILIAN_QUOTA_MARKER in message:
+        if _text_has_bailian_quota_marker(code) or _text_has_bailian_quota_marker(message):
             return True
-    return _BAILIAN_QUOTA_MARKER in str(data)
+    return _text_has_bailian_quota_marker(str(data))
 
 
 def _is_retryable_status(status_code: int) -> bool:
