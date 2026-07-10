@@ -38,7 +38,7 @@ time: "09:30"
   ```bash
   pytest tests/ops/test_intent_router.py -k fallback -q
   ```
-- 上一棒 30 commit：待本 Prompt 落盘后从 30 输出获取
+- 上一棒 30 commit：`ai-ink-brain-api-python@760179a5`
 - 关联任务审核书面结论路径：`ai-ink-brain-api-python/docs/harness/reviews/task_ops_chat_session_sink_p0_p1_v1_audit_R2_20260708.md`
 - 关联 PLAN / 总规：`docs/harness/guides/PLAN_ops_chat_session_sink_p0_p1_v1_zh.md`
 - 关联结构化输出缺口矩阵：`docs/harness/guides/RUNTIME_structured_output_gap_matrix_v0_zh.md`
