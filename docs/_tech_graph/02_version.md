@@ -56,5 +56,6 @@ timeline
   2026-07-07 : dd89b870 auto: api/agently_lab/__init__.py
   2026-07-08 : 4bf5782c auto: api/ops/orchestrator/__init__.py
   2026-07-09 : db09fd40 auto: api/ops/events_schema.py
+  2026-07-10 : 13553deb auto: api/ops/intent_router.py
 ```
 

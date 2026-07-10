@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from api.ops import intent_router as _intent_router
 from api.ops.agents.graph_analyst import analyze_graph
 from api.ops.agents.issue_analyst import analyze_issue
 from api.ops.agents.scan_analyst import analyze_scan
@@ -31,7 +32,7 @@ class Intent:
     FALLBACK = "fallback"
 
 
-def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
+def _rule_classify_intent(message: str) -> tuple[str, dict[str, Any]]:
     """基于规则快速分类；返回 (intent, slots)。"""
     msg = message.lower().strip()
     slots: dict[str, Any] = {}
@@ -112,6 +113,24 @@ def classify_intent(message: str) -> tuple[str, dict[str, Any]]:
     # P3-1: 开放复杂问（含热点、架构等）→ fallback → ReAct
     # 但保留 misroute 防护：纯 metrics 关键词已在上面处理
     return Intent.FALLBACK, {}
+
+
+def classify_intent(
+    message: str,
+    run_id: str | None = None,
+    store: Any | None = None,
+) -> tuple[str, dict[str, Any]]:
+    """混合意图分类：默认规则；`OPS_CHAT_LLM_ROUTER=1` 时优先 LLM router。
+
+    当 LLM router 低置信度或异常时，自动降级为 `_rule_classify_intent`，
+    并通过 `append_event` 记录 `intent_router.fallback` 事件（提供 run_id/store 时）。
+    """
+    return _intent_router.classify_intent_with_llm(
+        message,
+        _rule_classify_intent,
+        run_id=run_id,
+        store=store,
+    )
 
 
 def is_fast_intent(intent: str) -> bool:
