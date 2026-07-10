@@ -183,6 +183,7 @@
       "ops_issues",
       "ops_pull_requests",
       "ops_repos",
+      "ops_run_artifacts",
       "ops_run_checkpoints",
       "ops_run_events",
       "ops_runs",
