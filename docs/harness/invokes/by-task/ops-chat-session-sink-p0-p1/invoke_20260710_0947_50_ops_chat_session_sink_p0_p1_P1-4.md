@@ -30,7 +30,7 @@
   pytest tests/ops/test_intent_router.py -k fallback -q
   ```
 - 上一棒 30 commit：`ai-ink-brain-api-python @ 760179a5`
-- 上一棒 40 commit：`ai-ink-brain-api-python @ <待回填>`
+- 上一棒 40 commit：`ai-ink-brain-api-python @ 5c4f05c6`
 - 关联任务审核书面结论路径：`ai-ink-brain-api-python/docs/harness/reviews/task_ops_chat_session_sink_p0_p1_v1_audit_R2_20260708.md`
 - 关联 PLAN / 总规：`docs/harness/guides/PLAN_ops_chat_session_sink_p0_p1_v1_zh.md`
 - 关联结构化输出缺口矩阵：`docs/harness/guides/RUNTIME_structured_output_gap_matrix_v0_zh.md`
