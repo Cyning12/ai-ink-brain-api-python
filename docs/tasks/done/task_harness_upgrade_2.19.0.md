@@ -106,5 +106,5 @@
 | 项 | 内容 |
 | --- | --- |
 | **日期** | 2026-07-28 |
-| **PR** | （开 PR 后回填） |
+| **PR** | [#239](https://github.com/Cyning12/ai-ink-brain-api-python/pull/239) |
 | **manifest** | `2.19.0` |
