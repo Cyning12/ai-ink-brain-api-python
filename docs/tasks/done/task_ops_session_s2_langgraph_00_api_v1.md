@@ -24,6 +24,8 @@
 | **git_branch** | `task/ops-session-s2-langgraph-00-api` |
 | **blocks** | S3 `ops-session-s3-subagent` |
 | **blocked_by** | S1 `ops-session-s1-multiturn-api` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

@@ -22,6 +22,8 @@
 | **semi_auto** | `true` |
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/coding-wiki-pilot-v1` |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

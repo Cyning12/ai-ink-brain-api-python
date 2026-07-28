@@ -20,6 +20,8 @@
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/gov-l2-manifest-ci-v1` |
 | **task_slug** | `gov-l2-manifest-ci` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

@@ -16,6 +16,8 @@
 | **git_branch（当前子批）** | `—`（母单已 CLOSE） |
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **test_strategy** | `not_applicable`（母单本身无实现） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

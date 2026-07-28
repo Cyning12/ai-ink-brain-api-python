@@ -25,6 +25,8 @@
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **推荐路径** | **50 独立复检** — `test_strategy: required` + 关账前 `reinspect_results/` |
 | **worktree_root** | （非并行时与 Open Folder 同仓根；并行时 invoke 另填） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

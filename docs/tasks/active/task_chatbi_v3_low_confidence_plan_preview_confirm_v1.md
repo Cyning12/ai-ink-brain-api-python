@@ -21,6 +21,8 @@
 | **audit_profile** | `full` |
 | **git_branch** | `task/chatbi-v3-low-confidence-plan` |
 | **reinspect** | 母单剩余项关账前 **必须** 50 |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

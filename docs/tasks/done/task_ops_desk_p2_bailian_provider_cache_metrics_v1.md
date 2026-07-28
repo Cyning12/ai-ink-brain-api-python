@@ -15,6 +15,8 @@
 | **freeze_id** | `OPS-DESK-KIMI-CODE-P2-BAILIAN-PROVIDER-CACHE-METRICS` |
 | **git_branch** | `task/ops-desk-p2-bailian-provider-cache-metrics` |
 | **worktree_root** | `ai-ink-brain-api-python/` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

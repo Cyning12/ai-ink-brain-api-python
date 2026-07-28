@@ -1,5 +1,13 @@
 # Task：闸口 D — `gate_ctx_ab_v2` 题集扩域（v1 三题 + T004/T005）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-21 · 闸口 D v2 五题扩域 · HG-GATE-D-SIGNOFF 人签 · PR #41 · merge abb08f4）`  
 > **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_d_ctx_v2_tasks_v1_zh.md`  
 > **50 关账复检**：`docs/harness/reviews/task_engineering_tech_graph_gate_d_v2_tasks_v1_reinspect_R1_20260521.md`  

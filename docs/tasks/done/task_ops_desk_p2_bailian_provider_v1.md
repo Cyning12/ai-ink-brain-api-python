@@ -18,6 +18,8 @@
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **Open Folder** | `ai-ink-brain-api-python/` |
 | **human_gate** | run `33d484ea` · D4 bailian · tt=1855 |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

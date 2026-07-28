@@ -27,6 +27,8 @@
 | **kpi_aggregator** | `CLOSE` |
 | **experience_capture** | `required` |
 | **experience_capture_note** | 关账已落盘 [`docs/diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md`](../../diary/2026-06-08-kimi-harness-pilot-recentsync_zh.md) |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

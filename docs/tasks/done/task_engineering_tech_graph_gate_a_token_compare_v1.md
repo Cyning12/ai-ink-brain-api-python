@@ -1,5 +1,13 @@
 # Task：闸口 A 附录 — `graph.json` vs Mermaid 拼接体 **token 粗估** 工具与 CI
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-15 验收通过）`  
 > **关联**：`docs/tech_graph/gate_a_scheme1_backend.md` §3「Agent / LM context（可选）」；[`gate_a_scheme1_perf_compare_backend_detail.md`](../../tech_graph/gate_a_scheme1_perf_compare_backend_detail.md)  
 > **test_strategy**：`required`  

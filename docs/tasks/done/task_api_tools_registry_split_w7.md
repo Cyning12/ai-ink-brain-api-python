@@ -24,6 +24,8 @@
 | **orchestration** | Cursor Task 链 |
 | **test_strategy** | `required` |
 | **freeze_id** | `CODING_BACKEND_L2@2026-06-09` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

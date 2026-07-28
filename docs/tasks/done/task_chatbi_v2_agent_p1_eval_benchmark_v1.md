@@ -1,5 +1,13 @@
 # Task：ChatBI V2 Agent（P1-Eval）— 可验证评测与性能基准（v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 状态：done（工具链/CI 门禁已落地）；**准确率验收冻结以「复跑五」为准**（`tests/_out/intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*`，`CHATBI_V2_INTENT_TIMEOUT_S=60`）；**复跑三**（`intent_llm_latest_20260507_113718_v1fb3_acc0933_macro0932.*`）为前冻结历史对照；**复跑四**为补充对照；见 `docs/diary/2026-05-06-p1-intent-benchmark.md`；**复跑二**仍为网络差基线  
 范围：仅后端 `ai-ink-brain-api-python`  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  

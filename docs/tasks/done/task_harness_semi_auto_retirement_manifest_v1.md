@@ -16,6 +16,8 @@
 | **orchestration** | **MANIFEST 仅** — 子批各自 Lead + `PROMPT_*_chain_serial_*` |
 | **test_strategy** | `not_applicable`（母单无实现） |
 | **git_branch** | `—`（子批各自分支） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

@@ -22,6 +22,8 @@
 | **Open Folder** | `ai-ink-brain-api-python` |
 | **blocked_by** | 无（可与 #118 并行规划；**验收**建议 #118 merge 后） |
 | **blocks** | P1 并行 sub-RAG task（未建） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

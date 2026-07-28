@@ -3,6 +3,16 @@
 > **目标**：日常只读本目录 + `docs/tasks/`；含 **三方 Agent（50 帽）** 可查收落盘。  
 > **历史**：22/reviews、旧 invoke 见 [`../diary/harness-archive/`](../diary/harness-archive/README.md)。
 
+### npm 纪律包钉版本（`@cyning/harness`）
+
+| 项 | 真值 |
+| --- | --- |
+| **pin** | 仓根 [`harness.pin.json`](../../harness.pin.json)（当前 **2.18.0**） |
+| **manifest** | [`.cyning-harness/manifest.json`](../../.cyning-harness/manifest.json) · preset `harness-only` |
+| **升级** | `npx --yes @cyning/harness@<pin.version> upgrade --yes`（干净工作区；init 后改动未提交时可用 `--force`） |
+| **破坏性（2.18+）** | task 缺 `wiki_delta` → **`task close` BLOCK**；`none`/`n/a` 须 `wiki_delta_note`。**勿**默认 `--allow-wiki-gap` |
+| **本仓帽正文** | 真值仍在 `prompts/hats/` · `templates/` · `handoff/`；产品包扁平帽（`prompts/30-execute-code.md` 等）为 sync 对照层，**不**替代 `hats/` |
+
 ---
 
 ## 1. 日常读什么

@@ -22,6 +22,8 @@
 | **git_branch** | `task/gov-wiki-t4-ops-v1` |
 | **task_slug** | `gov-wiki-t4-ops` |
 | **executor** | `claude-code` 或 Cursor（建议与 Unit A/B 同半自动纪律） |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

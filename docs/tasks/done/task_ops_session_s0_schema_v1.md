@@ -21,6 +21,8 @@
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **git_branch** | `task/ops-session-s0-schema` |
 | **blocks** | S1 `ops-session-s1-multiturn` · S2 `ops-session-s2-langgraph-00` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

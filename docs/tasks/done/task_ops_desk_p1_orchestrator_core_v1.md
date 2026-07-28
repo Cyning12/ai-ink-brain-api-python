@@ -18,6 +18,8 @@
 | **freeze_id** | `OPS-DESK-KIMI-CODE-P1-ORCHESTRATOR-CORE` |
 | **git_branch** | `task/ops-desk-p1-backend-chain` |
 | **链序** | P1-3 / 3 · **本串行链终点** |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

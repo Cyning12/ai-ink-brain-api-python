@@ -1,5 +1,13 @@
 # Task：Unified Chat（后端）— 新增 `router.evidence` 事件（降级前证据可视化）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 状态：done（2026-04-30 验收通过）  
 范围：仅后端 `ai-ink-brain-api-python`  
 关联：

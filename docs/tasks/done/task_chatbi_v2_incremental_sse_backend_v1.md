@@ -1,5 +1,13 @@
 # 实现 ChatBI V2 执行期增量 SSE 与 LLM 子步流式（后端 v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 **状态**：done（2026-05-11 验收通过）  
 **归档自**：`docs/tasks/active/task_chatbi_v2_incremental_sse_backend_v1.md`  
 **范围**：仅 `ai-ink-brain-api-python`（`api/unified_chat.py`、`api/agent.py` 及 LLM 调用链；契约与 CI）  

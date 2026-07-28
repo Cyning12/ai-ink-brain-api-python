@@ -1,5 +1,13 @@
 # Task：ChatBI V2 — Text2SQL 多轮语义承接（已实现基线 + 值域锚点后续）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`archived_done`（**V2 本子任务完结**；B-PR1 2026-05-09；B-PR2 2026-05-11；§验收已闭合。）  
 > **归档位置**：`docs/tasks/done/task_chatbi_v2_text2sql_multiturn_grounding_v1.md`（若你仍打开 `active/` 下旧路径，请改指向 **done**）。  
 > **未纳入 V2 的后续**：**欠债已单独记录** → `docs/tasks/active/task_chatbi_v3_debt_from_v2_multiturn_v1.md`（**V3 统筹**，含 §4.3 澄清、同义词语义等）。  

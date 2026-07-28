@@ -1,5 +1,13 @@
 # V3 待办：多轮低置信指代澄清（V2 Multiturn §4 第 3 点 / 惯称 §4.3）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 ## 元信息
 
 - **状态**：`done`（**P1-4** 首包 **implementation**；不阻塞母单其它 §2 条目另拆 PR）

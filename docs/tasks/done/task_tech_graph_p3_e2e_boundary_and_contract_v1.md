@@ -1,5 +1,13 @@
 # Task：Tech Graph P3 — 端到端边界图 + 契约视图（跨仓按需加载）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
  > **状态**：done（2026-04-27 验收通过）  
 > **范围**：以 `ai-ink-brain-api-python` 为主仓，仅画“跨仓边界与契约”；不改业务代码  
 > **关联图谱**：`docs/_tech_graph/00_main.ai.md`、`docs/_tech_graph/14_runtime_observability.ai.md`、`docs/_tech_graph/99_spec.md`  

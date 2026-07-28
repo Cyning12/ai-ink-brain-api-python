@@ -34,6 +34,8 @@
 | **epic**               | `治理 · docs/tasks 索引卫生`                                                                                                             |
 | **blocked_by**         | RECENT 治理/backlog 锚点；编码规范 Epic CLOSE（W1～W8 done）                                                                                   |
 | **blocks**             | 后续 `docs/tasks/done/<domain>/` 物理迁移子 task（P1）                                                                                      |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 
 ### 人工闸 `human_gate`

@@ -1,5 +1,13 @@
 # Task：ChatBI V2 Agent（P1 总览）— 意图准确率、性能基准、缓存与调优
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 状态：**done（2026-05-11 验收通过）** — 本文件已按 `docs/tasks/README.md` 迁入 **`docs/tasks/done/`**；P1-Eval 冻结口径仍以 **复跑五** `intent_llm_20260507_1529_v1fb1_acc9500_macro9484_tout60.*` 为基线；P1-D 见 `task_chatbi_v2_agent_p1d_intent_prompt_and_thresholds_v1.md` + `tests/_out/intent_llm_20260507_160444_p1d_live.*`  
 范围：仅后端 `ai-ink-brain-api-python`（**全仓相对总规的完成度**不以本文件为唯一口径，见 `SPEC-ChatBI-V2-Agent-Overview.md` **§7.4**、**§7.5**）  
 前置：P0 已完成（`task_chatbi_v2_agent_p0_backend.md` 已归档）  

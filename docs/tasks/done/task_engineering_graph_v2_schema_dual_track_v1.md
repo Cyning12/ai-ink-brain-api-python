@@ -23,6 +23,8 @@
 | **worktree_root**      | `ai-ink-brain-api-python/`                                             |
 | **freeze_id**          | `GRAPH-V2-SCHEMA-DUAL-TRACK`                                           |
 | **epic**               | Inform 规范层 · Post-YAML                                                 |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 
 ### 人工闸（草案）
