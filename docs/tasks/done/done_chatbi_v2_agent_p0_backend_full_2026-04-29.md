@@ -1,5 +1,13 @@
 # Done：ChatBI V2 Agent（P0 后端）— 全量落地归档（2026-04-29）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态**：done  
 > **范围**：仅后端 `ai-ink-brain-api-python`  
 > **关联任务**：`docs/tasks/active/task_chatbi_v2_agent_p0_backend.md`

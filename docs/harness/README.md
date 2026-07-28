@@ -7,7 +7,7 @@
 
 | 项 | 真值 |
 | --- | --- |
-| **pin** | 仓根 [`harness.pin.json`](../../harness.pin.json)（当前 **2.18.0**） |
+| **pin** | 仓根 [`harness.pin.json`](../../harness.pin.json)（当前 **2.19.0**） |
 | **manifest** | [`.cyning-harness/manifest.json`](../../.cyning-harness/manifest.json) · preset `harness-only` |
 | **升级** | `npx --yes @cyning/harness@<pin.version> upgrade --yes`（干净工作区；init 后改动未提交时可用 `--force`） |
 | **破坏性（2.18+）** | task 缺 `wiki_delta` → **`task close` BLOCK**；`none`/`n/a` 须 `wiki_delta_note`。**勿**默认 `--allow-wiki-gap` |

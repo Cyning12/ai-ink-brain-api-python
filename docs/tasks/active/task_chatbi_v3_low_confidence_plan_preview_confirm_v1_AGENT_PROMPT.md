@@ -1,5 +1,13 @@
 # 执行 Agent 任务交代：agent.py「方案 B」编排修正（P2 延伸 · 首包可只做本项）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态（2026-05-13）**：首包已在主任务单 **§5.0** 记为 **已验收**；若续拆 PR 请读 **`task_chatbi_v3_low_confidence_plan_preview_confirm_v1.md`** **§5.1**（仍 backlog）。  
 > **用途**：将本文件 **全文**复制给负责改代码的 Cursor Agent（或本对话续写），作为单一真值输入。  
 > **仓库**：`ai-ink-brain-api-python`  

@@ -1,5 +1,13 @@
 # ChatBI V2 Agent（P0 后端）— 11 点约束确认与落地计划（问答回溯）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态**：done（2026-04-29）  
 > **归档路径**：`docs/tasks/done/done_chatbi_v2_agent_p0_backend_constraints_2026-04-29.md`  
 > **关联任务**：`docs/tasks/active/task_chatbi_v2_agent_p0_backend.md`  
