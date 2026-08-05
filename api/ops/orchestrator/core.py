@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from api.ops import intent_router as _intent_router
 from api.ops.agents.graph_analyst import analyze_graph
@@ -378,35 +381,38 @@ def run_deep(
             "verdict": final_verdict,
         },
     )
-    save_artifact_with_failure_event(
-        run_id,
-        "deep.final_answer",
-        {
-            "answer": answer,
-            "agent": agent_name,
-            "issue_number": analyst_result.get("issue_number"),
-            "verdict": final_verdict,
-            "intent": intent or "issue_contribution",
-            "route": "deep",
-        },
-        store=store,
-    )
-    store.append_event(run_id, "orchestrator", "run.end", node_id="deep.end")
-    # B5: run 级 metrics_json 汇总
-    metrics_json = _build_metrics_json(
-        route="deep",
-        intent=intent or "issue_contribution",
-        llm_calls=llm_calls,
-        llm_usages=llm_usages,
-    )
-    store.update_run_metrics_json(run_id, metrics_json)
-    store.append_event(
-        run_id,
-        "orchestrator",
-        "run.metrics",
-        payload=metrics_json,
-        node_id="deep.metrics",
-    )
+    # 答案已落 update_run；后续 artifact / metrics 写失败不得拖垮 chat 500
+    try:
+        save_artifact_with_failure_event(
+            run_id,
+            "deep.final_answer",
+            {
+                "answer": answer,
+                "agent": agent_name,
+                "issue_number": analyst_result.get("issue_number"),
+                "verdict": final_verdict,
+                "intent": intent or "issue_contribution",
+                "route": "deep",
+            },
+            store=store,
+        )
+        store.append_event(run_id, "orchestrator", "run.end", node_id="deep.end")
+        metrics_json = _build_metrics_json(
+            route="deep",
+            intent=intent or "issue_contribution",
+            llm_calls=llm_calls,
+            llm_usages=llm_usages,
+        )
+        store.update_run_metrics_json(run_id, metrics_json)
+        store.append_event(
+            run_id,
+            "orchestrator",
+            "run.metrics",
+            payload=metrics_json,
+            node_id="deep.metrics",
+        )
+    except Exception as exc:  # noqa: BLE001 — 收尾旁路；答案已可返回
+        logger.warning("deep post-answer store writes failed run_id=%s: %s", run_id, exc)
     return {
         "run_id": run_id,
         "status": final_verdict,
