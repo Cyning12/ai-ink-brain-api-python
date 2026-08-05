@@ -1,5 +1,13 @@
 # Task：Harness 模板与规则内嵌后端仓（v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-05-22 验收通过）  
 > **范围**：仅 `ai-ink-brain-api-python/docs/harness/`、`.cursor/rules/`、`AGENTS.md`、`docs/README.md`  
 > **目标**：后端 **最小 Harness**（10/20/30/40 + HANDOFF）；无 `reviews/`、历史 invoke 在 `docs/diary/harness-archive/`。

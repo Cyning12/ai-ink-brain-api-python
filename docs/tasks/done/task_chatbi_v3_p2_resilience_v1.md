@@ -23,6 +23,8 @@
 | **git_branch** | `task/chatbi-v3-p2-resilience-spec` |
 | **执行模式** | **单闸关账试验**：kickoff 人签 `HG-TASK-DRAFT` + 预批 `HG-AUDIT-R1`；链式 20→22?→30→40→50；**仅** `HG-REINSPECT` 关账前人签 |
 | **推荐路径（10 帽）** | **B（30）** — 本 task 已起草；22 可选零阻塞落盘，不挡 30 |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

@@ -19,6 +19,8 @@
 | **task_slug** | `gov-task-schedule-wiki-bridge` |
 | **schedule_ref** | RECENT §0 · 排期桥接优先于 V3 P2-1b |
 | **epic** | 治理 · Wiki / 排期 hygiene |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

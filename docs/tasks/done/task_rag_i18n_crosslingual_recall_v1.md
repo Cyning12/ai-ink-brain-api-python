@@ -1,5 +1,13 @@
 # Task：RAG i18n（跨语言检索）v1｜中文查询召回英文内容
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-04-24 验收通过）  
 > **关联图谱**：`docs/_tech_graph/10_flow_rag.md`、`docs/_tech_graph/12_flow_fts.md`  
 > **关联 Issue/PR**：无  

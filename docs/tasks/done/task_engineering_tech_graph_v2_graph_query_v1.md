@@ -1,5 +1,13 @@
 # Task：技术图谱 — 机器轨升级（graph_v2 + 方案2 图查询 + 闸口 B）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-17 验收通过）`  
 > **终轮审查**：`docs/harness/reviews/by-task/engineering_tech_graph_v2_graph_query_v1/task_engineering_tech_graph_v2_graph_query_v1_audit_CLOSE_20260517.md`  
 > **关联规划**：`docs/tech_graph/改进方向.md` **v1.1.3**；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`；`docs/tech_graph/SPEC/query_graph/scheme_2_graph_query.md`  

@@ -23,6 +23,8 @@
 | **git_branch** | `task/ops-session-s5-extract-adr` |
 | **blocks** | S5.2 `ops-session-s5-graph-promote`（可选）· Epic v1 freeze |
 | **blocked_by** | S5.0 `ops-session-s5-import-boundary-api` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

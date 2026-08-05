@@ -22,6 +22,8 @@
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/coding-wiki-t1c-v1` |
 | **task_slug** | `coding-wiki-t1c` |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 触及 docs/coding_wiki（2.19 lint-wiki-delta） |
 
 ### 人工闸 `human_gate`
 

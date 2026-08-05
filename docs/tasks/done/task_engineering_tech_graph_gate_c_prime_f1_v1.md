@@ -1,5 +1,13 @@
 # Task：闸口 C′ — graph_v2 查询轨 impact F1 提升与对照重跑
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-20 · 闸口 C′ F1 物化增强收口 · HG-GATE-C-PRIME-SIGNOFF 人签）`  
 > **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_prime_f1_v1_zh.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_query_coverage_v1.md`（`graph_v2_freeze_id` `V2_3` · T002 union 物化）  

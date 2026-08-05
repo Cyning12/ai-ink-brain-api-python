@@ -1,5 +1,13 @@
 # Task：技术图谱 — 闸口 C 对比实验（graph_v2 查询轨 vs 双轨原文）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-18 · 闸口 C 实验收口 · 50 关账）`  
 > **P2 结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_v2_dual_track_v1_zh.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · `CTX_QUERY`）  

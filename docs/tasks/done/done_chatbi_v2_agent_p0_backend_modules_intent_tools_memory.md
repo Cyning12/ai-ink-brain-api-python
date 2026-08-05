@@ -1,5 +1,13 @@
 # Task：ChatBI V2 Agent（P0 后端）— 模块骨架落盘
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态**：done（2026-04-29：完成 tools/intent_agent/agent_memory 骨架落地；尚未接入 unified_chat 与 ReAct loop）
 > **归档路径**：`docs/tasks/done/done_chatbi_v2_agent_p0_backend_modules_intent_tools_memory.md`
 > **范围**：仅后端 `ai-ink-brain-api-python`

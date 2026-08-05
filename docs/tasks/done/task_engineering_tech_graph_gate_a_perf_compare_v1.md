@@ -1,5 +1,13 @@
 # Task：闸口 A — 静态 `graph.json` vs Mermaid 语料（代号 A/B）性能对比（后端主导 · v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-15 验收通过）`  
 > **关联规划**：`docs/tech_graph/改进方向.md`（闸口 A / 极低 token 叙事）；`docs/tech_graph/SPEC/json_graph/scheme_1_graph_json.md`  
 > **父文档（真值口径）**：`ai-ink-brain-api-python/docs/tech_graph/gate_a_scheme1_backend.md` — **「下一阶段：静态 graph.json vs 旧 Mermaid — 初步对比方案（v0）」**（§2 代号 A/B、§3 指标表、§3.1 后端子表；**§3.2 浏览器**默认 **N/A** 于主结论，见父文档「结论」主口径）  

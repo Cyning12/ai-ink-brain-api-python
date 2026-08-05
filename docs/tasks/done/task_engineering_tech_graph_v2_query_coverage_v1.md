@@ -1,5 +1,13 @@
 # Task：技术图谱 — graph_v2 查询可达性优化（闸口 C follow-up）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-19 · graph_v2 查询可达性 follow-up · 50 关账）`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_gate_c_v2_dual_track_v1.md`（闸口 C · accepted）  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（闸口 B · CTX_QUERY 默认）  

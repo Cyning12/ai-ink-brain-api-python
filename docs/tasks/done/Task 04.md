@@ -10,6 +10,8 @@
 | **test_strategy_note** | legacy 归档消化；正文为历史交付记录，P2 仅补状态与元信息表 |
 | **semi_auto** | `false` |
 | **git_branch** | `task/gov-docs-noise-p2-v1` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
 
 ## 失败路径
 

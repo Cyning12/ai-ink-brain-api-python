@@ -1,5 +1,13 @@
 # Task：P7 - Cross-Repo Contract Check 接入 CI（v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-04-27 验收通过）  
 > **关联图谱**：`docs/_tech_graph/15_e2e_boundary.ai.md`、`docs/_tech_graph/14_runtime_observability.ai.md`  
 > **关联 Issue/PR**：无  

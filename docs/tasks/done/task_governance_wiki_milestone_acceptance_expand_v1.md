@@ -23,6 +23,8 @@
 | **git_branch** | `task/gov-wiki-milestone-acceptance-expand-v1` |
 | **worktree_root** | `../ai-ink-brain-api-python-wt-wiki-accept`（与 P2-1b 并行） |
 | **task_slug** | `gov-wiki-milestone-acceptance-expand` |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

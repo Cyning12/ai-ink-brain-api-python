@@ -20,6 +20,8 @@
 | **test_strategy_note** | 母单无代码；子 task 均为 `required` + pytest |
 | **freeze_id** | `CODING_BACKEND_L2@2026-06-09` |
 | **git_branch** | `—`（子批各自分支） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

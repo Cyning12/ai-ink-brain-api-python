@@ -1,5 +1,13 @@
 # Task：Unified Chat Streaming（后端 v1 / SSE）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态**：done（2026-04-28 验收通过）  
 > **归档路径**：`docs/tasks/done/done_unified_chat_streaming_backend_sse_v1.md`  
 > **范围**：仅后端 `ai-ink-brain-api-python`  

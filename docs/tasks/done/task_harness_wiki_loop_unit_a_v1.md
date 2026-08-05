@@ -22,6 +22,8 @@
 | **git_branch** | `task/wiki-unit-ab-plan-v1` |
 | **task_slug** | `wiki-loop-unit-a` |
 | **executor** | `claude-code`（关账后见 §SKILL 测评） |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

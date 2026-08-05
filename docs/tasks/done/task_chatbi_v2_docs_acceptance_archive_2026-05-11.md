@@ -1,5 +1,13 @@
 # Task：ChatBI V2 —— 规格与任务「验收 + 归档」（文档层收口）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 状态：**done（2026-05-11 验收通过）** — 本文件已按 `docs/tasks/README.md` 迁入 **`docs/tasks/done/`**；**不修改**总规 `SPEC-ChatBI-V2-Agent-Overview.md` §7 正文勾选；本页为 **Runner + diary + CI** 的收口索引  
 日期：**2026-05-11**  
 范围：后端 `ai-ink-brain-api-python` 之 **`docs/spec/v2-agent/`**、**`docs/tasks/`**（ChatBI V2 相关；**已闭环子任务见 `docs/tasks/done/`** 下表）  

@@ -27,6 +27,8 @@
 | **git_branch**         | `task/portfolio-rag-w5-v1`（W5 关账 Loop · 自 `task/portfolio-rag-demo-v1` 续跑）                                     |
 | **Open Folder**        | `ai-ink-brain-api-python`（W2/W3 落盘）；W5 预跑须开双仓读前端 content / Unified Chat                                        |
 | **推荐路径**               | **A（22 R1）** — 与前端 portfolio task 审查节奏对齐                                                                       |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 
 ### 工作包映射（SPEC §7 → 本 task）

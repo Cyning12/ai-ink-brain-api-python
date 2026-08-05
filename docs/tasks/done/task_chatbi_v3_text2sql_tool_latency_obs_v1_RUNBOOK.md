@@ -1,5 +1,13 @@
 # Text2SQL 可观测（V3）— 执行计划 · Checklist · 验收流程
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本文件无 Wiki 增量（2.19 lint-wiki-delta） |
+
+
 > **状态**：done（2026-05-11 验收通过）  
 > **关联任务（真值：拍板 / 改进点 / 主验收勾选）**：[`task_chatbi_v3_text2sql_tool_latency_obs_v1.md`](./task_chatbi_v3_text2sql_tool_latency_obs_v1.md)  
 > **维护约定**：本文件为 **过程文档**；实现推进中 **随 PR / 会议结论同步改**（执行步骤打勾、环境键名、事件名、pytest 路径等）。**架构拍板** 仍以任务单 **§拍板** 为准；若与本 runbook 冲突，**以任务单为准**并修正本文件。  

@@ -25,6 +25,8 @@
 | **git_branch**    | `task/ops-session-s4-verify-api` |
 | **blocks**        | S5 `ops-session-s5-extract`      |
 | **blocked_by**    | S3 `ops-session-s3-subagent-api` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 
 

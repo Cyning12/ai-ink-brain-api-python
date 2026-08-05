@@ -1,5 +1,13 @@
 # Task：ChatBI V2 —— 验收执行引导（Runner）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-05-22 验收通过）  
 范围：后端 `ai-ink-brain-api-python`；跨仓步骤仅列引用  
 **权威真值**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md` **§7**（验收勾选）、**§7.4**（全量对照）、**§7.5**（L0–L7 操作细则）  

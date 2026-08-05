@@ -22,6 +22,8 @@
 | **git_branch** | `task/gov-wiki-unit-ab-closeout-v1` |
 | **task_slug** | `gov-wiki-unit-ab-closeout` |
 | **executor** | `claude-code`（建议 · 与 Unit A/B 同平台） |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

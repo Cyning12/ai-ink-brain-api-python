@@ -1,5 +1,13 @@
 # Task：Unified Chat（后端）— Router Trace 记录 Text2SQL SQL 与结果摘要（v1）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-04-30 验收通过）  
 > **关联图谱**：无（仅补齐可追溯日志字段，不改业务流程）  
 > **关联 Issue/PR**：无  

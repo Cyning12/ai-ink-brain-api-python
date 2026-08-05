@@ -23,6 +23,8 @@
 | **git_branch** | `task/ops-session-s5-graph-promote-api` |
 | **blocks** | Epic §12.3 勾选项 · MVP+ 验收 |
 | **blocked_by** | S5.1 `ops-session-s5-extract-adr` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 行为变更 Delta
 

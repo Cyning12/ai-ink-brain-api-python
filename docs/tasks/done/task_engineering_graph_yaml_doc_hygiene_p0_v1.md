@@ -21,6 +21,8 @@
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **freeze_id** | `GRAPH-YAML-DOC-HYGIENE-P0` |
 | **epic** | 图谱 YAML 迁移 · 续（Inform 闭环） |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ### 人工闸
 

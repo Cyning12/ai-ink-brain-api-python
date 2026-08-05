@@ -4,6 +4,8 @@
 
 ---
 
+> **与 `@cyning/harness` sync**：仓根扁平帽（`30-execute-code.md` 等）由产品包同步，供对照；**本仓执行真值**仍是 `hats/` · `templates/` · `handoff/` · `PROMPT_*_chain_serial_*`。
+
 ## 使用方式
 
 1. **10 结束**：必须输出 **下一棒 A（22）** + **下一棒 B（30）** 两条 §3 Prompt，**人**择一。  

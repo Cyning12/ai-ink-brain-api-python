@@ -12,6 +12,8 @@
 
 | 字段 | 值 |
 |------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 | **task_slug** | `harness-kpi-v1-2-pilot` |
 | **test_strategy** | `not_applicable` |
 | **test_strategy_note** | 纯 Harness 文档与索引；不触达 `api/` / 行为变更 |

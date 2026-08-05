@@ -25,6 +25,8 @@
 | **kpi_aggregator**     | `CLOSE`                                           |
 | **experience_capture** | `recommended`                                     |
 | **freeze_id**          | （30 完成后填，如 `GRAPH_YAML_P0_FREEZE_YYYYMMDD`）       |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 
 ### 人工闸

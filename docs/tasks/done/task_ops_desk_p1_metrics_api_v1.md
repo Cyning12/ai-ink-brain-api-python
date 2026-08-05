@@ -19,6 +19,8 @@
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **Open Folder** | `ai-ink-brain-api-python/` |
 | **链序** | P1-1 / 3 · **须先于 P1-2、P1-3** |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 
