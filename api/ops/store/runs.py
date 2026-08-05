@@ -260,18 +260,27 @@ class OpsRunStore:
         """幂等写入 ops_run_artifacts；由 (run_id, kind) 唯一去重。"""
         row = {"run_id": run_id, "kind": kind, "payload": payload}
 
-        def _once() -> dict[str, Any]:
-            res = (
-                self.client.table("ops_run_artifacts")
-                .upsert(row, on_conflict="run_id,kind")
-                .execute()
-            )
+        def _once() -> dict[str, Any] | None:
+            try:
+                res = (
+                    self.client.table("ops_run_artifacts")
+                    .upsert(row, on_conflict="run_id,kind")
+                    .execute()
+                )
+            except APIError as exc:
+                # 表未迁移：在 breaker 回调内吞掉，避免缺表把 supabase 熔断打开
+                if getattr(exc, "code", None) == "PGRST205":
+                    return None
+                raise
             data = res.data if isinstance(res.data, list) else []
             if data and isinstance(data[0], dict):
                 return data[0]
             raise RuntimeError("ops_run_artifacts upsert did not return row")
 
-        return supabase_execute_with_retry(_once)
+        result = supabase_execute_with_retry(_once)
+        if result is None:
+            raise RuntimeError("ops_run_artifacts table missing (PGRST205)")
+        return result
 
     def list_artifacts(self, run_id: str) -> list[dict[str, Any]]:
         def _once() -> list[dict[str, Any]]:

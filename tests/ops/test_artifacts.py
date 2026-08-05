@@ -198,6 +198,43 @@ def test_save_artifact_failure_records_write_failed_event(store: FakeArtifactSto
     assert "error" in fail_events[0]["payload"]
 
 
+def test_save_artifact_failure_event_write_also_fails_returns_none(
+    store: FakeArtifactStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """失败事件本身写库失败时仍返回 None，不得上抛拖垮 chat。"""
+    from api.ops.store import artifacts as artifacts_mod
+
+    store._fail_artifacts = True
+
+    def _boom(*_a: Any, **_k: Any) -> dict[str, Any]:
+        raise RuntimeError("circuit_breaker_open:supabase")
+
+    monkeypatch.setattr("api.ops.store.runs.append_event", _boom)
+
+    result = artifacts_mod.save_artifact_with_failure_event(
+        "run-fail", "react.final_answer", {"answer": "x"}, store=store
+    )
+    assert result is None
+
+
+def test_save_artifact_circuit_open_fails_fast_no_retry(
+    store: FakeArtifactStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from api.chatbi_circuit_breaker import CircuitBreakerOpenError, CircuitState
+    from api.ops.store.artifacts import ArtifactStoreError, save_artifact
+
+    calls = {"n": 0}
+
+    def _open(*_a: Any, **_k: Any) -> dict[str, Any]:
+        calls["n"] += 1
+        raise CircuitBreakerOpenError(breaker_name="supabase", state=CircuitState.OPEN)
+
+    store.save_artifact = _open  # type: ignore[method-assign]
+    with pytest.raises(ArtifactStoreError, match="circuit_breaker_open"):
+        save_artifact("run-cb", "react.final_answer", {"answer": "x"}, store=store, max_retries=3)
+    assert calls["n"] == 1
+
+
 # ---------------------------------------------------------------------------
 # deep / ReAct 路径调用 save_artifact
 # ---------------------------------------------------------------------------

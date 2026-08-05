@@ -492,35 +492,38 @@ def run_react_fallback(
         status=final_verdict,
         final_answer={"answer": answer, "verdict": final_verdict},
     )
-    save_artifact_with_failure_event(
-        run_id,
-        "react.final_answer",
-        {
-            "answer": answer,
-            "verdict": final_verdict,
-            "intent": "fallback",
-            "route": "react",
-            "steps_taken": step,
-        },
-        store=store,
-    )
-    store.append_event(run_id, "orchestrator", "run.end", node_id="react.end")
+    # 答案已落 update_run；后续 artifact / metrics 写失败不得拖垮 chat 500
+    try:
+        save_artifact_with_failure_event(
+            run_id,
+            "react.final_answer",
+            {
+                "answer": answer,
+                "verdict": final_verdict,
+                "intent": "fallback",
+                "route": "react",
+                "steps_taken": step,
+            },
+            store=store,
+        )
+        store.append_event(run_id, "orchestrator", "run.end", node_id="react.end")
 
-    # Run metrics
-    metrics_json = _build_metrics_json(
-        route="react",
-        intent="fallback",
-        llm_calls=llm_calls,
-        llm_usages=llm_usages,
-    )
-    store.update_run_metrics_json(run_id, metrics_json)
-    store.append_event(
-        run_id,
-        "orchestrator",
-        "run.metrics",
-        payload=metrics_json,
-        node_id="react.metrics",
-    )
+        metrics_json = _build_metrics_json(
+            route="react",
+            intent="fallback",
+            llm_calls=llm_calls,
+            llm_usages=llm_usages,
+        )
+        store.update_run_metrics_json(run_id, metrics_json)
+        store.append_event(
+            run_id,
+            "orchestrator",
+            "run.metrics",
+            payload=metrics_json,
+            node_id="react.metrics",
+        )
+    except Exception as exc:  # noqa: BLE001 — 收尾旁路；答案已可返回
+        logger.warning("react post-answer store writes failed run_id=%s: %s", run_id, exc)
 
     return {
         "run_id": run_id,
