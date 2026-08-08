@@ -1,5 +1,13 @@
 # Task：Docs Tasks 规整迁移（v1）— 按类型/状态移动 tasks 文档
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > 状态：done（2026-05-22 验收通过）  
 > 范围：仅 `ai-ink-brain-api-python/docs/`（不涉及代码与 `_tech_graph/`）  
 > 关联：`docs/README.md`、`docs/tasks/_views/*.md`

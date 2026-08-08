@@ -16,6 +16,8 @@
 | **semi_auto** | `true` |
 | **git_branch** | `task/wiki-unit-ab-plan-v1` |
 | **task_slug** | `gov-wiki-ingest-batch-3` |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸
 

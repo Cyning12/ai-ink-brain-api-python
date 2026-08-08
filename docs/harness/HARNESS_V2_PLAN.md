@@ -170,6 +170,17 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 - **00 总调度** 可链外编排并逐帽填 HatInstance；未用 00 时由 **关账（CLOSE）** 读各帽 Judgment + 50/reinspect 填表。  
 - **blocked**（任一帽 D2/D5 fail）→ **不得关账**；与 `human_gate` pending、50 书面阻塞、必绿 CI 红 **并行** 硬规则。
 
+### 5.9 `wiki_delta` / `wiki_delta_note`（Wiki 反馈 · `@cyning/harness` ≥2.18）
+
+| 取值 | 含义 | 关账时 |
+|------|------|--------|
+| `path` | 相对仓根的 wiki 文件/目录（通常 `docs/coding_wiki/…`） | 路径须存在；`experience_capture=required` 时经验节须含 `coding_wiki` / `Wiki:` / `wiki_promoted:` 指针 |
+| `none` | 本 task 不改 wiki | **须** `wiki_delta_note` |
+| `n/a` | 本仓未启用 WikiTrack | **须** `wiki_delta_note` |
+
+- **缺字段 → `task close` BLOCK**（`verify --task` 默认 WARN；`--strict-wiki-delta` 可升 BLOCK）。  
+- **勿**默认 `--allow-wiki-gap`。钉版本见仓根 `harness.pin.json` 与 [`README.md`](./README.md)「npm 纪律包钉版本」。
+
 ---
 
 ## 6. 冻结点 vs 修订记录（再次落盘）
@@ -229,6 +240,7 @@ Inform（告知）与 Constrain（约束）在前后端子仓及工作区根已�
 | 2026-05-17 | §5.5 `audit_profile`、§5.6 `human_gate` / `semi_auto`；§0.2 链 [`handoff/HANDOFF_SEMI_AUTO.md`](prompts/HANDOFF_SEMI_AUTO.md) |
 | 2026-06-08 | §5.6 升格 `orchestration` 链式常模 + `semi_auto` 过渡/废弃；链 [`SPEC-Governance-Harness-Chain-Orchestration-v1.md`](../spec/governance/SPEC-Governance-Harness-Chain-Orchestration-v1.md) |
 | 2026-05-30 | §5.1 本仓 TDD 实践口径；task 模板 Delta/Scenario（OpenSpec 借鉴）；链 diary TDD 专项分析 |
+| 2026-07-28 | §5.9 `wiki_delta` / `wiki_delta_note`（对齐 `@cyning/harness@2.18.0` close 硬闸）；钉版本见 `harness.pin.json` |
 | 2026-05-31 | §5.7 `experience_capture`、§5.8 `kpi_rubric` / `kpi_aggregator` / `### KPI（00）`；链 KPI_RUBRIC_v1_2 与 00-orchestrator |
 
 ---

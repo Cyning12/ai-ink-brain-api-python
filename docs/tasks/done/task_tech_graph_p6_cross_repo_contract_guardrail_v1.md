@@ -1,5 +1,13 @@
 # Task：Tech Graph P6 — 跨仓契约 Manifest + Cross-Repo 门禁脚本（SSE/Events）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done  
 > **关联图谱**：`docs/_tech_graph/14_runtime_observability.ai.md`、`docs/_tech_graph/15_e2e_boundary.ai.md`  
 > **前端依赖**：无（不要求改前端代码，但需要读取前端仓文件做校验）

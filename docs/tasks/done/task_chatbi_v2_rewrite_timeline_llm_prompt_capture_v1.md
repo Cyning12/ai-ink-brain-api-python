@@ -1,5 +1,13 @@
 # Task：ChatBI V2 — RAG 改写过程上链与 LLM Prompt 全量可观测
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-11 验收通过）`  
 > **范围**：`ai-ink-brain-api-python` — V2 Agent SSE/JSON、`tools`、`intent_agent`、`query_rewrite`  
 > **关联规格**：`docs/spec/v2-agent/SPEC-ChatBI-V2-Agent-Overview.md`（chain 事件、RAG 子步）  

@@ -1,5 +1,13 @@
 # Task：ChatBI 工程约定 — **新功能以 SSE 优先**（Harness 需求帽落盘）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done（2026-05-15 验收通过）  
 > **帽子依据**：工作区 `docs/harness/prompts/hats/10-requirements.md`  
 > **test_strategy**：`not_applicable`  

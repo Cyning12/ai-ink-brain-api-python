@@ -1,0 +1,7 @@
+{
+  "version": "2.18.0",
+  "preset": "harness-only",
+  "ide": ["cursor","claude","agents"],
+  "from_version": null,
+  "upgraded_at": "2026-07-28T07:00:26Z"
+}

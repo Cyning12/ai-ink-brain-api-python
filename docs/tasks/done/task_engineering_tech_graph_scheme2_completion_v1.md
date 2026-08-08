@@ -1,5 +1,13 @@
 # Task：技术图谱 — 方案2 补全（API 缺口 + 文档对齐 + 可选 MCP/Harness）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-18 验收通过 · PR #31 merged）`  
 > **终轮审查**：`docs/harness/reviews/task_engineering_tech_graph_scheme2_completion_v1_audit_CLOSE_20260518.md`  
 > **前置 task（done）**：`docs/tasks/done/task_engineering_tech_graph_v2_graph_query_v1.md`（P2-0～P2-3 · **方案2 核心** + 闸口 B 已签收）  

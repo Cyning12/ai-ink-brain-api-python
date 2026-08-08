@@ -20,6 +20,8 @@
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/wiki-loop-bq3-recheck-v1` |
 | **task_slug** | `wiki-bq3-r1-payload-scorecard` |
+| **wiki_delta** | `docs/coding_wiki` |
+| **wiki_delta_note** | 存量迁移 · 本 task 触及 docs/coding_wiki（2.18 wiki_delta） |
 
 ### 人工闸 `human_gate`
 

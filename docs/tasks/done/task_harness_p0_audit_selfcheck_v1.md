@@ -18,6 +18,8 @@
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/harness-p0-openspec-tdd` |
 | **task_slug** | `p0-audit-selfcheck` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

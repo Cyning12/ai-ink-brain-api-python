@@ -22,6 +22,8 @@
 | audit_profile | `post_close` |
 | git_branch | `task/chatbi-v3-p2-1b-rate-limit` |
 | worktree_root | 主仓 `ai-ink-brain-api-python/` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

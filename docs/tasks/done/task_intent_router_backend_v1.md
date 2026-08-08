@@ -1,5 +1,13 @@
 # Task：Intent Router（后端 v1）— Unified Chat 路由增强（rag/text2sql/no_data/tool）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 状态：**done（核心已落地；2026-05-08 回补 `rag_rule_hits` 与 no_data 门控验收；2026-05-13 自 `docs/tasks/active/` 迁入 `docs/tasks/done/`）**  
 范围：仅后端 `ai-ink-brain-api-python`  
 设计：`docs/UI/v1/UI-04-intent-router-v1.md`  

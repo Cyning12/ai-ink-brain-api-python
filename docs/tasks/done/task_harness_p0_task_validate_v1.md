@@ -17,6 +17,8 @@
 | **audit_profile** | `post_close` |
 | **git_branch** | `task/harness-p0-openspec-tdd` |
 | **task_slug** | `p0-task-validate` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 | human_gate_id | status | blocks_hats | 说明 |
 |---------------|--------|-------------|------|

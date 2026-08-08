@@ -17,6 +17,8 @@
 | **semi_auto** | `true` |
 | **git_branch** | `task/harness-invokes-by-task-prompts-sync` |
 | **freeze_id** | `HARNESS-INVOKES-BY-TASK-PROMPTS@2026-06-02` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

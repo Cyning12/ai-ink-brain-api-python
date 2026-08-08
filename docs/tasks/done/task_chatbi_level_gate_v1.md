@@ -1,5 +1,13 @@
 # Task：ChatBI V3 — 分级权限闸门（Bearer + 表策略 + Text2SQL）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done`（**2026-05-13** 归档至 **`docs/tasks/done/`**；**§P1** Supabase DDL + RUNBOOK 令牌已在目标库执行并完成验收勾选）  
 > **关联 SPEC**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access.md`、`docs/spec/v3-agent/SPEC-ChatBI-V3-Identity-Access-OpenItems.md`（**§一、§五**）  
 > **关联安全子规**：`docs/spec/v3-agent/SPEC-ChatBI-V3-Security.md`（AST / 表白名单）  

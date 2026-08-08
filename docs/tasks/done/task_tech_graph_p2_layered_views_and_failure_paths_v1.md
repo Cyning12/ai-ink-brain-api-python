@@ -1,5 +1,13 @@
 # Task：Tech Graph P2 — 分层视角 + 失败路径/排障图（基于 manifest）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：done  
 > **关联图谱**：`docs/_tech_graph/00_main.ai.md`、`docs/_tech_graph/10_flow_rag.ai.md`、`docs/_tech_graph/11_flow_text2sql.ai.md`、`docs/_tech_graph/12_flow_fts.ai.md`、`docs/_tech_graph/13_flow_supabase_rpc.ai.md`  
 > **前端依赖**：无

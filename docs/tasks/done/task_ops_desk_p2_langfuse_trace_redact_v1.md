@@ -19,6 +19,8 @@
 | **git_branch** | `fix/ops-desk-p2-langfuse-trace-redact` |
 | **worktree_root** | `ai-ink-brain-api-python/` |
 | **human_gate** | 开 `LANGFUSE_TRACING=true` 跑 A4 · Cloud GENERATION input **无** JWT / `supabase_key` |
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
 
 ---
 

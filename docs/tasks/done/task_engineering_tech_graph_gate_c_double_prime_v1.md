@@ -1,5 +1,13 @@
 # Task：闸口 C″ — 分题物化修补 T003 impact（graph_v2 查询轨 · 实验先行）
 
+## Harness 元信息
+
+| 字段 | 值 |
+|------|-----|
+| **wiki_delta** | `none` |
+| **wiki_delta_note** | 存量迁移 · 本 task 无 Wiki 增量（2.18 wiki_delta） |
+
+
 > **状态**：`done（2026-05-20 · 闸口 C″ T003 物化收口 · HG-AUDIT-CLOSE 人签 · PR #38）`  
 > **结论（accepted）**：`docs/diary/jsonPKmermaid/reports/conclusion_gate_c_double_prime_v1_zh.md`  
 > **50 关账审查**：`docs/harness/reviews/task_engineering_tech_graph_gate_c_double_prime_v1_audit_CLOSE_20260520.md`  
